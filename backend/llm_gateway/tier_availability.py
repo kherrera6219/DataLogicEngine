@@ -16,7 +16,6 @@ their availability is controlled by the API-key gate.
 from __future__ import annotations
 
 import logging
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -141,13 +140,13 @@ async def probe_local_tiers() -> frozenset[int]:
     local_tiers = [tc for tc in TIER_CHAIN if not tc.is_cloud]
 
     # --- Query Ollama --------------------------------------------------
+    # Use the canonical OllamaClient (synchronous thin wrapper) rather than
+    # OllamaProvider from the SDK, which deduplicates the /api/tags call.
     pulled_models: list[str] = []
     try:
-        if _SDK_PATH not in sys.path:
-            sys.path.insert(0, _SDK_PATH)
-        from ukg_sdk.providers.ollama import OllamaProvider  # type: ignore[import]
+        from backend.local_model_acceleration.ollama_client import OllamaClient
 
-        pulled_models = await OllamaProvider().list_models()
+        pulled_models = OllamaClient().list_models()
     except Exception as exc:  # noqa: BLE001
         logger.warning(
             "Ollama startup probe could not reach Ollama: %s — "

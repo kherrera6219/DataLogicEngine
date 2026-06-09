@@ -86,6 +86,8 @@ class GatewayResponse:
     escalation_tier: Optional[int] = None
     escalation_reason: Optional[str] = None
     escalation_label: Optional[str] = None
+    # Acceleration metadata — populated when Local Model Acceleration is active.
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 class CircuitBreaker:
@@ -708,6 +710,11 @@ class LLMGateway:
                     
                     full_messages = history + messages_for_request
                     
+                    # RAG context captured here for the exact-cache key (see Local Model
+                    # Acceleration).  Must be set *before* the if/else so it is always
+                    # in scope, even for direct (non-UKG) calls where RAG is not used.
+                    _rag_ctx_for_cache = ""
+
                     if request.run_ukg_pipeline:
                         # Retrieve relevant context from RAG (VectorStore)
                         rag_context = ""
@@ -749,6 +756,9 @@ class LLMGateway:
                             except Exception as e:
                                 logger.warning(f"RAG context retrieval failed: {e}")
                         
+                        # Capture RAG context for Local Model Acceleration cache key.
+                        _rag_ctx_for_cache = rag_context
+
                         # Inject RAG context into meta for UKG overlay
                         augmented_meta = {**request.meta, "rag_context": rag_context, "chat_history": history}
                         
@@ -779,8 +789,73 @@ class LLMGateway:
                             max_tokens=request.max_tokens or 1024,
                         )
 
-                    result = await asyncio.wait_for(result_coro, timeout=provider_timeout_seconds)
-                    
+                    # ------------------------------------------------------------------
+                    # Local Model Acceleration: keep-alive + exact response cache.
+                    # Applies only to local providers (ollama / local_slm / vllm).
+                    # Fail-open: any exception falls through to the bare await below.
+                    # ------------------------------------------------------------------
+                    _local_provider_types = {"ollama", "local_slm", "vllm"}
+                    _provider_type = str(
+                        getattr(provider_record, "provider_type", "") or ""
+                    ).lower()
+
+                    if _provider_type in _local_provider_types:
+                        try:
+                            from backend.local_model_acceleration import (
+                                get_local_model_acceleration_manager,
+                            )
+                            _accel = get_local_model_acceleration_manager()
+                            _accel.start_keepalive(model, _provider_type)
+
+                            # Capture result_coro in a closure so it is awaited
+                            # exactly once inside generate_with_cache on cache miss.
+                            _captured_coro = result_coro
+
+                            async def _call_model() -> dict:
+                                return await asyncio.wait_for(
+                                    _captured_coro,
+                                    timeout=provider_timeout_seconds,
+                                )
+
+                            result = await _accel.generate_with_cache(
+                                provider_type=_provider_type,
+                                model_name=model,
+                                task_type=(
+                                    request.meta.get("task_type")
+                                    or request.mode
+                                    or "gateway_chat"
+                                ),
+                                prompt=query,
+                                rag_context=_rag_ctx_for_cache,
+                                system=None,
+                                options={
+                                    "temperature": request.temperature,
+                                    "max_tokens": request.max_tokens or 1024,
+                                    "run_ukg_pipeline": request.run_ukg_pipeline,
+                                    "mode": request.mode,
+                                },
+                                metadata=request.meta,
+                                call_model=_call_model,
+                            )
+                            # Hoist acceleration metadata into request.meta so
+                            # _build_response can pass it through to the API response.
+                            _accel_meta = result.pop("_acceleration", None)
+                            if _accel_meta:
+                                request.meta["local_model_acceleration"] = _accel_meta
+                        except Exception as _accel_exc:  # noqa: BLE001
+                            logger.warning(
+                                "Local model acceleration failed open — "
+                                "falling back to direct call: %s",
+                                _accel_exc,
+                            )
+                            result = await asyncio.wait_for(
+                                result_coro, timeout=provider_timeout_seconds
+                            )
+                    else:
+                        result = await asyncio.wait_for(
+                            result_coro, timeout=provider_timeout_seconds
+                        )
+
                     if result.get("ok", True):
                         cb.record_success()
                         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
@@ -1453,6 +1528,7 @@ class LLMGateway:
             escalation_tier=_esc.get("escalation_tier"),
             escalation_reason=_esc.get("escalation_reason"),
             escalation_label=_esc.get("escalation_label"),
+            meta=dict(_esc),  # carries local_model_acceleration if present
         )
 
     @staticmethod

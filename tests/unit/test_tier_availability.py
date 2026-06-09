@@ -4,14 +4,19 @@ Tests cover:
 - find_best_available_tier cascade logic (all cases)
 - probe_local_tiers: available models, missing models, Ollama offline
 - is_local_tier_available helper
+
+Note: probe_local_tiers now calls OllamaClient (synchronous) rather than
+OllamaProvider.list_models (async).  _ollama_patch patches
+backend.local_model_acceleration.ollama_client.OllamaClient accordingly.
 """
 from __future__ import annotations
 
 import sys
-from unittest.mock import AsyncMock, MagicMock, patch
 from contextlib import contextmanager
+from unittest.mock import MagicMock, patch
 
 import pytest
+
 
 # ---------------------------------------------------------------------------
 # Helpers to reset the module-level cache between tests
@@ -148,16 +153,8 @@ class TestProbeLocalTiers:
         """Ollama running but no models pulled → empty availability set."""
         from backend.llm_gateway.tier_availability import probe_local_tiers, get_available_local_tiers
 
-        with patch(
-            "ukg_sdk.providers.ollama.OllamaProvider",
-            create=True,
-        ):
-            # Simulate OllamaProvider returning empty list
-            async def _empty_list_models():
-                return []
-
-            with _ollama_patch([]):
-                result = await probe_local_tiers()
+        with _ollama_patch([]):
+            result = await probe_local_tiers()
 
         assert result == frozenset()
         assert get_available_local_tiers() == frozenset()
@@ -211,25 +208,23 @@ class TestProbeLocalTiers:
 
 @contextmanager
 def _ollama_patch(pulled: list[str] | None = None, *, exc: Exception | None = None):
-    """Patch OllamaProvider.list_models inside tier_availability module."""
-    mock_instance = AsyncMock()
+    """
+    Patch OllamaClient inside tier_availability's probe_local_tiers.
+
+    tier_availability now imports OllamaClient from
+    backend.local_model_acceleration.ollama_client and calls list_models()
+    synchronously, so we patch the class on that module.
+    """
+    mock_client_instance = MagicMock()
     if exc is not None:
-        mock_instance.list_models = AsyncMock(side_effect=exc)
+        mock_client_instance.list_models = MagicMock(side_effect=exc)
     else:
-        mock_instance.list_models = AsyncMock(return_value=pulled or [])
+        mock_client_instance.list_models = MagicMock(return_value=pulled or [])
 
-    mock_cls = MagicMock(return_value=mock_instance)
+    mock_cls = MagicMock(return_value=mock_client_instance)
 
-    # Patch the import inside probe_local_tiers by pre-populating sys.modules
-    fake_module = MagicMock()
-    fake_module.OllamaProvider = mock_cls
-
-    orig = sys.modules.get("ukg_sdk.providers.ollama")
-    sys.modules["ukg_sdk.providers.ollama"] = fake_module
-    try:
+    with patch(
+        "backend.local_model_acceleration.ollama_client.OllamaClient",
+        mock_cls,
+    ):
         yield
-    finally:
-        if orig is None:
-            sys.modules.pop("ukg_sdk.providers.ollama", None)
-        else:
-            sys.modules["ukg_sdk.providers.ollama"] = orig
