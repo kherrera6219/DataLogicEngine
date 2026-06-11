@@ -1,6 +1,6 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-11 (Sprint 0 + A4 + A3 complete; N2 wired)_
+_Last updated: 2026-06-11 (Sprint 0 + A4 + A3 + A1a complete; N2 wired)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
@@ -181,18 +181,29 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   8 s timeout, fail-open). Kill switch `DEFENSE_SUPERVISOR_ENABLED=false`.
   Prompt moved to `backend/security/prompts/defense_supervisor.txt`.
 
-### Next audit session: A1a — `backend/truth_engine/truth_core/` + `truth_gate/`
+- ~~A1a truth_core + truth_gate audit~~ — complete 2026-06-11. Engine is the
+  real entry point; L9 max-5 enforced; L10 emergence gate makes real
+  decisions; L7 AGI planner real; TruthGate L8 fail-closed. Fixed hardcoded
+  `processing_time_ms: 500` in the audit trail. Details in `REPO_AUDIT_LOG.md`
+  (A1a entry).
 
-Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. Carry-overs:
-- A3-3 (for A1b): `_create_trace_run` Tier 2+ audit-commit gate matches tier
-  strings incl. excluding "moderate" — verify SDK tier vocabulary; possible
-  missed audit bundles for Tier 2 runs.
-- A4-7 (for A1b): audit-trail semantics of exact-cache hits.
+### Next audit session: A1b — `truth_memory/` + `truth_link/` + top-level
+
+Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. Carry-overs to
+resolve here:
+- A3-3 + A1a-3: `_create_trace_run` Tier 2+ audit-commit gate excludes
+  "moderate" — verify SDK/UKGOverlay tier vocabulary; possible missed audit
+  bundles for Tier 2 runs.
+- A4-7: audit-trail semantics of exact-cache hits (no new TruthAuditEvent on
+  a cache-served Tier 2+ answer).
+
+Still open for later sessions:
 - A3-4 (for A10): supervisor `user_role` enrichment; HONEYPOT handling with
   `active_defense.py`.
+- A1a-2 (for A6b/cleanup): `truth_core/router.py` LLMRouter dead code.
+- A1a-4 (for A6): no-KA "Mock result" fallback in `_execute_refinement_step`.
 
-Phase 1 remaining order: A1a → A1b → A2 → A5 → A6a → A6b
-- A1a: `backend/truth_engine/truth_core/` + `truth_gate/`
+Phase 1 remaining order: A1b → A2 → A5 → A6a → A6b
 - A1b: `backend/truth_engine/truth_memory/` + `truth_link/` + top-level
 - A2: `backend/dsqp/` — patent claim, dynamic persona construction
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters

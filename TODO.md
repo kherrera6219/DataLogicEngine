@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 closed; Phase 1 A4 + A3 audits complete; N2 defense supervisor wired)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a audits complete; N2 wired)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -190,6 +190,20 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       (A10), A3-5 governance no-db audit no-op (A26).
     - Validation: 98 focused tests pass (14 supervisor, 7 harness, 5 re-probe new); ruff clean;
       Electron typecheck clean; full pytest green.
+
+20. [x] AUDIT-A1a: Phase 1 session 3 — `truth_core/` + `truth_gate/` audit.
+    - Verdicts in `REPO_AUDIT_LOG.md` (A1a entry). TruthCore `engine.py` is the real entry point
+      (wired in `truth_engine/api.py`), tier→layer maps real, L8 FAIL / L10 HALT break the loop.
+      L9 max-5-iteration enforced; L10 emergence gate makes real RELEASE/HALT/MODIFY/ESCALATE
+      decisions; L7 AGI planner is real BFS with depth/iteration/goal caps + guardrail sanitization.
+      TruthGate blocks (not just logs): adversarial blocks, budget kill-switch DB writes, L8 5-phase
+      gate is fail-closed on timeout and exception, OPA + model screening can flip to FAIL.
+    - Fix A1a-1: `engine.py` `_execute_workflow` returned hardcoded `processing_time_ms: 500` into
+      the audit trail; now computes real `time.perf_counter()` elapsed.
+    - Forwarded: A1a-2 `LLMRouter` parallel dead code w/ stale models (A6b/cleanup), A1a-3 SDK tier
+      vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
+      (A6).
+    - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
 
 ### Trace Viewer Wiring Phased Update Plan
 

@@ -334,3 +334,65 @@ New tests: `TestKeepaliveConfigReload` (4) and
 `tests/unit/test_defense_supervisor.py` (14), process harness (7),
 re-probe tests in `test_tier_availability.py` (5, race-proofed against the
 app startup probe on dev machines with live Ollama).
+
+---
+
+## Phase 1 / A1a — TruthCore + TruthGate Audit
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2033 passed, 21 skipped
+**Exit gate result:** focused truth_engine 94 passed; full suite green; ruff clean
+
+### Audit verdicts — truth_core (14 files)
+
+| File | Verdict |
+|---|---|
+| `engine.py` (909 lines) | ✅ Real entry point; wired in `backend/truth_engine/api.py:init_truth_engine` with db + simulation engine + KA controller. Tier→layer maps are real: trivial=[L1,L10], moderate=[L1,L2,L5,L10], high_stakes=[L1,L2,L5,L6,L8,L9,L10], extreme=all 10, autonomous=extreme+memory_patch. Axis 17 `truth_engine_mode` forces high_stakes/extreme (Phase B). L8 FAIL and L10 HALT break the loop. Per-step memory recall/consolidation wired. Found + fixed the `processing_time_ms` bug below. |
+| `router.py` (`LLMRouter`) | ⚠️ **Parallel dead code.** Exported from `__init__.py` and exercised by tests, but never instantiated in the live path — `engine.py` uses its own `ROUTING_PROFILES` + KA-113 (`get_routing_profile`). Its `SUPPORTED_MODELS`/profiles reference unwired models (`grok-4-fast`, `codestral`, `llama-3-70b`). Forwarded to cleanup (A1a-2). |
+| `tiers.py` (`TierManager`) | ✅ 5-tier configs with budget-aware downgrade; coherent. Note: parallel to `engine.TIERS` dict — both describe the same tiers; not harmful. |
+| `meta_reasoning_controller.py` (L9, 775 lines) | ✅ **Max-5-iteration limit enforced** (`max_iterations=5`, forced FINALIZE at `current_iter >= max_iter`). REFINE/FINALIZE gate real. |
+| `emergence_controller.py` (L10, 512 lines) | ✅ Real Lane A (emergence/safety/trust) + Lane B (authorized knowledge commit). `_make_containment_decision` returns genuine RELEASE/HALT/MODIFY/ESCALATE — gate does not always-pass. |
+| `agi_planner.py` (L7, 313 lines) | ✅ Real BFS goal decomposition with depth cap (3), iteration cap (5), goal cap (50, DoS guard), guardrail input/subgoal sanitization, KA-021 emergence post-pass. Fail-safe returns a valid "failed" plan. Not a placeholder. |
+| `persona_scaling_bridge.py` | ✅ Live: converts sufficiency output → `ScalingDecision`; wired into `engine.py` L5 and `gateway.py`. Not stubbed. |
+| `personas.py`, `refinement_orchestrator.py`, `historical_embeddings.py`, `l7/l9/l10_schemas.py` | ✅ Supporting code, coherent; no findings. |
+
+### Audit verdicts — truth_gate (12 files)
+
+| File | Verdict |
+|---|---|
+| `gateway.py` (`TruthGateGateway`) | ✅ **Blocks, not just logs**: adversarial-pattern blocks return `passed: False`; budget kill-switch sets `kill_switch_triggered` and blocks at threshold (real DB write to `TruthBudget`). Wired via `truth_engine/api.py` and DMRF `gate_adapter`. Note: this is a 3rd pattern-shield layer (after governance shield + guardrail + new defense supervisor) — overlap documented, not harmful. |
+| `trust_validation_gateway.py` (L8, 724 lines) | ✅ Real 5-phase gate: consistency scan (KA-026/KA-030 invoked), cross-domain validation, trust computation, self-critique, gate decision. **Fail-closed** on timeout AND on any exception. Layers in OPA policy + enhanced model screening, both able to flip status to FAIL. 12 KAs declared; KA-026/KA-030 confirmed invoked in consistency scan (remaining KA invocations across other phases — spot-confirmed real `execute_algorithm` calls, not stubs). |
+| `opa_policy.py` | ✅ Real subprocess OPA eval when binary+policy present; deterministic Python fallback (critical-domain confidence floor + Axis-17 human-review). Fail-closed on subprocess error. |
+| `quant_backends/statistical.py` | ✅ Real MAD / modified-Z-score (0.6745·|x−med|/MAD, threshold 3.5) anomaly detection. Not a stub. |
+| `quant_backends/logical.py` | ✅ Heuristic entropy scoring (vague-term penalty). Real but shallow — rated heuristic, acceptable for its role. |
+| `budget.py`, `compliance.py`, `quant.py`, `model_screening.py`, `policies.py`, `l8_schemas.py` | ✅ Coherent supporting implementations; no blocking findings. |
+
+### Fix this session
+
+- **A1a-1 — fake audit latency (`engine.py`).** `_execute_workflow` returned a
+  hardcoded `'processing_time_ms': 500  # Simplified for now` in the result
+  dict that feeds `TruthSession` and the audit trail. Replaced with a real
+  `time.perf_counter()` delta captured at workflow start. Every TruthCore run
+  now records its true wall-clock processing time. (No test asserted on 500;
+  `test_layer8_trust_gate` already asserts `> 0`.)
+
+### Findings forwarded
+
+- **A1a-2 (→ A6b / cleanup):** `truth_core/router.py` `LLMRouter` is parallel
+  dead code with stale unwired model names. Either delete (it is exported +
+  tested, so confirm no external SDK import first) or repoint to the canonical
+  `model_defaults` set. The engine's own `ROUTING_PROFILES` values
+  (`codestral`, `grok-4-fast`) are likewise vestigial — only the profile NAME
+  flows downstream; the gateway TIER_CHAIN picks the real model.
+- **A1a-3 (→ A1b, joins A3-3):** confirm the SDK/UKGOverlay tier vocabulary
+  ("moderate" etc.) against `_create_trace_run`'s Tier 2+ audit-commit gate so
+  Tier 2 runs are not silently skipped for audit-bundle commit.
+- **A1a-4 (note):** the `_execute_refinement_step` default fallback returns
+  `"Mock result of {step}"` when no KA controller is configured — acceptable
+  degraded-mode behavior, but should never appear in a provider-backed run;
+  re-confirm during A6 simulation-layer audit.
+
+### Tests
+
+No new tests required (timing fix covered by existing `> 0` assertion);
+94 focused truth_engine tests pass; full suite green.

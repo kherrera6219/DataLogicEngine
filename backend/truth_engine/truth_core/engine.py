@@ -9,6 +9,7 @@ Integrates with:
 """
 
 import logging
+import time
 import uuid
 import asyncio
 from datetime import datetime, UTC
@@ -474,6 +475,7 @@ class TruthCoreEngine:
 
     async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
         """Unified execution loop for all tiers."""
+        workflow_start = time.perf_counter()
         executed_steps = []
         working_context = context.copy()
         working_context['session_id'] = context.get('session_id', str(uuid.uuid4()))
@@ -672,7 +674,7 @@ class TruthCoreEngine:
             'confidence': executed_steps[-1].get('confidence', 0.95) if executed_steps else 0.0,
             'steps_executed': executed_steps,
             'personas_used': list(personas_used) if personas_used else ['sentinel'],
-            'processing_time_ms': 500, # Simplified for now
+            'processing_time_ms': int((time.perf_counter() - workflow_start) * 1000),
             'context': working_context # Include for audit parity
         }
 
