@@ -1,20 +1,23 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-10 (complete audit plan session)_
+_Last updated: 2026-06-10 (complete audit plan v2.0)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
 known-good verification steps. It is the primary handoff reference; the
 `docs/WINDOWS_11_LOCAL_RUNBOOK.md` has the detailed local-run instructions.
 
-> **Latest session (2026-06-10): complete remaining audit plan produced.** Live MCP
-> scan of all 1,049 commits. 32 audit areas identified across ~36 sessions covering
-> every unaudited folder. Four new findings not in any prior plan: (1)
-> `backend/local_model_acceleration/` (Sprint 6, Ollama/6-tier, never audited);
-> (2) axes 14–17 have duplicate Python files; (3) `core/self_evolving/sekre_engine.py`
-> unknown; (4) `prompts/defense_supervisor.txt` unknown. Plan saved to
-> `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`. Prior session (2026-06-07):
-> routes audit; prior to that (2026-05-31): desktop chat enabled.
+> **Latest session (2026-06-10): complete audit plan v2.0.** All 4 new items
+> investigated via live code reads. Key verdicts: (1) `sekre_engine.py` = SEKRE
+> Self-Evolving Knowledge Refinement Engine, 620 lines, fully implemented but
+> **zero importers** — needs wiring into post-L10 pipeline; (2)
+> `prompts/defense_supervisor.txt` = LLM injection-detection prompt, **zero importers**
+> — needs wiring into `prompt_injection_shield.py`; (3) axis 14–17 duplicate files
+> confirmed safe to delete — `axis_system.py` loads correct canonical set; (4) Axis 4/5
+> gap documented and resolution tasks defined. Plan v2.0:
+> `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. 32 areas, ~31 sessions,
+> full Definition of Done. Sprint 0 starts immediately: RT-1, RT-2, RT-3, N3, N4.
+> Prior session (2026-06-07): routes audit. Prior to that (2026-05-31): desktop chat.
 > Full detail in [Section 10](#10-desktop-chat-enablement-2026-05-31).
 
 ---
@@ -157,11 +160,11 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 
 ### Next audit session
 
-**Start with A4: `backend/local_model_acceleration/`** — 8 files, the entire
-Ollama/6-tier escalation subsystem added in Sprint 6. It is the most recent work,
-touches every query (as Tier 0), and has never been reviewed.
+**Start with Sprint 0 (immediate):** RT-1 (multimodal bug), RT-2 (search auth),
+RT-3 (settings_bp), N3 (delete 4 legacy axis files), N4 (resolve Axis 4/5 gap).
+Then A4: `backend/local_model_acceleration/` — 8 files, Ollama/6-tier, Sprint 6.
 
-Full audit sequence: `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`
+Full audit sequence: `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`
 
 Phase 1 order (live query path): A4 → A3 → A1a → A1b → A2 → A5
 - A4: `backend/local_model_acceleration/` — Ollama/keepalive/cache/safety

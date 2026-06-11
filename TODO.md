@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-10 (complete audit plan session)
+**Last updated:** 2026-06-10 (complete audit plan v2.0 — all new items investigated)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -118,21 +118,27 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - Audit file: `docs/audits/DataLogicEngine_Routes_Audit.md`
     - Status: Audit complete, sprint execution pending.
 
-16. [x] REPO-AUDIT-COMPLETE-PLAN: full remaining audit plan produced from live repo scan.
-    - Evidence: live MCP scan of all 1,049-commit repo on 2026-06-10. 32 audit areas
-      identified across ~36 sessions covering every unaudited folder: `backend/truth_engine/`,
-      `backend/dsqp/`, `backend/llm_gateway/`, `backend/local_model_acceleration/` (NEW — Sprint 6
-      Ollama/6-tier escalation, never audited), `backend/dmrf/`, `core/simulation/` (49 files),
-      all 117 KAs + config layer, `core/persona/quad/`, `backend/security/` (28 files),
-      `core/axes/` (duplicate axis number issue found), `backend/storage/`, `core/system/`,
-      `sdk/UKG_Python_SDK/`, full frontend, tests, and remaining backend subsystems.
-    - Four new discoveries not in any prior plan: (1) `backend/local_model_acceleration/` never
-      audited; (2) axes 14–17 each have duplicate Python files; (3) `core/self_evolving/
-      sekre_engine.py` unknown purpose/status; (4) `prompts/defense_supervisor.txt` at repo root
-      unknown what uses it.
-    - Audit file: `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`
-    - Status: Plan complete. Phase 1 (live pipeline) is the immediate next execution priority.
-      Recommended first session: A4 `backend/local_model_acceleration/` (newest, unreviewed).
+16. [x] REPO-AUDIT-COMPLETE-PLAN-V2: complete remaining audit plan v2.0 — all 4 new items investigated from live code reads + full conversation history review.
+    - Evidence: live MCP reads of `core/self_evolving/sekre_engine.py` (620 lines),
+      `prompts/defense_supervisor.txt` (30 lines), `core/axes/axis_system.py` (345 lines),
+      all 4 legacy axis files, and importer scans confirming zero usage of sekre_engine and
+      defense_supervisor. Full conversation history reviewed (9 prior sessions).
+    - N1 `core/self_evolving/sekre_engine.py`: SEKRE = Self-Evolving Knowledge Refinement Engine,
+      620 lines, fully implemented, **zero importers** — disconnected. Must be wired into post-L10
+      pipeline. Correct location confirmed. Wiring tasks defined.
+    - N2 `prompts/defense_supervisor.txt`: LLM security supervisor prompt for injection/social-
+      engineering/DAN detection. **Zero importers** — disconnected. Must be wired into
+      `backend/security/prompt_injection_shield.py` or `ai_guardrail.py`. Added to installer
+      bundling requirement.
+    - N3 Duplicate axis files: `axis_system.py` confirmed loading canonical set (acquisition_
+      lifecycle, risk_threat, ethics_trust, frost_mode). 4 legacy files (provenance, object_type,
+      validation_state, security) **never imported** — safe to delete. Delete tasks defined.
+    - N4 Missing Axis 4/5 files: `axis3_domain.py` (DomainManager) reused for Axis 4. Axis 5
+      has no dedicated manager. Verdict and resolution tasks defined.
+    - Plan: `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`
+    - Scope: 32 audit areas, ~31 sessions, full Definition of Done criteria.
+    - Status: Plan complete. Sprint 0 (immediate execution) and Phase 1 defined. Start with Sprint 0
+      (RT-1, RT-2, RT-3, N3 delete legacy axes, N4 resolve gap) then A4 `backend/local_model_acceleration/`.
 
 ### Trace Viewer Wiring Phased Update Plan
 
