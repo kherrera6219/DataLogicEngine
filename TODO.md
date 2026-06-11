@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-10 (complete audit plan v2.0 — all new items investigated)
+**Last updated:** 2026-06-11 (Sprint 0 closed; Phase 1 / A4 audit complete)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -116,7 +116,7 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - Evidence: live read of all 22 route files. 20 issues found including 2 functional bugs (RT-1: 4 duplicate function names in multimodal_routes causing wrong handler dispatch; RT-2: unauthenticated `/search/suggest`), 5 unregistered blueprints (settings, analytics, retention, gdpr, privacy — all endpoints unreachable), and 3 overlapping user-data deletion implementations.
     - Sprint tasks: RT-1 through RT-18 — see `docs/audits/DataLogicEngine_Routes_Audit.md` for full task list and exit gates.
     - Audit file: `docs/audits/DataLogicEngine_Routes_Audit.md`
-    - Status: Audit complete, sprint execution pending.
+    - Status: Audit complete; all 18 RT tasks executed and merged 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`). `df29906b` also migrated `routes/` → `backend/routes/`.
 
 16. [x] REPO-AUDIT-COMPLETE-PLAN-V2: complete remaining audit plan v2.0 — all 4 new items investigated from live code reads + full conversation history review.
     - Evidence: live MCP reads of `core/self_evolving/sekre_engine.py` (620 lines),
@@ -137,8 +137,38 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       has no dedicated manager. Verdict and resolution tasks defined.
     - Plan: `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`
     - Scope: 32 audit areas, ~31 sessions, full Definition of Done criteria.
-    - Status: Plan complete. Sprint 0 (immediate execution) and Phase 1 defined. Start with Sprint 0
-      (RT-1, RT-2, RT-3, N3 delete legacy axes, N4 resolve gap) then A4 `backend/local_model_acceleration/`.
+    - Status: Plan complete. Correction 2026-06-11: the plan's Sprint 0 listed RT-1/RT-2/RT-3 from a
+      stale snapshot — all RT items were already done 2026-06-07/08. Sprint 0 (N3 + N4) and Phase 1 / A4
+      executed 2026-06-11; next session is A3 `backend/llm_gateway/`.
+
+17. [x] AUDIT-SPRINT-0 + N3/N4: close Sprint 0 of audit plan v2.0.
+    - N3 evidence: `core/axes/axis14_provenance.py`, `axis15_object_type.py`, `axis16_validation_state.py`,
+      `axis17_security.py` deleted; orphaned `SourceProvenance`/`ObjectType`/`ValidationState`/
+      `SecurityClassification` enums removed from `core/coordinate_system.py`; `core/axes/__init__.py`
+      rewritten (its re-exports were the only importers; nothing consumed them).
+    - N4 evidence: `axis_system.py` documents Axis 4 = DomainManager (hierarchical taxonomy fits branch
+      semantics) and Axis 5 = deliberately unmanaged (convergence nodes are graph nodes; unmanaged
+      resolution path). Found + fixed live bug: `backend/honeycomb_api.py` looked up Honeycomb at legacy
+      Axis 5 instead of canonical Axis 3 — all 4 endpoints always returned 500. Added `_get_honeycomb()`
+      (Axis 3 + None guard) and missing auth (`@api_login_required` ×3, `@api_admin_required` on `/connect`).
+    - Validation: `tests/unit/test_axis_alignment.py` (+2 decision tests), new
+      `tests/integration/test_honeycomb_api.py` (7 tests); full `python -m pytest --no-cov -q` →
+      2003 passed / 21 skipped; `ruff check` clean on touched paths.
+
+18. [x] AUDIT-A4: Phase 1 session 1 — `backend/local_model_acceleration/` audit (8 files).
+    - Evidence: all audit questions answered in `REPO_AUDIT_LOG.md` (Sprint 0 + A4 entry). Tier 0 query
+      traced end-to-end (classifier → tier cascade → ollama_model_override → acceleration wrapper →
+      governance/usage). Cache invalidation on knowledge-base update confirmed wired in all 3 RAGService
+      ingestion entry points. `safety.py` confirmed cache-eligibility filter only — N2 defense_supervisor
+      wiring belongs to A3/A10.
+    - Fixes: A4-1 gateway cache-hit coroutine lifecycle (`inspect.getcoroutinestate` gate; close on hit,
+      no re-await after consumption); A4-2 keepalive settings reload per request (UI toggle now effective
+      without restart); A4-3 `backend.spec` adds `collect_submodules('backend.local_model_acceleration')`.
+    - Forward findings: A4-4 tier re-probe trigger (A3), A4-5 latent `stream=True` NDJSON break (A3),
+      A4-7 exact-cache-hit audit-trail semantics (A1b), A4-8 `process()` test harness (A3).
+    - Validation: `python -m pytest -q --no-cov tests\unit\test_local_model_acceleration.py
+      tests\unit\test_tier_availability.py` → 56 passed (5 new tests); gateway units 17 passed;
+      ruff clean; full suite green.
 
 ### Trace Viewer Wiring Phased Update Plan
 

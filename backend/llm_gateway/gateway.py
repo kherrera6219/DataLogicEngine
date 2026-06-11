@@ -13,6 +13,7 @@ The gateway provides:
 """
 
 import asyncio
+import inspect
 import logging
 import os
 import socket
@@ -792,7 +793,9 @@ class LLMGateway:
                     # ------------------------------------------------------------------
                     # Local Model Acceleration: keep-alive + exact response cache.
                     # Applies only to local providers (ollama / local_slm / vllm).
-                    # Fail-open: any exception falls through to the bare await below.
+                    # Fail-open: exceptions raised before the model call starts fall
+                    # through to the bare await below; exceptions after the model
+                    # call started (e.g. timeout) propagate to provider failover.
                     # ------------------------------------------------------------------
                     _local_provider_types = {"ollama", "local_slm", "vllm"}
                     _provider_type = str(
@@ -842,7 +845,18 @@ class LLMGateway:
                             _accel_meta = result.pop("_acceleration", None)
                             if _accel_meta:
                                 request.meta["local_model_acceleration"] = _accel_meta
+                            # On a cache hit the captured pipeline coroutine was
+                            # never started; close it so GC does not emit
+                            # "coroutine was never awaited".
+                            if inspect.getcoroutinestate(result_coro) == inspect.CORO_CREATED:
+                                result_coro.close()
                         except Exception as _accel_exc:  # noqa: BLE001
+                            # Fail-open only while the pipeline coroutine is still
+                            # unstarted. If generate_with_cache already awaited it,
+                            # re-awaiting would raise RuntimeError and the model
+                            # call may have had side effects — propagate instead.
+                            if inspect.getcoroutinestate(result_coro) != inspect.CORO_CREATED:
+                                raise
                             logger.warning(
                                 "Local model acceleration failed open — "
                                 "falling back to direct call: %s",

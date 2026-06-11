@@ -70,10 +70,19 @@ class LocalModelAccelerationManager:
 
         Silently ignores non-local provider types so the caller does not
         need to check before calling.
+
+        Settings are reloaded on every call (matching generate_with_cache)
+        so a UI keepalive toggle or heartbeat change applies without an
+        app restart.
         """
         if provider_type not in _LOCAL_PROVIDER_TYPES:
             return
         try:
+            cfg = LocalModelAccelerationConfig.from_runtime_settings()
+            self._keepalive.update_config(cfg)
+            if not cfg.keepalive_enabled:
+                self._keepalive.stop()
+                return
             self._keepalive.start(model)
         except Exception as exc:  # noqa: BLE001
             logger.debug("start_keepalive error (non-fatal): %s", exc)

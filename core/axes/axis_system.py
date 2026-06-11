@@ -28,13 +28,15 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any
 
-# Import Axis Managers
-# Note: Mapping existing files to new Axis definitions
+# Import Axis Managers.
+# Module filenames predate the final 17-axis numbering and are kept for import
+# stability; the aliases map each module to its canonical axis:
+#   axis5_honeycomb.py -> Axis 3 (Honeycomb System)
+#   axis3_domain.py    -> Axis 4 (Branch System)
 from core.axes.axis1_knowledge import KnowledgeAxis as PillarManager
 from core.axes.axis2_sector import SectorManager
 from core.axes.axis5_honeycomb import HoneycombSystem  # Axis 3
 from core.axes.axis3_domain import DomainManager as BranchManager  # Axis 4
-# Axis 5 (Node) - Placeholder/Generic or reusing Domain for now if no specific file
 from core.axes.axis6_regulatory import RegulatoryManager as OctopusManager  # Axis 6
 from core.axes.axis7_compliance import ComplianceManager as SpiderwebManager  # Axis 7
 
@@ -117,17 +119,21 @@ class AxisSystem:
             self.sector_manager = SectorManager(self.db_manager, self.graph_manager)
             self.register_axis_manager(2, self.sector_manager)
 
-            # Axis 3: Honeycomb (was Axis 5 file)
+            # Axis 3: Honeycomb System
             self.honeycomb_system = HoneycombSystem(self.db_manager, self.graph_manager)
             self.register_axis_manager(3, self.honeycomb_system)
 
-            # Axis 4: Branch (was DomainManager Axis 3 file)
+            # Axis 4: Branch System. DomainManager implements the hierarchical
+            # sub-domain taxonomy (broader/narrower, part_of/has_part) that
+            # branch semantics require, so it serves as the Axis 4 manager.
             self.branch_manager = BranchManager(self.db_manager, self.graph_manager)
             self.register_axis_manager(4, self.branch_manager)
 
-            # Axis 5: Node (Placeholder or specific implementation if available)
-            # Currently using BranchManager capabilities or pure Graph nodes
-            # self.node_manager = NodeManager(...) 
+            # Axis 5: Node System intentionally has no dedicated manager
+            # (audit decision N4, 2026-06-10). Convergence nodes are ordinary
+            # knowledge-graph nodes addressed through the coordinate system
+            # and graph traversal; resolve_multi_axis_context() returns the
+            # documented "unmanaged" resolution for Axis 5 queries.
 
             # Axis 6: Octopus (Regulatory Frameworks)
             self.octopus_manager = OctopusManager(self.db_manager, self.graph_manager)

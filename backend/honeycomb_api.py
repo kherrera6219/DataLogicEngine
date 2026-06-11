@@ -2,9 +2,26 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 
+from backend.auth.api_decorators import api_login_required, api_admin_required
+
 honeycomb_api = Blueprint('honeycomb_api', __name__)
 
+
+def _get_honeycomb():
+    """Resolve the Honeycomb manager from app config.
+
+    The Honeycomb System is canonical Axis 3 in the 17-axis layout; the
+    legacy numbering (Axis 5, still reflected in the axis5_honeycomb.py
+    filename) must not be used for manager lookup.
+    """
+    axis_system = current_app.config.get('AXIS_SYSTEM')
+    if not axis_system:
+        return None
+    return axis_system.axis_managers.get(3)
+
+
 @honeycomb_api.route('/api/honeycomb/generate', methods=['POST'])
+@api_login_required
 def generate_honeycomb():
     """Generate a honeycomb network centered on a specified node."""
     try:
@@ -19,8 +36,7 @@ def generate_honeycomb():
         node_uid = data['node_uid']
         max_connections = data.get('max_connections', 50)
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        honeycomb = axis_system.axis_managers.get(5)
+        honeycomb = _get_honeycomb()
         
         if not honeycomb:
             return jsonify({
@@ -42,6 +58,7 @@ def generate_honeycomb():
         }), 500
 
 @honeycomb_api.route('/api/honeycomb/sector-crosswalk', methods=['POST'])
+@api_login_required
 def generate_sector_crosswalk():
     """Generate crosswalk connections between a sector and all pillar levels."""
     try:
@@ -55,8 +72,7 @@ def generate_sector_crosswalk():
         
         sector_id = data['sector_id']
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        honeycomb = axis_system.axis_managers.get(5)
+        honeycomb = _get_honeycomb()
         
         if not honeycomb:
             return jsonify({
@@ -78,6 +94,7 @@ def generate_sector_crosswalk():
         }), 500
 
 @honeycomb_api.route('/api/honeycomb/find-paths', methods=['POST'])
+@api_login_required
 def find_crosswalk_paths():
     """Find all possible crosswalk paths between two nodes through the honeycomb system."""
     try:
@@ -93,8 +110,7 @@ def find_crosswalk_paths():
         target_uid = data['target_uid']
         max_depth = data.get('max_depth', 3)
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        honeycomb = axis_system.axis_managers.get(5)
+        honeycomb = _get_honeycomb()
         
         if not honeycomb:
             return jsonify({
@@ -116,6 +132,7 @@ def find_crosswalk_paths():
         }), 500
 
 @honeycomb_api.route('/api/honeycomb/connect', methods=['POST'])
+@api_admin_required
 def create_connection():
     """Create a honeycomb connection between two nodes."""
     try:
@@ -133,8 +150,7 @@ def create_connection():
         strength = data.get('strength', 1.0)
         attributes = data.get('attributes')
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        honeycomb = axis_system.axis_managers.get(5)
+        honeycomb = _get_honeycomb()
         
         if not honeycomb:
             return jsonify({

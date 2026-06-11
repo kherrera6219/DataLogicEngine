@@ -607,3 +607,147 @@ class TestOllamaClient:
             models = self._client().list_models()
         # list_models calls health_check — just verify the shape
         assert isinstance(models, list)
+
+
+# ===========================================================================
+# Keepalive config reload (audit A4-2, 2026-06-10)
+# ===========================================================================
+
+def _make_stubbed_manager(tmp_path: Path):
+    """Manager with real components but no background thread."""
+    from backend.local_model_acceleration.config import LocalModelAccelerationConfig
+    from backend.local_model_acceleration.keepalive import LocalModelKeepAlive
+    from backend.local_model_acceleration.manager import LocalModelAccelerationManager
+    from backend.local_model_acceleration.ollama_client import OllamaClient
+    from backend.local_model_acceleration.response_cache import ResponseCache
+
+    cfg = LocalModelAccelerationConfig(enabled=True, keepalive_enabled=False)
+    mgr = LocalModelAccelerationManager.__new__(LocalModelAccelerationManager)
+    mgr._client = OllamaClient()
+    mgr._keepalive = LocalModelKeepAlive(mgr._client, cfg)
+    mgr._response_cache = ResponseCache(tmp_path / "test_lma_extra.db")
+    return mgr
+
+
+class TestKeepaliveConfigReload:
+    """start_keepalive must honor fresh runtime settings without restart."""
+
+    def _patch_fresh_settings(self, monkeypatch, **overrides):
+        from backend.local_model_acceleration.config import LocalModelAccelerationConfig
+
+        fresh = LocalModelAccelerationConfig(**overrides)
+        monkeypatch.setattr(
+            LocalModelAccelerationConfig,
+            "from_runtime_settings",
+            classmethod(lambda cls: fresh),
+        )
+        return fresh
+
+    def test_disabled_in_settings_stops_daemon_and_does_not_start(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        mgr = _make_stubbed_manager(tmp_path)
+        self._patch_fresh_settings(monkeypatch, keepalive_enabled=False)
+
+        started: list[str] = []
+        stopped: list[bool] = []
+        monkeypatch.setattr(mgr._keepalive, "start", lambda m: started.append(m))
+        monkeypatch.setattr(mgr._keepalive, "stop", lambda: stopped.append(True))
+
+        mgr.start_keepalive("gemma4:e4b", "ollama")
+
+        assert started == []
+        assert stopped == [True]
+
+    def test_enabled_in_settings_pushes_fresh_config_and_starts(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        mgr = _make_stubbed_manager(tmp_path)
+        fresh = self._patch_fresh_settings(
+            monkeypatch, keepalive_enabled=True, heartbeat_seconds=99
+        )
+
+        started: list[str] = []
+        monkeypatch.setattr(mgr._keepalive, "start", lambda m: started.append(m))
+
+        mgr.start_keepalive("gemma4:e4b", "ollama")
+
+        assert started == ["gemma4:e4b"]
+        assert mgr._keepalive._config is fresh
+        assert mgr._keepalive._config.heartbeat_seconds == 99
+
+    def test_non_local_provider_never_touches_keepalive(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        mgr = _make_stubbed_manager(tmp_path)
+        called: list[str] = []
+        monkeypatch.setattr(mgr._keepalive, "start", lambda m: called.append(m))
+        monkeypatch.setattr(mgr._keepalive, "stop", lambda: called.append("stop"))
+
+        mgr.start_keepalive("gpt-5.5", "openai")
+
+        assert called == []
+
+    def test_update_config_swaps_reference(self) -> None:
+        from backend.local_model_acceleration.config import LocalModelAccelerationConfig
+        from backend.local_model_acceleration.keepalive import LocalModelKeepAlive
+        from backend.local_model_acceleration.ollama_client import OllamaClient
+
+        cfg_a = LocalModelAccelerationConfig(heartbeat_seconds=240)
+        cfg_b = LocalModelAccelerationConfig(heartbeat_seconds=10)
+        ka = LocalModelKeepAlive(OllamaClient(), cfg_a)
+
+        ka.update_config(cfg_b)
+
+        assert ka._config is cfg_b
+
+
+# ===========================================================================
+# generate_with_cache coroutine contract (audit A4-1, 2026-06-10)
+# ===========================================================================
+
+class TestGenerateWithCacheCoroutineContract:
+    """gateway.py captures the pipeline coroutine and closes it on cache
+    hits. That is only safe if a cache hit never invokes call_model — pin
+    that contract here."""
+
+    @pytest.mark.asyncio
+    async def test_cache_hit_leaves_pipeline_coroutine_unstarted(
+        self, tmp_path: Path
+    ) -> None:
+        import inspect as _inspect
+
+        mgr = _make_stubbed_manager(tmp_path)
+        opts = {"temperature": 0.0, "max_tokens": 512,
+                "run_ukg_pipeline": True, "mode": "standard"}
+        kwargs = dict(
+            provider_type="ollama",
+            model_name="gemma4:e4b",
+            task_type="gateway_chat",
+            prompt="What is the boiling point of water?",
+            rag_context="",
+            options=opts,
+        )
+
+        async def _first_call():
+            return {"ok": True, "answer": "100 degrees Celsius at sea level."}
+
+        r1 = await mgr.generate_with_cache(**kwargs, call_model=_first_call)
+        assert r1.pop("_acceleration", {}).get("cache_hit") is False
+
+        # Second identical request: capture a coroutine the way gateway.py does.
+        async def _pipeline():
+            return {"ok": True, "answer": "fresh answer"}
+
+        captured = _pipeline()
+
+        async def _call_model():
+            return await captured
+
+        r2 = await mgr.generate_with_cache(**kwargs, call_model=_call_model)
+
+        assert r2.pop("_acceleration", {}).get("cache_hit") is True
+        # The pipeline coroutine must still be unstarted so the gateway can
+        # close() it without RuntimeWarning or double-await hazards.
+        assert _inspect.getcoroutinestate(captured) == _inspect.CORO_CREATED
+        captured.close()

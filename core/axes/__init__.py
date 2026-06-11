@@ -1,4 +1,10 @@
-from .axis14_provenance import SourceProvenanceAxis as SourceProvenanceAxis
-from .axis15_object_type import ObjectTypeAxis as ObjectTypeAxis
-from .axis16_validation_state import ValidationStateAxis as ValidationStateAxis
-from .axis17_security import SecurityAxis as SecurityAxis
+"""
+UKG 17-Axis managers package.
+
+Axis managers are imported by full module path (e.g.
+``from core.axes.axis_system import AxisSystem``); this package exports
+nothing at the top level. Legacy Axis 14-17 modules (provenance,
+object_type, validation_state, security) were removed 2026-06-10 in favor
+of the canonical Acquisition Lifecycle, Risk & Threat, Ethics/Trust, and
+FROST-Mode managers.
+"""

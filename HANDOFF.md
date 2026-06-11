@@ -1,24 +1,35 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-10 (complete audit plan v2.0)_
+_Last updated: 2026-06-11 (Sprint 0 closed + Phase 1 / A4 complete)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
 known-good verification steps. It is the primary handoff reference; the
 `docs/WINDOWS_11_LOCAL_RUNBOOK.md` has the detailed local-run instructions.
 
-> **Latest session (2026-06-10): complete audit plan v2.0.** All 4 new items
-> investigated via live code reads. Key verdicts: (1) `sekre_engine.py` = SEKRE
-> Self-Evolving Knowledge Refinement Engine, 620 lines, fully implemented but
-> **zero importers** — needs wiring into post-L10 pipeline; (2)
-> `prompts/defense_supervisor.txt` = LLM injection-detection prompt, **zero importers**
-> — needs wiring into `prompt_injection_shield.py`; (3) axis 14–17 duplicate files
-> confirmed safe to delete — `axis_system.py` loads correct canonical set; (4) Axis 4/5
-> gap documented and resolution tasks defined. Plan v2.0:
-> `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. 32 areas, ~31 sessions,
-> full Definition of Done. Sprint 0 starts immediately: RT-1, RT-2, RT-3, N3, N4.
-> Prior session (2026-06-07): routes audit. Prior to that (2026-05-31): desktop chat.
-> Full detail in [Section 10](#10-desktop-chat-enablement-2026-05-31).
+> **Latest session (2026-06-11): Sprint 0 closed; Phase 1 / A4 audit complete.**
+> Status correction first: RT-1/RT-2/RT-3 (and in fact RT-1..RT-18) were already
+> completed on 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b` — `df29906b`
+> also migrated `routes/` → `backend/routes/`); the v2.0 plan listed them from a
+> stale snapshot. This session executed the genuinely open items:
+> **N3** — deleted the 4 legacy axis files + their orphaned governance enums in
+> `core/coordinate_system.py` + cleaned `core/axes/__init__.py`.
+> **N4** — Axis 4 = DomainManager (documented), Axis 5 deliberately unmanaged
+> (documented + tested); found and fixed a live bug: all 4 `backend/honeycomb_api.py`
+> endpoints looked up Honeycomb at legacy Axis 5 instead of canonical Axis 3 and
+> always returned 500; also added missing auth decorators to all honeycomb routes.
+> **A4** — full audit of `backend/local_model_acceleration/` (8 files): wiring,
+> Tier 0 trace, cache invalidation, failure modes all verified; fixed a
+> cache-hit coroutine-lifecycle bug in `gateway.py` (A4-1), a stale keepalive
+> config bug (A4-2), and added the package to `backend.spec` (A4-3). Findings
+> A4-4/5/7/8 assigned forward to A3/A1b. Full detail in `REPO_AUDIT_LOG.md`.
+> Full suite: 2003+ passed / 21 skipped / ruff clean.
+> **Next: A3 — `backend/llm_gateway/` audit** (9 files; includes N2
+> defense_supervisor wiring assessment and the A4-4/5/8 carry-overs).
+> Prior session (2026-06-10): complete audit plan v2.0 (SEKRE + defense_supervisor
+> verdicts; both still unwired — N1 after A6b, N2 during A3).
+> Prior to that (2026-06-07): routes audit; (2026-05-31): desktop chat —
+> [Section 10](#10-desktop-chat-enablement-2026-05-31).
 
 ---
 
@@ -147,45 +158,38 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 
 ## 8. Open / Next
 
-### Immediate (functional bugs — fix before next demo)
+### Status (2026-06-11)
 
-- **RT-1 FUNCTIONAL BUG — `backend/routes/multimodal_routes.py`:** All 4 route
-  handlers are named `process_document`. Python silently overwrites the earlier
-  three; only `/document/process` actually dispatches correctly. Audio transcribe,
-  audio synthesize, and video analyze all call the wrong handler. Rename to
-  `transcribe_audio`, `synthesize_audio`, `analyze_video`, `process_document`.
-- **RT-2 SECURITY — `backend/routes/search_routes.py`:** The `/suggest` endpoint
-  has no `@login_required` decorator. Every other search endpoint requires auth.
-  Add `@login_required` to match the blueprint.
+- ~~RT-1 multimodal handler bug~~ — done `df29906b`/`0eb2b0bb` (handlers renamed).
+- ~~RT-2 unauthenticated `/search/suggest`~~ — done `0eb2b0bb`.
+- ~~RT-3..RT-18 routes sprint~~ — all 18 closed; see
+  `docs/audits/DataLogicEngine_Routes_Audit.md` resolution table.
+- ~~N3 legacy axis files~~ — deleted this session (+ orphaned enums + `__init__.py`).
+- ~~N4 Axis 4/5 gap~~ — resolved this session; honeycomb_api Axis-5 lookup bug
+  fixed + auth added.
+- ~~A4 local_model_acceleration audit~~ — complete; A4-1/2/3 fixed, A4-4/5/7/8
+  assigned forward. See `REPO_AUDIT_LOG.md`.
 
-### Next audit session
+### Next audit session: A3 — `backend/llm_gateway/` (9 files)
 
-**Start with Sprint 0 (immediate):** RT-1 (multimodal bug), RT-2 (search auth),
-RT-3 (settings_bp), N3 (delete 4 legacy axis files), N4 (resolve Axis 4/5 gap).
-Then A4: `backend/local_model_acceleration/` — 8 files, Ollama/6-tier, Sprint 6.
+Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`, plus carry-overs:
+- N2: assess wiring of `prompts/defense_supervisor.txt` (gateway/security context)
+- A4-4: decide a tier re-probe trigger (mid-session `ollama pull` not noticed)
+- A4-5: guard or remove the latent `OllamaClient.generate(stream=True)` path
+- A4-8: build an `LLMGateway.process()` test harness (acceleration block has
+  no direct integration coverage)
 
-Full audit sequence: `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`
-
-Phase 1 order (live query path): A4 → A3 → A1a → A1b → A2 → A5
-- A4: `backend/local_model_acceleration/` — Ollama/keepalive/cache/safety
+Phase 1 remaining order (live query path): A3 → A1a → A1b → A2 → A5 → A6a → A6b
 - A3: `backend/llm_gateway/` — gateway, 6-tier escalation, complexity classifier
 - A1a: `backend/truth_engine/truth_core/` + `truth_gate/`
 - A1b: `backend/truth_engine/truth_memory/` + `truth_link/` + top-level
+  (+ A4-7: audit-trail semantics of exact-cache hits)
 - A2: `backend/dsqp/` — patent claim, dynamic persona construction
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
 
-**New findings from the June 10 scan to investigate early:**
-- `core/self_evolving/sekre_engine.py` — never mentioned anywhere; unknown if live
-- `prompts/defense_supervisor.txt` — repo-root prompt file; unknown what uses it
-- `core/axes/` — axes 14–17 each have two files; may be loading wrong definitions
-
-### Routes sprint (RT-3 through RT-18) — after RT-1/RT-2 fixed
-
-Full task list: `docs/audits/DataLogicEngine_Routes_Audit.md`
-
-1. RT-3, RT-4, RT-5: register `settings_bp`, `analytics_bp`, `retention_bp`
-2. RT-6: consolidate three overlapping user-data deletion/export endpoints
-3. RT-7 through RT-18: remaining quality and consistency fixes
+**Still unwired (from June 10 scan):**
+- `core/self_evolving/sekre_engine.py` — wire after A6b (layer map first)
+- `prompts/defense_supervisor.txt` — wire during A3/A10
 
 ### Carry-over from prior sessions
 

@@ -122,3 +122,28 @@ def test_legacy_axis_concepts_are_node_metadata_and_trace_has_frost_fields():
     audit_bundle = run.to_dict()["audit_bundle"]
     assert audit_bundle["frost_depth"] == 7
     assert audit_bundle["truth_engine_mode"] == "regulatory_strict"
+
+
+def test_axis_4_and_5_manager_resolution_decision():
+    """Audit N4 (2026-06-10): Axis 4 is served by DomainManager's hierarchical
+    taxonomy; Axis 5 (Node System) deliberately has no dedicated manager; the
+    Honeycomb System is registered at canonical Axis 3, not legacy Axis 5."""
+    from core.axes.axis3_domain import DomainManager
+    from core.axes.axis5_honeycomb import HoneycombSystem
+
+    axis_system = AxisSystem()
+
+    assert isinstance(axis_system.axis_managers[4], DomainManager)
+    assert isinstance(axis_system.axis_managers[3], HoneycombSystem)
+    assert 5 not in axis_system.axis_managers
+    assert set(axis_system.axes.keys()) == set(range(1, 18))
+
+
+def test_axis_5_context_resolves_as_unmanaged():
+    axis_system = AxisSystem()
+
+    resolved = axis_system.resolve_multi_axis_context({5: {"node": "X"}})
+
+    assert resolved["status"] == "success"
+    assert resolved["axes"][5]["status"] == "unmanaged"
+    assert resolved["confidence"][5] == 0.5

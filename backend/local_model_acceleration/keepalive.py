@@ -94,6 +94,10 @@ class LocalModelKeepAlive:
         self._thread = None
         logger.debug("Keep-alive thread stopped.")
 
+    def update_config(self, config: "LocalModelAccelerationConfig") -> None:
+        """Swap in fresh settings; takes effect on the next heartbeat."""
+        self._config = config
+
     @property
     def current_model(self) -> str | None:
         """Return the model currently being kept warm (thread-safe read)."""
@@ -105,11 +109,14 @@ class LocalModelKeepAlive:
     # ------------------------------------------------------------------
 
     def _run(self) -> None:
-        """Daemon thread: ping the current model every heartbeat_seconds."""
-        heartbeat = self._config.heartbeat_seconds
-        keep_alive_str = self._config.keep_alive_str
+        """Daemon thread: ping the current model every heartbeat_seconds.
 
-        while not self._stop_event.wait(timeout=heartbeat):
+        Config values are re-read every iteration so ``update_config``
+        swaps (heartbeat interval, keep-alive duration) take effect on
+        the next heartbeat without a thread restart.
+        """
+        while not self._stop_event.wait(timeout=self._config.heartbeat_seconds):
+            keep_alive_str = self._config.keep_alive_str
             with self._lock:
                 model = self._current_model
 

@@ -132,3 +132,121 @@ Replaced all 5 stub `_check_*` methods in `backend/security/compliance_manager.p
 **Test file:** `tests/security/test_compliance_manager_coverage.py` — 25 tests covering happy-path (all compliant) and non-compliant branches for each of SC-1 through SC-5.
 
 **Exit gate:** `pytest tests/security/test_compliance_manager_coverage.py` → **25 passed / 0 failures** ✅ | full `pytest tests --no-cov -q` → **1855 passed / 21 skipped / 0 failures** ✅ | `ruff check .` → **clean** ✅
+
+---
+
+## Sprint 0 (Audit Plan v2.0) + Phase 1 / A4 — Axis Cleanup & Local Model Acceleration Audit
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2003 passed, 21 skipped
+**Exit gate result:** full pytest green, ruff clean (final counts in TODO.md)
+
+### Sprint 0 status correction
+
+Audit Plan v2.0 listed RT-1, RT-2, RT-3 as open Sprint 0 items. Live-code +
+git verification shows they were already completed on 2026-06-07/08:
+`df29906b` (also migrated `routes/` → `backend/routes/`), `0eb2b0bb`
+(RT-1..RT-18), `cc01c15b` (notification DB). The plan was built against a
+stale snapshot. **All 18 RT items are closed**; only N3/N4 remained, executed
+this session.
+
+### N3 — Legacy axis files deleted
+
+- Deleted `core/axes/axis14_provenance.py`, `axis15_object_type.py`,
+  `axis16_validation_state.py`, `axis17_security.py` (zero external importers).
+- The plan's "zero importers" claim missed `core/axes/__init__.py`, which
+  re-exported all four classes (nothing consumed the re-exports). Rewrote
+  `__init__.py` as a documentation-only package init.
+- Also removed the four orphaned governance enums (`SourceProvenance`,
+  `ObjectType`, `ValidationState`, `SecurityClassification`) from
+  `core/coordinate_system.py` — they were ported there in Sprint 1 (DUP-4)
+  solely so the legacy axis files could import them; after N3 they were dead
+  code. Legacy concepts live on as plain-string node metadata via
+  `KnowledgeGraphNode.set_axis_legacy_metadata` (unchanged).
+
+### N4 — Axis 4/5 gap resolved (+ live wiring bug found and fixed)
+
+- **Decision:** Axis 4 (Branch System) is served by `DomainManager`
+  (`axis3_domain.py`) — its hierarchical broader/narrower + part_of taxonomy
+  implements branch semantics. Axis 5 (Node System) deliberately has no
+  manager: convergence nodes are ordinary knowledge-graph nodes addressed via
+  the coordinate system; `resolve_multi_axis_context()` returns the documented
+  "unmanaged" resolution. Both decisions documented in `axis_system.py`
+  comments and pinned by tests in `tests/unit/test_axis_alignment.py`.
+- **BUG FIXED — `backend/honeycomb_api.py`:** all 4 endpoints looked up the
+  Honeycomb manager at `axis_managers.get(5)` (legacy numbering) while
+  `AxisSystem` registers it at canonical Axis 3 → every call returned
+  500 "Honeycomb system not initialized". Introduced `_get_honeycomb()`
+  resolving Axis 3 (with AXIS_SYSTEM None guard). Why it survived: the only
+  test asserted route registration, not behavior.
+- **SECURITY — honeycomb endpoints had no auth.** `/api/honeycomb/*` lives in
+  `backend/` root (outside the 22-file routes audit scope; A28 territory) and
+  had zero auth decorators, including the graph-mutating `/connect`. Added
+  `@api_login_required` (generate, sector-crosswalk, find-paths) and
+  `@api_admin_required` (connect), matching `regulatory_api.py` conventions.
+  No frontend callers exist, so nothing breaks.
+- New regression tests: `tests/integration/test_honeycomb_api.py` (7 tests:
+  canonical Axis-3 resolution ×4, uninitialized 500, 401 unauthenticated,
+  403 non-admin).
+
+### Phase 1 / A4 — backend/local_model_acceleration/ audit (8 files)
+
+Audit questions answered:
+
+| File | Verdict |
+|---|---|
+| `__init__.py` | ✅ Lazy double-checked-locking singleton; no import-time side effects. |
+| `manager.py` | ✅ Fail-open wrapper; config reloaded per call (cache path). Keepalive path had stale-config bug — fixed (A4-2). |
+| `keepalive.py` | ✅ Daemon thread, errors swallowed, clean stop. Does NOT restart Ollama (by design — probe/cascade handles Ollama-down). Config now re-read per heartbeat (A4-2 fix). |
+| `ollama_client.py` | ✅ Deliberately synchronous `requests` — immune to the May-31 async event-loop bug class. Never raises; structured errors. Latent: `generate(stream=True)` would break on NDJSON — nothing passes it (A4-5, noted only). |
+| `response_cache.py` | ✅ WAL SQLite, per-call connections, write lock, success-only writes, RAG-sentinel invalidation. Cache key covers model/provider/task/mode/pipeline/temp/max_tokens/system/prompt/rag-context. |
+| `safety.py` | ✅ Cache-eligibility filter only (length, dynamic task types, sensitive keywords, meta opt-out). **NOT an injection shield** — N2 `defense_supervisor.txt` wiring belongs in `prompt_injection_shield.py`/`ai_guardrail.py` (A3/A10), unrelated to this module (A4-6). |
+| `config.py` | ✅ Bad values raise inside `from_runtime_settings()` → caught by gateway fail-open → acceleration disabled with warning log (degrade-with-log, by design). |
+| `paths.py` | ✅ Per-user `%APPDATA%` cache dir — writable in installed app (avoids the Program Files write failure seen with the RAG index). Env override for CI. |
+
+Wiring verified:
+- Gateway (`gateway.py` ~795-870): local-provider-gated, fail-open, coroutine
+  awaited exactly once via closure. Tier 0 traced end-to-end:
+  `process()` → `ComplexityClassifier.classify` → `find_best_available_tier`
+  (cascade down → cloud → pass-through) → `ollama_model_override` meta →
+  provider loop → acceleration wrapper → result/governance/usage.
+- Startup probe: `app.py:921` background thread → `probe_local_tiers()`;
+  Ollama-down marks T0-T3 unavailable with pull hints (tested incl. offline).
+- Cache invalidation (commit `52195e69`): hooks in all 3 RAGService ingestion
+  entry points (`ingest_document`, `ingest_knowledge_node`, `ingest_text`),
+  placed after successful Chroma write, non-fatal; KI ingestion flows through
+  RAGService so it triggers invalidation. Manual endpoint + clear/purge/status
+  endpoints all `@api_session_login_required`.
+
+Findings fixed this session:
+- **A4-1 (gateway.py):** on a cache hit the captured pipeline coroutine was
+  never awaited/closed (RuntimeWarning per hit); worse, the fail-open except
+  could re-await an already-consumed coroutine (RuntimeError masking the real
+  error, e.g. timeout). Fix: `inspect.getcoroutinestate` gate — close the
+  un-started coro on hit; propagate instead of re-awaiting when consumed.
+- **A4-2 (manager/keepalive):** keepalive config was frozen at singleton
+  creation; UI disable/heartbeat changes silently ignored until restart.
+  Fix: `start_keepalive` reloads settings per call, pushes them via
+  `update_config()`, stops the daemon when disabled; `_run` re-reads config
+  every heartbeat.
+- **A4-3 (backend.spec):** added
+  `collect_submodules('backend.local_model_acceleration')` matching the
+  desktop/ingestion/dsqp/dmrf/l10 pattern for lazily-imported packages.
+
+Findings noted (not fixed — assigned forward):
+- **A4-4 (→ A3):** tier availability probes once at startup; mid-session
+  `ollama pull` is not reflected until restart. A3 to decide a re-probe
+  trigger (settings save or status endpoint refresh).
+- **A4-5 (→ A3):** `OllamaClient.generate(stream=True)` latent NDJSON break.
+- **A4-7 (→ A1b/A26):** an exact-cache hit serves a UKG-pipeline answer with
+  `trace: None` and writes no new TruthAuditEvent for the serving; the
+  original run's audit exists and `_acceleration.cache_hit` is recorded in
+  meta. Confirm during TruthMemory audit that this satisfies the Tier 2+
+  audit-trail requirement or store the original run_id in the cache row.
+- **A4-8 (→ A3):** no full `LLMGateway.process()` test harness exists; the
+  acceleration block (and the A4-1 fix) is covered only indirectly. Build a
+  process()-level harness during the A3 gateway session.
+
+New tests: `TestKeepaliveConfigReload` (4) and
+`TestGenerateWithCacheCoroutineContract` (1) in
+`tests/unit/test_local_model_acceleration.py`.

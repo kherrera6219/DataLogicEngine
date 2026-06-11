@@ -19,86 +19,10 @@ import logging
 import re
 import hashlib
 from datetime import datetime, UTC
-from enum import Enum
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
-
-
-# =============================================================================
-# Governance Axis State Enums (Axes 14–17)
-# These were previously only defined in core/simulation/coordinate_system.py.
-# Canonical home is here; axis manager files import from this module.
-# =============================================================================
-
-class SourceProvenance(Enum):
-    """A14 — Where did this knowledge come from?"""
-    FED_REGISTER = "fed_register"
-    INTERNAL_KB = "internal_kb"
-    VENDOR_DATA = "vendor_data"
-    ACADEMIC_JOURNAL = "academic_journal"
-    STANDARDS_BODY = "standards_body"
-    LLM_GENERATED = "llm_generated"
-    HUMAN_AUTHORED = "human_authored"
-    HYBRID = "hybrid"
-
-
-class ObjectType(Enum):
-    """A15 — What kind of thing is this?"""
-    STATUTE = "statute"
-    REGULATION = "regulation"
-    CLAUSE = "clause"
-    CONTROL = "control"
-    REQUIREMENT = "requirement"
-    PROCEDURE = "procedure"
-    POLICY = "policy"
-    DATASET = "dataset"
-    METRIC = "metric"
-    MODEL_OUTPUT = "model_output"
-    SCENARIO = "scenario"
-    RECOMMENDATION = "recommendation"
-    ENTITY = "entity"
-    ROLE = "role"
-    TEST = "test"
-
-
-class ValidationState(Enum):
-    """A16 — How verified is this? Progresses monotonically; cannot skip levels."""
-    RAW = (0, "raw")
-    INGESTED = (1, "ingested")
-    NORMALIZED = (2, "normalized")
-    CROSS_REFERENCED = (3, "cross_referenced")
-    CURATED = (4, "curated")
-    VALIDATED = (5, "validated")
-    AUDITED = (6, "audited")
-    CERTIFIED = (7, "certified")
-
-    def __init__(self, level: int, label: str):
-        self.level = level
-        self.label = label
-
-    def __ge__(self, other):
-        return self.level >= other.level
-
-    def __gt__(self, other):
-        return self.level > other.level
-
-    def __le__(self, other):
-        return self.level <= other.level
-
-    def __lt__(self, other):
-        return self.level < other.level
-
-
-class SecurityClassification(Enum):
-    """A17 — Who can see or use this?"""
-    PUBLIC = "public"
-    INTERNAL = "internal"
-    CONFIDENTIAL = "confidential"
-    CUI = "cui"
-    RESTRICTED = "restricted"
-    SECRET = "secret"
 
 
 @dataclass
