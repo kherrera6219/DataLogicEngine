@@ -5,8 +5,9 @@ Classifies queries into tiers 0–5 based on structural signals — no external
 model call is made.  Runs synchronously on every gateway request and must stay
 cheap (< 1 ms for typical inputs).
 
-Tier map (matches escalation_config.TIER_CHAIN):
-  0 — ultra-light    gemma4:e4b           trivial Q&A / single-word lookups
+Tier map (matches escalation_config.TIER_CHAIN; authoritative model
+strings live in model_defaults.py):
+  0 — ultra-light    gemma4:latest        trivial Q&A / single-word lookups
   1 — primary        gemma4:12b           standard chat, structured data queries
   2 — medium         qwen3:14b            analysis, light coding, multi-step
   3 — heavy-local    devstral-small-2     agentic / complex system coding

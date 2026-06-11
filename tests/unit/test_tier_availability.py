@@ -27,6 +27,7 @@ def _reset_cache() -> None:
     mod = sys.modules.get("backend.llm_gateway.tier_availability")
     if mod is not None:
         mod._available_local_tiers = None  # type: ignore[attr-defined]
+        mod._last_probe_monotonic = None  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------
@@ -228,3 +229,74 @@ def _ollama_patch(pulled: list[str] | None = None, *, exc: Exception | None = No
         mock_cls,
     ):
         yield
+
+
+# ---------------------------------------------------------------------------
+# reprobe_in_background (audit A4-4) — staleness tracking + throttle
+# ---------------------------------------------------------------------------
+
+class TestReprobeInBackground:
+    def setup_method(self) -> None:
+        _reset_cache()
+
+    def test_probe_age_none_before_first_probe(self) -> None:
+        from backend.llm_gateway.tier_availability import probe_age_seconds
+        assert probe_age_seconds() is None
+
+    @pytest.mark.asyncio
+    async def test_probe_records_timestamp(self) -> None:
+        from backend.llm_gateway.tier_availability import probe_local_tiers, probe_age_seconds
+
+        with _ollama_patch(["gemma4:latest"]):
+            await probe_local_tiers()
+
+        age = probe_age_seconds()
+        assert age is not None and age >= 0
+
+    def test_fresh_cache_is_throttled(self) -> None:
+        import time
+        import backend.llm_gateway.tier_availability as ta
+
+        ta._available_local_tiers = frozenset({0})
+        ta._last_probe_monotonic = time.monotonic()
+
+        assert ta.reprobe_in_background(max_age_seconds=300) is False
+
+    def test_stale_cache_starts_background_probe(self, monkeypatch) -> None:
+        # Patch probe_local_tiers itself: asserting on the module-level
+        # availability cache would race the app startup probe thread on
+        # dev machines with a live Ollama.
+        import threading
+        import time
+        import backend.llm_gateway.tier_availability as ta
+
+        ran = threading.Event()
+
+        async def _fake_probe():
+            ran.set()
+            return frozenset({0})
+
+        monkeypatch.setattr(ta, "probe_local_tiers", _fake_probe)
+        ta._available_local_tiers = frozenset()
+        ta._last_probe_monotonic = time.monotonic() - 9999
+
+        assert ta.reprobe_in_background(max_age_seconds=300) is True
+        assert ran.wait(timeout=5) is True
+
+    def test_force_with_zero_max_age_reprobes_fresh_cache(self, monkeypatch) -> None:
+        import threading
+        import time
+        import backend.llm_gateway.tier_availability as ta
+
+        ran = threading.Event()
+
+        async def _fake_probe():
+            ran.set()
+            return frozenset({0})
+
+        monkeypatch.setattr(ta, "probe_local_tiers", _fake_probe)
+        ta._available_local_tiers = frozenset()
+        ta._last_probe_monotonic = time.monotonic()  # fresh
+
+        assert ta.reprobe_in_background(max_age_seconds=0) is True
+        assert ran.wait(timeout=5) is True

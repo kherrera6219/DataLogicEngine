@@ -813,7 +813,7 @@ ipcMain.handle('quad-analysis-status', async (event, ...args: unknown[]) => {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/quad-analysis-status');
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/gateway/quad-analysis-status');
     const payload = await responseJson<{
       pod_count?: number;
       collective_confidence?: number;
@@ -836,7 +836,7 @@ ipcMain.handle('dmrf-status', async (event, ...args: unknown[]) => {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dmrf-status');
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/gateway/dmrf-status');
     const payload = await responseJson<{
       status?: string;
       tier?: string | null;
@@ -863,7 +863,7 @@ ipcMain.handle('dsqp-persona-profiles', async (event, ...args: unknown[]) => {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dsqp-persona-profiles');
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/gateway/dsqp-persona-profiles');
     const payload = await responseJson<{
       success?: boolean;
       profiles?: unknown[];
@@ -888,7 +888,7 @@ ipcMain.handle('network-status', async (event, ...args: unknown[]) => {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/network-status');
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/gateway/network-status');
     const payload = await responseJson<{
       state?: string;
       last_checked?: string;

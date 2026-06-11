@@ -16,6 +16,8 @@ their availability is controlled by the API-key gate.
 from __future__ import annotations
 
 import logging
+import threading
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -23,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 # Module-level cache.  None = probe not yet run.
 _available_local_tiers: Optional[frozenset[int]] = None
+_last_probe_monotonic: Optional[float] = None
+_reprobe_lock = threading.Lock()
 
 # Ensure the SDK is importable (mirrors the pattern in gateway.py).
 _SDK_PATH = str(
@@ -37,6 +41,44 @@ _SDK_PATH = str(
 def get_available_local_tiers() -> Optional[frozenset[int]]:
     """Return cached available local tier indices, or None if not yet probed."""
     return _available_local_tiers
+
+
+def probe_age_seconds() -> Optional[float]:
+    """Seconds since the last completed probe, or None if never probed."""
+    if _last_probe_monotonic is None:
+        return None
+    return time.monotonic() - _last_probe_monotonic
+
+
+def reprobe_in_background(max_age_seconds: int = 300) -> bool:
+    """
+    Kick off a background re-probe when the cached availability is stale.
+
+    The startup probe runs once, so models pulled (or Ollama started)
+    mid-session were previously invisible until app restart. Status
+    endpoints call this with the default throttle; pass
+    ``max_age_seconds=0`` to force.
+
+    Returns True when a re-probe thread was started.
+    """
+    age = probe_age_seconds()
+    if age is not None and age < max_age_seconds:
+        return False
+    if not _reprobe_lock.acquire(blocking=False):
+        return False  # a re-probe is already in flight
+
+    def _runner() -> None:
+        try:
+            import asyncio
+
+            asyncio.run(probe_local_tiers())
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Background tier re-probe failed: %s", exc)
+        finally:
+            _reprobe_lock.release()
+
+    threading.Thread(target=_runner, name="tier-reprobe", daemon=True).start()
+    return True
 
 
 def is_local_tier_available(tier: int) -> bool:
@@ -133,7 +175,7 @@ async def probe_local_tiers() -> frozenset[int]:
     Intended to be called once from a daemon background thread at startup.
     Returns the availability set so callers can await it directly.
     """
-    global _available_local_tiers  # noqa: PLW0603
+    global _available_local_tiers, _last_probe_monotonic  # noqa: PLW0603
 
     from backend.llm_gateway.escalation_config import TIER_CHAIN
 
@@ -177,6 +219,7 @@ async def probe_local_tiers() -> frozenset[int]:
 
     result = frozenset(available)
     _available_local_tiers = result
+    _last_probe_monotonic = time.monotonic()
 
     # --- Emit startup summary -----------------------------------------
     sep = "─" * 72

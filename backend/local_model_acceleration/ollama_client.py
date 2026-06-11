@@ -80,12 +80,21 @@ class OllamaClient:
         keep_alive: str = "60m",
         options: dict[str, Any] | None = None,
         stream: bool = False,
+        system: str | None = None,
+        format_json: bool = False,
+        timeout_seconds: int | None = None,
     ) -> dict[str, Any]:
         """
-        POST /api/generate — run a generation request.
+        POST /api/generate — run a non-streaming generation request.
 
         Used by keepalive to ping the model with a 1-token response so
-        Ollama resets its idle-eviction timer.
+        Ollama resets its idle-eviction timer, and by the defense
+        supervisor for local JSON-mode security screening.
+
+        ``stream=True`` is not supported (the response parser expects a
+        single JSON body, not NDJSON) and returns an error dict.
+        ``timeout_seconds`` overrides the default generation timeout of
+        ``max(client timeout, 30)`` for latency-sensitive callers.
 
         Returns::
 
@@ -97,14 +106,27 @@ class OllamaClient:
                 "error": None,
             }
         """
+        if stream:
+            return {
+                "ok": False,
+                "response": "",
+                "latency_ms": 0,
+                "raw": {},
+                "error": "OllamaClient.generate does not support stream=True (NDJSON not parsed)",
+            }
+
         payload: dict[str, Any] = {
             "model": model,
             "prompt": prompt,
-            "stream": stream,
+            "stream": False,
             "keep_alive": keep_alive,
         }
         if options:
             payload["options"] = options
+        if system:
+            payload["system"] = system
+        if format_json:
+            payload["format"] = "json"
 
         t0 = time.monotonic()
         try:
@@ -113,7 +135,7 @@ class OllamaClient:
             resp = requests.post(
                 f"{self._base}/api/generate",
                 json=payload,
-                timeout=max(self._timeout, 30),  # generation can take longer than health check
+                timeout=timeout_seconds or max(self._timeout, 30),
             )
             resp.raise_for_status()
             data = resp.json()

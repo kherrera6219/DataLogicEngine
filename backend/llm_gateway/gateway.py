@@ -461,6 +461,9 @@ class LLMGateway:
                 "rate_limit",
                 "quota exceeded",
                 "insufficient_quota",
+                # Intentional policy blocks (defense supervisor) — the user
+                # should see a policy message, not a fake provider failure.
+                "blocked by security policy",
             ),
         )
     
@@ -646,6 +649,40 @@ class LLMGateway:
                     )
             except Exception as exc:  # noqa: BLE001
                 logger.warning("Escalation classifier failed open: %s", exc)
+
+        # ── Defense supervisor (N2) ─────────────────────────────────────────
+        # LLM-backed semantic screening on the local model for pipeline
+        # queries. Complements the pattern shields already applied in
+        # governance.prepare_request; fail-open when no local model exists.
+        supervisor_block = self._screen_with_defense_supervisor(request, query)
+        if supervisor_block:
+            verdict = request.meta.get("defense_supervisor", {})
+            self._governance.record_audit_event(
+                run_id=run_id,
+                user_id=request.user_id,
+                api_key_id=request.api_key_id,
+                provider=request.provider,
+                model=request.model or "unknown",
+                model_version="unknown",
+                governance_flags=(request.meta.get("governance_flags") or [])
+                + ["defense_supervisor_blocked"],
+                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                success=False,
+                error_code="DEFENSE_SUPERVISOR_BLOCK",
+                error_message=supervisor_block,
+                metadata={
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "threat_type": verdict.get("threat_type"),
+                    "threat_score": verdict.get("threat_score"),
+                    "recommended_action": verdict.get("recommended_action"),
+                },
+            )
+            return self._error_response(
+                run_id,
+                "Request blocked by security policy",
+                start_time,
+                request,
+            )
 
         # 1. Get eligible providers
         providers = await self._get_eligible_providers(
@@ -1595,6 +1632,61 @@ class LLMGateway:
         )
     
     
+    @staticmethod
+    def _recent_context_summary(
+        messages: list[dict[str, Any]] | None,
+        limit: int = 5,
+        max_chars: int = 240,
+    ) -> str:
+        """Summarize the prior turns (excluding the latest message) for
+        Crescendo detection by the defense supervisor."""
+        prior = [m for m in (messages or [])[:-1] if isinstance(m, dict)]
+        lines: list[str] = []
+        for message in prior[-limit:]:
+            role = str(message.get("role", "user"))
+            content = message.get("content", "")
+            if isinstance(content, list):
+                content = " ".join(
+                    part.get("text", "") for part in content if isinstance(part, dict)
+                )
+            text = str(content)[:max_chars].strip()
+            if text:
+                lines.append(f"{role}: {text}")
+        return "\n".join(lines)
+
+    def _screen_with_defense_supervisor(
+        self, request: GatewayRequest, query: str
+    ) -> Optional[str]:
+        """Run LLM-backed security screening for pipeline queries (N2).
+
+        Returns an error message when the request must be blocked, else
+        None. The full verdict is stored in request.meta["defense_supervisor"].
+        Fail-open: any wiring error allows the request (the pattern shields
+        in governance.prepare_request already ran).
+        """
+        if not request.run_ukg_pipeline:
+            return None
+        try:
+            from backend.security.defense_supervisor import get_defense_supervisor
+
+            supervisor = get_defense_supervisor()
+            if not supervisor.enabled():
+                return None
+            verdict = supervisor.screen(
+                query,
+                context_summary=self._recent_context_summary(request.messages),
+                user_role="user",
+            )
+            request.meta["defense_supervisor"] = verdict
+            if verdict.get("available") and verdict.get("recommended_action") in {
+                "BLOCK",
+                "HONEYPOT",
+            }:
+                return verdict.get("reason") or "Blocked by security supervisor"
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Defense supervisor wiring failed open: %s", exc)
+        return None
+
     def _extract_query(self, messages: list[dict[str, Any]]) -> str:
         """Extract user query from messages, handling multimodal content."""
         for msg in reversed(messages):

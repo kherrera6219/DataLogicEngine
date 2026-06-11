@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 closed; Phase 1 / A4 audit complete)
+**Last updated:** 2026-06-11 (Sprint 0 closed; Phase 1 A4 + A3 audits complete; N2 defense supervisor wired)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -169,6 +169,27 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - Validation: `python -m pytest -q --no-cov tests\unit\test_local_model_acceleration.py
       tests\unit\test_tier_availability.py` → 56 passed (5 new tests); gateway units 17 passed;
       ruff clean; full suite green.
+
+19. [x] AUDIT-A3: Phase 1 session 2 — `backend/llm_gateway/` audit + N2 defense supervisor wiring.
+    - Evidence: full audit verdicts in `REPO_AUDIT_LOG.md` (A3 entry). Governance confirmed enforced
+      per-request (input shields, token budgets, output replacement, AIAuditEvent). DMRF flag wired.
+      Complexity classifier is deliberately separate from KA-113 (model tier vs reasoning tier).
+      All 6 escalation tiers configured; model names current.
+    - N2 wired: `backend/security/defense_supervisor.py` + prompt moved to
+      `backend/security/prompts/defense_supervisor.txt`; gateway screens pipeline queries on the
+      cheapest available local Ollama tier (JSON mode, 8s timeout, temperature 0, 5-turn Crescendo
+      context); BLOCK/HONEYPOT → `DEFENSE_SUPERVISOR_BLOCK` audit event + "Request blocked by
+      security policy"; fail-open everywhere; `DEFENSE_SUPERVISOR_ENABLED=false` kill switch.
+    - Security fix: `/network-status`, `/quad-analysis-status`, `/dmrf-status`,
+      `/dsqp-persona-profiles` now require auth (signed desktop loopback accepted); Electron IPC
+      handlers switched to signed `desktopFetch`.
+    - Carry-overs resolved: A4-4 (throttled background tier re-probe + `POST
+      /local-acceleration/reprobe`), A4-5 (`OllamaClient.generate` stream guard + system/format_json/
+      timeout params), A4-8 (`tests/unit/test_llm_gateway_process_harness.py`).
+    - Forwarded: A3-3 Tier 2+ audit-commit tier-string gate (A1b), A3-4 supervisor user_role/HONEYPOT
+      (A10), A3-5 governance no-db audit no-op (A26).
+    - Validation: 98 focused tests pass (14 supervisor, 7 harness, 5 re-probe new); ruff clean;
+      Electron typecheck clean; full pytest green.
 
 ### Trace Viewer Wiring Phased Update Plan
 

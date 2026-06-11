@@ -1,6 +1,6 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-11 (Sprint 0 closed + Phase 1 / A4 complete)_
+_Last updated: 2026-06-11 (Sprint 0 + A4 + A3 complete; N2 wired)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
@@ -170,26 +170,35 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 - ~~A4 local_model_acceleration audit~~ — complete; A4-1/2/3 fixed, A4-4/5/7/8
   assigned forward. See `REPO_AUDIT_LOG.md`.
 
-### Next audit session: A3 — `backend/llm_gateway/` (9 files)
+- ~~A3 llm_gateway audit~~ — complete 2026-06-11. Governance enforced
+  per-request confirmed; DMRF flag wired; classifier vs KA-113 = different
+  axes (model tier vs reasoning tier), by design. Fixed: 4 unauthenticated
+  desktop status endpoints (now signed `desktopFetch` + auth), N2 wired,
+  A4-4 tier re-probe, A4-5 stream guard, A4-8 `process()` harness.
+  Details in `REPO_AUDIT_LOG.md` (A3 entry).
+- ~~N2 defense_supervisor~~ — WIRED: `backend/security/defense_supervisor.py`
+  screens pipeline queries on the cheapest local Ollama tier (JSON mode,
+  8 s timeout, fail-open). Kill switch `DEFENSE_SUPERVISOR_ENABLED=false`.
+  Prompt moved to `backend/security/prompts/defense_supervisor.txt`.
 
-Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`, plus carry-overs:
-- N2: assess wiring of `prompts/defense_supervisor.txt` (gateway/security context)
-- A4-4: decide a tier re-probe trigger (mid-session `ollama pull` not noticed)
-- A4-5: guard or remove the latent `OllamaClient.generate(stream=True)` path
-- A4-8: build an `LLMGateway.process()` test harness (acceleration block has
-  no direct integration coverage)
+### Next audit session: A1a — `backend/truth_engine/truth_core/` + `truth_gate/`
 
-Phase 1 remaining order (live query path): A3 → A1a → A1b → A2 → A5 → A6a → A6b
-- A3: `backend/llm_gateway/` — gateway, 6-tier escalation, complexity classifier
+Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. Carry-overs:
+- A3-3 (for A1b): `_create_trace_run` Tier 2+ audit-commit gate matches tier
+  strings incl. excluding "moderate" — verify SDK tier vocabulary; possible
+  missed audit bundles for Tier 2 runs.
+- A4-7 (for A1b): audit-trail semantics of exact-cache hits.
+- A3-4 (for A10): supervisor `user_role` enrichment; HONEYPOT handling with
+  `active_defense.py`.
+
+Phase 1 remaining order: A1a → A1b → A2 → A5 → A6a → A6b
 - A1a: `backend/truth_engine/truth_core/` + `truth_gate/`
 - A1b: `backend/truth_engine/truth_memory/` + `truth_link/` + top-level
-  (+ A4-7: audit-trail semantics of exact-cache hits)
 - A2: `backend/dsqp/` — patent claim, dynamic persona construction
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
 
 **Still unwired (from June 10 scan):**
 - `core/self_evolving/sekre_engine.py` — wire after A6b (layer map first)
-- `prompts/defense_supervisor.txt` — wire during A3/A10
 
 ### Carry-over from prior sessions
 

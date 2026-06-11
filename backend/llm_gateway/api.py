@@ -392,11 +392,19 @@ def local_acceleration_status():
     """
     try:
         from backend.local_model_acceleration import get_local_model_acceleration_manager
+        from backend.llm_gateway.tier_availability import (
+            get_available_local_tiers,
+            reprobe_in_background,
+        )
         from backend.storage.runtime_settings import get_local_model_acceleration_settings
         mgr = get_local_model_acceleration_manager()
         settings = get_local_model_acceleration_settings()
         ollama = mgr.ollama_status()
         cache_stats = mgr.cache_stats()
+        # Refresh stale tier availability in the background so models pulled
+        # mid-session show up without an app restart (throttled to 5 min).
+        reprobe_in_background()
+        available_tiers = get_available_local_tiers()
         return api_response({
             "acceleration_enabled": settings.get("local_model_acceleration_enabled", True),
             "keepalive_enabled": settings.get("local_model_keepalive_enabled", True),
@@ -404,6 +412,7 @@ def local_acceleration_status():
             "keepalive_model": ollama.get("keepalive_model"),
             "ollama_reachable": ollama.get("ollama_reachable", False),
             "installed_models": ollama.get("installed_models", []),
+            "available_local_tiers": sorted(available_tiers) if available_tiers is not None else None,
             "cache": cache_stats,
             "settings": settings,
         })
@@ -483,6 +492,28 @@ def local_acceleration_cache_invalidate_rag():
         return api_response({"invalidated": True, **result})
     except Exception as exc:
         logger.warning("local_acceleration_cache_invalidate_rag error: %s", exc)
+        return jsonify({"error": str(exc)}), 500
+
+
+@gateway_bp.route('/local-acceleration/reprobe', methods=['POST'])
+@api_session_login_required
+def local_acceleration_reprobe():
+    """Force a background re-probe of local Ollama tier availability."""
+    try:
+        from backend.llm_gateway.tier_availability import (
+            get_available_local_tiers,
+            probe_age_seconds,
+            reprobe_in_background,
+        )
+        started = reprobe_in_background(max_age_seconds=0)
+        available = get_available_local_tiers()
+        return api_response({
+            "reprobe_started": started,
+            "available_local_tiers": sorted(available) if available is not None else None,
+            "probe_age_seconds": probe_age_seconds(),
+        })
+    except Exception as exc:
+        logger.warning("local_acceleration_reprobe error: %s", exc)
         return jsonify({"error": str(exc)}), 500
 
 
@@ -764,6 +795,7 @@ def gateway_health():
 
 
 @gateway_bp.route('/network-status', methods=['GET'])
+@api_session_login_required
 def network_status():
     """Cached local-first provider/network status for desktop IPC."""
     force = str(request.args.get("force") or "").lower() in {"1", "true", "yes", "on"}
@@ -771,12 +803,14 @@ def network_status():
 
 
 @gateway_bp.route('/quad-analysis-status', methods=['GET'])
+@api_session_login_required
 def quad_analysis_status():
     """Latest compact quad analysis status for desktop IPC."""
     return jsonify(LLMGateway.get_quad_analysis_status())
 
 
 @gateway_bp.route('/dmrf-status', methods=['GET'])
+@api_session_login_required
 def dmrf_status():
     """Latest compact DMRF status for desktop IPC."""
     try:
@@ -789,6 +823,7 @@ def dmrf_status():
 
 
 @gateway_bp.route('/dsqp-persona-profiles', methods=['GET'])
+@api_session_login_required
 def dsqp_persona_profiles():
     """Construct compact DSQP persona profiles for desktop IPC."""
     query = request.args.get("query") or "DataLogicEngine desktop reasoning workflow"

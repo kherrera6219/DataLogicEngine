@@ -250,3 +250,87 @@ Findings noted (not fixed — assigned forward):
 New tests: `TestKeepaliveConfigReload` (4) and
 `TestGenerateWithCacheCoroutineContract` (1) in
 `tests/unit/test_local_model_acceleration.py`.
+
+---
+
+## Phase 1 / A3 — LLM Gateway Audit + N2 Defense Supervisor Wiring
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2008 passed, 21 skipped
+**Exit gate result:** full pytest green, ruff clean, Electron typecheck clean
+
+### Audit verdicts (backend/llm_gateway/, 10 files)
+
+| File | Verdict |
+|---|---|
+| `gateway.py` | ✅ Governance `prepare_request` blocks FIRST on every request (injection shield + guardrail + per-request/daily token budgets) with audit events. DMRF flag wired per-request (`use_dmrf` meta / `USE_DMRF` env), fail-open, can block. UKG pipeline short-circuits only on SDK import failure (warn + direct fallback) or explicit `run_ukg_pipeline=False`. SekreEngine confirmed NOT called (N1, scheduled post-A6b). |
+| `complexity_classifier.py` | ✅ Stateless <1 ms heuristic; local cap T3 unless cloud unlocked. **Separate from KA-113** by design: this picks the *model* tier (T0-T5 escalation chain); KA-113 routes the *reasoning* tier (layer stack). Different axes — agreement question is moot; documented. |
+| `escalation_config.py` | ✅ All 6 tiers configured; single Ollama DB record for T0-T3. Fixed stale docstring (T0 said `gemma4:e4b`; authoritative is `model_defaults.OLLAMA_TIER0_MODEL = gemma4:latest`). |
+| `model_defaults.py` | ✅ Names current and matched to `ollama list` output (commit `8977d728`); gpt-5.5 verified live (May 31); single-OpenAI-model standardization intact. |
+| `governance.py` | ✅ **Enforced per-request, not log-only**: input blocks, budget blocks, output replacement ("Response withheld by safety policy"), cost estimation, AIAuditEvent persistence (silently skipped without db — availability bias, noted). |
+| `tier_availability.py` | ✅ Cascade contract correct (down → cloud → pass-through). Was startup-probe-only — fixed (A4-4 below). |
+| `api.py` | 21 routes: 16 authenticated, `/health` open by convention. **4 status endpoints were unauthenticated** — fixed (A3-2 below). Rate limiting: per-API-key rpm/daily enforced with 429 (Redis-backed); session users unlimited (acceptable local-first). All handlers have try/except with normalized public errors. |
+| `latency_metrics.py`, `schemas.py`, `__init__.py` | ✅ No findings. |
+
+### Fixes this session
+
+- **N2 — defense_supervisor.txt wired.** Moved to
+  `backend/security/prompts/defense_supervisor.txt` (auto-bundled via the
+  `('backend','backend')` datas entry in backend.spec). New
+  `backend/security/defense_supervisor.py`: `DefenseSupervisor` screens via
+  the cheapest available **local** Ollama tier (security analysis never goes
+  to cloud), JSON mode, 8 s timeout, temperature 0. Verdict parser tolerates
+  prose-wrapped JSON, clamps scores, enforces the prompt's critical rule
+  (score > 0.8 ⇒ BLOCK). Fail-open in every path (`available: false`).
+  Gateway calls it for pipeline queries after escalation classification with
+  a 5-turn context summary (Crescendo detection); BLOCK/HONEYPOT verdicts
+  produce an AIAuditEvent (`DEFENSE_SUPERVISOR_BLOCK`) and a user-facing
+  "Request blocked by security policy" (added to safe error fragments so it
+  is not masked as a provider failure). Kill switch:
+  `DEFENSE_SUPERVISOR_ENABLED=false`. Verdict always recorded in
+  `request.meta["defense_supervisor"]`.
+- **A3-2 — desktop status endpoints authenticated.** `/network-status`,
+  `/quad-analysis-status`, `/dmrf-status`, `/dsqp-persona-profiles` had no
+  auth; the last one runs real DSQP persona construction for an arbitrary
+  unauthenticated `query` param (compute amplification + content exposure in
+  web mode). Added `@api_session_login_required` (accepts signed desktop
+  loopback auth) and switched the 4 Electron IPC handlers from plain
+  `fetch` to the existing signed `desktopFetch` helper. `/health` stays open.
+  No web-frontend callers exist; Electron typecheck green.
+- **A4-4 — tier re-probe.** `tier_availability` now tracks probe age;
+  `reprobe_in_background(max_age_seconds)` runs a throttled (5 min default)
+  daemon-thread re-probe. Hooked into `/local-acceleration/status` (polled by
+  Settings) and a new forced `POST /local-acceleration/reprobe` endpoint.
+  Mid-session `ollama pull` now becomes visible without app restart.
+- **A4-5 — OllamaClient stream guard.** `generate(stream=True)` now returns a
+  structured error instead of mis-parsing NDJSON. Also extended `generate`
+  with `system`, `format_json`, `timeout_seconds` for the defense supervisor.
+- **A4-8 — process() harness built.**
+  `tests/unit/test_llm_gateway_process_harness.py` drives the real
+  `LLMGateway.process()` with instance-level seams stubbed: cache-miss,
+  cache-hit (pipeline coroutine never started — covers the A4-1 fix),
+  acceleration fail-open, keepalive registration, supervisor BLOCK and ALLOW
+  paths, context-summary unit test.
+- Doc drift: classifier/escalation docstrings corrected (T0 model);
+  authoritative-source note added.
+
+### Findings forwarded
+
+- **A3-3 (→ A1b):** `_create_trace_run` gates the Tier 2+ audit-bundle commit
+  on tier strings `not in ("", "1", "t1", "trivial", "moderate")`. If SDK
+  tier "moderate" is reasoning Tier 2, audit bundles are skipped for Tier 2
+  runs, contradicting the documented Tier 2+ audit requirement. Verify SDK
+  tier vocabulary during A1b and replace the string set with an explicit
+  mapping.
+- **A3-4 (→ A10):** defense supervisor `user_role` is currently always
+  "user"; enrich with the RBAC role during the security audit. HONEYPOT
+  verdicts are treated as BLOCK pending `active_defense.py` review.
+- **A3-5 (note):** governance `record_audit_event` and `_daily_usage_tokens`
+  silently no-op without a db session — intentional availability bias, but
+  the audit chain should be re-checked in A26 (tracing audit).
+
+### New tests
+
+`tests/unit/test_defense_supervisor.py` (14), process harness (7),
+re-probe tests in `test_tier_availability.py` (5, race-proofed against the
+app startup probe on dev machines with live Ollama).
