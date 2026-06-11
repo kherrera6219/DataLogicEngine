@@ -7,29 +7,25 @@ app, the issues fixed in recent sessions, the build/deploy process, and the
 known-good verification steps. It is the primary handoff reference; the
 `docs/WINDOWS_11_LOCAL_RUNBOOK.md` has the detailed local-run instructions.
 
-> **Latest session (2026-06-11): Sprint 0 closed; Phase 1 / A4 audit complete.**
-> Status correction first: RT-1/RT-2/RT-3 (and in fact RT-1..RT-18) were already
-> completed on 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b` — `df29906b`
-> also migrated `routes/` → `backend/routes/`); the v2.0 plan listed them from a
-> stale snapshot. This session executed the genuinely open items:
-> **N3** — deleted the 4 legacy axis files + their orphaned governance enums in
-> `core/coordinate_system.py` + cleaned `core/axes/__init__.py`.
-> **N4** — Axis 4 = DomainManager (documented), Axis 5 deliberately unmanaged
-> (documented + tested); found and fixed a live bug: all 4 `backend/honeycomb_api.py`
-> endpoints looked up Honeycomb at legacy Axis 5 instead of canonical Axis 3 and
-> always returned 500; also added missing auth decorators to all honeycomb routes.
-> **A4** — full audit of `backend/local_model_acceleration/` (8 files): wiring,
-> Tier 0 trace, cache invalidation, failure modes all verified; fixed a
-> cache-hit coroutine-lifecycle bug in `gateway.py` (A4-1), a stale keepalive
-> config bug (A4-2), and added the package to `backend.spec` (A4-3). Findings
-> A4-4/5/7/8 assigned forward to A3/A1b. Full detail in `REPO_AUDIT_LOG.md`.
-> Full suite: 2003+ passed / 21 skipped / ruff clean.
-> **Next: A3 — `backend/llm_gateway/` audit** (9 files; includes N2
-> defense_supervisor wiring assessment and the A4-4/5/8 carry-overs).
-> Prior session (2026-06-10): complete audit plan v2.0 (SEKRE + defense_supervisor
-> verdicts; both still unwired — N1 after A6b, N2 during A3).
-> Prior to that (2026-06-07): routes audit; (2026-05-31): desktop chat —
-> [Section 10](#10-desktop-chat-enablement-2026-05-31).
+> **Audit Plan v2.0 progress (2026-06-11).** Working through
+> `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. Per-session detail
+> lives in `REPO_AUDIT_LOG.md`; the live status table is in
+> [Section 8](#8-open--next).
+>
+> | Session | Scope | Commit | Result |
+> |---|---|---|---|
+> | Sprint 0 | N3 delete legacy axes, N4 Axis 4/5 + honeycomb Axis-3 bug | `821737d1` | ✅ |
+> | A4 | `local_model_acceleration/` | `821737d1` | ✅ A4-1/2/3 fixed |
+> | A3 | `llm_gateway/` + N2 defense supervisor wired | `1ddeec49` | ✅ |
+> | A1a | `truth_core/` + `truth_gate/` | `86486a78` | ✅ A1a-1 fixed |
+> | **A1b** | `truth_memory/` + `truth_link/` + top-level | — | **NEXT** |
+>
+> Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
+> 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
+> `routes/` → `backend/routes/`) — the v2.0 plan listed them from a stale
+> snapshot. Full suite at last commit: **2033 passed / 21 skipped / 0 failed**,
+> ruff clean. Still unwired: `core/self_evolving/sekre_engine.py` (N1, wire
+> after A6b).
 
 ---
 

@@ -6,29 +6,36 @@
 
 ## Audit Status Summary
 
-### Already Completed ✅
+### Execution progress (updated 2026-06-11)
 
-| Sprint | What was done | Doc |
+| Session | Scope | Status | Commit | Key result |
+|---|---|---|---|---|
+| AUDIT-SPRINT-1/2/3 | dup classes, import inversions, compliance stubs | ✅ done | (pre-plan) | — |
+| ROUTES RT-1..RT-18 | all 22 route files | ✅ done | `df29906b` `0eb2b0bb` `cc01c15b` | completed 2026-06-07/08 (plan listed them stale) |
+| **Sprint 0** | N3 legacy axes, N4 Axis 4/5 | ✅ done | `821737d1` | + fixed honeycomb_api Axis-5→Axis-3 500 bug, added auth |
+| **A4** | `local_model_acceleration/` | ✅ done | `821737d1` | A4-1 coroutine lifecycle, A4-2 keepalive reload, A4-3 spec |
+| **A3** | `llm_gateway/` + N2 | ✅ done | `1ddeec49` | N2 defense supervisor wired; 4 status endpoints secured; A4-4/5/8 |
+| **A1a** | `truth_core/` + `truth_gate/` | ✅ done | `86486a78` | A1a-1 fixed hardcoded audit latency |
+| **A1b** | `truth_memory/` + `truth_link/` + top-level | ⏭ NEXT | — | resolve A3-3/A1a-3 (Tier 2+ commit gate), A4-7 (cache-hit audit) |
+| A2 | `dsqp/` | ☐ | — | patent-claim verification |
+| A5 | `dmrf/` | ☐ | — | 17-axis router, FROST bridge |
+| A6a/A6b | `core/simulation/` 10-layer stack | ☐ | — | then wire N1 SEKRE after A6b |
+| A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
+
+Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
+Live test baseline: **2033 passed / 21 skipped**.
+
+### Open carry-over findings (tracked across sessions)
+
+| ID | Finding | Resolve in |
 |---|---|---|
-| AUDIT-SPRINT-1 | Duplicate classes, module name collisions, misplaced files eliminated | `docs/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md` |
-| AUDIT-SPRINT-2 | All 26 `core → backend` import inversions resolved | Same |
-| AUDIT-SPRINT-3 | All 5 compliance manager stubs replaced with real SOC 2 checks | Same |
-| ROUTES | All 22 route files audited; 20 issues found; RT-1 through RT-18 defined | `docs/audits/DataLogicEngine_Routes_Audit.md` |
-
-### Immediately Executable ⚡
-
-| ID | Task | File | Severity |
-|---|---|---|---|
-| RT-1 | Rename 4 duplicate `process_document` handlers | `backend/routes/multimodal_routes.py` | 🔴 Functional bug |
-| RT-2 | Add `@login_required` to `/suggest` endpoint | `backend/routes/search_routes.py` | 🔴 Security |
-| RT-3 | Register `settings_bp` | `routes/__init__.py` | 🟡 Unreachable |
-| RT-4 | Register or delete `analytics_bp` | `routes/__init__.py` | 🟡 Unreachable |
-| RT-5 | Register `retention_bp` | `routes/__init__.py` | 🟡 Unreachable |
-| RT-6 | Consolidate 3 overlapping user-data deletion endpoints | `routes/user_data_routes.py` | 🟡 Data integrity |
-| RT-7–RT-18 | Remaining route quality/consistency fixes | See routes audit doc | 🟢 Quality |
-| SC-2 | Encryption decision: upgrade Fernet→AES-256-GCM or correct docs | `backend/security/encryption_manager.py` | 🟡 Kevin decides |
-| N3 | Delete 4 legacy axis files | `core/axes/` | 🟢 Cleanup |
-| N4 | Resolve Axis 4/5 gap | `core/axes/axis_system.py` | 🟢 Cleanup |
+| A3-3 / A1a-3 | `_create_trace_run` Tier 2+ audit-commit gate excludes the `"moderate"` tier string — verify SDK/UKGOverlay tier vocabulary; Tier 2 runs may skip audit-bundle commit | A1b |
+| A4-7 | exact-cache hit serves a Tier 2+ answer with no new `TruthAuditEvent` | A1b |
+| A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 |
+| A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 |
+| A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup |
+| A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 |
+| SC-2 | Encryption: Fernet→AES-256-GCM decision (note: AES-256-GCM landed in Sprint 2 `EncryptionManager`; confirm docs) | A10 / A31 |
 
 ---
 
@@ -379,20 +386,20 @@ Socket.IO trace stream receiving `trace_stage_update` events end-to-end. All API
 
 ## Complete Session Sequence
 
-```
-Sprint 0 (execute immediately — no audit needed, tasks are fully defined):
-  RT-1   Rename multimodal handlers
-  RT-2   Add auth to /search/suggest
-  RT-3   Register settings_bp
-  N3     Delete 4 legacy axis files
-  N4     Resolve Axis 4/5 gap in axis_system.py
+`✅` done · `⏭` next · `☐` pending
 
-Phase 1 — Live query path (7 sessions):
-  A4 → A3 → A1a → A1b → A2 → A5 → A6a → A6b
+```
+Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
+  RT-1..RT-18  ✅ already complete
+  N3     ✅ Delete 4 legacy axis files
+  N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
+
+Phase 1 — Live query path:
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ⏭ → A2 ☐ → A5 ☐ → A6a ☐ → A6b ☐
 
   Interleaved:
-  N2   Wire defense_supervisor.txt (during A3 — gateway/security context)
-  N1   Wire SekreEngine (after A6b — layer stack must be mapped first)
+  N2   ✅ Wired defense_supervisor.txt during A3
+  N1   ☐ Wire SekreEngine (after A6b — layer stack must be mapped first)
 
 Phase 2 — Reasoning depth (8 sessions):
   A7 → A8a → A8b → A9 → A10 → A11 → A12 → A13 → A14
