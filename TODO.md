@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-07 (routes audit session)
+**Last updated:** 2026-06-10 (complete audit plan session)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -50,7 +50,7 @@ Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implement
 
 KA production-depth update: 2026-06-08. First model-ops KA batch is implemented and locally validated. `KA-084`, `KA-087`, `KA-089`, and `KA-090` now derive monitoring, versioning, pruning, and quantization outputs from supplied metrics/artifact/model metadata instead of canned placeholder values, and their constructor config overrides work with file-backed defaults. Continue the broader KA production-depth review with the remaining thin heuristic KAs.
 
-Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes audit completed 2026-06-07: 22 route files reviewed across `routes/` and `backend/routes/`; 20 issues identified; RT-1 through RT-18 sprint tasks defined. Sprint 1 eliminated duplicate class names, module name collisions, and misplaced files. Sprint 2 resolved all core→backend import inversions (`find_core_backend_inversions.py` reports 0 lines; `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`). Sprint 3 replaced all 5 stub `_check_*` compliance methods with real SOC 2 Type 2 runtime checks (SC-1 through SC-5) plus 25 unit tests. Full suite: 1855 passed / 21 skipped / 0 failures.
+Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes audit completed 2026-06-07: 22 route files reviewed across `routes/` and `backend/routes/`; 20 issues identified; RT-1 through RT-18 sprint tasks defined. Complete remaining audit plan produced 2026-06-10: live scan of all 1,049-commit repo identified 32 audit areas across ~36 sessions; plan saved to `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`. Sprint 1 eliminated duplicate class names, module name collisions, and misplaced files. Sprint 2 resolved all core→backend import inversions (`find_core_backend_inversions.py` reports 0 lines; `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`). Sprint 3 replaced all 5 stub `_check_*` compliance methods with real SOC 2 Type 2 runtime checks (SC-1 through SC-5) plus 25 unit tests. Full suite: 1855 passed / 21 skipped / 0 failures.
 
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
@@ -117,6 +117,22 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - Sprint tasks: RT-1 through RT-18 — see `docs/audits/DataLogicEngine_Routes_Audit.md` for full task list and exit gates.
     - Audit file: `docs/audits/DataLogicEngine_Routes_Audit.md`
     - Status: Audit complete, sprint execution pending.
+
+16. [x] REPO-AUDIT-COMPLETE-PLAN: full remaining audit plan produced from live repo scan.
+    - Evidence: live MCP scan of all 1,049-commit repo on 2026-06-10. 32 audit areas
+      identified across ~36 sessions covering every unaudited folder: `backend/truth_engine/`,
+      `backend/dsqp/`, `backend/llm_gateway/`, `backend/local_model_acceleration/` (NEW — Sprint 6
+      Ollama/6-tier escalation, never audited), `backend/dmrf/`, `core/simulation/` (49 files),
+      all 117 KAs + config layer, `core/persona/quad/`, `backend/security/` (28 files),
+      `core/axes/` (duplicate axis number issue found), `backend/storage/`, `core/system/`,
+      `sdk/UKG_Python_SDK/`, full frontend, tests, and remaining backend subsystems.
+    - Four new discoveries not in any prior plan: (1) `backend/local_model_acceleration/` never
+      audited; (2) axes 14–17 each have duplicate Python files; (3) `core/self_evolving/
+      sekre_engine.py` unknown purpose/status; (4) `prompts/defense_supervisor.txt` at repo root
+      unknown what uses it.
+    - Audit file: `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`
+    - Status: Plan complete. Phase 1 (live pipeline) is the immediate next execution priority.
+      Recommended first session: A4 `backend/local_model_acceleration/` (newest, unreviewed).
 
 ### Trace Viewer Wiring Phased Update Plan
 

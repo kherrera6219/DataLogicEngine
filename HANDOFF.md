@@ -1,18 +1,21 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-07 (routes audit session)_
+_Last updated: 2026-06-10 (complete audit plan session)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
 known-good verification steps. It is the primary handoff reference; the
 `docs/WINDOWS_11_LOCAL_RUNBOOK.md` has the detailed local-run instructions.
 
-> **Latest session (2026-06-07): routes audit complete.** All 22 route files
-> across `routes/` and `backend/routes/` reviewed live. 20 issues found,
-> 2 are functional bugs (RT-1, RT-2). Sprint tasks RT-1 through RT-18 defined.
-> See `docs/audits/DataLogicEngine_Routes_Audit.md`. Prior session (2026-05-31)
-> enabled end-to-end Enterprise AI chat; full detail in
-> [Section 10](#10-desktop-chat-enablement-2026-05-31).
+> **Latest session (2026-06-10): complete remaining audit plan produced.** Live MCP
+> scan of all 1,049 commits. 32 audit areas identified across ~36 sessions covering
+> every unaudited folder. Four new findings not in any prior plan: (1)
+> `backend/local_model_acceleration/` (Sprint 6, Ollama/6-tier, never audited);
+> (2) axes 14–17 have duplicate Python files; (3) `core/self_evolving/sekre_engine.py`
+> unknown; (4) `prompts/defense_supervisor.txt` unknown. Plan saved to
+> `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`. Prior session (2026-06-07):
+> routes audit; prior to that (2026-05-31): desktop chat enabled.
+> Full detail in [Section 10](#10-desktop-chat-enablement-2026-05-31).
 
 ---
 
@@ -152,33 +155,44 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   has no `@login_required` decorator. Every other search endpoint requires auth.
   Add `@login_required` to match the blueprint.
 
-### Routes sprint (RT-1 through RT-18)
+### Next audit session
 
-Full task list and exit gates: `docs/audits/DataLogicEngine_Routes_Audit.md`
+**Start with A4: `backend/local_model_acceleration/`** — 8 files, the entire
+Ollama/6-tier escalation subsystem added in Sprint 6. It is the most recent work,
+touches every query (as Tier 0), and has never been reviewed.
 
-**Priority order:**
+Full audit sequence: `docs/audits/DataLogicEngine_Complete_Audit_Plan.md`
 
-1. RT-1 + RT-2: fix the two functional bugs above
-2. RT-3, RT-4, RT-5: register the three missing non-overlapping blueprints
-   (`settings_bp`, `analytics_bp`, `retention_bp`) — each is one line in
-   `routes/__init__.py`
-3. RT-6: consolidate the three overlapping user-data deletion/export endpoints
-   into a single canonical implementation in `routes/user_data_routes.py`
-4. RT-7 through RT-18: remaining quality and consistency fixes
+Phase 1 order (live query path): A4 → A3 → A1a → A1b → A2 → A5
+- A4: `backend/local_model_acceleration/` — Ollama/keepalive/cache/safety
+- A3: `backend/llm_gateway/` — gateway, 6-tier escalation, complexity classifier
+- A1a: `backend/truth_engine/truth_core/` + `truth_gate/`
+- A1b: `backend/truth_engine/truth_memory/` + `truth_link/` + top-level
+- A2: `backend/dsqp/` — patent claim, dynamic persona construction
+- A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
+
+**New findings from the June 10 scan to investigate early:**
+- `core/self_evolving/sekre_engine.py` — never mentioned anywhere; unknown if live
+- `prompts/defense_supervisor.txt` — repo-root prompt file; unknown what uses it
+- `core/axes/` — axes 14–17 each have two files; may be loading wrong definitions
+
+### Routes sprint (RT-3 through RT-18) — after RT-1/RT-2 fixed
+
+Full task list: `docs/audits/DataLogicEngine_Routes_Audit.md`
+
+1. RT-3, RT-4, RT-5: register `settings_bp`, `analytics_bp`, `retention_bp`
+2. RT-6: consolidate three overlapping user-data deletion/export endpoints
+3. RT-7 through RT-18: remaining quality and consistency fixes
 
 ### Carry-over from prior sessions
 
 - ~~End-to-end chat~~ — resolved (Section 10). gpt-5.5 returns real replies.
 - ~~`anthropic` package~~ — non-issue; provider uses raw `httpx`.
 - **Minor:** `RAG context retrieval failed: Access is denied ... llama_index` in
-  installed app — llama_index touches a path under read-only Program Files.
-  Non-fatal; chat works without RAG context. Move RAG index dir to per-user
-  runtime dir when RAG context in chat becomes a priority.
-- **Minor:** Gemini/Anthropic providers still use async `httpx`. If either
-  becomes the active chat provider, apply the sync-call pattern from Section 10
-  to avoid the Flask `async_to_sync` event-loop issue.
-- Settings UI: consider surfacing `test_provider` status codes inline in
-  `ApiOverlayConfig.tsx` so an invalid key shows "Invalid API key" in the UI.
+  installed app. Non-fatal; move RAG index dir to per-user runtime dir when needed.
+- **Minor:** Gemini/Anthropic providers still use async `httpx`. Apply sync-call
+  pattern from Section 10 if either becomes the active chat provider.
+- Settings UI: surface `test_provider` status codes inline in `ApiOverlayConfig.tsx`.
 
 ## 9. CI Status (2026-05-30 night)
 
