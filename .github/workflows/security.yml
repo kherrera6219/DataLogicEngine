@@ -28,8 +28,13 @@ jobs:
         pip install pip-audit
 
     - name: Run pip-audit on locked requirements
+      # CVE-2025-3000: memory corruption in torch.jit.script, local-host attack
+      # only, no patched torch release exists. torch is a transitive dependency
+      # (transformers / sentence-transformers) and the app never calls
+      # torch.jit.script on any input — not reachable. Accepted-risk suppression;
+      # revisit when an upstream fix ships. See TODO.md "CI And Security Evidence".
       run: |
-        pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json
+        pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000
 
     - name: Upload dependency scan report
       uses: actions/upload-artifact@v5

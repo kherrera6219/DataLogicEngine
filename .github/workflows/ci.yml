@@ -40,8 +40,11 @@ jobs:
         pip install neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira
 
     - name: Security Audit
+      # CVE-2025-3000 (torch.jit.script memory corruption, local-host only, no
+      # patched release) is suppressed: torch is transitive and the app never
+      # calls torch.jit.script. Keep in sync with security.yml. See TODO.md.
       run: |
-        pip-audit -r requirements.txt --desc
+        pip-audit -r requirements.txt --desc --ignore-vuln CVE-2025-3000
 
     - name: Run smoke bootstrap check
       run: |
