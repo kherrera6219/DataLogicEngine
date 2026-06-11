@@ -472,6 +472,7 @@ class LLMGateway:
         Process a gateway request with failover and circuit breaker.
         """
         run_id = str(uuid.uuid4())
+        request.meta["run_id"] = run_id
         start_time = datetime.now(UTC)
 
         query = self._extract_query(request.messages)
@@ -971,11 +972,38 @@ class LLMGateway:
                             tokens_out=tokens_out,
                             estimated_cost_usd=estimated_cost_usd,
                             success=True,
-                            metadata={"timestamp": datetime.now(UTC).isoformat()},
+                            metadata={
+                                "timestamp": datetime.now(UTC).isoformat(),
+                                "original_run_id": request.meta.get("local_model_acceleration", {}).get("original_run_id")
+                            },
                         )
                         
                         if request.session_id and _store_history:
                             await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
+                        
+                        # If Tier 2+ and it was a cache hit, record a compliance cache hit audit event
+                        _accel_meta = request.meta.get("local_model_acceleration", {})
+                        if _accel_meta.get("cache_hit"):
+                            tier = result.get("tier") or request.meta.get("escalation_tier")
+                            _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
+                            if tier and str(tier).lower().strip() not in _tier_exclusions:
+                                try:
+                                    from backend.truth_engine.truth_memory.manager import TruthMemoryManager
+                                    memory_mgr = TruthMemoryManager(db_session=self.db)
+                                    memory_mgr.audit_logger.log_event(
+                                        session_id=request.session_id or f"session_{uuid.uuid4().hex[:12]}",
+                                        event_type="cache_hit",
+                                        event_data={
+                                            "run_id": run_id,
+                                            "original_run_id": _accel_meta.get("original_run_id"),
+                                            "query": query,
+                                            "model": model,
+                                            "tier": str(tier),
+                                        },
+                                        category="compliance"
+                                    )
+                                except Exception as audit_exc:
+                                    logger.warning("Failed to record cache hit audit event: %s", audit_exc)
                                               
                         return self._build_response(
                             result, run_id, provider_record, model, latency_ms,
@@ -1558,7 +1586,8 @@ class LLMGateway:
 
         tier = result.get("tier")
         content = result.get("answer", "")
-        if tier and str(tier) not in ("", "1", "t1", "trivial", "moderate"):
+        _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
+        if tier and str(tier).lower().strip() not in _tier_exclusions:
             content = content + "\n\n" + self._audit_footer(result, tier, latency_ms)
 
         _esc = escalation_meta or {}
@@ -1924,7 +1953,8 @@ class LLMGateway:
                 logger.warning("F-CONF-01 calculation failed (non-fatal): %s", conf_exc)
 
             # Commit audit bundle for Tier 2+ runs
-            if sdk_tier and sdk_tier not in ("", "1", "t1", "trivial", "moderate"):
+            _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
+            if sdk_tier and str(sdk_tier).lower().strip() not in _tier_exclusions:
                 try:
                     from backend.truth_engine.truth_memory.commit_service import TruthMemoryCommitService
                     TruthMemoryCommitService().commit(run, db.session)

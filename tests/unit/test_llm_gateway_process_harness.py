@@ -66,8 +66,9 @@ def gateway(monkeypatch):
 class _StubAccelManager:
     """Acceleration manager stub honoring the generate_with_cache contract."""
 
-    def __init__(self, mode: str):
+    def __init__(self, mode: str, tier: str = None):
         self.mode = mode  # "hit" | "miss" | "raise_before_call"
+        self.tier = tier
         self.keepalive_models: list[str] = []
 
     def start_keepalive(self, model, provider_type="ollama"):
@@ -80,11 +81,17 @@ class _StubAccelManager:
             return {
                 "ok": True,
                 "answer": "cached answer",
+                "tier": self.tier,
                 "usage": {"prompt_tokens": 0, "completion_tokens": 0},
                 "explainability": {},
                 "warnings": [],
                 "error": None,
-                "_acceleration": {"acceleration_enabled": True, "cache_hit": True, "source": "exact_cache"},
+                "_acceleration": {
+                    "acceleration_enabled": True,
+                    "cache_hit": True,
+                    "source": "exact_cache",
+                    "original_run_id": "test_original_run_123",
+                },
             }
         result = await call_model()
         result.setdefault("_acceleration", {"acceleration_enabled": True, "cache_hit": False, "source": "model"})
@@ -206,3 +213,55 @@ def test_recent_context_summary_excludes_latest_and_truncates():
     assert "latest question" not in summary
     assert "first question" in summary
     assert "x" * 101 not in summary
+
+
+@pytest.mark.asyncio
+async def test_process_cache_hit_tier2_records_audit(gateway, monkeypatch):
+    """Tier 2+ cache hits must log a cache_hit compliance audit event."""
+    _patch_accel(monkeypatch, _StubAccelManager("hit", tier="moderate"))
+
+    mock_log_event = MagicMock()
+    monkeypatch.setattr(
+        "backend.truth_engine.truth_memory.audit.TruthAuditRecorder.log_event",
+        mock_log_event
+    )
+
+    request = _make_request()
+    # Ensure it's treated as Tier 2+
+    request.meta["escalation_tier"] = "moderate"
+
+    response = await gateway.process(request)
+
+    assert response.content.startswith("cached answer")
+    assert mock_log_event.call_count == 1
+    
+    args, kwargs = mock_log_event.call_args
+    assert kwargs.get("event_type") == "cache_hit"
+    assert kwargs.get("category") == "compliance"
+    
+    event_data = kwargs.get("event_data", {})
+    assert event_data.get("original_run_id") == "test_original_run_123"
+    assert event_data.get("tier") == "moderate"
+    assert event_data.get("model") == "gemma4:12b"
+
+
+@pytest.mark.asyncio
+async def test_process_cache_hit_tier1_skips_audit(gateway, monkeypatch):
+    """Tier 0/1 cache hits (t1, trivial, etc.) must not log a compliance audit event."""
+    _patch_accel(monkeypatch, _StubAccelManager("hit", tier="t1"))
+
+    mock_log_event = MagicMock()
+    monkeypatch.setattr(
+        "backend.truth_engine.truth_memory.audit.TruthAuditRecorder.log_event",
+        mock_log_event
+    )
+
+    request = _make_request()
+    # Explicitly set tier to t1 (excluded) in result/request
+    request.meta["escalation_tier"] = "t1"
+
+    response = await gateway.process(request)
+
+    assert response.content == "cached answer"
+    # Ensure log_event was never called for cache hit audit
+    assert mock_log_event.call_count == 0

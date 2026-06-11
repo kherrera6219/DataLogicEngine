@@ -265,6 +265,7 @@ class LocalModelAccelerationManager:
                         "cache_hit": True,
                         "source": "exact_cache",
                         "cache_key_prefix": cache_key[:12],
+                        "original_run_id": hit["metadata"].get("original_run_id") if hit.get("metadata") else None,
                     },
                 }
 
@@ -284,7 +285,11 @@ class LocalModelAccelerationManager:
                 self._response_cache.set(
                     cache_key=cache_key,
                     response=answer,
-                    metadata={"model": model_name, "task_type": task_type},
+                    metadata={
+                        "model": model_name,
+                        "task_type": task_type,
+                        "original_run_id": (metadata or {}).get("run_id")
+                    },
                     ttl_days=config.cache_ttl_days,
                     model_name=model_name,
                     provider_type=provider_type,

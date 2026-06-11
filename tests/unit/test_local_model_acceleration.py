@@ -464,6 +464,39 @@ class TestLocalModelAccelerationManager:
         assert r2["answer"] == "The speed of light is 299,792,458 m/s."
 
     @pytest.mark.asyncio
+    async def test_original_run_id_round_trip(self, tmp_path: Path) -> None:
+        """Cache hit must return the original run_id that populated it."""
+        mgr = self._make_manager(tmp_path)
+        call_count = 0
+
+        async def _call():
+            nonlocal call_count
+            call_count += 1
+            return {"ok": True, "answer": "Boiling point of water is 100C."}
+
+        opts = {"temperature": 0.0, "max_tokens": 512,
+                "run_ukg_pipeline": True, "mode": "standard"}
+        kwargs = dict(
+            provider_type="ollama",
+            model_name="gemma4:latest",
+            task_type="gateway_chat",
+            prompt="What is the boiling point of water?",
+            rag_context="",
+            options=opts,
+            metadata={"run_id": "original_gw_run_456"},
+        )
+
+        # First call (miss) - stores cache
+        r1 = await mgr.generate_with_cache(**kwargs, call_model=_call)
+        assert r1.get("_acceleration", {}).get("cache_hit") is False
+
+        # Second call (hit) - retrieves cache
+        r2 = await mgr.generate_with_cache(**kwargs, call_model=_call)
+        accel = r2.get("_acceleration", {})
+        assert accel.get("cache_hit") is True
+        assert accel.get("original_run_id") == "original_gw_run_456"
+
+    @pytest.mark.asyncio
     async def test_disabled_feature_bypasses_cache(self, tmp_path: Path) -> None:
         """When acceleration is disabled, model is always called, cache is not checked."""
         from backend.local_model_acceleration.config import LocalModelAccelerationConfig

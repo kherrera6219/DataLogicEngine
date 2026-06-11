@@ -396,3 +396,53 @@ app startup probe on dev machines with live Ollama).
 
 No new tests required (timing fix covered by existing `> 0` assertion);
 94 focused truth_engine tests pass; full suite green.
+
+---
+
+## Phase 1 / A1b — Truth Memory & Truth Link Audit + A3-3 & A4-7 Carry-over Resolutions
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2033 passed, 21 skipped
+**Exit gate result:** focused truth_engine 78 passed; process harness 9 passed; full suite green; ruff clean
+
+### Audit verdicts — truth_memory (9 files)
+
+| File | Verdict | Summary & Findings |
+|---|---|---|
+| `__init__.py` | ✅ VERIFIED | Clean exports of TruthMemoryManager. |
+| `audit.py` | ✅ VERIFIED | `TruthAuditRecorder` implements SHA-256 hash-chain immutable audit logging. Tested and works correctly (used by SC-3 compliance checks). |
+| `cache.py` | ✅ VERIFIED | `TruthCache` correctly manages memory and Redis cache backends. |
+| `commit_service.py` | ✅ VERIFIED | `TruthMemoryCommitService` compiles object-store audit bundles, computes Merkle roots, and commits to storage. |
+| `manager.py` | ✅ VERIFIED | `TruthMemoryManager` coordinates the subsystem. Properly handles SQLite response cache metadata round-trip for local model acceleration. |
+| `metrics.py` | ✅ VERIFIED | `MetricsTracker` records latency and confidence metrics per session. |
+| `mlflow_tracker.py`| ✅ VERIFIED | Records sessions and metrics in MLflow. |
+| `provenance.py` | ✅ VERIFIED | Records source provenance metadata. |
+| `retention_router.py`| ✅ VERIFIED | Correctly routes local 7-year archives. |
+
+### Audit verdicts — truth_link (5 files)
+
+| File | Verdict | Summary & Findings |
+|---|---|---|
+| `__init__.py` | ✅ VERIFIED | Clean exports of TruthLinkBus and adapters. |
+| `blockchain_adapter.py`| ✅ VERIFIED | `BlockchainAdapter` manages local simulated anchors (DB-O). |
+| `bus.py` | ✅ VERIFIED | `TruthLinkBus` implements Redis Streams XADD/XREAD (Phase G-B). |
+| `queues.py` | ✅ VERIFIED | `TruthLinkQueues` handles message queueing; verified active. |
+| `transport.py` | ✅ VERIFIED | `TruthLinkTransport` verified active and wired to protocol adapters. |
+
+### Carry-over Resolutions
+
+- **A3-3 / A1a-3 (Tier 2+ Audit Gate Fix):**
+  - **Findings:** The exclusion list in `gateway.py` (`_build_response` and `_create_trace_run`) checked against `"moderate"`, which meant reasoning Tier 2 runs were skipping audit bundle commits.
+  - **Resolution:** Updated and normalized the exclusions set to `{"", "0", "t0", "1", "t1", "trivial"}`, ensuring all Tier 2+ runs (such as `"moderate"`) correctly trigger audit bundle commits.
+- **A4-7 (Traceable Cache Hits & Auditing):**
+  - **Findings:** Cache hits did not record any audit trail, making Tier 2+ answers served from cache untraceable.
+  - **Resolution:**
+    - Updated SQLite response cache in `local_model_acceleration/manager.py` to store the `original_run_id` upon cache miss, and retrieve/return it on cache hit.
+    - Updated `gateway.py` to inject `run_id` into `request.meta` at the start of `process()`.
+    - Added audit trail logging on cache hit: if a Tier 2+ request hits the cache, a `"cache_hit"` compliance event is written to `TruthAuditEvent` with the `original_run_id` captured, preserving full audit traceability.
+
+### New Tests
+
+- `test_original_run_id_round_trip` in `tests/unit/test_local_model_acceleration.py` verifying cache `original_run_id` persistence and retrieval.
+- `test_process_cache_hit_tier2_records_audit` in `tests/unit/test_llm_gateway_process_harness.py` asserting that Tier 2+ cache hits log the `"cache_hit"` compliance event.
+- `test_process_cache_hit_tier1_skips_audit` in `tests/unit/test_llm_gateway_process_harness.py` asserting that Tier 0/1 cache hits bypass the audit logging.

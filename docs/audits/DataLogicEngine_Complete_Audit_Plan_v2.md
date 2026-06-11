@@ -16,8 +16,8 @@
 | **A4** | `local_model_acceleration/` | ✅ done | `821737d1` | A4-1 coroutine lifecycle, A4-2 keepalive reload, A4-3 spec |
 | **A3** | `llm_gateway/` + N2 | ✅ done | `1ddeec49` | N2 defense supervisor wired; 4 status endpoints secured; A4-4/5/8 |
 | **A1a** | `truth_core/` + `truth_gate/` | ✅ done | `86486a78` | A1a-1 fixed hardcoded audit latency |
-| **A1b** | `truth_memory/` + `truth_link/` + top-level | ⏭ NEXT | — | resolve A3-3/A1a-3 (Tier 2+ commit gate), A4-7 (cache-hit audit) |
-| A2 | `dsqp/` | ☐ | — | patent-claim verification |
+| **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | — | completed 2026-06-11; resolved A3-3/A1a-3, A4-7 |
+| **A2** | `dsqp/` | ⏭ NEXT | — | patent-claim verification |
 | A5 | `dmrf/` | ☐ | — | 17-axis router, FROST bridge |
 | A6a/A6b | `core/simulation/` 10-layer stack | ☐ | — | then wire N1 SEKRE after A6b |
 | A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
@@ -395,7 +395,7 @@ Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
   N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
 
 Phase 1 — Live query path:
-  A4 ✅ → A3 ✅ → A1a ✅ → A1b ⏭ → A2 ☐ → A5 ☐ → A6a ☐ → A6b ☐
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ⏭ → A5 ☐ → A6a ☐ → A6b ☐
 
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3
