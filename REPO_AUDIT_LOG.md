@@ -617,3 +617,84 @@ db-o/dmrf/phase_g/phase_e/persona suites all green; ruff clean.
 +2 in `tests/dmrf/test_dmrf_integration.py` (configurable offline cap incl.
 unknown-value fallback; DMRFDesktopConfig wired into orchestrator). DMRF
 integration 11 passed; full suite green; ruff clean.
+
+---
+
+## Phase 1 / A6a — core/simulation/ L1–L5 Layer Map + Legacy-Cluster Removal
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2047 passed, 21 skipped
+**Exit gate result:** full suite green; ruff clean; 12 dead files removed; L5 override fixed
+
+### How the simulation stack is actually wired
+
+`core/simulation/simulation_engine.py` `SimulationEngine` is the live engine,
+instantiated by `app_orchestrator.py` (→ mcp_manager / rest_api / mcp_routes),
+`core/orchestration/master_workflow.py`, and `core/system/system_initializer.py`.
+It is a **parallel path to the gateway's TruthCore/SDK chat path** (QPE/simulation).
+`SimulationEngine` wires L4–L10 itself (via `_initialize_simulation_layers`);
+L1–L3 are run by `master_workflow.py`.
+
+**Authoritative L1–L5 live map:**
+
+| Layer | LIVE file | Wired by |
+|---|---|---|
+| L1 | `layer1_entry.py` | master_workflow |
+| L2 | `layer2_knowledge.py` | master_workflow |
+| L3 | `layer3_expert.py` | master_workflow |
+| L4 | `layer4_reasoning.py` | SimulationEngine |
+| L5 | `layer5_integration.py` (canonical, DUP-3) | SimulationEngine |
+
+### Fix this session
+
+- **A6a-1 — L5 override bug (live engine).** `SimulationEngine.__init__` called
+  `_initialize_simulation_layers()` (which sets the **canonical**
+  `layer5_integration.Layer5IntegrationEngine`) and then a later duplicate block
+  re-imported the **legacy** `layer5_legacy_integration` engine and overwrote
+  `self.layer5_engine` — so the live engine ran the legacy L5, contradicting
+  DUP-3 and `tests/simulation/test_simulation_layers.py` (which expects the
+  canonical engine, asserting `'layer5_integration'` in the result). Removed the
+  redundant block (also dropped a redundant L7 re-init). Both `.process()`
+  signatures are compatible and the run-time guards check `not self.layer5_engine`,
+  so failure handling is unchanged.
+
+### Dead code removed (12 files — all confirmed zero-importer across core/backend/routes/tests/app + backend.spec + dynamic-import scan)
+
+Two parallel **dead orchestrators** were the root of the per-layer file
+duplication — each wired its own L1/L2/L3 variant but neither has any importer:
+
+- `orchestrator.py` (`SimulationOrchestrator`) — 0 importers
+- `layer_controller.py` (`LayerController`) — 0 importers
+
+Removing them made their exclusive dependency chains dead:
+
+| Removed | Was imported only by |
+|---|---|
+| `truth_engine.py` | nothing (plan-confirmed orphan) |
+| `layer1_database.py` | nothing |
+| `orchestrator.py` | nothing |
+| `layer_controller.py` | nothing |
+| `layer1_legacy_entry.py` | orchestrator.py |
+| `layer1_planning.py` | layer_controller.py |
+| `layer2_legacy_knowledge.py` | orchestrator.py + layer2_retrieval.py |
+| `layer2_retrieval.py` | layer_controller.py |
+| `layer3_agents.py` | orchestrator.py |
+| `layer3_agent_engine.py` | layer_controller.py |
+| `layer5_legacy_integration.py` | layer_controller.py + (the removed L5 override) |
+| `layer5_pipeline.py` | layer5_legacy_integration.py |
+
+Net: the three-orchestrator / three-files-per-layer mess collapses to a single
+live orchestration (master_workflow + SimulationEngine) with one file per layer.
+
+### Carried to A6b
+
+L6–L10 mapping (`layer6_enhancement` vs `layer6_neural_analysis`; `layer8_quantum`
+vs `layer8_quantum_computer`; `layer9_recursive` vs `layer9_recursive_agi`;
+`layer10_synthesis` vs `layer10_self_awareness`), `legacy_simulation_engine.py`
+(still live via persona_api/truth_engine api), the `agentic/` subdir, A1a-2
+(`truth_core/router.py` LLMRouter) and A1a-4 (Mock fallback), then **wire N1 SEKRE**.
+
+### Tests
+
+No test changes needed — the canonical L5 was already the tested one;
+`tests/simulation/` (53) + end_to_end green; full suite green; ruff clean.

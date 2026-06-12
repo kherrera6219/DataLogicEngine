@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2/A5 audits complete; N2 wired; A2-2 DSQP LLM construction built; A6a next)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2/A5/A6a audits complete; N2 wired; A2-2 DSQP LLM construction built; A6b next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,22 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+25. [x] AUDIT-A6a: Phase 1 session 7 — `core/simulation/` L1–L5 layer map + legacy-cluster removal.
+    - Verdicts/map in `REPO_AUDIT_LOG.md` (A6a entry). Live path: `SimulationEngine` (via app_orchestrator
+      / master_workflow / system_initializer) wires L4–L10; master_workflow wires L1–L3. Authoritative
+      L1–L5 live files: layer1_entry, layer2_knowledge, layer3_expert, layer4_reasoning, layer5_integration.
+    - Fix A6a-1: `SimulationEngine.__init__` was overwriting the canonical `layer5_integration` engine with
+      the legacy `layer5_legacy_integration` after `_initialize_simulation_layers` set the canonical one;
+      removed the redundant block (+ redundant L7 re-init) so canonical L5 wins (matches DUP-3 + the test).
+    - Removed 12 confirmed zero-importer dead files: two parallel dead orchestrators
+      (`orchestrator.py`/`SimulationOrchestrator`, `layer_controller.py`/`LayerController`) and their
+      exclusive dependency chains (truth_engine, layer1_database, layer1_legacy_entry, layer1_planning,
+      layer2_legacy_knowledge, layer2_retrieval, layer3_agents, layer3_agent_engine,
+      layer5_legacy_integration, layer5_pipeline). Three-orchestrator / three-files-per-layer mess
+      collapses to one live orchestration with one file per layer.
+    - Validation: focused simulation 53 passed + end_to_end; full suite green; ruff clean. Next: A6b
+      (L6–L10 + orchestration + `legacy_simulation_engine` + `agentic/`), then wire N1 SEKRE.
 
 24. [x] AUDIT-A5: Phase 1 session 6 — `backend/dmrf/` 17-axis router / control plane.
     - Verdicts in `REPO_AUDIT_LOG.md` (A5 entry). All 17 axes exercised by `router.py`;

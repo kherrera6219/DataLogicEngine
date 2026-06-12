@@ -99,34 +99,14 @@ class SimulationEngine:
         self.integration_engine_enabled = self.layer_config.get('integration_engine_enabled', True)
         self.agi_simulation_enabled = self.layer_config.get('agi_simulation_enabled', True)
         
-        # Initialize Layer 5 Integration Engine if enabled
-        self.layer5_engine = None
-        if self.integration_engine_enabled:
-            try:
-                from core.simulation.layer5_legacy_integration import Layer5IntegrationEngine
-                self.layer5_engine = Layer5IntegrationEngine(
-                    config=self.layer_config.get('layer5', {}),
-                    system_manager=None  # Will be set later if system manager is provided
-                )
-                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
-            except ImportError as e:
-                logging.warning(f"[{datetime.now()}] Failed to import Layer 5 Integration Engine: {e}")
-                self.integration_engine_enabled = False
-                
-        # Initialize Layer 7 AGI Simulation Engine if enabled
-        self.layer7_engine = None
-        if self.agi_simulation_enabled:
-            try:
-                from core.simulation.layer7_agi_system import AGISimulationEngine
-                self.layer7_engine = AGISimulationEngine(
-                    config=self.layer_config.get('layer7', {}),
-                    system_manager=None  # Will be set later if system manager is provided
-                )
-                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized")
-            except ImportError as e:
-                logging.warning(f"[{datetime.now()}] Failed to import Layer 7 AGI Simulation Engine: {e}")
-                self.agi_simulation_enabled = False
-        
+        # Layers 5 and 7 are initialized by _initialize_simulation_layers()
+        # above (canonical layer5_integration.Layer5IntegrationEngine and
+        # layer7_agi_system.AGISimulationEngine). A previously duplicated block
+        # here re-imported the *legacy* layer5_legacy_integration engine and
+        # overwrote the canonical Layer 5 — removed (A6a). The execution guards
+        # at run time check `not self.layer5_engine` / `not self.layer7_engine`,
+        # so a failed import still skips the layer safely.
+
         # Stats
         self.stats = {
             'simulations_started': 0,

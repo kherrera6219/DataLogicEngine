@@ -19,7 +19,8 @@
 | **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | — | completed 2026-06-11; resolved A3-3/A1a-3, A4-7 |
 | **A2** | `dsqp/` | ✅ done | `pending` | matches disclosure (deterministic slice); validator now process-aware (A2-1); A2-2 forwarded |
 | **A5** | `dmrf/` | ✅ done | `pending` | all 17 axes; no MLflow conflict; frost_bridge real; A5-1 wired DMRFDesktopConfig |
-| **A6a/A6b** | `core/simulation/` 10-layer stack | ⏭ NEXT | — | then wire N1 SEKRE after A6b |
+| **A6a** | `core/simulation/` L1–L5 map | ✅ done | `pending` | L5 override fixed; 12 dead legacy files removed |
+| **A6b** | `core/simulation/` L6–L10 + orchestration | ⏭ NEXT | — | then wire N1 SEKRE |
 | A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
@@ -399,7 +400,7 @@ Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
   N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
 
 Phase 1 — Live query path:
-  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ✅ → A6a ⏭ → A6b ☐
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ✅ → A6a ✅ → A6b ⏭
 
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3

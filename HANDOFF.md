@@ -21,8 +21,9 @@ known-good verification steps. It is the primary handoff reference; the
 > | A1b | `truth_memory/` + `truth_link/` | `5027fc3b` | ✅ A3-3/A1a-3 + A4-7 resolved |
 > | A2 | `dsqp/` — patent claim | `4390c608` | ✅ matches disclosure; validator process-aware (A2-1) |
 > | A2-2 | DSQP LLM-assisted construction | `a1784a17` | ✅ query-derived personas; offline fallback kept |
-> | A5 | `dmrf/` — 17-axis router | `pending` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
-> | **A6a/A6b** | `core/simulation/` 10-layer stack | — | **NEXT** |
+> | A5 | `dmrf/` — 17-axis router | `5d8dc848` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
+> | A6a | `core/simulation/` L1–L5 | `pending` | ✅ L5 override fixed; 12 dead legacy files removed |
+> | **A6b** | `core/simulation/` L6–L10 + SEKRE | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -222,15 +223,23 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   defenses → A10), A5-3 (unused `ka_controller` param). `REPO_AUDIT_LOG.md`
   (A5 entry).
 
-### Next audit session: A6a/A6b — `core/simulation/` (10-layer stack)
+- ~~A6a core/simulation L1–L5 map~~ — complete 2026-06-11. Live path:
+  `SimulationEngine` (app_orchestrator/master_workflow/system_initializer) wires
+  L4–L10; master_workflow wires L1–L3. L1–L5 live = layer1_entry / layer2_knowledge
+  / layer3_expert / layer4_reasoning / layer5_integration. Fixed A6a-1 (L5
+  override). Removed 12 zero-importer dead files (2 dead orchestrators +
+  their exclusive layer-variant chains). `REPO_AUDIT_LOG.md` (A6a entry).
 
-The big one (49 files, 2 sessions). A6a: entry layers L1–L5 — produce a
-definitive layer map (which file is live vs legacy/dead per layer; DUP-3
-`Layer5IntegrationEngine`). A6b: upper layers L6–L10 + orchestration + cleanup;
-confirm `truth_engine.py` orphan removed; then **wire N1 SEKRE**
-(`core/self_evolving/sekre_engine.py`) into the post-L10 feedback loop on Tier 3+
-runs — the layer map must be authoritative first. Carry A1a-4 (the no-KA "Mock
-result" fallback) and A1a-2 (LLMRouter dead code) into A6.
+### Next audit session: A6b — `core/simulation/` L6–L10 + orchestration + SEKRE
+
+Map the upper-layer variants: `layer6_enhancement` vs `layer6_neural_analysis`;
+`layer8_quantum` vs `layer8_quantum_computer`; `layer9_recursive` vs
+`layer9_recursive_agi`; `layer10_synthesis` vs `layer10_self_awareness`. Resolve
+`legacy_simulation_engine.py` (still live via persona_api / truth_engine api) and
+the `agentic/` subdir. Then **wire N1 SEKRE** (`core/self_evolving/sekre_engine.py`)
+into the post-L10 feedback loop on Tier 3+ runs — the layer map is now
+authoritative through L5; finish L6–L10 first. Carry A1a-2 (LLMRouter dead code)
+and A1a-4 (no-KA "Mock result" fallback) into A6b.
 
 Still open for later sessions:
 - A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.
