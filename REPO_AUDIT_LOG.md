@@ -776,3 +776,64 @@ simulation stack, DSQP, DMRF, and Truth engine are mapped, deduplicated
 (A7/A8 the 117 KAs, A9 quad persona, A10 security, A11 axes, A12 storage,
 A13 system, A14 SDK). Open carry-overs (A3-4/A5-2/SC-2 → A10; A3-5 → A26;
 A1a-2/A1a-4 → A6 cleanup; A18-pre → A18) tracked in the plan.
+
+---
+
+## Phase 2 / A7 — knowledge_algorithms registry/config map + high-risk KA verification
+**Date:** 2026-06-11
+**Branch:** main
+**Status:** A7 partial (registry + config wiring + high-risk verification + KA-113 fix). Full per-KA rating sweep continues in A8.
+
+### Structure verified
+
+- **Registry fully wired:** all **125** `ka_registry.yaml` entries resolve to an
+  importable `module.run` callable — **0 broken** (programmatic import check).
+- **Config wiring by convention:** each KA loads `config/ka_NN_config.json` with a
+  graceful `{}`/default fallback. 113 config JSONs present. `ka_33` is the
+  reserved expansion slot (`ka_33_reserved_expansion_slot.run`, no config —
+  expected).
+- **KA-117 rename confirmed:** `ka_117_knowledge_integrity_validator.py` is the
+  renumbered integrity validator; `ka_50` is now `summarization` (distinct). Both
+  registered.
+- **Plan numbering was stale:** the plan's HIGH-RISK list had wrong numbers
+  (e.g. it called KA-107 "reasoning boundary" — actual `ka_107` is
+  `disaster_recovery`; KA-102 "entropy" — actual entropy is `ka_116_entropy_detection`).
+  Verified by concept against the real files below.
+
+### High-risk KA verification (by actual file/function)
+
+| KA | File | Verdict |
+|---|---|---|
+| KA-014 Confidence Scoring | `ka_14_confidence_scoring` | ✅ real F-CONF-01: weighted evidence/persona/truth/relevance + Platt-style domain calibration + risk adjustments + thresholds |
+| KA-061 Adversarial Input Shield | `ka_61_adversarial_input_shield` | ✅ real, **fail-closed** (blocks on scan failure); config-driven regex threat patterns + veto |
+| KA-005 Query Classification | `ka_05_query_classification` | ✅ real: local keyword classification + gateway delegation |
+| KA-113 Complexity Router | `ka_113_complexity_router` | ⚠️→✅ was length-only; **upgraded (A7-1)** |
+| KA-117 / KA-116 / KA-032 / KA-034 / KA-024 | integrity / entropy / sim-orchestration / adversarial-reasoning / trust-gate | ✅ extend `KnowledgeAlgorithm`, real `_run_logic`, config-loaded |
+
+### Fix this session
+
+- **A7-1 — KA-113 complexity router was scoring on length alone**
+  (`complexity_score = len(query)/100`), despite `ka_113_config.json` already
+  declaring `heuristic_weights` for `query_length` / `semantic_ambiguity` /
+  `domain_specificity` (0.2/0.5/0.3) that the code ignored. For a HIGH-RISK
+  "central orchestration decision" KA this was too shallow. Implemented the
+  three-signal weighted blend the config specifies: normalized length, ambiguity
+  (comparison/multi-question/conjunction density), and domain specificity
+  (regulated/technical vocabulary). Deterministic, config-driven, weights
+  normalized to 0–1; output adds a `signals` breakdown and keeps the existing
+  `complexity_score`/`complexity_tier`/`target_pipeline` contract. The live
+  callers (truth_core routing-profile) get a meaningful tier instead of a
+  length proxy.
+
+### Carried to A8
+
+Full per-KA rating sweep (real/heuristic/stub for all 125), config-completeness
+cross-check, and the A5-3 KA-005 hook for `DMRFTierClassifier`. The thin-KA
+depth review noted in earlier TODO updates also continues here.
+
+### Tests
+
+`tests/knowledge_algorithms/test_ka_113_complexity_router.py` (6): signals
+present/normalized, trivial→low, domain-heavy > plain-prose (proves not
+length-only), ambiguity signal fires, high-complexity→deep pipeline, empty-query
+safe. KA suite + truth_engine coverage green; ruff clean.

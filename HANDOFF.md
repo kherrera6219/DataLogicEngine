@@ -23,8 +23,10 @@ known-good verification steps. It is the primary handoff reference; the
 > | A2-2 | DSQP LLM-assisted construction | `a1784a17` | ✅ query-derived personas; offline fallback kept |
 > | A5 | `dmrf/` — 17-axis router | `5d8dc848` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
 > | A6a | `core/simulation/` L1–L5 | `2afe2d14` | ✅ L5 override fixed; 12 dead legacy files removed |
-> | A6b | `core/simulation/` L6–L10 + SEKRE | `pending` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
-> | **— PHASE 1 COMPLETE (8/8) —** | | | **Next: Phase 2 / A7 (117 KAs)** |
+> | A6b | `core/simulation/` L6–L10 + SEKRE | `62aa320f` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
+> | **— PHASE 1 COMPLETE (8/8) —** | | | |
+> | A7 (Phase 2) | `knowledge_algorithms/` registry/config + high-risk | `pending` | ◐ registry all-resolve; KA-113 multi-signal fix (A7-1); per-KA sweep → A8 |
+> | **A8** | per-KA rating sweep | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -238,19 +240,28 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   post-L10 in `SimulationEngine` (fail-safe, Tier-3+ gate, read-only default).
   `REPO_AUDIT_LOG.md` (A6b entry).
 
-## ✅ Phase 1 complete — next: Phase 2 (Reasoning Depth)
+## ✅ Phase 1 complete — Phase 2 (Reasoning Depth) in progress
 
-### Next audit session: A7 — `backend/knowledge_algorithms/` (the 117 KAs)
+- ~~A7 partial — `knowledge_algorithms/` registry/config map + high-risk~~
+  done 2026-06-11. All 125 registry entries resolve to importable callables;
+  configs are by-convention `config/ka_NN_config.json` (graceful fallback,
+  `ka_33` reserved); KA-117 rename confirmed. High-risk KAs verified real
+  (KA-014 confidence, KA-061 adversarial fail-closed, KA-005 classification,
+  KA-116/032/034/024). **NOTE: the plan's high-risk KA *numbers* were stale**
+  (e.g. real `ka_107` = disaster_recovery, not "reasoning boundary"; entropy is
+  `ka_116`, not 102) — verify by concept, not the plan's numbering. Fixed A7-1
+  (KA-113 length-only → multi-signal). `REPO_AUDIT_LOG.md` (A7 entry).
 
-Per-KA rating real/heuristic/stub; confidence scoring variable; 17-axis coordinate
-used; config JSON wired. HIGH-RISK KAs to confirm real (not heuristic): KA-061
-(adversarial shield), KA-107 (reasoning boundary), KA-113 (tier/complexity
-router), KA-102 (entropy), KA-032 (sim orchestration), KA-014 (confidence),
-KA-117 (integrity, renamed from ka_50). Verify all 99 config JSONs wired.
+### Next audit session: A8 — per-KA rating sweep (all 125)
 
-Carry-overs to resolve in Phase 2: A5-3 (KA-005 hook) in A7/A8; A3-4 + A5-2
-(injection-defense consolidation) + SC-2 in A10; A1a-2/A1a-4 in an A6 cleanup
-pass; A3-5 in A26; A18-pre in A18. Full list in the plan's carry-over table.
+Rate every KA real/heuristic/stub; confidence scoring variable; 17-axis
+coordinate used; config-completeness cross-check. Continue the thin-KA
+depth review. Resolve **A5-3** here (wire a KA-005 classification hook into
+`DMRFTierClassifier.ka_controller`, or drop the unused param).
+
+Other carry-overs: A3-4 + A5-2 (injection-defense consolidation) + SC-2 in A10;
+A1a-2/A1a-4 in an A6 cleanup pass; A3-5 in A26; A18-pre in A18. Full list in the
+plan's carry-over table.
 
 Still open for later sessions:
 - A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.

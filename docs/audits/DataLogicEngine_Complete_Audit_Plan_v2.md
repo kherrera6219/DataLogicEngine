@@ -23,14 +23,16 @@
 | **A6a** | `core/simulation/` L1–L5 map | ✅ done | `2afe2d14` | L5 override fixed; 12 dead legacy files removed |
 | **A6b** | `core/simulation/` L6–L10 + SEKRE | ✅ done | `pending` | L6–L10 map; **N1 SEKRE wired**; no deletions (already clean) |
 | **— PHASE 1 COMPLETE —** | live query path (8/8) | ✅ | — | N1+N2 wired; −5,150 LOC dead code removed |
-| **A7** | `knowledge_algorithms/` (117 KAs) | ⏭ NEXT | — | Phase 2 start |
-| A8–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A7** | `knowledge_algorithms/` (125 KAs) | ◐ partial | `pending` | registry all-resolve; configs by convention; high-risk verified; KA-113 length-only → multi-signal (A7-1) |
+| **A8** | per-KA rating sweep + A5-3 | ⏭ NEXT | — | rate all 125 real/heuristic/stub |
+| A9–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
-Live test baseline: **2047 passed / 21 skipped** (after A6a; includes the DSQP
-LLM-assisted A2-2 build). **Phase 1 is COMPLETE (8/8).** Next is **Phase 2 — Reasoning Depth** (A7 the
-117 KAs first). Both June-10-scan disconnected components are now wired: N2
-(defense_supervisor, A3) and N1 (SEKRE, A6b).
+Live test baseline: **2056 passed / 21 skipped** (Phase 1) + KA-113 tests (A7).
+**Phase 1 COMPLETE (8/8); Phase 2 in progress.** A7 (knowledge_algorithms
+registry/config map + high-risk verification) is partial — the per-KA rating
+sweep continues in **A8**. Both June-10-scan disconnected components are wired:
+N2 (defense_supervisor, A3) and N1 (SEKRE, A6b).
 
 ### Open carry-over findings (tracked across sessions)
 
@@ -41,7 +43,7 @@ LLM-assisted A2-2 build). **Phase 1 is COMPLETE (8/8).** Next is **Phase 2 — R
 | A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | A2-2 build | ✅ resolved 2026-06-11 (`dsqp_answer_generator.py`; offline fallback kept) |
 | A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
 | A5-2 | five overlapping pattern-injection defenses (shield/guardrail/supervisor/truthgate/dmrf) — confirm union, consider consolidation | A10 | ☐ |
-| A5-3 | `DMRFTierClassifier.ka_controller` param accepted but unused (no KA-005 hook) | A7/A8 | ☐ |
+| A5-3 | `DMRFTierClassifier.ka_controller` param accepted but unused (no KA-005 hook) | A8 | ☐ |
 | A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
 | A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
 | A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ☐ |

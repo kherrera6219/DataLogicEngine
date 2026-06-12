@@ -1,11 +1,27 @@
 import logging
 import json
 import os
+import re
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+
+# Signal vocabularies for the weighted complexity heuristic. Kept module-level
+# so they are easy to extend; the per-signal weights live in ka_13... config.
+_AMBIGUITY_TERMS = (
+    "maybe", "might", "unclear", "ambiguous", "approximately", "possibly",
+    "versus", " vs ", "compare", "trade-off", "tradeoff", "pros and cons",
+    "or should", "either", "depends",
+)
+_DOMAIN_TERMS = (
+    "regulation", "regulatory", "compliance", "statute", "clause", "hipaa",
+    "sox", "gdpr", "clinical", "patient", "diagnosis", "financial", "audit",
+    "sql", "api", "algorithm", "encryption", "kubernetes", "architecture",
+    "liability", "jurisdiction", "actuarial",
+)
+
 
 class KA113Input(BaseModel):
     query: str = ""
@@ -32,12 +48,22 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA113Input) -> Dict[str, Any]:
-        query = input_data.query
-        self.log_execution_step("Analyzing Query Complexity", {"len": len(query)})
-        
-        # Simulate complexity heuristic
-        complexity_score = min(1.0, len(query) / 100.0)
-        
+        query = input_data.query or ""
+        signals = self._complexity_signals(query)
+        self.log_execution_step("Analyzing Query Complexity", {"len": len(query), "signals": signals})
+
+        # Weighted blend of the three signals the config declares. Falls back to
+        # the documented defaults; weights are normalized so the score stays 0–1.
+        weights = self.config.get("heuristic_weights", {
+            "query_length": 0.2, "semantic_ambiguity": 0.5, "domain_specificity": 0.3,
+        })
+        total_weight = sum(float(w) for w in weights.values()) or 1.0
+        complexity_score = round(min(1.0, max(0.0, (
+            weights.get("query_length", 0.2) * signals["query_length"]
+            + weights.get("semantic_ambiguity", 0.5) * signals["semantic_ambiguity"]
+            + weights.get("domain_specificity", 0.3) * signals["domain_specificity"]
+        ) / total_weight)), 4)
+
         thresholds = self.config.get("complexity_thresholds", {"low": 0.3, "medium": 0.7})
         if complexity_score < thresholds.get("low", 0.3):
             tier = "low"
@@ -45,12 +71,33 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
             tier = "medium"
         else:
             tier = "high"
-            
+
         return {
             "success": True,
             "complexity_score": complexity_score,
             "complexity_tier": tier,
+            "signals": signals,
             "target_pipeline": self.config.get("routing_map", {}).get(tier, "default")
+        }
+
+    @staticmethod
+    def _complexity_signals(query: str) -> Dict[str, float]:
+        """Three normalized 0–1 signals: length, semantic ambiguity, domain specificity."""
+        q = query.lower()
+        # Length: saturates around 200 chars.
+        length_sig = min(1.0, len(query) / 200.0)
+        # Ambiguity: multi-question / comparison / vague-term density.
+        ambiguity_hits = sum(1 for term in _AMBIGUITY_TERMS if term in q)
+        ambiguity_hits += max(0, query.count("?") - 1)  # multiple questions
+        ambiguity_hits += len(re.findall(r"\b(and|but|however|whereas)\b", q)) // 2
+        ambiguity_sig = min(1.0, ambiguity_hits / 4.0)
+        # Domain specificity: regulated/technical vocabulary density.
+        domain_hits = sum(1 for term in _DOMAIN_TERMS if term in q)
+        domain_sig = min(1.0, domain_hits / 3.0)
+        return {
+            "query_length": round(length_sig, 4),
+            "semantic_ambiguity": round(ambiguity_sig, 4),
+            "domain_specificity": round(domain_sig, 4),
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

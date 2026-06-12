@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE** — A4/A3/A1a/A1b/A2/A5/A6a/A6b; N1 SEKRE + N2 defense supervisor both wired; A2-2 DSQP LLM construction built; Phase 2 / A7 next)
+**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE**; Phase 2 in progress — A7 knowledge_algorithms registry/config map + high-risk verification + KA-113 fix done; A8 per-KA sweep next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,19 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+27. [~] AUDIT-A7 (partial): Phase 2 session 1 — `backend/knowledge_algorithms/` registry/config map + high-risk verification.
+    - Registry: all **125** `ka_registry.yaml` entries resolve to an importable `module.run` callable (0 broken).
+    - Configs: by-convention `config/ka_NN_config.json` with graceful fallback; `ka_33` reserved (no config, expected);
+      KA-117 rename confirmed (integrity validator at 117; 50 is now summarization).
+    - High-risk verified real: KA-014 (F-CONF-01 confidence), KA-061 (adversarial shield, fail-closed),
+      KA-005 (classification), KA-117/116/032/034/024. Plan's high-risk numbering was stale (corrected by concept).
+    - Fix A7-1: KA-113 complexity router was scoring on `len(query)/100` despite its config declaring
+      `heuristic_weights` (query_length/semantic_ambiguity/domain_specificity); implemented the 3-signal
+      weighted blend the config specifies. +6 tests.
+    - Carried to A8: per-KA rating sweep (all 125 real/heuristic/stub), config-completeness cross-check,
+      A5-3 KA-005 hook for DMRFTierClassifier.
+    - Validation: KA suite + truth_engine coverage green; ruff clean. (Full-suite run pending next session.)
 
 26. [x] AUDIT-A6b: Phase 1 session 8 (FINAL) — `core/simulation/` L6–L10 map + N1 SEKRE wiring. **PHASE 1 COMPLETE.**
     - Map in `REPO_AUDIT_LOG.md` (A6b entry). Live L6–L10: layer6_enhancement, layer7_agi_system,
