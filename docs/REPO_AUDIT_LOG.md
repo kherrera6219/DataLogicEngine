@@ -4,11 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
-| Last updated | 2026-06-08 |
+| Document version | v3.3.0 |
+| Last updated | 2026-06-11 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Per audit session |
+
+> **Note on logs:** per-session detail for the Complete Audit Plan v2.0
+> (Sprint 0 + Phase 1: A4/A3/A1a/A1b/A2/A5/A6a/A6b) lives in the root
+> **`REPO_AUDIT_LOG.md`**. This formal log records the milestone summary below;
+> see the root log and `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`
+> for full findings and exit gates.
 
 ## Purpose
 
@@ -20,6 +26,43 @@ The audit philosophy is **local-first / desktop-only**: the product is a license
 BYOK Windows desktop application (not multi-tenant SaaS). Code, tests, and docs are
 expected to reflect that. Legacy web-app and external-SaaS assumptions are removed
 when found.
+
+---
+
+## Session — 2026-06-11 (Complete Audit Plan v2.0 — Phase 1 COMPLETE)
+
+### Scope
+
+Execution of Audit Plan v2.0 Sprint 0 + Phase 1 (live query path), 8 sessions.
+Per-session findings, verdicts, and exit gates are in the root `REPO_AUDIT_LOG.md`.
+
+### Milestone summary
+
+| Session | Area | Commit | Result |
+|---|---|---|---|
+| Sprint 0 | N3 legacy axes deleted, N4 Axis 4/5 | `821737d1` | + fixed honeycomb Axis-5→3 500 bug |
+| A4 | `backend/local_model_acceleration/` | `821737d1` | cache/keepalive/spec fixes |
+| A3 | `backend/llm_gateway/` + **N2 defense_supervisor wired** | `1ddeec49` | 4 status endpoints secured |
+| A1a | `truth_engine/truth_core` + `truth_gate` | `86486a78` | fixed hardcoded audit latency |
+| A1b | `truth_engine/truth_memory` + `truth_link` | `5027fc3b` | Tier-2 audit gate + cache-hit audit |
+| A2 (+A2-2) | `backend/dsqp/` patent claim | `4390c608`,`a1784a17` | process validator + LLM-assisted construction |
+| A5 | `backend/dmrf/` 17-axis router | `5d8dc848` | wired orphaned DMRFDesktopConfig |
+| A6a | `core/simulation/` L1–L5 | `2afe2d14` | L5 override fix; **12 dead files removed** |
+| A6b | `core/simulation/` L6–L10 + **N1 SEKRE wired** | `62aa320f` | layer map; SEKRE post-L10 |
+
+### Outcome
+
+- **Both disconnected components wired:** N1 (SEKRE self-evolving engine, post-L10)
+  and N2 (defense_supervisor LLM security screening). Neither had any importer before.
+- **~5,150 lines of dead code removed** (the three-orchestrator / per-layer
+  duplication in `core/simulation/` collapsed to one live path).
+- Correctness fixes landed across the live query path (coroutine lifecycle,
+  audit latency, Tier-2 audit-commit gate, L5 engine override).
+- Test baseline **2056 passed / 21 skipped / 0 failed**; ruff clean; docs validated.
+- Inventory docs (`FILE_INVENTORY.csv`, `GENERATED_STRUCTURE.md`) regenerated.
+
+Next: Phase 2 (Reasoning Depth) — A7 the 117 knowledge algorithms. Open
+carry-overs tracked in the plan's carry-over table.
 
 ---
 
