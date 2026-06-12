@@ -21,13 +21,16 @@
 | **A2-2** | DSQP LLM-assisted construction | ✅ done | `a1784a17` | query-derived personas; offline fallback kept |
 | **A5** | `dmrf/` | ✅ done | `5d8dc848` | all 17 axes; no MLflow conflict; frost_bridge real; A5-1 wired DMRFDesktopConfig |
 | **A6a** | `core/simulation/` L1–L5 map | ✅ done | `2afe2d14` | L5 override fixed; 12 dead legacy files removed |
-| **A6b** | `core/simulation/` L6–L10 + orchestration | ⏭ NEXT | — | then wire N1 SEKRE |
-| A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
+| **A6b** | `core/simulation/` L6–L10 + SEKRE | ✅ done | `pending` | L6–L10 map; **N1 SEKRE wired**; no deletions (already clean) |
+| **— PHASE 1 COMPLETE —** | live query path (8/8) | ✅ | — | N1+N2 wired; −5,150 LOC dead code removed |
+| **A7** | `knowledge_algorithms/` (117 KAs) | ⏭ NEXT | — | Phase 2 start |
+| A8–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline: **2047 passed / 21 skipped** (after A6a; includes the DSQP
-LLM-assisted A2-2 build). Phase 1 is 7/8 sessions done — only **A6b** (L6–L10 +
-orchestration + SEKRE wiring) remains before Phase 2.
+LLM-assisted A2-2 build). **Phase 1 is COMPLETE (8/8).** Next is **Phase 2 — Reasoning Depth** (A7 the
+117 KAs first). Both June-10-scan disconnected components are now wired: N2
+(defense_supervisor, A3) and N1 (SEKRE, A6b).
 
 ### Open carry-over findings (tracked across sessions)
 
@@ -49,7 +52,7 @@ orchestration + SEKRE wiring) remains before Phase 2.
 
 ## Newly Investigated Items — Live Code Read Verdicts
 
-### N1 · `core/self_evolving/sekre_engine.py` — VERDICT: Disconnected, wire into post-L10 pipeline
+### N1 · `core/self_evolving/sekre_engine.py` — ✅ RESOLVED (A6b, 2026-06-11): wired post-L10 in SimulationEngine
 
 **What it is:** SEKRE = Self-Evolving Knowledge Refinement Engine. 620 lines, fully implemented. Analyzes simulation results, processes user feedback, generates improvement suggestions, applies them to the knowledge base. This is the Layer 10 meta-cognitive self-improvement component described in the UKG architecture.
 
@@ -403,11 +406,11 @@ Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
   N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
 
 Phase 1 — Live query path:
-  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ✅ → A6a ✅ → A6b ⏭
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ✅ → A6a ✅ → A6b ✅   [PHASE 1 COMPLETE]
 
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3
-  N1   ☐ Wire SekreEngine (after A6b — layer stack must be mapped first)
+  N1   ✅ Wired SekreEngine post-L10 in SimulationEngine (A6b)
   A2-2 ✅ DSQP LLM-assisted construction (dsqp_answer_generator.py)
 
 Phase 2 — Reasoning depth (8 sessions):

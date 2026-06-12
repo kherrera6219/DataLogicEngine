@@ -112,9 +112,29 @@ class SimulationEngine:
             'simulations_started': 0,
             'simulations_completed': 0,
             'passes_executed': 0,
-            'average_confidence': 0.0
+            'average_confidence': 0.0,
+            'sekre_analyses': 0
         }
-        
+
+        # Layer 10 meta-cognition: Self-Evolving Knowledge Refinement Engine.
+        # Analyzes completed simulations post-L10 to surface knowledge-improvement
+        # suggestions. Fail-safe and read-only by default (auto_improve gates any
+        # write-back, and is off unless explicitly enabled in config['sekre']).
+        self.sekre_enabled = self.sim_config.get('enable_sekre', True)
+        self.sekre_engine = None
+        if self.sekre_enabled:
+            try:
+                from core.self_evolving.sekre_engine import SekreEngine
+                self.sekre_engine = SekreEngine(
+                    config=self.config,
+                    graph_manager=self.graph_manager,
+                    memory_manager=self.memory_manager,
+                )
+                logging.info(f"[{datetime.now()}] SEKRE post-L10 analysis engine initialized")
+            except Exception as e:
+                logging.warning(f"[{datetime.now()}] SEKRE engine unavailable: {e}")
+                self.sekre_enabled = False
+
         logging.info(f"[{datetime.now()}] SimulationEngine initialized")
 
     def _initialize_simulation_layers(self):
@@ -1179,14 +1199,49 @@ class SimulationEngine:
         )
         
         simulation_id = simulation['simulation_id']
-        
+
         # Run passes until complete
         while simulation['status'] == 'started':
             simulation = self.run_simulation_pass(simulation_id)
-        
+
+        # Layer 10 meta-cognition: analyze the completed run for knowledge
+        # improvements (post-L10 self-evolution feedback loop).
+        self._run_sekre_analysis(simulation)
+
         return simulation
-    
-    def run_single_persona_simulation(self, persona_id: str, query: str, 
+
+    def _run_sekre_analysis(self, simulation: Dict) -> None:
+        """Run SEKRE post-L10 analysis on a completed simulation.
+
+        Gated to higher-tier runs (the plan's "Tier 3+" intent): a tier marker
+        in context/params, when present, must be high_stakes/extreme/autonomous
+        (or numeric >= 3); when absent, SEKRE still runs and self-limits via its
+        confidence threshold (trivial high-confidence runs yield no suggestions).
+        Fully fail-safe and read-only unless SEKRE.auto_improve is enabled.
+        """
+        if not self.sekre_engine or simulation.get('status') != 'completed':
+            return
+        if not self._qualifies_for_sekre(simulation):
+            return
+        try:
+            analysis = self.sekre_engine.analyze_simulation_results(simulation)
+            simulation['sekre_analysis'] = analysis
+            self.stats['sekre_analyses'] += 1
+        except Exception as e:
+            logging.warning(f"[{datetime.now()}] SEKRE analysis skipped (non-fatal): {e}")
+
+    @staticmethod
+    def _qualifies_for_sekre(simulation: Dict) -> bool:
+        """True when the run is high-tier, or no tier marker is present."""
+        high_tiers = {"high_stakes", "extreme", "autonomous", "3", "4", "5"}
+        for source in (simulation.get('context') or {}, simulation.get('params') or {}):
+            tier = source.get('tier') or source.get('complexity_tier')
+            if tier is None:
+                continue
+            return str(tier).lower().strip() in high_tiers
+        return True  # no tier marker — let SEKRE self-gate on confidence
+
+    def run_single_persona_simulation(self, persona_id: str, query: str,
                                    context: Optional[Dict] = None,
                                    session_id: Optional[str] = None) -> Dict:
         """

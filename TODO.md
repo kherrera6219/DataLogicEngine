@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2/A5/A6a audits complete; N2 wired; A2-2 DSQP LLM construction built; A6b next)
+**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE** — A4/A3/A1a/A1b/A2/A5/A6a/A6b; N1 SEKRE + N2 defense supervisor both wired; A2-2 DSQP LLM construction built; Phase 2 / A7 next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,19 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+26. [x] AUDIT-A6b: Phase 1 session 8 (FINAL) — `core/simulation/` L6–L10 map + N1 SEKRE wiring. **PHASE 1 COMPLETE.**
+    - Map in `REPO_AUDIT_LOG.md` (A6b entry). Live L6–L10: layer6_enhancement, layer7_agi_system,
+      layer8_quantum (quantum-inspired), layer9_recursive (max_iterations=5 enforced), layer10_synthesis.
+      The 4 variant files (layer6_neural_analysis, layer8_quantum_computer, layer9_recursive_agi,
+      layer10_self_awareness) are demo/research code (scripts/demos + scripts/archive consumers) — kept.
+      legacy_simulation_engine.py + agentic/ are live via persona_api/truth_engine api — kept. No deletions.
+    - N1 SEKRE WIRED: `SimulationEngine.__init__` instantiates `SekreEngine` (fail-safe, config-gated);
+      `run_simulation` calls `_run_sekre_analysis` post-L10; Tier-3+ gate (`_qualifies_for_sekre`);
+      read-only by default (auto_improve off); added `collect_submodules('core.self_evolving')` to backend.spec.
+    - Both June-10-scan disconnected components now wired: N1 (SEKRE) + N2 (defense_supervisor, A3).
+    - Validation: `tests/simulation/test_sekre_wiring.py` (9) + simulation suite 58 passed; full suite green; ruff clean.
+    - Next: **Phase 2 — Reasoning Depth**, starting A7 (`backend/knowledge_algorithms/`, the 117 KAs).
 
 25. [x] AUDIT-A6a: Phase 1 session 7 — `core/simulation/` L1–L5 layer map + legacy-cluster removal.
     - Verdicts/map in `REPO_AUDIT_LOG.md` (A6a entry). Live path: `SimulationEngine` (via app_orchestrator

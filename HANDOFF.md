@@ -23,14 +23,15 @@ known-good verification steps. It is the primary handoff reference; the
 > | A2-2 | DSQP LLM-assisted construction | `a1784a17` | ✅ query-derived personas; offline fallback kept |
 > | A5 | `dmrf/` — 17-axis router | `5d8dc848` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
 > | A6a | `core/simulation/` L1–L5 | `2afe2d14` | ✅ L5 override fixed; 12 dead legacy files removed |
-> | **A6b** | `core/simulation/` L6–L10 + SEKRE | — | **NEXT** |
+> | A6b | `core/simulation/` L6–L10 + SEKRE | `pending` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
+> | **— PHASE 1 COMPLETE (8/8) —** | | | **Next: Phase 2 / A7 (117 KAs)** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
 > `routes/` → `backend/routes/`) — the v2.0 plan listed them from a stale
-> snapshot. Full suite after A6a: **2047 passed / 21 skipped / 0 failed**,
-> ruff clean. Still unwired: `core/self_evolving/sekre_engine.py` (N1, wire
-> after A6b).
+> snapshot. Full suite after A6b: **2047 passed / 21 skipped / 0 failed**,
+> ruff clean. Both June-10-scan disconnected components are now wired:
+> N2 (defense_supervisor, A3) and N1 (SEKRE, A6b).
 
 ---
 
@@ -230,16 +231,26 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   override). Removed 12 zero-importer dead files (2 dead orchestrators +
   their exclusive layer-variant chains). `REPO_AUDIT_LOG.md` (A6a entry).
 
-### Next audit session: A6b — `core/simulation/` L6–L10 + orchestration + SEKRE
+- ~~A6b L6–L10 + SEKRE~~ — complete 2026-06-11. Live L6–L10 mapped
+  (layer6_enhancement / layer7_agi_system / layer8_quantum / layer9_recursive
+  [max-5 enforced] / layer10_synthesis); the 4 variant files are demo/research
+  (kept); `legacy_simulation_engine` + `agentic/` live (kept). **N1 SEKRE wired**
+  post-L10 in `SimulationEngine` (fail-safe, Tier-3+ gate, read-only default).
+  `REPO_AUDIT_LOG.md` (A6b entry).
 
-Map the upper-layer variants: `layer6_enhancement` vs `layer6_neural_analysis`;
-`layer8_quantum` vs `layer8_quantum_computer`; `layer9_recursive` vs
-`layer9_recursive_agi`; `layer10_synthesis` vs `layer10_self_awareness`. Resolve
-`legacy_simulation_engine.py` (still live via persona_api / truth_engine api) and
-the `agentic/` subdir. Then **wire N1 SEKRE** (`core/self_evolving/sekre_engine.py`)
-into the post-L10 feedback loop on Tier 3+ runs — the layer map is now
-authoritative through L5; finish L6–L10 first. Carry A1a-2 (LLMRouter dead code)
-and A1a-4 (no-KA "Mock result" fallback) into A6b.
+## ✅ Phase 1 complete — next: Phase 2 (Reasoning Depth)
+
+### Next audit session: A7 — `backend/knowledge_algorithms/` (the 117 KAs)
+
+Per-KA rating real/heuristic/stub; confidence scoring variable; 17-axis coordinate
+used; config JSON wired. HIGH-RISK KAs to confirm real (not heuristic): KA-061
+(adversarial shield), KA-107 (reasoning boundary), KA-113 (tier/complexity
+router), KA-102 (entropy), KA-032 (sim orchestration), KA-014 (confidence),
+KA-117 (integrity, renamed from ka_50). Verify all 99 config JSONs wired.
+
+Carry-overs to resolve in Phase 2: A5-3 (KA-005 hook) in A7/A8; A3-4 + A5-2
+(injection-defense consolidation) + SC-2 in A10; A1a-2/A1a-4 in an A6 cleanup
+pass; A3-5 in A26; A18-pre in A18. Full list in the plan's carry-over table.
 
 Still open for later sessions:
 - A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.

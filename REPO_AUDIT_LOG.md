@@ -698,3 +698,81 @@ vs `layer8_quantum_computer`; `layer9_recursive` vs `layer9_recursive_agi`;
 
 No test changes needed — the canonical L5 was already the tested one;
 `tests/simulation/` (53) + end_to_end green; full suite green; ruff clean.
+
+---
+
+## Phase 1 / A6b — core/simulation/ L6–L10 Map + N1 SEKRE Wiring (Phase 1 COMPLETE)
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2047 passed, 21 skipped
+**Exit gate result:** full suite green; ruff clean; SEKRE wired (+9 tests)
+
+### Authoritative L6–L10 map
+
+| Layer | LIVE (SimulationEngine) | Verdict | Demo/research variant (kept) |
+|---|---|---|---|
+| L6 | `layer6_enhancement.Layer6EnhancementEngine` | knowledge enhancement | `layer6_neural_analysis` |
+| L7 | `layer7_agi_system.AGISimulationEngine` | AGI planning | — |
+| L8 | `layer8_quantum.Layer8QuantumEngine` | quantum-*inspired* (superposition metaphor; explores multiple outcomes) | `layer8_quantum_computer` (1423-line full simulator) |
+| L9 | `layer9_recursive.Layer9RecursiveEngine` | **max_iterations=5 enforced** (`while iteration < self.max_iterations`) | `layer9_recursive_agi` |
+| L10 | `layer10_synthesis.Layer10SynthesisEngine` | final synthesis | `layer10_self_awareness` |
+
+**No deletions in A6b.** Unlike L1–L5 (A6a, 12 dead files), the L6–L10 area was
+already clean: each live engine is imported by `simulation_engine.py` and tested,
+and the four variant files are **demo/research implementations** consumed by
+`scripts/demos/layers/` + `scripts/archive/` (not the pipeline, not tests) — kept
+as maintained demo code, documented as variants. `legacy_simulation_engine.py`
+(a separate, simpler `SimulationEngine`) is **live** via `backend/persona_api.py`,
+`backend/truth_engine/api.py`, and e2e tests — kept. `agentic/` (graph_state,
+simulation_graph) is reachable through `legacy_simulation_engine` — kept.
+
+### N1 — SEKRE wired (the last disconnected component)
+
+`core/self_evolving/sekre_engine.py` (`SekreEngine`, 620 lines, the Layer-10
+meta-cognitive self-improvement engine) had **zero importers** since it was
+written. Now wired into the live `SimulationEngine` (the engine behind
+app_orchestrator / master_workflow / system_initializer):
+
+- **Instantiation** (`__init__`): `self.sekre_engine = SekreEngine(config,
+  graph_manager, memory_manager)`, fail-safe, gated by `config['simulation']
+  ['enable_sekre']` (default True).
+- **Post-L10 call** (`run_simulation`): after all passes complete,
+  `_run_sekre_analysis(simulation)` runs `analyze_simulation_results()` and
+  attaches the result to `simulation['sekre_analysis']` (+ `stats['sekre_analyses']`).
+- **Tier-3+ gate** (`_qualifies_for_sekre`): honors an explicit
+  high_stakes/extreme/autonomous (or numeric ≥3) tier in context/params; when no
+  tier marker is present, SEKRE still runs and self-limits via its confidence
+  threshold (trivial high-confidence runs produce no suggestions — the plan's
+  "Tier 3+" intent without a brittle field).
+- **Safety**: `analyze_simulation_results` is read-and-suggest only; the
+  write-back path (`apply_improvements`) is gated by SEKRE's `auto_improve`
+  (off by default). The whole call is exception-wrapped — a SEKRE failure never
+  breaks a simulation.
+- **Packaging**: added `collect_submodules('core.self_evolving')` to `backend.spec`
+  so the lazily-imported engine is bundled in the installer.
+
+Deferred (minor, → A28 app-layer): exposing `sekre_analyses` / SEKRE status on
+`/health` + Electron IPC — the SimulationEngine is reached via master_workflow,
+not the gateway `/health` path, so that plumbing belongs to the app-factory audit.
+
+### Tests
+
+`tests/simulation/test_sekre_wiring.py` (9): default instantiation + read-only
+auto_improve off; config disable; tier gate (no-tier→run, trivial/moderate→skip,
+high tiers→run, params tier); analysis attaches result + increments stat;
+skip-incomplete; skip-low-tier; fail-safe on SEKRE error; no-op when engine
+absent; real-SEKRE suggestion on low confidence. Simulation suite 58 passed;
+full suite green; ruff clean.
+
+---
+
+## ✅ PHASE 1 COMPLETE (Live Query Path) — 2026-06-11
+
+All 8 Phase 1 sessions done: A4, A3, A1a, A1b, A2 (+A2-2), A5, A6a, A6b.
+Both disconnected components from the June 10 scan are now wired: **N2**
+(defense_supervisor, A3) and **N1** (SEKRE, A6b). The live query path,
+simulation stack, DSQP, DMRF, and Truth engine are mapped, deduplicated
+(−5,150+ lines of dead code), and verified. Next: **Phase 2 — Reasoning Depth**
+(A7/A8 the 117 KAs, A9 quad persona, A10 security, A11 axes, A12 storage,
+A13 system, A14 SDK). Open carry-overs (A3-4/A5-2/SC-2 → A10; A3-5 → A26;
+A1a-2/A1a-4 → A6 cleanup; A18-pre → A18) tracked in the plan.
