@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b audits complete; N2 wired; A2 next)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2 audits complete; N2 wired; A5 next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,22 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+22. [x] AUDIT-A2: Phase 1 session 5 — `backend/dsqp/` patent-claim audit.
+    - Exit-gate disclosure-match statement in `REPO_AUDIT_LOG.md` (A2 entry). Verdict: implementation
+      matches `docs/ip/dsqp_technical_disclosure.md` as written (deterministic first slice). Structure
+      (per-axis 7-step self-questioning chain, per-query construction, no cross-query cache, coverage
+      validation, audit persistence, offline) all real and confirmed. Registry stores question specs
+      (not pre-built definitions); templates hold questions only (not role cards).
+    - Fix A2-1: `DSQPValidator` now validates the DSQP *process* (chain executed: 7 steps, each with a
+      non-empty question + answer) in addition to component coverage — closes the "process validation"
+      gap. All real callers pass the full persona payload, so happy path unaffected.
+    - Forwarded A2-2: deterministic `_answer_question` yields axis-keyed role scaffolds with only shallow
+      query derivation; implement the LLM-assisted answer generation the disclosure anticipates before any
+      external IP filing / "fully dynamic construction" claim. Until then describe the build as the
+      "deterministic activation scaffold."
+    - Validation: DSQP unit 12 + integration 46 pass; +2 validator process tests; ruff clean; full suite green.
+    - Next: A5 `backend/dmrf/`.
 
 21. [x] AUDIT-A1b: Phase 1 session 4 — `truth_memory/` + `truth_link/` audit + carry-over resolution (`5027fc3b`).
     - Verdicts in `REPO_AUDIT_LOG.md` (A1b entry): 9 truth_memory + 5 truth_link files verified

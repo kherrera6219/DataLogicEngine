@@ -446,3 +446,64 @@ No new tests required (timing fix covered by existing `> 0` assertion);
 - `test_original_run_id_round_trip` in `tests/unit/test_local_model_acceleration.py` verifying cache `original_run_id` persistence and retrieval.
 - `test_process_cache_hit_tier2_records_audit` in `tests/unit/test_llm_gateway_process_harness.py` asserting that Tier 2+ cache hits log the `"cache_hit"` compliance event.
 - `test_process_cache_hit_tier1_skips_audit` in `tests/unit/test_llm_gateway_process_harness.py` asserting that Tier 0/1 cache hits bypass the audit logging.
+
+---
+
+## Phase 1 / A2 — DSQP Patent-Claim Audit (backend/dsqp/, 4 files + 5 templates)
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2033 passed, 21 skipped
+**Exit gate:** written disclosure-match statement below; DSQP tests 12 + integration 46 pass; ruff clean
+**Spec audited against:** `docs/ip/dsqp_technical_disclosure.md`
+
+### Disclosure-match statement
+
+**Overall: the implementation matches the disclosure _as written_, but the disclosure
+explicitly scopes the current code as a "deterministic first slice," and the headline
+"dynamic role construction" novelty is at present realized _structurally_ rather than
+_substantively_. The structure (per-axis 7-step self-questioning chain, per-query
+execution, coverage validation, audit persistence, offline-capable) is all real. The
+answer _content_ is mostly persona-type-keyed lookups, not query-derived — which the
+disclosure anticipates ("Later work can add LLM-assisted answer generation").**
+
+Per-question verdicts (audit plan A2):
+
+| # | Question | Verdict |
+|---|---|---|
+| 1 | `dsqp_chain.py` — dynamic 7-part self-questioning at query time, or template selection? | ⚠️ **PARTIAL.** The 7-step chain (`COMPONENT_KEYS`) executes per query for each axis 8–11, recording question+answer evidence in `dsqp_chain`. Construction is per-query (keywords from query+coordinate+context, domain, coordinate_path all flow in). BUT `_answer_question` returns mostly **fixed values keyed on `persona_type`**: `job_role.title = "Lead {type} Analyst"`, `education.degree`/`certifications` are constant dict lookups, `career_path.stages` fixed. Only `skills.items`, `related_jobs.blind_spot_coverage`, `job_role.focus_area`/`query_mission`, and domain-threaded fields actually vary with the query. So it is **not template _selection_** (no pre-built persona is chosen), but neither is it full query-derived construction — it is template-_parameterized-by-axis_ with light query injection. Consistent with the disclosure's stated deterministic boundary. |
+| 2 | `dsqp_orchestrator.py` — per-query construction or cross-query caching? | ✅ **CONFIRMED per-query.** `construct_all`/`construct_all_sync` call `chain.construct(...)` fresh for every axis on every request. No read-cache. `_persist_deliverable` writes output to the object store for audit only (write-through, not a lookup cache). |
+| 3 | `dsqp_validator.py` — validates the DSQP _process_, or just output format? | ⚠️→✅ **WAS output-only; FIXED this session.** The validator previously checked only seven-component coverage and never inspected `dsqp_chain`. Enhanced to also validate **process integrity** (chain present, exactly 7 steps, each step covers a component with non-empty question + answer); `valid` now requires coverage AND process. Closes the gap between the code and the audit's "real process validation" expectation. |
+| 4 | `dsqp_registry.py` — stores construction _specs_ or pre-built definitions? | ✅ **CONFIRMED specs.** `template_for` loads `{persona_type}.json` containing **questions** (the construction prompts), not persona definitions. Offline, no network. |
+| 5 | `templates/` — fallback path only? | ✅ **ACCEPTABLE (reframed).** Templates are loaded on _every_ construction (not just fallback), but they hold only the 7 self-questioning **questions** per axis, never answers or role cards. `default.json` is the true fallback when an axis-specific file is absent. They do not violate the "no static role templates / no fixed role card" novelty claim. |
+
+### Fix this session
+
+- **A2-1 — DSQP validator now validates the protocol, not just the output.**
+  `DSQPValidator._validate_process` confirms the self-questioning chain executed
+  (7 steps, one per component, each with a non-empty question and answer). `valid`
+  = coverage_valid AND process_valid. This makes the disclosure's "validates
+  coverage, records the chain" claim defensible as a *process* gate and directly
+  answers audit question #3. All real callers (orchestrator, tests) pass the full
+  persona payload with the chain, so the happy path is unaffected.
+
+### Findings forwarded / documented for the IP conversation
+
+- **A2-2 (design, deferred by the disclosure itself — for a future DSQP slice):**
+  the deterministic `_answer_question` produces axis-keyed role scaffolds with only
+  shallow query derivation. Before any external IP filing or a claim that personas
+  are "dynamically constructed from the query," implement the LLM-assisted answer
+  generation the disclosure anticipates (same schema + validator), so `job_role`,
+  `education`, `certifications`, and `career_path` genuinely derive from the query and
+  coordinate vector rather than from per-persona_type constants. Until then, internal
+  and external materials should describe the current build as the "deterministic
+  activation scaffold," not full dynamic construction.
+
+### Tests
+
++2 process-validation tests in `tests/unit/test_phase_d_dsqp.py`
+(`test_dsqp_validator_requires_self_questioning_process`,
+`test_dsqp_validator_flags_incomplete_chain_steps`). DSQP unit 12 passed;
+dmrf/phase_g/phase_e/api_endpoints integration 46 passed; ruff clean.
+(Note: `tests/integration/test_api_endpoints.py` cannot be collected in the same
+pytest invocation as `tests/knowledge_algorithms/` due to a pre-existing
+`drop_all_test_tables` conftest-name collision — unrelated to A2; flag for A18.)

@@ -19,7 +19,8 @@ known-good verification steps. It is the primary handoff reference; the
 > | A3 | `llm_gateway/` + N2 defense supervisor wired | `1ddeec49` | ✅ |
 > | A1a | `truth_core/` + `truth_gate/` | `86486a78` | ✅ A1a-1 fixed |
 > | A1b | `truth_memory/` + `truth_link/` | `5027fc3b` | ✅ A3-3/A1a-3 + A4-7 resolved |
-> | **A2** | `dsqp/` — patent claim | — | **NEXT** |
+> | A2 | `dsqp/` — patent claim | `pending` | ✅ matches disclosure; validator now process-aware (A2-1) |
+> | **A5** | `dmrf/` — 17-axis router | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -195,24 +196,34 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   `TruthAuditEvent` linking new + original run ids. (Reviewed 2026-06-11: API
   call matches `TruthAuditRecorder.log_event` signature; 127 focused tests pass.)
 
-### Next audit session: A2 — `backend/dsqp/` (patent claim)
+- ~~A2 dsqp patent-claim audit~~ — complete 2026-06-11. Verdict: matches
+  `docs/ip/dsqp_technical_disclosure.md` as the explicitly-scoped deterministic
+  slice. 7-step per-axis chain, per-query construction (no cross-query cache),
+  registry = question specs, templates = questions only — all confirmed. Fixed
+  A2-1 (validator now checks the self-questioning *process* ran, not just
+  coverage). Documented A2-2: deterministic answers are axis-keyed scaffolds —
+  implement LLM-assisted construction before any external IP filing. Details in
+  `REPO_AUDIT_LOG.md` (A2 entry).
 
-Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`: verify personas are
-constructed dynamically via 7-part self-questioning at query time (not selected
-from templates); orchestrator constructs per-query (no cross-query caching);
-validator checks the DSQP *process* not just output shape; registry stores
-construction specs not pre-built definitions; templates are fallback-only.
-Exit gate: written statement confirming/challenging match to the technical
-disclosure (`docs/ip/dsqp_technical_disclosure.md`).
+### Next audit session: A5 — `backend/dmrf/` (17-axis router)
+
+Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`: all 17 axes
+exercised by `router.py`? `convergence_policy.py` tier→FROST-depth mapping
+matches DMRF v3.3.0 spec? `tier_classifier.py` duplicates or delegates to
+`llm_gateway/complexity_classifier.py`? `frost_bridge.py` passes FROST depth to
+the simulation layer stack (or stub)? 5 `truth_integration/` adapters wired?
+Two MLflow trackers (`dmrf` + `truth_memory`) — conflict? `injection_defense.py`
+applied at DMRF inputs AND TruthGate? `desktop_config.py` vs
+`llm_gateway/escalation_config.py`?
 
 Still open for later sessions:
+- A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.
 - A3-4 (for A10): supervisor `user_role` enrichment; HONEYPOT handling with
   `active_defense.py`.
 - A1a-2 (for A6b/cleanup): `truth_core/router.py` LLMRouter dead code.
 - A1a-4 (for A6): no-KA "Mock result" fallback in `_execute_refinement_step`.
 
-Phase 1 remaining order: A2 → A5 → A6a → A6b
-- A2: `backend/dsqp/` — patent claim, dynamic persona construction
+Phase 1 remaining order: A5 → A6a → A6b
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
 
 **Still unwired (from June 10 scan):**

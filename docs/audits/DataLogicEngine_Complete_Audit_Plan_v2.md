@@ -17,8 +17,8 @@
 | **A3** | `llm_gateway/` + N2 | ✅ done | `1ddeec49` | N2 defense supervisor wired; 4 status endpoints secured; A4-4/5/8 |
 | **A1a** | `truth_core/` + `truth_gate/` | ✅ done | `86486a78` | A1a-1 fixed hardcoded audit latency |
 | **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | — | completed 2026-06-11; resolved A3-3/A1a-3, A4-7 |
-| **A2** | `dsqp/` | ⏭ NEXT | — | patent-claim verification |
-| A5 | `dmrf/` | ☐ | — | 17-axis router, FROST bridge |
+| **A2** | `dsqp/` | ✅ done | `pending` | matches disclosure (deterministic slice); validator now process-aware (A2-1); A2-2 forwarded |
+| **A5** | `dmrf/` | ⏭ NEXT | — | 17-axis router, FROST bridge |
 | A6a/A6b | `core/simulation/` 10-layer stack | ☐ | — | then wire N1 SEKRE after A6b |
 | A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
 
@@ -27,15 +27,17 @@ Live test baseline: **2033 passed / 21 skipped**.
 
 ### Open carry-over findings (tracked across sessions)
 
-| ID | Finding | Resolve in |
-|---|---|---|
-| A3-3 / A1a-3 | `_create_trace_run` Tier 2+ audit-commit gate excludes the `"moderate"` tier string — verify SDK/UKGOverlay tier vocabulary; Tier 2 runs may skip audit-bundle commit | A1b |
-| A4-7 | exact-cache hit serves a Tier 2+ answer with no new `TruthAuditEvent` | A1b |
-| A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 |
-| A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 |
-| A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup |
-| A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 |
-| SC-2 | Encryption: Fernet→AES-256-GCM decision (note: AES-256-GCM landed in Sprint 2 `EncryptionManager`; confirm docs) | A10 / A31 |
+| ID | Finding | Resolve in | Status |
+|---|---|---|---|
+| A3-3 / A1a-3 | Tier 2+ audit-commit gate excluded `"moderate"` (= Tier 2 per `dmrf` `TIER_ORDER`), skipping Tier 2 audit bundles | A1b | ✅ resolved `5027fc3b` |
+| A4-7 | exact-cache hit serves a Tier 2+ answer with no new `TruthAuditEvent` | A1b | ✅ resolved `5027fc3b` |
+| A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | future DSQP slice | ☐ documented |
+| A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
+| A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
+| A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
+| A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ☐ |
+| A18-pre | `tests/integration/test_api_endpoints.py` + `tests/knowledge_algorithms/` share a `drop_all_test_tables` conftest name → collection error when collected together | A18 | ☐ |
+| SC-2 | Encryption: Fernet→AES-256-GCM decision (note: AES-256-GCM landed in Sprint 2 `EncryptionManager`; confirm docs) | A10 / A31 | ☐ |
 
 ---
 
@@ -395,11 +397,12 @@ Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
   N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
 
 Phase 1 — Live query path:
-  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ⏭ → A5 ☐ → A6a ☐ → A6b ☐
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ⏭ → A6a ☐ → A6b ☐
 
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3
   N1   ☐ Wire SekreEngine (after A6b — layer stack must be mapped first)
+  A2-2 ☐ DSQP LLM-assisted construction before external IP filing (deferred)
 
 Phase 2 — Reasoning depth (8 sessions):
   A7 → A8a → A8b → A9 → A10 → A11 → A12 → A13 → A14
