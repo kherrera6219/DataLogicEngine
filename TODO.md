@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a audits complete; N2 wired)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b audits complete; N2 wired; A2 next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,19 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+21. [x] AUDIT-A1b: Phase 1 session 4 — `truth_memory/` + `truth_link/` audit + carry-over resolution (`5027fc3b`).
+    - Verdicts in `REPO_AUDIT_LOG.md` (A1b entry): 9 truth_memory + 5 truth_link files verified
+      (hash-chain audit recorder, commit service/Merkle, Redis-backed cache, blockchain anchors, bus).
+    - A3-3/A1a-3 RESOLVED: canonical `dmrf/models.py` `TIER_ORDER` confirms `moderate` = Tier 2, so the
+      audit-commit/footer gate excluding "moderate" was skipping Tier 2 audit bundles. Exclusion set
+      normalized to `{"", "0", "t0", "1", "t1", "trivial"}` with `.lower().strip()` (also fixes SDK
+      `"T1"`/`"T2"` casing) across `_build_response`, `_create_trace_run`, and the cache-hit path.
+    - A4-7 RESOLVED: response cache stores/returns `original_run_id`; Tier 2+ cache hits write a
+      `cache_hit` compliance `TruthAuditEvent` linking new + original run ids (fail-safe wrapped).
+    - Review (2026-06-11): `audit_logger.log_event` call verified against the real
+      `TruthAuditRecorder.log_event` signature; 127 focused tests pass (process harness + LMA +
+      truth_engine). Next: A2 `backend/dsqp/`.
 
 ### Trace Viewer Wiring Phased Update Plan
 

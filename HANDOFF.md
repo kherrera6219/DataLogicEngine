@@ -18,12 +18,13 @@ known-good verification steps. It is the primary handoff reference; the
 > | A4 | `local_model_acceleration/` | `821737d1` | ✅ A4-1/2/3 fixed |
 > | A3 | `llm_gateway/` + N2 defense supervisor wired | `1ddeec49` | ✅ |
 > | A1a | `truth_core/` + `truth_gate/` | `86486a78` | ✅ A1a-1 fixed |
-> | **A1b** | `truth_memory/` + `truth_link/` + top-level | — | **NEXT** |
+> | A1b | `truth_memory/` + `truth_link/` | `5027fc3b` | ✅ A3-3/A1a-3 + A4-7 resolved |
+> | **A2** | `dsqp/` — patent claim | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
 > `routes/` → `backend/routes/`) — the v2.0 plan listed them from a stale
-> snapshot. Full suite at last commit: **2033 passed / 21 skipped / 0 failed**,
+> snapshot. Full suite after A1b: **2033 passed / 21 skipped / 0 failed**,
 > ruff clean. Still unwired: `core/self_evolving/sekre_engine.py` (N1, wire
 > after A6b).
 
@@ -183,15 +184,26 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   `processing_time_ms: 500` in the audit trail. Details in `REPO_AUDIT_LOG.md`
   (A1a entry).
 
-### Next audit session: A1b — `truth_memory/` + `truth_link/` + top-level
+- ~~A1b truth_memory + truth_link audit~~ — complete 2026-06-11 (`5027fc3b`).
+  Resolved **A3-3/A1a-3**: confirmed via canonical `dmrf/models.py` `TIER_ORDER`
+  that `moderate` = Tier 2; the audit-commit/footer gate wrongly excluded it,
+  so Tier 2 runs were skipping audit bundles. Exclusion set normalized to
+  `{"", "0", "t0", "1", "t1", "trivial"}` with `.lower().strip()` (also fixes
+  the SDK's `"T1"`/`"T2"` casing) across `_build_response`, `_create_trace_run`,
+  and the new cache-hit path. Resolved **A4-7**: cache stores/returns
+  `original_run_id`; Tier 2+ cache hits now write a `cache_hit` compliance
+  `TruthAuditEvent` linking new + original run ids. (Reviewed 2026-06-11: API
+  call matches `TruthAuditRecorder.log_event` signature; 127 focused tests pass.)
 
-Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`. Carry-overs to
-resolve here:
-- A3-3 + A1a-3: `_create_trace_run` Tier 2+ audit-commit gate excludes
-  "moderate" — verify SDK/UKGOverlay tier vocabulary; possible missed audit
-  bundles for Tier 2 runs.
-- A4-7: audit-trail semantics of exact-cache hits (no new TruthAuditEvent on
-  a cache-served Tier 2+ answer).
+### Next audit session: A2 — `backend/dsqp/` (patent claim)
+
+Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`: verify personas are
+constructed dynamically via 7-part self-questioning at query time (not selected
+from templates); orchestrator constructs per-query (no cross-query caching);
+validator checks the DSQP *process* not just output shape; registry stores
+construction specs not pre-built definitions; templates are fallback-only.
+Exit gate: written statement confirming/challenging match to the technical
+disclosure (`docs/ip/dsqp_technical_disclosure.md`).
 
 Still open for later sessions:
 - A3-4 (for A10): supervisor `user_role` enrichment; HONEYPOT handling with
@@ -199,8 +211,7 @@ Still open for later sessions:
 - A1a-2 (for A6b/cleanup): `truth_core/router.py` LLMRouter dead code.
 - A1a-4 (for A6): no-KA "Mock result" fallback in `_execute_refinement_step`.
 
-Phase 1 remaining order: A1b → A2 → A5 → A6a → A6b
-- A1b: `backend/truth_engine/truth_memory/` + `truth_link/` + top-level
+Phase 1 remaining order: A2 → A5 → A6a → A6b
 - A2: `backend/dsqp/` — patent claim, dynamic persona construction
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
 
