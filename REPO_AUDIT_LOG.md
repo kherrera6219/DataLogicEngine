@@ -507,3 +507,61 @@ dmrf/phase_g/phase_e/api_endpoints integration 46 passed; ruff clean.
 (Note: `tests/integration/test_api_endpoints.py` cannot be collected in the same
 pytest invocation as `tests/knowledge_algorithms/` due to a pre-existing
 `drop_all_test_tables` conftest-name collision — unrelated to A2; flag for A18.)
+
+---
+
+## A2-2 — DSQP LLM-Assisted Construction (resolves the deferred patent-claim gap)
+**Date completed:** 2026-06-11
+**Branch:** main
+**Type:** feature build (not audit) — closes A2-2 from the A2 audit
+
+### What changed
+
+A2 confirmed the DSQP structure was real but answer _content_ was a
+deterministic, per-axis template (a regulatory query about a cardiac implant and
+one about insider trading produced the *same* "Lead Regulatory Analyst"). This
+build makes the seven-component construction genuinely query-derived while
+keeping the offline-capable deterministic path the disclosure requires.
+
+- **`backend/dsqp/dsqp_answer_generator.py` (new).** One structured local-Ollama
+  JSON call per persona axis answers all seven role-construction questions for
+  the specific query/coordinate/domain. Local model only (never cloud), via the
+  canonical `OllamaClient`. Per-component schema validation: each component is
+  accepted only if its primary field is present and non-empty (lists coerced
+  from scalars first for robustness); anything missing/malformed is dropped.
+  Kill switch `DSQP_LLM_ASSISTED=false`; per-axis timeout `DSQP_GENERATION_TIMEOUT`
+  (default 15s).
+- **`dsqp_chain.py` wiring.** Each component uses the LLM answer when present,
+  else the deterministic scaffold. Every chain step records `source`
+  ("llm"/"deterministic"); persona `metadata.construction_mode` is
+  `llm_assisted` / `hybrid` / `deterministic_offline` with an `llm_component_count`.
+  Deterministic context-only fields (`job_role.query_mission`, `education.domain`,
+  `skills.constraints`) are back-filled onto LLM answers so the `ExpandedPersona`
+  schema is unchanged — the process-aware validator and L5/overlay consumers are
+  unaffected.
+- **Strict availability for the hot path.** `tier_availability.cheapest_available_local_model`
+  gained `optimistic=` (default True). DSQP calls it with `optimistic=False` so it
+  only contacts a model the startup probe has positively confirmed — avoiding a
+  multi-second timeout per axis on an unprobed/slow Ollama. The defense supervisor
+  was refactored onto the same shared helper (optimistic, unchanged behavior;
+  35 tests green).
+- **Test isolation.** `tests/conftest.py` sets `DSQP_LLM_ASSISTED=false` so the
+  suite validates the deterministic scaffold and never reaches a live model
+  (a dev box with Ollama listening but a slow model was adding 20s/axis and a
+  failure). The LLM path is covered by injected-stub-client tests.
+
+### Why this matters for the IP claim
+
+With this in place, the running build substantively does what the disclosure
+claims: it constructs a query-specific expert persona by answering seven
+role-construction questions at runtime, per UKG persona axis, on a local model,
+with coverage + process validation and audit persistence — and still degrades to
+the deterministic activation scaffold offline. A2-2 is no longer a pre-filing gap.
+
+### Tests
+
+`tests/unit/test_dsqp_llm_assisted.py` (7): query-derived construction
+(`construction_mode=llm_assisted`, per-step `source=llm`), per-component
+fallback (`hybrid`), kill switch (model never called), model-error fallback,
+no-model no-op, component validation/coercion. Existing DSQP unit/benchmark/
+db-o/dmrf/phase_g/phase_e/persona suites all green; ruff clean.

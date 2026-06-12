@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2 audits complete; N2 wired; A5 next)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2 audits complete; N2 wired; A2-2 DSQP LLM construction built; A5 next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,21 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+23. [x] A2-2: build LLM-assisted DSQP construction (closes the deferred patent-claim gap).
+    - `backend/dsqp/dsqp_answer_generator.py`: one local-Ollama JSON call per persona axis answers the
+      7 role-construction questions from the query/coordinate/domain; per-component schema validation;
+      missing/malformed components fall back to the deterministic scaffold. Kill switch
+      `DSQP_LLM_ASSISTED=false`; timeout `DSQP_GENERATION_TIMEOUT` (15s).
+    - `dsqp_chain.py`: per-step `source` provenance + `construction_mode`
+      (llm_assisted/hybrid/deterministic_offline); deterministic context fields back-filled so the
+      `ExpandedPersona` schema and validator are unchanged.
+    - `tier_availability.cheapest_available_local_model(optimistic=)` added; DSQP uses strict
+      (probe-confirmed) resolution to avoid hot-path timeouts; defense_supervisor refactored onto the
+      shared helper. `tests/conftest.py` pins `DSQP_LLM_ASSISTED=false` so the suite stays offline.
+    - Now substantively query-derived (verified live in A2): FDA-implant vs SEC-10b-5 queries yield
+      different roles/credentials instead of the same "Lead Regulatory Analyst". A2-2 no longer a pre-IP gap.
+    - Validation: `tests/unit/test_dsqp_llm_assisted.py` (7) + existing DSQP/persona suites green; ruff clean; full suite green.
 
 22. [x] AUDIT-A2: Phase 1 session 5 — `backend/dsqp/` patent-claim audit.
     - Exit-gate disclosure-match statement in `REPO_AUDIT_LOG.md` (A2 entry). Verdict: implementation

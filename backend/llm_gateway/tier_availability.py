@@ -43,6 +43,39 @@ def get_available_local_tiers() -> Optional[frozenset[int]]:
     return _available_local_tiers
 
 
+def cheapest_available_local_model(*, optimistic: bool = True) -> Optional[str]:
+    """Return the model string for the lowest available local Ollama tier.
+
+    Used by local-LLM features (defense supervisor, DSQP answer generation) that
+    want the cheapest local model and must never reach for a cloud tier. Returns
+    None when no local model is available.
+
+    ``optimistic`` controls behaviour before the startup probe has run
+    (``_available_local_tiers is None``):
+
+    - ``True`` (default): return the Tier 0 model so a feature still tries on a
+      fresh start. Appropriate for screening gates (defense supervisor) that
+      should attempt the call.
+    - ``False``: return None until the probe positively confirms a model.
+      Appropriate for hot-path features (DSQP per-axis construction) where an
+      optimistic call to an unprobed/slow Ollama would add a multi-second
+      timeout per request; these should silently use their deterministic path
+      until availability is known.
+    """
+    from backend.llm_gateway.escalation_config import TIER_CHAIN
+
+    local = [tc for tc in TIER_CHAIN if not tc.is_cloud]
+    if not local:
+        return None
+    available = _available_local_tiers
+    if available is None:
+        return local[0].model if optimistic else None
+    for tc in local:
+        if tc.tier in available:
+            return tc.model
+    return None
+
+
 def probe_age_seconds() -> Optional[float]:
     """Seconds since the last completed probe, or None if never probed."""
     if _last_probe_monotonic is None:

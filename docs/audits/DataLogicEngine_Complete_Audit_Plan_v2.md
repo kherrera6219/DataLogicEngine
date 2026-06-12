@@ -31,7 +31,7 @@ Live test baseline: **2033 passed / 21 skipped**.
 |---|---|---|---|
 | A3-3 / A1a-3 | Tier 2+ audit-commit gate excluded `"moderate"` (= Tier 2 per `dmrf` `TIER_ORDER`), skipping Tier 2 audit bundles | A1b | ✅ resolved `5027fc3b` |
 | A4-7 | exact-cache hit serves a Tier 2+ answer with no new `TruthAuditEvent` | A1b | ✅ resolved `5027fc3b` |
-| A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | future DSQP slice | ☐ documented |
+| A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | A2-2 build | ✅ resolved 2026-06-11 (`dsqp_answer_generator.py`; offline fallback kept) |
 | A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
 | A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
 | A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
@@ -402,7 +402,7 @@ Phase 1 — Live query path:
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3
   N1   ☐ Wire SekreEngine (after A6b — layer stack must be mapped first)
-  A2-2 ☐ DSQP LLM-assisted construction before external IP filing (deferred)
+  A2-2 ✅ DSQP LLM-assisted construction (dsqp_answer_generator.py)
 
 Phase 2 — Reasoning depth (8 sessions):
   A7 → A8a → A8b → A9 → A10 → A11 → A12 → A13 → A14

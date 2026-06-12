@@ -19,7 +19,8 @@ known-good verification steps. It is the primary handoff reference; the
 > | A3 | `llm_gateway/` + N2 defense supervisor wired | `1ddeec49` | ✅ |
 > | A1a | `truth_core/` + `truth_gate/` | `86486a78` | ✅ A1a-1 fixed |
 > | A1b | `truth_memory/` + `truth_link/` | `5027fc3b` | ✅ A3-3/A1a-3 + A4-7 resolved |
-> | A2 | `dsqp/` — patent claim | `pending` | ✅ matches disclosure; validator now process-aware (A2-1) |
+> | A2 | `dsqp/` — patent claim | `4390c608` | ✅ matches disclosure; validator process-aware (A2-1) |
+> | A2-2 | DSQP LLM-assisted construction | `pending` | ✅ query-derived personas; offline fallback kept |
 > | **A5** | `dmrf/` — 17-axis router | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
@@ -204,6 +205,13 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   coverage). Documented A2-2: deterministic answers are axis-keyed scaffolds —
   implement LLM-assisted construction before any external IP filing. Details in
   `REPO_AUDIT_LOG.md` (A2 entry).
+
+- ~~A2-2 DSQP LLM-assisted construction~~ — built 2026-06-11. `dsqp_answer_generator.py`
+  generates the 7 persona components from the query on the local model (per-axis
+  JSON call), with per-component fallback to the deterministic scaffold; provenance
+  + `construction_mode` recorded. `DSQP_LLM_ASSISTED=false` kill switch;
+  conftest pins it off for tests. Personas are now genuinely query-derived. Details
+  in `REPO_AUDIT_LOG.md` (A2-2 entry).
 
 ### Next audit session: A5 — `backend/dmrf/` (17-axis router)
 

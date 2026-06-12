@@ -91,16 +91,9 @@ class DefenseSupervisor:
         if self._model:
             return self._model
         try:
-            from backend.llm_gateway.escalation_config import TIER_CHAIN
-            from backend.llm_gateway.tier_availability import get_available_local_tiers
+            from backend.llm_gateway.tier_availability import cheapest_available_local_model
 
-            available = get_available_local_tiers()
-            if available is None:
-                # Probe has not run yet — optimistic, use the Tier 0 model.
-                return next(tc.model for tc in TIER_CHAIN if not tc.is_cloud)
-            for tc in TIER_CHAIN:
-                if not tc.is_cloud and tc.tier in available:
-                    return tc.model
+            return cheapest_available_local_model()
         except Exception as exc:  # noqa: BLE001
             logger.debug("Defense supervisor model resolution failed: %s", exc)
         return None

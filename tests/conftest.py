@@ -14,6 +14,12 @@ os.environ['RATELIMIT_STORAGE_URI'] = 'memory://'
 os.environ['REDIS_URL'] = 'redis://localhost:6379/0' # Keep URL but we'll disable it
 os.environ['USE_REDIS'] = 'False'
 os.environ['SESSION_TYPE'] = 'null' # Disable flask-session for tests if possible
+# DSQP persona construction must not reach a live local model during tests:
+# the suite validates the deterministic scaffold, and the LLM-assisted path is
+# covered separately with an injected stub client. (A machine with Ollama
+# listening but a slow/unloadable model would otherwise add a 20s timeout per
+# persona axis.) Tests that exercise the LLM path set this flag themselves.
+os.environ['DSQP_LLM_ASSISTED'] = 'false'
 
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent
