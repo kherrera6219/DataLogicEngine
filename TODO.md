@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE**; Phase 2 in progress — A7 knowledge_algorithms registry/config map + high-risk verification + KA-113 fix done; A8 per-KA sweep next)
+**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE**; Phase 2 — knowledge_algorithms audit A7+A8 done (125/125 registry, 117 real + 8 compact + 0 stub, KA-113 + KA-005 + A5-3 fixes); A9 quad persona next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -205,7 +205,18 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
 
-27. [~] AUDIT-A7 (partial): Phase 2 session 1 — `backend/knowledge_algorithms/` registry/config map + high-risk verification.
+28. [x] AUDIT-A8: Phase 2 session 2 — per-KA rating sweep + A5-3. **knowledge_algorithms audit complete.**
+    - Rated all 125 KAs: 117 real + 8 compact-real (7 l10/ modules delegating to l10/common + KA-112) + 0 stub.
+      Config completeness: 0 orphan configs; 4 KAs (33 reserved, 117/43/44) use graceful defaults. Verdicts in
+      `REPO_AUDIT_LOG.md` (A8 entry). The 100–117 band are representational infra KAs (describe ops, don't perform).
+    - A5-3 resolved (deeper than planned): KA-005 never emitted a tier, so TruthCore.determine_tier's KA-005
+      branch always fell through to heuristic. Fixed — KA-005 now maps category→`suggested_tier`
+      (REGULATORY→high_stakes, TECHNICAL/RESEARCH→moderate, GENERAL→trivial; config-overridable). Dropped the
+      genuinely-unused `DMRFTierClassifier.ka_controller` param (DMRF tiering stays a fast heuristic by design).
+    - Validation: `tests/knowledge_algorithms/test_ka_05_suggested_tier.py` (4) + DMRF/KA/truth_engine green (77);
+      ruff clean. Full-suite run covering A7+A8 before commit. Next: A9 `core/persona/quad/`.
+
+27. [x] AUDIT-A7: Phase 2 session 1 — `backend/knowledge_algorithms/` registry/config map + high-risk verification.
     - Registry: all **125** `ka_registry.yaml` entries resolve to an importable `module.run` callable (0 broken).
     - Configs: by-convention `config/ka_NN_config.json` with graceful fallback; `ka_33` reserved (no config, expected);
       KA-117 rename confirmed (integrity validator at 117; 50 is now summarization).

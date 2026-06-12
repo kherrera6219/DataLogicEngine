@@ -12,12 +12,14 @@ class DMRFTierClassifier:
 
     def __init__(
         self,
-        ka_controller: Any | None = None,
         *,
         desktop_mode: bool = False,
         offline_tier_cap: str = "high_stakes",
     ):
-        self.ka_controller = ka_controller
+        # DMRF tier classification is a deliberately fast, self-contained
+        # heuristic (no KA round-trip in this hot path). KA-005 emits its own
+        # `suggested_tier` for the TruthCore path; the previously-accepted but
+        # unused `ka_controller` param was removed (A5-3).
         self.desktop_mode = desktop_mode
         # The desktop offline cap is operator-configurable via DMRFDesktopConfig
         # (dmrf_config.json). Fall back to high_stakes for an unknown value.

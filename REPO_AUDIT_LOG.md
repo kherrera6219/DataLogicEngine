@@ -837,3 +837,65 @@ depth review noted in earlier TODO updates also continues here.
 present/normalized, trivial→low, domain-heavy > plain-prose (proves not
 length-only), ambiguity signal fires, high-complexity→deep pipeline, empty-query
 safe. KA suite + truth_engine coverage green; ruff clean.
+
+---
+
+## Phase 2 / A8 — Per-KA rating sweep + A5-3 (KA-005 tiering)
+**Date:** 2026-06-11
+**Branch:** main
+
+### Per-KA rating (all 125 registered KAs)
+
+Programmatic sweep (LOC, `_run_logic`/`run` presence, base class, stub-marker
+regex) + spot-reads of the outliers:
+
+| Rating | Count | Notes |
+|---|---|---|
+| **real** | 117 | substantive `_run_logic` over the `KnowledgeAlgorithm` base, config-loaded |
+| **compact (real)** | 8 | 7 `l10/l10_ka_00N_*` modules (delegate the actual math to `l10/common.py` — confirmed real in Phase E) + KA-112 message_broker |
+| **stub** | 0 | explicit stubs were already replaced in the KA-STUB-1 / KA-DEPTH-1 sprints; `ka_33_reserved_expansion_slot` is the intentional reserved slot |
+
+Spot-confirmations: KA-014 (real F-CONF-01), KA-061 (real, fail-closed),
+KA-005 (real local + gateway classification), L10-KA-001 (real entropy via
+`token_entropy`). **KA-112 / the 100–117 band are *representational* infra KAs** —
+they return structured descriptions of an operation (queue tag, broker type)
+rather than performing it; the actual celery/redis/etc. work is done by the real
+infrastructure layer. Acceptable for their role; noted, not a defect.
+
+### Config completeness
+
+- **0 orphan configs** — every `config/ka_NN_config.json` maps to a KA.
+- 4 KAs have no config and use graceful defaults: `ka_33` (reserved),
+  `ka_117` / `ka_43` / `ka_44`. Acceptable (each `_load_config` falls back to `{}`/defaults).
+
+### Fix — A5-3 (resolved two ways)
+
+The audit plan's A5-3 was "wire a KA-005 hook into `DMRFTierClassifier.ka_controller`
+or drop the unused param." Investigation surfaced a deeper latent gap:
+
+- **KA-005 never emitted a tier.** It returned only a `category`, so
+  `TruthCore.determine_tier` (engine.py — reads `ka_result.get('suggested_tier',
+  ka_result.get('tier'))`) **always got `None` and silently fell through to its
+  heuristic** — the "AI-driven KA-005 tiering" branch was effectively dead.
+  Fixed: KA-005 now maps its category to a workflow tier and emits
+  `suggested_tier` (+ `tier`): REGULATORY→high_stakes, TECHNICAL/RESEARCH→moderate,
+  GENERAL→trivial; overridable via `category_tier_map` in config. TruthCore's
+  KA-005 tiering branch is now functional.
+- **`DMRFTierClassifier.ka_controller` dropped.** It was genuinely unused (no
+  caller passed it), and routing KA-005's async gateway-delegating path through
+  the DMRF sync hot path would be wrong; DMRF tier classification stays a fast
+  self-contained heuristic by design. Param removed.
+
+### Tests
+
+`tests/knowledge_algorithms/test_ka_05_suggested_tier.py` (4): regulatory→
+high_stakes, technical→moderate, general→trivial, always a valid TruthCore tier.
+DMRF integration + KA logic/stub-replacement + truth_engine coverage green (77);
+ruff clean.
+
+### Phase 2 / A7+A8 status
+
+`knowledge_algorithms` audit complete: registry fully wired (125/125 resolve),
+configs complete (0 orphans), all KAs rated (117 real + 8 compact-real + 0 stub),
+high-risk KAs confirmed real, KA-113 upgraded to multi-signal (A7-1), KA-005
+tiering fixed + A5-3 resolved (A8). Next: A9 `core/persona/quad/`.

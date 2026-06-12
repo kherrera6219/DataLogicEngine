@@ -23,16 +23,17 @@
 | **A6a** | `core/simulation/` L1–L5 map | ✅ done | `2afe2d14` | L5 override fixed; 12 dead legacy files removed |
 | **A6b** | `core/simulation/` L6–L10 + SEKRE | ✅ done | `pending` | L6–L10 map; **N1 SEKRE wired**; no deletions (already clean) |
 | **— PHASE 1 COMPLETE —** | live query path (8/8) | ✅ | — | N1+N2 wired; −5,150 LOC dead code removed |
-| **A7** | `knowledge_algorithms/` (125 KAs) | ◐ partial | `pending` | registry all-resolve; configs by convention; high-risk verified; KA-113 length-only → multi-signal (A7-1) |
-| **A8** | per-KA rating sweep + A5-3 | ⏭ NEXT | — | rate all 125 real/heuristic/stub |
-| A9–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A7+A8** | `knowledge_algorithms/` (125 KAs) | ✅ done | `pending` | 125/125 registry resolve; 0 orphan configs; 117 real + 8 compact-real + 0 stub; KA-113 multi-signal (A7-1); KA-005 tiering + A5-3 (A8) |
+| **A9** | `core/persona/quad/` | ⏭ NEXT | — | quad persona system |
+| A10–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
-Live test baseline: **2056 passed / 21 skipped** (Phase 1) + KA-113 tests (A7).
-**Phase 1 COMPLETE (8/8); Phase 2 in progress.** A7 (knowledge_algorithms
-registry/config map + high-risk verification) is partial — the per-KA rating
-sweep continues in **A8**. Both June-10-scan disconnected components are wired:
-N2 (defense_supervisor, A3) and N1 (SEKRE, A6b).
+Live test baseline: **2056 passed / 21 skipped** + KA-113/KA-005 tests.
+**Phase 1 COMPLETE (8/8); Phase 2 in progress.** The `knowledge_algorithms`
+audit (A7+A8) is complete: registry 125/125 resolves, configs complete, all KAs
+rated (117 real + 8 compact-real + 0 stub). Next is **A9** (`core/persona/quad/`).
+Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
+and N1 (SEKRE, A6b).
 
 ### Open carry-over findings (tracked across sessions)
 
@@ -43,7 +44,7 @@ N2 (defense_supervisor, A3) and N1 (SEKRE, A6b).
 | A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | A2-2 build | ✅ resolved 2026-06-11 (`dsqp_answer_generator.py`; offline fallback kept) |
 | A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
 | A5-2 | five overlapping pattern-injection defenses (shield/guardrail/supervisor/truthgate/dmrf) — confirm union, consider consolidation | A10 | ☐ |
-| A5-3 | `DMRFTierClassifier.ka_controller` param accepted but unused (no KA-005 hook) | A8 | ☐ |
+| A5-3 | `DMRFTierClassifier.ka_controller` unused; also KA-005 never emitted a tier (TruthCore tiering branch dead) | A8 | ✅ resolved 2026-06-11 (KA-005 emits `suggested_tier`; DMRF param dropped) |
 | A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
 | A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
 | A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ☐ |

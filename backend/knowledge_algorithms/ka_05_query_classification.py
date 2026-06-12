@@ -49,16 +49,34 @@ class KA005QueryClassification(KnowledgeAlgorithm):
         
         final_category = sdk_result.get("category", local_category)
         final_conf = sdk_result.get("confidence", local_conf)
-        
+        suggested_tier = self._tier_for_category(final_category)
+
         return {
             "success": True,
             "category": final_category,
             "confidence": final_conf,
+            # Workflow tier derived from the classification category. Consumed by
+            # TruthCore.determine_tier (which reads `suggested_tier`); previously
+            # this KA only returned a category, so that branch always fell through
+            # to the heuristic. Config-overridable via "category_tier_map".
+            "suggested_tier": suggested_tier,
+            "tier": suggested_tier,
             "metadata": {
                 "local_guess": local_category,
                 "sdk_response": sdk_result
             }
         }
+
+    def _tier_for_category(self, category: str) -> str:
+        """Map a classification category to a TruthCore workflow tier."""
+        default_map = {
+            "REGULATORY": "high_stakes",
+            "TECHNICAL": "moderate",
+            "RESEARCH": "moderate",
+            "GENERAL": "trivial",
+        }
+        tier_map = {k.upper(): v for k, v in self.config.get("category_tier_map", default_map).items()}
+        return tier_map.get(str(category).upper(), "moderate")
 
     def _perform_local_classification(self, query: str) -> Tuple[str, float]:
         if not query:

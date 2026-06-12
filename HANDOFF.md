@@ -25,8 +25,8 @@ known-good verification steps. It is the primary handoff reference; the
 > | A6a | `core/simulation/` L1–L5 | `2afe2d14` | ✅ L5 override fixed; 12 dead legacy files removed |
 > | A6b | `core/simulation/` L6–L10 + SEKRE | `62aa320f` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
 > | **— PHASE 1 COMPLETE (8/8) —** | | | |
-> | A7 (Phase 2) | `knowledge_algorithms/` registry/config + high-risk | `pending` | ◐ registry all-resolve; KA-113 multi-signal fix (A7-1); per-KA sweep → A8 |
-> | **A8** | per-KA rating sweep | — | **NEXT** |
+> | A7+A8 (Phase 2) | `knowledge_algorithms/` (125 KAs) | `pending` | ✅ 125/125 registry resolve; 117 real + 8 compact + 0 stub; KA-113 + KA-005 + A5-3 fixes |
+> | **A9** | `core/persona/quad/` | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -252,12 +252,22 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   `ka_116`, not 102) — verify by concept, not the plan's numbering. Fixed A7-1
   (KA-113 length-only → multi-signal). `REPO_AUDIT_LOG.md` (A7 entry).
 
-### Next audit session: A8 — per-KA rating sweep (all 125)
+- ~~A8 per-KA rating sweep + A5-3~~ done 2026-06-11. All 125 KAs rated:
+  117 real + 8 compact-real (7 `l10/` modules delegating to `l10/common`, KA-112)
+  + 0 stub; 0 orphan configs. A5-3 resolved — KA-005 now emits `suggested_tier`
+  (fixing TruthCore's previously-dead KA-005 tiering branch) and the unused
+  `DMRFTierClassifier.ka_controller` param was dropped. The 100–117 band are
+  *representational* infra KAs (describe ops; the real celery/redis layer
+  performs them). `REPO_AUDIT_LOG.md` (A8 entry).
 
-Rate every KA real/heuristic/stub; confidence scoring variable; 17-axis
-coordinate used; config-completeness cross-check. Continue the thin-KA
-depth review. Resolve **A5-3** here (wire a KA-005 classification hook into
-`DMRFTierClassifier.ka_controller`, or drop the unused param).
+### Next audit session: A9 — `core/persona/quad/` (quad persona system)
+
+`quad_engine.py` 7-part dynamic role construction (vs template selection — note
+A2/A2-2 made DSQP genuinely query-derived); the three model files (distinct
+domains or duplicate?); `persona_scaling/sufficiency.py` canonical after DUP-5;
+`pod_orchestrator/` vs main quad_engine overlap; `mathematical_framework/`
+formulas from the white paper implemented; `axis_role_mapper.py` axes 8–11 →
+persona roles at query time.
 
 Other carry-overs: A3-4 + A5-2 (injection-defense consolidation) + SC-2 in A10;
 A1a-2/A1a-4 in an A6 cleanup pass; A3-5 in A26; A18-pre in A18. Full list in the
