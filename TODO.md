@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (**PHASE 1 COMPLETE**; Phase 2 — knowledge_algorithms audit A7+A8 done (125/125 registry, 117 real + 8 compact + 0 stub, KA-113 + KA-005 + A5-3 fixes); A9 quad persona next)
+**Last updated:** 2026-06-12 (**PHASE 1 COMPLETE**; Phase 2 — A7+A8 knowledge_algorithms done; A9 quad persona done (map: models/scaling/pod/math LIVE, quad_engine demo-only); follow-on carry-overs A1a-2 + A1a-4 + A10-password resolved. **Next: A10 `backend/security/`**)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,29 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+29. [x] AUDIT-A9: Phase 2 — `core/persona/quad/` reachability map (+ follow-on carry-over resolutions).
+    Commits `5a1353c9` (A9 + docs), `f2899e30` (A1a-2/A1a-4 code).
+    - **LIVE/canonical:** `models.py` (PersonaProfile 7-component + QueryState), `persona_scaling/sufficiency.py`
+      (DUP-5 clean: GatewayPersonaSufficiencyTool + PersonaSufficiencyTool), `pod_models.py`, `pod_orchestrator/`,
+      `mathematical_framework/`. **DEMO-ONLY:** `quad_engine.py` (heuristic 4-persona; importers = demo scripts + 1
+      test). Plan premise was wrong — the real query-time 7-component construction is
+      `core/system/persona_construction_service.py` → DSQP (A2/A2-2), not quad_engine. Fixed its stale docstring
+      (named `layer2_legacy_knowledge.py`, deleted in A6a `2afe2d14`).
+    - Forwarded: A9-1 `axis_role_mapper.py` (test-only) + `persona_loader.py` (script-only) → A29; A9-2 `quad_models.py`
+      (misnamed L3 models, dup of SDK, 1 script importer) → A14/A29; A9-3 `__init__.py` docstring → A31.
+    - **Carry-overs resolved this pass** (REPO_AUDIT_LOG.md "Carry-over resolutions"):
+      - A1a-2 — deleted dead `truth_core/router.py` `LLMRouter` (stale model set; zero prod callers; DMRFRouter is a
+        separate live class) + its `__init__` export + `TestLLMRouter`.
+      - A1a-4 — `_execute_refinement_step` fabricated `completed`/0.8 "Mock result" (was consolidated into the memory
+        graph + piped downstream as if real) → honest `skipped`/0.0/reason.
+      - A10-password — CONFIRMED SECURE, no code change. `password_security.py` is policy-only; real store-hash is
+        `models.py:112` werkzeug `generate_password_hash` → `scrypt:32768:8:1` on werkzeug 3.1.8 (OWASP baseline,
+        ≥ bcrypt-12). The plan's "bcrypt ≥12 rounds" pointer was a red herring.
+    - Validation: `tests/persona/quad/` 41 + `tests/truth_engine/` 75 passed; ruff clean; pre-commit hooks green.
+    - **Next: A10 `backend/security/`** — resolve A3-4 (defense supervisor `user_role`/HONEYPOT-as-BLOCK — may need a
+      product call on honeypot behavior), A5-2 (consolidate 5 overlapping injection defenses), SC-2 (Fernet→AES-256-GCM
+      docs). Password item already closed — do NOT re-chase.
 
 28. [x] AUDIT-A8: Phase 2 session 2 — per-KA rating sweep + A5-3. **knowledge_algorithms audit complete.**
     - Rated all 125 KAs: 117 real + 8 compact-real (7 l10/ modules delegating to l10/common + KA-112) + 0 stub.
