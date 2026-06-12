@@ -24,8 +24,9 @@
 | **A6b** | `core/simulation/` L6–L10 + SEKRE | ✅ done | `pending` | L6–L10 map; **N1 SEKRE wired**; no deletions (already clean) |
 | **— PHASE 1 COMPLETE —** | live query path (8/8) | ✅ | — | N1+N2 wired; −5,150 LOC dead code removed |
 | **A7+A8** | `knowledge_algorithms/` (125 KAs) | ✅ done | `pending` | 125/125 registry resolve; 0 orphan configs; 117 real + 8 compact-real + 0 stub; KA-113 multi-signal (A7-1); KA-005 tiering + A5-3 (A8) |
-| **A9** | `core/persona/quad/` | ⏭ NEXT | — | quad persona system |
-| A10–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A9** | `core/persona/quad/` | ✅ done | `pending` | models/sufficiency(DUP-5 clean)/pod_orch/math LIVE; quad_engine demo-only (docstring fixed); A9-1/2/3 forwarded |
+| **A10** | `backend/security/` | ⏭ NEXT | — | resolve A3-4/A5-2/SC-2; password hashing ≥12 rounds |
+| A11–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).
@@ -46,8 +47,8 @@ and N1 (SEKRE, A6b).
 | A5-2 | five overlapping pattern-injection defenses (shield/guardrail/supervisor/truthgate/dmrf) — confirm union, consider consolidation | A10 | ☐ |
 | A5-3 | `DMRFTierClassifier.ka_controller` unused; also KA-005 never emitted a tier (TruthCore tiering branch dead) | A8 | ✅ resolved 2026-06-11 (KA-005 emits `suggested_tier`; DMRF param dropped) |
 | A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
-| A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
-| A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ☐ |
+| A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ✅ resolved 2026-06-12 (deleted module + `__init__` export + vanity test; no live caller) |
+| A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ✅ resolved 2026-06-12 (fabricated `completed`/0.8 → honest `skipped`/0.0; was polluting memory graph + downstream context) |
 | A18-pre | `tests/integration/test_api_endpoints.py` + `tests/knowledge_algorithms/` share a `drop_all_test_tables` conftest name → collection error when collected together | A18 | ☐ |
 | SC-2 | Encryption: Fernet→AES-256-GCM decision (note: AES-256-GCM landed in Sprint 2 `EncryptionManager`; confirm docs) | A10 / A31 | ☐ |
 
@@ -299,7 +300,7 @@ Config layer: verify all 99 config JSONs wired to implementations. `ka_33_config
 | `ai_guardrail.py` | 🔴 HIGH | Same layer as prompt_injection_shield? Which called first on every query? |
 | `zero_trust.py` | 🔴 HIGH | Enforced per-request or declared-only? |
 | `active_defense.py` | 🔴 HIGH | Rate limit? Block IPs? Honeypot redirect? Actually triggering? |
-| `password_security.py` | 🔴 HIGH | **bcrypt ≥12 rounds or argon2id — confirm. Open since May 2026.** |
+| `password_security.py` | 🔴 HIGH | ✅ pre-checked 2026-06-12: this file is **policy only** (no store-hash). Real hash = `models.py:112` werkzeug `generate_password_hash` → **`scrypt:32768:8:1`** on werkzeug 3.1.8 (OWASP memory-hard baseline, ≥ bcrypt-12). Intent met; "rounds" criterion N/A. |
 | `rbac.py` | 🔴 HIGH | No privilege escalation paths in recent code? |
 | `session_manager.py`, `token_manager.py` | 🔴 HIGH | Session rotation? JWT expiry? Concurrent session limit? |
 | `pii_redaction.py` | 🔴 HIGH | Applied to TruthMemory audit chain? No PII in `TruthAuditEvent` rows? |

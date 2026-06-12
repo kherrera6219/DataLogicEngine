@@ -12,8 +12,13 @@ removed. The data models now live in ``quad_persona/models.py``; this module
 keeps the single live engine and its expert hierarchy.
 
 The canonical, documented persona engine for production is ``backend/dsqp/``
-(see docs/ARCHITECTURE.md); this engine is retained for the legacy simulation
-path (core/simulation/layer2_legacy_knowledge.py) and demos.
+(see docs/ARCHITECTURE.md); query-time 7-component persona construction is done
+by ``core/system/persona_construction_service.py`` (which seeds PersonaProfile
+via DSQPChain). This heuristic keyword-matching engine is NOT on the live query
+path — A9 audit (2026-06-12) found its only external importers are the demo
+scripts under ``scripts/demos/simulation/`` plus one Phase-5 test. (Its former
+legacy consumer ``core/simulation/layer2_legacy_knowledge.py`` was deleted in
+A6a, commit ``2afe2d14``.) Retained for the demos; see REPO_AUDIT_LOG.md (A9).
 
 DISTINCT FROM backend/quad_persona/quad_engine.py, which is the gateway-only
 async LLM-routing version (mode="quad"). The two coexist intentionally.

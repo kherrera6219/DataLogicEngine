@@ -899,3 +899,129 @@ ruff clean.
 configs complete (0 orphans), all KAs rated (117 real + 8 compact-real + 0 stub),
 high-risk KAs confirmed real, KA-113 upgraded to multi-signal (A7-1), KA-005
 tiering fixed + A5-3 resolved (A8). Next: A9 `core/persona/quad/`.
+
+---
+
+## Phase 2 / A9 — `core/persona/quad/` (Quad Persona System)
+**Date:** 2026-06-12
+**Branch:** main
+
+### Method
+
+Reachability map of all 11 top-level modules + 3 subpackages: for each, the set
+of *external* importers (outside `core/persona/quad/`) was enumerated via
+`git grep`, split into live-pipeline / demo / test / script consumers, then the
+key modules were read to confirm behavior. The plan's framing ("quad_engine.py =
+7-part dynamic role construction at query time") proved **wrong for this file** —
+that construction lives elsewhere (see below).
+
+### Per-file rating (live vs. not-on-live-path)
+
+| File | Rating | External consumers | Notes |
+|---|---|---|---|
+| `models.py` (`PersonaProfile` 7-component, `QueryState`) | ✅ **LIVE / canonical** | truth_core (engine, personas, refinement_orch, bridge), `backend/memory/unified_memory_service`, `ka_38`, `core/system/persona_construction_service`, `pov_engine_enterprise`, gateway | The real shared persona data model. |
+| `persona_scaling/sufficiency.py` | ✅ **LIVE / canonical** | gateway, truth_core engine, bridge, pov_engine_enterprise | `GatewayPersonaSufficiencyTool` (dict API, gateway/truth_core) + `PersonaSufficiencyTool` (Phase-5). Real heuristics, input-hardened, fail-safe. **DUP-5 confirmed clean** — no stale `truth_core.persona_sufficiency` import survives. |
+| `persona_scaling/profiles.py` | ✅ **LIVE** | (via sufficiency) | Subsystem profile registries (defense/sector/regulatory/compliance). |
+| `pod_models.py` | ✅ **LIVE** | bridge, sufficiency, pod_orchestrator | `ExpansionPlan`/`ScalingDecision`/`SubsystemProfile`/`SufficiencySignals`. |
+| `pod_orchestrator/` (builder, orchestrator, synthesis) | ✅ **LIVE** | gateway, truth_core engine, bridge, pov_engine_enterprise | Committee-expansion path. Wired to the gateway/truth_core pipeline. |
+| `mathematical_framework/` (weights, integration, refinement, memory_graph) | ✅ **LIVE** | `ka_38`, `unified_memory_service`, truth_core personas + refinement_orch | White-paper persona math; consumed by KA-38 consensus + memory. |
+| `quad_engine.py` (heuristic 4-persona engine) | ⚠️ **DEMO-ONLY; stale docstring (FIXED)** | `scripts/demos/simulation/*` + 1 Phase-5 test only | Keyword-heuristic "Simulated perspective/confidence". **Not on the live query path.** Its docstring named `core/simulation/layer2_legacy_knowledge.py` as consumer — that file was **deleted in A6a (`2afe2d14`)**; docstring corrected this session. |
+| `axis_role_mapper.py` (`AxisRoleMapper`) | 🟡 **TEST-ONLY (A9-1)** | `tests/persona/quad/test_phase5_correctness.py` only | Real axis8–11→role mapping logic but no production caller. Dead in prod. |
+| `persona_loader.py` (`PersonaLoader`) | 🟡 **SCRIPT-ONLY (A9-1)** | `scripts/persona_manager.py` only | JSON persona loader; no live importer. |
+| `quad_models.py` | 🟡 **MISNAMED / SCRIPT-ONLY (A9-2)** | `scripts/verify_layer3_pipeline.py` only | Despite the name it holds **L3 pipeline artifacts** (`EvidencePack`, `Coord17Intent`, `TierPlan`…), not quad-persona models. The live L3 contract is in `sdk/UKG_Python_SDK/ukg_sdk/models.py`; this is a misplaced near-dead duplicate. |
+| `__init__.py` | ✅ structural | re-export shim | Docstring oversells the package as one coherent library — see A9-3. |
+
+### Key finding — where 7-component construction actually lives
+
+The "7-part dynamic role construction at query time" the plan attributes to
+`quad_engine.py` is **not there** (that engine just runs 4 fixed keyword
+heuristics). The genuine query-derived 7-component build is
+`core/system/persona_construction_service.py` →
+`_seed_components_with_dsqp()` → `backend/dsqp/DSQPChain` (the A2/A2-2 work),
+with a deterministic `_seed_components()` static fallback. `models.PersonaProfile`
+is the shared 7-component container both paths fill. So the quad **data model**
+and **scaling/orchestration** are live; the quad **engine** is a legacy demo.
+
+### Fix applied
+
+- `quad_engine.py` module docstring corrected: removed the reference to the
+  deleted `layer2_legacy_knowledge.py`; states it is demo/test-only and points to
+  the canonical DSQP + persona_construction_service path.
+
+### Carry-overs forwarded (no risky deletions this session)
+
+- **A9-1** (→ A29 core cleanup): `axis_role_mapper.py` (test-only) and
+  `persona_loader.py` (script-only) are not on the live path. Decide: delete with
+  their lone consumers, or keep as documented dev tooling. (Minor: axis_role_mapper
+  L241–243 mislabels Axis 8 as "Ethical" — it is Knowledge; harmless while dead.)
+- **A9-2** (→ A14 SDK / A29): rename or remove `quad_models.py` — it is L3
+  pipeline models misplaced in the persona package and duplicated by the SDK;
+  only `scripts/verify_layer3_pipeline.py` imports it.
+- **A9-3** (→ A31 docs): tighten the `core/persona/quad/__init__.py` docstring to
+  distinguish live (models / scaling / pod_orchestrator / math) from demo
+  (quad_engine) members.
+
+### Tests
+
+`tests/persona/quad/` — **41 passed** (`--no-cov`). (neo4j `__del__` teardown
+logging noise on shutdown is cosmetic, not a failure.)
+
+### Phase 2 / A9 status
+
+`core/persona/quad/` audited: data model + sufficiency scaling + pod orchestration
++ mathematical framework confirmed LIVE and canonical (DUP-5 clean); the heuristic
+`quad_engine.py` is demo-only with a corrected docstring; 3 not-on-live-path
+modules documented and forwarded (A9-1/2/3). Next: **A10 `backend/security/`**
+(resolve A3-4, A5-2, SC-2; confirm password hashing ≥12 rounds — open since May).
+
+---
+
+## Carry-over resolutions — A1a-2, A1a-4, A10-password
+**Date:** 2026-06-12
+**Branch:** main
+
+Three open carry-overs closed in a follow-on pass after A9.
+
+### A10 (password hashing ≥12 rounds) — ✅ CONFIRMED SECURE (no code change)
+
+The plan's "bcrypt ≥12 rounds or argon2id" item pointed at
+`backend/security/password_security.py`, but that module is **policy only**
+(strength/expiry/history + HIBP breach check via SHA-1 k-anonymity, correctly
+`usedforsecurity=False`). The real store-hash is `models.py:112`
+`User.set_password()` → werkzeug `generate_password_hash()`. On the installed
+**werkzeug 3.1.8** the default is **`scrypt:32768:8:1`** (N=2^15, r=8, p=1) — a
+memory-hard KDF at the OWASP baseline, ≥ bcrypt-12 in practice. Output 162 chars
+fits the `String(256)` column; verify round-trips. The literal "rounds" criterion
+doesn't apply (different algorithm family); the *intent* (strong modern KDF) is
+met. Remaining A10 carry-overs (A3-4 defense-supervisor role/HONEYPOT, A5-2
+injection-defense consolidation, SC-2 Fernet→AES-256-GCM docs) still open for the
+dedicated A10 session.
+
+### A1a-2 (truth_core/router.py LLMRouter dead code) — ✅ REMOVED
+
+`LLMRouter` was a parallel task-based router (profiles for code/analysis/long_context/
+reasoning) with its own stale model set (`codestral`, `grok-4-fast`, `llama-3-70b`)
+that never matched the canonical gateway 6-tier escalation (and DMRF's `DMRFRouter`
+is a separate, live class — the earlier "dmrf imports it" reading was a false
+positive). Confirmed zero production instantiation: only the package `__init__`
+re-export and one vanity test class referenced it. Deleted `router.py`, removed the
+`__init__.py` import + `__all__` entry + docstring bullet, and dropped the
+`TestLLMRouter` class (kept the real `TestTruthCoreEngine`).
+
+### A1a-4 (truth_core/engine.py "Mock result" fallback) — ✅ FIXED
+
+`_execute_refinement_step()` fell through to
+`{status:'completed', output:"Mock result of {step}", confidence:0.8}` when no
+layer service / KA controller could run the step. Because it claimed `completed`,
+the fake entry was **consolidated into the memory graph** (engine.py:519) and
+**piped into downstream layer context** (engine.py:539) as if real — fabricated
+content at a believable 0.8 confidence. Changed to an honest degraded return
+(`status:'skipped'`, `output:None`, `confidence:0.0`, `reason:…`); the
+`status != 'completed'` value makes both the memory-write and data-piping gates
+skip it. No test depended on the old string.
+
+### Tests
+
+`tests/truth_engine/` — **75 passed** (`--no-cov`); `tests/persona/quad/` 41
+passed. ruff clean on all touched files. werkzeug hash verified `scrypt:32768:8:1`,
+round-trips.

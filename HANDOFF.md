@@ -1,10 +1,13 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-11 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
+_Last updated: 2026-06-12 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
-(knowledge_algorithms). N1 (SEKRE) + N2 (defense_supervisor) both wired._
-_**Resume at A9 — `core/persona/quad/`** (see "Next audit session" below).
-Test baseline: 2066 passed / 21 skipped / 0 failed. Last commit: `bb3b5ed3`._
+(knowledge_algorithms), A9 (quad persona). N1 (SEKRE) + N2 (defense_supervisor)
+both wired._
+_**Resume at A10 — `backend/security/`** (resolve A3-4, A5-2, SC-2; confirm
+password hashing ≥12 rounds — open since May). See "Next audit session" below.
+Test baseline: 2066 passed / 21 skipped / 0 failed (A9 touched only a docstring +
+docs). Last commit: `d7fa233a` (+ uncommitted A9)._
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
@@ -30,7 +33,8 @@ known-good verification steps. It is the primary handoff reference; the
 > | A6b | `core/simulation/` L6–L10 + SEKRE | `62aa320f` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
 > | **— PHASE 1 COMPLETE (8/8) —** | | | |
 > | A7+A8 (Phase 2) | `knowledge_algorithms/` (125 KAs) | `pending` | ✅ 125/125 registry resolve; 117 real + 8 compact + 0 stub; KA-113 + KA-005 + A5-3 fixes |
-> | **A9** | `core/persona/quad/` | — | **NEXT** |
+> | A9 (Phase 2) | `core/persona/quad/` | `pending` | ✅ models/sufficiency/pod_orch/math LIVE (DUP-5 clean); quad_engine demo-only (docstring fixed); A9-1/2/3 forwarded |
+> | **A10** | `backend/security/` | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -264,25 +268,46 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   *representational* infra KAs (describe ops; the real celery/redis layer
   performs them). `REPO_AUDIT_LOG.md` (A8 entry).
 
-### Next audit session: A9 — `core/persona/quad/` (quad persona system)
+### ✅ A9 — `core/persona/quad/` complete (2026-06-12)
 
-`quad_engine.py` 7-part dynamic role construction (vs template selection — note
-A2/A2-2 made DSQP genuinely query-derived); the three model files (distinct
-domains or duplicate?); `persona_scaling/sufficiency.py` canonical after DUP-5;
-`pod_orchestrator/` vs main quad_engine overlap; `mathematical_framework/`
-formulas from the white paper implemented; `axis_role_mapper.py` axes 8–11 →
-persona roles at query time.
+Reachability map done (full detail in `REPO_AUDIT_LOG.md` A9 entry). Verdict:
+- **LIVE / canonical:** `models.py` (PersonaProfile 7-component + QueryState),
+  `persona_scaling/sufficiency.py` (DUP-5 clean — `GatewayPersonaSufficiencyTool`
+  + Phase-5 `PersonaSufficiencyTool`), `persona_scaling/profiles.py`,
+  `pod_models.py`, `pod_orchestrator/`, `mathematical_framework/`.
+- **DEMO-ONLY:** `quad_engine.py` — heuristic 4-persona engine, importers are demo
+  scripts + 1 test only. **Plan premise was wrong**: the real query-time 7-component
+  construction is `core/system/persona_construction_service.py` → DSQP, not here.
+  Fixed its stale docstring (named the A6a-deleted `layer2_legacy_knowledge.py`).
+- **Forwarded carry-overs:** A9-1 `axis_role_mapper.py` (test-only) +
+  `persona_loader.py` (script-only) → A29; A9-2 `quad_models.py` (misnamed L3
+  models, dup of SDK, 1 script importer) → A14/A29; A9-3 `__init__.py` docstring
+  → A31. No risky deletions this session. `tests/persona/quad/` 41 passed.
+
+### Next audit session: A10 — `backend/security/` (28 files)
+
+Resolve carry-overs landing here: **A3-4** (defense supervisor always sets
+`user_role="user"`; HONEYPOT treated as BLOCK), **A5-2** (five overlapping
+injection defenses — shield/guardrail/supervisor/truthgate/dmrf — confirm union /
+consider consolidation), **SC-2** (Fernet→AES-256-GCM doc reconciliation). Confirm
+every HIGH-RISK file real.
+
+> **Password hashing — ✅ already verified (2026-06-12), don't re-chase.**
+> `password_security.py` is policy-only; the real store-hash is `models.py:112`
+> werkzeug `generate_password_hash` → **`scrypt:32768:8:1`** on werkzeug 3.1.8
+> (OWASP memory-hard baseline). Intent met; the literal "bcrypt rounds" criterion
+> doesn't apply. See REPO_AUDIT_LOG.md "Carry-over resolutions".
 
 Other carry-overs: A3-4 + A5-2 (injection-defense consolidation) + SC-2 in A10;
-A1a-2/A1a-4 in an A6 cleanup pass; A3-5 in A26; A18-pre in A18. Full list in the
-plan's carry-over table.
+A3-5 in A26; A18-pre in A18. Full list in the plan's carry-over table.
 
 Still open for later sessions:
 - A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.
 - A3-4 (for A10): supervisor `user_role` enrichment; HONEYPOT handling with
   `active_defense.py`.
-- A1a-2 (for A6b/cleanup): `truth_core/router.py` LLMRouter dead code.
-- A1a-4 (for A6): no-KA "Mock result" fallback in `_execute_refinement_step`.
+- ~~A1a-2~~ ✅ done 2026-06-12: `truth_core/router.py` `LLMRouter` dead code removed.
+- ~~A1a-4~~ ✅ done 2026-06-12: fabricated "Mock result" fallback → honest
+  `skipped`/0.0 (was polluting memory graph + downstream context).
 
 Phase 1 remaining order: A5 → A6a → A6b
 - A5: `backend/dmrf/` — 17-axis router, FROST bridge, truth integration adapters
