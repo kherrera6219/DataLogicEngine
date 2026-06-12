@@ -855,11 +855,19 @@ class TruthCoreEngine:
             except Exception as e:
                 logger.error(f"KA {ka_id} failed for step {step}: {e}")
                 
+        # No executor available for this step (no layer service configured, the
+        # step is unmapped, or the KA controller raised). Signal honest
+        # degradation instead of fabricating a believable result: a fake
+        # 'completed'/0.8 entry would be consolidated into the memory graph and
+        # piped into downstream layer context as if it were real. The
+        # 'status' != 'completed' return makes both gates skip it. (A1a-4)
         return {
             'step': step,
-            'status': 'completed',
-            'output': f"Mock result of {step}",
-            'confidence': 0.8
+            'ka_id': mapping.get(step),
+            'status': 'skipped',
+            'output': None,
+            'confidence': 0.0,
+            'reason': 'no executor available (KA controller not configured or step unmapped)',
         }
 
     def _invoke_ka_algorithms(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:

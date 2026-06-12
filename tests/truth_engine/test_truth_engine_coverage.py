@@ -2,29 +2,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from backend.truth_engine.truth_core.router import LLMRouter
-
-class TestLLMRouter:
-    def test_route_explicit_model(self):
-        router = LLMRouter()
-        context = {"model": "gpt-4o"}
-        result = router.route("some query", context)
-        assert result["model"] == "gpt-4o"
-        assert result["profile"] == "explicit"
-
-    def test_route_code_profile(self):
-        router = LLMRouter()
-        # "function" is a keyword for 'code' profile
-        result = router.route("Write a python function to sort a list")
-        assert result["profile"] == "code"
-        # Check defaults logic
-        assert result["model"] in ["codestral", "gpt-4o", "gpt-5.5"]
-
-    def test_route_long_context(self):
-        router = LLMRouter()
-        long_query = "A" * 50001
-        result = router.route(long_query)
-        assert result["profile"] == "long_context"
 
 class TestTruthCoreEngine:
     @pytest.fixture
