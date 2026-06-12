@@ -28,7 +28,7 @@
 | A10–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
-Live test baseline: **2056 passed / 21 skipped** + KA-113/KA-005 tests.
+Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).
 **Phase 1 COMPLETE (8/8); Phase 2 in progress.** The `knowledge_algorithms`
 audit (A7+A8) is complete: registry 125/125 resolves, configs complete, all KAs
 rated (117 real + 8 compact-real + 0 stub). Next is **A9** (`core/persona/quad/`).
