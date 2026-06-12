@@ -22,13 +22,13 @@ known-good verification steps. It is the primary handoff reference; the
 > | A2 | `dsqp/` — patent claim | `4390c608` | ✅ matches disclosure; validator process-aware (A2-1) |
 > | A2-2 | DSQP LLM-assisted construction | `a1784a17` | ✅ query-derived personas; offline fallback kept |
 > | A5 | `dmrf/` — 17-axis router | `5d8dc848` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
-> | A6a | `core/simulation/` L1–L5 | `pending` | ✅ L5 override fixed; 12 dead legacy files removed |
+> | A6a | `core/simulation/` L1–L5 | `2afe2d14` | ✅ L5 override fixed; 12 dead legacy files removed |
 > | **A6b** | `core/simulation/` L6–L10 + SEKRE | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
 > `routes/` → `backend/routes/`) — the v2.0 plan listed them from a stale
-> snapshot. Full suite after A1b: **2033 passed / 21 skipped / 0 failed**,
+> snapshot. Full suite after A6a: **2047 passed / 21 skipped / 0 failed**,
 > ruff clean. Still unwired: `core/self_evolving/sekre_engine.py` (N1, wire
 > after A6b).
 

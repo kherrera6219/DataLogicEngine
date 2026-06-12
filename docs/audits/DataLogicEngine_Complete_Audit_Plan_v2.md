@@ -16,15 +16,18 @@
 | **A4** | `local_model_acceleration/` | ✅ done | `821737d1` | A4-1 coroutine lifecycle, A4-2 keepalive reload, A4-3 spec |
 | **A3** | `llm_gateway/` + N2 | ✅ done | `1ddeec49` | N2 defense supervisor wired; 4 status endpoints secured; A4-4/5/8 |
 | **A1a** | `truth_core/` + `truth_gate/` | ✅ done | `86486a78` | A1a-1 fixed hardcoded audit latency |
-| **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | — | completed 2026-06-11; resolved A3-3/A1a-3, A4-7 |
-| **A2** | `dsqp/` | ✅ done | `pending` | matches disclosure (deterministic slice); validator now process-aware (A2-1); A2-2 forwarded |
-| **A5** | `dmrf/` | ✅ done | `pending` | all 17 axes; no MLflow conflict; frost_bridge real; A5-1 wired DMRFDesktopConfig |
-| **A6a** | `core/simulation/` L1–L5 map | ✅ done | `pending` | L5 override fixed; 12 dead legacy files removed |
+| **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | `5027fc3b` | resolved A3-3/A1a-3, A4-7 |
+| **A2** | `dsqp/` | ✅ done | `4390c608` | matches disclosure (deterministic slice); validator process-aware (A2-1) |
+| **A2-2** | DSQP LLM-assisted construction | ✅ done | `a1784a17` | query-derived personas; offline fallback kept |
+| **A5** | `dmrf/` | ✅ done | `5d8dc848` | all 17 axes; no MLflow conflict; frost_bridge real; A5-1 wired DMRFDesktopConfig |
+| **A6a** | `core/simulation/` L1–L5 map | ✅ done | `2afe2d14` | L5 override fixed; 12 dead legacy files removed |
 | **A6b** | `core/simulation/` L6–L10 + orchestration | ⏭ NEXT | — | then wire N1 SEKRE |
 | A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
-Live test baseline: **2033 passed / 21 skipped**.
+Live test baseline: **2047 passed / 21 skipped** (after A6a; includes the DSQP
+LLM-assisted A2-2 build). Phase 1 is 7/8 sessions done — only **A6b** (L6–L10 +
+orchestration + SEKRE wiring) remains before Phase 2.
 
 ### Open carry-over findings (tracked across sessions)
 
