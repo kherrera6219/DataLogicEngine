@@ -565,3 +565,55 @@ the deterministic activation scaffold offline. A2-2 is no longer a pre-filing ga
 fallback (`hybrid`), kill switch (model never called), model-error fallback,
 no-model no-op, component validation/coercion. Existing DSQP unit/benchmark/
 db-o/dmrf/phase_g/phase_e/persona suites all green; ruff clean.
+
+---
+
+## Phase 1 / A5 — DMRF 17-Axis Router / Control Plane (backend/dmrf/, 16 files)
+**Date completed:** 2026-06-11
+**Branch:** main
+**Baseline:** 2045 passed, 21 skipped
+**Exit gate result:** DMRF integration 11 passed (+2 new); full suite green; ruff clean
+
+### Audit verdicts
+
+| Area | Verdict |
+|---|---|
+| `orchestrator.py` | ✅ Clean 11-step pipeline: injection_defense → TruthGate → tier_classifier → 17-axis router → DSQP (all 4 persona axes) → TruthCore plan → evidence + convergence → TruthMemory persist → MLflow → TruthLink publish → observability. Every step FROST-snapshotted. Reached from the gateway behind `USE_DMRF` (default off). Distinct from `core/simulation/orchestrator.py` (documented). |
+| `router.py` | ✅ **All 17 axes exercised** — `active_axes = range(1,18)`, every axis populated with value + confidence; axes 8-11 declare persona_type consumed by DSQP; axis 17 from `FrostModeAxis` supplies `frost_layer_depth`. Heuristic (keyword/context) domain/sector/risk resolution — appropriate for a control-plane router. |
+| `tier_classifier.py` | ✅ **Not a duplicate of `llm_gateway/complexity_classifier.py`** — this classifies the *reasoning* tier (trivial→autonomous, drives FROST depth + layer stack); the gateway classifier picks the *model-escalation* tier (T0→T5). Different axes (same distinction as A3); they need not agree. Heuristic scorer with desktop-offline cap. (`ka_controller` param accepted but unused — KA-005 hook not wired; minor, parallels truth_core determine_tier.) |
+| `convergence_policy.py` | ✅ Real KA-023 domain-lambda belief decay from `ka_23_config.json` with stale-evidence penalty + iteration limit; deterministic fallback lambdas. Tier→FROST-depth itself lives in `axis17_frost_mode` (router), not here — both real. |
+| `frost_bridge.py` | ✅ **Real, not a stub** — `FROSTService.snapshot` + `verify_snapshot` per step; orchestrator snapshots every step and flags `snapshot_failed`. |
+| `mlflow_tracker.py` | ✅ **No conflict** with `truth_memory/mlflow_tracker.py`: DMRF uses experiment `"dmrf"`, TruthMemory uses `"truthmemory"`. Separate experiments; both fall back to local JSONL when MLflow absent. |
+| `injection_defense.py` | ✅ Applied at DMRF inputs **and** TruthGate (layered). Pure-Python 5-category classifier (PROMPT_INJECT / LOGICAL_TRAP / OBFUSCATED / PERSONA_HIJACK / RESOURCE_EXHAUSTION). Note: this is now the 5th pattern-injection layer (shield + guardrail + defense_supervisor + TruthGate adversarial + this) — consolidation candidate flagged for A10. |
+| `truth_integration/` (4 adapters) | ✅ All real delegations: core→`TruthCoreEngine.get_workflow_steps`, gate→`TruthGateGateway.evaluate`, link→Redis-Streams XADD w/ in-memory fallback, memory→`TruthAuditRecorder.log_event(category="dmrf")`. |
+| `evidence_model.py`, `observability.py`, `models.py`, `__init__.py` | ✅ Coherent; `TIER_ORDER` here is the canonical name→number map (moderate=2, confirmed in A1b). |
+| `desktop_config.py` | ⚠️→✅ **Was orphaned; FIXED (A5-1).** |
+
+### Fix this session
+
+- **A5-1 — `DMRFDesktopConfig` was decorative; now functional.** The module
+  defined `offline_tier_cap` and `max_refinement_iterations`, but nothing read
+  it while those exact values were **hardcoded** (`"high_stakes"` cap in
+  `tier_classifier`, `max_iterations=3` in `convergence_policy`/orchestrator).
+  Wired it: the orchestrator loads `DMRFDesktopConfig().load()` (or an injected
+  `config`), passes `offline_tier_cap` into the classifier and
+  `max_refinement_iterations` into the convergence call. Desktop users can now
+  tune DMRF via `dmrf_config.json`; defaults are unchanged, so behavior is
+  identical out of the box. The classifier guards an unknown cap back to
+  `high_stakes`.
+
+### Findings forwarded
+
+- **A5-2 (→ A10):** five overlapping pattern-injection defenses now exist
+  (`prompt_injection_shield`, `ai_guardrail`, `defense_supervisor`, TruthGate
+  adversarial block, DMRF `injection_defense`). Confirm coverage union and
+  consider consolidating to a single owned chain during the security audit.
+- **A5-3 (note):** `DMRFTierClassifier.ka_controller` is accepted but unused —
+  either wire a KA-005 classification hook (as truth_core does) or drop the
+  param. Low priority.
+
+### Tests
+
++2 in `tests/dmrf/test_dmrf_integration.py` (configurable offline cap incl.
+unknown-value fallback; DMRFDesktopConfig wired into orchestrator). DMRF
+integration 11 passed; full suite green; ruff clean.

@@ -160,3 +160,34 @@ async def test_dmrf_persists_truth_audit_event_sqlite(tmp_path):
         assert row is not None
         assert row.event_data["run_id"] == result.run_id
         assert row.event_data["axis_vector"]["frost_layer_depth"] >= 7
+
+
+def test_dmrf_classifier_honors_configurable_offline_cap():
+    """A5-1: the desktop offline tier cap is configurable, not hardcoded."""
+    from backend.dmrf.tier_classifier import DMRFTierClassifier
+
+    result = DMRFTierClassifier(desktop_mode=True, offline_tier_cap="moderate").classify(
+        "Autonomous agent should execute a multi-country regulatory simulation without approval",
+        offline=True,
+    )
+    assert result.tier == "moderate"
+    assert result.capped_from == "autonomous"
+
+    # Unknown cap value falls back to high_stakes (safe default).
+    fallback = DMRFTierClassifier(desktop_mode=True, offline_tier_cap="nonsense").classify(
+        "Autonomous agent should execute without approval", offline=True
+    )
+    assert fallback.tier == "high_stakes"
+
+
+def test_dmrf_desktop_config_is_wired_into_orchestrator():
+    """A5-1: DMRFDesktopConfig values flow into the classifier cap and the
+    convergence iteration budget (previously hardcoded / orphaned)."""
+    from backend.dmrf.orchestrator import DMRFOrchestrator
+
+    orch = DMRFOrchestrator(
+        desktop_mode=True,
+        config={"offline_tier_cap": "moderate", "max_refinement_iterations": 7},
+    )
+    assert orch.max_refinement_iterations == 7
+    assert orch.classifier.offline_tier_cap == "moderate"

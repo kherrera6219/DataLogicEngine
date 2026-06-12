@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2 audits complete; N2 wired; A2-2 DSQP LLM construction built; A5 next)
+**Last updated:** 2026-06-11 (Sprint 0 + Phase 1 A4/A3/A1a/A1b/A2/A5 audits complete; N2 wired; A2-2 DSQP LLM construction built; A6a next)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -204,6 +204,20 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       vocabulary vs Tier 2+ audit-commit gate (A1b, joins A3-3), A1a-4 no-KA "Mock result" fallback
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
+
+24. [x] AUDIT-A5: Phase 1 session 6 — `backend/dmrf/` 17-axis router / control plane.
+    - Verdicts in `REPO_AUDIT_LOG.md` (A5 entry). All 17 axes exercised by `router.py`;
+      `tier_classifier` is the reasoning tier (distinct from gateway model-escalation classifier —
+      not a duplicate); `convergence_policy` real (KA-023 belief decay); `frost_bridge` real per-step
+      FROST snapshots; **no MLflow conflict** (`dmrf` vs `truthmemory` experiments); injection_defense
+      layered at DMRF + TruthGate; all 4 truth_integration adapters are real delegations.
+    - Fix A5-1: `DMRFDesktopConfig` was orphaned while its values were hardcoded; wired
+      `offline_tier_cap` + `max_refinement_iterations` from config into the classifier and convergence
+      policy (defaults unchanged; now tunable via `dmrf_config.json`).
+    - Forwarded: A5-2 five overlapping pattern-injection defenses → consolidate review (A10);
+      A5-3 `DMRFTierClassifier.ka_controller` unused param (A7/A8).
+    - Validation: DMRF integration 11 passed (+2 new); ruff clean; full suite green. Next: A6a/A6b
+      `core/simulation/` 10-layer stack, then wire N1 SEKRE.
 
 23. [x] A2-2: build LLM-assisted DSQP construction (closes the deferred patent-claim gap).
     - `backend/dsqp/dsqp_answer_generator.py`: one local-Ollama JSON call per persona axis answers the

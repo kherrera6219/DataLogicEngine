@@ -20,8 +20,9 @@ known-good verification steps. It is the primary handoff reference; the
 > | A1a | `truth_core/` + `truth_gate/` | `86486a78` | ✅ A1a-1 fixed |
 > | A1b | `truth_memory/` + `truth_link/` | `5027fc3b` | ✅ A3-3/A1a-3 + A4-7 resolved |
 > | A2 | `dsqp/` — patent claim | `4390c608` | ✅ matches disclosure; validator process-aware (A2-1) |
-> | A2-2 | DSQP LLM-assisted construction | `pending` | ✅ query-derived personas; offline fallback kept |
-> | **A5** | `dmrf/` — 17-axis router | — | **NEXT** |
+> | A2-2 | DSQP LLM-assisted construction | `a1784a17` | ✅ query-derived personas; offline fallback kept |
+> | A5 | `dmrf/` — 17-axis router | `pending` | ✅ all 17 axes; no MLflow conflict; A5-1 wired DMRFDesktopConfig |
+> | **A6a/A6b** | `core/simulation/` 10-layer stack | — | **NEXT** |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
@@ -213,16 +214,23 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
   conftest pins it off for tests. Personas are now genuinely query-derived. Details
   in `REPO_AUDIT_LOG.md` (A2-2 entry).
 
-### Next audit session: A5 — `backend/dmrf/` (17-axis router)
+- ~~A5 dmrf 17-axis router audit~~ — complete 2026-06-11. All 17 axes
+  exercised; tier_classifier is the reasoning tier (distinct from the gateway's
+  model-escalation classifier); convergence_policy + frost_bridge real; no
+  MLflow experiment conflict; 4 adapters real delegations. Fixed A5-1 (wired
+  the orphaned `DMRFDesktopConfig`). Forwarded A5-2 (5 overlapping injection
+  defenses → A10), A5-3 (unused `ka_controller` param). `REPO_AUDIT_LOG.md`
+  (A5 entry).
 
-Per `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`: all 17 axes
-exercised by `router.py`? `convergence_policy.py` tier→FROST-depth mapping
-matches DMRF v3.3.0 spec? `tier_classifier.py` duplicates or delegates to
-`llm_gateway/complexity_classifier.py`? `frost_bridge.py` passes FROST depth to
-the simulation layer stack (or stub)? 5 `truth_integration/` adapters wired?
-Two MLflow trackers (`dmrf` + `truth_memory`) — conflict? `injection_defense.py`
-applied at DMRF inputs AND TruthGate? `desktop_config.py` vs
-`llm_gateway/escalation_config.py`?
+### Next audit session: A6a/A6b — `core/simulation/` (10-layer stack)
+
+The big one (49 files, 2 sessions). A6a: entry layers L1–L5 — produce a
+definitive layer map (which file is live vs legacy/dead per layer; DUP-3
+`Layer5IntegrationEngine`). A6b: upper layers L6–L10 + orchestration + cleanup;
+confirm `truth_engine.py` orphan removed; then **wire N1 SEKRE**
+(`core/self_evolving/sekre_engine.py`) into the post-L10 feedback loop on Tier 3+
+runs — the layer map must be authoritative first. Carry A1a-4 (the no-KA "Mock
+result" fallback) and A1a-2 (LLMRouter dead code) into A6.
 
 Still open for later sessions:
 - A2-2 (future DSQP slice, pre-IP): LLM-assisted answer generation.

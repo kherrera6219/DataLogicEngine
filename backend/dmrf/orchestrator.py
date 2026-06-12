@@ -18,6 +18,7 @@ from typing import Any
 from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator
 
 from .convergence_policy import ConvergencePolicy
+from .desktop_config import DMRFDesktopConfig
 from .evidence_model import EvidenceModel
 from .frost_bridge import FROSTBridge
 from .injection_defense import InjectionDefense
@@ -46,11 +47,19 @@ class DMRFOrchestrator:
         classifier: DMRFTierClassifier | None = None,
         frost_bridge: FROSTBridge | None = None,
         dsqp: DSQPOrchestrator | None = None,
+        config: dict[str, Any] | None = None,
     ):
         self.desktop_mode = self._desktop_mode() if desktop_mode is None else desktop_mode
         self.db_session = db_session
+        # Operator-tunable DMRF settings (dmrf_config.json under AppData); the
+        # loader returns deterministic defaults when no file is present.
+        self.config = config if config is not None else DMRFDesktopConfig().load()
+        self.max_refinement_iterations = int(self.config.get("max_refinement_iterations", 3) or 3)
         self.router = router or DMRFRouter()
-        self.classifier = classifier or DMRFTierClassifier(desktop_mode=self.desktop_mode)
+        self.classifier = classifier or DMRFTierClassifier(
+            desktop_mode=self.desktop_mode,
+            offline_tier_cap=str(self.config.get("offline_tier_cap", "high_stakes")),
+        )
         self.injection_defense = InjectionDefense()
         self.gate = TruthGateDMRFAdapter()
         self.core = TruthCoreDMRFAdapter()
@@ -115,6 +124,7 @@ class DMRFOrchestrator:
             confidence=axis_vector.confidence,
             target_confidence=0.995 if result.tier in {"high_stakes", "extreme", "autonomous"} else 0.95,
             iteration=0,
+            max_iterations=self.max_refinement_iterations,
             evidence_age_days=evidence["age_days"],
         )
         result.convergence = {**convergence, "evidence": evidence}

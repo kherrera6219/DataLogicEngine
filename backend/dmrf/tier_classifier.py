@@ -10,9 +10,18 @@ from .models import TIER_ORDER, TierClassification
 class DMRFTierClassifier:
     """Classify DMRF work into trivial, moderate, high_stakes, extreme, or autonomous."""
 
-    def __init__(self, ka_controller: Any | None = None, *, desktop_mode: bool = False):
+    def __init__(
+        self,
+        ka_controller: Any | None = None,
+        *,
+        desktop_mode: bool = False,
+        offline_tier_cap: str = "high_stakes",
+    ):
         self.ka_controller = ka_controller
         self.desktop_mode = desktop_mode
+        # The desktop offline cap is operator-configurable via DMRFDesktopConfig
+        # (dmrf_config.json). Fall back to high_stakes for an unknown value.
+        self.offline_tier_cap = offline_tier_cap if offline_tier_cap in TIER_ORDER else "high_stakes"
 
     def classify(
         self,
@@ -38,9 +47,9 @@ class DMRFTierClassifier:
 
         tier = self._tier_for_score(score)
         capped_from = None
-        if self.desktop_mode and offline and TIER_ORDER[tier] > TIER_ORDER["high_stakes"]:
+        if self.desktop_mode and offline and TIER_ORDER[tier] > TIER_ORDER[self.offline_tier_cap]:
             capped_from = tier
-            tier = "high_stakes"
+            tier = self.offline_tier_cap
             rationale.append("desktop_offline_cap")
 
         return TierClassification(

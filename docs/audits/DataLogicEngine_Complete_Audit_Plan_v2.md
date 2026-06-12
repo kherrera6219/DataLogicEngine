@@ -18,8 +18,8 @@
 | **A1a** | `truth_core/` + `truth_gate/` | ✅ done | `86486a78` | A1a-1 fixed hardcoded audit latency |
 | **A1b** | `truth_memory/` + `truth_link/` + top-level | ✅ done | — | completed 2026-06-11; resolved A3-3/A1a-3, A4-7 |
 | **A2** | `dsqp/` | ✅ done | `pending` | matches disclosure (deterministic slice); validator now process-aware (A2-1); A2-2 forwarded |
-| **A5** | `dmrf/` | ⏭ NEXT | — | 17-axis router, FROST bridge |
-| A6a/A6b | `core/simulation/` 10-layer stack | ☐ | — | then wire N1 SEKRE after A6b |
+| **A5** | `dmrf/` | ✅ done | `pending` | all 17 axes; no MLflow conflict; frost_bridge real; A5-1 wired DMRFDesktopConfig |
+| **A6a/A6b** | `core/simulation/` 10-layer stack | ⏭ NEXT | — | then wire N1 SEKRE after A6b |
 | A7–A32 | Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
@@ -33,6 +33,8 @@ Live test baseline: **2033 passed / 21 skipped**.
 | A4-7 | exact-cache hit serves a Tier 2+ answer with no new `TruthAuditEvent` | A1b | ✅ resolved `5027fc3b` |
 | A2-2 | DSQP deterministic `_answer_question` produces axis-keyed role scaffolds, not full query-derived construction; implement LLM-assisted answers before external IP filing | A2-2 build | ✅ resolved 2026-06-11 (`dsqp_answer_generator.py`; offline fallback kept) |
 | A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
+| A5-2 | five overlapping pattern-injection defenses (shield/guardrail/supervisor/truthgate/dmrf) — confirm union, consider consolidation | A10 | ☐ |
+| A5-3 | `DMRFTierClassifier.ka_controller` param accepted but unused (no KA-005 hook) | A7/A8 | ☐ |
 | A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
 | A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ☐ |
 | A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ☐ |
@@ -397,7 +399,7 @@ Sprint 0  ✅ (RT-1..RT-18 already done 2026-06-07/08; this session did N3 + N4)
   N4     ✅ Resolve Axis 4/5 gap in axis_system.py (+ honeycomb Axis-3 bug fix)
 
 Phase 1 — Live query path:
-  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ⏭ → A6a ☐ → A6b ☐
+  A4 ✅ → A3 ✅ → A1a ✅ → A1b ✅ → A2 ✅ → A5 ✅ → A6a ⏭ → A6b ☐
 
   Interleaved:
   N2   ✅ Wired defense_supervisor.txt during A3
