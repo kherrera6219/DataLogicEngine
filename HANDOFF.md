@@ -2,8 +2,11 @@
 
 _Last updated: 2026-06-13 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
-(knowledge_algorithms), A9 (quad persona), A10 (security). N1 (SEKRE) + N2
-(defense_supervisor) both wired._
+(knowledge_algorithms), A9 (quad persona), A10 (security), A11 (core/axes). N1 (SEKRE)
++ N2 (defense_supervisor) both wired._
+_**A11 `core/axes/` DONE** (verify-only, no code changes): 17 axes register correctly,
+Axis 5 unmanaged by design (N4), N3/DUP-4 confirmed clean from Sprint 0; 30 axes tests
+pass. **Next: A12 `backend/storage/`.**_
 _**A10 `backend/security/` DONE.** Carry-overs A3-4/A5-2/SC-2 + password all resolved.
 Single-mode/OS-auth reframe → multi-user auth stack obsolete; **auth deprecation BANKED
 at A+B+C-partial (`b1a92674`)** — removed dead `zero_trust`/`token_manager`/`rbac`

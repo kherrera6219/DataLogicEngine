@@ -26,8 +26,9 @@
 | **A7+A8** | `knowledge_algorithms/` (125 KAs) | ✅ done | `pending` | 125/125 registry resolve; 0 orphan configs; 117 real + 8 compact-real + 0 stub; KA-113 multi-signal (A7-1); KA-005 tiering + A5-3 (A8) |
 | **A9** | `core/persona/quad/` | ✅ done | `pending` | models/sufficiency(DUP-5 clean)/pod_orch/math LIVE; quad_engine demo-only (docstring fixed); A9-1/2/3 forwarded |
 | **A10** | `backend/security/` | ✅ done | `b1a92674` | A3-4/A5-2/SC-2 + password resolved; single-mode reframe → multi-user auth stack obsolete; auth-deprecation Phases A+B+C-partial executed (zero_trust/token_manager/rbac removed, decorators collapsed); remainder deferred to A15/A16 |
-| **A11** | `core/axes/` | ⏭ NEXT | — | 17-axis cleanup (N3 already done; confirm canonical) |
-| A12–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A11** | `core/axes/` | ✅ done | (verify-only) | 17 axes register correctly; N3/N4/DUP-4 confirmed resolved (Sprint 0); Axis 5 unmanaged by design; no code changes |
+| **A12** | `backend/storage/` | ⏭ NEXT | — | graph/vector/memory stores, connection manager, runtime settings |
+| A13–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).

@@ -109,6 +109,45 @@ live and out-of-scope-for-auth — confirm during their own passes. **Next: A11
 
 ---
 
+## Phase 2 / A11 — `core/axes/` (17-Axis System Cleanup)
+**Date:** 2026-06-13
+**Branch:** main
+**Result:** ✅ verification-only — clean, **no code changes needed** (N3/N4/DUP-4 were
+all resolved in Sprint 0 and are documented in-code).
+
+### Verified
+- **17-axis registration correct.** `AxisSystem._init_axes()` registers 16 managers
+  (axes 1–4, 6–17); **Axis 5 (Node System) intentionally has no manager** (N4 decision,
+  documented at `axis_system.py:132-136` with date) — returns the "unmanaged" resolution
+  via `resolve_multi_axis_context`. Live smoke confirms `axis_managers = [1,2,3,4,6..17]`,
+  `TOTAL_AXES=17`, Axis 5 unmanaged. `tests/axes/` 30 passed.
+- **N3 (4 legacy axis files) — confirmed deleted** (`axis14_provenance`, `axis15_object_type`,
+  `axis16_validation_state`, `axis17_security`); zero lingering references anywhere. The
+  canonical set (`axis14_acquisition_lifecycle`/`15_risk_threat`/`16_ethics_trust`/`17_frost_mode`)
+  is what `axis_system.py` imports.
+- **N4 (Axis 4/5 gap) — resolved + documented.** Axis 4 (Branch) = `DomainManager` from
+  `axis3_domain.py` (the broader/narrower taxonomy fits branch semantics); Axis 5 unmanaged
+  by design. The old confusing comment is gone; the filename↔axis mapping is documented
+  (`axis_system.py:32-35`).
+- **DUP-4 — clean in source.** Exactly one canonical `core/coordinate_system.py`;
+  `core/simulation/coordinate_system.py` deleted with **no source importers**. (The
+  `find` hits for `simulation/coordinate_system.py` are all stale **build artifacts**
+  `dist/`/`frontend/dist*` + agent worktrees — regenerated on build, not source.)
+- **AxisSystem is live** — consumed by `backend/contextual_api.py`, registered via
+  `backend/routes/__init__.py`.
+
+### Forwarded (minor, not A11 scope)
+- `scripts/audit_deep.py:144` keeps a stale regex for the deleted
+  `core/simulation/coordinate_system.py` (gracefully skipped by an `os.path.exists`
+  guard) → clean in **A32** (scripts audit).
+- Module filenames are intentionally misleading-but-stable (`axis5_honeycomb.py`=Axis 3,
+  `axis3_domain.py`=Axis 4) — kept for import stability by decision; documented in-code.
+
+**Next: A12 `backend/storage/` (storage layer — graph/vector/memory stores, connection
+manager, runtime settings).**
+
+---
+
 ## Sprint 1 — Structural Cleanup
 **Date completed:** 2026-06-07  
 **Branch:** main  
