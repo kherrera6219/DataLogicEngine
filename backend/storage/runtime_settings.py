@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from typing import Any
 
 
@@ -95,9 +96,23 @@ def save_storage_settings(settings: dict[str, Any]) -> dict[str, Any]:
     normalized["local_model_cache_max_prompt_chars"] = int(normalized.get("local_model_cache_max_prompt_chars", 24000))
 
     path = _settings_file_path()
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(normalized, handle, indent=2)
+    dir_name = os.path.dirname(path)
+    os.makedirs(dir_name, exist_ok=True)
+    # Atomic write (RT-10): serialize to a temp file in the same directory, then
+    # os.replace() into place. A crash mid-write can no longer truncate/corrupt
+    # the live settings file (load_storage_settings() would otherwise catch the
+    # JSON error and silently fall back to defaults, losing saved preferences).
+    fd, tmp_path = tempfile.mkstemp(dir=dir_name, prefix=".storage_settings.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(normalized, handle, indent=2)
+        os.replace(tmp_path, path)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
     return normalized
 

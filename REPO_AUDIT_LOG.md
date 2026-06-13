@@ -148,6 +148,43 @@ manager, runtime settings).**
 
 ---
 
+## Phase 2 / A12 — `backend/storage/` (Storage Layer)
+**Date:** 2026-06-13
+**Branch:** main
+**Result:** ✅ all 8 files wired; the 3 DB claims re-confirmed; **1 fix (RT-10).**
+
+### Verified (all 8 storage modules live)
+- **DB-N — `graph_store.py` (`GraphStore`, Neo4j)** — LIVE: `app.py`, `llm_gateway/gateway`,
+  `services/rag_service`, `core/simulation/agentic/simulation_graph`.
+- **DB-C — `vector_store.py` (`VectorStore` + `ChromaDBBackend`/`PineconeBackend`)** — LIVE:
+  same consumers. ChromaDB is the local-first backend; Pinecone is an alt.
+- **DB-M — `uskd_memory_graph.py` (`UskdMemoryGraph` + `get_uskd_memory_graph`)** — LIVE via
+  the `storage/__init__` re-export: `app.py`, `truth_core/engine`, `emergence_controller`,
+  `core/simulation/layer2_knowledge`. **Plan naming correction:** the plan called this
+  "uskd_memory_graph StructuredMemoryGraph", but `StructuredMemoryGraph` is a *distinct*
+  live class in `core/persona/quad/mathematical_framework/memory_graph.py` (A9). Two
+  different memory-graph implementations, both wired.
+- `connection_manager.py` (`ConnectionMode`/`PostgresConfig`/`RedisConfig`) — connection
+  config + pooling, LIVE. **It does NOT do rate-limiting** — the plan's "rate limiting not
+  using `memory://` in multi-worker mode" item is misattributed (rate limiting is
+  `flask_limiter` in app.py) **and is moot under single-mode** (single-user VM, single
+  worker — no multi-worker shared-state problem).
+- `object_store.py` (`ObjectBackend`/`LocalFileBackend` + cloud) — LIVE, local-first default.
+- `database_manager.py` (`DatabaseLifecycleManager`) — LIVE.
+
+### Fix — RT-10 (atomic settings write)
+`runtime_settings.save_storage_settings()` wrote via a plain `open(path,"w")`+`json.dump`
+(non-atomic, unlocked). The read side already falls back to defaults on a malformed file,
+so a crash mid-write would **silently reset the user's saved preferences**. Made the write
+atomic: serialize to a same-dir temp file, then `os.replace()` (fixes RT-10). Concurrent
+writers aren't a concern under single-mode (single process), so a lock is unnecessary;
+atomicity is the real fix. Verified: 46 runtime/LMA tests pass + save/load round-trip; ruff clean.
+
+**Next: A13 `core/system/` (system services — frost/persona-construction/trace/refinement;
+confirm DUP-2 deleted; N1 SekreEngine already wired in A6b).**
+
+---
+
 ## Sprint 1 — Structural Cleanup
 **Date completed:** 2026-06-07  
 **Branch:** main  
