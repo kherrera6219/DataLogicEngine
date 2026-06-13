@@ -9,9 +9,12 @@ resolved. Single-mode/OS-auth reframe → multi-user auth stack being deprecated
 (`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`, 6 phases). **Phase A
 (`57b912da`)** removed dead `zero_trust`/`token_manager`; **Phase B (`e710aeb3`)**
 collapsed authz decorators (`api_admin_required`→`api_login_required`), removed
-`rbac.py`, migrated 3 admin-403 tests → single-mode 200. **Next: Phase C** (desktop-
-only auth; remove web login + `admin_routes` user-mgmt; fix 5 pre-existing
-`test_desktop_auto_login_security.py` failures). Last commit: `e710aeb3`._
+`rbac.py`, migrated 3 admin-403 tests → single-mode 200. **Phase C IN PROGRESS** —
+correction (`d2987eef`): the planned removals (auth_routes/LoginManager/session_manager/
+API-key branch) are the live **desktop-auth keep-path**, NOT removable (the plan was
+written from a stale multi-user model). Fixed 5 pre-existing desktop-auth tests.
+Remaining Phase C: gut `admin_routes` user-mgmt (needs frontend check) + remove stale
+CSRF entries. MFA/tenant_rls vestigial → Phase D. Last commit: `d2987eef`._
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
