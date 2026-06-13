@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-13 (**PHASE 1 COMPLETE**; Phase 2 — A7+A8 + A9 done. **A10 `backend/security/` IN PROGRESS:** carry-overs A3-4/A5-2/SC-2 + password resolved; single-mode reconciliation of past audits done (bounded). **Auth deprecation: Phase A DONE (`57b912da`)** — removed dead zero_trust + token_manager. **Next: Phase B** (collapse authz decorators, remove rbac.py). Plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`.)
+**Last updated:** 2026-06-13 (**PHASE 1 COMPLETE**; Phase 2 — A7+A8 + A9 done. **A10 `backend/security/` IN PROGRESS:** carry-overs A3-4/A5-2/SC-2 + password resolved; single-mode reconciliation of past audits done (bounded). **Auth deprecation: Phase A (`57b912da`) + Phase B (`e710aeb3`) DONE** — removed dead zero_trust/token_manager; collapsed authz decorators + removed rbac.py + migrated 3 admin-403 tests. **Next: Phase C** (desktop-only auth; remove web login + admin_routes user-mgmt; fix 5 pre-existing test_desktop_auto_login_security.py failures). Plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

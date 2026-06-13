@@ -31,7 +31,7 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 |---|---|---|---|
 | Zero-trust engine | `backend/security/zero_trust.py` | **0 live importers** (2 tests only) | ✅ **REMOVED (Phase A, `57b912da`)** |
 | JWT/token manager | `backend/security/token_manager.py` | **0 live importers** (1 test only) | ✅ **REMOVED (Phase A, `57b912da`)** |
-| RBAC / permissions | `backend/security/rbac.py` | 5 refs: `admin_routes`, `mcp_routes`, `privacy_routes`, `extensions.py`, `scripts/scan_backend_routes.py` | De-wire 3 routes + extensions, then delete |
+| RBAC / permissions | `backend/security/rbac.py` | 5 refs: `admin_routes`, `mcp_routes`, `privacy_routes`, `extensions.py`, `scripts/scan_backend_routes.py` | ✅ **REMOVED (Phase B, `e710aeb3`)** |
 | Multi-session mgr | `backend/security/session_manager.py` | 1 ref: `app.py` | De-wire, delete |
 | Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` |
 | Multi-tenant RLS | `backend/security/tenant_rls.py` | 1 ref: `app.py` | De-wire, delete |
@@ -78,11 +78,21 @@ class/import in `tests/unit/test_core_infrastructure.py`; split
 `vulnerability_scanner` tests preserved in new `test_vulnerability_coverage.py`.
 379 security+core-infra tests pass, ruff clean, no remaining references.
 
-**Phase B — Collapse authorization decorators.**
-Redefine `api_admin_required` = `api_login_required`; replace `require_permission`
-usage in `admin_routes`/`mcp_routes`/`privacy_routes` with `api_login_required`;
-de-wire `rbac` from `extensions.py`; delete `rbac.py` + its tests. Update
-`scripts/scan_backend_routes.py`.
+**Phase B — Collapse authorization decorators. ✅ DONE 2026-06-13 (`e710aeb3`).**
+`api_admin_required` is now an alias of `api_login_required`; `mcp_routes`
+execution context grants full owner scopes (was RBAC-derived); de-wired `rbac`
+from `admin_routes` (8 `@require_permission`), `privacy_routes`, `mcp_routes`,
+`extensions.py` (dead `rbac_manager` singleton), `scan_backend_routes.py`; deleted
+`rbac.py` (613 LOC) + `test_rbac_comprehensive.py` + the `TestRBACManager` class.
+Migrated 3 tests asserting the obsolete admin-403 model → single-mode 200 (admin
+dashboard, `/api/security/scan/recent`, `/api/v1/retention/policies`). 302 security
++ 120 route tests pass; ruff clean.
+> **Discovered (pre-existing, NOT Phase B):** 5 failures in
+> `tests/integration_routes/test_desktop_auto_login_security.py` — stale
+> `monkeypatch.setattr("routes.auth_routes...")` referencing the pre-migration
+> `routes` module (now `backend.routes`). Reproduce on clean HEAD. **Fix in Phase C**
+> when `auth_routes` is handled (these test the desktop auto-login KEEP path, so fix
+> the path — don't delete them).
 
 **Phase C — Simplify the keep-decorators to desktop-only + remove obsolete route surfaces.**
 Strip the Flask-Login session branch + external-API-key branch from `check_api_auth`
@@ -91,7 +101,9 @@ and the decorators. Remove `auth_routes.py` web login, the `LoginManager` wiring
 routes** (obsolete — no users/roles/owner); keep only operational endpoints (cache
 clear, health) as owner-only ungated. Verify Electron still authenticates (signed
 loopback unaffected) and that the frontend has no admin/user-management pages still
-calling the removed routes.
+calling the removed routes. **Also fix the 5 pre-existing
+`test_desktop_auto_login_security.py` failures** (stale `routes.auth_routes`
+monkeypatch → `backend.routes.auth_routes`) since this phase touches `auth_routes`.
 
 **Phase D — Remove MFA + tenancy.**
 De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.

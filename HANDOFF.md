@@ -6,9 +6,12 @@ Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
 both wired._
 _**A10 `backend/security/` IN PROGRESS.** Carry-overs A3-4/A5-2/SC-2 + password
 resolved. Single-mode/OS-auth reframe → multi-user auth stack being deprecated
-(`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`, 6 phases). **Phase A DONE
-(`57b912da`)** — removed dead `zero_trust.py` + `token_manager.py`. **Next: Phase B**
-(collapse authz decorators + remove `rbac.py`). Last commit: `57b912da`._
+(`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`, 6 phases). **Phase A
+(`57b912da`)** removed dead `zero_trust`/`token_manager`; **Phase B (`e710aeb3`)**
+collapsed authz decorators (`api_admin_required`→`api_login_required`), removed
+`rbac.py`, migrated 3 admin-403 tests → single-mode 200. **Next: Phase C** (desktop-
+only auth; remove web login + `admin_routes` user-mgmt; fix 5 pre-existing
+`test_desktop_auto_login_security.py` failures). Last commit: `e710aeb3`._
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the

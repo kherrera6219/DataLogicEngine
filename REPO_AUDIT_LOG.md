@@ -77,7 +77,15 @@ the reconciliation.
 - ✅ **Phase A DONE 2026-06-13 (`57b912da`)** — removed already-dead `zero_trust.py`
   (792 LOC) + `token_manager.py` (390 LOC) + their vanity tests; preserved
   `vulnerability_scanner` coverage in new `test_vulnerability_coverage.py`. 379
-  security+core-infra tests pass, ruff clean. Next: Phase B (authz decorators + rbac).
+  security+core-infra tests pass, ruff clean.
+- ✅ **Phase B DONE 2026-06-13 (`e710aeb3`)** — `api_admin_required`→`api_login_required`
+  alias; `mcp_routes` grants full owner scopes (was RBAC-derived); de-wired rbac from
+  admin/privacy/mcp routes + `extensions.py` (dead `rbac_manager`) + scan script;
+  deleted `rbac.py` (613 LOC) + `test_rbac_comprehensive.py` + `TestRBACManager`.
+  Migrated 3 obsolete admin-403 tests → single-mode 200. 302 security + 120 route
+  tests pass, ruff clean. **Discovered pre-existing (not Phase B):** 5
+  `test_desktop_auto_login_security.py` failures (stale `routes.auth_routes`
+  monkeypatch, reproduce on clean HEAD) → fix in Phase C. Next: Phase C.
 
 ### A10 still open (post-deprecation-decision)
 - Execute the remaining deprecation phases (B–F).
