@@ -105,13 +105,34 @@ removals (`auth_routes`, `LoginManager`, `session_manager`, API-key branch, the
 genuinely-valid Phase C work is:
 - ✅ **Fix the 5 `test_desktop_auto_login_security.py` failures** — done (`routes.auth_routes`
   → `backend.routes.auth_routes`; pre-existing, not from this deprecation).
-- ☐ **Gut `admin_routes.py`** user-management + ownership-transfer routes (vestigial —
-  no users/roles/owner). Keep `cache/clear` + `health` ungated. **Blocked on:** verify
-  the frontend has no admin/user pages calling `/api/v1/admin/users*` or
-  `/transfer-ownership`; migrate `tests/integration_routes/test_admin_routes.py`
-  (user-list/role/delete tests).
-- ☐ **Remove stale `CSRF_API_EXEMPT_PATH_PREFIXES`** entries in `app.py` for the
-  non-existent `/auth/login`, `/auth/register`, `/auth/mfa/verify`, `/auth/callback/sso`.
+- ✅ **Removed stale `CSRF_API_EXEMPT_PATH_PREFIXES`** entries (`faaf10f7`) for the
+  non-existent `/auth/login|register|mfa/verify|callback/sso` routes.
+- ⏸ **Gut `admin_routes.py`** — **DEFERRED (entangled).** `frontend/app/admin/page.tsx`
+  (268 lines) is a live admin UI that calls `/admin/dashboard` + `/admin/users`, gates
+  on `is_admin`, and renders user/role lists. Removing the backend routes is a
+  *coordinated frontend+backend feature removal* (also depends on `User.role`/`is_admin`
+  dropped in Phase E) — not a backend-only edit. Do as one feature-removal during the
+  frontend audit (A15/A16), together with Phase E.
+
+### Entanglement note (discovered 2026-06-13)
+
+Phases A+B removed genuinely-dead/obsolete **active** code (zero_trust, token_manager,
+rbac — ~1,800 LOC, clean wins). The remaining vestigial scaffolding is **wired in**,
+so each removal is cross-cutting, not a clean delete:
+- **admin user-mgmt** ↔ `frontend/app/admin/page.tsx` + `User.role/is_admin`.
+- **MFA** (`mfa.py`, `User.mfa_*`, `User.verify_totp`, `extensions.mfa_manager`,
+  `privacy_routes` reset) ↔ 3 frontend files (`AuthContext.tsx`, `lib/api/auth.ts`,
+  `lib/api/client.ts`).
+- **tenant_rls.py** = Postgres **Row-Level Security** wired into app startup
+  (`configure_tenant_rls`) + Prometheus metrics (`tenant_rls_prometheus_lines`).
+  Moot in single-tenant but provides DB-level defense-in-depth; removal touches
+  startup + metrics.
+
+**Implication:** the high-value, low-risk deprecation is done. The rest is
+lower-value (the vestigial code is harmless — it works) and higher-risk
+(frontend + startup + metrics + DB migration). Recommend doing it as deliberate,
+frontend-coordinated changes (or folding into the A15/A16 frontend audit), not a
+rushed backend sweep.
 
 **Phase D — Remove MFA + tenancy.**
 De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.
