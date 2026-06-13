@@ -27,7 +27,7 @@ def _desktop_auth_headers(client, install_secret: str):
 def test_desktop_auto_login_requires_desktop_header(app, client, monkeypatch):
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
 
     response = client.post("/api/v1/auth/desktop/auto-login")
     assert response.status_code == 403
@@ -38,7 +38,7 @@ def test_desktop_auto_login_requires_desktop_header(app, client, monkeypatch):
 def test_desktop_auto_login_rejects_fallback_identity(app, client, monkeypatch):
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
     monkeypatch.setattr(
         "backend.auth.windows_identity.get_windows_user_identity",
         lambda: {
@@ -61,7 +61,7 @@ def test_desktop_auto_login_rejects_fallback_identity(app, client, monkeypatch):
 def test_desktop_auto_login_rejects_invalid_challenge_signature(app, client, monkeypatch):
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
 
     nonce = _issue_desktop_challenge(client)
     response = client.post(
@@ -79,7 +79,7 @@ def test_desktop_auto_login_defaults_first_user_to_standard_role(app, client, mo
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
     monkeypatch.setenv("DESKTOP_AUTOLOGIN_BOOTSTRAP_OWNER", "false")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
     monkeypatch.setattr(
         "backend.auth.windows_identity.get_windows_user_identity",
         lambda: {
@@ -111,7 +111,7 @@ def test_desktop_auto_login_can_bootstrap_owner_when_explicitly_enabled(app, cli
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
     monkeypatch.setenv("DESKTOP_AUTOLOGIN_BOOTSTRAP_OWNER", "true")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
     monkeypatch.setattr(
         "backend.auth.windows_identity.get_windows_user_identity",
         lambda: {

@@ -32,11 +32,13 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 | Zero-trust engine | `backend/security/zero_trust.py` | **0 live importers** (2 tests only) | ✅ **REMOVED (Phase A, `57b912da`)** |
 | JWT/token manager | `backend/security/token_manager.py` | **0 live importers** (1 test only) | ✅ **REMOVED (Phase A, `57b912da`)** |
 | RBAC / permissions | `backend/security/rbac.py` | 5 refs: `admin_routes`, `mcp_routes`, `privacy_routes`, `extensions.py`, `scripts/scan_backend_routes.py` | ✅ **REMOVED (Phase B, `e710aeb3`)** |
-| Multi-session mgr | `backend/security/session_manager.py` | 1 ref: `app.py` | De-wire, delete |
-| Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` |
-| Multi-tenant RLS | `backend/security/tenant_rls.py` | 1 ref: `app.py` | De-wire, delete |
-| Web login flow | `backend/routes/auth_routes.py`, Flask-Login `LoginManager` in `extensions.py` | registered | Remove web login routes + session login |
-| **Admin/user-mgmt routes** | `backend/routes/admin_routes.py` (16 decorators) | registered | **Wholesale obsolete** — every route is user CRUD / role update / `transfer-ownership` / role-gated dashboard. No users/roles/owner under single-mode. Remove the user-mgmt + ownership routes; retain only genuinely-operational endpoints (cache clear, health) as owner-only, ungated. |
+| Multi-session mgr | `backend/security/session_manager.py` | 1 ref: `app.py` | ⚠️ **KEEP (correction)** — it's session-cookie *security* hardening (rotation/invalidation/secure storage) for the owner's session, not a multi-user login. `MAX_CONCURRENT_SESSIONS=3` is vestigial but harmless. |
+| Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` (Phase D — confirmed vestigial: `auth_routes` docstring says MFA was removed from the flow). |
+| Multi-tenant RLS | `backend/security/tenant_rls.py` | 1 ref: `app.py` | De-wire, delete (Phase D) — verify it's not providing per-row security still relied on. |
+| ~~Web login flow~~ | `backend/routes/auth_routes.py`, `LoginManager` | registered | ⚠️ **KEEP (correction)** — `auth_routes.py` is the **desktop Windows-identity auth** (its docstring: "Web-app patterns … have been removed"), and `LoginManager`/`current_user` back the owner's session across 25 live files. NOT removable. |
+| API-key branch | `check_api_auth` `ukg_`/`ExternalAPIKey` path | many consumers (`api_gateway`, `unified_middleware`, `chat`, …) | ⚠️ **KEEP (correction)** — live, not dead. |
+| **Admin/user-mgmt routes** | `backend/routes/admin_routes.py` (16 decorators) | registered | **Vestigial** — user CRUD / role update / `transfer-ownership` / role-gated dashboard. No users/roles/owner under single-mode. Remove the user-mgmt + ownership routes; retain operational endpoints (cache clear, health) ungated. (Phase C — **verify frontend has no admin/user pages calling them first.**) |
+| Stale CSRF-exempt entries | `app.py` `CSRF_API_EXEMPT_PATH_PREFIXES` | `/auth/login`, `/auth/register`, `/auth/mfa/verify`, `/auth/callback/sso` | Remove — these reference routes that **no longer exist** (auth_routes only has `/check`, `/csrf-token`, `/desktop/*`). |
 | Admin/permission decorators | `api_admin_required`, `require_permission` | part of the 147 decorator usages | Collapse to single-owner pass-through |
 | User authz fields | `models.User.role`, `is_admin`, `mfa_*`, possibly `password_hash` | columns + indexes | Drop after de-wiring (migration) |
 
@@ -94,16 +96,22 @@ dashboard, `/api/security/scan/recent`, `/api/v1/retention/policies`). 302 secur
 > when `auth_routes` is handled (these test the desktop auto-login KEEP path, so fix
 > the path — don't delete them).
 
-**Phase C — Simplify the keep-decorators to desktop-only + remove obsolete route surfaces.**
-Strip the Flask-Login session branch + external-API-key branch from `check_api_auth`
-and the decorators. Remove `auth_routes.py` web login, the `LoginManager` wiring, and
-`session_manager.py`. **Remove `admin_routes.py` user-management + ownership-transfer
-routes** (obsolete — no users/roles/owner); keep only operational endpoints (cache
-clear, health) as owner-only ungated. Verify Electron still authenticates (signed
-loopback unaffected) and that the frontend has no admin/user-management pages still
-calling the removed routes. **Also fix the 5 pre-existing
-`test_desktop_auto_login_security.py` failures** (stale `routes.auth_routes`
-monkeypatch → `backend.routes.auth_routes`) since this phase touches `auth_routes`.
+**Phase C — CORRECTED SCOPE (2026-06-13).** Investigation found the original Phase C
+was written from a stale multi-user-web-app model. The live reality: the single-mode
+**desktop auth is already built** (`auth_routes.py` = Windows-identity + signed
+loopback; `LoginManager`/`current_user` back the owner's session). So the planned
+removals (`auth_routes`, `LoginManager`, `session_manager`, API-key branch, the
+`check_api_auth` session branch) are all the **keep-path** — NOT removable. The
+genuinely-valid Phase C work is:
+- ✅ **Fix the 5 `test_desktop_auto_login_security.py` failures** — done (`routes.auth_routes`
+  → `backend.routes.auth_routes`; pre-existing, not from this deprecation).
+- ☐ **Gut `admin_routes.py`** user-management + ownership-transfer routes (vestigial —
+  no users/roles/owner). Keep `cache/clear` + `health` ungated. **Blocked on:** verify
+  the frontend has no admin/user pages calling `/api/v1/admin/users*` or
+  `/transfer-ownership`; migrate `tests/integration_routes/test_admin_routes.py`
+  (user-list/role/delete tests).
+- ☐ **Remove stale `CSRF_API_EXEMPT_PATH_PREFIXES`** entries in `app.py` for the
+  non-existent `/auth/login`, `/auth/register`, `/auth/mfa/verify`, `/auth/callback/sso`.
 
 **Phase D — Remove MFA + tenancy.**
 De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.
