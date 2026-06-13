@@ -1,24 +1,38 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-13 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
-Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
-(knowledge_algorithms), A9 (quad persona), A10 (security), A11 (core/axes). N1 (SEKRE)
-+ N2 (defense_supervisor) both wired._
-_**A11 `core/axes/` DONE** (verify-only): 17 axes register correctly, Axis 5 unmanaged by
-design (N4), N3/DUP-4 clean from Sprint 0; 30 axes tests pass._
-_**A12 `backend/storage/` DONE**: DB-N/DB-C/DB-M all re-confirmed live; connection_manager
-isn't rate-limiting (moot single-mode); **RT-10 fixed** (atomic settings write). 46 tests pass._
-_**A13 `core/system/` DONE** (verify-only): all 11 services live; DUP-2 = 3 distinct
-orchestrators (retained by design); SekreEngine (N1) wired live via system_initializer;
-TV-6 Socket.IO is in gateway/websocket not trace_service. **Next: A14 `sdk/UKG_Python_SDK/`.**_
-_**A10 `backend/security/` DONE.** Carry-overs A3-4/A5-2/SC-2 + password all resolved.
-Single-mode/OS-auth reframe → multi-user auth stack obsolete; **auth deprecation BANKED
-at A+B+C-partial (`b1a92674`)** — removed dead `zero_trust`/`token_manager`/`rbac`
-(~1,900 LOC), collapsed authz decorators, dropped stale CSRF entries, fixed 5 pre-existing
-desktop tests, corrected the plan (auth_routes/LoginManager/session_manager/API-key branch
-are the live desktop-auth keep-path). Remainder (admin user-mgmt routes, MFA, tenant_rls,
-`User.role/is_admin/mfa_*` slim) is vestigial-but-wired/cross-cutting → **deferred to the
-frontend audit A15/A16**. **Next: A11 `core/axes/`.** Last commit: `a2f26b90`._
+_Last updated: 2026-06-13 — **PHASE 1 COMPLETE (8/8); Phase 2 nearly complete (A14 is
+the last Phase-2 session).** Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b
+(Phase 1); A7+A8 (KAs), A9 (quad persona), A10 (security), A11 (core/axes), A12 (storage),
+A13 (core/system). N1 (SEKRE) + N2 (defense_supervisor) wired._
+_**NEXT: A14 `sdk/UKG_Python_SDK/`** (last Phase-2 session), then Phase 3 frontend
+(A15–A17) — which is also where the deferred auth removals land. Last commit: `4a66ebff`._
+
+### Session log — 2026-06-13
+
+Big session: A9 → A10 (+ full auth deprecation) → A11 → A12 → A13. Highlights:
+- **Architecture reframe (user-confirmed):** app is **single-mode / OS-level auth** (even
+  cloud = single-tenant VM). Multi-user auth is obsolete. See memory `architecture-single-mode`.
+- **A9 `core/persona/quad/`** — reachability map; `quad_engine` is demo-only; resolved
+  follow-on carry-overs A1a-2 (dead `LLMRouter` removed) + A1a-4 (fabricated refinement
+  fallback fixed) + A10-password (werkzeug scrypt confirmed).
+- **A10 `backend/security/`** — A3-4/A5-2/SC-2 resolved; **auth deprecation executed +
+  BANKED at A+B+C-partial** (~1,900 LOC dead auth removed: zero_trust, token_manager, rbac;
+  authz decorators collapsed; stale CSRF dropped). Remainder (admin UI, MFA, tenant_rls,
+  User-field slim) is vestigial-but-wired → **deferred to A15/A16**. Past-audit
+  reconciliation done (bounded — only multi-user features superseded).
+- **A11 `core/axes/`** — verify-only; 17 axes register correctly, N3/N4/DUP-4 clean.
+- **A12 `backend/storage/`** — DB-N/DB-C/DB-M re-confirmed live; **fixed RT-10** (atomic
+  settings write).
+- **A13 `core/system/`** — verify-only; services live; DUP-2 = 3 distinct orchestrators;
+  SekreEngine wired live.
+- **4 stale-plan corrections caught** before harm: Phase-C auth removals (keep-path),
+  DUP-2 (retained, not deleted), TV-6 (Socket.IO is gateway/websocket), DB-M naming.
+- Every step committed + pushed, pre-commit green, all trackers synced.
+
+> **Deferred auth-deprecation work (for A15/A16, frontend-coordinated):** admin user-mgmt
+> routes (↔ `frontend/app/admin/page.tsx`), MFA (`mfa.py` + `User.mfa_*` ↔ 3 frontend
+> files), `tenant_rls.py` (Postgres RLS + startup + metrics), `User.role/is_admin` slim.
+> Full plan + entanglement map: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`.
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
@@ -44,8 +58,12 @@ known-good verification steps. It is the primary handoff reference; the
 > | A6b | `core/simulation/` L6–L10 + SEKRE | `62aa320f` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
 > | **— PHASE 1 COMPLETE (8/8) —** | | | |
 > | A7+A8 (Phase 2) | `knowledge_algorithms/` (125 KAs) | `pending` | ✅ 125/125 registry resolve; 117 real + 8 compact + 0 stub; KA-113 + KA-005 + A5-3 fixes |
-> | A9 (Phase 2) | `core/persona/quad/` | `pending` | ✅ models/sufficiency/pod_orch/math LIVE (DUP-5 clean); quad_engine demo-only (docstring fixed); A9-1/2/3 forwarded |
-> | **A10** | `backend/security/` | — | **NEXT** |
+> | A9 (Phase 2) | `core/persona/quad/` | `5a1353c9` | ✅ models/sufficiency/pod_orch/math LIVE (DUP-5 clean); quad_engine demo-only; A1a-2/A1a-4 resolved |
+> | A10 (Phase 2) | `backend/security/` | `b1a92674` | ✅ A3-4/A5-2/SC-2 + password resolved; **auth deprecation A+B+C-partial** (−1,900 LOC dead auth); remainder → A15/A16 |
+> | A11 (Phase 2) | `core/axes/` | `85c114fe` | ✅ verify-only — 17 axes register; N3/N4/DUP-4 clean |
+> | A12 (Phase 2) | `backend/storage/` | `cea5039e` | ✅ DB-N/DB-C/DB-M live; **RT-10 atomic-write fix** |
+> | A13 (Phase 2) | `core/system/` | `4a66ebff` | ✅ verify-only — services live; DUP-2 = 3 distinct orchestrators; SekreEngine wired |
+> | **A14** | `sdk/UKG_Python_SDK/` | — | **NEXT** (last Phase-2 session) |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
