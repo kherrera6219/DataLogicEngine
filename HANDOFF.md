@@ -6,10 +6,11 @@ Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
 + N2 (defense_supervisor) both wired._
 _**A11 `core/axes/` DONE** (verify-only): 17 axes register correctly, Axis 5 unmanaged by
 design (N4), N3/DUP-4 clean from Sprint 0; 30 axes tests pass._
-_**A12 `backend/storage/` DONE**: DB-N (Neo4j)/DB-C (ChromaDB)/DB-M (UskdMemoryGraph) all
-re-confirmed live; connection_manager isn't rate-limiting (plan misattribution, moot
-single-mode); **RT-10 fixed** (atomic settings write). 46 tests pass. **Next: A13
-`core/system/`.**_
+_**A12 `backend/storage/` DONE**: DB-N/DB-C/DB-M all re-confirmed live; connection_manager
+isn't rate-limiting (moot single-mode); **RT-10 fixed** (atomic settings write). 46 tests pass._
+_**A13 `core/system/` DONE** (verify-only): all 11 services live; DUP-2 = 3 distinct
+orchestrators (retained by design); SekreEngine (N1) wired live via system_initializer;
+TV-6 Socket.IO is in gateway/websocket not trace_service. **Next: A14 `sdk/UKG_Python_SDK/`.**_
 _**A10 `backend/security/` DONE.** Carry-overs A3-4/A5-2/SC-2 + password all resolved.
 Single-mode/OS-auth reframe → multi-user auth stack obsolete; **auth deprecation BANKED
 at A+B+C-partial (`b1a92674`)** — removed dead `zero_trust`/`token_manager`/`rbac`

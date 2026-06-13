@@ -185,6 +185,47 @@ confirm DUP-2 deleted; N1 SekreEngine already wired in A6b).**
 
 ---
 
+## Phase 2 / A13 — `core/system/` (System Services)
+**Date:** 2026-06-13
+**Branch:** main
+**Result:** ✅ verification-only — all 11 services live; 2 stale plan attributions corrected.
+
+### Verified
+- **N1 SekreEngine wired & LIVE.** `system_initializer.py:192` instantiates
+  `SekreEngine(config, graph_manager, memory_manager, united_system_manager, None)` and
+  registers it; `SystemInitializer` is invoked by `core/simulation/app_orchestrator.py`
+  (the live sim path). gm/smm/usm injected. ⚠️ `simulation_validator=None` ("not yet") —
+  minor forward item (inject when available).
+- **DUP-2 — three `refinement_orchestrator.py` are DISTINCT, retained by design** (the
+  plan's "confirm deleted" is stale; actual resolution was `585d9847` retain-by-design):
+  `SystemRefinementOrchestrator` (core/system — docstring: "NOT a duplicate of the async
+  gateway orchestrator"), `SimulationRefinementOrchestrator` (core/simulation, master
+  workflow), `RefinementOrchestrator`+`RefinementStep` (truth_core async gateway). Three
+  contexts, three classes.
+- `frost_service.py` (`FROSTService`) — LIVE (`dmrf/frost_bridge`, `security/integrity`).
+- `persona_construction_service.py` (`PersonaConstructionService`) — LIVE (`truth_core/engine`,
+  `quad_engine`; the A9 DSQP construction path).
+- `united_system_manager.py` (`UnitedSystemManager`) — LIVE (`core/orchestration/master_workflow`);
+  central component registry that also wires `TraceProvenanceService`.
+- `trace_service.py` (`TraceProvenanceService`) — LIVE via `united_system_manager`. **TV-6
+  correction:** the plan attributed "`trace_stage_update` Socket.IO emission" to this file,
+  but the live-trace stream is actually emitted in `backend/llm_gateway/gateway.py` +
+  `backend/websocket.py` (A26/A17 scope). This service is *provenance* tracing, a different
+  concern.
+- Supporting unified-system services (`unified_numbering`/`unified_identity`/`unified_mapping`/
+  `code_crosswalk`/`uae_models`) present in the family.
+
+5 unified-services tests pass; `system_initializer` import + SekreEngine-wiring smoke green.
+
+### Forwarded (minor)
+- SekreEngine `simulation_validator=None` — inject a real validator when the simulation
+  validator is available (SEKRE follow-up).
+
+**Next: A14 `sdk/UKG_Python_SDK/` (Python SDK — API surface vs backend, providers,
+coordinates17, tenlayer, version).**
+
+---
+
 ## Sprint 1 — Structural Cleanup
 **Date completed:** 2026-06-07  
 **Branch:** main  
