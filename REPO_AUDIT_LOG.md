@@ -73,8 +73,14 @@ is **unaffected** — no user-model surface. Exposure is perimeter-only:
 features — and the deprecation plan removes exactly those, so executing the plan *is*
 the reconciliation.
 
+### Auth deprecation execution
+- ✅ **Phase A DONE 2026-06-13 (`57b912da`)** — removed already-dead `zero_trust.py`
+  (792 LOC) + `token_manager.py` (390 LOC) + their vanity tests; preserved
+  `vulnerability_scanner` coverage in new `test_vulnerability_coverage.py`. 379
+  security+core-infra tests pass, ruff clean. Next: Phase B (authz decorators + rbac).
+
 ### A10 still open (post-deprecation-decision)
-- Execute the approved deprecation phases (separate work).
+- Execute the remaining deprecation phases (B–F).
 - Confirm remaining HIGH-RISK *data/input* files real (most are out-of-scope-for-auth
   and still live): `pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`,
   `vulnerability_scanner`, `active_defense`, `honeypot`, `audit_logger`.

@@ -29,8 +29,8 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 ### REMOVE / COLLAPSE (obsolete under single-mode)
 | Concern | Module(s) | Current wiring | Action |
 |---|---|---|---|
-| Zero-trust engine | `backend/security/zero_trust.py` | **0 live importers** (2 tests only) | Delete module + tests |
-| JWT/token manager | `backend/security/token_manager.py` | **0 live importers** (1 test only) | Delete module + test |
+| Zero-trust engine | `backend/security/zero_trust.py` | **0 live importers** (2 tests only) | ✅ **REMOVED (Phase A, `57b912da`)** |
+| JWT/token manager | `backend/security/token_manager.py` | **0 live importers** (1 test only) | ✅ **REMOVED (Phase A, `57b912da`)** |
 | RBAC / permissions | `backend/security/rbac.py` | 5 refs: `admin_routes`, `mcp_routes`, `privacy_routes`, `extensions.py`, `scripts/scan_backend_routes.py` | De-wire 3 routes + extensions, then delete |
 | Multi-session mgr | `backend/security/session_manager.py` | 1 ref: `app.py` | De-wire, delete |
 | Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` |
@@ -70,11 +70,13 @@ This keeps the diff concentrated in **one file** plus ~3 route files, instead of
 
 ## 3. Phased execution (each phase independently shippable + green)
 
-**Phase A — Remove already-dead modules (zero risk).**
-Delete `zero_trust.py` + `token_manager.py` and their vanity tests
-(`tests/security/test_zero_trust_coverage.py`, part of
-`tests/unit/test_core_infrastructure.py`, `tests/security/test_token_and_vulnerability_coverage.py`).
-Pattern is identical to A1a-2 (`LLMRouter`). ~0 production impact.
+**Phase A — Remove already-dead modules (zero risk). ✅ DONE 2026-06-13 (`57b912da`).**
+Deleted `zero_trust.py` (792 LOC) + `token_manager.py` (390 LOC) and their vanity
+tests: removed `tests/security/test_zero_trust_coverage.py` + the `TestZeroTrust`
+class/import in `tests/unit/test_core_infrastructure.py`; split
+`test_token_and_vulnerability_coverage.py` → token tests dropped,
+`vulnerability_scanner` tests preserved in new `test_vulnerability_coverage.py`.
+379 security+core-infra tests pass, ruff clean, no remaining references.
 
 **Phase B — Collapse authorization decorators.**
 Redefine `api_admin_required` = `api_login_required`; replace `require_permission`

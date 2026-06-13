@@ -4,10 +4,11 @@ _Last updated: 2026-06-12 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
 (knowledge_algorithms), A9 (quad persona). N1 (SEKRE) + N2 (defense_supervisor)
 both wired._
-_**A10 `backend/security/` IN PROGRESS.** Carry-overs A3-4/A5-2/SC-2 + password all
-resolved. Major reframe: single-mode/OS-auth makes the multi-user auth stack obsolete
-→ **deprecation plan written, awaiting approval** (`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`);
-no auth code changed. Test baseline: 2066 / 21 / 0. Last commit: `ce0e4181`._
+_**A10 `backend/security/` IN PROGRESS.** Carry-overs A3-4/A5-2/SC-2 + password
+resolved. Single-mode/OS-auth reframe → multi-user auth stack being deprecated
+(`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`, 6 phases). **Phase A DONE
+(`57b912da`)** — removed dead `zero_trust.py` + `token_manager.py`. **Next: Phase B**
+(collapse authz decorators + remove `rbac.py`). Last commit: `57b912da`._
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
