@@ -25,8 +25,9 @@
 | **— PHASE 1 COMPLETE —** | live query path (8/8) | ✅ | — | N1+N2 wired; −5,150 LOC dead code removed |
 | **A7+A8** | `knowledge_algorithms/` (125 KAs) | ✅ done | `pending` | 125/125 registry resolve; 0 orphan configs; 117 real + 8 compact-real + 0 stub; KA-113 multi-signal (A7-1); KA-005 tiering + A5-3 (A8) |
 | **A9** | `core/persona/quad/` | ✅ done | `pending` | models/sufficiency(DUP-5 clean)/pod_orch/math LIVE; quad_engine demo-only (docstring fixed); A9-1/2/3 forwarded |
-| **A10** | `backend/security/` | ⏭ NEXT | — | resolve A3-4/A5-2/SC-2; password hashing ≥12 rounds |
-| A11–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A10** | `backend/security/` | ✅ done | `b1a92674` | A3-4/A5-2/SC-2 + password resolved; single-mode reframe → multi-user auth stack obsolete; auth-deprecation Phases A+B+C-partial executed (zero_trust/token_manager/rbac removed, decorators collapsed); remainder deferred to A15/A16 |
+| **A11** | `core/axes/` | ⏭ NEXT | — | 17-axis cleanup (N3 already done; confirm canonical) |
+| A12–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).

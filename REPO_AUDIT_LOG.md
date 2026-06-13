@@ -87,11 +87,25 @@ the reconciliation.
   `test_desktop_auto_login_security.py` failures (stale `routes.auth_routes`
   monkeypatch, reproduce on clean HEAD) → fix in Phase C. Next: Phase C.
 
-### A10 still open (post-deprecation-decision)
-- Execute the remaining deprecation phases (B–F).
-- Confirm remaining HIGH-RISK *data/input* files real (most are out-of-scope-for-auth
-  and still live): `pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`,
-  `vulnerability_scanner`, `active_defense`, `honeypot`, `audit_logger`.
+- ✅ **Phase C-partial DONE 2026-06-13** — corrected the plan (auth_routes/LoginManager/
+  session_manager/API-key branch are the live desktop-auth keep-path, not removable —
+  the original Phase C was a stale-model error); fixed 5 pre-existing
+  `test_desktop_auto_login_security.py` failures (`routes.auth_routes` →
+  `backend.routes.auth_routes`); dropped stale `CSRF_API_EXEMPT_PATH_PREFIXES`
+  entries (`faaf10f7`).
+
+### A10 CLOSED — auth deprecation banked (`b1a92674`)
+
+Carry-overs A3-4/A5-2/SC-2 + password all resolved; the single-mode reframe's
+high-value removals (zero_trust, token_manager, rbac — ~1,900 LOC) are done.
+**Remaining vestigial-but-wired removals DEFERRED to the frontend audit (A15/A16)**
+because they are cross-cutting (frontend + app startup + Prometheus + DB migration):
+admin user-mgmt routes (↔ `frontend/app/admin/page.tsx`), MFA (↔ 3 frontend files +
+`User.mfa_*`), `tenant_rls.py` (Postgres RLS). Remaining HIGH-RISK *data/input*
+security files (`pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`,
+`vulnerability_scanner`, `active_defense`, `honeypot`, `audit_logger`) are still
+live and out-of-scope-for-auth — confirm during their own passes. **Next: A11
+`core/axes/`.**
 
 ---
 

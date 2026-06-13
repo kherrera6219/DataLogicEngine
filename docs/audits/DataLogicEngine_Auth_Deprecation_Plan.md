@@ -1,6 +1,15 @@
 # DataLogicEngine — Multi-User Auth Deprecation Plan
 
-**Status:** PROPOSAL — for review before any code changes.
+**STATUS (2026-06-13): BANKED at Phases A + B + C-partial.** Clean wins done
+(~1,900 LOC of dead/obsolete active auth code removed: zero_trust, token_manager,
+rbac; authz decorators collapsed; stale CSRF entries dropped; plan corrected;
+5 pre-existing desktop tests fixed). **Remaining (admin user-mgmt routes, MFA,
+tenant_rls, `User.role/is_admin/mfa_*` slim) is DEFERRED to the frontend audit
+(A15/A16)** — it is vestigial-but-wired and cross-cutting (frontend + app startup +
+metrics + DB migration), so it should be removed as coordinated frontend+backend
+feature changes, not a backend sweep. See the entanglement note in §3.
+
+**Original status:** PROPOSAL — for review before any code changes.
 **Authored:** 2026-06-13 (during A10 `backend/security/` audit).
 **Trigger:** App is now **local-first, single operating mode**. Authentication is
 handled at the **OS access level**; even cloud runs on a single-tenant VM. The old
