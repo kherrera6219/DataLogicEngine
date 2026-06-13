@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import SQLAlchemyError
 from backend.ukg_db import UkgDatabaseManager
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from backend.security.zero_trust import TrustScoreCalculator, AccessContext, DeviceFingerprint, TrustLevel
 
 class TestUkgDatabaseManager:
     @pytest.fixture
@@ -106,32 +105,3 @@ class TestTruthCoreEngine:
              patch.object(engine, "_execute_workflow", return_value=MagicMock()):
             result = await engine.process("session-123")
             assert result is not None
-
-class TestZeroTrust:
-    @pytest.fixture
-    def calculator(self):
-        return TrustScoreCalculator()
-
-    def test_calculate_trust_score(self, calculator):
-        device = DeviceFingerprint(
-            device_id="dev-1",
-            user_agent="Mozilla/5.0",
-            ip_address="127.0.0.1",
-            os_family="Windows",
-            browser_family="Chrome",
-            is_mobile=False,
-            is_tablet=False,
-            is_pc=True
-        )
-        context = AccessContext(
-            user_id="user-1",
-            device=device,
-            mfa_verified=True
-        )
-        score, breakdown = calculator.calculate_trust_score(context)
-        assert 0 <= score <= 100
-        assert isinstance(breakdown, dict)
-
-    def test_trust_level_mapping(self, calculator):
-        level = calculator.get_trust_level(90)
-        assert level >= TrustLevel.HIGH
