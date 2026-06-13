@@ -510,13 +510,13 @@ from backend.utils.error_normalization import normalize_public_error_message
 # session-authenticated API/GraphQL requests.
 app.config["WTF_CSRF_CHECK_DEFAULT"] = False
 
+# Single-mode / OS-level auth (auth deprecation Phase C, 2026-06-13): only the
+# desktop Windows-identity endpoints remain. The former web-app auth routes
+# (login/register/mfa-verify/sso-callback) were removed; their stale CSRF-exempt
+# entries are dropped here.
 CSRF_API_EXEMPT_PATH_PREFIXES = (
-    "/api/v1/auth/login",
-    "/api/v1/auth/register",
-    "/api/v1/auth/mfa/verify",
     "/api/v1/auth/desktop/challenge",
     "/api/v1/auth/desktop/auto-login",
-    "/api/v1/auth/callback/sso",
 )
 
 
