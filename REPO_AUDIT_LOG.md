@@ -52,6 +52,27 @@ decorators; C = desktop-only auth + drop web login/sessions; D = remove MFA/tena
 E = slim User model via migration; F = test migration). **No code changed this
 session — plan is awaiting review/approval.**
 
+### Single-mode reconciliation of past audits (2026-06-13, before any code)
+
+Per user decision, checked whether single-mode invalidates earlier audit conclusions
+*before* starting deprecation code. **Result: bounded** (full table in
+`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` §6). ~80% of audit work
+(reasoning core: truth engine, DSQP, DMRF, simulation, KAs, quad, axes, local models)
+is **unaffected** — no user-model surface. Exposure is perimeter-only:
+- A3 desktop status endpoints (`@api_session_login_required`) — ✅ stand; the kept
+  desktop-loopback path is the live one, Phase C just drops the session branch.
+- Routes RT-2/RT-5 — ✅ stand (collapse to owner).
+- **RT-16 `transfer-ownership` hardening + the whole `admin_routes.py` surface
+  (16 routes of user/role/ownership CRUD) — ⚠️ superseded / wholesale obsolete.**
+  Newly added to the deprecation plan's Phase C scope.
+- Sprint 3 SOC 2 `compliance_manager` SC-1 — 🔧 minor: reword access-control narrative
+  to OS-auth (rest stands). Naming note: compliance SC-2 = *Availability* ≠ the audit
+  plan's encryption "SC-2".
+
+**Net:** the only superseded conclusions are the ones that hardened multi-user
+features — and the deprecation plan removes exactly those, so executing the plan *is*
+the reconciliation.
+
 ### A10 still open (post-deprecation-decision)
 - Execute the approved deprecation phases (separate work).
 - Confirm remaining HIGH-RISK *data/input* files real (most are out-of-scope-for-auth

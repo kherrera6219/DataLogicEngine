@@ -36,6 +36,7 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 | Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` |
 | Multi-tenant RLS | `backend/security/tenant_rls.py` | 1 ref: `app.py` | De-wire, delete |
 | Web login flow | `backend/routes/auth_routes.py`, Flask-Login `LoginManager` in `extensions.py` | registered | Remove web login routes + session login |
+| **Admin/user-mgmt routes** | `backend/routes/admin_routes.py` (16 decorators) | registered | **Wholesale obsolete** — every route is user CRUD / role update / `transfer-ownership` / role-gated dashboard. No users/roles/owner under single-mode. Remove the user-mgmt + ownership routes; retain only genuinely-operational endpoints (cache clear, health) as owner-only, ungated. |
 | Admin/permission decorators | `api_admin_required`, `require_permission` | part of the 147 decorator usages | Collapse to single-owner pass-through |
 | User authz fields | `models.User.role`, `is_admin`, `mfa_*`, possibly `password_hash` | columns + indexes | Drop after de-wiring (migration) |
 
@@ -81,10 +82,14 @@ usage in `admin_routes`/`mcp_routes`/`privacy_routes` with `api_login_required`;
 de-wire `rbac` from `extensions.py`; delete `rbac.py` + its tests. Update
 `scripts/scan_backend_routes.py`.
 
-**Phase C — Simplify the keep-decorators to desktop-only.**
+**Phase C — Simplify the keep-decorators to desktop-only + remove obsolete route surfaces.**
 Strip the Flask-Login session branch + external-API-key branch from `check_api_auth`
 and the decorators. Remove `auth_routes.py` web login, the `LoginManager` wiring, and
-`session_manager.py`. Verify Electron still authenticates (signed loopback unaffected).
+`session_manager.py`. **Remove `admin_routes.py` user-management + ownership-transfer
+routes** (obsolete — no users/roles/owner); keep only operational endpoints (cache
+clear, health) as owner-only ungated. Verify Electron still authenticates (signed
+loopback unaffected) and that the frontend has no admin/user-management pages still
+calling the removed routes.
 
 **Phase D — Remove MFA + tenancy.**
 De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.
@@ -128,6 +133,29 @@ SC-2), `pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`, `audit_logger`,
 `honeypot` (as a defensive primitive), `data_classification`, `security_headers`,
 `api_csrf`, `vulnerability_scanner`. These protect data/input and are independent of
 the user model.
+
+---
+
+## 6. Single-mode reconciliation of past audits (done 2026-06-13, before code)
+
+Checked whether the single-mode reframe invalidates earlier audit conclusions.
+**Result: bounded.** ~80% of the audit work (truth engine, DSQP, DMRF, simulation
+layers, KAs, quad personas, axes, local models) never touches the user model and is
+**unaffected**. Exposure is confined to the auth/compliance/routes perimeter:
+
+| Past audit | Finding | Disposition |
+|---|---|---|
+| **A3** (4 desktop status endpoints secured) | They use `@api_session_login_required` = session **or** signed desktop loopback. The loopback path is what we keep. | ✅ **Stands** — Phase C simplifies the decorator (drops the session branch); the intent (no unauthenticated status endpoints) is preserved. Not a reversal. |
+| **Routes RT-2 / RT-5** (added auth to `/suggest`, `/health`) | Added session/admin gating. | ✅ **Stands** — collapses to owner pass-through in Phase B/C. |
+| **Routes RT-16** (hardened `transfer-ownership` with `SYSTEM_ADMIN`) | Audited a **now-obsolete feature** — there is no ownership transfer with one OS user. | ⚠️ **Superseded** — the route is removed in Phase C, taking the RT-16 hardening with it. |
+| **`admin_routes.py`** (whole file) | 16 routes of user CRUD / role update / ownership / role-gated dashboard. | ⚠️ **Wholesale obsolete** — newly added to Phase C scope above. |
+| **Sprint 3 SOC 2 `compliance_manager`** (SC-1..SC-5 = Security/Availability/Processing-Integrity/Confidentiality/Privacy) | SC-1 Security check references access controls/RBAC. (Naming note: this SC-2 = *Availability*, unrelated to the audit plan's encryption "SC-2".) | 🔧 **Minor reframe** — update SC-1's access-control narrative to OS-level auth; encryption/audit/PII/retention criteria stand. |
+| All other audits (A1a, A1b, A2/A2-2, A4, A5, A6a/b, A7/A8, A9, Sprint 0) | No user-model surface. | ✅ **Unaffected.** |
+
+**Net:** the only *superseded* conclusions are the ones that hardened multi-user
+features (RT-16 + the `admin_routes` surface) — and the deprecation plan already
+removes those, so executing the plan IS the reconciliation. One small follow-up:
+reword `compliance_manager` SC-1 access-control to OS-auth.
 
 ---
 
