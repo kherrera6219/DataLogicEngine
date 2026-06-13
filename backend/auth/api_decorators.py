@@ -213,34 +213,8 @@ def api_session_login_required(f):
     return api_session_login_required_wrapper
 
 
-def api_admin_required(f):
-    """Decorator to require admin privileges via session or API key principal."""
-    @wraps(f)
-    def api_admin_required_wrapper(*args, **kwargs):
-        is_auth, principal = check_api_auth()
-        if not is_auth:
-            return jsonify({
-                'status': 'error',
-                'success': False,
-                'message': 'Authentication required',
-                'code': 'UNAUTHORIZED'
-            }), 401
-
-        if not getattr(principal, 'is_admin', False):
-            return jsonify({
-                'status': 'error',
-                'success': False,
-                'message': 'Admin privileges required',
-                'code': 'FORBIDDEN'
-            }), 403
-        return f(*args, **kwargs)
-
-    # Manually preserve function attributes to prevent Flask endpoint collisions
-    try:
-        api_admin_required_wrapper.__name__ = f.__name__
-        api_admin_required_wrapper.__doc__ = f.__doc__
-        api_admin_required_wrapper.__module__ = f.__module__
-    except (AttributeError, TypeError):
-        pass
-
-    return api_admin_required_wrapper
+# Single-mode / OS-level auth (auth deprecation Phase B, 2026-06-13): there is no
+# admin vs. non-admin distinction — the one OS user is the owner with full access.
+# `api_admin_required` is retained as an alias of `api_login_required` so existing
+# call sites keep working without churn. Remove the alias + call sites in a later pass.
+api_admin_required = api_login_required

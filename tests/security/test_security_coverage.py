@@ -8,7 +8,6 @@ from unittest.mock import MagicMock, patch, mock_open
 # We use patch.dict in the fixture to ensure clean imports if needed, 
 # but simple imports usually work if side-effects are low.
 from backend.security.security_manager import SecurityManager
-from backend.security.rbac import RBACManager, Permission, Role
 from backend.security.encryption_manager import EncryptionManager
 
 class TestSecurityManager:
@@ -79,40 +78,6 @@ class TestSecurityManager:
         assert security_manager.check_rate_limit(key, limit, period) is True
         # Third call (fail)
         assert security_manager.check_rate_limit(key, limit, period) is False
-
-
-class TestRBACManager:
-    @pytest.fixture
-    def rbac(self):
-        return RBACManager()
-
-    def test_default_roles_initialized(self, rbac):
-        assert "owner" in rbac.roles
-        assert "admin" in rbac.roles
-        assert "auditor" in rbac.roles
-        
-        # Check specific permission
-        admin_role = rbac.roles["admin"]
-        assert Permission.USER_READ in admin_role.permissions
-        assert Permission.UKG_ADMIN in admin_role.permissions
-
-    def test_role_methods(self):
-        role = Role("test_role", {Permission.USER_READ})
-        assert role.has_permission(Permission.USER_READ) is True
-        assert role.has_permission(Permission.USER_WRITE) is False
-        
-        role.add_permission(Permission.USER_WRITE)
-        assert role.has_permission(Permission.USER_WRITE) is True
-        
-        role.remove_permission(Permission.USER_READ)
-        assert role.has_permission(Permission.USER_READ) is False
-
-    def test_to_dict(self):
-        role = Role("test_role", {Permission.USER_READ}, "desc")
-        role_dict = role.to_dict()
-        assert role_dict["name"] == "test_role"
-        assert role_dict["description"] == "desc"
-        assert Permission.USER_READ.value in role_dict["permissions"]
 
 
 from cryptography.fernet import Fernet

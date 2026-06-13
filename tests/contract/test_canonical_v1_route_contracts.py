@@ -93,14 +93,13 @@ def test_canonical_v1_auth_failures_are_json_401s(client):
         assert "Authentication required" in body["message"]
 
 
-def test_canonical_v1_retention_policies_non_admin_returns_json_403(session_authenticated_client):
+def test_canonical_v1_retention_policies_authenticated_returns_ok(session_authenticated_client):
+    # Single-mode / OS-level auth (auth deprecation Phase B): no admin gate on
+    # retention policies — any authenticated owner can read them.
     response = session_authenticated_client.get("/api/v1/retention/policies")
 
-    assert response.status_code == 403
+    assert response.status_code == 200
     assert response.is_json
-    body = response.get_json()
-    assert body["code"] == "FORBIDDEN"
-    assert "Admin privileges required" in body["message"]
 
 
 def test_canonical_v1_query_validation_returns_422(session_authenticated_client):

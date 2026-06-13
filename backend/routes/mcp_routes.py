@@ -25,7 +25,6 @@ from backend.mcp_server.scope_enforcement import (
     normalize_scopes,
     parse_execution_context,
 )
-from backend.security.rbac import Permission, get_rbac_manager
 
 logger = logging.getLogger(__name__)
 
@@ -106,23 +105,13 @@ def _build_tool_execution_context() -> dict:
     role = str(getattr(current_user, "role", "user") or "user").strip().lower()
     is_admin = bool(getattr(current_user, "is_admin", False) or role in {"admin", "super_admin", "owner"})
 
-    scopes: set[str] = set()
     roles = {role}
 
-    try:
-        rbac = get_rbac_manager()
-        if rbac.user_has_permission(current_user, Permission.MCP_READ):
-            scopes.add("connector:*:read")
-        if rbac.user_has_permission(current_user, Permission.MCP_EXECUTE):
-            scopes.add("mcp:execute")
-            scopes.add("connector:*:read")
-        if rbac.user_has_permission(current_user, Permission.MCP_WRITE):
-            scopes.add("connector:*:write")
-        if rbac.user_has_permission(current_user, Permission.MCP_ADMIN):
-            scopes.update({"mcp:execute", "connector:*:read", "connector:*:write", "*"})
-            is_admin = True
-    except Exception as exc:
-        logger.warning("Unable to derive RBAC scopes for MCP execution context: %s", exc)
+    # Single-mode / OS-level auth (auth deprecation Phase B, 2026-06-13): the one OS
+    # user is the owner with full access — grant all MCP connector scopes
+    # unconditionally rather than deriving them from the removed RBAC layer.
+    scopes: set[str] = {"mcp:execute", "connector:*:read", "connector:*:write", "*"}
+    is_admin = True
 
     api_key = getattr(g, "external_api_key", None)
     if api_key is not None:

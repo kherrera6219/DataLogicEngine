@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user
 from backend.auth.api_decorators import api_session_login_required
 from extensions import db, audit_logger
-from backend.security.rbac import require_permission, Permission
 from datetime import datetime, UTC
 import logging
 
@@ -58,7 +57,6 @@ def purge_user_data():
 
 @privacy_bp.route('/tenant-cleanup', methods=['POST'])
 @api_session_login_required
-@require_permission(Permission.SYSTEM_CONFIG_READ)
 def cleanup_tenant_data():
     """
     Administrative endpoint to purge all data for a specific tenant.

@@ -90,11 +90,12 @@ class TestAdminDashboard:
         # Should redirect to login or return 401
         assert response.status_code in [401, 302]
 
-    def test_dashboard_requires_permission(self, authenticated_client):
-        """Test that dashboard requires admin permission."""
+    def test_dashboard_accessible_to_any_authenticated_user(self, authenticated_client):
+        """Single-mode / OS-level auth (auth deprecation Phase B): there is no admin
+        permission gate — the one authenticated OS user is the owner, so any
+        authenticated request reaches the dashboard."""
         response = authenticated_client.get('/api/v1/admin/dashboard')
-        # Regular users should get 403
-        assert response.status_code == 403
+        assert response.status_code == 200
 
 
 class TestUserList:

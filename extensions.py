@@ -15,7 +15,6 @@ from flask_caching import Cache
 from flask_compress import Compress
 from flask_cors import CORS
 from backend.security.audit_logger import AuditLogger
-from backend.security.rbac import RBACManager
 from backend.security.encryption_manager import EncryptionManager
 from backend.security.mfa import MFAManager
 
@@ -50,7 +49,6 @@ audit_logger = AuditLogger()
 cache = Cache()
 compress = Compress()
 cors = CORS()
-rbac_manager = RBACManager(audit_logger=audit_logger)
 encryption_manager = EncryptionManager(audit_logger=audit_logger)
 mfa_manager = MFAManager()
 

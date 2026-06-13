@@ -20,7 +20,6 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from extensions import db, limiter, cache
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
-from backend.security.rbac import require_permission, Permission
 from backend.config.settings import settings
 from backend.utils.responses import (
     success_response,
@@ -106,7 +105,6 @@ def _audit_admin_action(action: str, details: Dict[str, Any]) -> None:
 @admin_bp.route('/dashboard', methods=['GET'])
 @login_required
 @limiter.limit(settings.ADMIN_RATE_LIMIT)
-@require_permission(Permission.SECURITY_READ)
 def admin_dashboard_stats() -> Tuple[Response, int]:
     """
     Get admin dashboard statistics.
@@ -141,7 +139,6 @@ def admin_dashboard_stats() -> Tuple[Response, int]:
 @admin_bp.route('/users', methods=['GET'])
 @login_required
 @limiter.limit(settings.ADMIN_RATE_LIMIT)
-@require_permission(Permission.USER_READ)
 def get_users() -> Tuple[Response, int]:
     """
     Get paginated list of users with desktop identity metadata.
@@ -205,7 +202,6 @@ def get_users() -> Tuple[Response, int]:
 @admin_bp.route('/users/<int:user_id>', methods=['GET'])
 @login_required
 @limiter.limit(settings.ADMIN_RATE_LIMIT)
-@require_permission(Permission.USER_READ)
 def get_user(user_id: int) -> Tuple[Response, int]:
     """
     Get a specific user by ID.
@@ -231,7 +227,6 @@ def get_user(user_id: int) -> Tuple[Response, int]:
 @admin_bp.route('/users/<int:user_id>/role', methods=['PUT'])
 @login_required
 @limiter.limit("10 per minute")  # Stricter limit for role changes
-@require_permission(Permission.USER_MANAGE_ROLES)
 @validate_json_body(['role'])
 def update_user_role(user_id: int) -> Tuple[Response, int]:
     """
@@ -309,7 +304,6 @@ def update_user_role(user_id: int) -> Tuple[Response, int]:
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @login_required
 @limiter.limit("5 per minute")  # Very strict limit for deletions
-@require_permission(Permission.USER_DELETE)
 def delete_user(user_id: int) -> Tuple[Response, int]:
     """
     Delete a user account.
@@ -380,7 +374,6 @@ def delete_user(user_id: int) -> Tuple[Response, int]:
 
 @admin_bp.route('/users/transfer-ownership', methods=['POST'])
 @login_required
-@require_permission(Permission.SYSTEM_ADMIN)
 @limiter.limit("1 per hour")  # Very strict limit - ownership transfer is critical
 @validate_json_body(['target_user_id', 'confirm'])
 def transfer_ownership() -> Tuple[Response, int]:
@@ -467,7 +460,6 @@ def transfer_ownership() -> Tuple[Response, int]:
 @admin_bp.route('/cache/clear', methods=['POST'])
 @login_required
 @limiter.limit("5 per minute")
-@require_permission(Permission.SYSTEM_ADMIN)
 def clear_cache() -> Tuple[Response, int]:
     """
     Clear application caches.
@@ -513,7 +505,6 @@ def clear_cache() -> Tuple[Response, int]:
 
 @admin_bp.route('/health', methods=['GET'])
 @login_required
-@require_permission(Permission.SECURITY_READ)
 def admin_health_check() -> Tuple[Response, int]:
     """
     Get detailed system health status for admins.

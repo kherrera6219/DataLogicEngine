@@ -246,17 +246,18 @@ def security_scan_client(security_scan_app):
     return security_scan_app.test_client()
 
 
-def test_security_scan_api_requires_admin(security_scan_client):
+def test_security_scan_api_requires_auth(security_scan_client):
     with patch("backend.auth.api_decorators.check_api_auth", return_value=(False, None)):
         resp = security_scan_client.post("/api/security/scan")
         assert resp.status_code == 401
         assert resp.json["code"] == "UNAUTHORIZED"
 
-    non_admin = SimpleNamespace(is_admin=False)
-    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, non_admin)):
+    # Single-mode / OS-level auth (auth deprecation Phase B): there is no admin tier —
+    # the one authenticated OS user is the owner, so any authenticated request is allowed.
+    authed = SimpleNamespace(is_admin=False)
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, authed)):
         resp = security_scan_client.get("/api/security/scan/recent")
-        assert resp.status_code == 403
-        assert resp.json["code"] == "FORBIDDEN"
+        assert resp.status_code == 200
 
 
 def test_security_scan_api_endpoints(security_scan_client, tmp_path, monkeypatch):

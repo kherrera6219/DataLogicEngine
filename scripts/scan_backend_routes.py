@@ -28,7 +28,7 @@ for fname in sorted(os.listdir(ROOT)):
             func_name = lines[j].strip()[:60] if j < len(lines) else "?"
             auth = [
                 d for d in decorators
-                if "login_required" in d or "api_login" in d or "api_admin" in d or "require_permission" in d
+                if "login_required" in d or "api_login" in d or "api_admin" in d
             ]
             endpoints.append({
                 "route": line.strip(),
