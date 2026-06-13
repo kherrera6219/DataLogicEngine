@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-12 (**PHASE 1 COMPLETE**; Phase 2 — A7+A8 knowledge_algorithms done; A9 quad persona done (map: models/scaling/pod/math LIVE, quad_engine demo-only); follow-on carry-overs A1a-2 + A1a-4 + A10-password resolved. **Next: A10 `backend/security/`**)
+**Last updated:** 2026-06-13 (**PHASE 1 COMPLETE**; Phase 2 — A7+A8 + A9 done. **A10 `backend/security/` IN PROGRESS:** carry-overs A3-4/A5-2/SC-2 + password resolved; **single-mode/OS-auth reframe** makes multi-user auth stack obsolete → deprecation plan written (`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`), awaiting approval. **Next: single-mode reconciliation of past audits (Routes/SOC2/A3) BEFORE any deprecation code.**)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

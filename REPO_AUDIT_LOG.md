@@ -5,6 +5,61 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 2 / A10 — `backend/security/` (in progress — carry-overs resolved; auth deprecation planned)
+**Date:** 2026-06-13
+**Branch:** main
+
+> **Reframe (user-confirmed):** the app is now **local-first, single operating mode**
+> with **OS-level authentication** (even cloud = single-tenant VM). The old
+> multi-user model is gone. This changes A10 from "are the security layers real?"
+> to "which layers still have a reason to exist?" See memory `architecture-single-mode`.
+
+### Carry-overs resolved
+
+- **A3-4 — ✅ N/A by design.** Defense supervisor's `user_role="user"` (gateway.py
+  ~1707) is moot with one full-access owner (cosmetically could read `"owner"`).
+  HONEYPOT-treated-as-BLOCK (gateway.py ~1710) is *correct* for a trusted single
+  owner — you never honeypot your own owner. No change required.
+- **A5-2 — ✅ keep all five (defense-in-depth union, not duplication).** They fire at
+  distinct stages with distinct techniques: regex (`prompt_injection_shield.validate_user_input`)
+  + de-obfuscation/base64/leetspeak (`ai_guardrail.validate_input`) in
+  `governance.prepare_request`; LLM-semantic (`defense_supervisor.screen`) in the
+  gateway on UKG-pipeline requests; L8 model screening (`trust_validation_gateway`);
+  DMRF `injection_defense`. Still fully relevant — protecting the LLM pipeline from
+  malicious *input* is independent of who the user is. Minor: typo "Prohibited
+  prohibited phrase" in `ai_guardrail.py:35` (cosmetic).
+- **SC-2 — ✅ AES-256-GCM is the active data cipher.** `encryption_manager._encrypt_with_dek`
+  uses `AESGCM` (line ~251-253); DEK registry tags `AES-256-GCM`. Fernet remains only
+  as the KEK-wrap + legacy-decrypt fallback. (Separately, provider API-key storage in
+  `models.LLMProvider` still uses Fernet/AES-128-CBC — acceptable for the local
+  threat model; optional future migration.) Docs reconciliation is all that remains.
+
+### Headline finding — multi-user auth stack is architecturally obsolete
+
+The desktop single-user auth **already exists and works** (Windows SID via
+`backend/auth/windows_identity.py` + signed Electron loopback via
+`desktop_local_auth.py`). Obsolete is the multi-user authorization layer stacked on
+top: `rbac.py` (5 refs), `session_manager.py` (1), `mfa.py` (2), `tenant_rls.py` (1),
+web login (`auth_routes.py` + Flask-Login), and `User.role/is_admin/mfa_*`. Two are
+**already fully dead** (0 live importers, test-only): `zero_trust.py`,
+`token_manager.py`. Blast radius of full removal: **147 auth-decorator usages** across
+routes + ~29/172 test files.
+
+**Decision (user, 2026-06-13): plan full deprecation before any code changes.**
+Written 6-phase plan delivered: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`
+(Phase A = delete the 2 already-dead modules, risk-free; B = collapse authz
+decorators; C = desktop-only auth + drop web login/sessions; D = remove MFA/tenancy;
+E = slim User model via migration; F = test migration). **No code changed this
+session — plan is awaiting review/approval.**
+
+### A10 still open (post-deprecation-decision)
+- Execute the approved deprecation phases (separate work).
+- Confirm remaining HIGH-RISK *data/input* files real (most are out-of-scope-for-auth
+  and still live): `pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`,
+  `vulnerability_scanner`, `active_defense`, `honeypot`, `audit_logger`.
+
+---
+
 ## Sprint 1 — Structural Cleanup
 **Date completed:** 2026-06-07  
 **Branch:** main  

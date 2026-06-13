@@ -1,0 +1,136 @@
+# DataLogicEngine — Multi-User Auth Deprecation Plan
+
+**Status:** PROPOSAL — for review before any code changes.
+**Authored:** 2026-06-13 (during A10 `backend/security/` audit).
+**Trigger:** App is now **local-first, single operating mode**. Authentication is
+handled at the **OS access level**; even cloud runs on a single-tenant VM. The old
+multi-user model (application login, roles, access tiers) is gone — see memory
+`architecture-single-mode`.
+
+---
+
+## 1. Guiding principle
+
+> **Keep the local security boundary; remove the multi-user authorization layer.**
+
+What stays is the mechanism that proves a request came from the legitimate OS user
+on this machine. What goes is everything that distinguished *one app user from
+another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JWT).
+
+### KEEP (this is the current single-user auth — already implemented and working)
+- `backend/auth/windows_identity.py` — resolves the Windows SID identity.
+- `backend/security/desktop_local_auth.py` — signed Electron loopback request
+  verification (install-secret HMAC + nonce + skew window). This prevents *other
+  local processes* from hitting the loopback backend; it remains a real boundary.
+- `backend/auth/api_decorators.py::check_desktop_request_auth` + the
+  `_get_or_create_desktop_user` SID→User resolution.
+- `models.User.sid`, `username`, `email` (identity, not authorization).
+
+### REMOVE / COLLAPSE (obsolete under single-mode)
+| Concern | Module(s) | Current wiring | Action |
+|---|---|---|---|
+| Zero-trust engine | `backend/security/zero_trust.py` | **0 live importers** (2 tests only) | Delete module + tests |
+| JWT/token manager | `backend/security/token_manager.py` | **0 live importers** (1 test only) | Delete module + test |
+| RBAC / permissions | `backend/security/rbac.py` | 5 refs: `admin_routes`, `mcp_routes`, `privacy_routes`, `extensions.py`, `scripts/scan_backend_routes.py` | De-wire 3 routes + extensions, then delete |
+| Multi-session mgr | `backend/security/session_manager.py` | 1 ref: `app.py` | De-wire, delete |
+| Per-user MFA | `backend/security/mfa.py` | `extensions.py`, `models.py` (`User.verify_totp`) | De-wire, delete; drop `User.mfa_enabled`/`mfa_secret` |
+| Multi-tenant RLS | `backend/security/tenant_rls.py` | 1 ref: `app.py` | De-wire, delete |
+| Web login flow | `backend/routes/auth_routes.py`, Flask-Login `LoginManager` in `extensions.py` | registered | Remove web login routes + session login |
+| Admin/permission decorators | `api_admin_required`, `require_permission` | part of the 147 decorator usages | Collapse to single-owner pass-through |
+| User authz fields | `models.User.role`, `is_admin`, `mfa_*`, possibly `password_hash` | columns + indexes | Drop after de-wiring (migration) |
+
+---
+
+## 2. The 147-decorator question (the main entanglement)
+
+`@api_login_required` / `@api_session_login_required` / `@require_permission` /
+`@api_admin_required` appear **147 times** across `backend/routes/*.py` + `app.py`
+(heaviest: `mcp_routes` 31, `admin_routes` 16, `storage_routes` 13, `knowledge_routes`
+12, `ka_routes` 12).
+
+**Do NOT delete the 147 call sites.** Instead, redefine the decorators centrally in
+`backend/auth/api_decorators.py`:
+
+- `api_login_required` / `api_session_login_required` → keep, but **simplify to the
+  desktop-loopback path only** (drop the Flask-Login session branch and the
+  `ukg_`-prefixed external-API-key branch; both are multi-user features). The
+  signed-loopback check + SID user resolution stays. Net effect: every decorated
+  route still requires a valid signed desktop request, exactly as today, minus the
+  dead multi-user branches.
+- `api_admin_required` → **alias to `api_login_required`** (no admin vs. non-admin
+  distinction when there is one owner). Keep the name as a thin shim so the 16
+  `admin_routes` call sites don't churn, or sed-replace them in one pass.
+- `require_permission(...)` (from `rbac.py`) → replace with a no-op decorator factory
+  that just calls `api_login_required`, then remove once the 3 route files are updated.
+
+This keeps the diff concentrated in **one file** plus ~3 route files, instead of 147 edits.
+
+---
+
+## 3. Phased execution (each phase independently shippable + green)
+
+**Phase A — Remove already-dead modules (zero risk).**
+Delete `zero_trust.py` + `token_manager.py` and their vanity tests
+(`tests/security/test_zero_trust_coverage.py`, part of
+`tests/unit/test_core_infrastructure.py`, `tests/security/test_token_and_vulnerability_coverage.py`).
+Pattern is identical to A1a-2 (`LLMRouter`). ~0 production impact.
+
+**Phase B — Collapse authorization decorators.**
+Redefine `api_admin_required` = `api_login_required`; replace `require_permission`
+usage in `admin_routes`/`mcp_routes`/`privacy_routes` with `api_login_required`;
+de-wire `rbac` from `extensions.py`; delete `rbac.py` + its tests. Update
+`scripts/scan_backend_routes.py`.
+
+**Phase C — Simplify the keep-decorators to desktop-only.**
+Strip the Flask-Login session branch + external-API-key branch from `check_api_auth`
+and the decorators. Remove `auth_routes.py` web login, the `LoginManager` wiring, and
+`session_manager.py`. Verify Electron still authenticates (signed loopback unaffected).
+
+**Phase D — Remove MFA + tenancy.**
+De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.
+De-wire `tenant_rls.py` from `app.py`; delete it.
+
+**Phase E — Slim the User model (DB migration).**
+Drop `role`, `is_admin`, `mfa_enabled`, `mfa_secret` columns + their indexes
+(`ix_users_role`, `ix_users_role_active`). Decide on `password_hash`: with OS-level
+auth there is no app password — likely droppable, but confirm nothing seeds an
+initial admin via `set_password` first (`scripts/create_admin_user.py`). Alembic
+migration + downgrade.
+
+**Phase F — Test migration.**
+~29 of 172 test files touch auth/rbac/session/mfa/login. Rewrite the ones asserting
+multi-user behavior (login flows, role gating, permission denials) to the single-owner
+model; delete tests that only exercised removed modules. This is the largest effort
+slice — budget a dedicated pass.
+
+---
+
+## 4. Risks & call-outs
+
+- **Electron contract:** Phase C must preserve the `X-DataLogic-Desktop` +
+  `X-Desktop-Auth-*` signed-request headers the Electron shell sends. Verify against
+  `frontend/electron/main.ts` request signing before removing the session branch.
+- **`password_hash` removal is one-way** (data). Keep it until Phase E is confirmed;
+  the werkzeug `scrypt` hashing itself is fine (SC-2) — it's just unused under OS auth.
+- **External API keys (`ExternalAPIKey`, `ukg_` keys):** confirm no headless/automation
+  consumer depends on them before removing that branch in Phase C. If any does, that
+  consumer is itself part of the deprecated multi-user surface.
+- **Compliance posture:** `compliance_manager.py` SC-1..SC-5 reference access controls;
+  update its "access control" check to describe OS-level auth rather than RBAC.
+- **Order matters:** do A→F in sequence; each leaves the suite green. Do not start E
+  (migration) until B–D have removed all readers of the dropped columns.
+
+---
+
+## 5. Out of scope (stays live — not auth)
+Injection defenses (A5-2 five-layer union), `encryption_manager` (AES-256-GCM,
+SC-2), `pii_redaction`, `sanitizer`, `ssrf`, `secret_resolver`, `audit_logger`,
+`honeypot` (as a defensive primitive), `data_classification`, `security_headers`,
+`api_csrf`, `vulnerability_scanner`. These protect data/input and are independent of
+the user model.
+
+---
+
+*Review this plan, then approve a starting phase. Recommended first step: Phase A
+(delete the two already-dead modules) — it is risk-free and shrinks the surface
+before the structural phases.*

@@ -4,10 +4,10 @@ _Last updated: 2026-06-12 — **PHASE 1 COMPLETE (8/8); Phase 2 in progress.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8
 (knowledge_algorithms), A9 (quad persona). N1 (SEKRE) + N2 (defense_supervisor)
 both wired._
-_**Resume at A10 — `backend/security/`** (resolve A3-4, A5-2, SC-2; confirm
-password hashing ≥12 rounds — open since May). See "Next audit session" below.
-Test baseline: 2066 passed / 21 skipped / 0 failed (A9 touched only a docstring +
-docs). Last commit: `d7fa233a` (+ uncommitted A9)._
+_**A10 `backend/security/` IN PROGRESS.** Carry-overs A3-4/A5-2/SC-2 + password all
+resolved. Major reframe: single-mode/OS-auth makes the multi-user auth stack obsolete
+→ **deprecation plan written, awaiting approval** (`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`);
+no auth code changed. Test baseline: 2066 / 21 / 0. Last commit: `ce0e4181`._
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
@@ -284,19 +284,29 @@ Reachability map done (full detail in `REPO_AUDIT_LOG.md` A9 entry). Verdict:
   models, dup of SDK, 1 script importer) → A14/A29; A9-3 `__init__.py` docstring
   → A31. No risky deletions this session. `tests/persona/quad/` 41 passed.
 
-### Next audit session: A10 — `backend/security/` (28 files)
+### A10 — `backend/security/` IN PROGRESS (2026-06-13)
 
-Resolve carry-overs landing here: **A3-4** (defense supervisor always sets
-`user_role="user"`; HONEYPOT treated as BLOCK), **A5-2** (five overlapping
-injection defenses — shield/guardrail/supervisor/truthgate/dmrf — confirm union /
-consider consolidation), **SC-2** (Fernet→AES-256-GCM doc reconciliation). Confirm
-every HIGH-RISK file real.
+**Major reframe (user-confirmed):** app is now **local-first, single operating mode**;
+auth is at the **OS level** (even cloud = single-tenant VM). The multi-user model is
+gone. See memory `architecture-single-mode`. This makes a whole sub-stack obsolete.
 
-> **Password hashing — ✅ already verified (2026-06-12), don't re-chase.**
-> `password_security.py` is policy-only; the real store-hash is `models.py:112`
-> werkzeug `generate_password_hash` → **`scrypt:32768:8:1`** on werkzeug 3.1.8
-> (OWASP memory-hard baseline). Intent met; the literal "bcrypt rounds" criterion
-> doesn't apply. See REPO_AUDIT_LOG.md "Carry-over resolutions".
+Carry-overs resolved (REPO_AUDIT_LOG.md A10 entry):
+- **A3-4 — ✅ N/A by design** (one owner: `user_role` moot; HONEYPOT→BLOCK correct).
+- **A5-2 — ✅ keep all five** injection defenses (defense-in-depth union, distinct
+  stages/techniques; still relevant — input protection is independent of user model).
+- **SC-2 — ✅ AES-256-GCM is the active data cipher** (`encryption_manager`); Fernet
+  only wraps the KEK + legacy fallback. Docs reconciliation remains.
+- **Password hashing — ✅ verified 2026-06-12** (werkzeug `scrypt:32768:8:1`); don't re-chase.
+
+**Headline:** multi-user auth/RBAC/session/MFA/tenancy stack is architecturally
+obsolete. Desktop single-user auth already works (Windows SID + signed Electron
+loopback). `zero_trust.py` + `token_manager.py` are already fully dead (test-only).
+Full removal blast radius: **147 auth-decorator usages** + ~29/172 test files.
+
+> **Decision (user, 2026-06-13): plan full deprecation before any code changes.**
+> Plan delivered → **`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`** (6 phases,
+> A–F; Phase A = delete the 2 dead modules, risk-free). **Awaiting review/approval —
+> NO auth code changed yet.** Next session: review plan, approve a starting phase.
 
 Other carry-overs: A3-4 + A5-2 (injection-defense consolidation) + SC-2 in A10;
 A3-5 in A26; A18-pre in A18. Full list in the plan's carry-over table.
