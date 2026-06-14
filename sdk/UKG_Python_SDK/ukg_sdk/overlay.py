@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,6 +14,8 @@ from .ka.builtins import register_builtin_handlers
 from .memory import MemoryAdapter, InMemoryMemoryAdapter
 from .audit import AuditStore, FileAuditStore, AuditEvent
 from .providers import LLMProvider, LLMResponse
+
+logger = logging.getLogger(__name__)
 
 
 class UKGOverlay:
@@ -69,6 +72,15 @@ class UKGOverlay:
         self.memory = memory or InMemoryMemoryAdapter()
         self.audit = audit or FileAuditStore(self.data_dir / "audit" / "ukg_audit.jsonl")
 
+        # A14-3: cache the DSQP import attempt at init time so _build_dsqp_trace_output
+        # does not re-import on every call and so the error type is surfaced in logs.
+        try:
+            from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator  # type: ignore[import]
+            self._dsqp_orchestrator_cls = DSQPOrchestrator
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("DSQPOrchestrator unavailable (backend not installed): %s: %s", type(exc).__name__, exc)
+            self._dsqp_orchestrator_cls = None
+
     async def run(
         self,
         *,
@@ -83,7 +95,10 @@ class UKGOverlay:
     ) -> Dict[str, Any]:
         session_id = session_id or str(uuid.uuid4())
         meta = meta or {}
-        coord = self.coordinate_resolver.resolve(meta).as_compact_string()
+        # A14-2: pass both the user query AND meta into the coordinate resolver so
+        # keyword-signal-based pillar/sector matching in CoordinateResolver17 fires
+        # on the actual query text, not just the (often empty) meta dict.
+        coord = self.coordinate_resolver.resolve({**meta, "query": query}).as_compact_string()
 
         trace: List[Dict[str, Any]] = []
         def t(ka_id: str, status: str, output: Dict[str, Any] | None = None):
@@ -187,10 +202,16 @@ class UKGOverlay:
         layers: List[str],
         meta: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Attach deterministic DSQP persona evidence to gateway trace records."""
-        try:
-            from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator
+        """Attach deterministic DSQP persona evidence to gateway trace records.
 
+        A14-3: DSQPOrchestrator is imported once at __init__ time and cached on
+        self._dsqp_orchestrator_cls (None when backend is not installed).  This
+        method is therefore O(1) on repeated calls and surfaces the real error
+        type in debug logs rather than masking it.
+        """
+        if self._dsqp_orchestrator_cls is None:
+            return {"dsqp_chain_unavailable": {"reason": "backend_not_installed"}}
+        try:
             context = {
                 **(meta or {}),
                 "coordinate_path": coord,
@@ -198,7 +219,7 @@ class UKGOverlay:
                 "layers": layers,
                 "source": "ukg_sdk_overlay",
             }
-            result = DSQPOrchestrator(timeout_seconds=30).construct_all_sync(
+            result = self._dsqp_orchestrator_cls(timeout_seconds=30).construct_all_sync(
                 query,
                 axis_vector={"coordinate": coord, "tier": tier},
                 context=context,
@@ -207,7 +228,8 @@ class UKGOverlay:
                 "dsqp_chain": result,
                 "constructed_persona_profiles": result.get("profiles", {}),
             }
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("DSQPOrchestrator.construct_all_sync failed: %s: %s", type(exc).__name__, exc)
             return {
                 "dsqp_chain_unavailable": {
                     "error_type": type(exc).__name__,

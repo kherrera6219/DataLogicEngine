@@ -1,47 +1,78 @@
-"""
-Definitions for the 10‑layer simulation stack used by the UKG system.
+"""Ten-Layer Processing Stack (TEN_LAYER_STACK).
 
-The 10‑layer stack represents increasing levels of reasoning depth and
-computational complexity.  Layers L1 through L10 roughly correspond to:
+Canonical layer names and descriptions as of backend v0.5.0.
+Docstring kept in sync with TEN_LAYER_STACK constant below.
 
-  L1: Input parsing and context initialisation
-  L2: Base knowledge retrieval and axis resolution
-  L3: Simple reasoning and planning
-  L4: Persona activation and domain analysis
-  L5: Conflict detection and resolution
-  L6: Evidence validation and truth scoring
-  L7: Simulation and what‑if analysis
-  L8: Compliance, risk and ethics checks
-  L9: Explanation and narrative synthesis
-  L10: Memory integration, lifecycle and long‑term persistence
-
-These descriptions are provided for reference; the simplified SDK does not
-implement distinct logic per layer but exposes the stack as a data structure
-for downstream consumers.
+Layer overview:
+  L1  — Input Validation & Routing
+  L2  — USKD Materialization
+  L3  — Temporal Context Binding
+  L4  — POV Overlays
+  L5  — Quad Persona Projections
+  L6  — AGI Planning & Goal Decomposition
+  L7  — Meta-Reasoning & Refinement Controller
+  L8  — Trust Validation Gateway
+  L9  — Meta-Reasoning Controller (output)
+  L10 — Emergence Controller
 """
 
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import Dict, List
 
 
-# A list of tuples mapping layer identifiers to human‑readable names.
-TEN_LAYER_STACK: List[Tuple[str, str]] = [
-    ("L1", "Context Initialization"),
-    ("L2", "USKD Materialization"),
-    ("L3", "Controlled Expansion"),
-    ("L4", "POV Overlays"),
-    ("L5", "Quad Persona Projections"),
-    ("L6", "Validation & Scoring"),
-    ("L7", "Scenario Simulation"),
-    ("L8", "Consistency Verification"),
-    ("L9", "Strategic Alignment"),
-    ("L10", "Final Emergence Gate"),
-]
+TEN_LAYER_STACK: Dict[str, Dict[str, str]] = {
+    "L1": {
+        "name": "Input Validation & Routing",
+        "description": "Validates, sanitizes, and routes incoming queries; runs adversarial shield (KA-061) and complexity classifier.",
+    },
+    "L2": {
+        "name": "USKD Materialization",
+        "description": "Materializes USKD knowledge nodes relevant to the query into the working context.",
+    },
+    "L3": {
+        "name": "Temporal Context Binding",
+        "description": "Binds temporal markers, versioning, and time-aware axis values to the reasoning context.",
+    },
+    "L4": {
+        "name": "POV Overlays",
+        "description": "Applies point-of-view overlays (regulatory, domain-specific, ethical) to the materialized context.",
+    },
+    "L5": {
+        "name": "Quad Persona Projections",
+        "description": "Projects the four quad-persona archetypes (Scientist, Practitioner, Critic, Futurist) onto the context for multi-perspective synthesis.",
+    },
+    "L6": {
+        "name": "AGI Planning & Goal Decomposition",
+        "description": "Decomposes complex goals using BFS planning (KA-021); generates sub-goals with depth and iteration caps.",
+    },
+    "L7": {
+        "name": "Meta-Reasoning & Refinement Controller",
+        "description": "Drives iterative refinement loops (max 5 iterations); decides REFINE vs FINALIZE per step.",
+    },
+    "L8": {
+        "name": "Trust Validation Gateway",
+        "description": "5-phase trust gate: consistency scan (KA-026/030), cross-domain validation, trust computation, self-critique, gate decision. Fail-closed on timeout or exception.",
+    },
+    "L9": {
+        "name": "Meta-Reasoning Controller",
+        "description": "Produces explainability traces, provenance annotations, and final output assembly.",
+    },
+    "L10": {
+        "name": "Emergence Controller",
+        "description": "Lane A/B emergence safety gate: RELEASE / HALT / MODIFY / ESCALATE decisions; authorized knowledge commit path.",
+    },
+}
 
-def get_layer_name(layer_id: str) -> str:
-    """Return the human‑readable name for a given layer identifier."""
-    for ident, name in TEN_LAYER_STACK:
-        if ident.upper() == layer_id.upper():
-            return name
-    return "Unknown Layer"
+
+def get_layer(layer_id: str) -> Dict[str, str]:
+    """Return metadata dict for a layer ID (e.g. 'L8').
+
+    Raises KeyError for unknown IDs.
+    """
+    return TEN_LAYER_STACK[layer_id]
+
+
+def layer_ids() -> List[str]:
+    """Return ordered list of layer IDs L1–L10."""
+    return list(TEN_LAYER_STACK.keys())

@@ -1,34 +1,37 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "ukg-sdk"
 version = "0.5.0"
-description = "UKG SDK: public API overlay for LLMs with KA execution hooks, 17-axis resolver, memory/audit adapters"
+description = "UKG Python SDK — 17-axis overlay, KA executor, audit-chained tracing"
 readme = "README.md"
-requires-python = ">=3.10"
-authors = [{name="UKG/USKD Core"}]
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+# A14-8: aiohttp and tenacity are used at runtime by providers/local_slm.py and
+# providers/openai.py respectively and must be declared as hard dependencies.
+# Provider vendor SDKs are optional extras so callers pay only for what they use.
 dependencies = [
-  "httpx>=0.27,<1",
-  "pydantic>=2.6,<3",
+    "httpx>=0.27,<1",
+    "pydantic>=2.0,<3",
+    "aiohttp>=3.9,<4",
+    "tenacity>=8,<10",
 ]
 
 [project.optional-dependencies]
-postgres = [
-  "asyncpg>=0.29,<1",
-]
-redis = [
-  "redis>=5,<9",
-]
-registries = [
-  "pandas>=2.2,<4",
-  "openpyxl>=3.1,<4",
-]
-dev = [
-  "pytest>=8,<10",
-  "ruff>=0.6,<1",
+openai = ["openai>=1.30,<2"]
+anthropicai = ["anthropic>=0.25,<1"]
+google = ["google-generativeai>=0.5,<1"]
+all = [
+    "openai>=1.30,<2",
+    "anthropic>=0.25,<1",
+    "google-generativeai>=0.5,<1",
 ]
 
-[tool.setuptools.package-data]
-ukg_sdk = ["data/*", "data/audit/*", "data/dsqp_templates/*"]
+[project.urls]
+"Homepage" = "https://github.com/kherrera6219/DataLogicEngine"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ukg_sdk"]
