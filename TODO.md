@@ -205,6 +205,76 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
 
+35. [ ] AUDIT-A15: Phase 3 — `frontend/app/` pages audit + deferred auth removals.
+    - Scope: all Next.js page files under `frontend/app/`; coordinated frontend+backend deferred auth cleanup.
+    - Deferred auth: admin user-mgmt UI (`frontend/app/admin/page.tsx` 268-line form ↔ `backend/routes/admin_routes.py`
+      user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);
+      `backend/security/tenant_rls.py` (Postgres RLS + app startup + prometheus); `User.role/is_admin` column slim
+      (DB migration). Remove these as coordinated frontend+backend pairs — not as isolated backend sweeps.
+    - Auth deprecation plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` (Phases D+E+F remain).
+    - **Next up after A15: A16 `frontend/components/`, A17 `frontend/lib/` + hooks.**
+
+34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
+    Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
+    - Antigravity A14 work (`087a9917`): A14-2 coord routing (`{**meta, "query": query}` to resolver), A14-3 DSQP import
+      cached at init, A14-4 axis_17 default `"moderate"` → `"standard"` (tier-label collision), tenlayer docstring,
+      pyproject deps, new `test_coordinates17.py` + `test_overlay_run.py`.
+    - **5 build-breaking bugs repaired** (`008287ca`): (1) `Coordinate→Coordinate17` in `__init__.py` — `ImportError`
+      on ALL consumers of the packaged SDK; (2) unused imports in `coordinates17.py` (ruff F401); (3) builtin KA
+      registration guard removed from `ka/builtins.py` — guard meant no handlers registered with empty registry,
+      `overlay.run()` always returned `ok=False`; (4) invalid `veto_reason=` kwarg on `KAExecutionResult` in
+      `ka_004_validate` (field doesn't exist, would TypeError); (5) `out_valid.veto_reason` → `out_valid.error` +
+      KA-61 regex `(previous|all)` → `(all\s+)?(previous\s+)?` in `overlay.py`.
+    - SDK surface confirmed: UKGClient/UKGAsyncClient, UKGOverlay (full 10-step run), TruthEngineAPI, KAExecutor,
+      WorkflowRunner, CoordinateResolver17/Coordinate17, DSQPClient (import-guarded), providers/memory/audit/builtins.
+    - Validation: 33 SDK tests pass (were 4 failing + ImportError); ruff clean; pre-commit green.
+
+33. [x] AUDIT-A13: Phase 2 — `core/system/` (System Services) — verify-only.
+    Commit: `4a66ebff`.
+    - All 11 services confirmed live. SekreEngine (N1) wired: `system_initializer.py:192` invoked by
+      `core/simulation/app_orchestrator`; gm/smm/usm injected; `simulation_validator=None` minor forward.
+    - DUP-2 = 3 DISTINCT orchestrators retained by design (plan's "confirm deleted" was stale): SystemRefinementOrchestrator
+      (core/system), SimulationRefinementOrchestrator (core/simulation), RefinementOrchestrator (truth_core).
+    - FROSTService, PersonaConstructionService, UnitedSystemManager, TraceProvenanceService all confirmed live.
+    - TV-6 correction: `trace_stage_update` Socket.IO emitted in `backend/llm_gateway/gateway.py` + `backend/websocket.py`
+      (NOT `core/system/trace_service.py`, which is *provenance* tracing). 5 tests pass.
+
+32. [x] AUDIT-A12: Phase 2 — `backend/storage/` storage layer audit.
+    Commit: `cea5039e`.
+    - All 8 storage files confirmed wired. DB-N (graph_store/Neo4j), DB-C (vector_store/ChromaDB), DB-M
+      (uskd_memory_graph `UskdMemoryGraph` via `__init__` re-export — distinct from `StructuredMemoryGraph` in quad
+      math framework; plan conflated them) all re-confirmed live.
+    - `connection_manager.py` = Postgres/Redis connection config only (plan misattributed rate-limiting; flask_limiter
+      handles that; multi-worker concern moot under single-mode).
+    - **Fixed RT-10:** `runtime_settings.save_storage_settings` now writes atomically (tempfile + os.replace). Was
+      non-atomic — could silently reset all user preferences on crash mid-write.
+    - Validation: 46 tests pass; ruff clean.
+
+31. [x] AUDIT-A11: Phase 2 — `core/axes/` (17-Axis System) — verify-only.
+    Commit: `85c114fe`.
+    - 17 axes register correctly in `axis_system.py`. Axis 5 (Node/convergence) intentionally unmanaged by design (N4,
+      documented in-code). N3 (4 legacy axis14-17 files) + N4 (Axis 4=DomainManager) + DUP-4 (single canonical
+      `core/coordinate_system.py`) all confirmed resolved from Sprint 0. AxisSystem live via `backend/contextual_api.py`.
+    - Forwarded: `scripts/audit_deep.py:144` stale regex → A32; misleading-but-stable filenames kept by decision.
+    - Validation: 30 axes tests pass.
+
+30. [x] AUDIT-A10: Phase 2 — `backend/security/` audit + **auth deprecation BANKED at A+B+C-partial**.
+    Commits: `57b912da` (Phase A), `e710aeb3` (Phase B), `b1a92674` (Phase C-partial + BANKED).
+    - **Architecture reframe (user-confirmed):** app is single-mode / OS-level auth (even cloud = single-tenant VM).
+      Multi-user auth layer is architecturally obsolete. Memory: `architecture-single-mode`.
+    - Carry-overs resolved: A3-4 N/A by design (HONEYPOT→BLOCK correct for single owner), A5-2 keep all 5 injection
+      defenses (defense-in-depth union, distinct stages), SC-2 AES-256-GCM confirmed active cipher.
+    - **Auth deprecation executed:** Phase A — removed dead `zero_trust.py` + `token_manager.py` (~1,200 LOC, 0 live
+      importers). Phase B — `api_admin_required` collapsed to alias of `api_login_required`; removed `rbac.py`
+      + de-wired from admin/privacy/mcp/extensions; full owner scopes for MCP; migrated 3 admin-403 tests → 200.
+    - **Phase C correction:** auth_routes/LoginManager/session_manager/API-key branch = live **desktop-auth keep-path**
+      (NOT removable). Dropped only stale CSRF entries; fixed 5 pre-existing `test_desktop_auto_login_security.py`
+      failures (stale `routes.auth_routes` → `backend.routes.auth_routes`).
+    - Remainder (admin user-mgmt UI, MFA, tenant_rls, User.role/is_admin) = vestigial-but-wired/cross-cutting →
+      deferred to A15/A16 as coordinated frontend+backend changes.
+    - Plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` (6 phases A–F; A+B+C-partial DONE).
+    - Validation: pre-commit green; 5 fixed desktop-auth tests; 3 migrated admin tests.
+
 29. [x] AUDIT-A9: Phase 2 — `core/persona/quad/` reachability map (+ follow-on carry-over resolutions).
     Commits `5a1353c9` (A9 + docs), `f2899e30` (A1a-2/A1a-4 code).
     - **LIVE/canonical:** `models.py` (PersonaProfile 7-component + QueryState), `persona_scaling/sufficiency.py`

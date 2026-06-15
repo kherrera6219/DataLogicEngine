@@ -4,9 +4,10 @@ _Last updated: 2026-06-14 — **PHASE 1 + PHASE 2 COMPLETE.** Done: Sprint 0, A4
 A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12, A13, A14
 (Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired. A14 fixed 5 build-breaking
 bugs introduced by Antigravity commit (import error + 4 type/logic bugs in SDK)._
-_**NEXT: Phase 3 frontend** — A15 (pages), A16 (components), A17 (lib/hooks).
-Deferred auth removals (admin user-mgmt, MFA, tenant_rls, User-slim) land in A15/A16.
-Last commit: `008287ca`._
+_**NEXT: Phase 3 frontend** — A15 `frontend/app/` (pages), A16 `frontend/components/`,
+A17 `frontend/lib/` + hooks. Deferred auth removals (admin user-mgmt UI ↔
+`admin_routes.py`, MFA ↔ 3 frontend files, `tenant_rls.py`, `User.role/is_admin`)
+land in A15/A16 as coordinated frontend+backend changes. Last commit: `25f3e929`._
 
 ### Session log — 2026-06-14
 
@@ -71,15 +72,15 @@ known-good verification steps. It is the primary handoff reference; the
 > | A6a | `core/simulation/` L1–L5 | `2afe2d14` | ✅ L5 override fixed; 12 dead legacy files removed |
 > | A6b | `core/simulation/` L6–L10 + SEKRE | `62aa320f` | ✅ **N1 SEKRE wired**; L6–L10 mapped (no deletions) |
 > | **— PHASE 1 COMPLETE (8/8) —** | | | |
-> | A7+A8 (Phase 2) | `knowledge_algorithms/` (125 KAs) | `pending` | ✅ 125/125 registry resolve; 117 real + 8 compact + 0 stub; KA-113 + KA-005 + A5-3 fixes |
+> | A7+A8 (Phase 2) | `knowledge_algorithms/` (125 KAs) | `e7836182` | ✅ 125/125 registry resolve; 117 real + 8 compact + 0 stub; KA-113 + KA-005 + A5-3 fixes |
 > | A9 (Phase 2) | `core/persona/quad/` | `5a1353c9` | ✅ models/sufficiency/pod_orch/math LIVE (DUP-5 clean); quad_engine demo-only; A1a-2/A1a-4 resolved |
 > | A10 (Phase 2) | `backend/security/` | `b1a92674` | ✅ A3-4/A5-2/SC-2 + password resolved; **auth deprecation A+B+C-partial** (−1,900 LOC dead auth); remainder → A15/A16 |
 > | A11 (Phase 2) | `core/axes/` | `85c114fe` | ✅ verify-only — 17 axes register; N3/N4/DUP-4 clean |
 > | A12 (Phase 2) | `backend/storage/` | `cea5039e` | ✅ DB-N/DB-C/DB-M live; **RT-10 atomic-write fix** |
 > | A13 (Phase 2) | `core/system/` | `4a66ebff` | ✅ verify-only — services live; DUP-2 = 3 distinct orchestrators; SekreEngine wired |
 > | A14 (Phase 2) | `sdk/UKG_Python_SDK/` | `008287ca` | ✅ SDK surface confirmed; 5 Antigravity bugs fixed (ImportError + veto_reason AttributeError + registry guard + builtins veto_reason + KA-61 regex); 33 tests pass |
- | **— PHASE 2 COMPLETE (A7–A14) —** | | | |
- | **A15** | `frontend/app/` (pages) | — | **NEXT** — Phase 3 frontend; deferred auth removals land here |
+> | **— PHASE 2 COMPLETE (A7–A14) —** | | | |
+> | **A15** | `frontend/app/` (pages) | — | **NEXT** — Phase 3 frontend; deferred auth removals (admin UI, MFA, tenant_rls, User-slim) land here |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated
