@@ -1,10 +1,11 @@
-from .base import AuditEvent, AuditStore
+from .base import AuditEvent, AuditStore, InMemoryAuditStore
 from .file_store import FileAuditStore
 
 __all__ = [
     "AuditEvent",
     "AuditStore",
     "FileAuditStore",
+    "InMemoryAuditStore",
 ]
 
 # Optional store

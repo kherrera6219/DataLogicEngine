@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
+from ukg_sdk.audit import InMemoryAuditStore
 from ukg_sdk.coordinates17 import CoordinateResolver17
 from ukg_sdk.ka.models import KARegistry
 from ukg_sdk.memory import InMemoryMemoryAdapter
@@ -46,6 +47,7 @@ def _make_overlay(*, registry: Optional[KARegistry] = None) -> UKGOverlay:
         registry=registry or KARegistry(items={}),
         coordinate_resolver=CoordinateResolver17(),  # no catalog files — safe defaults
         memory=InMemoryMemoryAdapter(),
+        audit=InMemoryAuditStore(),
     )
 
 
@@ -87,6 +89,7 @@ async def test_run_coordinate_contains_query_signal():
         registry=KARegistry(items={}),
         coordinate_resolver=real_resolver,
         memory=InMemoryMemoryAdapter(),
+        audit=InMemoryAuditStore(),
     )
     await overlay.run(query="clinical diagnosis protocol", meta={"source": "test"})
     assert resolve_calls, "resolve() was never called"

@@ -29,3 +29,14 @@ class AuditStore(ABC):
 
     async def flush(self) -> None:
         return None
+
+
+class InMemoryAuditStore(AuditStore):
+    """Append-to-list audit store for tests and ephemeral use cases."""
+
+    def __init__(self) -> None:
+        self.events: list[AuditEvent] = []
+
+    async def append(self, event: AuditEvent) -> AuditEvent:
+        self.events.append(event)
+        return event
