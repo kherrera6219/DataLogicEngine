@@ -1,11 +1,25 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-13 — **PHASE 1 COMPLETE (8/8); Phase 2 nearly complete (A14 is
-the last Phase-2 session).** Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b
-(Phase 1); A7+A8 (KAs), A9 (quad persona), A10 (security), A11 (core/axes), A12 (storage),
-A13 (core/system). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**NEXT: A14 `sdk/UKG_Python_SDK/`** (last Phase-2 session), then Phase 3 frontend
-(A15–A17) — which is also where the deferred auth removals land. Last commit: `4a66ebff`._
+_Last updated: 2026-06-14 — **PHASE 1 + PHASE 2 COMPLETE.** Done: Sprint 0, A4, A3,
+A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12, A13, A14
+(Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired. A14 fixed 5 build-breaking
+bugs introduced by Antigravity commit (import error + 4 type/logic bugs in SDK)._
+_**NEXT: Phase 3 frontend** — A15 (pages), A16 (components), A17 (lib/hooks).
+Deferred auth removals (admin user-mgmt, MFA, tenant_rls, User-slim) land in A15/A16.
+Last commit: `008287ca`._
+
+### Session log — 2026-06-14
+
+**A14 SDK audit repair** — Antigravity commit `087a9917` executed the A14 SDK audit
+but introduced 5 bugs that collectively broke `import ukg_sdk` and all overlay tests:
+- **ImportError** (`Coordinate` → `Coordinate17` rename not reflected in `__init__.py`)
+- **`veto_reason` AttributeError** × 2 (field doesn't exist on `KAExecutionResult`)
+- **Builtin KA handler registration guard** (builtins never wired with empty registry)
+- **KA-61 regex gap** (`"ignore all previous instructions"` not caught)
+
+Fixed all 5 in `008287ca`; 33 SDK tests pass, ruff clean. **Phase 2 is now complete.**
+
+---
 
 ### Session log — 2026-06-13
 
@@ -63,7 +77,9 @@ known-good verification steps. It is the primary handoff reference; the
 > | A11 (Phase 2) | `core/axes/` | `85c114fe` | ✅ verify-only — 17 axes register; N3/N4/DUP-4 clean |
 > | A12 (Phase 2) | `backend/storage/` | `cea5039e` | ✅ DB-N/DB-C/DB-M live; **RT-10 atomic-write fix** |
 > | A13 (Phase 2) | `core/system/` | `4a66ebff` | ✅ verify-only — services live; DUP-2 = 3 distinct orchestrators; SekreEngine wired |
-> | **A14** | `sdk/UKG_Python_SDK/` | — | **NEXT** (last Phase-2 session) |
+> | A14 (Phase 2) | `sdk/UKG_Python_SDK/` | `008287ca` | ✅ SDK surface confirmed; 5 Antigravity bugs fixed (ImportError + veto_reason AttributeError + registry guard + builtins veto_reason + KA-61 regex); 33 tests pass |
+ | **— PHASE 2 COMPLETE (A7–A14) —** | | | |
+ | **A15** | `frontend/app/` (pages) | — | **NEXT** — Phase 3 frontend; deferred auth removals land here |
 >
 > Status correction (recorded Sprint 0): RT-1..RT-18 were already completed
 > 2026-06-07/08 (`df29906b`, `0eb2b0bb`, `cc01c15b`; `df29906b` also migrated

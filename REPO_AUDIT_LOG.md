@@ -221,8 +221,52 @@ confirm DUP-2 deleted; N1 SekreEngine already wired in A6b).**
 - SekreEngine `simulation_validator=None` — inject a real validator when the simulation
   validator is available (SEKRE follow-up).
 
-**Next: A14 `sdk/UKG_Python_SDK/` (Python SDK — API surface vs backend, providers,
-coordinates17, tenlayer, version).**
+---
+
+## Phase 2 / A14 — `sdk/UKG_Python_SDK/` (Python SDK)
+**Date:** 2026-06-14
+**Branch:** main
+**Result:** ✅ SDK audited (Antigravity `087a9917`) + 5 build-breaking bugs repaired (`008287ca`).
+
+### Antigravity A14 audit (`087a9917`) — what was done
+
+- **A14-2:** `UKGOverlay.run()` now passes `{**meta, "query": query}` to `CoordinateResolver17.resolve()` so keyword-signal pillar/sector matching fires on the actual query text.
+- **A14-3:** `DSQPOrchestrator` import cached at `__init__` time (was re-imported on every `run()` call, masking the error type).
+- **A14-4:** `Coordinate17.axis_17` default renamed `"moderate"` → `"standard"` to avoid vocabulary collision with the tier-exclusion set in `_create_trace_run`.
+- **A14-5 / A14-6:** `tenlayer_system.py` docstring corrected; `pyproject.toml` deps updated; new `test_coordinates17.py` + `test_overlay_run.py` added.
+
+### Bugs introduced by Antigravity A14 and repaired (`008287ca`)
+
+| # | File | Bug | Fix |
+|---|---|---|---|
+| 1 | `__init__.py:20,50` | `from .coordinates17 import CoordinateResolver17, Coordinate` — `Coordinate` was renamed to `Coordinate17` by A14 but the public interface was not updated. Caused `ImportError: cannot import name 'Coordinate'` on any `import ukg_sdk`. | Changed import + `__all__` entry to `Coordinate17`. |
+| 2 | `coordinates17.py:1-18` | `field` (dataclasses) and `Optional` (typing) imported but unused → ruff `F401`. | Dropped both unused imports. |
+| 3 | `ka/builtins.py:24` | `register_builtin_handlers` gated registration on `executor.registry.has(ka_id)` — with an empty `KARegistry` (the test default) no handlers were registered; every KA call returned `ok=False, error="No handler registered"`, making `overlay.run()` always fail. | Removed the guard; builtins now registered unconditionally. |
+| 4 | `ka/builtins.py:33` | `KAExecutionResult(…, veto_reason="Empty query")` — `veto_reason` is not a field on the dataclass; would raise `TypeError` on any empty-query call. | Changed to `error="Empty query"`. |
+| 5 | `overlay.py:137,271` | (a) `out_valid.veto_reason` — same non-existent field, `AttributeError` on any KA-004 veto path. (b) KA-61 regex `(previous\|all)` missed "ignore **all previous** instructions" word order. | (a) `→ out_valid.error`. (b) Regex `→ (all\s+)?(previous\s+)?`. |
+
+**Test-file cleanup:** removed 5 unused imports (flagged by pre-commit ruff) in
+Antigravity-authored `test_coordinates17.py` and `test_overlay_run.py`.
+
+**Result:** 33 SDK tests pass (were 4 failing + `import ukg_sdk` crashing all consumers); ruff clean across all SDK files.
+
+### SDK surface vs backend (verified)
+
+- `UKGClient` / `UKGAsyncClient` — sync/async HTTP wrappers; `BaseClient` with retry logic.
+- `UKGOverlay` — full LLM orchestration overlay; KA registry, 17-axis resolver, audit.
+- `TruthEngineAPI` / `TruthEngine` / `TruthEngineConfig` / `TruthResult` — TruthEngine surface.
+- `KAExecutor` / `KAExecutionContext` / `KAExecutionResult` — live KA execution map.
+- `WorkflowRunner` / `ComplexityTier` / `WorkflowConfig` — tier-based routing.
+- `CoordinateResolver17` / `Coordinate17` — 17-axis coordinate objects.
+- `DSQPClient` — optional; import guarded (fails gracefully when backend absent).
+- `providers/`, `memory/`, `audit/`, `ka/builtins` — all wired.
+
+### Forwarded
+
+- `sdk/UKG_Python_SDK/ukg_sdk/tenlayer_system.py` docstring says "simplified" — worth a follow-up if tenlayer is productized beyond SDK demo (A32).
+- SDK version is `0.5.0` in `__version__` and `pyproject.toml` — confirm alignment when next SDK release is cut.
+
+**Phase 2 complete** (A7+A8 through A14). **Next: Phase 3 frontend audit** — A15 (pages), A16 (components), A17 (lib/hooks). Deferred auth removals (admin user-mgmt routes, MFA, tenant_rls, User-slim) land in A15/A16.
 
 ---
 
