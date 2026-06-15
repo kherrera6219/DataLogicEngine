@@ -1,9 +1,7 @@
 """A14-9: Tests for UKGOverlay.run() — mocked provider, KA-61 block, audit writes."""
 from __future__ import annotations
 
-import asyncio
 from typing import Any, Dict, List, Optional
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 

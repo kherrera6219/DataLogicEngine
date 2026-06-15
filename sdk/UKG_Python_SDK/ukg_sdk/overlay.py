@@ -134,7 +134,7 @@ class UKGOverlay:
         t("KA-004", "ok" if out_valid.ok else "fail", out_valid.output)
         if not out_valid.ok:
             await self._audit(session_id, user_id, "veto", coord, "KA-004", "L1", out_valid.output, correlation_id)
-            return {"ok": False, "error": out_valid.veto_reason or "validation_failed", "trace": trace, "coordinate": coord}
+            return {"ok": False, "error": out_valid.error or "validation_failed", "trace": trace, "coordinate": coord}
 
         # classify + route
         out_cls = self.executor.execute("KA-005", input=out_valid.output, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
@@ -268,7 +268,7 @@ class UKGOverlay:
             # Prompt Injection / Policy Bait
             import re
             
-            if re.search(r"(ignore|disregard)\s+(previous|all)\s+instructions", query, re.I):
+            if re.search(r"(ignore|disregard)\s+(all\s+)?(previous\s+)?instructions", query, re.I):
                 reasons.append("prompt_injection")
                 verdict = "ADVERSARIAL"
                 action = "refuse"

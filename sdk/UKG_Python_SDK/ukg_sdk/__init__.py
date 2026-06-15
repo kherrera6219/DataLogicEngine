@@ -17,7 +17,7 @@ from .ka.executor import KAExecutor, KAExecutionContext, KAExecutionResult
 from .truth_engine.core import TruthEngine, TruthEngineConfig, TruthResult
 from .overlay import UKGOverlay
 from .workflow import WorkflowRunner, ComplexityTier, WorkflowConfig
-from .coordinates17 import CoordinateResolver17, Coordinate
+from .coordinates17 import CoordinateResolver17, Coordinate17
 
 __version__ = "0.5.0"
 
@@ -47,6 +47,6 @@ __all__ = [
     "TruthResult",
     # Coordinates
     "CoordinateResolver17",
-    "Coordinate",
+    "Coordinate17",
     "DSQPClient",
 ]

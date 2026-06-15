@@ -21,8 +21,7 @@ def register_builtin_handlers(executor: KAExecutor) -> None:
         ("KA-019", ka_019_synth),
         ("KA-056", ka_056_explain),
     ]:
-        if executor.registry.has(ka_id):
-            executor.register(ka_id, fn)
+        executor.register(ka_id, fn)
 
 
 def ka_004_validate(ctx: KAExecutionContext) -> KAExecutionResult:
@@ -30,7 +29,7 @@ def ka_004_validate(ctx: KAExecutionContext) -> KAExecutionResult:
     # simple sanitization (placeholder for real policy+shield)
     q = re.sub(r"\s+", " ", q)
     if not q:
-        return KAExecutionResult(ok=False, output={"error": "empty_query"}, veto_reason="Empty query")
+        return KAExecutionResult(ok=False, output={"error": "empty_query"}, error="Empty query")
     return KAExecutionResult(ok=True, output={"normalized_query": q})
 
 
