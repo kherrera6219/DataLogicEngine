@@ -2,9 +2,20 @@
 Quad Persona library (UKG axes 8-11: knowledge, sector, regulatory, compliance).
 
 Pure, dependency-free domain logic relocated from the former top-level
-``quad_persona/`` package into ``core/`` (the domain/kernel layer). Includes the
-data models, the persona engine + expert hierarchy, pod scaling/orchestration,
-the mathematical framework, the axis-role mapper, and the JSON persona loader.
+``quad_persona/`` package into ``core/`` (the domain/kernel layer).
+
+Live / canonical components:
+- ``models`` — ``PersonaProfile`` (7-component) + ``QueryState``;
+- ``persona_scaling`` — sufficiency tooling and persona profiles;
+- ``pod_models`` + ``pod_orchestrator`` — pod expansion/orchestration;
+- ``mathematical_framework`` — the persona math system.
+
+Demo / non-production:
+- ``quad_engine`` — heuristic 4-persona engine used only by demo scripts and
+  tests. The live query-time 7-component construction is
+  ``core/system/persona_construction_service.py`` -> DSQP, not this engine.
+- ``persona_loader`` — JSON persona-CRUD utility used only by the
+  ``scripts/persona_manager.py`` CLI; no production importer.
 
 The old ``quad_persona.*`` import paths remain available via a thin
 re-export shim (deprecated) for one release.

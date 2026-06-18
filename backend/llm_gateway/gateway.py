@@ -1704,7 +1704,7 @@ class LLMGateway:
             verdict = supervisor.screen(
                 query,
                 context_summary=self._recent_context_summary(request.messages),
-                user_role="user",
+                user_role="owner",
             )
             request.meta["defense_supervisor"] = verdict
             if verdict.get("available") and verdict.get("recommended_action") in {

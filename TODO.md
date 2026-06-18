@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-14 (**PHASE 1 + PHASE 2 COMPLETE.** A10-A13 done 2026-06-13; **A14 `sdk/UKG_Python_SDK/` DONE 2026-06-14** — Antigravity audit `087a9917` repaired: 5 bugs fixed in `008287ca` (ImportError on `import ukg_sdk`, 2x `veto_reason` AttributeError, builtin KA registration guard, KA-61 regex). 33 SDK tests pass. **NEXT: Phase 3 frontend — A15 (pages), A16 (components), A17 (lib/hooks).** Deferred auth removals (admin user-mgmt routes, MFA, `tenant_rls.py`, `User.role/is_admin/mfa_*`) land in A15/A16.)
+**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 cleanup sweep done 2026-06-18** — carry-overs A9-1/A9-2/A9-3 + 6 dead `verify_*.py` scripts + A32-min resolved; A13-min N/A; B1 encryption docs reconciled; C1/C2 cosmetic; A3-5→A26, A28→A28, B2→A15, C3→A16 deferred; see HANDOFF + REPO_AUDIT_LOG. A10-A13 done 2026-06-13; **A14 `sdk/UKG_Python_SDK/` DONE 2026-06-14** — Antigravity audit `087a9917` repaired: 5 bugs fixed in `008287ca` (ImportError on `import ukg_sdk`, 2x `veto_reason` AttributeError, builtin KA registration guard, KA-61 regex). 33 SDK tests pass. **NEXT: Phase 3 frontend — A15 (pages), A16 (components), A17 (lib/hooks).** Deferred auth removals (admin user-mgmt routes, MFA, `tenant_rls.py`, `User.role/is_admin/mfa_*`) land in A15/A16.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -211,8 +211,14 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);
       `backend/security/tenant_rls.py` (Postgres RLS + app startup + prometheus); `User.role/is_admin` column slim
       (DB migration). Remove these as coordinated frontend+backend pairs — not as isolated backend sweeps.
+    - **B2 RBAC doc reconciliation (folded in 2026-06-18):** correct multi-user/RBAC claims that contradict
+      single-mode in `docs/PRODUCT_OVERVIEW.md` (capability table "role-gated"/"admin users"),
+      `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md` ("RBAC enforcement"/"user management"),
+      and `docs/ARCHITECTURE.md` — change docs alongside the admin-UI code removal so they stay in sync.
     - Auth deprecation plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` (Phases D+E+F remain).
     - **Next up after A15: A16 `frontend/components/`, A17 `frontend/lib/` + hooks.**
+    - **A16 carries C3 (folded in 2026-06-18):** surface `test_provider` status codes inline in
+      `frontend/components/settings/ApiOverlayConfig.tsx`.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

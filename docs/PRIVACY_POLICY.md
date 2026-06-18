@@ -142,7 +142,7 @@ Current protection measures include:
 8. export integrity hashing/signing/encryption options;
 9. signed release workflow for public Windows distribution.
 
-Implementation note: some target-state documentation references AES-256-GCM. Current implementation includes Fernet-based encryption behavior and Windows DPAPI helper. Treat AES-256-GCM as a target-state standard unless the code is upgraded.
+Implementation note: field-level encryption writes new payloads with AES-256-GCM; legacy Fernet-encrypted values remain decryptable for backward compatibility, and a Windows DPAPI helper protects local data.
 
 ## 10. Data retention
 

@@ -32,7 +32,7 @@ class AIGuardrailService:
         # 1. Check Prohibited Phrases
         for phrase in self.PROHIBITED_PHRASES:
             if phrase in normalized_input:
-                return False, f"Prohibited prohibited phrase detected: '{phrase}'"
+                return False, f"Prohibited phrase detected: '{phrase}'"
             
         # 2. Check for Base64 Encoding usage (heuristic)
         # Matches typical base64 strings if they are long enough (e.g. > 20 chars) and look valid

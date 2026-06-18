@@ -172,8 +172,7 @@ Current high-level caveats:
 2. manual accessibility evidence remains required before final production distribution;
 3. provider-backed flows require valid user/customer-configured provider credentials and network access;
 4. API spend controls are user/customer/provider-account responsibilities, not centrally managed by the project owner;
-5. backups, local data retention, and endpoint security are operator responsibilities in local-first and Windows VM modes;
-6. AES-256-GCM remains target-state language where current encryption implementation is Fernet/DPAPI-based.
+5. backups, local data retention, and endpoint security are operator responsibilities in local-first and Windows VM modes.
 
 ## Validation commands
 

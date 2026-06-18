@@ -145,7 +145,7 @@ Required production security controls:
 14. Trace export integrity enabled for export workflows.
 15. Production logs must not expose secrets, provider keys, or raw credentials.
 
-Implementation caveat: current field encryption uses Fernet/key registry behavior in `EncryptionManager`; AES-256-GCM remains a target-state standard unless the implementation is upgraded.
+Implementation note: `EncryptionManager` writes new field-level encrypted payloads with AES-256-GCM and records `AES-256-GCM` in the key registry; legacy `Fernet-AES-128-CBC` entries remain decryptable for backward compatibility.
 
 ---
 

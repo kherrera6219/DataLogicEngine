@@ -138,10 +138,9 @@ for path, label in [
     out.append("    HEAD: " + repr("".join(ls[:5])))
 
 # ── 7. AxisCoordinate / UnifiedCoordinateSystem ───────────────────────────────
-out.append("\n### G. AxisCoordinate + UnifiedCoordinateSystem  (2 coord system files)")
+out.append("\n### G. AxisCoordinate + UnifiedCoordinateSystem  (1 canonical coord system file)")
 for path, label in [
     (r"core\coordinate_system.py",            "CORE root"),
-    (r"core\simulation\coordinate_system.py", "CORE/simulation"),
 ]:
     full = os.path.join(ROOT, path)
     if not os.path.exists(full):

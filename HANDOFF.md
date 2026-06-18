@@ -1,13 +1,29 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-14 — **PHASE 1 + PHASE 2 COMPLETE.** Done: Sprint 0, A4, A3,
-A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12, A13, A14
-(Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired. A14 fixed 5 build-breaking
-bugs introduced by Antigravity commit (import error + 4 type/logic bugs in SDK)._
+_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 cleanup sweep done.**
+Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
+A13, A14 (Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired._
 _**NEXT: Phase 3 frontend** — A15 `frontend/app/` (pages), A16 `frontend/components/`,
-A17 `frontend/lib/` + hooks. Deferred auth removals (admin user-mgmt UI ↔
-`admin_routes.py`, MFA ↔ 3 frontend files, `tenant_rls.py`, `User.role/is_admin`)
-land in A15/A16 as coordinated frontend+backend changes. Last commit: `25f3e929`._
+A17 `frontend/lib/` + hooks. A15 also carries: deferred auth removals (admin user-mgmt UI ↔
+`admin_routes.py`, MFA ↔ 3 frontend files, `tenant_rls.py`, `User.role/is_admin`) **+ B2 RBAC
+doc reconciliation** (PRODUCT_OVERVIEW/diagram-11/ARCHITECTURE) as coordinated frontend+backend+doc
+changes. A16 carries **C3** (surface `test_provider` status in `ApiOverlayConfig.tsx`). Pending commit
+of the 2026-06-18 sweep (uncommitted)._
+
+### Session log — 2026-06-18 (pre-Phase-3 cleanup sweep)
+
+Cleared low-risk outstanding carry-overs before opening A15 (full detail: `REPO_AUDIT_LOG.md`
+"Pre-Phase-3 cleanup sweep"). Confirm-before-cut throughout (zero-importer scans, verify by concept).
+- **A9-2 + bonus:** deleted dead `quad_models.py` (misnamed SDK-dup, stale axis semantics) and **6
+  broken `verify_*.py` scripts** that ImportError on the A6a-deleted `LayerController`/`Layer3AgentEngine`
+  (leaf scripts A6a's import-graph scan couldn't see).
+- **A9-1:** removed `axis_role_mapper.py` (+ its 1 circular test); **kept** `persona_loader.py` +
+  `persona_manager.py` CLI (user decision — working tool).
+- **A9-3** docstring tightened; **A32-min** stale `audit_deep.py` ref dropped; **A13-min** verified N/A.
+- **B1:** reconciled 4 stale "AES-256-GCM is target-state" docs to the AES-256-GCM-implemented reality.
+- **C1/C2:** `ai_guardrail` typo fixed; defense-supervisor `user_role` "user"→"owner" (single-owner).
+- **Deferred (correctly scoped):** A3-5→A26, A28-min→A28, B2→A15, C3→A16, C4/C5 open minors.
+- Validation: quad 40 + supervisor/guardrail 16 pass; py_compile clean. 17 files (8 deletions).
 
 ### Session log — 2026-06-14
 

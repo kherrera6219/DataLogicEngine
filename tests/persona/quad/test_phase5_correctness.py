@@ -4,14 +4,12 @@ from datetime import UTC
 
 import numpy as np
 
-from core.persona.quad.axis_role_mapper import AxisRoleMapper
 from core.persona.quad.mathematical_framework import (
     MemoryVertex,
     QuadPersonaMathematicalSystem,
     RefinementWorkflow12Step,
     StructuredMemoryGraph,
 )
-from core.persona.quad.models import PersonaProfile
 from core.persona.quad.persona_scaling import PersonaSufficiencyTool
 from core.persona.quad.pod_models import ExpandedPersona, PodType
 from core.persona.quad.pod_orchestrator import PodOrchestrator
@@ -84,28 +82,3 @@ def test_sufficiency_config_does_not_mutate_class_level_defaults():
     assert default.pod_caps["knowledge_max"] == PersonaSufficiencyTool.POD_CAPS["knowledge_max"]
     assert PersonaSufficiencyTool.THRESHOLDS["standard"]["complexity"] == 60
     assert PersonaSufficiencyTool.POD_CAPS["knowledge_max"] == 6
-
-
-def test_axis_role_mapper_keeps_sector_and_regulatory_secondary_axes_aligned():
-    mapper = AxisRoleMapper()
-
-    sector = PersonaProfile(
-        persona_id="sector",
-        axis_number=9,
-        persona_type="sector",
-        name="Sector Expert",
-    )
-    regulatory = PersonaProfile(
-        persona_id="regulatory",
-        axis_number=10,
-        persona_type="regulatory",
-        name="Regulatory Expert",
-    )
-
-    sector_vector = mapper.map_persona_to_axis_vector(sector)
-    regulatory_vector = mapper.map_persona_to_axis_vector(regulatory)
-
-    assert sector_vector[9] == 1.0
-    assert sector_vector[10] == 0.0
-    assert regulatory_vector[10] == 1.0
-    assert regulatory_vector[9] == 0.0

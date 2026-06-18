@@ -5,6 +5,60 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Pre-Phase-3 cleanup sweep — outstanding carry-overs (A) + doc reconciliation (B) + cosmetic (C)
+**Date:** 2026-06-18
+**Branch:** main
+
+Cleared low-risk outstanding items before opening Phase 3 (A15). All confirm-before-cut:
+zero-importer scans before any deletion; verified by concept against live code, not the tracker.
+
+### A — audit carry-overs (resolved)
+- **A9-2 ✅ + bonus.** Deleted `core/persona/quad/quad_models.py` (misnamed "L3 models",
+  duplicate of the SDK's `EvidenceItem`/`EvidencePacket`, encoded the *deleted* legacy
+  axis-14–17 semantics). **Bonus finding:** its only consumer `scripts/verify_layer3_pipeline.py`
+  plus 5 sibling scripts (`verify_advanced_features`, `verify_unified_system`, `verify_l1_l5_flow`,
+  `verify_l1_l2_flow`, `verify_l1_l4_flow`) all `import` the A6a-deleted `LayerController` /
+  `Layer3AgentEngine` → provably broken (ImportError on load). A6a's import-graph scan missed
+  them because leaf scripts aren't in the graph. All 6 deleted.
+- **A9-1 ✅ (partial, by decision).** Deleted `axis_role_mapper.py` (zero prod callers; only a
+  circular test in `test_phase5_correctness.py` — removed that import + 1 test; 40 pass).
+  **Kept** `persona_loader.py` + `scripts/persona_manager.py` (user decision — a *working* JSON
+  persona-CRUD CLI, not dead code, even though vestigial vs live DSQP).
+- **A9-3 ✅.** Tightened `core/persona/quad/__init__.py` docstring: live (models/scaling/pod/math)
+  vs demo (`quad_engine`) vs CLI-only (`persona_loader`); dropped the removed axis-role-mapper.
+- **A32-min ✅.** `scripts/audit_deep.py` referenced deleted `core/simulation/coordinate_system.py`
+  (self-skipping via `os.path.exists`); dropped the dead entry, now 1 canonical coord file.
+- **A13-min ✅ N/A.** `simulation_validator` is an optional SekreEngine param; `system_initializer`
+  no longer passes it; SEKRE is read-only by design (A6b). No action.
+- **A3-5 → A26 (deferred).** `governance.record_audit_event` silent no-op when `self.db is None`;
+  no module logger exists, so observability fix is more than a sweep change — left for A26.
+- **A28-min → A28 (deferred).** Exposing `sekre_analyses` at the app layer is a feature, not cleanup.
+
+### B — doc reconciliation
+- **B1 (SC-2 encryption) ✅.** Code reality: `EncryptionManager` writes AES-256-GCM DEKs
+  (`AESGCM.generate_key(256)`, registry tag `AES-256-GCM`); Fernet only wraps the KEK + decrypts
+  legacy. Fixed 4 stale docs still calling AES-256-GCM "target-state": `PRODUCT_OVERVIEW.md`
+  (removed resolved caveat #6), `PRODUCTION_READINESS.md`, `PRIVACY_POLICY.md`, `SDLC_SSDF_MAPPING.md`.
+  Left untouched: the correct API-key Fernet (from `SESSION_SECRET`) and export-integrity Fernet refs.
+- **B2 (RBAC/multi-user doc drift) → A15 (deferred, user decision).** Role-gating is already gone in
+  code (A10 collapsed `api_admin_required`→`api_login_required`), but the admin UI surface isn't
+  removed until A15. Correct `PRODUCT_OVERVIEW`/diagram-11/`ARCHITECTURE` RBAC claims as part of A15
+  so docs and code change together.
+
+### C — cosmetic
+- **C1 ✅.** `ai_guardrail.py` "Prohibited prohibited phrase" → "Prohibited phrase".
+- **C2 ✅.** `gateway.py:1707` defense-supervisor `user_role="user"` → `"owner"` (single-owner model;
+  `screen()` only injects it into prompt context, never branches — verified safe).
+- **C3 → A16 (deferred).** Surface `test_provider` status codes inline in `ApiOverlayConfig.tsx` is a
+  frontend UI change → fold into the components audit.
+- **C4 / C5 (open minors).** RAG index `Access is denied` (move to per-user runtime dir; needs packaged
+  app to verify) and Gemini/Anthropic async-httpx (only if either becomes the active chat provider).
+
+**Validation:** quad suite 40 pass; supervisor+guardrail 16 pass; py_compile clean on touched
+backend files; quad package + `persona_manager` import OK. 17 files changed (8 deletions).
+
+---
+
 ## Phase 2 / A10 — `backend/security/` (in progress — carry-overs resolved; auth deprecation planned)
 **Date:** 2026-06-13
 **Branch:** main

@@ -163,7 +163,7 @@ DataLogicEngine adds AI-specific controls beyond normal application SDLC checks:
 2. Verify actual CI scanners before claiming specific tools such as CodeQL, Bandit, Safety, SAST, DAST, SBOM, or Sigstore/cosign. Current evidence should be tied to workflow files, not assumptions.
 3. Production Windows distribution still requires trusted signing credentials and signed artifact validation.
 4. Manual accessibility evidence is still required for production release signoff.
-5. Some target-state encryption language exceeds current Fernet-based implementation and should be tracked as roadmap unless upgraded.
+5. Field-level encryption is implemented with AES-256-GCM for new payloads, with legacy `Fernet-AES-128-CBC` entries kept decryptable for backward compatibility; active docs describe AES-256-GCM as implemented, not target-state.
 
 ---
 
