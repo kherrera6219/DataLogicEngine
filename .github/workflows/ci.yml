@@ -11,9 +11,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - name: Install Ruff
@@ -25,10 +25,10 @@ jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         
@@ -51,7 +51,7 @@ jobs:
         python scripts/test_smoke.py
 
     - name: Set up Node.js for deterministic startup precheck
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '24'
 
@@ -125,10 +125,10 @@ jobs:
   frontend-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -139,9 +139,6 @@ jobs:
         cd frontend
         npm ci
       env:
-        # Prevent chromedriver/electron postinstall from downloading binaries during npm ci.
-        # These downloads time out or are slow in CI; the binaries are either not needed (electron)
-        # or set up separately below (chromedriver).
         CHROMEDRIVER_SKIP_DOWNLOAD: true
         ELECTRON_SKIP_BINARY_DOWNLOAD: 1
 
@@ -180,8 +177,6 @@ jobs:
 
     - name: Set up ChromeDriver for a11y sweep
       run: |
-        # GitHub Actions ubuntu-latest has ChromeDriver pre-installed (matches pre-installed Chrome).
-        # Link it into the location the chromedriver npm package expects so that axe-cli can find it.
         SYSTEM_CD=$(which chromedriver 2>/dev/null || echo "")
         if [ -z "$SYSTEM_CD" ]; then
           echo "System ChromeDriver not found; installing via npm postinstall"
@@ -191,10 +186,6 @@ jobs:
           mkdir -p frontend/node_modules/chromedriver/lib/chromedriver
           ln -sf "$SYSTEM_CD" frontend/node_modules/chromedriver/lib/chromedriver/chromedriver
         fi
-        # Detect Chrome binary and export for the a11y sweep. CHROME_TEST_PATH causes
-        # @axe-core/cli to set the binary path explicitly and add --no-sandbox, which is
-        # required on Ubuntu 24.04+ CI runners. The run-a11y-ci.mjs script also adds
-        # --disable-dev-shm-usage and --disable-setuid-sandbox when CI=true.
         CHROME_BIN=$(which google-chrome google-chrome-stable chromium-browser chromium 2>/dev/null | head -1)
         if [ -n "$CHROME_BIN" ]; then
           echo "Found Chrome at $CHROME_BIN"
@@ -204,9 +195,6 @@ jobs:
         fi
 
     - name: Run Frontend Accessibility Sweep
-      # Pre-existing WCAG violations in the app should not block the build for
-      # PRs that don't introduce new a11y issues. Soft-fail so the job continues
-      # to E2E and visual regression steps.
       continue-on-error: true
       run: |
         cd frontend
@@ -218,9 +206,6 @@ jobs:
         npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
 
     - name: Run Frontend Visual Regression Smoke (create missing baselines)
-      # Playwright 1.58 with --update-snapshots=missing fails the run even when it
-      # successfully writes new snapshot files. Allow this step to fail so the job
-      # continues to the validation pass below.
       continue-on-error: true
       run: |
         cd frontend
@@ -234,15 +219,15 @@ jobs:
   windows-packaging-smoke:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -268,9 +253,6 @@ jobs:
         cd frontend
         npm ci
       env:
-        # Skip the electron npm package post-install binary download — this job
-        # only needs electron-builder for packaging, not a local Electron runtime.
-        # electron-builder manages its own binary download separately (cached above).
         ELECTRON_SKIP_BINARY_DOWNLOAD: 1
         CHROMEDRIVER_SKIP_DOWNLOAD: true
 
@@ -287,7 +269,7 @@ jobs:
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 
     - name: Upload packaging smoke report
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: packaging-smoke-report
@@ -299,15 +281,15 @@ jobs:
   governance:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -335,7 +317,7 @@ jobs:
         python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_ci.json
 
     - name: Upload governance reports
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: governance-reports
@@ -349,7 +331,7 @@ jobs:
     needs: [backend-test, frontend-build, windows-packaging-smoke, governance]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
