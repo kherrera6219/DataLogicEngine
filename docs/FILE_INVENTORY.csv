@@ -803,9 +803,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13654,.md,2026-06-09 04:08:37 UTC
-docs\FILE_INVENTORY.csv,128427,.csv,2026-06-12 03:31:51 UTC
+docs\FILE_INVENTORY.csv,127892,.csv,2026-06-18 21:29:02 UTC
 docs\FILE_STRUCTURE.md,4571,.md,2026-06-09 04:09:12 UTC
-docs\GENERATED_STRUCTURE.md,72944,.md,2026-06-12 03:31:51 UTC
+docs\GENERATED_STRUCTURE.md,72795,.md,2026-06-18 21:29:02 UTC
 docs\HANDOFF_quad_persona.md,10914,.md,2026-06-05 04:15:24 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\LOCAL_MODEL_ACCELERATION.md,8808,.md,2026-06-09 05:41:19 UTC
@@ -905,8 +905,6 @@ frontend\app\mcp\page.tsx,4479,.tsx,2026-03-16 05:12:15 UTC
 frontend\app\not-found.tsx,894,.tsx,2026-01-09 00:12:14 UTC
 frontend\app\page.tsx,5548,.tsx,2026-05-21 15:20:27 UTC
 frontend\app\profile\page.tsx,9795,.tsx,2026-06-05 03:40:43 UTC
-frontend\app\projects\[id]\loading.tsx,461,.tsx,2026-02-07 18:25:35 UTC
-frontend\app\projects\[id]\page.tsx,433,.tsx,2026-01-29 22:40:41 UTC
 frontend\app\projects\error.tsx,303,.tsx,2026-02-16 09:54:28 UTC
 frontend\app\projects\page.tsx,12273,.tsx,2026-02-07 23:41:36 UTC
 frontend\app\projects\view\page.tsx,558,.tsx,2026-02-07 23:41:45 UTC
@@ -918,7 +916,7 @@ frontend\app\settings\page.tsx,23781,.tsx,2026-06-05 03:40:08 UTC
 frontend\app\settings\privacy\page.tsx,9152,.tsx,2026-05-13 20:17:08 UTC
 frontend\app\simulations\error.tsx,309,.tsx,2026-02-16 09:54:46 UTC
 frontend\app\simulations\page.tsx,12017,.tsx,2026-03-16 05:12:15 UTC
-frontend\app\tools\history\page.tsx,6118,.tsx,2026-06-05 03:35:52 UTC
+frontend\app\tools\history\page.tsx,6126,.tsx,2026-06-18 21:39:18 UTC
 frontend\app\truth-engine\error.tsx,310,.tsx,2026-02-16 09:55:16 UTC
 frontend\app\truth-engine\page.tsx,9459,.tsx,2026-02-08 04:46:45 UTC
 frontend\build_installer.ps1,4656,.ps1,2026-06-08 17:41:28 UTC
@@ -951,8 +949,8 @@ frontend\components\DesktopStatus.tsx,7532,.tsx,2026-05-31 07:39:31 UTC
 frontend\components\feature-flags\FeatureFlagGate.tsx,515,.tsx,2026-02-16 09:38:40 UTC
 frontend\components\Graph\AxisSelector.test.tsx,1147,.tsx,2026-02-02 22:56:29 UTC
 frontend\components\Graph\AxisSelector.tsx,2145,.tsx,2026-02-03 06:11:53 UTC
-frontend\components\layout\AppSidebar.test.tsx,2385,.tsx,2026-02-07 23:46:46 UTC
-frontend\components\layout\AppSidebar.tsx,7298,.tsx,2026-06-05 03:39:54 UTC
+frontend\components\layout\AppSidebar.test.tsx,2784,.tsx,2026-06-18 21:46:09 UTC
+frontend\components\layout\AppSidebar.tsx,8827,.tsx,2026-06-18 21:42:47 UTC
 frontend\components\mcp\McpAnalytics.test.tsx,1998,.tsx,2026-02-03 05:42:08 UTC
 frontend\components\mcp\McpAnalytics.tsx,10523,.tsx,2026-02-08 04:49:25 UTC
 frontend\components\mcp\McpClientConfig.test.tsx,3483,.tsx,2026-02-08 04:51:13 UTC
@@ -964,8 +962,8 @@ frontend\components\mcp\McpIntegrationExamples.tsx,7003,.tsx,2026-05-23 04:53:08
 frontend\components\mcp\McpServerConfig.test.tsx,1199,.tsx,2026-05-31 00:59:32 UTC
 frontend\components\mcp\McpServerConfig.tsx,13831,.tsx,2026-02-08 05:05:47 UTC
 frontend\components\mcp\types.ts,1103,.ts,2026-01-29 21:49:32 UTC
-frontend\components\NavBar.test.tsx,4303,.tsx,2026-05-22 06:33:58 UTC
-frontend\components\NavBar.tsx,8198,.tsx,2026-05-21 14:57:47 UTC
+frontend\components\NavBar.test.tsx,4505,.tsx,2026-06-18 21:46:30 UTC
+frontend\components\NavBar.tsx,6206,.tsx,2026-06-18 21:44:22 UTC
 frontend\components\PlaceholderPage.test.tsx,1276,.tsx,2026-02-03 06:43:08 UTC
 frontend\components\PlaceholderPage.tsx,2703,.tsx,2026-02-03 06:47:35 UTC
 frontend\components\projects\ProjectDetail.test.tsx,2680,.tsx,2026-02-07 11:27:01 UTC
@@ -1194,7 +1192,7 @@ frontend\types\electron.d.ts,3961,.ts,2026-05-29 05:35:24 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,30027,.md,2026-06-18 21:11:56 UTC
+HANDOFF.md,30987,.md,2026-06-18 21:48:07 UTC
 k8s\base\backend-deployment.yaml,1153,.yaml,2026-01-09 00:01:22 UTC
 k8s\base\frontend-deployment.yaml,948,.yaml,2026-01-09 00:01:23 UTC
 k8s\operator\crds\ka_crd.yaml,1752,.yaml,2026-01-15 15:29:05 UTC
@@ -1225,7 +1223,7 @@ playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
 README.md,11931,.md,2026-06-04 06:32:06 UTC
-REPO_AUDIT_LOG.md,91774,.md,2026-06-18 21:11:26 UTC
+REPO_AUDIT_LOG.md,94061,.md,2026-06-18 21:47:37 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,2383,.json,2026-05-22 22:58:30 UTC
 reports\app-readiness\keyboard-navigation-report.json,601,.json,2026-05-23 04:57:20 UTC
@@ -1547,7 +1545,7 @@ tests\parity\test_local_mode_parity.py,2544,.py,2026-06-08 05:57:12 UTC
 tests\performance\locustfile.py,575,.py,2026-01-06 01:00:29 UTC
 tests\persona\quad\test_persona_scaling.py,21439,.py,2026-06-05 02:40:15 UTC
 tests\persona\quad\test_phase4b_import_compatibility.py,6536,.py,2026-06-05 02:40:15 UTC
-tests\persona\quad\test_phase5_correctness.py,3071,.py,2026-06-18 20:35:48 UTC
+tests\persona\quad\test_phase5_correctness.py,3019,.py,2026-06-18 21:30:29 UTC
 tests\PHASE_2_SUMMARY.md,14627,.md,2026-01-28 06:20:49 UTC
 tests\phase_g\test_advanced_mcp.py,6628,.py,2026-06-08 04:31:24 UTC
 tests\phase_g\test_phase_g_integrations.py,4981,.py,2026-05-28 06:45:17 UTC
@@ -1673,6 +1671,6 @@ tests\verify_ml_routing_v2.py,3851,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,85094,.md,2026-06-18 21:12:35 UTC
+TODO.md,85639,.md,2026-06-18 21:48:16 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

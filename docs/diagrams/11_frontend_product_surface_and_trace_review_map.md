@@ -237,18 +237,21 @@ This is important because the frontend product surface is wrapped with:
 
 ## Sidebar Navigation Surface
 
-`AppSidebar` exposes the primary user-facing application surfaces:
+`AppSidebar` is the single authoritative navigation surface, grouping the primary
+user-facing surfaces into sections:
 
 ```text
-Dashboard
-Enterprise AI
-MCP Hub
-Projects
-Admin
-Settings
+Workspace:       Dashboard, Enterprise AI, Projects, Simulations, MCP Hub
+Knowledge:       Knowledge Base, Knowledge Graph, Algorithms
+Trace & Review:  Trace Explorer, Truth Engine, Analytics
+System:          Admin*, Compliance*, Settings
 ```
 
-Admin is only shown when the user is an admin/owner role. The sidebar collapsed state is persisted in local storage.
+`NavBar` is global chrome only — logo, cloud-status indicator, theme toggle, and the
+account menu; it no longer duplicates primary page links. Admin and Compliance (*) are
+shown only for the owner/admin role (vestigial under single-mode; slated for removal with
+the auth deprecation — see `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`). The
+sidebar collapsed state is persisted in local storage.
 
 ## Trace Review Surface
 
