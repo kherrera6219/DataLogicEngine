@@ -67,14 +67,16 @@ describe('NavBar', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders logo and nav items', () => {
+  it('renders logo and global chrome (primary nav lives in AppSidebar)', () => {
     render(<NavBar />);
     expect(screen.getByLabelText('DataLogicEngine Home')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Simulations')).toBeInTheDocument();
+    expect(screen.getByTestId('cloud-status')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+    // NavBar no longer duplicates primary page links — those moved to AppSidebar.
+    expect(screen.queryByText('Simulations')).not.toBeInTheDocument();
   });
 
-  it('hides protected routes when unauthenticated', () => {
+  it('shows only chrome (no user menu) when unauthenticated', () => {
     (useAuth as any).mockReturnValue({
       user: null,
       isAuthenticated: false,
@@ -82,9 +84,8 @@ describe('NavBar', () => {
     });
 
     render(<NavBar />);
-    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
-    expect(screen.getByText('About')).toBeInTheDocument();
-    expect(screen.queryByText('Login')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('DataLogicEngine Home')).toBeInTheDocument();
+    expect(screen.queryByLabelText('User Menu')).not.toBeInTheDocument();
   });
 
   it('shows user menu when authenticated', () => {
@@ -94,24 +95,24 @@ describe('NavBar', () => {
     expect(screen.getByTestId('cloud-status')).toBeInTheDocument();
   });
 
-  it('opens and closes mobile menu', () => {
+  it('opens and closes mobile account menu', () => {
     render(<NavBar />);
-    
+
     // Initially closed
-    expect(screen.queryByLabelText('Mobile navigation')).not.toBeInTheDocument();
-    
+    expect(screen.queryByLabelText('Mobile account menu')).not.toBeInTheDocument();
+
     // Open menu
     const menuButton = screen.getByLabelText('Open main menu');
     fireEvent.click(menuButton);
-    
-    expect(screen.getByLabelText('Mobile navigation')).toBeInTheDocument();
-    
+
+    expect(screen.getByLabelText('Mobile account menu')).toBeInTheDocument();
+
     // Check user info in mobile menu
-    const mobileNav = screen.getByLabelText('Mobile navigation');
+    const mobileNav = screen.getByLabelText('Mobile account menu');
     expect(within(mobileNav).getByText('testuser')).toBeInTheDocument();
-    
+
     fireEvent.click(screen.getByLabelText('Close main menu'));
-    expect(screen.queryByLabelText('Mobile navigation')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Mobile account menu')).not.toBeInTheDocument();
   });
 
   it('does not expose logout controls in desktop local-first mode', async () => {

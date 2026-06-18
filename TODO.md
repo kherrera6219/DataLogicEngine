@@ -205,7 +205,12 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       (A6).
     - Validation: focused truth_engine 94 passed; ruff clean; full pytest green.
 
-35. [ ] AUDIT-A15: Phase 3 — `frontend/app/` pages audit + deferred auth removals.
+35. [~] AUDIT-A15: Phase 3 — `frontend/app/` pages audit + deferred auth removals. **IN PROGRESS.**
+    - Done (nav/structure batch 2026-06-18): full 29-page map; F1 broken `tools/history`→`/runs/[id]` link fixed
+      (→`/runs/view?id=`); F2 removed dead duplicate `projects/[id]`; F3 consolidated nav to `AppSidebar`
+      (NavBar→chrome); F4 wired 5 orphaned surfaces (`/runs`,`/truth-engine`,`/analytics`,`/algorithms`,
+      `/admin/compliance`) into the sidebar. Component suite 51 files/150 tests pass.
+    - Remaining: F5 coordinated auth removal + B2 docs (below); per-page error/loading-state verification.
     - Scope: all Next.js page files under `frontend/app/`; coordinated frontend+backend deferred auth cleanup.
     - Deferred auth: admin user-mgmt UI (`frontend/app/admin/page.tsx` 268-line form ↔ `backend/routes/admin_routes.py`
       user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);

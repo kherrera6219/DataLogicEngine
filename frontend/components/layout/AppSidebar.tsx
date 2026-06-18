@@ -3,9 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, MessageSquare, Database, Folder, 
-  ShieldAlert, Settings, Hexagon, PanelLeftClose, PanelLeftOpen 
+import {
+  LayoutDashboard, MessageSquare, Database, Folder, FlaskConical,
+  BookOpen, Share2, Binary, ScrollText, ShieldCheck, BarChart3,
+  ClipboardCheck, ShieldAlert, Settings, Hexagon, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,17 @@ function SidebarItem({ icon: Icon, label, href, isActive, isCollapsed }: Sidebar
         )}
       </div>
     </Link>
+  );
+}
+
+function SectionLabel({ label, isCollapsed }: { label: string; isCollapsed?: boolean }) {
+  return (
+    <div className={cn(
+      "text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 transition-opacity duration-300",
+      isCollapsed && "text-center opacity-0 h-0 overflow-hidden"
+    )}>
+      {label}
+    </div>
   );
 }
 
@@ -126,24 +138,33 @@ export function AppSidebar() {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar">
-         <div className={cn("text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 transition-opacity duration-300", isCollapsed && "text-center opacity-0 h-0 overflow-hidden")}>
-            Menu
-         </div>
-         
+      <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+         <SectionLabel label="Workspace" isCollapsed={isCollapsed} />
          <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" isActive={isActive('/dashboard')} isCollapsed={isCollapsed} />
          <SidebarItem icon={MessageSquare} label="Enterprise AI" href="/chat" isActive={isActive('/chat')} isCollapsed={isCollapsed} />
-         <SidebarItem icon={Database} label="MCP Hub" href="/mcp" isActive={isActive('/mcp')} isCollapsed={isCollapsed} />
          <SidebarItem icon={Folder} label="Projects" href="/projects" isActive={isActive('/projects')} isCollapsed={isCollapsed} />
-         
+         <SidebarItem icon={FlaskConical} label="Simulations" href="/simulations" isActive={isActive('/simulations')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={Database} label="MCP Hub" href="/mcp" isActive={isActive('/mcp')} isCollapsed={isCollapsed} />
+
          <div className="my-4 border-t border-white/5 mx-2"></div>
-         
-         <div className={cn("text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 transition-opacity duration-300", isCollapsed && "text-center opacity-0 h-0 overflow-hidden")}>
-            System
-         </div>
-         
+         <SectionLabel label="Knowledge" isCollapsed={isCollapsed} />
+         <SidebarItem icon={BookOpen} label="Knowledge Base" href="/knowledge" isActive={isActive('/knowledge')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={Share2} label="Knowledge Graph" href="/graph" isActive={isActive('/graph')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={Binary} label="Algorithms" href="/algorithms" isActive={isActive('/algorithms')} isCollapsed={isCollapsed} />
+
+         <div className="my-4 border-t border-white/5 mx-2"></div>
+         <SectionLabel label="Trace & Review" isCollapsed={isCollapsed} />
+         <SidebarItem icon={ScrollText} label="Trace Explorer" href="/runs" isActive={isActive('/runs')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={ShieldCheck} label="Truth Engine" href="/truth-engine" isActive={isActive('/truth-engine')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={BarChart3} label="Analytics" href="/analytics" isActive={isActive('/analytics')} isCollapsed={isCollapsed} />
+
+         <div className="my-4 border-t border-white/5 mx-2"></div>
+         <SectionLabel label="System" isCollapsed={isCollapsed} />
          {isAdmin && (
            <SidebarItem icon={ShieldAlert} label="Admin" href="/admin" isActive={isActive('/admin')} isCollapsed={isCollapsed} />
+         )}
+         {isAdmin && (
+           <SidebarItem icon={ClipboardCheck} label="Compliance" href="/admin/compliance" isActive={isActive('/admin/compliance')} isCollapsed={isCollapsed} />
          )}
          <SidebarItem icon={Settings} label="Settings" href="/settings" isActive={isActive('/settings')} isCollapsed={isCollapsed} />
       </div>

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext'; // Added useAuth import
 import { Menu, X, Hexagon, User as UserIcon, Settings } from 'lucide-react';
@@ -26,13 +25,8 @@ export function NavBar() {
   // Hide NavBar on login/register pages
   if (pathname === '/login' || pathname === '/register') return null;
 
-  const navItems = [
-    { name: 'Dashboard', href: '/dashboard', authRequired: true },
-    { name: 'Simulations', href: '/simulations', authRequired: true },
-    { name: 'Knowledge', href: '/knowledge', authRequired: true },
-    { name: 'About', href: '/about' },
-  ];
-
+  // Primary page navigation lives in AppSidebar (single authoritative nav).
+  // NavBar is global chrome only: logo, cloud status, theme, and the account menu.
   return (
     <header className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-white/5 sticky top-0 z-50 shadow-sm shadow-black/5">
       <div className="container mx-auto px-4">
@@ -47,28 +41,6 @@ export function NavBar() {
             <Hexagon className="h-6 w-6 text-primary fill-primary/20" />
             <span className="tracking-tight">DataLogicEngine</span>
           </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return !item.authRequired || isAuthenticated ? (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                    isActive
-                      ? "bg-blue-500/10 text-blue-500 font-bold"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ) : null;
-            })}
-          </nav>
 
           {/* User Menu / Auth */}
           <div className="hidden md:flex items-center gap-2">
@@ -134,27 +106,8 @@ export function NavBar() {
           id="mobile-nav-drawer"
           className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-2xl animate-in slide-in-from-top duration-300"
          >
-           <nav className="flex flex-col p-4 space-y-1" aria-label="Mobile navigation">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return !item.authRequired || isAuthenticated ? (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "px-4 py-3 rounded-xl text-sm font-medium transition-all",
-                      isActive
-                        ? "bg-blue-500/10 text-blue-500 font-bold"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                ) : null;
-              })}
-            <div className="pt-4 mt-4 border-t border-border">
+           <nav className="flex flex-col p-4 space-y-1" aria-label="Mobile account menu">
+            <div>
                 {isAuthenticated && user ? (
                     <div className="space-y-3">
                         <div className="flex items-center gap-3 px-4 py-2">

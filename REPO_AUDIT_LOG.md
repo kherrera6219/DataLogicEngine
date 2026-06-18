@@ -5,6 +5,40 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 3 / A15 — `frontend/app/` pages audit (IN PROGRESS — map done; nav/structure batch landed)
+**Date:** 2026-06-18
+**Branch:** main
+
+Map-first pass over all 29 `frontend/app/**/page.tsx`. Reachability sources: `AppSidebar`
+(6 primary links), `NavBar` (4 + account menu), layout footer (3), root landing, in-page links.
+
+### Findings (frontend "duplicate / isolated / mis-wired" classes)
+- **F1 mis-wired ✅ fixed:** `tools/history/page.tsx` linked `/runs/${run_id}` — no `/runs/[id]`
+  route exists (only `/runs` + `/runs/view?id=`) → every export-history row 404'd. Now `/runs/view?id=`.
+- **F2 duplicate ✅ removed:** `projects/[id]/page.tsx` (+ orphaned `loading.tsx`) rendered the same
+  `<ProjectDetail>` as `projects/view`, with hardcoded `generateStaticParams` (ids 1–5) and zero inbound
+  links. `view?id=` is the canonical one (works for arbitrary ids under Electron `output:export`).
+- **F3 dual-nav duplication ✅ resolved (user: consolidate to sidebar):** `AppSidebar` + `NavBar` both
+  rendered, overlapping on Dashboard/Settings/Admin. `AppSidebar` is now the single authoritative nav;
+  `NavBar` reduced to global chrome (logo, cloud status, theme, account menu).
+- **F4 isolated surfaces ✅ wired (user: wire all into nav):** `/runs` (Trace Explorer), `/truth-engine`,
+  `/analytics`, `/algorithms`, `/admin/compliance` existed + were smoke-tested but had NO nav link.
+  All added to `AppSidebar`, now grouped: Workspace / Knowledge / Trace & Review / System.
+- **F5 auth-entangled (DEFERRED — next A15 batch):** `admin/page.tsx` role-guard, `profile/page.tsx`
+  role display, `AppSidebar`/`NavBar` `is_admin`/`role` gating — all read fields Phase E drops. Coordinated
+  with `admin_routes.py` gut (Phase C-rem) + MFA (Phase D) + `User`-model slim/migration (A16). **B2 RBAC
+  doc reconciliation rides with this batch.**
+
+### Validation
+Frontend typecheck + eslint clean; updated `AppSidebar.test.tsx` (icon mock) + `NavBar.test.tsx`
+(chrome-only assertions); full component suite **51 files / 150 tests pass**.
+
+### Remaining for A15
+F5 coordinated auth removal + B2 docs; per-page error/loading-state verification for the live pages
+(def-of-done). Then A16 (`frontend/components/`, incl. C3 `ApiOverlayConfig` test_provider status) + A17.
+
+---
+
 ## Pre-Phase-3 cleanup sweep — outstanding carry-overs (A) + doc reconciliation (B) + cosmetic (C)
 **Date:** 2026-06-18
 **Branch:** main

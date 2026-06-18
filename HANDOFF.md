@@ -1,14 +1,24 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 cleanup sweep done.**
+_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 sweep done; A15 IN PROGRESS.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
 A13, A14 (Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**NEXT: Phase 3 frontend** — A15 `frontend/app/` (pages), A16 `frontend/components/`,
-A17 `frontend/lib/` + hooks. A15 also carries: deferred auth removals (admin user-mgmt UI ↔
-`admin_routes.py`, MFA ↔ 3 frontend files, `tenant_rls.py`, `User.role/is_admin`) **+ B2 RBAC
-doc reconciliation** (PRODUCT_OVERVIEW/diagram-11/ARCHITECTURE) as coordinated frontend+backend+doc
-changes. A16 carries **C3** (surface `test_provider` status in `ApiOverlayConfig.tsx`). Pending commit
-of the 2026-06-18 sweep (uncommitted)._
+_**A15 (Phase 3, in progress):** full 29-page map done; nav/structure batch landed (F1 broken-link fix,
+F2 dead `projects/[id]` removed, F3 nav consolidated to AppSidebar, F4 wired 5 orphaned surfaces into nav).
+**A15 remaining:** F5 coordinated auth removal (admin UI ↔ `admin_routes.py`, MFA ↔ 3 frontend files,
+`tenant_rls.py`, `User.role/is_admin`) **+ B2 RBAC doc reconciliation**; per-page error/loading verification.
+Then A16 `frontend/components/` (carries **C3** `ApiOverlayConfig` test_provider status), A17 `frontend/lib/`._
+
+### Session log — 2026-06-18b (A15 frontend nav/structure batch)
+
+Map-first audit of all 29 `frontend/app` pages (detail: `REPO_AUDIT_LOG.md` A15 entry). Landed F1–F4;
+F5/B2 deferred to next batch. User decisions: wire all orphaned surfaces into nav; consolidate to AppSidebar.
+- F1: `tools/history` `/runs/${id}` (404, no `/runs/[id]` route) → `/runs/view?id=`.
+- F2: removed orphaned duplicate `projects/[id]` (same `<ProjectDetail>` as `projects/view`; static-export casualty).
+- F3: `AppSidebar` now single authoritative nav; `NavBar` reduced to chrome (logo/cloud/theme/account).
+- F4: wired `/runs` (Trace Explorer), `/truth-engine`, `/analytics`, `/algorithms`, `/admin/compliance`
+  into sidebar — were built + smoke-tested but had NO nav path. Grouped Workspace/Knowledge/Trace/System.
+- Tests: updated `AppSidebar.test.tsx` + `NavBar.test.tsx`; component suite 51 files/150 tests pass; tsc+eslint clean.
 
 ### Session log — 2026-06-18 (pre-Phase-3 cleanup sweep)
 

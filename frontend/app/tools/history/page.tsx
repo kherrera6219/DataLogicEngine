@@ -143,7 +143,7 @@ export default function ToolExecutionHistoryPage() {
                   )}
                   {exec.run_id && (
                     <Link
-                      href={`/runs/${exec.run_id}`}
+                      href={`/runs/view?id=${exec.run_id}`}
                       className="flex items-center gap-1 text-xs text-blue-400 hover:underline"
                     >
                       <ExternalLink className="h-3 w-3" />
