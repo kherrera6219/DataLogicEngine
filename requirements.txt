@@ -42,7 +42,7 @@ Authlib==1.7.2
 flask-dance==7.1.0
 PyJWT==2.13.0
 oauthlib==3.3.1
-cryptography==48.0.0
+cryptography==48.0.1
 pyotp==2.9.0
 qrcode==8.2
 email-validator==2.3.0
@@ -52,7 +52,7 @@ python-json-logger==3.3.0
 openai==2.41.0
 google-genai==1.60.0
 httpx==0.28.1
-aiohttp==3.14.0
+aiohttp==3.14.1
 requests==2.34.2
 
 # RAG and orchestration stack
@@ -60,7 +60,7 @@ chromadb==0.6.3
 llama-index==0.14.22
 sentence-transformers==5.5.1
 transformers>=5.0.0
-langchain==1.3.4
+langchain==1.3.9
 langgraph==1.2.4
 
 # Runtime helpers
@@ -81,7 +81,7 @@ sentry-sdk==2.51.0
 # Multimodal/document processing used by backend services
 opencv-python-headless==4.13.0.92
 Pillow==12.2.0
-pypdf==6.12.2
+pypdf==6.13.3
 pytesseract==0.3.13
 python-docx==1.2.0
 
