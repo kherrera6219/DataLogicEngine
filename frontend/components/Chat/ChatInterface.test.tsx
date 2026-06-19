@@ -137,6 +137,7 @@ describe('ChatInterface', () => {
     const composer = await screen.findByRole('textbox', { name: /message composer/i });
     expect(composer).toHaveFocus();
     expect(screen.getByRole('main', { name: /chat interface/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /search chat sessions/i })).toBeInTheDocument();
   });
 
   it('should send a message with Ctrl+Enter', async () => {

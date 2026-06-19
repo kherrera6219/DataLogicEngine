@@ -381,8 +381,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                <Plus className="h-4 w-4" /> New Chat
             </Button>
             <div className="relative">
-               <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-500 dark:text-gray-400" />
-               <Input placeholder="Search..." className="pl-8 bg-white/80 dark:bg-black/20 border-slate-300/70 dark:border-white/5 h-9 focus:bg-white dark:focus:bg-black/40 transition-colors" />
+               <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-500 dark:text-gray-400" aria-hidden="true" />
+               <Input
+                 placeholder="Search..."
+                 aria-label="Search chat sessions"
+                 className="pl-8 bg-white/80 dark:bg-black/20 border-slate-300/70 dark:border-white/5 h-9 focus:bg-white dark:focus:bg-black/40 transition-colors"
+               />
             </div>
          </div>
          
