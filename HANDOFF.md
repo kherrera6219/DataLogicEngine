@@ -1,10 +1,26 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15-F4 COMPLETE.**_
+_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15 (F1/F2/F3/F4 + B2) COMPLETE.**_
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
-A13, A14 (Phase 2); **A15-F1/F2/F3/F4** (Phase 3 navigation + auth removal). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**A15-F4 COMPLETE:** MFA module deleted (`backend/security/mfa.py`); admin user-mgmt UI removed; `/admin/users/*` endpoints removed; MFA state removed from AuthContext; tests passing._
-**A15-B2 NEXT:** RBAC doc reconciliation. Then A16 `frontend/components/` (carries **C3** `ApiOverlayConfig` test_provider status), A17 `frontend/lib/`._
+A13, A14 (Phase 2); **A15 COMPLETE** (Phase 3 frontload: nav + auth removal + RBAC docs). N1 (SEKRE) + N2 (defense_supervisor) wired._
+_**A15 COMPLETE:** F1–F4 navigation audit (routing, orphaned pages, sidebar consolidation, auth removal); B2 RBAC docs reconciliation (single-mode OS-level auth). All tests passing._
+**A16 NEXT:** Frontend components audit (51 files, 150+ tests, includes C3 test_provider status). Then A17 (lib/hooks)._
+
+### Session log — 2026-06-18d (A15-B2 RBAC docs reconciliation)
+
+**A15-B2 COMPLETE** — Reconciled architecture documentation to reflect single-mode
+Windows OS-level authentication (no multi-user RBAC). Updated PRODUCT_OVERVIEW.md,
+ARCHITECTURE.md, and frontend product surface diagram:
+
+- **PRODUCT_OVERVIEW.md** (v2.6.0 → v2.7.0): Removed "role-gated" claims from Admin
+  surface, admin dashboard, and MCP admin registry. Clarified single-mode auth.
+- **ARCHITECTURE.md** (v2.9.0 → v3.0.0): Removed "user management" from `/admin` routes;
+  replaced "role/admin gating" with "desktop local-auth gating" in security controls.
+- **11_frontend_product_surface_and_trace_review_map.md**: Removed user management + RBAC
+  enforcement claims from Admin panel; clarified single-owner local-first model; updated
+  judge review and sidebar navigation descriptions.
+- All references now align with A15-F4 auth removal (MFA + admin user-mgmt code removal).
+- Pre-commit checks PASS (markdown docs no linting required).
 
 ### Session log — 2026-06-18c (A15-F4 coordinated auth removal)
 
