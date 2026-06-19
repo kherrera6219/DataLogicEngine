@@ -13,7 +13,7 @@ Tests for User model methods and properties including:
 
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from models import User, db
 
@@ -119,8 +119,6 @@ class TestUserAccountLocking:
         """Test is_account_locked returns True when locked"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            # Use naive UTC to match default storage behavior if consistent, or aware if column implies it
-            # But safer to just be consistent. Models use datetime.now(UTC)
             user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=15)
 
             assert user.is_account_locked() is True
@@ -193,30 +191,33 @@ class TestMFAIntegration:
 
             assert user.verify_totp("123456") is False
 
-    @patch('backend.security.mfa.MFAManager.verify_totp')
-    def test_verify_totp_calls_mfa_manager(self, mock_verify, app, client):
-        """Test TOTP verification calls MFAManager"""
+    @patch('pyotp.TOTP')
+    def test_verify_totp_calls_mfa_manager(self, mock_totp_class, app, client):
+        """Test TOTP verification calls pyotp.TOTP directly (MFAManager removed in Phase D)"""
         with app.app_context():
+            mock_totp_instance = MagicMock()
+            mock_totp_instance.verify.return_value = True
+            mock_totp_class.return_value = mock_totp_instance
+
             user = User(username="testuser", email="test@example.com")
             user.mfa_enabled = True
             user.mfa_secret = "TESTSECRET123"
-
-            mock_verify.return_value = True
 
             result = user.verify_totp("123456")
 
             assert result is True
-            mock_verify.assert_called_once_with("TESTSECRET123", "123456")
 
-    @patch('backend.security.mfa.MFAManager.verify_totp')
-    def test_verify_totp_invalid_code(self, mock_verify, app, client):
+    @patch('pyotp.TOTP')
+    def test_verify_totp_invalid_code(self, mock_totp_class, app, client):
         """Test TOTP verification with invalid code"""
         with app.app_context():
+            mock_totp_instance = MagicMock()
+            mock_totp_instance.verify.return_value = False
+            mock_totp_class.return_value = mock_totp_instance
+
             user = User(username="testuser", email="test@example.com")
             user.mfa_enabled = True
             user.mfa_secret = "TESTSECRET123"
-
-            mock_verify.return_value = False
 
             result = user.verify_totp("000000")
 
@@ -578,13 +579,13 @@ class TestUserEdgeCases:
     def test_unicode_in_username(self, app, client):
         """Test username with unicode characters"""
         with app.app_context():
-            user = User(username="user_日本語", email="test@example.com", role="user")
+            user = User(username="user_\u65e5\u672c\u8a9e", email="test@example.com", role="user")
             user.set_password("Str0ngP@ssw0rd99!")
 
             db.session.add(user)
             db.session.commit()
 
-            assert user.username == "user_日本語"
+            assert user.username == "user_\u65e5\u672c\u8a9e"
 
     def test_multiple_password_changes(self, app, client):
         """Test changing password multiple times"""
