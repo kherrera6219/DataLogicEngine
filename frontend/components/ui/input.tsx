@@ -10,10 +10,12 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
   icon?: React.ReactNode
   /** Size variant. */
   sizeVariant?: "sm" | "default" | "lg"
+  /** Error message ID for aria-describedby. */
+  errorMessageId?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, error, loading, icon, sizeVariant = "default", ...props }, ref) => {
+  ({ className, type, error, loading, icon, sizeVariant = "default", errorMessageId, ...props }, ref) => {
     const sizeClasses = {
       sm: "h-8 px-2 text-xs",
       default: "h-10 px-3 py-2 text-sm",
@@ -35,10 +37,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           ref={ref}
           disabled={loading || props.disabled}
+          aria-invalid={error || false}
+          aria-describedby={errorMessageId}
           {...props}
         />
         {icon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true">
             {icon}
           </div>
         )}
