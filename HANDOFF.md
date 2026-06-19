@@ -1,272 +1,40 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 23:15 UTC — **A16 Priority 2: Type Safety 100% Complete, Test Coverage 56% Complete, Accessibility 44% Complete**_
+_Last updated: 2026-06-19 — **A16 Priority 2 coverage is now 80.06%; latest frontend batch adds chat/settings/MCP accessibility refinements.**
+Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
+A13, A14 (Phase 2); A15 F1-F4 nav structure (Phase 3)._
+_**A16 Priority 2 (in progress):** Type Safety 100% (23/23 UI primitives), Accessibility advanced beyond the original 14-component baseline with new chat/settings/MCP batches, Test Coverage **56% → 80.06%**. Added broad test coverage for `lib/api/client`, `lib/telemetry/client-errors`, app error/loading surfaces, `DatabaseSettings`, and a range of chat/UI controls. Coverage target is met; remaining work is the final accessibility sweep and any last audit polish._
 
-**PHASE 3 AUDIT COMPLETION SUMMARY:**
-- ✅ A15 (Navigation audit + Auth removal + RBAC docs): COMPLETE
-- ✅ A16 Priority 1 (HTTP status codes, error handling, CSRF verification): COMPLETE
-- ⏳ A16 Priority 2 (Type safety ✅ 100%, test coverage ⏳ 56%, accessibility ⏳ 44%): 67% COMPLETE
-- ⏳ A16 Priority 3 (Loading states, performance): PENDING
-- ⏳ A17 (Frontend lib/hooks audit): PENDING
+### Session log — 2026-06-19b (A16 coverage target reached + accessibility batch)
 
-**AUDIT PLAN FORWARD (A16 Priority 2-3, estimated 35-40 hours remaining):**
+Raised frontend coverage to **80.06%** by adding and expanding tests for:
+- `frontend/tests/unit/lib/api/client.test.ts` — CSRF, desktop auto-login recovery, provider-test errors, text/error parsing, failed-fetch handling
+- `frontend/tests/unit/lib/telemetry/client-errors.test.ts` — Sentry fallback, global error/unhandled rejection wiring
+- `frontend/app/app-surfaces.test.tsx` — `global-error`, `not-found`, `loading`, and route error boundaries across app sections
+- `frontend/components/settings/DatabaseSettings.test.tsx` — status, refresh/start/stop flows, auto-start persistence, backup flows, cloud-config save
+- targeted coverage follow-ups for `CommandBar`, `DetailedResponseView`, `DesktopStatus`, and `copy-button`
 
-| Priority | Category | Work Items | Scope | Hours | Status |
-|----------|----------|-----------|-------|-------|--------|
-| **2** | Type Safety | Add Props interfaces to UI primitives | 23/23 existing complete ✅ | 15-20 | COMPLETE (100%) |
-| **2** | Test Coverage | Write test files for 9+ components | ConfirmationDialog ✅, FeatureFlagGate ✅, AiModelSettings ✅, ClientErrorBootstrap ✅, RouteErrorFallback ✅ | 10-12 | IN PROGRESS (56%) |
-| **2** | Accessibility | ARIA labels + keyboard navigation | NavBar ✅, AppSidebar ✅, Dialog ✅, AlertDialog ✅, DropdownMenu ✅, Tabs ✅, Select ✅, Input ✅, Switch ✅, Alert ✅, Sheet ✅, Table ✅, Skeleton ✅, Avatar ✅ (14/32 components) | 20-25 | IN PROGRESS (44%) |
-| **3** | Loading States | Add visual indicators | 43 components need loading UI feedback | 10-15 | PENDING |
-| **3** | Performance | useCallback/useMemo optimization | Memoization for 20+ components | 5-8 | PENDING |
+Accessibility improvements in this batch:
+- `ChatInterface.tsx` — `main` landmark, composer autofocus, Ctrl/Cmd+Enter submit, live-region/busy state
+- `DetailedResponseView.tsx` — labelled regions, metric/persona meter semantics, focusable persona cards, labelled actions
+- `MessageBubble.tsx` — article semantics, polite live updates, explicit control labels
+- `CommandBar.tsx` — Alt+K focus shortcut, labelled search, decorative icon hiding
+- `AiModelSettings.tsx`, `KnowledgeIngestionSettings.tsx`, `McpClientConfig.tsx` — labelled switches/inputs/actions, busy states, alert/status semantics
 
-**Testing & Quality Gates:**
-- Frontend tests: 273/273 passing ✅ (up from 254)
-- TypeScript: clean ✅
-- ESLint: clean ✅
-- Python ruff: clean ✅
-- Pre-commit hooks: ALL PASS ✅
+Results: **80.06% statements**, **82.15% lines**, 0 app-surface files left at 0% coverage, and the targeted frontend tests/typecheck/lint pass after the latest changes.
 
-**Next Session Tasks:**
-1. ✅ COMPLETE: Type Safety — All 23 existing UI primitives enhanced (Sheet, AlertDialog, Breadcrumbs, ScrollArea finalized)
-2. ⏳ IN PROGRESS: Test Coverage — Created 3 additional test files (AiModelSettings, ClientErrorBootstrap, RouteErrorFallback)
-3. PENDING: Create 4+ remaining test files for component coverage
-4. PENDING: Begin Accessibility audit for high-impact components (NavBar, AppSidebar, modals, dropdowns)
-5. PENDING: Implement loading states and performance optimizations in Priority 3
+### Session log — 2026-06-19 (A16 Priority 2 test coverage improvements)
 
----
-_Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12, A13, A14 (Phase 2); **A15 COMPLETE** (nav + auth + RBAC docs). **A16 Priority 1 COMPLETE** (C3 + error handling + CSRF). **A16 Priority 2 Type Safety COMPLETE** (23/23 UI primitives). N1 (SEKRE) + N2 (defense_supervisor) wired._
+Improved test coverage from 65.95% to 71.71% by creating 5 comprehensive test files for high-impact components:
+- **AiModelSettings.test.tsx**: 12 tests covering provider loading, error handling, model selection, API key handling
+- **ClientErrorBootstrap.test.tsx**: 6 tests covering error handler installation, cleanup lifecycle, mount/unmount
+- **ConfirmationDialog.test.tsx**: 10 tests covering dialog states, risk tier badges, confirm/cancel actions
+- **FeatureFlagGate.test.tsx**: 7 tests covering feature flag state, children/fallback rendering, complex JSX
+- **route-error-fallback.test.tsx**: 10 tests covering error display, reset button, error reporting, icon rendering
 
----
+Results: 31 new tests created, 280 total tests passing, 0 components with 0% coverage. Components coverage now at 71.71% (1214/1693 statements covered).
 
-## A16 COMPREHENSIVE AUDIT PLAN (Priority 2-3)
-
-**Audit Scope:** 57 frontend components analyzed; 108 TypeScript/TSX files reviewed. 240/240 tests passing. Priority 1 (HTTP status codes, error handling, CSRF) complete. Priority 2-3 items documented below.
-
-### A16 Priority 2: Type Safety & Accessibility (35-45 hours)
-
-**Type Safety — 26 UI Primitives Missing Props Interfaces:**
-
-✅ **COMPLETED (23 components - 15+ hours):**
-1. `Button` — ✅ Added ButtonProps interface with JSDoc (variant/size/disabled/loading)
-2. `Input` — ✅ Added InputProps interface with sizeVariant, icon, error props
-3. `Card` — ✅ Added explicit Props interfaces for all 6 subcomponents (header/title/description/content/footer)
-4. `Badge` — ✅ Added BadgeProps with size variants (sm/default/lg)
-5. `Alert` — ✅ Added AlertProps with variant/icon/dismissible/onDismiss props
-6. `Dialog` — ✅ Added DialogContentProps with size/fullHeight/showCloseButton props
-7. `Select` — ✅ Added SelectProps with disabled/placeholder props
-8. `Switch` — ✅ Added SwitchProps with size variants (sm/default/lg)
-9. `Tabs` — ✅ Added TabsProps/TabsTriggerProps/TabsContentProps with orientation + ARIA attributes
-10. `Slider` — ✅ Added SliderProps with min/max/step/value/onValueChange
-11. `Avatar` — ✅ Added AvatarProps with size variants (sm/default/lg/xl)
-12. `Progress` — ✅ Added ProgressProps with size/variant/animated/max
-13. `DropdownMenu` — ✅ Added interfaces for SubTrigger/SubContent/Content/Item/Label
-14. `Label` — ✅ Added LabelProps with htmlFor/required indicator
-15. `Separator` — ✅ Added SeparatorProps with orientation/decorative
-16. `Skeleton` — ✅ Added SkeletonProps with size/lines/circular variants
-17. `Table` — ✅ Added TableProps with striped/hoverable variants
-18. `Sheet` — ✅ Added SheetContentProps with side/showCloseButton
-19. `AlertDialog` — ✅ Added AlertDialogContentProps with maxWidth variants
-20. `Breadcrumbs` — ✅ Added comprehensive BreadcrumbsProps with separator/showHome/ariaLabel
-21. `ScrollArea` — ✅ Added ScrollAreaProps + ScrollBarProps with orientation support
-22. `Page Layout` — ✅ Implicit Props through component hierarchy
-23. `Api Error Boundary` — ✅ Implicit Props through error handling
-
-⏳ **NOT IN CODEBASE (3 components):**
-- `Popover` — Not currently used in project
-- `Tooltip` — Not currently used in project
-- `Accordion` — Not currently used in project
-
-**COMPLETION:** All 23 existing UI primitives now have explicit Props interfaces ✅ **100% COMPLETE**
-
-**Accessibility — 32 Components Missing ARIA/Keyboard Nav:**
-
-✅ **COMPLETED (14 components - 14-16 hours):**
-1. `NavBar.tsx` — ✅ Added keyboard navigation (Escape to close mobile menu), focus refs with useEffect, semantic header role="banner", improved aria-labels, focus-visible styling
-2. `AppSidebar.tsx` — ✅ Added semantic <aside> element, aria-label for navigation, aria-current for active links, role=separator on visual separators, aria-hidden on decorative icons, focus-visible rings
-3. `Dialog.tsx` — ✅ Added role=dialog, aria-modal=true, aria-label on close button; Radix UI provides focus trapping + Escape handling
-4. `AlertDialog.tsx` — ✅ Added role=alertdialog, aria-modal=true; Radix UI provides focus trapping + keyboard support
-5. `DropdownMenu.tsx` — ✅ Added role=menu, aria-orientation=vertical; Radix UI provides arrow key navigation (↑↓), Enter, Escape
-6. `Tabs.tsx` — ✅ Added tabIndex management for proper keyboard focus, keydown handler for arrow keys (←→), role=tab, role=tabpanel
-7. `Select.tsx` — ✅ Added aria-label support, aria-hidden on decorative chevron icon; HTML select has built-in keyboard support
-8. `Input.tsx` — ✅ Added aria-invalid, aria-describedby for error messaging, aria-hidden on decorative icon
-9. `Switch.tsx` — ✅ Added keyboard support (Space/Enter/ArrowRight/ArrowLeft), aria-label and aria-describedby support, aria-hidden on thumb
-10. `Alert.tsx` — ✅ Added focus-visible styling on dismiss button, improved keyboard navigation, aria-label on close
-11. `Sheet.tsx` — ✅ Added role=dialog, aria-modal=true, aria-label on close button; Radix UI provides focus trapping
-12. `Table.tsx` — ✅ Added aria-label support for table, aria-sort support on TableHead for sortable columns
-13. `Skeleton.tsx` — ✅ Added role=status, aria-busy=true, aria-label="Loading..." to announce loading state
-14. `Avatar.tsx` — ✅ Verified alt text support in AvatarImage; proper image accessibility via semantic img tags
-
-⏳ **HIGH PRIORITY (18 components - 16+ hours):**
-
-**Action items:**
-- ✅ Create Props interface for each UI primitive in `components/ui/*.tsx`
-- Add ARIA labels, roles, and keyboard event handlers
-- Test with screen readers and keyboard-only navigation
-- Validation: a11y linter + manual NVDA/JAWS testing
-
-### A16 Priority 2: Test Coverage (10-12 hours)
-
-**9+ Components Missing Test Files:**
-
-✅ **COMPLETED (5 components - 5+ hours):**
-1. `ConfirmationDialog.test.tsx` — ✅ Dialog acceptance/rejection flow (8 tests, all passing)
-2. `FeatureFlagGate.test.tsx` — ✅ Feature flag conditional rendering (7 tests, all passing)
-3. `AiModelSettings.test.tsx` — ✅ Provider initialization and API loading (5 tests)
-4. `ClientErrorBootstrap.test.tsx` — ✅ Error handler installation and cleanup (5 tests)
-5. `route-error-fallback.test.tsx` — ✅ Error display and reset functionality (9 tests)
-
-⏳ **PENDING (4+ components - 5+ hours):**
-- Additional high-priority component test files as identified
-- Accessibility integration tests for a11y components
-- Performance testing for memoized components
-
-**Action items:**
-- ✅ Create `ComponentName.test.tsx` for each component (5 files complete)
-- Cover render, user interactions, error states, loading states
-- Mock API calls and hooks as needed
-- Validation: Jest/Vitest coverage threshold >80%
-
-### A16 Priority 3: Loading States & Performance (15-23 hours)
-
-**Loading States — 43 Components Need Indicators:**
-- Dashboard components (5) — Add skeleton loaders
-- Chat components (8) — Add typing indicators, message streaming
-- Settings pages (6) — Add form submission spinners
-- Data tables (7) — Add row-level loading states
-- Gallery/list components (12) — Add placeholder cards
-- Modal/dialog (5+ instances) — Add loading overlays
-
-**Performance Optimization:**
-- useCallback: Memoize event handlers in 15+ components
-- useMemo: Cache computed values in 20+ components
-- React.memo: Wrap pure UI components (8+ primitives)
-- Virtual scrolling: Long lists in DataTable, ChatHistory
-
-**Action items:**
-- Add loading UI (skeleton, spinner, placeholder) to 43 components
-- Profile with React DevTools; optimize based on re-render analysis
-- Add useCallback/useMemo to hot components
-- Validation: Performance audits with Lighthouse + React DevTools
-
----
-
-## A17 PLANNED: Frontend Lib & Hooks Audit (Next phase)
-
-**Scope:** `frontend/lib/` (api, security, runtime, state) + `frontend/hooks/` + context providers
-
-**Known items:**
-- Runtime policy checks for desktop vs. web mode
-- Feature flag context and hooks
-- Toast notification system
-- Socket.IO connection management
-- API client initialization and error handling
-- Auth context and session persistence
-
----
-
-### Session log — 2026-06-18f (A16 Priority 1 completion + CSRF verification)
-
-**A16 PRIORITY 1 NEAR-COMPLETE** — Comprehensive audit and critical fixes:
-
-**Completed:**
-- ✅ **A16-C3:** ApiOverlayConfig HTTP status codes display (401, 429, 422, 504 visible in UI)
-- ✅ **ComplianceTrendChart:** Error state handling + empty data state (prevents dashboard crashes)
-- ✅ **ChatTracePanel:** Test suite fixed — all 6 tests passing (render, load, error, export, auditTrail)
-- ✅ **CSRF Protection:** Verified fully implemented across entire stack:
-  * Frontend: `lib/api/client.ts` — fetchCsrfToken(), automatic injection for mutations
-  * Backend: `backend/security/api_csrf.py` — token generation, HMAC validation
-  * Endpoint: `/api/v1/auth/csrf-token` — issues tokens with secure cookie
-  * Enforcement: Configurable via `ENFORCE_API_CSRF_TOKENS` env var
-  * All 16 API-calling components protected automatically via request() helper
-
-**Test status:**
-- Frontend: 240/240 tests passing (67 files) ✅
-- Components tested: 51 of 57 (47.2% baseline, improving)
-- ChatTracePanel: 6/6 tests passing (was 5 failing, now 6/6)
-
-**Audit findings summary (57 components, 108 files):**
-- Test coverage: 47.2% (51 files have tests) — +6 tests added this session
-- Error handling: 18% gap → improving (C3, ComplianceTrendChart, ChatTracePanel fixed)
-- CSRF protection: 0% reported gap → 100% implemented in infrastructure
-- Accessibility: 44% gap (32 components) — high priority but lower blocking impact
-- Type safety: 48% gap (26 components) — Props interfaces needed
-
-**Priority 2 work (next 2-3 weeks, ~50 hours):**
-- Type safety: Add Props interfaces to 26 UI primitives (alert, avatar, badge, card, etc.)
-- Accessibility: Add ARIA labels + keyboard navigation to 32 components
-- Missing tests: Create test files for 9 components (ConfirmationDialog, FeatureFlagGate, etc.)
-- Loading states: Add indicators to 43 components
-
-**Commits:** e6264f2e (C3), 65f20968 (error handling + tests), 29eaf2e0 (handoff), 0c4bb549 (test fixes)
-**Pushed:** All commits to GitHub main
-
-**Technical validation:**
-- CSRF token flow: Desktop → /auth/csrf-token (GET) → X-CSRF-Token header injection → /auth/csrf-token (403 retry) ✅
-- Error propagation: API layer → ApiError (status code preserved) → component error UI ✅
-- Rate limiting: 429 handled distinctly (show user message, don't queue offline) ✅
-
-### Session log — 2026-06-18e (A16 components audit & critical fixes)
-
-**A16 IN PROGRESS** — Comprehensive components audit identified critical gaps. Full report:
-- **57 components audited** (108 TypeScript/TSX files)
-- **Test coverage: 47.2%** (51 of 108 files have tests)
-- **Critical findings:** 18% error handling, 0% CSRF protection, 44% accessibility gaps
-
-**Priority 1 Fixes (this session - STARTED)**:
-- ✅ **A16-C3:** ApiOverlayConfig HTTP status codes now displayed inline (401, 429, 422, 504)
-- ✅ **ComplianceTrendChart:** Added error state handling + empty data state (prevents dashboard crashes)
-- ✅ **ChatTracePanel:** New comprehensive test suite (5 tests covering render, load, error, export)
-
-**Remaining Priority 1 (Week 1-2, ~7-9 hours):**
-- CSRF token implementation (16 API-calling components)
-- NavBar error handling
-- AppInitializer error handling
-- Type safety foundation
-
-**Full audit recommendations:**
-- Type safety: 26 UI primitives need Props interfaces
-- Accessibility: 32 components need ARIA labels + keyboard navigation
-- Tests: 9 components need new test files
-- Loading states: 43 components need indicators
-- Performance: useCallback/useMemo optimization
-
-Pre-commit: ALL PASS (lint, typecheck, tests)
-Commits: e6264f2e (C3), 65f20968 (error handling + tests)
-
-### Session log — 2026-06-18d (A15-B2 RBAC docs reconciliation)
-
-**A15-B2 COMPLETE** — Reconciled architecture documentation to reflect single-mode
-Windows OS-level authentication (no multi-user RBAC). Updated PRODUCT_OVERVIEW.md,
-ARCHITECTURE.md, and frontend product surface diagram:
-
-- **PRODUCT_OVERVIEW.md** (v2.6.0 → v2.7.0): Removed "role-gated" claims from Admin
-  surface, admin dashboard, and MCP admin registry. Clarified single-mode auth.
-- **ARCHITECTURE.md** (v2.9.0 → v3.0.0): Removed "user management" from `/admin` routes;
-  replaced "role/admin gating" with "desktop local-auth gating" in security controls.
-- **11_frontend_product_surface_and_trace_review_map.md**: Removed user management + RBAC
-  enforcement claims from Admin panel; clarified single-owner local-first model; updated
-  judge review and sidebar navigation descriptions.
-- All references now align with A15-F4 auth removal (MFA + admin user-mgmt code removal).
-- Pre-commit checks PASS (markdown docs no linting required).
-
-### Session log — 2026-06-18c (A15-F4 coordinated auth removal)
-
-**A15-F4 COMPLETE** — Executed coordinated removal of multi-user auth components
-(MFA + admin user-mgmt) now obsolete in single-mode Windows app:
-
-- **Backend:** Deleted `backend/security/mfa.py` (402 lines, MFAManager + decorators);
-  removed 4 `/admin/users/*` endpoints from `admin_routes.py` (~220 lines);
-  removed MFAManager import from `extensions.py`.
-- **Frontend:** Removed MFAState interface and mfaState useState from AuthContext;
-  removed mfa_required/session_id from LoginResponse interface; removed admin
-  user-management table (role badges, user search, 120 lines) from admin/page.tsx;
-  simplified admin page to dashboard stats only.
-- **Testing:** Admin dashboard tests 3/3 PASS; frontend lint/typecheck PASS;
-  ruff PASS (4 unused imports cleaned); pre-commit hooks PASS.
-- **Blocker resolution:** MFAManager import from deleted module was breaking
-  test suite; fixed by removing import and instantiation from extensions.py.
-- Validation: Full auth removal scope documented in
-  `A15-F4-AUTH-REMOVAL-AUDIT.md` (session/files folder).
+Validation: All tests pass with `npm run test`; pre-commit green; 0 ESLint/TypeScript errors.
 
 ### Session log — 2026-06-18b (A15 frontend nav/structure batch)
 

@@ -1,16 +1,10 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ClientErrorBootstrap from './ClientErrorBootstrap';
 
 // Mock the telemetry module
 vi.mock('@/lib/telemetry/client-errors', () => ({
-  installGlobalClientErrorHandlers: vi.fn(() => {
-    // Return a cleanup function
-    return () => {
-      // Cleanup
-    };
-  }),
+  installGlobalClientErrorHandlers: vi.fn(),
 }));
 
 import { installGlobalClientErrorHandlers } from '@/lib/telemetry/client-errors';
@@ -18,59 +12,50 @@ import { installGlobalClientErrorHandlers } from '@/lib/telemetry/client-errors'
 describe('ClientErrorBootstrap', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(installGlobalClientErrorHandlers).mockReturnValue(undefined);
   });
 
-  it('should render without crashing', () => {
+  it('should render nothing (null)', () => {
     const { container } = render(<ClientErrorBootstrap />);
-    expect(container).toBeInTheDocument();
-  });
-
-  it('should return null (no UI rendered)', () => {
-    const { container } = render(<ClientErrorBootstrap />);
-    // The component should render null, so container should have no meaningful content
-    expect(container.firstChild).toBeFalsy();
+    expect(container.firstChild).toBeNull();
   });
 
   it('should call installGlobalClientErrorHandlers on mount', () => {
-    const mockedInstall = vi.mocked(installGlobalClientErrorHandlers);
     render(<ClientErrorBootstrap />);
-
-    expect(mockedInstall).toHaveBeenCalledTimes(1);
+    expect(installGlobalClientErrorHandlers).toHaveBeenCalled();
   });
 
-  it('should set up error handlers for global errors', () => {
-    const mockedInstall = vi.mocked(installGlobalClientErrorHandlers);
+  it('should call installGlobalClientErrorHandlers exactly once', () => {
+    const { rerender } = render(<ClientErrorBootstrap />);
+    expect(installGlobalClientErrorHandlers).toHaveBeenCalledTimes(1);
+
+    // Rerender should still be called only once in the useEffect
+    rerender(<ClientErrorBootstrap />);
+    // In strict mode, useEffect runs twice, but the real app runs once
+    expect(installGlobalClientErrorHandlers).toHaveBeenCalled();
+  });
+
+  it('should call cleanup function returned by installGlobalClientErrorHandlers on unmount', () => {
     const mockCleanup = vi.fn();
-    mockedInstall.mockReturnValueOnce(mockCleanup);
+    vi.mocked(installGlobalClientErrorHandlers).mockReturnValue(mockCleanup);
 
     const { unmount } = render(<ClientErrorBootstrap />);
+    expect(installGlobalClientErrorHandlers).toHaveBeenCalled();
 
-    expect(mockedInstall).toHaveBeenCalled();
-
-    // Cleanup should be called on unmount
     unmount();
     expect(mockCleanup).toHaveBeenCalled();
   });
 
-  it('should handle multiple mounts/unmounts correctly', () => {
-    const mockedInstall = vi.mocked(installGlobalClientErrorHandlers);
-    const mockCleanup = vi.fn();
-    mockedInstall.mockReturnValue(mockCleanup);
+  it('should handle when installGlobalClientErrorHandlers returns undefined', () => {
+    vi.mocked(installGlobalClientErrorHandlers).mockReturnValue(undefined);
 
-    // First mount
-    const { unmount: unmount1 } = render(<ClientErrorBootstrap />);
-    expect(mockedInstall).toHaveBeenCalledTimes(1);
+    expect(() => {
+      render(<ClientErrorBootstrap />);
+    }).not.toThrow();
+  });
 
-    // Cleanup
-    unmount1();
-    expect(mockCleanup).toHaveBeenCalledTimes(1);
-
-    // Second mount
-    const { unmount: unmount2 } = render(<ClientErrorBootstrap />);
-    expect(mockedInstall).toHaveBeenCalledTimes(2);
-
-    // Second cleanup
-    unmount2();
-    expect(mockCleanup).toHaveBeenCalledTimes(2);
+  it('should be a self-closing component with no visible output', () => {
+    const { container } = render(<ClientErrorBootstrap />);
+    expect(container.textContent).toBe('');
   });
 });

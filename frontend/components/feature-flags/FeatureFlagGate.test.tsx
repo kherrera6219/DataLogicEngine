@@ -16,12 +16,11 @@ describe('FeatureFlagGate', () => {
 
   it('should render children when flag is enabled', () => {
     vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: vi.fn((flag) => flag === 'testFlag'),
-      flags: { testFlag: true },
-    });
+      isEnabled: (flag: string) => flag === 'test-flag',
+    } as any);
 
     render(
-      <FeatureFlagGate flag="testFlag">
+      <FeatureFlagGate flag="test-flag">
         <div>Feature content</div>
       </FeatureFlagGate>
     );
@@ -31,12 +30,11 @@ describe('FeatureFlagGate', () => {
 
   it('should render fallback when flag is disabled', () => {
     vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: vi.fn(() => false),
-      flags: {},
-    });
+      isEnabled: () => false,
+    } as any);
 
     render(
-      <FeatureFlagGate flag="testFlag" fallback={<div>Fallback content</div>}>
+      <FeatureFlagGate flag="disabled-flag" fallback={<div>Fallback content</div>}>
         <div>Feature content</div>
       </FeatureFlagGate>
     );
@@ -45,14 +43,13 @@ describe('FeatureFlagGate', () => {
     expect(screen.queryByText('Feature content')).not.toBeInTheDocument();
   });
 
-  it('should render null fallback by default', () => {
+  it('should render nothing when flag is disabled and no fallback', () => {
     vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: vi.fn(() => false),
-      flags: {},
-    });
+      isEnabled: () => false,
+    } as any);
 
     const { container } = render(
-      <FeatureFlagGate flag="testFlag">
+      <FeatureFlagGate flag="disabled-flag">
         <div>Feature content</div>
       </FeatureFlagGate>
     );
@@ -61,66 +58,61 @@ describe('FeatureFlagGate', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('should handle multiple flags', () => {
-    const isEnabledMock = vi.fn((flag) => flag === 'enabledFlag');
-    vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: isEnabledMock,
-      flags: { enabledFlag: true, disabledFlag: false },
-    });
-
-    const { rerender } = render(
-      <FeatureFlagGate flag="enabledFlag">
-        <div>Enabled feature</div>
-      </FeatureFlagGate>
-    );
-
-    expect(screen.getByText('Enabled feature')).toBeInTheDocument();
-
-    rerender(
-      <FeatureFlagGate flag="disabledFlag">
-        <div>Disabled feature</div>
-      </FeatureFlagGate>
-    );
-
-    expect(screen.queryByText('Disabled feature')).not.toBeInTheDocument();
-  });
-
-  it('should render nested elements correctly', () => {
-    vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: vi.fn(() => true),
-      flags: { testFlag: true },
-    });
-
-    render(
-      <FeatureFlagGate flag="testFlag">
-        <div>
-          <p>Parent content</p>
-          <ul>
-            <li>Item 1</li>
-            <li>Item 2</li>
-          </ul>
-        </div>
-      </FeatureFlagGate>
-    );
-
-    expect(screen.getByText('Parent content')).toBeInTheDocument();
-    expect(screen.getByText('Item 1')).toBeInTheDocument();
-    expect(screen.getByText('Item 2')).toBeInTheDocument();
-  });
-
   it('should call isEnabled with correct flag name', () => {
-    const isEnabledMock = vi.fn(() => true);
+    const mockIsEnabled = vi.fn(() => true);
     vi.mocked(useFeatureFlags).mockReturnValue({
-      isEnabled: isEnabledMock,
-      flags: { customFlag: true },
-    });
+      isEnabled: mockIsEnabled,
+    } as any);
 
     render(
-      <FeatureFlagGate flag="customFlag">
+      <FeatureFlagGate flag="custom-flag">
         <div>Content</div>
       </FeatureFlagGate>
     );
 
-    expect(isEnabledMock).toHaveBeenCalledWith('customFlag');
+    expect(mockIsEnabled).toHaveBeenCalledWith('custom-flag');
+  });
+
+  it('should render complex children correctly', () => {
+    vi.mocked(useFeatureFlags).mockReturnValue({
+      isEnabled: () => true,
+    } as any);
+
+    render(
+      <FeatureFlagGate flag="test-flag">
+        <section>
+          <h2>Feature Title</h2>
+          <p>Description</p>
+          <button>Action</button>
+        </section>
+      </FeatureFlagGate>
+    );
+
+    expect(screen.getByText('Feature Title')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument();
+  });
+
+  it('should handle multiple different flags', () => {
+    const mockIsEnabled = vi.fn((flag: string) => flag === 'enabled-flag');
+    vi.mocked(useFeatureFlags).mockReturnValue({
+      isEnabled: mockIsEnabled,
+    } as any);
+
+    const { rerender } = render(
+      <FeatureFlagGate flag="enabled-flag">
+        <div>Enabled</div>
+      </FeatureFlagGate>
+    );
+
+    expect(screen.getByText('Enabled')).toBeInTheDocument();
+
+    rerender(
+      <FeatureFlagGate flag="disabled-flag">
+        <div>Disabled</div>
+      </FeatureFlagGate>
+    );
+
+    expect(screen.queryByText('Disabled')).not.toBeInTheDocument();
   });
 });

@@ -1,25 +1,7 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-18 22:15 (**PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 PRIORITY 2 IN PROGRESS** ✅)
-
-**PHASE 3 AUDIT COMPLETION STATUS:**
-
-| Phase | Item | Status | Commits |
-|-------|------|--------|---------|
-| **A15** | Navigation audit (F1) | ✅ DONE | 28cb1ab1 |
-| **A15** | Sidebar surface wiring (F2) | ✅ DONE | 8f88cc61 |
-| **A15** | Error/loading per-page (F3) | ✅ DONE | 87cbe12a |
-| **A15** | Coordinated auth removal (F4) | ✅ DONE | b4c1fa69, 53c0d30b |
-| **A15** | RBAC docs reconciliation (B2) | ✅ DONE | cc42ed95, 44e618c5 |
-| **A16-C3** | HTTP status codes in ApiOverlayConfig | ✅ DONE | e6264f2e |
-| **A16-Priority 1** | ComplianceTrendChart error handling | ✅ DONE | 65f20968 |
-| **A16-Priority 1** | ChatTracePanel test coverage (6/6) | ✅ DONE | 0c4bb549 |
-| **A16-Priority 1** | CSRF infrastructure verification | ✅ DONE | verified |
-| **A16-Priority 2** | Type safety (UI primitives + Props) | ✅ DONE (23/23 existing) | 026502a8 |
-| **A16-Priority 2** | Test coverage (3 additional components) | ✅ DONE | f38f2cc8 |
-| **A16-Priority 2** | Accessibility (32 components) | ⏳ IN PROGRESS (14/32 = 44%) | b90df4ba |
-| **A16-Priority 3** | Loading states (43 components) | ⏳ PENDING | - |
-| **A17** | Frontend lib & hooks audit | ⏳ PENDING | - |
+**Last updated:** 2026-06-19 (**A16 Priority 2 in progress** — frontend component coverage is now **80.06%** and the latest batch added accessibility semantics/keyboard support across chat, settings, and MCP control surfaces. Recent work covered API + telemetry tests, app error/loading surfaces, DatabaseSettings, and Tier 1/Tier 2 a11y follow-through on `ChatInterface`, `DetailedResponseView`, `MessageBubble`, `CommandBar`, `AiModelSettings`, `KnowledgeIngestionSettings`, and `McpClientConfig`. **NEXT:** continue the remaining A16 accessibility sweep and any lower-coverage component follow-ups that support the audit finish line.)
+**Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
 

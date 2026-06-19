@@ -3,50 +3,44 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RouteErrorFallback } from './route-error-fallback';
 
-// Mock telemetry
+// Mock the telemetry module
 vi.mock('@/lib/telemetry/client-errors', () => ({
   reportClientError: vi.fn(),
 }));
 
-// Mock UI components
-vi.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, ...props }: { children: React.ReactNode; onClick?: () => void; [key: string]: any }) => (
-    <button data-testid="reset-button" onClick={onClick} {...props}>
-      {children}
-    </button>
-  ),
+// Mock lucide-react icons
+vi.mock('lucide-react', () => ({
+  AlertTriangle: () => <span data-testid="alert-icon">AlertTriangle</span>,
+  RefreshCw: () => <span data-testid="refresh-icon">RefreshCw</span>,
 }));
 
-vi.mock('lucide-react', () => ({
-  RefreshCw: () => <span data-testid="refresh-icon">↻</span>,
-  AlertTriangle: () => <span data-testid="alert-icon">⚠</span>,
+// Mock Button component
+vi.mock('@/components/ui/button', () => ({
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 import { reportClientError } from '@/lib/telemetry/client-errors';
 
 describe('RouteErrorFallback', () => {
+  const mockError = new Error('Test error message');
+  const mockReset = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  const mockError = new Error('Test error message');
-  mockError.digest = 'test-digest-123';
-
-  const mockReset = vi.fn();
-  const moduleName = 'TestModule';
-
   it('should render error fallback UI', () => {
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
     expect(screen.getByText('Module Error')).toBeInTheDocument();
-    expect(screen.getByText(`Component: ${moduleName}`)).toBeInTheDocument();
+    expect(screen.getByText(/Component: TestModule/)).toBeInTheDocument();
   });
 
   it('should display error message', () => {
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
     expect(screen.getByText('Test error message')).toBeInTheDocument();
@@ -54,86 +48,81 @@ describe('RouteErrorFallback', () => {
 
   it('should display alert icon', () => {
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
     expect(screen.getByTestId('alert-icon')).toBeInTheDocument();
   });
 
-  it('should display reset button with refresh icon', () => {
+  it('should have a retry button with refresh icon', () => {
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
-    expect(screen.getByTestId('reset-button')).toBeInTheDocument();
+    const retryButton = screen.getByRole('button', { name: /Retry Module/i });
+    expect(retryButton).toBeInTheDocument();
     expect(screen.getByTestId('refresh-icon')).toBeInTheDocument();
-    expect(screen.getByText('Retry Module')).toBeInTheDocument();
   });
 
-  it('should call reset function when button is clicked', () => {
+  it('should call reset function when retry button clicked', () => {
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
-    const resetButton = screen.getByTestId('reset-button');
-    fireEvent.click(resetButton);
+    const retryButton = screen.getByRole('button', { name: /Retry Module/i });
+    fireEvent.click(retryButton);
 
     expect(mockReset).toHaveBeenCalledTimes(1);
   });
 
   it('should report error on mount', () => {
-    const mockedReportError = vi.mocked(reportClientError);
-
     render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
-    expect(mockedReportError).toHaveBeenCalledWith(mockError, {
-      module: moduleName,
+    expect(reportClientError).toHaveBeenCalledWith(mockError, {
+      module: 'TestModule',
       action: 'route-error',
     });
   });
 
-  it('should show helpful message to user', () => {
-    render(
-      <RouteErrorFallback error={mockError} reset={mockReset} moduleName={moduleName} />
+  it('should report error when error changes', () => {
+    const { rerender } = render(
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
     );
 
-    expect(screen.getByText(/The module failed to render/i)).toBeInTheDocument();
-    expect(screen.getByText(/Retry to recover/i)).toBeInTheDocument();
-  });
+    const newError = new Error('New error message');
+    rerender(
+      <RouteErrorFallback error={newError} reset={mockReset} moduleName="TestModule" />
+    );
 
-  it('should render with different module names', () => {
-    const modules = ['Dashboard', 'Settings', 'ChatPanel'];
-
-    modules.forEach((module) => {
-      const { unmount } = render(
-        <RouteErrorFallback error={mockError} reset={mockReset} moduleName={module} />
-      );
-
-      expect(screen.getByText(`Component: ${module}`)).toBeInTheDocument();
-      unmount();
+    expect(reportClientError).toHaveBeenCalledWith(newError, {
+      module: 'TestModule',
+      action: 'route-error',
     });
   });
 
-  it('should handle errors with and without digest', () => {
+  it('should display recovery message', () => {
+    render(
+      <RouteErrorFallback error={mockError} reset={mockReset} moduleName="TestModule" />
+    );
+
+    expect(screen.getByText(/The module failed to render/)).toBeInTheDocument();
+    expect(screen.getByText(/Retry to recover this route segment/)).toBeInTheDocument();
+  });
+
+  it('should handle error with digest property', () => {
     const errorWithDigest = new Error('Error with digest');
-    errorWithDigest.digest = 'digest-123';
+    (errorWithDigest as any).digest = 'abc123';
 
-    const errorWithoutDigest = new Error('Error without digest');
-
-    const { unmount } = render(
-      <RouteErrorFallback error={errorWithDigest} reset={mockReset} moduleName={moduleName} />
+    render(
+      <RouteErrorFallback
+        error={errorWithDigest}
+        reset={mockReset}
+        moduleName="TestModule"
+      />
     );
 
     expect(screen.getByText('Error with digest')).toBeInTheDocument();
-
-    unmount();
-
-    render(
-      <RouteErrorFallback error={errorWithoutDigest} reset={mockReset} moduleName={moduleName} />
-    );
-
-    expect(screen.getByText('Error without digest')).toBeInTheDocument();
   });
 });

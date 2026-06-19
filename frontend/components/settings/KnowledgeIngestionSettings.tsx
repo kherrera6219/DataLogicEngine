@@ -154,7 +154,7 @@ export function KnowledgeIngestionSettings() {
   }, [asyncId, asyncStatus?.status, loadHistory, toast]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" aria-busy={running || loadingHistory}>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Card className="fluent-card">
           <CardHeader>
@@ -175,7 +175,7 @@ export function KnowledgeIngestionSettings() {
                   placeholder="C:/software/DataLogicEngine/corpus"
                   disabled={running}
                 />
-                <Button type="button" variant="outline" onClick={() => setPath('')} disabled={running || !path}>
+                <Button type="button" variant="outline" onClick={() => setPath('')} disabled={running || !path} aria-label="Clear local path">
                   Clear
                 </Button>
               </div>
@@ -225,7 +225,7 @@ export function KnowledgeIngestionSettings() {
                   <div className="text-xs text-slate-500 dark:text-gray-400">Subfolders are included when enabled.</div>
                 </div>
               </div>
-              <Switch checked={recursive} onCheckedChange={setRecursive} disabled={running} />
+              <Switch checked={recursive} onCheckedChange={setRecursive} disabled={running} aria-label="Recursive folder scan" />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 dark:border-white/10 dark:bg-black/20">
@@ -236,7 +236,7 @@ export function KnowledgeIngestionSettings() {
                   <div className="text-xs text-slate-500 dark:text-gray-400">Run ingestion in the background.</div>
                 </div>
               </div>
-              <Switch checked={asyncMode} onCheckedChange={setAsyncMode} disabled={running} />
+              <Switch checked={asyncMode} onCheckedChange={setAsyncMode} disabled={running} aria-label="Async mode" />
             </div>
 
             {asyncMode && (
@@ -248,7 +248,7 @@ export function KnowledgeIngestionSettings() {
                     <div className="text-xs text-slate-500 dark:text-gray-400">Sync new nodes to the graph database after ingestion.</div>
                   </div>
                 </div>
-                <Switch checked={syncNeo4j} onCheckedChange={setSyncNeo4j} disabled={running} />
+                <Switch checked={syncNeo4j} onCheckedChange={setSyncNeo4j} disabled={running} aria-label="Sync to Neo4j" />
               </div>
             )}
 
@@ -276,11 +276,11 @@ export function KnowledgeIngestionSettings() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void startIngestion()} disabled={running || !path.trim()} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => void startIngestion()} disabled={running || !path.trim()} className="bg-blue-600 hover:bg-blue-700" aria-label="Start local knowledge ingestion">
                 {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                 Start ingestion
               </Button>
-              <Button variant="outline" onClick={() => void loadHistory()} disabled={loadingHistory || running}>
+              <Button variant="outline" onClick={() => void loadHistory()} disabled={loadingHistory || running} aria-label="Refresh ingestion history">
                 <RefreshCw className={`mr-2 h-4 w-4 ${loadingHistory ? 'animate-spin' : ''}`} />
                 Refresh history
               </Button>

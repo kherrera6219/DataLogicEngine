@@ -64,6 +64,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
 
@@ -273,6 +274,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     };
   }, [autoOpenUpload]);
 
+  useEffect(() => {
+    if (autoOpenUpload) {
+      return;
+    }
+
+    composerRef.current?.focus();
+  }, [autoOpenUpload]);
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -362,7 +371,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
       {/* ðŸ“ Conversational Sidebar */}
-      <div className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20">
+      <aside className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Recent chat sessions">
          <div className="p-4 border-b border-white/5 space-y-4">
             <Button 
               className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
@@ -412,10 +421,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5">Clear All</Button>
             </div>
          </div>
-      </div>
+      </aside>
 
       {/* ðŸ’¬ Main Chat Area */}
-      <div className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area">
+      <main className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area" role="main" aria-label="Chat interface">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
@@ -435,7 +444,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
          </div>
 
          {/* Messages */}
-         <div className="flex-1 overflow-y-auto p-6 space-y-6" data-testid="messages-container">
+         <div className="flex-1 overflow-y-auto p-6 space-y-6" data-testid="messages-container" aria-live="polite" aria-busy={isLoading}>
             {messages.map((msg) => (
                 <div key={msg.id} data-testid="message-item" className={`flex gap-4 animate-in ...`}>
                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-slate-200 dark:bg-[#2a2a2a] border border-slate-300/70 dark:border-white/10'}`}>
@@ -486,8 +495,11 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
          <div className="p-4 border-t border-white/5 fluent-acrylic z-20">
             <div className="max-w-4xl mx-auto bg-white/80 dark:bg-black/40 border border-slate-300/70 dark:border-white/10 rounded-2xl p-2 relative shadow-2xl backdrop-blur-md transition-all focus-within:ring-1 focus-within:ring-blue-500/30 focus-within:bg-white dark:focus-within:bg-black/60">
                <textarea 
+                  ref={composerRef}
                   className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-gray-200 text-sm p-3 min-h-[60px] resize-none pr-32 placeholder:text-slate-400 dark:placeholder:text-gray-600"
                   placeholder="Ask a compliance question..."
+                  aria-label="Message composer"
+                  aria-keyshortcuts="Control+Enter Meta+Enter"
                   value={inputValue}
                   onChange={(e) => {
                     const nextValue = strictInputSanitization
@@ -497,6 +509,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                         })
                       : e.target.value;
                     setInputValue(nextValue);
+                  }}
+                  onKeyDown={(event) => {
+                    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                      event.preventDefault();
+                      void handleSend();
+                    }
                   }}
                />
                 <div className="absolute bottom-2 left-3 flex gap-1">
@@ -556,14 +574,13 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
             <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">DataLogicEngine AI workspace</div>
          </div>
-      </div>
+      </main>
 
       {/* ðŸ”¬ Live Trace Sidebar */}
-      <div className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20">
+      <aside className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Live trace panel">
          <LiveTracePanel />
-      </div>
+      </aside>
 
     </div>
   );
 }
-
