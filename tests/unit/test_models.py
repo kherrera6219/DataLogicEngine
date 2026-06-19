@@ -112,19 +112,19 @@ def test_user_login_error_handling(app):
         # Mock ALL executions to fail
         mock_session.execute.side_effect = SQLAlchemyError("DB Error")
         
-        # We also need to patch update since it's called before execute in some cases?
-        # No, update returns an object, execute executes it.
-        # But if we don't mock update, it tries to build a query using real DB engine if bound?
-        # Standard SQLAlchemy update() returns a construct.
-        
         with pytest.raises(SQLAlchemyError):
             user.record_failed_login()
         mock_session.rollback.assert_called()
 
 def test_user_totp(app):
     user = User(mfa_enabled=True, mfa_secret="secret")
-    with patch('backend.security.mfa.MFAManager.verify_totp', return_value=True):
+    with patch('pyotp.TOTP') as mock_totp_class:
+        mock_totp_instance = MagicMock()
+        mock_totp_instance.verify.return_value = True
+        mock_totp_class.return_value = mock_totp_instance
         assert user.verify_totp("123456")
+        mock_totp_class.assert_called_once_with("secret")
+        mock_totp_instance.verify.assert_called_once_with("123456")
     
     user.mfa_enabled = False
     assert not user.verify_totp("123456")
@@ -180,8 +180,6 @@ def test_ext_api_key_methods(app):
     assert prefix.startswith("ukg_")
     
     mock_query = MagicMock()
-    # Mocking query on the model is hard if it's not instrumented by flask-sqlalchemy
-    # But since we use real models, we can patch cls.query
     with patch.object(ExternalAPIKey, 'query', mock_query):
         mock_query.filter_by.return_value.first.return_value = "found_key"
         assert ExternalAPIKey.verify_key("prefix_secret") == "found_key"
@@ -213,9 +211,6 @@ def test_graph_node_dict(app):
 # --- App Factory Tests ---
 
 def test_create_legacy_app():
-    # We patch init_app to prevent actual connection / extension logic if needed
-    # But we want to test that it is called.
-
     test_env = {
         "PYTEST_CURRENT_TEST": "tests/unit/test_models.py::test_create_legacy_app",
         "CORS_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000,app://-",
@@ -225,8 +220,6 @@ def test_create_legacy_app():
             patch('backend.CORS') as mock_cors, \
             patch.dict('os.environ', test_env, clear=True):
 
-        # Mock blueprints to avoid importing routes which might trigger more issues
-        # We iterate over the list of blueprints in __init__.py
         modules_to_mock = [
             'routes.auth_routes', 'backend.chat', 'backend.admin', 'backend.ukg_api',
             'routes.user_data_routes', 'backend.routes.settings_routes',
@@ -245,7 +238,6 @@ def test_create_legacy_app():
             assert isinstance(app, Flask)
             assert app.config['SECRET_KEY'] == 'dev-secret-key'
 
-            # Verify extensions initialized
             mock_db.assert_called_with(app)
             mock_jwt.assert_called_with(app)
             mock_cors.assert_called_with(
