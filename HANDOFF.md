@@ -1,10 +1,130 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 IN PROGRESS.**_
-Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
-A13, A14 (Phase 2); **A15 COMPLETE** (Phase 3 frontload: nav + auth removal + RBAC docs). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**A16 IN PROGRESS:** Comprehensive component audit (57 components, 108 files). C3 ✓ (HTTP status codes in ApiOverlayConfig). Critical fixes: ComplianceTrendChart error handling ✓, ChatTracePanel tests ✓._
-**NEXT:** CSRF protection foundation + 48 remaining component fixes (type safety, a11y, tests, loading states). Estimated: 50-60 hours across 4 weeks._
+_Last updated: 2026-06-18 21:47 UTC — **PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 Priority 1 COMPLETE; Priority 2/3 PENDING**_
+
+**PHASE 3 AUDIT COMPLETION SUMMARY:**
+- ✅ A15 (Navigation audit + Auth removal + RBAC docs): COMPLETE
+- ✅ A16 Priority 1 (HTTP status codes, error handling, CSRF verification): COMPLETE
+- ⏳ A16 Priority 2 (Type safety, accessibility, tests): PENDING (50 hours estimated)
+- ⏳ A16 Priority 3 (Loading states, performance): PENDING
+- ⏳ A17 (Frontend lib/hooks audit): PENDING
+
+**AUDIT PLAN FORWARD (A16 Priority 2-3, estimated 50-60 hours across 4 weeks):**
+
+| Priority | Category | Work Items | Scope | Hours | Status |
+|----------|----------|-----------|-------|-------|--------|
+| **2** | Type Safety | Add Props interfaces to 26 UI primitives | alert, avatar, badge, button, card, checkbox, dialog, etc. | 15-20 | PENDING |
+| **2** | Accessibility | ARIA labels + keyboard navigation | 32 components missing a11y features | 20-25 | PENDING |
+| **2** | Test Coverage | Write test files for 9 components | ConfirmationDialog, FeatureFlagGate, AiModelSettings, etc. | 10-12 | PENDING |
+| **3** | Loading States | Add visual indicators | 43 components need loading UI feedback | 10-15 | PENDING |
+| **3** | Performance | useCallback/useMemo optimization | Memoization for 20+ components | 5-8 | PENDING |
+
+**Testing & Quality Gates:**
+- Frontend tests: 240/240 passing ✅
+- TypeScript: clean ✅
+- ESLint: clean ✅
+- Python ruff: clean ✅
+- Pre-commit hooks: ALL PASS ✅
+
+**Next Session Tasks:**
+1. Start A16 Priority 2: Type safety (Props interfaces for UI primitives)
+2. Parallelize: Accessibility audit for high-impact components
+3. Monitor: CSRF enforcement in production (env var: ENFORCE_API_CSRF_TOKENS)
+
+---
+_Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12, A13, A14 (Phase 2); **A15 COMPLETE** (nav + auth + RBAC docs). **A16 Priority 1 COMPLETE** (C3 + error handling + CSRF). N1 (SEKRE) + N2 (defense_supervisor) wired._
+
+---
+
+## A16 COMPREHENSIVE AUDIT PLAN (Priority 2-3)
+
+**Audit Scope:** 57 frontend components analyzed; 108 TypeScript/TSX files reviewed. 240/240 tests passing. Priority 1 (HTTP status codes, error handling, CSRF) complete. Priority 2-3 items documented below.
+
+### A16 Priority 2: Type Safety & Accessibility (35-45 hours)
+
+**Type Safety — 26 UI Primitives Missing Props Interfaces:**
+1. `Button` — Add variant/size/disabled/loading props
+2. `Input` — Add placeholder/disabled/error/icon props
+3. `Card` — Add header/footer/variant props
+4. `Badge` — Add variant/color/size props
+5. `Alert` — Add variant/icon/dismissible props
+6. `Dialog` — Add open/onOpenChange/title/description props
+7. `Checkbox` — Add checked/disabled/label props
+8. `Select` — Add options/value/onChange/disabled props
+9. `Textarea` — Add placeholder/disabled/rows/maxLength props
+10. `Toggle` — Add pressed/onPressedChange props
+... and 16 more UI primitives from `components/ui/`
+
+**Accessibility — 32 Components Missing ARIA/Keyboard Nav:**
+1. NavBar — Add keyboard navigation, focus management
+2. AppSidebar — Add keyboard shortcuts, landmark regions
+3. Dropdown menus (5+ instances) — Add role=menu, arrow key nav
+4. Modal dialogs (4+ instances) — Add role=dialog, focus trap
+5. Tabs — Add ARIA-selected, keyboard tab switching
+... and 27 more components
+
+**Action items:**
+- Create Props interface for each UI primitive in `components/ui/*.tsx`
+- Add ARIA labels, roles, and keyboard event handlers
+- Test with screen readers and keyboard-only navigation
+- Validation: a11y linter + manual NVDA/JAWS testing
+
+### A16 Priority 2: Test Coverage (10-12 hours)
+
+**9 Components Missing Test Files:**
+1. `ConfirmationDialog.tsx` — Dialog acceptance/rejection flow
+2. `FeatureFlagGate.tsx` — Feature flag conditional rendering
+3. `AiModelSettings.tsx` — Model selection and configuration
+4. `McpIntegrationExamples.tsx` — MCP example rendering
+5. `ClientErrorBootstrap.tsx` — Error boundary initialization
+6. `LlmProviderSelector.tsx` — Provider selection UI
+7. `QuadAnalysisPanel.tsx` — Analysis results display
+8. `WorkspaceSelector.tsx` — Workspace switching logic
+9. `DebugConsole.tsx` — Debug output and controls
+
+**Action items:**
+- Create `ComponentName.test.tsx` for each component
+- Cover render, user interactions, error states, loading states
+- Mock API calls and hooks as needed
+- Validation: Jest/Vitest coverage threshold >80%
+
+### A16 Priority 3: Loading States & Performance (15-23 hours)
+
+**Loading States — 43 Components Need Indicators:**
+- Dashboard components (5) — Add skeleton loaders
+- Chat components (8) — Add typing indicators, message streaming
+- Settings pages (6) — Add form submission spinners
+- Data tables (7) — Add row-level loading states
+- Gallery/list components (12) — Add placeholder cards
+- Modal/dialog (5+ instances) — Add loading overlays
+
+**Performance Optimization:**
+- useCallback: Memoize event handlers in 15+ components
+- useMemo: Cache computed values in 20+ components
+- React.memo: Wrap pure UI components (8+ primitives)
+- Virtual scrolling: Long lists in DataTable, ChatHistory
+
+**Action items:**
+- Add loading UI (skeleton, spinner, placeholder) to 43 components
+- Profile with React DevTools; optimize based on re-render analysis
+- Add useCallback/useMemo to hot components
+- Validation: Performance audits with Lighthouse + React DevTools
+
+---
+
+## A17 PLANNED: Frontend Lib & Hooks Audit (Next phase)
+
+**Scope:** `frontend/lib/` (api, security, runtime, state) + `frontend/hooks/` + context providers
+
+**Known items:**
+- Runtime policy checks for desktop vs. web mode
+- Feature flag context and hooks
+- Toast notification system
+- Socket.IO connection management
+- API client initialization and error handling
+- Auth context and session persistence
+
+---
 
 ### Session log — 2026-06-18f (A16 Priority 1 completion + CSRF verification)
 
