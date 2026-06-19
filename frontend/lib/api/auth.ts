@@ -15,8 +15,6 @@ export interface AuthCheckResponse {
 export interface LoginResponse {
     user?: User;
     token?: string;
-    mfa_required?: boolean;
-    session_id?: string;
 }
 
 export const auth = {

@@ -180,7 +180,7 @@ A reviewer can inspect the product in this order:
 4. **Graph / Knowledge** — inspect the 3D knowledge graph, node/edge browser, search/filter behavior, and 17-axis navigation.
 5. **Truth Engine Monitor** — inspect tier routing and Truth Engine execution status.
 6. **MCP Hub** — inspect connector registry, OAuth/token lifecycle, analytics, and server configuration.
-7. **Admin / Compliance** — inspect user management, RBAC, provider configuration, MCP management, security/compliance dashboard, and audit export.
+7. **Admin / Compliance** — inspect provider configuration, MCP management, security/compliance dashboard, and audit export (single authenticated owner).
 8. **Settings / Privacy / Legal / About** — inspect local/cloud disclosures, privacy controls, AI limitations, and cloud-service transparency.
 9. **Desktop Status** — verify Electron/desktop runtime state when running as a Windows app.
 
@@ -195,7 +195,7 @@ A reviewer can inspect the product in this order:
 | `/knowledge` | knowledge node/edge APIs | Shows inspectable knowledge assets. |
 | `/truth-engine` | Truth Engine API | Shows TruthCore/TruthGate/TruthMemory/TruthLink status. |
 | `/mcp` | MCP server APIs | Shows connector and external-tool integration management. |
-| `/admin` | admin, compliance, RBAC, provider config | Shows governance and administrative controls. |
+| `/admin` | admin, compliance, provider config | Shows governance and administrative controls (single owner). |
 | `/admin/compliance` | audit/security/compliance APIs | Shows compliance review and audit surface. |
 | `/settings` | user/runtime/application settings | Shows configurable runtime behavior. |
 | `/settings/privacy` and `/legal/privacy` | privacy APIs and policy docs | Shows privacy controls and user-facing policy. |
@@ -248,9 +248,9 @@ System:          Admin*, Compliance*, Settings
 ```
 
 `NavBar` is global chrome only — logo, cloud-status indicator, theme toggle, and the
-account menu; it no longer duplicates primary page links. Admin and Compliance (*) are
-shown only for the owner/admin role (vestigial under single-mode; slated for removal with
-the auth deprecation — see `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`). The
+account menu; it no longer duplicates primary page links. Admin and Compliance are
+integrated into single-mode desktop operation (OS-level auth; see
+`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`). The
 sidebar collapsed state is persisted in local storage.
 
 ## Trace Review Surface
@@ -300,14 +300,12 @@ The MCP hub exposes:
 
 The Admin panel exposes:
 
-- user management;
-- RBAC enforcement;
 - LLM provider configuration;
 - MCP server management;
 - compliance dashboard;
-- audit log export.
+- audit log export (single authenticated owner).
 
-These are important because they show the application is designed for enterprise operation, not only individual chat.
+These are important because they show the application is designed for single-owner local-first desktop operation with Windows OS-level authentication, not multi-user SaaS.
 
 ## Frontend Technology Stack
 
@@ -328,7 +326,7 @@ The frontend is built on:
 A technical judge should inspect these files in order:
 
 1. `frontend/app/layout.tsx` — confirms the root provider stack, app shell, sidebar, nav, disclosure banner, footer, and desktop status.
-2. `frontend/components/layout/AppSidebar.tsx` — confirms primary product navigation and admin gating.
+2. `frontend/components/layout/AppSidebar.tsx` — confirms primary product navigation and desktop local-auth gate (single owner).
 3. `frontend/README.md` — confirms documented route structure, key features, API integration, design system, and desktop shell.
 4. `frontend/lib/api/index.ts` — confirms base API request behavior and CSRF handling.
 5. `frontend/lib/api/trace.ts` — confirms trace run fetch/export behavior.

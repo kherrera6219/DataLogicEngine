@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import useSWR from 'swr';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertCircle } from 'lucide-react';
 
 export function ComplianceTrendChart() {
-  const { data: trendData, isLoading } = useSWR('analytics-trends-sessions', () => 
+  const { data: trendData, isLoading, error } = useSWR('analytics-trends-sessions', () => 
     api.analytics.trends('sessions', 14)
   );
 
@@ -34,6 +35,15 @@ export function ComplianceTrendChart() {
       <CardContent className="h-[300px] w-full pt-4">
         {isLoading ? (
           <Skeleton className="w-full h-full" />
+        ) : error ? (
+          <div className="flex items-center justify-center h-full gap-2 text-sm text-red-500">
+            <AlertCircle className="h-4 w-4" />
+            <span>Failed to load trend data</span>
+          </div>
+        ) : data.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+            No data available
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>

@@ -1,14 +1,29 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
+/** Props for the Table component. */
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  /** Whether the table is striped (alternating row colors). */
+  striped?: boolean
+  /** Whether the table is hoverable. */
+  hoverable?: boolean
+  /** Accessible label for the table. */
+  "aria-label"?: string
+}
+
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
+  TableProps
+>(({ className, striped = false, hoverable = true, ...props }, ref) => (
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn(
+        "w-full caption-bottom text-sm",
+        striped && "[&_tbody_tr:nth-child(odd)]:bg-gray-50 dark:[&_tbody_tr:nth-child(odd)]:bg-gray-900",
+        hoverable && "[&_tbody_tr]:hover:bg-gray-100/50 dark:[&_tbody_tr]:hover:bg-gray-800/50",
+        className
+      )}
       {...props}
     />
   </div>
@@ -67,7 +82,10 @@ TableRow.displayName = "TableRow"
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
+  React.ThHTMLAttributes<HTMLTableCellElement> & {
+    /** Sort direction if this is a sortable column. */
+    "aria-sort"?: "ascending" | "descending" | "none" | "other"
+  }
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
@@ -114,3 +132,4 @@ export {
   TableCell,
   TableCaption,
 }
+export type { TableProps }

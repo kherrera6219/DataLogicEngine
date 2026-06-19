@@ -45,7 +45,6 @@ const DESKTOP_CHALLENGE_ENDPOINT = '/auth/desktop/challenge';
 const CSRF_EXEMPT_ENDPOINT_PREFIXES = [
   '/auth/login',
   '/auth/register',
-  '/auth/mfa/verify',
   '/auth/desktop/challenge',
   '/auth/desktop/auto-login',
 ];

@@ -108,23 +108,35 @@ function formatRequestError(error: unknown): string {
 }
 
 /** Maps HTTP status codes from the provider-test endpoint to user-actionable labels. */
-function mapProviderTestError(error: unknown): string {
+interface ProviderTestError {
+  message: string;
+  statusCode?: number;
+}
+
+function mapProviderTestError(error: unknown): ProviderTestError {
   if (error instanceof ApiError) {
     const detail = error.message;
-    switch (error.status) {
+    const statusCode = error.status;
+    let message = detail;
+    
+    switch (statusCode) {
       case 401:
-        return `Invalid API key — ${detail}`;
+        message = `Invalid API key — ${detail}`;
+        break;
       case 429:
-        return `Rate limited — ${detail}`;
+        message = `Rate limited — ${detail}`;
+        break;
       case 422:
-        return `Invalid model — ${detail}`;
+        message = `Invalid model — ${detail}`;
+        break;
       case 504:
-        return `Network error — ${detail}`;
-      default:
-        return detail;
+        message = `Network error — ${detail}`;
+        break;
     }
+    
+    return { message, statusCode };
   }
-  return formatRequestError(error);
+  return { message: formatRequestError(error) };
 }
 
 export function ApiOverlayConfig() {
@@ -143,6 +155,8 @@ export function ApiOverlayConfig() {
   const [testQuery, setTestQuery] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [testConnectionStatusCode, setTestConnectionStatusCode] = useState<number | null>(null);
+  const [testConnectionErrorMessage, setTestConnectionErrorMessage] = useState<string>("");
   const [activeTab, setActiveTab] = useState("python");
 
   const [providers, setProviders] = useState<ProviderOption[]>([]);
@@ -315,6 +329,8 @@ export function ApiOverlayConfig() {
 
   const handleTestConnection = async () => {
     setConnectionStatus('testing');
+    setTestConnectionStatusCode(null);
+    setTestConnectionErrorMessage("");
     const providerId = selectedProviderId || await handleSaveKey();
     if (!providerId) {
       setConnectionStatus('error');
@@ -331,10 +347,15 @@ export function ApiOverlayConfig() {
       }
       setConnectionStatus('success');
       setSaveStatus('saved');
+      setTestConnectionStatusCode(null);
+      setTestConnectionErrorMessage("");
       toast(result.message || "Provider connection successful.", "success");
     } catch (error) {
       setConnectionStatus('error');
-      toast(mapProviderTestError(error), "error");
+      const { message, statusCode } = mapProviderTestError(error);
+      setTestConnectionStatusCode(statusCode || null);
+      setTestConnectionErrorMessage(message);
+      toast(message, "error");
     }
   };
 
@@ -655,6 +676,22 @@ print(response.json())`}
                     <span>{testResult.trace.provider}</span>
                     <span>{testResult.trace.model}</span>
                   </div>
+                </div>
+              )}
+
+              {connectionStatus === 'error' && testConnectionErrorMessage && (
+                <div className="mt-4 p-4 bg-red-900/10 border border-red-500/20 rounded-lg animate-in zoom-in-95">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-semibold text-red-300">Connection Error</span>
+                    {testConnectionStatusCode && (
+                      <Badge variant="destructive" className="bg-red-500/20 text-red-300 border-red-500/50">
+                        HTTP {testConnectionStatusCode}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-red-200">
+                    {testConnectionErrorMessage}
+                  </p>
                 </div>
               )}
             </CardContent>

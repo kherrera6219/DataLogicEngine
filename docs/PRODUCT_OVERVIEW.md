@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-06-18 |
 | Status | Active |
 | Owner | Product and Platform Engineering |
 | Review cadence | Every 30 days |
@@ -101,7 +101,7 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Simulations | `/simulations` | scenario simulation and status tracking. |
 | Truth Engine | `/truth-engine` | Truth Engine monitoring and review. |
 | MCP Hub | `/mcp`, `/admin/mcp`, `/admin/mcp/servers` | connector/server registry and governance. |
-| Admin | `/admin` | role-gated admin, users, providers, compliance, audit views. |
+| Admin | `/admin` | admin dashboard, providers, compliance, audit views (single-mode OS-level auth). |
 | Settings | `/settings`, `/settings/privacy` | provider, model, storage, privacy, notifications, local config. |
 | Public/legal | `/about`, `/about/*`, `/legal/privacy` | disclosures, limitations, privacy information. |
 
@@ -120,8 +120,8 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Settings/API gateway | Live | provider save/test, query playground, model/provider controls. |
 | Storage operations | Live | local storage status and lifecycle controls. |
 | Notifications | Live | user preferences loaded and persisted through user notification API. |
-| Admin dashboard | Live | role-gated backend-backed admin data. |
-| MCP admin registry | Live | stats/list/add/delete flows for admin users. |
+| Admin dashboard | Live | backend-backed admin data (system metrics, provider status, compliance). |
+| MCP admin registry | Live | stats/list/add/delete flows (single authenticated owner). |
 | Connector safety | Live | scope checks, SSRF/upstream guardrails, schema validation, telemetry. |
 | Observability | Live | `/metrics`, route metrics, AI/connector latency signals, DMRF/Truth signals where enabled. |
 | Data/integrity gates | Live | schema parity, runtime precheck, docs validation, lockfile/environment governance. |

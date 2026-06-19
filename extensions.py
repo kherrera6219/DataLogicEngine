@@ -16,7 +16,6 @@ from flask_compress import Compress
 from flask_cors import CORS
 from backend.security.audit_logger import AuditLogger
 from backend.security.encryption_manager import EncryptionManager
-from backend.security.mfa import MFAManager
 
 
 class Base(DeclarativeBase):
@@ -50,7 +49,6 @@ cache = Cache()
 compress = Compress()
 cors = CORS()
 encryption_manager = EncryptionManager(audit_logger=audit_logger)
-mfa_manager = MFAManager()
 
 login_manager.login_message = 'Please log in to access this page'
 login_manager.login_message_category = 'info'
