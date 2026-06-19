@@ -76,11 +76,11 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
     : 0;
 
   return (
-    <div className="min-h-full bg-black text-white font-sans flex flex-col">
+    <div className="min-h-full bg-black text-white font-sans flex flex-col" aria-busy={loading}>
       <div className="h-16 border-b border-white/10 bg-gray-900/50 backdrop-blur-md flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => window.history.back()}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => window.history.back()} aria-label="Go back">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Button>
           <div>
             <h1 className="text-sm font-bold tracking-wide flex items-center gap-2">
@@ -91,25 +91,26 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-8 border-white/10 text-gray-400 hover:text-white gap-2">
-            <Upload className="h-3 w-3" /> Upload Files
+          <Button variant="outline" size="sm" className="h-8 border-white/10 text-gray-400 hover:text-white gap-2" aria-label="Upload files to session">
+            <Upload className="h-3 w-3" aria-hidden="true" /> Upload Files
           </Button>
-          <Button size="sm" className="h-8 bg-blue-600 hover:bg-blue-700 font-bold gap-2">
-            <Plus className="h-3 w-3" /> New Note
+          <Button size="sm" className="h-8 bg-blue-600 hover:bg-blue-700 font-bold gap-2" aria-label="Create new note">
+            <Plus className="h-3 w-3" aria-hidden="true" /> New Note
           </Button>
         </div>
       </div>
 
       <div className="flex-1 flex">
-        <div className="flex-1 p-6">
+        <main className="flex-1 p-6" role="main" aria-label="Project session detail">
           <div className="flex items-center justify-between mb-6">
             <div className="relative w-64">
-              <Search className="absolute left-2 top-2.5 h-3 w-3 text-gray-500" />
+              <Search className="absolute left-2 top-2.5 h-3 w-3 text-gray-500" aria-hidden="true" />
               <Input
                 placeholder="Filter messages..."
                 className="pl-8 bg-white/5 border-white/10 h-8 text-xs"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
+                aria-label="Filter session messages"
               />
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -119,12 +120,12 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
             </div>
           </div>
 
-          {loading && <div className="text-sm text-muted-foreground">Loading session messages...</div>}
-          {!loading && error && <div className="text-sm text-red-400">Failed to load session: {error}</div>}
+          {loading && <div className="text-sm text-muted-foreground" role="status">Loading session messages...</div>}
+          {!loading && error && <div className="text-sm text-red-400" role="alert">Failed to load session: {error}</div>}
 
           {!loading && !error && (
             <div className="border border-white/10 rounded-lg overflow-hidden bg-gray-900/20">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs" aria-label="Session messages">
                 <thead className="bg-white/5 text-gray-400 font-mono uppercase">
                   <tr>
                     <th className="p-3 font-medium w-8"></th>
@@ -149,14 +150,14 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
                       <td className="p-3 text-gray-500">{relativeDate(message.timestamp)}</td>
                       <td className="p-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white">
-                            <Download className="h-3 w-3" />
+                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white" aria-label={`Download message ${message.id}`}>
+                            <Download className="h-3 w-3" aria-hidden="true" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-red-900/30 text-gray-400 hover:text-red-400">
-                            <Trash2 className="h-3 w-3" />
+                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-red-900/30 text-gray-400 hover:text-red-400" aria-label={`Delete message ${message.id}`}>
+                            <Trash2 className="h-3 w-3" aria-hidden="true" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white">
-                            <MoreHorizontal className="h-3 w-3" />
+                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white" aria-label={`More actions for message ${message.id}`}>
+                            <MoreHorizontal className="h-3 w-3" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>
@@ -170,9 +171,9 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
           {!loading && !error && !filteredMessages.length && (
             <div className="mt-6 text-sm text-muted-foreground">No messages found for this session filter.</div>
           )}
-        </div>
+        </main>
 
-        <div className="w-80 border-l border-white/10 bg-gray-900/30 p-6">
+        <aside className="w-80 border-l border-white/10 bg-gray-900/30 p-6" aria-label="Session statistics">
           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Session Stats</h3>
           <div className="space-y-4">
             <div className="p-4 bg-white/5 rounded-lg border border-white/5">
@@ -198,7 +199,7 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
               </div>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

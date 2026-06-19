@@ -36,4 +36,13 @@ describe('McpServerConfig', () => {
       expect(screen.getByText('UKG Production (ukg-prod)')).toBeInTheDocument();
     });
   });
+
+  it('should expose labeled inventory controls', async () => {
+    render(<McpServerConfig />);
+
+    expect(screen.getByRole('button', { name: 'Refresh MCP server inventory' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: 'Server' })).toBeInTheDocument();
+    });
+  });
 });

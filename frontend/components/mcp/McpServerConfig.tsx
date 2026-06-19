@@ -144,20 +144,20 @@ export function McpServerConfig() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500" aria-busy={loading || refreshing}>
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-white">MCP Server Configuration</h2>
           <p className="text-gray-400">Live server/tool/resource inventory from `/api/v1/mcp/*`.</p>
         </div>
-        <Button variant="outline" onClick={() => void handleRefresh()} disabled={refreshing}>
+        <Button variant="outline" onClick={() => void handleRefresh()} disabled={refreshing} aria-label="Refresh MCP server inventory">
           <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
       {error && (
-        <Card className="border-red-500/30 bg-red-500/10">
+        <Card className="border-red-500/30 bg-red-500/10" role="alert">
           <CardContent className="p-4 text-sm text-red-300">
             {error}
           </CardContent>
@@ -173,8 +173,8 @@ export function McpServerConfig() {
         <CardContent className="pt-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-gray-500">Server</label>
-              <Select value={selectedServerId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedServerId(e.target.value)} className="bg-white/5 border-white/10 text-white">
+              <label htmlFor="mcp-server-select" className="text-xs font-bold uppercase text-gray-500">Server</label>
+              <Select id="mcp-server-select" value={selectedServerId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedServerId(e.target.value)} className="bg-white/5 border-white/10 text-white">
                 {servers.length === 0 && (
                   <SelectItem value="">No server found</SelectItem>
                 )}
@@ -253,7 +253,7 @@ export function McpServerConfig() {
                   <span>last: {tool.last_executed || 'never'}</span>
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => setSelectedTool(tool)}>Inspect</Button>
+              <Button size="sm" variant="outline" onClick={() => setSelectedTool(tool)} aria-label={`Inspect tool ${tool.name}`}>Inspect</Button>
             </div>
           ))}
         </CardContent>
@@ -323,7 +323,7 @@ export function McpServerConfig() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedTool(null)}>Close</Button>
+            <Button variant="outline" onClick={() => setSelectedTool(null)} aria-label="Close tool details">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

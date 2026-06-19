@@ -66,7 +66,7 @@ describe('ProjectDetail', () => {
     render(<ProjectDetail id="PROJ-123" />);
     await screen.findByText('HIPAA Compliance Audit');
 
-    const backButton = screen.getAllByRole('button')[0];
+    const backButton = screen.getByRole('button', { name: 'Go back' });
     fireEvent.click(backButton);
     expect(mockBack).toHaveBeenCalled();
   });
@@ -87,5 +87,14 @@ describe('ProjectDetail', () => {
     expect(screen.getByText('Total Messages')).toBeInTheDocument();
     expect(screen.getByText('Created')).toBeInTheDocument();
     expect(screen.getByText('Last Updated')).toBeInTheDocument();
+  });
+
+  it('exposes accessible navigation and filtering controls', async () => {
+    render(<ProjectDetail id="PROJ-123" />);
+
+    expect(await screen.findByRole('main', { name: 'Project session detail' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Filter session messages' })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: 'Session messages' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Session statistics')).toBeInTheDocument();
   });
 });

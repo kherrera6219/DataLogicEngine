@@ -1,9 +1,27 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-19 — **A16 Priority 2 coverage is now 80.06%; latest frontend batch adds chat/settings/MCP accessibility refinements.**
+_Last updated: 2026-06-19 — **A16 Priority 2 coverage is now 80.06%+; latest frontend batch adds project/settings/MCP/chat accessibility refinements.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
 A13, A14 (Phase 2); A15 F1-F4 nav structure (Phase 3)._
-_**A16 Priority 2 (in progress):** Type Safety 100% (23/23 UI primitives), Accessibility advanced beyond the original 14-component baseline with new chat/settings/MCP batches, Test Coverage **56% → 80.06%**. Added broad test coverage for `lib/api/client`, `lib/telemetry/client-errors`, app error/loading surfaces, `DatabaseSettings`, and a range of chat/UI controls. Coverage target is met; remaining work is the final accessibility sweep and any last audit polish._
+_**A16 Priority 2 (in progress):** Type Safety 100% (23/23 UI primitives), Accessibility advanced beyond the original 14-component baseline with new chat/project/settings/MCP batches, Test Coverage **56% → 80.06%+**. Added broad test coverage for `lib/api/client`, `lib/telemetry/client-errors`, app error/loading surfaces, `DatabaseSettings`, and a range of chat/UI controls. Coverage target is met; remaining work is the final accessibility sweep and any last audit polish._
+
+### Session log — 2026-06-19d (wrap-up follow-up: chat search label + documentation sync)
+
+Closed one more live accessibility gap after the larger 2026-06-19c batch:
+- `frontend/components/Chat/ChatInterface.tsx` — labelled the sidebar session search input instead of relying on placeholder-only text
+- `frontend/components/Chat/ChatInterface.test.tsx` — asserted the new labelled search textbox alongside the existing main-landmark/composer focus checks
+
+Validation for the follow-up change: targeted `ChatInterface` tests passed and frontend `npm run typecheck` stayed clean.
+
+### Session log — 2026-06-19c (next accessibility sweep: project/settings/server config)
+
+Continued the A16 accessibility sweep across the next reviewed UI surfaces:
+- `frontend/components/projects/ProjectDetail.tsx` — added `main`/`aside` landmarks, labelled back/upload/new-note actions, labelled message filtering, table semantics, and status/alert messaging for loading/error states
+- `frontend/components/settings/ApiOverlayConfig.tsx` — labelled provider/model/endpoint/key controls, upgraded tier cards from click-only `div`s to keyboard-accessible buttons, added busy state + confidence slider labelling, and labelled copy/run/test actions
+- `frontend/components/mcp/McpServerConfig.tsx` — labelled refresh/server-selection controls, busy state, alert semantics for error cards, and explicit inspect/close button labels
+- Matching test updates landed in `ProjectDetail.test.tsx`, `ApiOverlayConfig.test.tsx`, and `McpServerConfig.test.tsx`
+
+Validation for this batch: targeted tests for the three touched components passed, full frontend `npm run test` passed, `npm run typecheck` passed, and `npm run lint` remained warning-only (existing `ConfirmationDialog.test.tsx` unused var + generated coverage warning).
 
 ### Session log — 2026-06-19b (A16 coverage target reached + accessibility batch)
 
