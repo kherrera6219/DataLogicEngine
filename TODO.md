@@ -15,9 +15,10 @@
 | **A16-Priority 1** | ComplianceTrendChart error handling | ✅ DONE | 65f20968 |
 | **A16-Priority 1** | ChatTracePanel test coverage (6/6) | ✅ DONE | 0c4bb549 |
 | **A16-Priority 1** | CSRF infrastructure verification | ✅ DONE | verified |
-| **A16-Priority 2** | Type safety (26 components) | ⏳ PENDING | - |
+| **A16-Priority 2** | Type safety (UI primitives + Props) | ⏳ IN PROGRESS | 0706ccac |
+| **A16-Priority 2** | Test coverage (ConfirmationDialog, FeatureFlagGate) | ✅ DONE | 0706ccac |
 | **A16-Priority 2** | Accessibility (32 components) | ⏳ PENDING | - |
-| **A16-Priority 2** | Missing tests (9 components) | ⏳ PENDING | - |
+| **A16-Priority 2** | Additional tests (6 components) | ⏳ PENDING | - |
 | **A16-Priority 3** | Loading states (43 components) | ⏳ PENDING | - |
 | **A17** | Frontend lib & hooks audit | ⏳ PENDING | - |
 
