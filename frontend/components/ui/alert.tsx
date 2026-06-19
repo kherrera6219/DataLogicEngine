@@ -43,7 +43,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         <button
           type="button"
           onClick={onDismiss}
-          className="absolute right-4 top-4 text-foreground/50 hover:text-foreground"
+          className="absolute right-4 top-4 text-foreground/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors"
           aria-label="Dismiss alert"
         >
           ×

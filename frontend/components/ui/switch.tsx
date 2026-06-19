@@ -9,6 +9,10 @@ interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onCheckedChange?: (checked: boolean) => void
   /** Size variant of the switch. */
   size?: "sm" | "default" | "lg"
+  /** Accessible label for the switch. */
+  "aria-label"?: string
+  /** ID of element describing the switch. */
+  "aria-describedby"?: string
 }
 
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
@@ -31,12 +35,26 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
       lg: checked ? "translate-x-7" : "translate-x-0",
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault()
+        onCheckedChange?.(!checked)
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        if (!checked) onCheckedChange?.(true)
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        if (checked) onCheckedChange?.(false)
+      }
+    }
+
     return (
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={() => onCheckedChange?.(!checked)}
+        onKeyDown={handleKeyDown}
         className={cn(
           "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-gray-950",
           sizeClasses[size],
@@ -52,6 +70,7 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
             thumbClasses[size],
             thumbTranslate[size]
           )}
+          aria-hidden="true"
         />
       </button>
     )
