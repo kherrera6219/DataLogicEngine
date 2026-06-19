@@ -399,7 +399,7 @@ export function ApiOverlayConfig() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500" aria-busy={saveStatus === 'saving' || connectionStatus === 'testing' || isProcessing}>
       <section className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <Card className="glass-card border-white/10 bg-gradient-to-br from-blue-900/20 to-purple-900/20 col-span-1 lg:col-span-4 p-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
           <div>
@@ -443,8 +443,8 @@ export function ApiOverlayConfig() {
             <CardContent className="space-y-6 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Provider</label>
-                  <Select value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} className="bg-white/5 border-white/10">
+                  <label htmlFor="api-overlay-provider" className="text-xs font-bold uppercase text-gray-500">Provider</label>
+                  <Select id="api-overlay-provider" value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} className="bg-white/5 border-white/10">
                     {Array.from(new Set([
                       ...providers.map((entry) => (entry.type || entry.name || '').toLowerCase()),
                       'ollama',
@@ -458,8 +458,8 @@ export function ApiOverlayConfig() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Model</label>
-                  <Select value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value)} className="bg-white/5 border-white/10">
+                  <label htmlFor="api-overlay-model" className="text-xs font-bold uppercase text-gray-500">Model</label>
+                  <Select id="api-overlay-model" value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value)} className="bg-white/5 border-white/10">
                     {modelOptions.length === 0 && <option value={model}>{model}</option>}
                     {modelOptions.map((entry) => (
                       <option key={entry} value={entry}>{entry}</option>
@@ -470,9 +470,10 @@ export function ApiOverlayConfig() {
 
               {isLocalProvider ? (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Ollama Endpoint</label>
+                  <label htmlFor="api-overlay-ollama-endpoint" className="text-xs font-bold uppercase text-gray-500">Ollama Endpoint</label>
                   <div className="flex gap-2 flex-wrap">
                     <Input
+                      id="api-overlay-ollama-endpoint"
                       type="text"
                       value={ollamaEndpoint}
                       onChange={(e) => setOllamaEndpoint(e.target.value)}
@@ -484,6 +485,7 @@ export function ApiOverlayConfig() {
                       onClick={handleSaveKey}
                       disabled={saveStatus === 'saving'}
                       className="w-32"
+                      aria-label="Save Ollama endpoint"
                     >
                       {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}
                     </Button>
@@ -492,6 +494,7 @@ export function ApiOverlayConfig() {
                       onClick={handleTestConnection}
                       disabled={connectionStatus === 'testing'}
                       className="w-40"
+                      aria-label="Test provider connection"
                     >
                       {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
                     </Button>
@@ -504,10 +507,11 @@ export function ApiOverlayConfig() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">API Key</label>
+                  <label htmlFor="api-overlay-api-key" className="text-xs font-bold uppercase text-gray-500">API Key</label>
                   <div className="flex gap-2 flex-wrap">
                     <div className="relative flex-1">
                       <Input
+                        id="api-overlay-api-key"
                         type={showKey ? "text" : "password"}
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
@@ -528,6 +532,7 @@ export function ApiOverlayConfig() {
                       onClick={handleSaveKey}
                       disabled={saveStatus === 'saving' || !apiKey.trim()}
                       className="w-32"
+                      aria-label="Save provider key"
                     >
                       {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Key'}
                     </Button>
@@ -536,6 +541,7 @@ export function ApiOverlayConfig() {
                       onClick={handleTestConnection}
                       disabled={connectionStatus === 'testing' || !apiKey.trim()}
                       className="w-40"
+                      aria-label="Test provider connection"
                     >
                       {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
                     </Button>
@@ -562,15 +568,17 @@ export function ApiOverlayConfig() {
                     { id: 'high', name: 'High-Stakes', desc: 'Deep validation chain' },
                     { id: 'extreme', name: 'Extreme', desc: 'Extended simulation pass' },
                   ].map((entry) => (
-                    <div
+                    <button
+                      type="button"
                       key={entry.id}
                       onClick={() => setTier(entry.id)}
-                      aria-hidden="true"
+                      aria-pressed={tier === entry.id}
+                      aria-label={`Processing tier ${entry.name}`}
                       className={`p-3 rounded-lg border cursor-pointer transition-all ${tier === entry.id ? 'bg-purple-500/20 border-purple-500 ring-1 ring-purple-500' : 'bg-white/5 border-white/10 hover:border-white/30'}`}
                     >
                       <div className="font-bold text-sm mb-1">{entry.name}</div>
                       <div className="text-xs text-muted-foreground">{entry.desc}</div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -589,6 +597,7 @@ export function ApiOverlayConfig() {
                   onChange={(e) => setConfidence(parseFloat(e.target.value))}
                   className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   title="Confidence Threshold"
+                  aria-label="Confidence threshold"
                 />
               </div>
             </CardContent>
@@ -608,7 +617,7 @@ export function ApiOverlayConfig() {
                   <code className="flex-1 bg-black/40 border border-white/10 p-3 rounded-lg font-mono text-xs text-green-400">
                     {gatewayChatEndpoint}
                   </code>
-                  <Button size="icon" variant="outline" title="Copy Endpoint"><Copy className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="outline" title="Copy Endpoint" aria-label="Copy gateway endpoint"><Copy className="h-4 w-4" /></Button>
                 </div>
               </div>
 
@@ -658,7 +667,7 @@ print(response.json())`}
                   className="w-full bg-black/20 border-white/10 rounded-lg p-3 text-sm min-h-[100px] focus:ring-purple-500"
                 />
               </div>
-              <Button onClick={handleRunTest} disabled={isProcessing || !testQuery} className="w-full bg-purple-600 hover:bg-purple-700">
+              <Button onClick={handleRunTest} disabled={isProcessing || !testQuery} className="w-full bg-purple-600 hover:bg-purple-700" aria-label="Run enhancement test">
                 {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
                 Test Enhancement
               </Button>

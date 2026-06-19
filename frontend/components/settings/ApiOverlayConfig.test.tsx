@@ -18,8 +18,8 @@ vi.mock('@/components/ui/card', () => ({
 }));
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onChange }: { children: React.ReactNode; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void }) => (
-    <select value={value} onChange={onChange} data-testid="select" title="API Provider Selection" aria-label="API Provider Selection">
+  Select: ({ children, value, onChange, ...props }: { children: React.ReactNode; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void } & React.SelectHTMLAttributes<HTMLSelectElement>) => (
+    <select value={value} onChange={onChange} data-testid="select" title="API Provider Selection" {...props}>
       {children}
     </select>
   )
@@ -119,30 +119,30 @@ describe('ApiOverlayConfig', () => {
 
   it('should allow entering API key', () => {
     render(<ApiOverlayConfig />);
-    const inputs = screen.getAllByPlaceholderText('sk-...');
-    fireEvent.change(inputs[0], { target: { value: 'sk-test-123' } });
-    expect(inputs[0]).toHaveValue('sk-test-123');
+    const input = screen.getByLabelText('API Key');
+    fireEvent.change(input, { target: { value: 'sk-test-123' } });
+    expect(input).toHaveValue('sk-test-123');
   });
 
   it('should save provider key explicitly', async () => {
     render(<ApiOverlayConfig />);
-    const input = screen.getAllByPlaceholderText('sk-...')[0];
+    const input = screen.getByLabelText('API Key');
     fireEvent.change(input, { target: { value: 'sk-test-123' } });
 
-    const saveBtn = screen.getByText('Save Key');
+    const saveBtn = screen.getByRole('button', { name: 'Save provider key' });
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Saved' })).toBeInTheDocument();
+      expect(screen.getAllByText('Saved')).toHaveLength(2);
     }, { timeout: 2000 });
   });
 
   it('should test provider connection', async () => {
     render(<ApiOverlayConfig />);
-    const input = screen.getAllByPlaceholderText('sk-...')[0];
+    const input = screen.getByLabelText('API Key');
     fireEvent.change(input, { target: { value: 'sk-test-123' } });
 
-    const testBtn = screen.getByText('Test Connection');
+    const testBtn = screen.getByRole('button', { name: 'Test provider connection' });
     fireEvent.click(testBtn);
 
     await waitFor(() => {
@@ -155,11 +155,21 @@ describe('ApiOverlayConfig', () => {
     const promptInput = screen.getByLabelText('Test Prompt');
     fireEvent.change(promptInput, { target: { value: 'Test query' } });
 
-    const runBtn = screen.getByText('Test Enhancement');
+    const runBtn = screen.getByRole('button', { name: 'Run enhancement test' });
     fireEvent.click(runBtn);
 
     await waitFor(() => {
       expect(screen.getByText(/Gateway response body/i)).toBeInTheDocument();
     }, { timeout: 3000 });
+  });
+
+  it('should expose labeled provider controls and tier buttons', async () => {
+    render(<ApiOverlayConfig />);
+
+    expect(screen.getByRole('combobox', { name: 'Provider' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Model' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Processing tier Trivial' })).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: 'Confidence threshold' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy gateway endpoint' })).toBeInTheDocument();
   });
 });
