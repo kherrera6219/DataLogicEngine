@@ -1,11 +1,11 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 23:00 UTC — **A16 Priority 2: Type Safety 100% Complete, Test Coverage 56% Complete, Accessibility 34% Complete**_
+_Last updated: 2026-06-18 23:15 UTC — **A16 Priority 2: Type Safety 100% Complete, Test Coverage 56% Complete, Accessibility 44% Complete**_
 
 **PHASE 3 AUDIT COMPLETION SUMMARY:**
 - ✅ A15 (Navigation audit + Auth removal + RBAC docs): COMPLETE
 - ✅ A16 Priority 1 (HTTP status codes, error handling, CSRF verification): COMPLETE
-- ⏳ A16 Priority 2 (Type safety ✅ 100%, test coverage ⏳ 56%, accessibility ⏳ 34%): 63% COMPLETE
+- ⏳ A16 Priority 2 (Type safety ✅ 100%, test coverage ⏳ 56%, accessibility ⏳ 44%): 67% COMPLETE
 - ⏳ A16 Priority 3 (Loading states, performance): PENDING
 - ⏳ A17 (Frontend lib/hooks audit): PENDING
 
@@ -15,7 +15,7 @@ _Last updated: 2026-06-18 23:00 UTC — **A16 Priority 2: Type Safety 100% Compl
 |----------|----------|-----------|-------|-------|--------|
 | **2** | Type Safety | Add Props interfaces to UI primitives | 23/23 existing complete ✅ | 15-20 | COMPLETE (100%) |
 | **2** | Test Coverage | Write test files for 9+ components | ConfirmationDialog ✅, FeatureFlagGate ✅, AiModelSettings ✅, ClientErrorBootstrap ✅, RouteErrorFallback ✅ | 10-12 | IN PROGRESS (56%) |
-| **2** | Accessibility | ARIA labels + keyboard navigation | NavBar ✅, AppSidebar ✅, Dialog ✅, AlertDialog ✅, DropdownMenu ✅, Tabs ✅, Select ✅, Input ✅, Switch ✅, Alert ✅, Sheet ✅ (11/32 components) | 20-25 | IN PROGRESS (34%) |
+| **2** | Accessibility | ARIA labels + keyboard navigation | NavBar ✅, AppSidebar ✅, Dialog ✅, AlertDialog ✅, DropdownMenu ✅, Tabs ✅, Select ✅, Input ✅, Switch ✅, Alert ✅, Sheet ✅, Table ✅, Skeleton ✅, Avatar ✅ (14/32 components) | 20-25 | IN PROGRESS (44%) |
 | **3** | Loading States | Add visual indicators | 43 components need loading UI feedback | 10-15 | PENDING |
 | **3** | Performance | useCallback/useMemo optimization | Memoization for 20+ components | 5-8 | PENDING |
 
@@ -80,7 +80,7 @@ _Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9,
 
 **Accessibility — 32 Components Missing ARIA/Keyboard Nav:**
 
-✅ **COMPLETED (11 components - 12-14 hours):**
+✅ **COMPLETED (14 components - 14-16 hours):**
 1. `NavBar.tsx` — ✅ Added keyboard navigation (Escape to close mobile menu), focus refs with useEffect, semantic header role="banner", improved aria-labels, focus-visible styling
 2. `AppSidebar.tsx` — ✅ Added semantic <aside> element, aria-label for navigation, aria-current for active links, role=separator on visual separators, aria-hidden on decorative icons, focus-visible rings
 3. `Dialog.tsx` — ✅ Added role=dialog, aria-modal=true, aria-label on close button; Radix UI provides focus trapping + Escape handling
@@ -92,8 +92,11 @@ _Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9,
 9. `Switch.tsx` — ✅ Added keyboard support (Space/Enter/ArrowRight/ArrowLeft), aria-label and aria-describedby support, aria-hidden on thumb
 10. `Alert.tsx` — ✅ Added focus-visible styling on dismiss button, improved keyboard navigation, aria-label on close
 11. `Sheet.tsx` — ✅ Added role=dialog, aria-modal=true, aria-label on close button; Radix UI provides focus trapping
+12. `Table.tsx` — ✅ Added aria-label support for table, aria-sort support on TableHead for sortable columns
+13. `Skeleton.tsx` — ✅ Added role=status, aria-busy=true, aria-label="Loading..." to announce loading state
+14. `Avatar.tsx` — ✅ Verified alt text support in AvatarImage; proper image accessibility via semantic img tags
 
-⏳ **HIGH PRIORITY (21 components - 18+ hours):**
+⏳ **HIGH PRIORITY (18 components - 16+ hours):**
 
 **Action items:**
 - ✅ Create Props interface for each UI primitive in `components/ui/*.tsx`
