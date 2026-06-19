@@ -27,6 +27,9 @@ function Skeleton({
   if (circular) {
     return (
       <div
+        role="status"
+        aria-busy="true"
+        aria-label="Loading..."
         className={cn("animate-pulse rounded-full bg-muted/50", className)}
         {...props}
       />
@@ -35,7 +38,7 @@ function Skeleton({
 
   if (lines && lines > 1) {
     return (
-      <div className="space-y-2" {...props}>
+      <div role="status" aria-busy="true" aria-label="Loading..." className="space-y-2" {...props}>
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
@@ -53,6 +56,9 @@ function Skeleton({
 
   return (
     <div
+      role="status"
+      aria-busy="true"
+      aria-label="Loading..."
       className={cn("animate-pulse rounded-md bg-muted/50", sizeClasses[size], className)}
       {...props}
     />

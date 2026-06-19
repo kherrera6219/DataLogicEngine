@@ -7,6 +7,8 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   striped?: boolean
   /** Whether the table is hoverable. */
   hoverable?: boolean
+  /** Accessible label for the table. */
+  "aria-label"?: string
 }
 
 const Table = React.forwardRef<
@@ -80,7 +82,10 @@ TableRow.displayName = "TableRow"
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
+  React.ThHTMLAttributes<HTMLTableCellElement> & {
+    /** Sort direction if this is a sortable column. */
+    "aria-sort"?: "ascending" | "descending" | "none" | "other"
+  }
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
