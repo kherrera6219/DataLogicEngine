@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
-| Last updated | 2026-06-08 |
+| Document version | v3.0.0 |
+| Last updated | 2026-06-18 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -456,7 +456,7 @@ Primary product surfaces:
 5. `/truth-engine` — Truth Engine monitor.
 6. `/mcp` — MCP connector hub.
 7. `/projects` — project management.
-8. `/admin` — governance, compliance, provider, and user management.
+8. `/admin` — governance, compliance, provider, and audit views (single authenticated owner).
 9. `/settings`, `/settings/privacy`, `/legal/privacy`, `/about/cloud-services`, `/about/ai-limitations` — configuration and transparency surfaces.
 
 Root provider stack:
@@ -553,7 +553,7 @@ Security controls include:
 9. export integrity hashing/signing/encryption;
 10. TruthGate input sanitization, budget checks, and compliance markers;
 11. injection defense in DMRF;
-12. role/admin gating in the frontend;
+12. desktop local-auth gating in the frontend (single OS-level user);
 13. contract-tested JSON error behavior for canonical API routes.
 
 ## Observability and traceability
