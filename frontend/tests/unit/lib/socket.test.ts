@@ -21,6 +21,8 @@ describe('Socket Logic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSocket.connected = false;
+    mockSocket.on.mockClear();
+    mockSocket.emit.mockClear();
     // Reset singleton private fields
     (socketClient as any).socket = null;
     (socketClient as any).handlers = {};
@@ -44,11 +46,25 @@ describe('Socket Logic', () => {
       }));
     });
 
+    it('should use default URL if not provided', () => {
+      socketClient.connect();
+      expect(io).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object)
+      );
+    });
+
     it('should disconnect and clear socket instance', () => {
       (socketClient as any).socket = mockSocket;
       socketClient.disconnect();
       
       expect(mockSocket.disconnect).toHaveBeenCalled();
+      expect((socketClient as any).socket).toBeNull();
+    });
+
+    it('should handle disconnect when socket is null', () => {
+      (socketClient as any).socket = null;
+      socketClient.disconnect();
       expect((socketClient as any).socket).toBeNull();
     });
 
@@ -83,6 +99,38 @@ describe('Socket Logic', () => {
         session_id: 'session-1', 
         message: 'Hello' 
       });
+    });
+
+    it('should subscribe to simulation updates', () => {
+      (socketClient as any).socket = mockSocket;
+      socketClient.subscribeToSimulation('sim-123');
+      
+      expect(mockSocket.emit).toHaveBeenCalledWith('subscribe_simulation', {
+        simulation_id: 'sim-123'
+      });
+    });
+
+    it('should set event handlers correctly', () => {
+      const handlers = {
+        onChatResponse: vi.fn(),
+        onNotification: vi.fn(),
+      };
+      
+      socketClient.setHandlers(handlers);
+      
+      expect((socketClient as any).handlers.onChatResponse).toBe(handlers.onChatResponse);
+      expect((socketClient as any).handlers.onNotification).toBe(handlers.onNotification);
+    });
+
+    it('should merge new handlers with existing ones', () => {
+      const handlers1 = { onChatResponse: vi.fn() };
+      const handlers2 = { onNotification: vi.fn() };
+      
+      socketClient.setHandlers(handlers1);
+      socketClient.setHandlers(handlers2);
+      
+      expect((socketClient as any).handlers.onChatResponse).toBeDefined();
+      expect((socketClient as any).handlers.onNotification).toBeDefined();
     });
 
     it('should register event listeners and trigger handlers', () => {
@@ -122,6 +170,71 @@ describe('Socket Logic', () => {
       expect(handlers.onDisconnected).toHaveBeenCalled();
     });
 
+    it('should handle connection event and reset reconnect attempts', () => {
+      const handlers = { onConnected: vi.fn() };
+      socketClient.connect();
+      socketClient.setHandlers(handlers);
+      
+      const connectCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'connect'
+      );
+      expect(connectCall).toBeDefined();
+      
+      const connectListener = connectCall[1];
+      connectListener();
+      // Verify reconnect attempts are reset (private field)
+      expect((socketClient as any).reconnectAttempts).toBe(0);
+    });
+
+    it('should handle connection errors', () => {
+      socketClient.connect();
+      
+      const connectErrorCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'connect_error'
+      );
+      expect(connectErrorCall).toBeDefined();
+      
+      const errorListener = connectErrorCall[1];
+      const error = new Error('Connection failed');
+      errorListener(error);
+      expect((socketClient as any).reconnectAttempts).toBe(1);
+    });
+
+    it('should trigger all registered event handlers', () => {
+      const handlers = {
+        onSimulationProgress: vi.fn(),
+        onSimulationComplete: vi.fn(),
+        onNotification: vi.fn(),
+        onChatTyping: vi.fn(),
+        onTraceStageUpdate: vi.fn(),
+        onConnected: vi.fn(),
+      };
+      
+      socketClient.connect();
+      socketClient.setHandlers(handlers);
+      
+      // Trigger simulation progress
+      const simProgressCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'simulation_progress'
+      );
+      simProgressCall[1]({ simulation_id: 'sim-1', step: 1, total_steps: 10, status: 'running' });
+      expect(handlers.onSimulationProgress).toHaveBeenCalled();
+      
+      // Trigger simulation complete
+      const simCompleteCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'simulation_complete'
+      );
+      simCompleteCall[1]({ simulation_id: 'sim-1', results: {} });
+      expect(handlers.onSimulationComplete).toHaveBeenCalled();
+      
+      // Trigger notification
+      const notificationCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'notification'
+      );
+      notificationCall[1]({ id: 'notif-1', type: 'info', title: 'Test', message: 'test', timestamp: new Date().toISOString() });
+      expect(handlers.onNotification).toHaveBeenCalled();
+    });
+
     it('should return correct connection status', () => {
       (socketClient as any).socket = null;
       expect(socketClient.isConnected).toBe(false);
@@ -129,6 +242,14 @@ describe('Socket Logic', () => {
       (socketClient as any).socket = mockSocket;
       mockSocket.connected = true;
       expect(socketClient.isConnected).toBe(true);
+      
+      mockSocket.connected = false;
+      expect(socketClient.isConnected).toBe(false);
+    });
+
+    it('should handle socket being null when checking connection', () => {
+      (socketClient as any).socket = null;
+      expect(socketClient.isConnected).toBe(false);
     });
   });
 
@@ -139,8 +260,26 @@ describe('Socket Logic', () => {
       renderHook(() => useSocket(handlers));
       
       expect(io).toHaveBeenCalled();
-      // Verify handlers were set
       expect((socketClient as any).handlers.onChatResponse).toBeDefined();
+    });
+
+    it('should return socket client instance', () => {
+      const { result } = renderHook(() => useSocket());
+      expect(result.current).toBe(socketClient);
+    });
+
+    it('should not reconnect if already connected', () => {
+      mockSocket.connected = true;
+      (socketClient as any).socket = mockSocket;
+      vi.clearAllMocks();
+      
+      renderHook(() => useSocket());
+      expect(io).not.toHaveBeenCalled();
+    });
+
+    it('should work without handlers', () => {
+      const { result } = renderHook(() => useSocket());
+      expect(result.current).toBe(socketClient);
     });
   });
 });

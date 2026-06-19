@@ -60,7 +60,7 @@ describe('KnowledgeIngestionSettings', () => {
     await waitFor(() => expect(api.ingestion.supported).toHaveBeenCalled());
 
     fireEvent.change(screen.getByLabelText('Local path'), { target: { value: 'C:/corpus' } });
-    fireEvent.click(screen.getByRole('button', { name: /start ingestion/i }));
+    fireEvent.click(screen.getByRole('button', { name: /start local knowledge ingestion/i }));
 
     await waitFor(() => {
       expect(api.ingestion.startLocal).toHaveBeenCalledWith(
@@ -70,5 +70,17 @@ describe('KnowledgeIngestionSettings', () => {
       expect(screen.getAllByText('1 files').length).toBeGreaterThan(0);
     });
     expect(toastMock).toHaveBeenCalledWith('Ingestion complete: 1 files, 2 chunks, 2 indexed', 'success');
+  });
+
+  it('exposes accessible ingestion controls', async () => {
+    render(<KnowledgeIngestionSettings />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /start local knowledge ingestion/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /refresh ingestion history/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /clear local path/i })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /recursive folder scan/i })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /async mode/i })).toBeInTheDocument();
+    });
   });
 });

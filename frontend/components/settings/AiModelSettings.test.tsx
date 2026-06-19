@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AiModelSettings } from './AiModelSettings';
 
@@ -31,28 +31,37 @@ vi.mock('@/components/ui/badge', () => ({
 }));
 
 vi.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, type }: any) => (
-    <button onClick={onClick} type={type}>
+  Button: ({ children, ...props }: any) => (
+    <button {...props}>
       {children}
     </button>
   ),
 }));
 
 vi.mock('@/components/ui/input', () => ({
-  Input: ({ type, onChange, value, placeholder }: any) => (
+  Input: ({ type, onChange, value, placeholder, id, 'aria-label': ariaLabel }: any) => (
     <input
+      id={id}
       type={type}
       onChange={onChange}
       value={value}
       placeholder={placeholder}
+      aria-label={ariaLabel}
       data-testid="input"
     />
   ),
 }));
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, onValueChange }: any) => (
-    <select onChange={(e) => onValueChange?.(e.target.value)} data-testid="select">
+  Select: ({ children, onValueChange, onChange, id }: any) => (
+    <select
+      id={id}
+      onChange={(e) => {
+        onValueChange?.(e.target.value);
+        onChange?.(e);
+      }}
+      data-testid="select"
+    >
       {children}
     </select>
   ),
@@ -174,6 +183,20 @@ describe('AiModelSettings', () => {
     await waitFor(() => {
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('should expose accessible controls for provider configuration', async () => {
+    render(<AiModelSettings />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Provider')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(screen.getByLabelText('API Key')).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /enable ai processing/i })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /store chat history/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /save model configuration/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /test provider model/i })).toBeInTheDocument();
     });
   });
 

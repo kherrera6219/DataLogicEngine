@@ -251,7 +251,7 @@ export function AiModelSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" aria-busy={loading || saving || testing || savingPrefs}>
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Brain className="h-5 w-5 text-blue-500" />
@@ -283,6 +283,7 @@ export function AiModelSettings() {
             <button
               role="switch"
               aria-checked={aiEnabled}
+              aria-label="Enable AI processing"
               onClick={() => setAiEnabled((v) => !v)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${aiEnabled ? 'bg-blue-600' : 'bg-muted-foreground/40'}`}
             >
@@ -301,6 +302,7 @@ export function AiModelSettings() {
             <button
               role="switch"
               aria-checked={storeHistory}
+              aria-label="Store chat history"
               onClick={() => setStoreHistory((v) => !v)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${storeHistory ? 'bg-blue-600' : 'bg-muted-foreground/40'}`}
             >
@@ -360,8 +362,9 @@ export function AiModelSettings() {
           <CardContent className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase text-muted-foreground">Provider</label>
+                <label htmlFor="provider-select" className="text-xs font-semibold uppercase text-muted-foreground">Provider</label>
                 <Select
+                  id="provider-select"
                   value={provider}
                   onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setProvider(event.target.value)}
                 >
@@ -371,8 +374,9 @@ export function AiModelSettings() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase text-muted-foreground">Model</label>
+                <label htmlFor="model-select" className="text-xs font-semibold uppercase text-muted-foreground">Model</label>
                 <Select
+                  id="model-select"
                   value={model}
                   onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setModel(event.target.value)}
                 >
@@ -385,9 +389,10 @@ export function AiModelSettings() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase text-muted-foreground">API Key</label>
+              <label htmlFor="api-key-input" className="text-xs font-semibold uppercase text-muted-foreground">API Key</label>
               <div className="relative">
                 <Input
+                  id="api-key-input"
                   type={showKey ? 'text' : 'password'}
                   value={apiKey}
                   onChange={(event) => setApiKey(event.target.value)}
@@ -406,18 +411,18 @@ export function AiModelSettings() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void handleSaveConfiguration()} disabled={saving || !apiKey.trim()}>
+              <Button onClick={() => void handleSaveConfiguration()} disabled={saving || !apiKey.trim()} aria-label="Save model configuration">
                 {saving ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                 {saving ? 'Saving...' : 'Save Model'}
               </Button>
-              <Button variant="outline" onClick={() => void handleTestModel()} disabled={testing}>
+              <Button variant="outline" onClick={() => void handleTestModel()} disabled={testing} aria-label="Test provider model">
                 {testing ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <FlaskConical className="h-4 w-4 mr-2" />}
                 {testing ? 'Testing...' : 'Test Model'}
               </Button>
             </div>
 
             {selectedProvider?.has_api_key && (
-              <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+              <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-300 flex items-center gap-2" role="status" aria-live="polite">
                 <CheckCircle2 className="h-4 w-4" />
                 Provider key detected for `{selectedProvider.type}`.
               </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CopyButton } from './copy-button';
 
@@ -14,6 +14,7 @@ describe('CopyButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     // Mock navigator.clipboard
     Object.assign(navigator, {
       clipboard: {
@@ -28,17 +29,25 @@ describe('CopyButton', () => {
   });
 
   it('should copy text and show success state', async () => {
+    vi.useFakeTimers();
     render(<CopyButton text={text} />);
     const button = screen.getByRole('button');
     
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+      await Promise.resolve();
+    });
     
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(text);
-    
-    await waitFor(() => {
-        expect(screen.getByLabelText('Copied to clipboard')).toBeInTheDocument();
-        expect(mockToast).toHaveBeenCalledWith("Response copied to clipboard", "success", 2000);
+
+    expect(screen.getByLabelText('Copied to clipboard')).toBeInTheDocument();
+    expect(mockToast).toHaveBeenCalledWith("Response copied to clipboard", "success", 2000);
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
     });
+
+    expect(screen.getByLabelText('Copy response to clipboard')).toBeInTheDocument();
   });
 
   it('should handle copy failure', async () => {

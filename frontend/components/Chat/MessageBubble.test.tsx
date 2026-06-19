@@ -6,7 +6,7 @@ import { ChatMessage } from './types';
 
 // Mock copy button since it might have browser deps
 vi.mock('@/components/ui/copy-button', () => ({
-  CopyButton: () => <button>Copy</button>
+  CopyButton: () => <button aria-label="Copy response to clipboard">Copy</button>
 }));
 
 vi.mock('@/hooks/useTraceStream', () => ({
@@ -53,6 +53,7 @@ describe('MessageBubble', () => {
     };
     render(<MessageBubble message={message as ChatMessage} />);
     expect(screen.getByText('Hello Human')).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: new RegExp(`UKG Assistant message at ${message.timestamp}`) })).toBeInTheDocument();
   });
 
   it('should show thinking state', () => {
@@ -64,6 +65,7 @@ describe('MessageBubble', () => {
     };
     render(<MessageBubble message={message as ChatMessage} isThinking={true} />);
     expect(screen.getByText('Reasoning Logic active')).toBeInTheDocument();
+    expect(screen.getByRole('article')).toHaveAttribute('aria-busy', 'true');
   });
 
   it('should render an expandable trace panel for assistant messages with a run id', async () => {
@@ -89,5 +91,20 @@ describe('MessageBubble', () => {
       expect(screen.getByText('91.0%')).toBeInTheDocument();
       expect(screen.getByText('L1 L1 Context')).toBeInTheDocument();
     });
+  });
+
+  it('should expose safety and utility controls for assistant messages', () => {
+    const message = {
+      id: '5',
+      role: 'assistant' as const,
+      content: 'Actionable response',
+      timestamp: new Date().toISOString(),
+    };
+
+    render(<MessageBubble message={message as ChatMessage} />);
+
+    expect(screen.getByRole('button', { name: /copy response to clipboard/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /regenerate response/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /report harmful content/i })).toBeInTheDocument();
   });
 });

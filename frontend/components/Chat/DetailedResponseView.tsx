@@ -49,6 +49,10 @@ function metricLabel(metric: ValidationMetric): string {
     .join(' ');
 }
 
+function personaAriaLabel(persona: PersonaOutput): string {
+  return `${persona.name}, ${persona.role}, confidence ${toPercent(persona.confidence).toFixed(1)} percent`;
+}
+
 export function DetailedResponseView({ message }: DetailedResponseViewProps) {
   const personas = message.personas || [];
   const metrics = message.metrics || [];
@@ -67,32 +71,51 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
   return (
     <div className="space-y-6 mt-4">
       {metrics.length > 0 && (
-        <div className="bg-white/70 dark:bg-black/30 border border-slate-200 dark:border-white/10 rounded-lg p-4">
+        <section
+          className="bg-white/70 dark:bg-black/30 border border-slate-200 dark:border-white/10 rounded-lg p-4"
+          role="region"
+          aria-label="Validation metrics"
+        >
           <h3 className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Activity className="h-3 w-3" /> Validation Metrics
+            <Activity className="h-3 w-3" aria-hidden="true" /> Validation Metrics
           </h3>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3" role="list" aria-label="Validation metric scores">
             {metrics.map((metric) => (
-              <div key={metric.name} className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-2 rounded flex flex-col">
+              <div
+                key={metric.name}
+                className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-2 rounded flex flex-col"
+                role="listitem"
+              >
                 <div className="flex justify-between items-start mb-1">
                   <span className="text-[10px] text-slate-600 dark:text-gray-400 uppercase">{metricLabel(metric)}</span>
-                  {metric.status === 'pass' && <CheckCircle2 className="h-3 w-3 text-green-500" />}
+                  {metric.status === 'pass' && <CheckCircle2 className="h-3 w-3 text-green-500" aria-hidden="true" />}
                 </div>
-                <div className="text-lg font-bold text-slate-900 dark:text-white leading-none mb-1">
+                <div
+                  className="text-lg font-bold text-slate-900 dark:text-white leading-none mb-1"
+                  role="meter"
+                  aria-label={metricLabel(metric)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(toPercent(metric.score))}
+                >
                   {toPercent(metric.score).toFixed(1)}%
                 </div>
                 <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate">{metric.details}</div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {personas.length > 0 && (
-        <div className="border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden">
+        <section
+          className="border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden"
+          role="region"
+          aria-label="Persona analysis"
+        >
           <div className="bg-white/70 dark:bg-white/5 p-3 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
             <h3 className="text-xs font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
-              <Users className="h-3 w-3 text-blue-400" /> Persona Analysis
+              <Users className="h-3 w-3 text-blue-400" aria-hidden="true" /> Persona Analysis
             </h3>
             {consensus !== null && (
               <Badge variant="outline" className="text-[10px] h-5 border-blue-500/30 text-blue-400">
@@ -101,11 +124,14 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
             )}
           </div>
 
-          <div className="divide-y divide-slate-200 dark:divide-white/10">
+          <div className="divide-y divide-slate-200 dark:divide-white/10" role="list" aria-label="Persona contributions">
             {personas.map((persona) => (
               <div
                 key={persona.id}
-                className="p-3 bg-slate-50 dark:bg-black/20 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                className="p-3 bg-slate-50 dark:bg-black/20 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+                role="listitem"
+                tabIndex={0}
+                aria-label={personaAriaLabel(persona)}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -116,7 +142,16 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs font-bold text-green-400">{toPercent(persona.confidence).toFixed(1)}%</div>
+                    <div
+                      className="text-xs font-bold text-green-400"
+                      role="meter"
+                      aria-label={`${persona.name} confidence`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={Math.round(toPercent(persona.confidence))}
+                    >
+                      {toPercent(persona.confidence).toFixed(1)}%
+                    </div>
                     <div className="text-[9px] text-slate-500 dark:text-gray-600 uppercase">Confidence</div>
                   </div>
                 </div>
@@ -126,15 +161,15 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
-          <Download className="h-3 w-3" /> Report
+        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2" aria-label="Download validation report">
+          <Download className="h-3 w-3" aria-hidden="true" /> Report
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
-          <Share2 className="h-3 w-3" /> Share
+        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2" aria-label="Share validation details">
+          <Share2 className="h-3 w-3" aria-hidden="true" /> Share
         </Button>
       </div>
     </div>

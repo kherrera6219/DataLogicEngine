@@ -1,9 +1,27 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-19 — **A16 Priority 2 test coverage improvements (65.95% → 71.71%); 280 tests passing.**
+_Last updated: 2026-06-19 — **A16 Priority 2 coverage is now 80.06%; latest frontend batch adds chat/settings/MCP accessibility refinements.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
 A13, A14 (Phase 2); A15 F1-F4 nav structure (Phase 3)._
-_**A16 Priority 2 (in progress):** Type Safety 100% (23/23 UI primitives), Accessibility 44% (14/32 components), Test Coverage 56%→71.71%. Created 5 new test files (AiModelSettings, ClientErrorBootstrap, ConfirmationDialog, FeatureFlagGate, route-error-fallback) with 31 new tests. 280 total tests passing. No 0% coverage components remaining._
+_**A16 Priority 2 (in progress):** Type Safety 100% (23/23 UI primitives), Accessibility advanced beyond the original 14-component baseline with new chat/settings/MCP batches, Test Coverage **56% → 80.06%**. Added broad test coverage for `lib/api/client`, `lib/telemetry/client-errors`, app error/loading surfaces, `DatabaseSettings`, and a range of chat/UI controls. Coverage target is met; remaining work is the final accessibility sweep and any last audit polish._
+
+### Session log — 2026-06-19b (A16 coverage target reached + accessibility batch)
+
+Raised frontend coverage to **80.06%** by adding and expanding tests for:
+- `frontend/tests/unit/lib/api/client.test.ts` — CSRF, desktop auto-login recovery, provider-test errors, text/error parsing, failed-fetch handling
+- `frontend/tests/unit/lib/telemetry/client-errors.test.ts` — Sentry fallback, global error/unhandled rejection wiring
+- `frontend/app/app-surfaces.test.tsx` — `global-error`, `not-found`, `loading`, and route error boundaries across app sections
+- `frontend/components/settings/DatabaseSettings.test.tsx` — status, refresh/start/stop flows, auto-start persistence, backup flows, cloud-config save
+- targeted coverage follow-ups for `CommandBar`, `DetailedResponseView`, `DesktopStatus`, and `copy-button`
+
+Accessibility improvements in this batch:
+- `ChatInterface.tsx` — `main` landmark, composer autofocus, Ctrl/Cmd+Enter submit, live-region/busy state
+- `DetailedResponseView.tsx` — labelled regions, metric/persona meter semantics, focusable persona cards, labelled actions
+- `MessageBubble.tsx` — article semantics, polite live updates, explicit control labels
+- `CommandBar.tsx` — Alt+K focus shortcut, labelled search, decorative icon hiding
+- `AiModelSettings.tsx`, `KnowledgeIngestionSettings.tsx`, `McpClientConfig.tsx` — labelled switches/inputs/actions, busy states, alert/status semantics
+
+Results: **80.06% statements**, **82.15% lines**, 0 app-surface files left at 0% coverage, and the targeted frontend tests/typecheck/lint pass after the latest changes.
 
 ### Session log — 2026-06-19 (A16 Priority 2 test coverage improvements)
 

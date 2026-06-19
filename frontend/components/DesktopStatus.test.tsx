@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import DesktopStatus from './DesktopStatus';
 
@@ -147,5 +147,38 @@ describe('DesktopStatus', () => {
 
     expect(screen.getByText('DSQP Personas')).toBeInTheDocument();
     expect(screen.getByText('A8 knowledge')).toBeInTheDocument();
+  });
+
+  it('shows network and local model details for a running backend', async () => {
+    window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
+    window.electronAPI!.getNetworkStatus = vi.fn().mockResolvedValue({ state: 'ONLINE', last_checked: '2026-05-28T00:00:00Z' });
+    window.electronAPI!.getLocalModelStatus = vi.fn().mockResolvedValue({ active_model: 'llama3', ollama_available: true, models_installed: ['llama3'] });
+
+    render(<DesktopStatus />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(0);
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('ONLINE')).toBeInTheDocument();
+    expect(screen.getByText('llama3')).toBeInTheDocument();
+  });
+
+  it('can minimize and restore the status panel', async () => {
+    window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
+
+    render(<DesktopStatus />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(0);
+      await Promise.resolve();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /minimize desktop engine panel/i }));
+    expect(screen.getByRole('button', { name: /show desktop engine status/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /show desktop engine status/i }));
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 });

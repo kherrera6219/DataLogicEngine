@@ -91,4 +91,15 @@ describe('McpClientConfig', () => {
     fireEvent.click(addButton);
     expect(screen.getByText('Add New MCP Server Connection')).toBeInTheDocument();
   });
+
+  it('should expose accessible search and server management controls', async () => {
+    render(<McpClientConfig />);
+    await screen.findAllByText(/UKG Production/i);
+
+    expect(screen.getByRole('button', { name: /refresh mcp client data/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add new server connection/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /search mcp tools/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /inspect settings for ukg production/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete server ukg production/i })).toBeInTheDocument();
+  });
 });

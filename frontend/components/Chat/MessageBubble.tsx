@@ -15,6 +15,8 @@ interface Props {
 export function MessageBubble({ message, isThinking }: Props) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
+  const messageSpeaker = isUser ? 'User' : isSystem ? 'System trace' : 'UKG Assistant';
+  const ariaLabel = `${messageSpeaker} message at ${message.timestamp}`;
   
   return (
     <div className={cn("flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300", isUser ? "justify-end" : "justify-start")}>
@@ -26,8 +28,8 @@ export function MessageBubble({ message, isThinking }: Props) {
         <div className={cn(
           "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-slate-300/70 dark:border-white/10 shadow-lg",
           isUser ? "bg-blue-600 text-white" : isSystem ? "bg-red-500/10 text-red-500" : "bg-slate-200 dark:bg-gray-800 text-slate-600 dark:text-gray-400"
-        )}>
-          {isUser ? <User className="h-4 w-4" /> : isSystem ? <Shield className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+        )} aria-hidden="true">
+          {isUser ? <User className="h-4 w-4" aria-hidden="true" /> : isSystem ? <Shield className="h-4 w-4" aria-hidden="true" /> : <Bot className="h-4 w-4" aria-hidden="true" />}
         </div>
 
         <div className={cn(
@@ -38,7 +40,12 @@ export function MessageBubble({ message, isThinking }: Props) {
               ? "bg-red-500/5 text-red-700 dark:text-red-100 border-red-500/20 rounded-tl-none"
               : "bg-white/5 dark:bg-gray-800/20 text-foreground border-white/5 rounded-tl-none",
           isThinking && "animate-pulse"
-        )}>
+        )}
+          role="article"
+          aria-label={ariaLabel}
+          aria-live={!isUser && !isThinking ? 'polite' : undefined}
+          aria-busy={isThinking || undefined}
+        >
           {isSystem && <div className="text-[10px] font-bold mb-2 uppercase tracking-widest text-red-500">System Trace</div>}
           
           <div className="text-sm md:text-base leading-relaxed whitespace-pre-wrap font-medium">
@@ -98,12 +105,12 @@ export function MessageBubble({ message, isThinking }: Props) {
                   
                   {/* Human-in-the-Loop Controls (Req 2 & 9) */}
                   <div className="flex items-center gap-2">
-                    <button className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors" aria-label="Regenerate response" title="Regenerate">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                    <button type="button" className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors" aria-label="Regenerate response" title="Regenerate">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
                        <span className="sr-only">Regenerate</span>
                     </button>
-                    <button className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-red-400 transition-colors" aria-label="Report harmful content" title="Report">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                    <button type="button" className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-red-400 transition-colors" aria-label="Report harmful content" title="Report">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
                        <span className="sr-only">Report</span>
                     </button>
                   </div>

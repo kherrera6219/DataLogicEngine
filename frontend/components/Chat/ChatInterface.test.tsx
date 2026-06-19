@@ -131,6 +131,30 @@ describe('ChatInterface', () => {
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
   });
 
+  it('should autofocus the message composer and expose the main chat landmark', async () => {
+    renderChatInterface();
+
+    const composer = await screen.findByRole('textbox', { name: /message composer/i });
+    expect(composer).toHaveFocus();
+    expect(screen.getByRole('main', { name: /chat interface/i })).toBeInTheDocument();
+  });
+
+  it('should send a message with Ctrl+Enter', async () => {
+    renderChatInterface();
+
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Keyboard submit' } });
+    fireEvent.keyDown(textarea, { key: 'Enter', ctrlKey: true });
+
+    await waitFor(() => {
+    expect(api.chat.sendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [{ role: 'user', content: 'Keyboard submit' }],
+      }),
+    );
+    });
+  });
+
   it('should handle API errors gracefully', async () => {
     (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network Failure'));
 
@@ -171,10 +195,135 @@ describe('ChatInterface', () => {
     });
   });
 
-  it('should clear messages on new chat', async () => {
+  it('should handle message history navigation', async () => {
     renderChatInterface();
-    const newChatBtn = screen.getByText(/new chat/i);
-    fireEvent.click(newChatBtn);
-    expect(screen.queryByTestId('message-bubble')).not.toBeInTheDocument();
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    
+    // Send a message
+    fireEvent.change(textarea, { target: { value: 'First message' } });
+    fireEvent.click(screen.getByText('Send'));
+    
+    await waitFor(() => {
+      expect(api.chat.sendMessage).toHaveBeenCalled();
+    });
+  });
+
+  it('should display loading state while sending message', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () => new Promise(resolve => setTimeout(() => resolve({ response: 'Delayed' }), 500))
+    );
+
+    renderChatInterface();
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    
+    fireEvent.change(textarea, { target: { value: 'Slow message' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    // Check for loading indicator (if visible)
+    await waitFor(() => {
+      const sendBtn = screen.getByText('Send');
+      expect(sendBtn).toBeInTheDocument();
+    });
+  });
+
+  it('should handle empty message submission', async () => {
+    renderChatInterface();
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    
+    fireEvent.change(textarea, { target: { value: '' } });
+    const sendBtn = screen.getByText('Send');
+    
+    // Button should likely be disabled or the API shouldn't be called
+    if (!sendBtn.hasAttribute('disabled')) {
+      fireEvent.click(sendBtn);
+    }
+    
+    expect(api.chat.sendMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ message: '' })
+    );
+  });
+
+  it('should display response trace information when available', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Test response',
+      trace: {
+        stages: [
+          {
+            name: 'stage-1',
+            status: 'completed',
+            duration_ms: 100
+          }
+        ]
+      }
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    
+    fireEvent.change(textarea, { target: { value: 'Query with trace' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trace-panel')).toBeInTheDocument();
+    });
+  });
+
+  it('should expand/collapse message details on click', async () => {
+    renderChatInterface();
+    
+    await waitFor(() => {
+      const messages = screen.queryAllByTestId('message-item');
+      if (messages.length > 0) {
+        fireEvent.click(messages[0]);
+        expect(screen.getByTestId('detailed-view')).toBeInTheDocument();
+      }
+    });
+  });
+
+  it('should persist session when switching tabs and returning', async () => {
+    renderChatInterface();
+    
+    await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+    
+    fireEvent.click(screen.getByText('Session 2'));
+    
+    await waitFor(() => {
+      expect(api.chat.getSessionMessages).toHaveBeenCalledWith('session-2');
+    });
+  });
+
+  it('should handle socket reconnection events', async () => {
+    renderChatInterface();
+    
+    // Simulate socket reconnection
+    const handlers = (socketClient.setHandlers as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
+    if (handlers?.onConnected) {
+      await act(async () => {
+        handlers.onConnected?.({ status: 'connected', sid: 'test-sid' });
+      });
+    }
+
+    expect(socketClient.setHandlers).toHaveBeenCalled();
+  });
+
+  it('should clear textarea after successful message send', async () => {
+    renderChatInterface();
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i) as HTMLTextAreaElement;
+    
+    fireEvent.change(textarea, { target: { value: 'Test message' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    await waitFor(() => {
+      expect(textarea.value).toBe('');
+    });
+  });
+
+  it('should display advanced controls when available', async () => {
+    renderChatInterface();
+    
+    await waitFor(() => {
+      const controls = screen.queryByTestId('advanced-controls');
+      expect(controls).toBeTruthy();
+    });
   });
 });

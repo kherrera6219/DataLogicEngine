@@ -158,25 +158,25 @@ export function McpClientConfig() {
   }, [tools]);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500" aria-busy={loading || refreshing}>
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-white">MCP Client Configuration</h2>
           <p className="text-gray-400">Live MCP server connectivity and tool inventory.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => void handleRefresh()} disabled={refreshing}>
+          <Button variant="outline" onClick={() => void handleRefresh()} disabled={refreshing} aria-label="Refresh MCP client data">
             <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button onClick={() => setIsAddServerOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => setIsAddServerOpen(true)} className="bg-blue-600 hover:bg-blue-700" aria-label="Add new server connection">
             <Plus className="mr-2 h-4 w-4" /> Add New Server Connection
           </Button>
         </div>
       </div>
 
       {error && (
-        <Card className="border-red-500/30 bg-red-500/10">
+        <Card className="border-red-500/30 bg-red-500/10" role="alert">
           <CardContent className="p-4 text-sm text-red-300">{error}</CardContent>
         </Card>
       )}
@@ -232,7 +232,7 @@ export function McpClientConfig() {
                   </div>
 
                   <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                    <Button size="icon" variant="ghost" className="h-6 w-6 text-gray-400">
+                    <Button size="icon" variant="ghost" className="h-6 w-6 text-gray-400" aria-label={`Inspect settings for ${server.name}`}>
                       <Settings className="h-3 w-3" />
                     </Button>
                     <Button
@@ -240,6 +240,7 @@ export function McpClientConfig() {
                       variant="ghost"
                       className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-900/20"
                       onClick={() => void handleDeleteServer(server.server_id)}
+                      aria-label={`Delete server ${server.name}`}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -259,12 +260,13 @@ export function McpClientConfig() {
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" aria-hidden="true" />
             <Input
               placeholder="Search tools by name or description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-white/5 border-white/10 pl-9"
+              aria-label="Search MCP tools"
             />
           </div>
 
@@ -303,28 +305,34 @@ export function McpClientConfig() {
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-500 uppercase">Server Name</label>
               <Input
+                id="mcp-server-name"
                 value={newServerName}
                 onChange={(e) => setNewServerName(e.target.value)}
                 placeholder="e.g. Notion MCP"
                 className="bg-black/20 border-white/10"
+                aria-label="Server name"
               />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-500 uppercase">Version</label>
               <Input
+                id="mcp-server-version"
                 value={newServerVersion}
                 onChange={(e) => setNewServerVersion(e.target.value)}
                 placeholder="1.0.0"
                 className="bg-black/20 border-white/10"
+                aria-label="Server version"
               />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
               <Input
+                id="mcp-server-description"
                 value={newServerDescription}
                 onChange={(e) => setNewServerDescription(e.target.value)}
                 placeholder="Server purpose and ownership"
                 className="bg-black/20 border-white/10"
+                aria-label="Server description"
               />
             </div>
           </div>
