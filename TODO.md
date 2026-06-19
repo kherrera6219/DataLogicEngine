@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; A15-F4 auth removal COMPLETE** — MFA module deleted, admin user-mgmt UI removed, coordinated backend endpoints deleted, tests passing. **NEXT: A15-B2 RBAC docs reconciliation.**)
+**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 IN PROGRESS (C3 + Critical fixes)** — HTTP status codes surfaced in ApiOverlayConfig, error handling added to ComplianceTrendChart, ChatTracePanel tests added. **NEXT: CSRF protection foundation + remaining component fixes.**)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

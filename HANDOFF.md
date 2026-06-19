@@ -1,10 +1,38 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15 (F1/F2/F3/F4 + B2) COMPLETE.**_
+_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 IN PROGRESS.**_
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
 A13, A14 (Phase 2); **A15 COMPLETE** (Phase 3 frontload: nav + auth removal + RBAC docs). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**A15 COMPLETE:** F1–F4 navigation audit (routing, orphaned pages, sidebar consolidation, auth removal); B2 RBAC docs reconciliation (single-mode OS-level auth). All tests passing._
-**A16 NEXT:** Frontend components audit (51 files, 150+ tests, includes C3 test_provider status). Then A17 (lib/hooks)._
+_**A16 IN PROGRESS:** Comprehensive component audit (57 components, 108 files). C3 ✓ (HTTP status codes in ApiOverlayConfig). Critical fixes: ComplianceTrendChart error handling ✓, ChatTracePanel tests ✓._
+**NEXT:** CSRF protection foundation + 48 remaining component fixes (type safety, a11y, tests, loading states). Estimated: 50-60 hours across 4 weeks._
+
+### Session log — 2026-06-18e (A16 components audit & critical fixes)
+
+**A16 IN PROGRESS** — Comprehensive components audit identified critical gaps. Full report:
+- **57 components audited** (108 TypeScript/TSX files)
+- **Test coverage: 47.2%** (51 of 108 files have tests)
+- **Critical findings:** 18% error handling, 0% CSRF protection, 44% accessibility gaps
+
+**Priority 1 Fixes (this session - STARTED)**:
+- ✅ **A16-C3:** ApiOverlayConfig HTTP status codes now displayed inline (401, 429, 422, 504)
+- ✅ **ComplianceTrendChart:** Added error state handling + empty data state (prevents dashboard crashes)
+- ✅ **ChatTracePanel:** New comprehensive test suite (5 tests covering render, load, error, export)
+
+**Remaining Priority 1 (Week 1-2, ~7-9 hours):**
+- CSRF token implementation (16 API-calling components)
+- NavBar error handling
+- AppInitializer error handling
+- Type safety foundation
+
+**Full audit recommendations:**
+- Type safety: 26 UI primitives need Props interfaces
+- Accessibility: 32 components need ARIA labels + keyboard navigation
+- Tests: 9 components need new test files
+- Loading states: 43 components need indicators
+- Performance: useCallback/useMemo optimization
+
+Pre-commit: ALL PASS (lint, typecheck, tests)
+Commits: e6264f2e (C3), 65f20968 (error handling + tests)
 
 ### Session log — 2026-06-18d (A15-B2 RBAC docs reconciliation)
 
