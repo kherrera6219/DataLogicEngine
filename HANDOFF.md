@@ -1,11 +1,11 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 22:30 UTC — **A16 Priority 2: Type Safety 100% Complete, Test Coverage 56% Complete, Accessibility 6% Complete**_
+_Last updated: 2026-06-18 22:45 UTC — **A16 Priority 2: Type Safety 100% Complete, Test Coverage 56% Complete, Accessibility 25% Complete**_
 
 **PHASE 3 AUDIT COMPLETION SUMMARY:**
 - ✅ A15 (Navigation audit + Auth removal + RBAC docs): COMPLETE
 - ✅ A16 Priority 1 (HTTP status codes, error handling, CSRF verification): COMPLETE
-- ⏳ A16 Priority 2 (Type safety ✅ 100%, test coverage ⏳ 56%, accessibility ⏳ 6%): 54% COMPLETE
+- ⏳ A16 Priority 2 (Type safety ✅ 100%, test coverage ⏳ 56%, accessibility ⏳ 25%): 60% COMPLETE
 - ⏳ A16 Priority 3 (Loading states, performance): PENDING
 - ⏳ A17 (Frontend lib/hooks audit): PENDING
 
@@ -15,7 +15,7 @@ _Last updated: 2026-06-18 22:30 UTC — **A16 Priority 2: Type Safety 100% Compl
 |----------|----------|-----------|-------|-------|--------|
 | **2** | Type Safety | Add Props interfaces to UI primitives | 23/23 existing complete ✅ | 15-20 | COMPLETE (100%) |
 | **2** | Test Coverage | Write test files for 9+ components | ConfirmationDialog ✅, FeatureFlagGate ✅, AiModelSettings ✅, ClientErrorBootstrap ✅, RouteErrorFallback ✅ | 10-12 | IN PROGRESS (56%) |
-| **2** | Accessibility | ARIA labels + keyboard navigation | NavBar ✅, AppSidebar ✅ (2/32 components) | 20-25 | IN PROGRESS (6%) |
+| **2** | Accessibility | ARIA labels + keyboard navigation | NavBar ✅, AppSidebar ✅, Dialog ✅, AlertDialog ✅, DropdownMenu ✅, Tabs ✅, Select ✅, Input ✅ (8/32 components) | 20-25 | IN PROGRESS (25%) |
 | **3** | Loading States | Add visual indicators | 43 components need loading UI feedback | 10-15 | PENDING |
 | **3** | Performance | useCallback/useMemo optimization | Memoization for 20+ components | 5-8 | PENDING |
 
@@ -80,20 +80,17 @@ _Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9,
 
 **Accessibility — 32 Components Missing ARIA/Keyboard Nav:**
 
-✅ **COMPLETED (2 components - 4-5 hours):**
+✅ **COMPLETED (8 components - 10-12 hours):**
 1. `NavBar.tsx` — ✅ Added keyboard navigation (Escape to close mobile menu), focus refs with useEffect, semantic header role="banner", improved aria-labels, focus-visible styling
 2. `AppSidebar.tsx` — ✅ Added semantic <aside> element, aria-label for navigation, aria-current for active links, role=separator on visual separators, aria-hidden on decorative icons, focus-visible rings
+3. `Dialog.tsx` — ✅ Added role=dialog, aria-modal=true, aria-label on close button; Radix UI provides focus trapping + Escape handling
+4. `AlertDialog.tsx` — ✅ Added role=alertdialog, aria-modal=true; Radix UI provides focus trapping + keyboard support
+5. `DropdownMenu.tsx` — ✅ Added role=menu, aria-orientation=vertical; Radix UI provides arrow key navigation (↑↓), Enter, Escape
+6. `Tabs.tsx` — ✅ Added tabIndex management for proper keyboard focus, keydown handler for arrow keys (←→), role=tab, role=tabpanel
+7. `Select.tsx` — ✅ Added aria-label support, aria-hidden on decorative chevron icon; HTML select has built-in keyboard support
+8. `Input.tsx` — ✅ Added aria-invalid, aria-describedby for error messaging, aria-hidden on decorative icon
 
-⏳ **HIGH PRIORITY (10 components - 15+ hours):**
-3. Dialog — Add role=dialog, focus trap (Tab/Escape), modal backdrop
-4. AlertDialog — Add focus trap, confirm/cancel keyboard handling
-5. DropdownMenu — Add role=menu, arrow key navigation (↑↓), Enter to select
-6. Tabs — Add arrow key support (←→ to switch tabs), aria-selected
-7. Select/Combobox — Add type-ahead filtering, keyboard navigation
-8. Modals (Modal, Sheet) — Add focus trapping, scroll lock
-9. Button groups — Add arrow key navigation between buttons
-10. Forms (Input, Textarea, Checkbox) — Add aria-required, aria-invalid, error messaging
-... and 22 more components for complete coverage
+⏳ **HIGH PRIORITY (24 components - 20+ hours):**
 
 **Action items:**
 - ✅ Create Props interface for each UI primitive in `components/ui/*.tsx`

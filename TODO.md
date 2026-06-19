@@ -17,7 +17,7 @@
 | **A16-Priority 1** | CSRF infrastructure verification | ✅ DONE | verified |
 | **A16-Priority 2** | Type safety (UI primitives + Props) | ✅ DONE (23/23 existing) | 026502a8 |
 | **A16-Priority 2** | Test coverage (3 additional components) | ✅ DONE | f38f2cc8 |
-| **A16-Priority 2** | Accessibility (32 components) | ⏳ IN PROGRESS (2/32 = 6%) | 221017a7 |
+| **A16-Priority 2** | Accessibility (32 components) | ⏳ IN PROGRESS (8/32 = 25%) | 2fbfc8c2 |
 | **A16-Priority 3** | Loading states (43 components) | ⏳ PENDING | - |
 | **A17** | Frontend lib & hooks audit | ⏳ PENDING | - |
 
