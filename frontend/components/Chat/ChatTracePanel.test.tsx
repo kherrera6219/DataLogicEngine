@@ -17,7 +17,7 @@ vi.mock('@/lib/api', () => ({
 
 // Mock the useTraceStream hook
 vi.mock('@/hooks/useTraceStream', () => ({
-  useTraceStream: vi.fn(() => null),
+  useTraceStream: vi.fn(() => ({ layers: [] })),
 }));
 
 const mockTraceBundle: TraceBundle = {
@@ -39,7 +39,7 @@ describe('ChatTracePanel', () => {
 
   it('should render with runId', () => {
     render(<ChatTracePanel runId="test-run-123" />);
-    expect(screen.getByText(/Trace Details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reasoning Trace/i)).toBeInTheDocument();
   });
 
   it('should load bundle on expand', async () => {
@@ -47,7 +47,7 @@ describe('ChatTracePanel', () => {
     mockGetBundle.mockResolvedValue(mockTraceBundle);
 
     render(<ChatTracePanel runId="test-run-123" />);
-    const expandButton = screen.getByRole('button', { name: /Trace Details/i });
+    const expandButton = screen.getByRole('button', { name: /Reasoning Trace/i });
     
     fireEvent.click(expandButton);
 
@@ -61,7 +61,7 @@ describe('ChatTracePanel', () => {
     mockGetBundle.mockRejectedValue(new Error('Network error'));
 
     render(<ChatTracePanel runId="test-run-123" />);
-    const expandButton = screen.getByRole('button', { name: /Trace Details/i });
+    const expandButton = screen.getByRole('button', { name: /Reasoning Trace/i });
     
     fireEvent.click(expandButton);
 
@@ -71,26 +71,40 @@ describe('ChatTracePanel', () => {
   });
 
   it('should export trace bundle', async () => {
+    const mockGetBundle = vi.mocked(apiModule.api.trace.getBundle);
+    mockGetBundle.mockResolvedValue(mockTraceBundle);
+    
     const mockExport = vi.mocked(apiModule.api.trace.export);
-    mockExport.mockResolvedValue(mockTraceBundle);
+    mockExport.mockResolvedValue(JSON.stringify(mockTraceBundle));
 
-    const createElementSpyOn = vi.spyOn(document, 'createElement');
     const createObjectURLSpyOn = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL');
 
     render(<ChatTracePanel runId="test-run-123" />);
-    const expandButton = screen.getByRole('button', { name: /Trace Details/i });
+    const expandButton = screen.getByRole('button', { name: /Reasoning Trace/i });
     
     fireEvent.click(expandButton);
 
+    // Wait for the bundle to load
     await waitFor(() => {
-      const exportButton = screen.getByRole('button', { name: /Export/i });
-      fireEvent.click(exportButton);
+      expect(mockGetBundle).toHaveBeenCalledWith('test-run-123');
     });
 
-    expect(mockExport).toHaveBeenCalledWith('test-run-123');
+    // Now wait for the export button to appear
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Export/i })).toBeInTheDocument();
+    });
+
+    const exportButton = screen.getByRole('button', { name: /Export/i });
+    fireEvent.click(exportButton);
+
+    // Verify export was called
+    await waitFor(() => {
+      expect(mockExport).toHaveBeenCalledWith('test-run-123');
+    });
     
-    createElementSpyOn.mockRestore();
     createObjectURLSpyOn.mockRestore();
+    revokeSpy.mockRestore();
   });
 
   it('should derive runId from auditTrail complete_trace_url', () => {
@@ -99,6 +113,6 @@ describe('ChatTracePanel', () => {
     };
 
     render(<ChatTracePanel auditTrail={auditTrail as any} />);
-    expect(screen.getByText(/Trace Details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reasoning Trace/i)).toBeInTheDocument();
   });
 });
