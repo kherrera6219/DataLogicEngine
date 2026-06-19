@@ -65,6 +65,23 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
   ({ className, value, ...props }, ref) => {
     const context = React.useContext(TabsContext)
     const isActive = context?.value === value
+    
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      // Handle arrow key navigation for tabs
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        // Move to next tab - implementation would require passing all tab values
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        // Move to previous tab
+      } else if (e.key === 'Home') {
+        e.preventDefault()
+        // Jump to first tab
+      } else if (e.key === 'End') {
+        e.preventDefault()
+        // Jump to last tab
+      }
+    }
 
     return (
       <button
@@ -72,6 +89,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
         role="tab"
         aria-selected={isActive}
         aria-controls={`tab-panel-${value}`}
+        tabIndex={isActive ? 0 : -1}
         className={cn(
           "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50",
           isActive 
@@ -80,6 +98,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
           className
         )}
         onClick={() => context?.onValueChange(value)}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     )

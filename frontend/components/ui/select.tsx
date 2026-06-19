@@ -13,7 +13,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, children, disabled, ...props }, ref) => {
+  ({ className, children, disabled, "aria-label": ariaLabel, ...props }, ref) => {
     return (
       <div className="relative">
         <select
@@ -23,11 +23,12 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           )}
           ref={ref}
           disabled={disabled}
+          aria-label={ariaLabel}
           {...props}
         >
           {children}
         </select>
-        <div className="absolute right-3 top-3 pointer-events-none">
+        <div className="absolute right-3 top-3 pointer-events-none" aria-hidden="true">
            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
         </div>
       </div>
