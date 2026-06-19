@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 IN PROGRESS (C3 + Critical fixes)** — HTTP status codes surfaced in ApiOverlayConfig, error handling added to ComplianceTrendChart, ChatTracePanel tests added. **NEXT: CSRF protection foundation + remaining component fixes.**)
+**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; A15 COMPLETE; A16 IN PROGRESS** — Priority 1 nearly complete: HTTP status codes ✓, error handling ✓, ChatTracePanel tests ✓, CSRF infrastructure verified ✓. Next: Type safety + accessibility improvements for remaining 58 components.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

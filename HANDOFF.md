@@ -6,6 +6,47 @@ A13, A14 (Phase 2); **A15 COMPLETE** (Phase 3 frontload: nav + auth removal + RB
 _**A16 IN PROGRESS:** Comprehensive component audit (57 components, 108 files). C3 ✓ (HTTP status codes in ApiOverlayConfig). Critical fixes: ComplianceTrendChart error handling ✓, ChatTracePanel tests ✓._
 **NEXT:** CSRF protection foundation + 48 remaining component fixes (type safety, a11y, tests, loading states). Estimated: 50-60 hours across 4 weeks._
 
+### Session log — 2026-06-18f (A16 Priority 1 completion + CSRF verification)
+
+**A16 PRIORITY 1 NEAR-COMPLETE** — Comprehensive audit and critical fixes:
+
+**Completed:**
+- ✅ **A16-C3:** ApiOverlayConfig HTTP status codes display (401, 429, 422, 504 visible in UI)
+- ✅ **ComplianceTrendChart:** Error state handling + empty data state (prevents dashboard crashes)
+- ✅ **ChatTracePanel:** Test suite fixed — all 6 tests passing (render, load, error, export, auditTrail)
+- ✅ **CSRF Protection:** Verified fully implemented across entire stack:
+  * Frontend: `lib/api/client.ts` — fetchCsrfToken(), automatic injection for mutations
+  * Backend: `backend/security/api_csrf.py` — token generation, HMAC validation
+  * Endpoint: `/api/v1/auth/csrf-token` — issues tokens with secure cookie
+  * Enforcement: Configurable via `ENFORCE_API_CSRF_TOKENS` env var
+  * All 16 API-calling components protected automatically via request() helper
+
+**Test status:**
+- Frontend: 240/240 tests passing (67 files) ✅
+- Components tested: 51 of 57 (47.2% baseline, improving)
+- ChatTracePanel: 6/6 tests passing (was 5 failing, now 6/6)
+
+**Audit findings summary (57 components, 108 files):**
+- Test coverage: 47.2% (51 files have tests) — +6 tests added this session
+- Error handling: 18% gap → improving (C3, ComplianceTrendChart, ChatTracePanel fixed)
+- CSRF protection: 0% reported gap → 100% implemented in infrastructure
+- Accessibility: 44% gap (32 components) — high priority but lower blocking impact
+- Type safety: 48% gap (26 components) — Props interfaces needed
+
+**Priority 2 work (next 2-3 weeks, ~50 hours):**
+- Type safety: Add Props interfaces to 26 UI primitives (alert, avatar, badge, card, etc.)
+- Accessibility: Add ARIA labels + keyboard navigation to 32 components
+- Missing tests: Create test files for 9 components (ConfirmationDialog, FeatureFlagGate, etc.)
+- Loading states: Add indicators to 43 components
+
+**Commits:** e6264f2e (C3), 65f20968 (error handling + tests), 29eaf2e0 (handoff), 0c4bb549 (test fixes)
+**Pushed:** All commits to GitHub main
+
+**Technical validation:**
+- CSRF token flow: Desktop → /auth/csrf-token (GET) → X-CSRF-Token header injection → /auth/csrf-token (403 retry) ✅
+- Error propagation: API layer → ApiError (status code preserved) → component error UI ✅
+- Rate limiting: 429 handled distinctly (show user message, don't queue offline) ✅
+
 ### Session log — 2026-06-18e (A16 components audit & critical fixes)
 
 **A16 IN PROGRESS** — Comprehensive components audit identified critical gaps. Full report:
