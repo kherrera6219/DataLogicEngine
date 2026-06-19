@@ -13,16 +13,10 @@ import { api, User } from "@/lib/api";
 import { LoginCredentials } from "@/lib/api/auth";
 import { shouldUseDesktopSessionFlow } from "@/lib/runtime/policy";
 
-interface MFAState {
-  required: boolean;
-  sessionId?: string;
-}
-
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  mfaState: MFAState;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -40,7 +34,6 @@ const NOTIFICATION_EVENT = "auth-notification";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mfaState, setMfaState] = useState<MFAState>({ required: false });
   const router = useRouter();
   const pathname = usePathname();
 
@@ -92,13 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(response.user);
         router.push("/dashboard");
         router.refresh();
-      } else if (response && response.mfa_required) {
-        // Handle MFA requirement - status 202 is returned as success data by our request client
-        setMfaState({ required: true, sessionId: response.session_id });
-        showNotification(
-          "MFA verification required. Please enter your authentication code.",
-          "warning",
-        );
       } else {
         throw new Error("Login failed: Invalid response format");
       }
@@ -162,7 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isAuthenticated: !!user,
         isLoading,
-        mfaState,
         login,
         logout,
         checkAuth,

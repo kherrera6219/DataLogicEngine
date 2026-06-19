@@ -16,7 +16,7 @@ import logging
 
 from flask import Blueprint, Response, request
 from flask_login import login_required, current_user
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
 
 from extensions import db, limiter, cache
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
@@ -24,13 +24,11 @@ from backend.config.settings import settings
 from backend.utils.responses import (
     success_response,
     error_response,
-    paginated_response,
     not_found_error,
     forbidden_error,
     validation_error,
     internal_error
 )
-from backend.utils.pagination import PaginationParams, paginate_query
 from backend.utils.validation import validate_json_body
 
 logger = logging.getLogger(__name__)
@@ -130,242 +128,6 @@ def admin_dashboard_stats() -> Tuple[Response, int]:
     except SQLAlchemyError as e:
         logger.error(f"Database error in dashboard stats: {e}", exc_info=True)
         return internal_error("Failed to retrieve dashboard statistics")
-
-
-# =============================================================================
-# User Management Endpoints
-# =============================================================================
-
-@admin_bp.route('/users', methods=['GET'])
-@login_required
-@limiter.limit(settings.ADMIN_RATE_LIMIT)
-def get_users() -> Tuple[Response, int]:
-    """
-    Get paginated list of users with desktop identity metadata.
-
-    Query Parameters:
-        page (int): Page number (default: 1)
-        per_page (int): Items per page (default: 50, max: 100)
-        role (str): Filter by role (optional)
-        active (bool): Filter by active status (optional)
-
-    Returns:
-        Paginated JSON response with users and role counts
-    """
-    try:
-        # Parse and validate pagination params
-        params = PaginationParams.from_request(max_per_page=settings.MAX_PAGE_SIZE)
-
-        # Build query with optional filters
-        query = User.query.order_by(User.created_at.desc())
-
-        # Apply filters
-        role_filter = request.args.get('role')
-        if role_filter and role_filter in settings.ALLOWED_ROLES:
-            query = query.filter(User.role == role_filter)
-
-        active_filter = request.args.get('active')
-        if active_filter is not None:
-            is_active = active_filter.lower() in ('true', '1', 'yes')
-            query = query.filter(User.active == is_active)
-
-        # Execute paginated query
-        pagination = paginate_query(query, params)
-
-        # Get cached role counts
-        role_counts = cache.get('user_role_counts')
-        if role_counts is None:
-            role_counts = {
-                'owner': User.query.filter_by(role='owner').count(),
-                'admin': User.query.filter(User.is_admin, User.role == 'admin').count(),
-                'analyst': User.query.filter_by(role='analyst').count(),
-                'user': User.query.filter_by(role='user').count()
-            }
-            cache.set('user_role_counts', role_counts, timeout=settings.STATS_CACHE_TTL)
-
-        return paginated_response(
-            items={
-                "users": [u.to_dict() for u in pagination.items],
-                "counts": role_counts
-            },
-            total=pagination.total,
-            page=pagination.page,
-            per_page=pagination.per_page,
-            message="Users retrieved successfully"
-        )
-
-    except SQLAlchemyError as e:
-        logger.error(f"Database error listing users: {e}", exc_info=True)
-        return internal_error("Failed to retrieve users")
-
-
-@admin_bp.route('/users/<int:user_id>', methods=['GET'])
-@login_required
-@limiter.limit(settings.ADMIN_RATE_LIMIT)
-def get_user(user_id: int) -> Tuple[Response, int]:
-    """
-    Get a specific user by ID.
-
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON response with user data
-    """
-    try:
-        user = db.session.get(User, user_id)
-        if not user:
-            return not_found_error("User", user_id)
-
-        return success_response(user.to_dict())
-
-    except SQLAlchemyError as e:
-        logger.error(f"Database error getting user {user_id}: {e}", exc_info=True)
-        return internal_error("Failed to retrieve user")
-
-
-@admin_bp.route('/users/<int:user_id>/role', methods=['PUT'])
-@login_required
-@limiter.limit("10 per minute")  # Stricter limit for role changes
-@validate_json_body(['role'])
-def update_user_role(user_id: int) -> Tuple[Response, int]:
-    """
-    Update user role with ownership protection.
-
-    Args:
-        user_id: User ID to update
-
-    Request Body:
-        role (str): New role name (required)
-        is_admin (bool): Admin flag (optional)
-
-    Returns:
-        JSON response with updated user data
-    """
-    try:
-        user = db.session.get(User, user_id)
-        if not user:
-            return not_found_error("User", user_id)
-
-        # Protect owner role from direct modification
-        if user.role == 'owner':
-            return forbidden_error("Cannot modify Owner role directly. Use Ownership Transfer.")
-
-        # Prevent self-demotion for admins
-        if user.id == current_user.id and current_user.is_admin:
-            return forbidden_error("Cannot modify your own admin privileges")
-
-        data = request.json
-
-        # Validate and apply role change
-        new_role = data.get('role')
-        if new_role:
-            is_valid, error_msg = _validate_role(new_role)
-            if not is_valid:
-                return validation_error({"role": [error_msg]})
-
-            old_role = user.role
-            user.role = new_role
-
-        # Handle is_admin flag
-        is_admin = data.get('is_admin')
-        if is_admin is not None:
-            if not isinstance(is_admin, bool):
-                return validation_error({"is_admin": ["Must be a boolean value"]})
-            user.is_admin = is_admin
-
-        db.session.commit()
-
-        # Invalidate cached role counts
-        cache.delete('user_role_counts')
-
-        # Audit the action
-        _audit_admin_action("ROLE_UPDATE", {
-            "target_user_id": user_id,
-            "target_username": user.username,
-            "old_role": old_role if new_role else user.role,
-            "new_role": user.role,
-            "target_sid": getattr(user, 'sid', getattr(user, 'windows_sid', None))
-        })
-
-        return success_response(user.to_dict(), "User role updated successfully")
-
-    except IntegrityError as e:
-        db.session.rollback()
-        logger.warning(f"Integrity error updating user {user_id}: {e}")
-        return error_response("Failed to update user: integrity constraint violated", 409)
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logger.error(f"Database error updating user {user_id}: {e}", exc_info=True)
-        return internal_error("Failed to update user")
-
-
-@admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
-@login_required
-@limiter.limit("5 per minute")  # Very strict limit for deletions
-def delete_user(user_id: int) -> Tuple[Response, int]:
-    """
-    Delete a user account.
-
-    Args:
-        user_id: User ID to delete
-
-    Query Parameters:
-        confirm: Must be "DELETE" to confirm deletion
-
-    Returns:
-        JSON response confirming deletion
-    """
-    try:
-        # Require explicit confirmation
-        confirm = request.args.get('confirm')
-        if confirm != 'DELETE':
-            return error_response(
-                "Deletion requires confirmation. Add ?confirm=DELETE to URL.",
-                400
-            )
-
-        user = db.session.get(User, user_id)
-        if not user:
-            return not_found_error("User", user_id)
-
-        # Cannot delete owner
-        if user.role == 'owner':
-            return forbidden_error("Cannot delete Owner account. Transfer ownership first.")
-
-        # Cannot delete self
-        if user.id == current_user.id:
-            return forbidden_error("Cannot delete your own account via admin API")
-
-        username = user.username
-        user_sid = getattr(user, 'sid', getattr(user, 'windows_sid', None))
-
-        # Delete associated data first
-        SimulationSession.query.filter_by(user_id=user_id).delete()
-        db.session.delete(user)
-        db.session.commit()
-
-        # Invalidate caches
-        cache.delete('user_role_counts')
-        cache.delete('admin_dashboard_stats')
-
-        # Audit the action
-        _audit_admin_action("USER_DELETED", {
-            "deleted_user_id": user_id,
-            "deleted_username": username,
-            "deleted_sid": user_sid
-        })
-
-        return success_response(
-            {"deleted_user_id": user_id, "username": username},
-            "User deleted successfully"
-        )
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logger.error(f"Database error deleting user {user_id}: {e}", exc_info=True)
-        return internal_error("Failed to delete user")
 
 
 # =============================================================================
