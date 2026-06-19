@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 cleanup sweep done 2026-06-18** — carry-overs A9-1/A9-2/A9-3 + 6 dead `verify_*.py` scripts + A32-min resolved; A13-min N/A; B1 encryption docs reconciled; C1/C2 cosmetic; A3-5→A26, A28→A28, B2→A15, C3→A16 deferred; see HANDOFF + REPO_AUDIT_LOG. A10-A13 done 2026-06-13; **A14 `sdk/UKG_Python_SDK/` DONE 2026-06-14** — Antigravity audit `087a9917` repaired: 5 bugs fixed in `008287ca` (ImportError on `import ukg_sdk`, 2x `veto_reason` AttributeError, builtin KA registration guard, KA-61 regex). 33 SDK tests pass. **NEXT: Phase 3 frontend — A15 (pages), A16 (components), A17 (lib/hooks).** Deferred auth removals (admin user-mgmt routes, MFA, `tenant_rls.py`, `User.role/is_admin/mfa_*`) land in A15/A16.)
+**Last updated:** 2026-06-18 (**PHASE 1 + PHASE 2 COMPLETE; A15-F4 auth removal COMPLETE** — MFA module deleted, admin user-mgmt UI removed, coordinated backend endpoints deleted, tests passing. **NEXT: A15-B2 RBAC docs reconciliation.**)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

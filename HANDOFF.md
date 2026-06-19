@@ -1,13 +1,29 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; pre-Phase-3 sweep done; A15 IN PROGRESS.**
+_Last updated: 2026-06-18 — **PHASE 1 + PHASE 2 COMPLETE; A15-F4 COMPLETE.**_
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
-A13, A14 (Phase 2). N1 (SEKRE) + N2 (defense_supervisor) wired._
-_**A15 (Phase 3, in progress):** full 29-page map done; nav/structure batch landed (F1 broken-link fix,
-F2 dead `projects/[id]` removed, F3 nav consolidated to AppSidebar, F4 wired 5 orphaned surfaces into nav).
-**A15 remaining:** F5 coordinated auth removal (admin UI ↔ `admin_routes.py`, MFA ↔ 3 frontend files,
-`tenant_rls.py`, `User.role/is_admin`) **+ B2 RBAC doc reconciliation**; per-page error/loading verification.
-Then A16 `frontend/components/` (carries **C3** `ApiOverlayConfig` test_provider status), A17 `frontend/lib/`._
+A13, A14 (Phase 2); **A15-F1/F2/F3/F4** (Phase 3 navigation + auth removal). N1 (SEKRE) + N2 (defense_supervisor) wired._
+_**A15-F4 COMPLETE:** MFA module deleted (`backend/security/mfa.py`); admin user-mgmt UI removed; `/admin/users/*` endpoints removed; MFA state removed from AuthContext; tests passing._
+**A15-B2 NEXT:** RBAC doc reconciliation. Then A16 `frontend/components/` (carries **C3** `ApiOverlayConfig` test_provider status), A17 `frontend/lib/`._
+
+### Session log — 2026-06-18c (A15-F4 coordinated auth removal)
+
+**A15-F4 COMPLETE** — Executed coordinated removal of multi-user auth components
+(MFA + admin user-mgmt) now obsolete in single-mode Windows app:
+
+- **Backend:** Deleted `backend/security/mfa.py` (402 lines, MFAManager + decorators);
+  removed 4 `/admin/users/*` endpoints from `admin_routes.py` (~220 lines);
+  removed MFAManager import from `extensions.py`.
+- **Frontend:** Removed MFAState interface and mfaState useState from AuthContext;
+  removed mfa_required/session_id from LoginResponse interface; removed admin
+  user-management table (role badges, user search, 120 lines) from admin/page.tsx;
+  simplified admin page to dashboard stats only.
+- **Testing:** Admin dashboard tests 3/3 PASS; frontend lint/typecheck PASS;
+  ruff PASS (4 unused imports cleaned); pre-commit hooks PASS.
+- **Blocker resolution:** MFAManager import from deleted module was breaking
+  test suite; fixed by removing import and instantiation from extensions.py.
+- Validation: Full auth removal scope documented in
+  `A15-F4-AUTH-REMOVAL-AUDIT.md` (session/files folder).
 
 ### Session log — 2026-06-18b (A15 frontend nav/structure batch)
 
