@@ -5,9 +5,23 @@ import * as SliderPrimitive from "@radix-ui/react-slider"
 
 import { cn } from "@/lib/utils"
 
+/** Props for the Slider component. */
+interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
+  /** The minimum value. */
+  min?: number
+  /** The maximum value. */
+  max?: number
+  /** The step value for increments. */
+  step?: number
+  /** The current value or values (for range). */
+  value?: number[]
+  /** Callback when the value changes. */
+  onValueChange?: (value: number[]) => void
+}
+
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+  SliderProps
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
@@ -26,3 +40,4 @@ const Slider = React.forwardRef<
 Slider.displayName = SliderPrimitive.Root.displayName
 
 export { Slider }
+export type { SliderProps }

@@ -4,10 +4,16 @@ import { cn } from "@/lib/utils"
 // Simple Select implementation
 // In a real app we'd use Radix UI Select for accessibility/popovers
 
-export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
+/** Props for the Select component. */
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  /** Whether the select is disabled. */
+  disabled?: boolean
+  /** Placeholder text to display. */
+  placeholder?: string
+}
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, disabled, ...props }, ref) => {
     return (
       <div className="relative">
         <select
@@ -16,6 +22,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             className
           )}
           ref={ref}
+          disabled={disabled}
           {...props}
         >
           {children}
@@ -64,3 +71,4 @@ const SelectItem = React.forwardRef<HTMLOptionElement, React.OptionHTMLAttribute
 SelectItem.displayName = "SelectItem"
 
 export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem }
+export type { SelectProps }
