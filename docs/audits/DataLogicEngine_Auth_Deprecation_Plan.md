@@ -1,6 +1,12 @@
 # DataLogicEngine — Multi-User Auth Deprecation Plan
 
-**STATUS (2026-06-19): Phases A + B + C-partial + D DONE.** Clean wins done
+**STATUS (2026-06-19): ✅ COMPLETE — Phases A–F done.** Single-mode fully realized:
+no MFA, no multi-tenant RLS, no admin user-mgmt UI/routes, no roles/admin columns; all
+authorization gates collapsed to a single-owner check (`current_user_is_owner()`).
+`password_hash` retained (user decision); `tenant_id` columns/reads left in place (wider
+than RLS — separate concern). Final commit `950eda75` (E-2c). Original status below.
+
+**STATUS (2026-06-19, superseded): Phases A + B + C-partial + D DONE.** Clean wins done
 (~1,900 LOC of dead/obsolete active auth code removed: zero_trust, token_manager,
 rbac; authz decorators collapsed; stale CSRF entries dropped; plan corrected;
 5 pre-existing desktop tests fixed). **Phase D done 2026-06-19** — MFA module +
@@ -166,10 +172,12 @@ rushed backend sweep.
 - ✅ **E-2b** (`deb6a656`): all ~50 `is_admin` authorization gates collapsed to single-owner via
   `current_user_is_owner()` (`backend/auth/api_decorators.py`) + `_user_is_owner()` (`tracing/api.py`);
   dead `backend/decorators.py` deleted. `role`/`is_admin` columns are now INERT (no gate reads them).
-- ☐ **E-2c (remaining):** physically drop `role`/`is_admin` columns. Phase-F-scale: ~12 test files
-  + central `conftest.py` seed helpers + `init_db`/`auth_routes`/`graphql_schema` writes + scripts +
-  a new Alembic migration. Recommend keeping `to_dict` returning constant `is_admin:True`/`role:'owner'`
-  so the frontend admin-nav gating contract stays unchanged.
+- ✅ **E-2c** (`950eda75`): dropped `role`/`is_admin` columns + indexes (migration `c5d6e7f8a9b0`,
+  validated). to_dict/GraphQL return single-mode constants `is_admin:True`/`role:'owner'` so the
+  frontend admin-nav contract is unchanged. `conftest.py` keeps role/is_admin params but no longer
+  persists them; ~10 test files + 3 scripts updated; 2 obsolete `windows/verify_*` scripts deleted.
+  **Phase E (and the whole plan) is complete.** Discovered during E-2c: a severe pre-existing
+  `tests/integration_routes` shared-DB isolation bug (A18 scope) — see REPO_AUDIT_LOG / memory.
 
 Original E scope (for E-2c):
 Drop `role`, `is_admin`, `mfa_enabled`, `mfa_secret` columns + their indexes

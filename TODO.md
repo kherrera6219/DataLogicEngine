@@ -215,8 +215,9 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       - E-1 (`c60aee15`): dropped `mfa_enabled`/`mfa_secret`/`backup_codes` columns + `verify_totp`; Alembic migration `b4c5d6e7f8a9` (validated).
       - E-2a (`e2994349`): removed admin user-mgmt UI (`frontend/app/admin/page.tsx`) + `backend/admin.py`; `admin_routes.py` slimmed to cache/health. Cleared 13 pre-existing failures. Compliance/MCP admin kept.
       - E-2b (`deb6a656`): collapsed ~50 `is_admin` authz gates to single-owner via `current_user_is_owner()`/`_user_is_owner()`; deleted dead `backend/decorators.py`. `role`/`is_admin` columns now INERT.
-      - **E-2c remaining**: physically drop `role`/`is_admin` columns — Phase-F-scale (conftest seed helpers + ~12 test files + scripts + graphql/init_db/auth_routes writes + migration). Keep `to_dict` constants `is_admin:True`/`role:'owner'` to leave the frontend admin-nav contract unchanged.
+      - E-2c (`950eda75`): dropped `role`/`is_admin` columns + indexes (migration `c5d6e7f8a9b0`, validated); to_dict/GraphQL return single-mode constants; conftest keeps params but stops persisting; ~10 test files + 3 scripts updated; 2 obsolete `windows/verify_*` scripts deleted. **→ AUTH DEPRECATION PHASES A–F COMPLETE.**
       - `tenant_id` columns/reads LEFT IN (wider than RLS); `password_hash` KEPT (user decision).
+      - **A18 finding:** `tests/integration_routes` has a severe pre-existing shared-DB test-isolation bug (baseline standalone = 10 failed + 10 errors; failures vary per run) + the A18-pre conftest-name collision. Flag for A18 (tests/) audit; not introduced by this work.
     - **Also this session — CRITICAL fix** (`8362882b`): restored 47 ORM classes truncated from `models.py` by `6c7cf68b`; added `test_models_orm_surface_is_complete` regression guard. Last-20-commit damage review: that was the only damage.
     - Remaining A15: F5 finish (E-2c) + B2 docs (below); per-page error/loading-state verification.
     - Scope: all Next.js page files under `frontend/app/`; coordinated frontend+backend deferred auth cleanup.

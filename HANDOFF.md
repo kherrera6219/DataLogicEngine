@@ -25,8 +25,13 @@ plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`):
 - **Phase E-2b** (`deb6a656`): collapsed ALL ~50 `is_admin` authorization gates to single-owner via
   `current_user_is_owner()` (api_decorators) + `_user_is_owner()` (tracing/api.py); deleted dead
   `backend/decorators.py`. `role`/`is_admin` columns are now INERT.
-- **E-2c remaining** (next): physically drop `role`/`is_admin` columns — a Phase-F-scale test migration
-  (conftest seed helpers + ~12 test files + scripts + graphql/init_db/auth_routes writes + migration).
+- **Phase E-2c** (`950eda75`): dropped `role`/`is_admin` columns + indexes (migration `c5d6e7f8a9b0`,
+  validated); to_dict/GraphQL return single-mode constants; conftest keeps params but stops persisting;
+  ~10 test files + 3 scripts updated; 2 obsolete `windows/verify_*` scripts deleted.
+  **→ AUTH DEPRECATION PHASES A–F COMPLETE** (no MFA/tenancy/admin-UI/roles; all gates single-owner).
+- **A18 finding:** `tests/integration_routes` has a severe pre-existing shared-DB isolation bug
+  (baseline = 10 failed + 10 errors standalone; failures vary per run) + the A18-pre conftest-name
+  collision. Not introduced by this work; flagged for the A18 (tests/) audit.
 - Validation: security (234), unit (864), trace/gateway/mcp/feature-flag (143), admin/model (60+22) green;
   1935-test collection clean; pre-commit green on every commit.
 
