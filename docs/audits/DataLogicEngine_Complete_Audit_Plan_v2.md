@@ -30,7 +30,8 @@
 | **A12** | `backend/storage/` | ✅ done | — | DB-N/DB-C/DB-M all live (re-confirmed); connection_manager not rate-limiting (moot single-mode); RT-10 atomic-write fix |
 | **A13** | `core/system/` | ✅ done | (verify-only) | all 11 services live; DUP-2 = 3 distinct orchestrators (retained by design); SekreEngine wired live; TV-6 Socket.IO is gateway/websocket not trace_service |
 | **A14** | `sdk/UKG_Python_SDK/` | ⏭ NEXT | — | SDK API surface, providers, coordinates17, version |
-| A15–A32 | rest of Phases 2–4 | ☐ | — | see session sequence below |
+| **A15** | `frontend/app/` + deferred auth removal | 🔶 in progress | `c60f3daf`+ | nav/structure batch done (2026-06-18); **auth deprecation Phase D + E-1/E-2a/E-2b done 2026-06-19** (tenant_rls removed; MFA columns dropped; admin user-mgmt UI/routes removed; ~50 is_admin gates collapsed to single-owner). E-2c (drop role/is_admin columns) remaining — see `DataLogicEngine_Auth_Deprecation_Plan.md` |
+| A16–A32 | rest of Phases 3–4 | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).

@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-19 (**A16 Priority 2 in progress** — frontend component coverage remains **80.06%+** and the newest accessibility pass now covers `ProjectDetail`, `ApiOverlayConfig`, `McpServerConfig`, plus a follow-up label fix for the `ChatInterface` session search control. Recent work already covered API + telemetry tests, app error/loading surfaces, DatabaseSettings, and Tier 1/Tier 2 a11y follow-through on `ChatInterface`, `DetailedResponseView`, `MessageBubble`, `CommandBar`, `AiModelSettings`, `KnowledgeIngestionSettings`, and `McpClientConfig`. **NEXT:** continue the remaining A16 accessibility sweep, prioritizing the last settings/admin/project surfaces that still lack explicit ARIA/keynav review and then recalculate the remaining gap.)
+**Last updated:** 2026-06-19 (**Auth deprecation Phase D + E-1/E-2a/E-2b landed** — tenant_rls removed, MFA columns dropped, admin user-mgmt UI/routes removed, ~50 `is_admin` gates collapsed to single-owner; E-2c (drop role/is_admin columns) is the remaining Phase-F-scale piece. Also a CRITICAL fix this session: restored 47 ORM classes truncated from `models.py` by `6c7cf68b` (`8362882b`). See item 35 + `DataLogicEngine_Auth_Deprecation_Plan.md`. **A16 Priority 2 also in progress** — frontend component coverage remains **80.06%+** and the newest accessibility pass now covers `ProjectDetail`, `ApiOverlayConfig`, `McpServerConfig`, plus a follow-up label fix for the `ChatInterface` session search control. Recent work already covered API + telemetry tests, app error/loading surfaces, DatabaseSettings, and Tier 1/Tier 2 a11y follow-through on `ChatInterface`, `DetailedResponseView`, `MessageBubble`, `CommandBar`, `AiModelSettings`, `KnowledgeIngestionSettings`, and `McpClientConfig`. **NEXT:** continue the remaining A16 accessibility sweep, prioritizing the last settings/admin/project surfaces that still lack explicit ARIA/keynav review and then recalculate the remaining gap.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -210,7 +210,15 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       (→`/runs/view?id=`); F2 removed dead duplicate `projects/[id]`; F3 consolidated nav to `AppSidebar`
       (NavBar→chrome); F4 wired 5 orphaned surfaces (`/runs`,`/truth-engine`,`/analytics`,`/algorithms`,
       `/admin/compliance`) into the sidebar. Component suite 51 files/150 tests pass.
-    - Remaining: F5 coordinated auth removal + B2 docs (below); per-page error/loading-state verification.
+    - **Deferred auth removal — Phase D + E-1/E-2a/E-2b DONE 2026-06-19** (plan: `DataLogicEngine_Auth_Deprecation_Plan.md`):
+      - Phase D (`c60f3daf`): removed multi-tenant `tenant_rls.py` + wiring/metrics/tests (no-op on SQLite desktop; obsolete single-mode).
+      - E-1 (`c60aee15`): dropped `mfa_enabled`/`mfa_secret`/`backup_codes` columns + `verify_totp`; Alembic migration `b4c5d6e7f8a9` (validated).
+      - E-2a (`e2994349`): removed admin user-mgmt UI (`frontend/app/admin/page.tsx`) + `backend/admin.py`; `admin_routes.py` slimmed to cache/health. Cleared 13 pre-existing failures. Compliance/MCP admin kept.
+      - E-2b (`deb6a656`): collapsed ~50 `is_admin` authz gates to single-owner via `current_user_is_owner()`/`_user_is_owner()`; deleted dead `backend/decorators.py`. `role`/`is_admin` columns now INERT.
+      - **E-2c remaining**: physically drop `role`/`is_admin` columns — Phase-F-scale (conftest seed helpers + ~12 test files + scripts + graphql/init_db/auth_routes writes + migration). Keep `to_dict` constants `is_admin:True`/`role:'owner'` to leave the frontend admin-nav contract unchanged.
+      - `tenant_id` columns/reads LEFT IN (wider than RLS); `password_hash` KEPT (user decision).
+    - **Also this session — CRITICAL fix** (`8362882b`): restored 47 ORM classes truncated from `models.py` by `6c7cf68b`; added `test_models_orm_surface_is_complete` regression guard. Last-20-commit damage review: that was the only damage.
+    - Remaining A15: F5 finish (E-2c) + B2 docs (below); per-page error/loading-state verification.
     - Scope: all Next.js page files under `frontend/app/`; coordinated frontend+backend deferred auth cleanup.
     - Deferred auth: admin user-mgmt UI (`frontend/app/admin/page.tsx` 268-line form ↔ `backend/routes/admin_routes.py`
       user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);

@@ -1,5 +1,35 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-19e (CRITICAL models.py restore + auth Phase D & E-1/E-2a/E-2b)
+
+**🔴 Critical regression found + fixed.** HEAD commit `6c7cf68b` (scoped "fix(mfa): verify_totp")
+had silently committed a stale, truncated `models.py` (2609→960 lines), dropping **47 ORM model
+classes** (TraceRun/Trace*/Truth*/MCP*/Node/Edge/PillarLevel/Sector/Domain/Location/
+KnowledgeAlgorithm/KAExecution/UserAIPreferences/…). `import models` still succeeded, so nothing
+failed loudly, but top-level imports broke in `llm_gateway/gateway.py`, `routes/api_routes.py`,
+`repositories/node_repository.py` (+ CI pytest collection). The whole backend would not boot.
+- **Fixed** (`8362882b`): restored `models.py` from parent `2b1f67e3`, kept only the intended
+  `verify_totp`→pyotp change; added regression guard `test_models_orm_surface_is_complete` pinning
+  all 65 ORM classes (verified it catches truncation). Reviewed last 20 commits — this was the ONLY
+  damage. **Lesson:** always read `git show --stat` (scope), not just the subject, before trusting a commit.
+
+**Auth deprecation — Phase D done + Phase E started** (continuation of the A15 deferred auth removal;
+plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`):
+- **Phase D** (`c60f3daf`): removed multi-tenant `tenant_rls.py` (Postgres RLS — no-op on SQLite
+  desktop, obsolete under single-mode) + its app.py wiring/metrics + tests. (MFA module already gone.)
+- **Phase E-1** (`c60aee15`): dropped `mfa_enabled`/`mfa_secret`/`backup_codes` columns + `verify_totp`;
+  reversible Alembic migration `b4c5d6e7f8a9` (validated upgrade/downgrade/idempotent).
+- **Phase E-2a** (`e2994349`): removed admin user-mgmt UI (`frontend/app/admin/page.tsx`) + backend
+  (`backend/admin.py` deleted; `admin_routes.py` slimmed to cache/health). Cleared 13 pre-existing
+  test failures. Compliance + MCP admin pages/nav kept.
+- **Phase E-2b** (`deb6a656`): collapsed ALL ~50 `is_admin` authorization gates to single-owner via
+  `current_user_is_owner()` (api_decorators) + `_user_is_owner()` (tracing/api.py); deleted dead
+  `backend/decorators.py`. `role`/`is_admin` columns are now INERT.
+- **E-2c remaining** (next): physically drop `role`/`is_admin` columns — a Phase-F-scale test migration
+  (conftest seed helpers + ~12 test files + scripts + graphql/init_db/auth_routes writes + migration).
+- Validation: security (234), unit (864), trace/gateway/mcp/feature-flag (143), admin/model (60+22) green;
+  1935-test collection clean; pre-commit green on every commit.
+
 _Last updated: 2026-06-19 — **A16 Priority 2 coverage is now 80.06%+; latest frontend batch adds project/settings/MCP/chat accessibility refinements.**
 Done: Sprint 0, A4, A3, A1a, A1b, A2(+A2-2), A5, A6a, A6b (Phase 1); A7+A8, A9, A10, A11, A12,
 A13, A14 (Phase 2); A15 F1-F4 nav structure (Phase 3)._
