@@ -9,7 +9,7 @@ This module defines the core SQLAlchemy models with:
 """
 
 from datetime import datetime, timedelta, UTC
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 import logging
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -83,11 +83,6 @@ class User(db.Model, UserMixin):
     is_admin: bool = db.Column(db.Boolean, default=False)
     role: str = db.Column(db.String(20), default='user')
     created_at: datetime = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
-
-    # MFA fields
-    mfa_enabled: bool = db.Column(db.Boolean, default=False)
-    mfa_secret: Optional[str] = db.Column(db.String(255))
-    backup_codes: Optional[List] = db.Column(JSON)  # Encrypted list of backup codes
 
     # Account security fields
     failed_login_attempts: int = db.Column(db.Integer, default=0)
@@ -192,13 +187,6 @@ class User(db.Model, UserMixin):
         from backend.security.password_security import PasswordSecurity
         return PasswordSecurity.is_password_expired(self.last_password_change)
 
-    def verify_totp(self, token: str) -> bool:
-        """Verify TOTP token for MFA using pyotp directly."""
-        if not self.mfa_enabled or not self.mfa_secret:
-            return False
-        import pyotp
-        return pyotp.TOTP(self.mfa_secret).verify(token)
-
     def to_dict(self) -> Dict[str, Any]:
         """Convert user to dictionary representation."""
         return {
@@ -208,7 +196,6 @@ class User(db.Model, UserMixin):
             'active': self.active,
             'is_admin': self.is_admin,
             'role': self.role,
-            'mfa_enabled': self.mfa_enabled,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_successful_login.isoformat() if self.last_successful_login else None
         }

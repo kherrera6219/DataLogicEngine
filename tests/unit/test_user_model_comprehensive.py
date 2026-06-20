@@ -13,7 +13,7 @@ Tests for User model methods and properties including:
 
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from models import User, db
 
@@ -171,59 +171,6 @@ class TestPasswordExpiration:
             assert user.is_password_expired() is True
 
 
-class TestMFAIntegration:
-    """Test MFA integration"""
-
-    def test_verify_totp_when_mfa_not_enabled(self, app, client):
-        """Test TOTP verification returns False when MFA not enabled"""
-        with app.app_context():
-            user = User(username="testuser", email="test@example.com")
-            user.mfa_enabled = False
-
-            assert user.verify_totp("123456") is False
-
-    def test_verify_totp_when_no_secret(self, app, client):
-        """Test TOTP verification returns False when no secret"""
-        with app.app_context():
-            user = User(username="testuser", email="test@example.com")
-            user.mfa_enabled = True
-            user.mfa_secret = None
-
-            assert user.verify_totp("123456") is False
-
-    @patch('pyotp.TOTP')
-    def test_verify_totp_calls_mfa_manager(self, mock_totp_class, app, client):
-        """Test TOTP verification calls pyotp.TOTP directly (MFAManager removed in Phase D)"""
-        with app.app_context():
-            mock_totp_instance = MagicMock()
-            mock_totp_instance.verify.return_value = True
-            mock_totp_class.return_value = mock_totp_instance
-
-            user = User(username="testuser", email="test@example.com")
-            user.mfa_enabled = True
-            user.mfa_secret = "TESTSECRET123"
-
-            result = user.verify_totp("123456")
-
-            assert result is True
-
-    @patch('pyotp.TOTP')
-    def test_verify_totp_invalid_code(self, mock_totp_class, app, client):
-        """Test TOTP verification with invalid code"""
-        with app.app_context():
-            mock_totp_instance = MagicMock()
-            mock_totp_instance.verify.return_value = False
-            mock_totp_class.return_value = mock_totp_instance
-
-            user = User(username="testuser", email="test@example.com")
-            user.mfa_enabled = True
-            user.mfa_secret = "TESTSECRET123"
-
-            result = user.verify_totp("000000")
-
-            assert result is False
-
-
 class TestEmailEncryption:
     """Test email encryption/decryption"""
 
@@ -297,7 +244,6 @@ class TestUserSerialization:
                 active=True,
                 is_admin=False,
                 role="user",
-                mfa_enabled=True
             )
             user.last_successful_login = datetime.now(timezone.utc)
 
@@ -309,7 +255,6 @@ class TestUserSerialization:
             assert 'active' in result
             assert 'is_admin' in result
             assert 'role' in result
-            assert 'mfa_enabled' in result
             assert 'created_at' in result
             assert 'last_login' in result
 
@@ -323,7 +268,6 @@ class TestUserSerialization:
                 active=True,
                 is_admin=True,
                 role="admin",
-                mfa_enabled=False
             )
 
             result = user.to_dict()
@@ -334,7 +278,6 @@ class TestUserSerialization:
             assert result['active'] is True
             assert result['is_admin'] is True
             assert result['role'] == "admin"
-            assert result['mfa_enabled'] is False
 
     def test_to_dict_datetime_iso_format(self, app, client):
         """Test to_dict converts datetime to ISO format"""
@@ -478,14 +421,6 @@ class TestUserDefaults:
             db.session.add(user)
             db.session.commit()
             assert user.role == 'user'
-
-    def test_default_mfa_disabled(self, app, client):
-        """Test MFA is disabled by default"""
-        with app.app_context():
-            user = User(username="testuser", email="test@example.com")
-            db.session.add(user)
-            db.session.commit()
-            assert user.mfa_enabled is False
 
     def test_default_failed_login_attempts_zero(self, app, client):
         """Test failed login attempts starts at zero"""
@@ -663,29 +598,3 @@ class TestUserIntegration:
             db.session.delete(retrieved)
             db.session.commit()
 
-    def test_user_with_mfa_workflow(self, app, client):
-        """Test user with MFA enabled"""
-        with app.app_context():
-            user = User(
-                username="mfa_user",
-                email="mfa@example.com",
-                role="user"
-            )
-            user.set_password("MfaP@ssw0rd123")
-            user.mfa_enabled = True
-            user.mfa_secret = "TESTSECRET"
-
-            db.session.add(user)
-            db.session.commit()
-
-            user_id = user.id
-
-            # Retrieve
-            retrieved = db.session.get(User, user_id)
-
-            assert retrieved.mfa_enabled is True
-            assert retrieved.mfa_secret == "TESTSECRET"
-
-            # Cleanup
-            db.session.delete(retrieved)
-            db.session.commit()

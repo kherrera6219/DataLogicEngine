@@ -38,7 +38,6 @@ def purge_user_data():
         user = db.session.get(User, user_id)
         if user:
             user.active = False
-            user.mfa_enabled = False
             user.username = f"deleted_user_{user_id}"
             user.email = f"deleted_{user_id}@deleted.local"
         

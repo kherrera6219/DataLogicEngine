@@ -116,19 +116,6 @@ def test_user_login_error_handling(app):
             user.record_failed_login()
         mock_session.rollback.assert_called()
 
-def test_user_totp(app):
-    user = User(mfa_enabled=True, mfa_secret="secret")
-    with patch('pyotp.TOTP') as mock_totp_class:
-        mock_totp_instance = MagicMock()
-        mock_totp_instance.verify.return_value = True
-        mock_totp_class.return_value = mock_totp_instance
-        assert user.verify_totp("123456")
-        mock_totp_class.assert_called_once_with("secret")
-        mock_totp_instance.verify.assert_called_once_with("123456")
-    
-    user.mfa_enabled = False
-    assert not user.verify_totp("123456")
-
 def test_user_dict(app):
     user = User(id=1, username="u", created_at=datetime(2023,1,1), last_successful_login=datetime(2023,1,2))
     d = user.to_dict()
