@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, MessageSquare, Database, Folder, FlaskConical,
   BookOpen, Share2, Binary, ScrollText, ShieldCheck, BarChart3,
-  ClipboardCheck, ShieldAlert, Settings, Hexagon, PanelLeftClose, PanelLeftOpen
+  ClipboardCheck, Settings, Hexagon, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -173,9 +173,6 @@ export function AppSidebar() {
 
          <div className="my-4 border-t border-white/5 mx-2" role="separator" aria-hidden="true"></div>
          <SectionLabel label="System" isCollapsed={isCollapsed} />
-         {isAdmin && (
-           <SidebarItem icon={ShieldAlert} label="Admin" href="/admin" isActive={isActive('/admin')} isCollapsed={isCollapsed} />
-         )}
          {isAdmin && (
            <SidebarItem icon={ClipboardCheck} label="Compliance" href="/admin/compliance" isActive={isActive('/admin/compliance')} isCollapsed={isCollapsed} />
          )}

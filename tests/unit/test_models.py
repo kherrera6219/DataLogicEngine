@@ -208,7 +208,7 @@ def test_create_legacy_app():
             patch.dict('os.environ', test_env, clear=True):
 
         modules_to_mock = [
-            'routes.auth_routes', 'backend.chat', 'backend.admin', 'backend.ukg_api',
+            'routes.auth_routes', 'backend.chat', 'backend.ukg_api',
             'routes.user_data_routes', 'backend.routes.settings_routes',
             'backend.routes.location_routes', 'routes.admin_routes',
             'routes.api_routes', 'routes.ka_routes', 'backend.truth_engine.api',

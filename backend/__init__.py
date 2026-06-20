@@ -51,7 +51,6 @@ def create_legacy_app():
     # Register blueprints
     from backend.routes.auth_routes import auth_bp
     from .chat import chat_bp
-    from .admin import admin_bp
     from .ukg_api import ukg_api as ukg_bp
     from backend.routes.user_data_routes import user_data_bp
     from .routes.settings_routes import settings_bp
@@ -65,7 +64,6 @@ def create_legacy_app():
     # `auth_bp` already defines `/api/v1/auth` as its blueprint prefix.
     app.register_blueprint(auth_bp)
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
-    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     app.register_blueprint(user_data_bp)
     app.register_blueprint(settings_bp)

@@ -101,11 +101,6 @@ export function NavBar() {
                         <DropdownMenuItem asChild role="menuitem">
                             <Link href="/settings"><Settings className="mr-2 h-4 w-4"/> Settings</Link>
                         </DropdownMenuItem>
-                         {user.is_admin && (
-                            <DropdownMenuItem asChild role="menuitem">
-                                <Link href="/admin"><Hexagon className="mr-2 h-4 w-4"/> Admin</Link>
-                            </DropdownMenuItem>
-                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
              ) : (
