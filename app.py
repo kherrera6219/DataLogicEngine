@@ -33,10 +33,6 @@ from backend.security.secret_resolver import (
     is_secure_secret_source,
     resolve_runtime_secret,
 )
-from backend.security.tenant_rls import (
-    configure_tenant_rls,
-    tenant_rls_prometheus_lines,
-)
 
 # Initialize crash reporting provider (Sentry if configured) with fallback mode.
 initialize_crash_reporting(
@@ -657,20 +653,8 @@ def _initialize_database_schema() -> None:
 
 _initialize_database_schema()
 
-# Configure optional Postgres tenant RLS policy bootstrap + request context binding.
-TENANT_RLS_STATUS = configure_tenant_rls(app, db)
-if TENANT_RLS_STATUS.get("enabled"):
-    logger.info(
-        "Tenant RLS enabled (policy=%s, bootstrap=%s)",
-        TENANT_RLS_STATUS.get("policy_name"),
-        TENANT_RLS_STATUS.get("bootstrap", {}).get("status"),
-    )
-else:
-    logger.info(
-        "Tenant RLS disabled or skipped (dialect=%s, reason=%s)",
-        TENANT_RLS_STATUS.get("dialect"),
-        TENANT_RLS_STATUS.get("bootstrap", {}).get("reason"),
-    )
+# Multi-tenant Postgres RLS removed (single-mode / single-tenant deployment) — see
+# docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md (Phase D).
 
 # MCP Routes moved to routes/mcp_routes.py (registered via routes package)
 
@@ -1137,7 +1121,6 @@ def _prometheus_metrics_payload() -> str:
     lines.extend(ai_latency_metrics_prometheus_lines(prefix="datalogicengine"))
     lines.extend(latency_slo_prometheus_lines(prefix="datalogicengine"))
     lines.extend(crash_reporting_prometheus_lines(prefix="datalogicengine"))
-    lines.extend(tenant_rls_prometheus_lines(TENANT_RLS_STATUS, prefix="datalogicengine"))
     try:
         from backend.dmrf import DMRFOrchestrator
 

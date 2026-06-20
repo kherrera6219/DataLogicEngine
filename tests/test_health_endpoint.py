@@ -55,7 +55,6 @@ def test_metrics_endpoint_exposes_prometheus_text(client):
     assert "datalogicengine_process_uptime_seconds" in body
     assert "datalogicengine_http_requests_total" in body
     assert "datalogicengine_latency_slo_ai_p95_ms_target" in body
-    assert "datalogicengine_tenant_rls_enabled" in body
     assert "datalogicengine_dmrf_router_tier_total" in body
 
 
