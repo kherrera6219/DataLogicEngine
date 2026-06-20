@@ -102,9 +102,8 @@ def _required_tool_scopes(tool: MCPTool) -> list[str]:
 
 def _build_tool_execution_context() -> dict:
     tenant_id = getattr(current_user, "tenant_id", None) or request.headers.get("X-Tenant-ID")
-    role = str(getattr(current_user, "role", "user") or "user").strip().lower()
-    is_admin = bool(getattr(current_user, "is_admin", False) or role in {"admin", "super_admin", "owner"})
-
+    # Single-mode / OS-level auth: the one OS user is the owner.
+    role = "owner"
     roles = {role}
 
     # Single-mode / OS-level auth (auth deprecation Phase B, 2026-06-13): the one OS

@@ -38,6 +38,17 @@ TRACE_PERMISSIONS = {
 }
 
 
+def _user_is_owner() -> bool:
+    """Single-mode authorization: the one authenticated OS user is the owner.
+
+    Multi-user roles/admin were removed (auth-deprecation Phase E). The owner has
+    full access, so this is always True for an authenticated request. Kept as a
+    single function so trace access checks read intentionally and there is one
+    place to change if a multi-user model is ever reintroduced.
+    """
+    return True
+
+
 def user_has_permission(permission: str) -> bool:
     """Check if current user has a trace permission."""
     # Default: grant basic permissions to authenticated users
@@ -46,7 +57,7 @@ def user_has_permission(permission: str) -> bool:
         return True
     
     # Admin gets all permissions
-    if hasattr(current_user, 'is_admin') and current_user.is_admin:
+    if _user_is_owner():
         return True
     
     # Check user roles for specific permissions
@@ -63,7 +74,7 @@ def filter_by_permissions(data: dict) -> dict:
 
 
 def _user_can_access_run(run: TraceRun) -> bool:
-    return run.user_id == current_user.id or (hasattr(current_user, 'is_admin') and current_user.is_admin)
+    return run.user_id == current_user.id or _user_is_owner()
 
 
 def _parse_run_id(run_id: str):
@@ -79,7 +90,7 @@ def _get_run_or_404(run_id: str) -> TraceRun:
 
 def _latest_accessible_run() -> TraceRun | None:
     query = TraceRun.query
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not _user_is_owner():
         query = query.filter_by(user_id=current_user.id)
     running = query.filter_by(status='running').order_by(TraceRun.created_at.desc()).first()
     if running:
@@ -300,7 +311,7 @@ def get_run(run_id):
     run = _get_run_or_404(run_id)
     
     # Check access
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     return jsonify(filter_by_permissions(run.to_dict()))
@@ -312,7 +323,7 @@ def get_run_bundle(run_id):
     """Get an aggregate trace bundle for frontend trace panels."""
     run = _get_run_or_404(run_id)
 
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
 
     return jsonify(filter_by_permissions(_build_trace_bundle(run)))
@@ -324,7 +335,7 @@ def get_run_stages(run_id):
     """Get stages for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     stages = TraceStage.query.filter_by(run_id=run.run_id).order_by(
@@ -345,7 +356,7 @@ def get_run_evidence(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     evidence = TraceEvidence.query.filter_by(run_id=run.run_id).all()
@@ -361,7 +372,7 @@ def get_run_claims(run_id):
     """Get claims for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     claims = TraceClaim.query.filter_by(run_id=run.run_id).all()
@@ -377,7 +388,7 @@ def get_run_axes(run_id):
     """Get axis vector for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     axis_vector = TraceAxisVector.query.filter_by(run_id=run.run_id).first()
@@ -393,7 +404,7 @@ def get_run_personas(run_id):
     """Get persona traces for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     personas = TracePersona.query.filter_by(run_id=run.run_id).all()
@@ -409,7 +420,7 @@ def get_run_kas(run_id):
     """Get KA invocation traces for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     kas = TraceKAInvocation.query.filter_by(run_id=run.run_id).all()
@@ -428,7 +439,7 @@ def get_run_policy(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     decisions = TracePolicyDecision.query.filter_by(run_id=run.run_id).all()
@@ -447,7 +458,7 @@ def get_run_memory(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     events = TraceMemoryEvent.query.filter_by(run_id=run.run_id).all()
@@ -463,7 +474,7 @@ def get_run_metrics(run_id):
     """Get observability metrics for a run."""
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     # Aggregate metrics from stages
@@ -498,7 +509,7 @@ def export_run(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     export_options = request.get_json(silent=True) or {}
@@ -550,7 +561,7 @@ def replay_run(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     data = request.get_json() or {}
@@ -580,7 +591,7 @@ def get_artifact(run_id, artifact_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     artifact = TraceArtifact.query.filter_by(
@@ -678,7 +689,7 @@ def get_run_spans(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     spans = TraceSpan.query.filter_by(run_id=run.run_id).order_by(TraceSpan.start_time).all()
@@ -697,7 +708,7 @@ def get_run_logs(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     stage_id = request.args.get('stage_id')
@@ -741,7 +752,7 @@ def get_export(export_id):
     
     export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
     
-    if export.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if export.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     return jsonify(export.to_dict())
@@ -754,7 +765,7 @@ def download_export(export_id):
     
     export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
     
-    if export.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if export.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     if export.status != 'ready':
@@ -778,7 +789,7 @@ def get_claim_evidence(run_id, claim_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     links = ClaimEvidenceLink.query.filter_by(claim_id=claim_id).all()
@@ -807,7 +818,7 @@ def get_run_compliance(run_id):
     
     run = _get_run_or_404(run_id)
     
-    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
     framework = request.args.get('framework')
@@ -838,7 +849,7 @@ def add_compliance_mapping(run_id):
     """Add a compliance mapping for a run (admin only)."""
     
     # Only admins can add compliance mappings
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not _user_is_owner():
         return jsonify({'error': 'Admin access required'}), 403
     
     run = _get_run_or_404(run_id)

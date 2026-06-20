@@ -218,3 +218,15 @@ def api_session_login_required(f):
 # `api_admin_required` is retained as an alias of `api_login_required` so existing
 # call sites keep working without churn. Remove the alias + call sites in a later pass.
 api_admin_required = api_login_required
+
+
+def current_user_is_owner() -> bool:
+    """Single-mode authorization: the one authenticated OS user is the owner.
+
+    Multi-user roles/admin were removed (auth-deprecation Phase E), so admin-gated
+    endpoints — already protected by login decorators — grant full access to the
+    authenticated owner. Centralised here so the remaining "is this user an admin?"
+    checks read intentionally and there is one place to change if a multi-user model
+    is ever reintroduced.
+    """
+    return True

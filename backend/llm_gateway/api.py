@@ -30,7 +30,7 @@ from models import (
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
 from backend.llm_gateway.model_defaults import default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
-from backend.auth.api_decorators import api_session_login_required
+from backend.auth.api_decorators import api_session_login_required, current_user_is_owner
 from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
 from backend.storage.runtime_settings import get_local_slm_audit_mode, get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
@@ -916,7 +916,7 @@ def admin_required(f):
     @wraps(f)
     @login_required
     def decorated(*args, **kwargs):
-        if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        if not current_user_is_owner():
             return jsonify({'error': 'Admin access required'}), 403
         return f(*args, **kwargs)
     return decorated
@@ -1161,7 +1161,7 @@ def test_provider(provider_id):
 def list_prompt_templates():
     """List registered prompt templates."""
     query = PromptTemplate.query.order_by(PromptTemplate.template_key.asc(), PromptTemplate.created_at.desc())
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not current_user_is_owner():
         query = query.filter(PromptTemplate.is_active)
     templates = query.all()
     return jsonify({'prompt_templates': [template.to_dict() for template in templates]})
@@ -1273,7 +1273,7 @@ def list_routing_policies():
         ModelRoutingPolicy.policy_name.asc(),
         ModelRoutingPolicy.created_at.desc(),
     )
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not current_user_is_owner():
         query = query.filter(ModelRoutingPolicy.is_active)
     policies = query.all()
     return jsonify({'routing_policies': [policy.to_dict() for policy in policies]})
@@ -1314,7 +1314,7 @@ def list_ai_audit_events():
     limit = request.args.get('limit', 100, type=int)
     limit = max(1, min(limit, 500))
     query = AIAuditEvent.query.order_by(AIAuditEvent.created_at.desc())
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not current_user_is_owner():
         query = query.filter_by(user_id=current_user.id)
     events = query.limit(limit).all()
     return jsonify({'events': [event.to_dict() for event in events]})
@@ -1326,7 +1326,7 @@ def list_ai_audit_events():
 @login_required
 def list_api_keys():
     """List API keys (admin sees all, users see their own)."""
-    if hasattr(current_user, 'is_admin') and current_user.is_admin:
+    if current_user_is_owner():
         keys = ExternalAPIKey.query.order_by(ExternalAPIKey.created_at.desc()).all()
     else:
         keys = ExternalAPIKey.query.filter_by(user_id=current_user.id).order_by(
@@ -1390,7 +1390,7 @@ def revoke_api_key(key_id):
     
     # Only owner or admin can revoke
     if api_key.user_id != current_user.id:
-        if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        if not current_user_is_owner():
             return jsonify({'error': 'Access denied'}), 403
     
     api_key.is_active = False
@@ -1415,7 +1415,7 @@ def get_usage():
     query = LLMProviderUsage.query.filter(LLMProviderUsage.created_at >= since)
     
     # Non-admins only see their own usage
-    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+    if not current_user_is_owner():
         query = query.filter_by(user_id=current_user.id)
     
     # Aggregate stats

@@ -12,6 +12,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
 from extensions import db
+from backend.auth.api_decorators import current_user_is_owner
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def _admin_required(fn):
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not (current_user.is_authenticated and getattr(current_user, 'is_admin', False)):
+        if not (current_user.is_authenticated and current_user_is_owner()):
             return jsonify({'error': 'Admin access required'}), 403
         return fn(*args, **kwargs)
 
