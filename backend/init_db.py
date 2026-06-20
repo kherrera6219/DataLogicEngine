@@ -41,7 +41,6 @@ def create_admin_user():
         admin.username = admin_username
         admin.email = admin_email
         admin.active = True
-        admin.is_admin = True
         admin.created_at = datetime.now(UTC)
         admin.set_password(admin_password)
         
@@ -68,7 +67,6 @@ def create_demo_user():
         demo.username = demo_username
         demo.email = demo_email
         demo.active = True
-        demo.is_admin = False
         demo.created_at = datetime.now(UTC)
         demo.set_password(demo_password)
         

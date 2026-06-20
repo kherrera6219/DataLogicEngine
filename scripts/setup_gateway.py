@@ -126,10 +126,8 @@ def create_test_api_key():
         # Generate new key
         full_key, prefix, key_hash = ExternalAPIKey.generate_key()
         
-        # Need a user - get admin or first user
-        user = User.query.filter_by(is_admin=True).first()
-        if not user:
-            user = User.query.first()
+        # Need a user - single-mode has one owner; use the first user.
+        user = User.query.first()
         
         if not user:
             print("No users found. Create a user first.")

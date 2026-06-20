@@ -149,8 +149,8 @@ class TestGDPRDataExport:
             db.session.commit()
             # ...
 
-            user1 = User(username="user1", _email="user1@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
-            user2 = User(username="user2", _email="user2@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
+            user1 = User(username="user1", _email="user1@test.com", password_hash=generate_password_hash("SecurePass123!"))
+            user2 = User(username="user2", _email="user2@test.com", password_hash=generate_password_hash("SecurePass123!"))
 
             db.session.add_all([user1, user2])
             db.session.commit()
@@ -587,8 +587,8 @@ class TestGDPRComplianceRequirements:
             from models import User, db
 
             # Create two users
-            user1 = User(username="privacy1", _email="privacy1@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
-            user2 = User(username="privacy2", _email="privacy2@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
+            user1 = User(username="privacy1", _email="privacy1@test.com", password_hash=generate_password_hash("SecurePass123!"))
+            user2 = User(username="privacy2", _email="privacy2@test.com", password_hash=generate_password_hash("SecurePass123!"))
 
             db.session.add_all([user1, user2])
             db.session.commit()

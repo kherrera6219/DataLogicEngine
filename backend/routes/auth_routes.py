@@ -181,8 +181,8 @@ def desktop_auto_login():
         user.email = f"{username}@local.ukg"
         user.set_password(secrets.token_urlsafe(32) + "!A1a")
         user.sid = sid
-        user.role = role
-        user.is_admin = (role == 'owner')
+        # `role` is retained only as an audit label below (first-run owner vs.
+        # subsequent user); it is no longer stored on User (single-mode, Phase E).
 
         db.session.add(user)
         db.session.commit()

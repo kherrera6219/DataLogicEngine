@@ -110,10 +110,10 @@ def create_admin_user():
     print()
 
     with app.app_context():
-        # Check if admin user already exists
-        existing_admin = User.query.filter_by(is_admin=True).first()
+        # Single-mode: there is one local owner. Warn if any user already exists.
+        existing_admin = User.query.first()
         if existing_admin:
-            print(f"⚠️  WARNING: Admin user already exists: {existing_admin.username}")
+            print(f"⚠️  WARNING: A local user already exists: {existing_admin.username}")
             response = input("Do you want to create another admin user? (yes/no): ")
             if response.lower() not in ['yes', 'y']:
                 print("Aborted.")
@@ -214,8 +214,7 @@ def create_admin_user():
             new_admin.username = username
             new_admin.email = email
             new_admin.set_password(password)
-            new_admin.is_admin = True
-            new_admin.role = 'admin'
+            # Single-mode: no role/admin flag — the local OS user is the owner.
             new_admin.active = True
 
             db.session.add(new_admin)

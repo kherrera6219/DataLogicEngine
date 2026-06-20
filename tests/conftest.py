@@ -169,8 +169,8 @@ def create_test_user(
 
     # Test fixtures should not depend on field-encryption audit side effects.
     user._email = email
-    user.role = role
-    user.is_admin = is_admin
+    # `role`/`is_admin` params are accepted for call-site back-compat but no longer
+    # persisted — the columns were removed under single-mode (auth-deprecation Phase E).
     user.active = active
     user.sid = sid
     if password:

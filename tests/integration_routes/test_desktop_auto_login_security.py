@@ -97,14 +97,13 @@ def test_desktop_auto_login_defaults_first_user_to_standard_role(app, client, mo
     assert response.status_code == 200
     payload = response.get_json()
     assert payload["success"] is True
-    assert payload["data"]["user"]["role"] == "user"
-    assert payload["data"]["user"]["is_admin"] is False
+    # Single-mode: every authenticated user reports as the owner/admin.
+    assert payload["data"]["user"]["role"] == "owner"
+    assert payload["data"]["user"]["is_admin"] is True
 
     with app.app_context():
         user = User.query.filter_by(sid="S-1-5-21-1000-1000-1000-1001").first()
         assert user is not None
-        assert user.role == "user"
-        assert user.is_admin is False
 
 
 def test_desktop_auto_login_can_bootstrap_owner_when_explicitly_enabled(app, client, monkeypatch):

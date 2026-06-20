@@ -117,8 +117,9 @@ class Query(ObjectType):
                 id=current_user.id,
                 username=current_user.username,
                 email=current_user.email,
-                role=getattr(current_user, 'role', 'user'),
-                is_admin=getattr(current_user, 'is_admin', False)
+                # Single-mode: the one authenticated OS user is the owner (Phase E).
+                role='owner',
+                is_admin=True
             )
         return None
     

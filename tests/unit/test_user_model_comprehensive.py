@@ -242,8 +242,6 @@ class TestUserSerialization:
                 username="testuser",
                 email="test@example.com",
                 active=True,
-                is_admin=False,
-                role="user",
             )
             user.last_successful_login = datetime.now(timezone.utc)
 
@@ -253,8 +251,9 @@ class TestUserSerialization:
             assert 'username' in result
             assert 'email' in result
             assert 'active' in result
-            assert 'is_admin' in result
-            assert 'role' in result
+            # Single-mode: to_dict reports the owner constants.
+            assert result['is_admin'] is True
+            assert result['role'] == 'owner'
             assert 'created_at' in result
             assert 'last_login' in result
 
@@ -266,8 +265,6 @@ class TestUserSerialization:
                 username="johndo",
                 email="john@example.com",
                 active=True,
-                is_admin=True,
-                role="admin",
             )
 
             result = user.to_dict()
@@ -276,8 +273,9 @@ class TestUserSerialization:
             assert result['username'] == "johndo"
             assert result['email'] == "john@example.com"
             assert result['active'] is True
+            # Single-mode: every user reports as the owner/admin.
             assert result['is_admin'] is True
-            assert result['role'] == "admin"
+            assert result['role'] == "owner"
 
     def test_to_dict_datetime_iso_format(self, app, client):
         """Test to_dict converts datetime to ISO format"""
@@ -306,9 +304,7 @@ class TestUserSerialization:
             data = {
                 'username': 'newuser',
                 'email': 'new@example.com',
-                'role': 'analyst',
                 'active': True,
-                'is_admin': False
             }
 
             user = User.from_dict(data)
@@ -316,9 +312,7 @@ class TestUserSerialization:
             assert isinstance(user, User)
             assert user.username == 'newuser'
             assert user.email == 'new@example.com'
-            assert user.role == 'analyst'
             assert user.active is True
-            assert user.is_admin is False
 
     def test_from_dict_partial_data(self, app, client):
         """Test from_dict with partial data"""
@@ -355,9 +349,7 @@ class TestUserSerialization:
             original = User(
                 username="roundtrip",
                 email="roundtrip@example.com",
-                role="developer",
                 active=True,
-                is_admin=False
             )
 
             # Serialize
@@ -368,9 +360,7 @@ class TestUserSerialization:
 
             assert recreated.username == original.username
             assert recreated.email == original.email
-            assert recreated.role == original.role
             assert recreated.active == original.active
-            assert recreated.is_admin == original.is_admin
 
 
 class TestUserRepresentation:
@@ -405,22 +395,6 @@ class TestUserDefaults:
             db.session.add(user)
             db.session.commit()
             assert user.active is True
-
-    def test_default_is_admin_false(self, app, client):
-        """Test user is not admin by default"""
-        with app.app_context():
-            user = User(username="testuser", email="test@example.com")
-            db.session.add(user)
-            db.session.commit()
-            assert user.is_admin is False
-
-    def test_default_role_user(self, app, client):
-        """Test default role is 'user'"""
-        with app.app_context():
-            user = User(username="testuser", email="test@example.com")
-            db.session.add(user)
-            db.session.commit()
-            assert user.role == 'user'
 
     def test_default_failed_login_attempts_zero(self, app, client):
         """Test failed login attempts starts at zero"""
@@ -467,14 +441,14 @@ class TestUserValidation:
     def test_username_unique(self, app, client):
         """Test username must be unique"""
         with app.app_context():
-            user1 = User(username="duplicate", email="user1@example.com", role="user")
+            user1 = User(username="duplicate", email="user1@example.com")
         with app.app_context():
-            user1 = User(username="duplicate", email="user1@example.com", role="user")
+            user1 = User(username="duplicate", email="user1@example.com")
             user1.set_password("Str0ngP@ssw0rd99!")
             db.session.add(user1)
             db.session.commit()
 
-            user2 = User(username="duplicate", email="user2@example.com", role="user")
+            user2 = User(username="duplicate", email="user2@example.com")
 
             db.session.add(user2)
 
@@ -502,7 +476,7 @@ class TestUserEdgeCases:
     def test_special_characters_in_username(self, app, client):
         """Test username with special characters"""
         with app.app_context():
-            user = User(username="test_user-123", email="test@example.com", role="user")
+            user = User(username="test_user-123", email="test@example.com")
             user.set_password("Str0ngP@ssw0rd99!")
 
             db.session.add(user)
@@ -514,7 +488,7 @@ class TestUserEdgeCases:
     def test_unicode_in_username(self, app, client):
         """Test username with unicode characters"""
         with app.app_context():
-            user = User(username="user_\u65e5\u672c\u8a9e", email="test@example.com", role="user")
+            user = User(username="user_\u65e5\u672c\u8a9e", email="test@example.com")
             user.set_password("Str0ngP@ssw0rd99!")
 
             db.session.add(user)
@@ -555,7 +529,6 @@ class TestUserIntegration:
             user = User(
                 username="lifecycle_user",
                 email="lifecycle@example.com",
-                role="user"
             )
 
             # Set password

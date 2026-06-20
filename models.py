@@ -41,10 +41,8 @@ class User(db.Model, UserMixin):
     __table_args__ = (
         Index('ix_users_username', 'username'),
         Index('ix_users_email', 'email'),
-        Index('ix_users_role', 'role'),
         Index('ix_users_active', 'active'),
         Index('ix_users_created_at', 'created_at'),
-        Index('ix_users_role_active', 'role', 'active'),
         {'extend_existing': True}
     )
 
@@ -80,8 +78,6 @@ class User(db.Model, UserMixin):
         self._email = encryption_manager.encrypt(value, field_name='email')
 
     active: bool = db.Column(db.Boolean, default=True)
-    is_admin: bool = db.Column(db.Boolean, default=False)
-    role: str = db.Column(db.String(20), default='user')
     created_at: datetime = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     # Account security fields
@@ -194,8 +190,11 @@ class User(db.Model, UserMixin):
             'username': self.username,
             'email': self.email,
             'active': self.active,
-            'is_admin': self.is_admin,
-            'role': self.role,
+            # Single-mode / OS-level auth: the one OS user is the owner with full
+            # access. Roles/admin were removed (auth-deprecation Phase E); these are
+            # reported as constants so the frontend owner/admin gating stays stable.
+            'is_admin': True,
+            'role': 'owner',
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_successful_login.isoformat() if self.last_successful_login else None
         }
@@ -204,7 +203,7 @@ class User(db.Model, UserMixin):
     def from_dict(data: Dict[str, Any]) -> 'User':
         """Create user instance from dictionary."""
         user = User()
-        for field in ['username', 'email', 'role', 'active', 'is_admin']:
+        for field in ['username', 'email', 'active']:
             if field in data:
                 setattr(user, field, data[field])
         return user

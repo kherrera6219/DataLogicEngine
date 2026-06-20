@@ -24,7 +24,7 @@ class TestCriticalFixes(unittest.TestCase):
         db.session.add(self.user)
         
         # Create an admin user
-        self.admin = User(username='admin', email='admin@example.com', is_admin=True)
+        self.admin = User(username='admin', email='admin@example.com')
         self.admin.set_password('Admin!Access789')
         db.session.add(self.admin)
         

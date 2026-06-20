@@ -73,8 +73,6 @@ def _get_or_create_desktop_user() -> User:
     user.email = f"{username_candidate}@local.ukg"
     user.set_password(secrets.token_urlsafe(32) + "!A1a")
     user.sid = sid
-    user.role = "user"
-    user.is_admin = False
     db.session.add(user)
     db.session.commit()
     return user

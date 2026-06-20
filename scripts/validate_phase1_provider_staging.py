@@ -95,7 +95,6 @@ async def _run(args: argparse.Namespace) -> int:
                     username=f"phase1-staging-{args.user_id}",
                     _email=f"phase1-staging-{args.user_id}@local.invalid",
                     active=True,
-                    role="tester",
                 )
             )
             db.session.commit()

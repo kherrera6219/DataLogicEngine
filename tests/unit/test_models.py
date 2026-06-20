@@ -122,9 +122,8 @@ def test_user_dict(app):
     assert d['username'] == "u"
     assert d['created_at'].startswith("2023-01-01")
     
-    u2 = User.from_dict({"username": "u2", "role": "admin"})
+    u2 = User.from_dict({"username": "u2"})
     assert u2.username == "u2"
-    assert u2.role == "admin"
 
 # --- Simulation Session Tests ---
 
