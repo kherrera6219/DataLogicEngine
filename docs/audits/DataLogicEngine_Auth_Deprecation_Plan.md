@@ -1,13 +1,15 @@
 # DataLogicEngine — Multi-User Auth Deprecation Plan
 
-**STATUS (2026-06-13): BANKED at Phases A + B + C-partial.** Clean wins done
+**STATUS (2026-06-19): Phases A + B + C-partial + D DONE.** Clean wins done
 (~1,900 LOC of dead/obsolete active auth code removed: zero_trust, token_manager,
 rbac; authz decorators collapsed; stale CSRF entries dropped; plan corrected;
-5 pre-existing desktop tests fixed). **Remaining (admin user-mgmt routes, MFA,
-tenant_rls, `User.role/is_admin/mfa_*` slim) is DEFERRED to the frontend audit
-(A15/A16)** — it is vestigial-but-wired and cross-cutting (frontend + app startup +
-metrics + DB migration), so it should be removed as coordinated frontend+backend
-feature changes, not a backend sweep. See the entanglement note in §3.
+5 pre-existing desktop tests fixed). **Phase D done 2026-06-19** — MFA module +
+tenant_rls removed (`b4c1fa69`, `c60f3daf`); see §3 Phase D. **Remaining: Phase E**
+(slim `User` — drop `role/is_admin/mfa_*` columns + the `verify_totp` shim, decide
+`password_hash`; remove admin user-mgmt routes ↔ `frontend/app/admin/page.tsx`) **and
+Phase F** (test migration). These are cross-cutting (frontend + DB migration), so
+remove as coordinated frontend+backend feature changes, not a backend sweep. See the
+entanglement note in §3.
 
 **Original status:** PROPOSAL — for review before any code changes.
 **Authored:** 2026-06-13 (during A10 `backend/security/` audit).
@@ -143,9 +145,17 @@ lower-value (the vestigial code is harmless — it works) and higher-risk
 frontend-coordinated changes (or folding into the A15/A16 frontend audit), not a
 rushed backend sweep.
 
-**Phase D — Remove MFA + tenancy.**
-De-wire `mfa` from `extensions.py` + `models.User.verify_totp`; delete `mfa.py`.
-De-wire `tenant_rls.py` from `app.py`; delete it.
+**Phase D — Remove MFA + tenancy. ✅ DONE 2026-06-19.**
+- MFA: `mfa.py` deleted (`b4c1fa69`); de-wired from `extensions.py`; `User.verify_totp`
+  rewired to a direct `pyotp.TOTP` shim (no `MFAManager`). The `mfa_enabled`/`mfa_secret`
+  columns + `verify_totp` shim + `privacy_routes` `mfa_enabled = False` remain until the
+  Phase E migration drops the columns.
+- Tenancy: `tenant_rls.py` removed (`c60f3daf`) — module + `app.py` wiring (import,
+  `configure_tenant_rls` startup call, `tenant_rls_prometheus_lines` /metrics emission) +
+  `test_tenant_rls_controls.py` + the `tenant_rls_enabled` metric assertion. Was a no-op on
+  SQLite desktop and provides no isolation benefit under single-mode.
+  **Left in place (wider than RLS, → Phase E+):** `tenant_id` columns on several models and
+  `current_user.tenant_id` reads in `node_repository`/`analytics_service`/`ukg_db`/`scope_enforcement`.
 
 **Phase E — Slim the User model (DB migration).**
 Drop `role`, `is_admin`, `mfa_enabled`, `mfa_secret` columns + their indexes
