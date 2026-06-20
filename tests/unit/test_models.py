@@ -251,3 +251,47 @@ def test_create_legacy_app_requires_secrets_outside_pytest():
     with patch.dict('os.environ', {}, clear=True):
         with pytest.raises(RuntimeError, match="SECRET_KEY must be configured"):
             create_legacy_app()
+
+
+# --- ORM surface regression guard ---
+#
+# Regression guard for the models.py truncation in 6c7cf68b: an unrelated MFA
+# commit accidentally dropped 47 db.Model classes, which broke top-level imports
+# across the backend (api_routes, gateway, node_repository) yet `import models`
+# still succeeded, so nothing failed loudly. This test pins the full ORM surface
+# so any future deletion/rename of a model class is caught at collection time.
+EXPECTED_MODEL_CLASSES = frozenset({
+    "AIAuditEvent", "APIKey", "ArtifactRedaction", "AuditLog", "ChatMessage",
+    "ChatSession", "ClaimEvidenceLink", "ComplianceMapping", "Domain", "Edge",
+    "EvidenceConflict", "ExternalAPIKey", "FeatureFlag", "FeatureFlagAuditEvent",
+    "IntegratedView", "KAArtifactLink", "KAExecution", "KnowledgeAlgorithm",
+    "KnowledgeGraphEdge", "KnowledgeGraphNode", "LLMProvider", "LLMProviderUsage",
+    "Location", "MCPPrompt", "MCPResource", "MCPServer", "MCPTool", "MemoryEntry",
+    "MethodNode", "ModelRoutingPolicy", "Node", "OAuthAccount", "PasswordHistory",
+    "Persona", "PersonaEvidenceLink", "Perspective", "PillarLevel", "PromptTemplate",
+    "Sector", "SimulationSession", "StageArtifactLink", "StageLog", "TimeContext",
+    "TraceArtifact", "TraceAxisVector", "TraceClaim", "TraceEvidence", "TraceExport",
+    "TraceKAInvocation", "TraceMemoryEvent", "TracePersona", "TracePolicyDecision",
+    "TraceRun", "TraceSpan", "TraceStage", "TruthArtifact", "TruthAuditEvent",
+    "TruthBudget", "TruthLinkMessage", "TruthMetric", "TruthSession", "UkgSession",
+    "User", "UserAIPreferences", "UserNotificationPreference",
+})
+
+
+def test_models_orm_surface_is_complete():
+    """All expected db.Model classes are present and are real ORM models.
+
+    Guards against an accidental truncation of models.py (see 6c7cf68b).
+    """
+    import models as models_module
+
+    missing = sorted(
+        name for name in EXPECTED_MODEL_CLASSES
+        if not hasattr(models_module, name)
+    )
+    assert not missing, f"models.py is missing expected ORM classes: {missing}"
+
+    # Each expected symbol must actually be a mapped ORM model, not a stub/shadow.
+    for name in EXPECTED_MODEL_CLASSES:
+        cls = getattr(models_module, name)
+        assert hasattr(cls, "__tablename__"), f"{name} is not a mapped db.Model"
