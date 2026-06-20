@@ -157,7 +157,21 @@ rushed backend sweep.
   **Left in place (wider than RLS, → Phase E+):** `tenant_id` columns on several models and
   `current_user.tenant_id` reads in `node_repository`/`analytics_service`/`ukg_db`/`scope_enforcement`.
 
-**Phase E — Slim the User model (DB migration).**
+**Phase E — Slim the User model (DB migration). 🔶 IN PROGRESS (2026-06-19).**
+- ✅ **E-1** (`c60aee15`): MFA columns (`mfa_enabled`/`mfa_secret`/`backup_codes`) dropped +
+  `verify_totp` removed + Alembic migration `b4c5d6e7f8a9` (validated upgrade/downgrade/idempotent).
+- ✅ **E-2a** (`e2994349`): admin user-mgmt UI + routes removed (`backend/admin.py` deleted;
+  `admin_routes.py` slimmed to cache/health; `/dashboard` + `/users/transfer-ownership` gone;
+  `frontend/app/admin/page.tsx` + Admin nav links removed). Cleared 13 pre-existing test failures.
+- ✅ **E-2b** (`deb6a656`): all ~50 `is_admin` authorization gates collapsed to single-owner via
+  `current_user_is_owner()` (`backend/auth/api_decorators.py`) + `_user_is_owner()` (`tracing/api.py`);
+  dead `backend/decorators.py` deleted. `role`/`is_admin` columns are now INERT (no gate reads them).
+- ☐ **E-2c (remaining):** physically drop `role`/`is_admin` columns. Phase-F-scale: ~12 test files
+  + central `conftest.py` seed helpers + `init_db`/`auth_routes`/`graphql_schema` writes + scripts +
+  a new Alembic migration. Recommend keeping `to_dict` returning constant `is_admin:True`/`role:'owner'`
+  so the frontend admin-nav gating contract stays unchanged.
+
+Original E scope (for E-2c):
 Drop `role`, `is_admin`, `mfa_enabled`, `mfa_secret` columns + their indexes
 (`ix_users_role`, `ix_users_role_active`). Decide on `password_hash`: with OS-level
 auth there is no app password — likely droppable, but confirm nothing seeds an
