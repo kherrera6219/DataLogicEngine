@@ -1,5 +1,22 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21g (A18 skipped-tests justification + Neo4j framing correction)
+
+- **Skipped-tests justified** (A18 def-of-done). Reviewed every skip site (table in `REPO_AUDIT_LOG.md`).
+  All are legitimate env/opt-in/platform gating **except** `end_to_end/test_full_simulation.py`, which was
+  **dead** — an unconditional `pytest.skip` against a deprecated `process_query` API, patching a
+  non-existent `simulation.simulation_engine` path; the flow is covered by `test_e2e_scenarios.py` +
+  `tests/simulation/`. **Removed it.** The 7 `test_user_model_concurrency.py` skipped classes are legit
+  (SQLite concurrency limit; they exercise live lockout methods) — forwarded a note to consider gating them
+  to *run on Postgres* for dual-engine coverage.
+- **Neo4j framing corrected (user note):** Neo4j is a **local internal, app-owned** data store (started via
+  `scripts/windows/start_local_stack.ps1` / `setup_local_databases.py`, with Postgres/Redis/MinIO) — **not an
+  external service**. Reworded the skip guard (docstring + reason → "Local Neo4j not started; run the local
+  stack") and corrected the "external/CI lacks/provision in CI" framing in `REPO_AUDIT_LOG.md`, `TODO.md`,
+  this file, and memory. The guard behavior is unchanged (skip a bare run that hasn't started the local stack;
+  run once it's up).
+- Validation: ruff clean; memory test 3 passed/1 skipped with the new reason.
+
 ### Session log — 2026-06-21f (A18 tests/ — backlog cleared: conftest collision + Neo4j guard)
 
 Started Phase 4 / A18 by clearing the recorded test-isolation backlog:
@@ -178,8 +195,9 @@ running the failing tests at baseline `8362882b` (before D/E). Fixed in `379437b
   removed admin-denial → rewrote as `test_connect_requires_auth` (unauth → 401/403).
 - **Still red, NOT fixed (pre-existing, A18 scope):** `tests/integration_routes` shared-DB
   isolation flakiness (order-dependent) + `test_truthcore_reads_and_writes_memory_each_layer`
-  (needs a Neo4j service CI lacks). These predate the auth work and need the A18 test-isolation
-  overhaul (function-scoped/per-test DBs) + a Neo4j-skip guard.
+  (needs the app's **local internal** Neo4j running — it's app-owned, started via the local
+  data stack, not an external service — and this run hadn't started it). These predate the auth
+  work and need the A18 test-isolation overhaul (function-scoped/per-test DBs) + a Neo4j-skip guard.
 - Validation: security (234), unit (864), trace/gateway/mcp/feature-flag (143), admin/model (60+22) green;
   1935-test collection clean; pre-commit green on every commit.
 

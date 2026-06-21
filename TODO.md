@@ -228,9 +228,12 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
   back-compat); re-pointed the 2 imports to `from tests._helpers import …`. Repro now clean: `tests/unit
   tests/compliance` collects **698 tests, 0 errors** (was 1 collection ImportError).
 - ✅ **Neo4j-skip guard ADDED.** `test_truthcore_reads_and_writes_memory_each_layer` failed `assert 1 == 3`
-  (`memory_writes`) because the graph-backed layers need Neo4j (127.0.0.1:7690 refused in CI). Added
-  `_neo4j_available()` (resolves the URI exactly as `GraphStore`, then a 0.75s socket probe) +
-  `@pytest.mark.skipif`. Now skips cleanly instead of failing (`3 passed, 1 skipped`).
+  (`memory_writes`) because the graph-backed layers write through the app's **local internal** Neo4j and it
+  wasn't started (connection refused). Neo4j is a **local, app-owned** data store (started via
+  `scripts/windows/start_local_stack.ps1` / `setup_local_databases.py`, with Postgres/Redis/MinIO) — not an
+  external system. Added `_neo4j_available()` (resolves the URI exactly as `GraphStore`, then a 0.75s socket
+  probe) + `@pytest.mark.skipif`. A bare `pytest` run that hasn't started the local stack skips cleanly
+  (`3 passed, 1 skipped`); the test runs once the local stack is up.
 - ✅ **`integration_routes` shared-DB isolation — no longer reproducing.** The memory's "10 failed + 10 errors"
   baseline predated this session's auth/CI fixes; on current `main` it passes **98/98 standalone**, and the
   conftest fix lets it collect cleanly alongside the rest of the suite. (If order-dependent flakiness ever

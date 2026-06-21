@@ -12,13 +12,17 @@ from core.system.frost_service import FROSTService
 
 
 def _neo4j_available() -> bool:
-    """Return True if a Neo4j server is reachable at the configured URI.
+    """Return True if the app's local Neo4j is reachable at the configured URI.
 
-    The end-to-end TruthCore workflow writes graph-backed memory through Neo4j;
-    without a running Neo4j the workflow records only the in-memory write and
-    ``memory_writes`` is incomplete (1 instead of 3). CI environments without a
-    Neo4j service should skip this test rather than fail it. The URI is resolved
-    the same way ``backend.storage.graph_store.GraphStore`` does. (A18.)
+    Neo4j is a **local internal** data store for DataLogicEngine (app-owned,
+    started locally via ``scripts/windows/start_local_stack.ps1`` /
+    ``setup_local_databases.py``), not an external service. The end-to-end
+    TruthCore workflow writes graph-backed memory through it; when the local
+    Neo4j has not been started the workflow records only the in-memory write and
+    ``memory_writes`` is incomplete (1 instead of 3). A bare ``pytest`` run that
+    has not brought up the local data stack should skip this end-to-end test
+    rather than fail it. The URI is resolved the same way
+    ``backend.storage.graph_store.GraphStore`` does. (A18.)
     """
     uri = os.getenv("NEO4J_URI")
     if not uri:
@@ -68,7 +72,8 @@ def test_unified_memory_persists_and_namespaces_recall(tmp_path):
 
 @pytest.mark.skipif(
     not _neo4j_available(),
-    reason="Neo4j service is not available; graph-backed memory writes require it",
+    reason="Local Neo4j not started (run scripts/windows/start_local_stack.ps1); "
+    "graph-backed memory writes require the app's local Neo4j",
 )
 @pytest.mark.asyncio
 async def test_truthcore_reads_and_writes_memory_each_layer(tmp_path, monkeypatch):

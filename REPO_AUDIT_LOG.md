@@ -18,11 +18,14 @@ Opened Phase 4 by clearing the recorded A18 backlog (reproduced each issue first
   `from tests._helpers import …`. Repro now: **698 tests collected, 0 errors.** Lesson: `conftest.py` is for
   pytest-injected fixtures, not an importable shared library — shared helpers belong in a regular module.
 - **Neo4j-skip guard (ADDED).** `test_truthcore_reads_and_writes_memory_each_layer` failed `assert 1 == 3`
-  (`len(memory_writes)`) because the TruthCore workflow's graph-backed layers need Neo4j, which CI lacks
-  (127.0.0.1:7690 connection refused). Added `_neo4j_available()` (resolves the URI exactly as
-  `backend/storage/graph_store.py` — `NEO4J_URI` env or `get_config().NEO4J_URI`, default
-  `bolt://localhost:7687` — then a 0.75s socket probe) + `@pytest.mark.skipif`. Now **skips cleanly** when
-  Neo4j is down (`3 passed, 1 skipped`) instead of failing; still runs where Neo4j is provisioned.
+  (`len(memory_writes)`) because the TruthCore workflow's graph-backed layers write through Neo4j and the
+  app's **local internal** Neo4j had not been started (connection refused). Neo4j is a local, app-owned
+  data store (started via `scripts/windows/start_local_stack.ps1` / `setup_local_databases.py`, alongside
+  PostgreSQL/Redis/MinIO) — **not an external service**. Added `_neo4j_available()` (resolves the URI exactly
+  as `backend/storage/graph_store.py` — `NEO4J_URI` env or `get_config().NEO4J_URI`, default
+  `bolt://localhost:7687` — then a 0.75s socket probe) + `@pytest.mark.skipif`. A bare `pytest` run that
+  hasn't brought up the local data stack now **skips cleanly** (`3 passed, 1 skipped`) instead of failing;
+  the test runs once the local stack is up.
 - **`integration_routes` shared-DB isolation (NOT REPRODUCING).** The memory's "10 failed + 10 errors"
   standalone baseline predated this session's auth/CI fixes. On current `main`, `pytest tests/integration_routes`
   passes **98/98 standalone**, and the conftest fix lets it collect cleanly with the rest of the suite. The
@@ -41,7 +44,20 @@ Opened Phase 4 by clearing the recorded A18 backlog (reproduced each issue first
 - Validation: targeted runs green (698/0 collection; `gdpr_comprehensive`+`api_endpoints` 75/75; memory
   3 passed/1 skipped; `integration_routes` 98/98; contract file 6/6); `ruff check` clean on all changed files.
   Clean full suite (logging enabled): **1875 passed / 20 skipped / 1 failed → now fixed** (expect 1876/20/0).
-  **A18 backlog DONE.** Remaining A18 (plan): 20 skipped-tests justification, dual-engine SQLite+Postgres
+
+### A18 skipped-tests justification (2026-06-21)
+Every skip site reviewed; each is legitimate environment/opt-in gating except the one dead test removed.
+| Skip site | Reason | Verdict |
+|---|---|---|
+| `end_to_end/test_full_simulation.py` | unconditional `pytest.skip` — "deprecated SimulationEngine API" | ❌ **DEAD → REMOVED** (also patched a non-existent `simulation.simulation_engine` path; flow covered by `test_e2e_scenarios.py` + `tests/simulation/`) |
+| `memory/test_unified_memory_service.py` (1) | local internal Neo4j not started | ✅ legit (graph-backed E2E; runs once local stack up) |
+| `unit/test_user_model_concurrency.py` (7 classes) | "SQLite concurrency limitation" | ✅ legit — they exercise **live** lockout methods (`failed_login_attempts`/`locked_until` used by `security_monitoring.py`/`session_manager.py`). **Forward:** consider `skipif`-gating to *run on Postgres* for dual-engine coverage rather than unconditional skip. |
+| `unit/test_user_model_comprehensive.py` (1) | "SQLite does not enforce string length" | ✅ legit (SQLite behavior; candidate for Postgres-gated run) |
+| `unit/test_ollama_provider.py` | `skipif` Ollama (local) not reachable | ✅ legit (local service gating) |
+| `contract/test_api_contract.py` (2) | `RUN_SCHEMATHESIS` opt-in / "schemathesis not installed" | ✅ legit (opt-in property fuzzing) |
+| `knowledge_algorithms/test_ka_bulk.py` (3) | per-KA defensive (`no valid class/schema/method`) | ✅ legit (parametrized guards) |
+| `security/test_dpapi_crypto.py`, `windows/test_windows_platform.py` | `skipUnless/skipif` win32 | ✅ legit (platform; **run** on this Windows box, skip on Linux CI) |
+  **A18 backlog + skipped-tests justification DONE.** Remaining A18 (plan): dual-engine SQLite+Postgres
   parity, resilience-test fault injection — then A19 (`backend/services/`).
 
 ---
