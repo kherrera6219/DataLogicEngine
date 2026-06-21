@@ -118,20 +118,22 @@ def test_generate_requires_authentication(client, app):
     honeycomb.generate_multi_axis_honeycomb.assert_not_called()
 
 
-def test_connect_requires_admin(client, app):
+def test_connect_requires_auth(client, app):
+    # Single-mode / OS-level auth: there is no admin vs non-admin distinction
+    # (roles were removed in the auth deprecation). The real security boundary is
+    # that the endpoint requires authentication — an unauthenticated request is
+    # rejected and never reaches the handler.
     honeycomb = MagicMock()
     app.config['AXIS_SYSTEM'].axis_managers = {3: honeycomb}
 
-    non_admin = MagicMock()
-    non_admin.is_admin = False
     with patch(
         "backend.auth.api_decorators.check_api_auth",
-        return_value=(True, non_admin),
+        return_value=(False, None),
     ):
         response = client.post(
             '/api/honeycomb/connect',
             json={"source_uid": "a", "target_uid": "b", "connection_type": "related"},
         )
 
-    assert response.status_code == 403
+    assert response.status_code in (401, 403)
     honeycomb.create_honeycomb_connection.assert_not_called()

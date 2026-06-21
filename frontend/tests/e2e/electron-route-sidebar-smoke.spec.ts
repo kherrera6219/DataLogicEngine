@@ -5,7 +5,6 @@ const BASE_URL = 'http://localhost:3000';
 
 const CRITICAL_ROUTE_ORDER = [
   '/dashboard',
-  '/admin',
   '/settings',
   '/projects',
   '/projects/view?id=smoke-session',

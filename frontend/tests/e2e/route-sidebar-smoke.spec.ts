@@ -55,7 +55,6 @@ async function mockApi(page: import('@playwright/test').Page) {
 
 const CRITICAL_ROUTE_ORDER = [
   '/dashboard',
-  '/admin',
   '/settings',
   '/projects',
   '/projects/view?id=smoke-session',
@@ -68,7 +67,6 @@ const STATIC_ROUTES = [
   '/about',
   '/about/ai-limitations',
   '/about/cloud-services',
-  '/admin',
   '/admin/compliance',
   '/admin/mcp',
   '/admin/mcp/servers',

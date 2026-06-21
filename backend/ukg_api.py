@@ -49,8 +49,12 @@ def get_pillar(pillar_id):
 @api_response
 def create_pillar():
     """Create a new pillar level."""
-    data = request.json
-    
+    data = request.json or {}
+
+    missing = [field for field in ('pillar_id', 'name') if not data.get(field)]
+    if missing:
+        return {"error": f"Missing required field(s): {', '.join(missing)}"}, 400
+
     pillar = PillarLevel(
         uid=str(uuid.uuid4()),
         pillar_id=data['pillar_id'],
@@ -90,8 +94,12 @@ def get_sector(sector_id):
 @api_response
 def create_sector():
     """Create a new sector."""
-    data = request.json
-    
+    data = request.json or {}
+
+    missing = [field for field in ('sector_code', 'name') if not data.get(field)]
+    if missing:
+        return {"error": f"Missing required field(s): {', '.join(missing)}"}, 400
+
     sector = Sector(
         uid=str(uuid.uuid4()),
         sector_code=data['sector_code'],

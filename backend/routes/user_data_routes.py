@@ -143,12 +143,10 @@ def delete_user_profile() -> Tuple[Response, int]:
                 400
             )
 
-        # Cannot delete owner account (must transfer ownership first)
-        if current_user.role == 'owner':
-            return error_response(
-                "Owner account cannot be self-deleted. Transfer ownership first.",
-                403
-            )
+        # Single-mode / OS-level auth: there is one owner and no ownership transfer,
+        # so the GDPR self-deletion proceeds (the desktop auto-login recreates the
+        # local user on next launch). The legacy owner-self-delete guard was removed
+        # with roles (auth-deprecation Phase E).
 
         # Audit destructive action BEFORE deletion
         sid = getattr(current_user, 'windows_sid', getattr(current_user, 'sid', 'LOCAL_FALLBACK'))

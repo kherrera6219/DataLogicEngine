@@ -78,11 +78,13 @@ test.describe('UKG Desktop Visual Audit', () => {
   });
 
   test('05_Settings_And_Admin_Verification', async () => {
-    const routes = ['/settings', '/admin'];
+    // Admin user dashboard was removed under single-mode; the compliance page is
+    // the remaining admin surface (auth-deprecation Phase E).
+    const routes = ['/settings', '/admin/compliance'];
     for (const route of routes) {
       await page.goto(`http://localhost:3000${route}`);
       await page.waitForLoadState('networkidle');
-      await takeScreenshot(`05_UI_${route.replace('/', '')}`);
+      await takeScreenshot(`05_UI_${route.replace(/\//g, '_')}`);
     }
   });
 });
