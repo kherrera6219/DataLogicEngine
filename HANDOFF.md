@@ -32,6 +32,27 @@ plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`):
 - **A18 finding:** `tests/integration_routes` has a severe pre-existing shared-DB isolation bug
   (baseline = 10 failed + 10 errors standalone; failures vary per run) + the A18-pre conftest-name
   collision. Not introduced by this work; flagged for the A18 (tests/) audit.
+
+### Session log — 2026-06-19f (CI repair after auth deprecation)
+
+CI/Deploy had been red **since before this session** — root cause was the
+`test_mfa_comprehensive` collection error (pre-session) which interrupted the whole
+suite, masking many failures. Fixing it (this session) let the suite run and exposed
+a mix of real regressions + long-masked pre-existing failures. Each was confirmed by
+running the failing tests at baseline `8362882b` (before D/E). Fixed in `379437bd`:
+- **My regressions:** (1) `user_data_routes.delete_user_profile` read the dropped
+  `current_user.role` → 500; removed the obsolete owner-self-delete guard. (2) frontend
+  E2E route-smoke specs (`route-sidebar-smoke`, `electron-route-sidebar-smoke`,
+  `visual-audit`) listed bare `/admin`, which 404s now that the admin dashboard page was
+  removed (E-2a) → dropped `/admin` (kept `/admin/compliance`, `/admin/mcp[/servers]`).
+- **Pre-existing (failed at baseline; from Phase B `api_admin_required`→`api_login_required`):**
+  `ukg_api.create_pillar/create_sector` raised `KeyError`→500 on missing fields once the
+  admin gate stopped blocking; added 400 validation. `test_connect_requires_admin` asserted
+  removed admin-denial → rewrote as `test_connect_requires_auth` (unauth → 401/403).
+- **Still red, NOT fixed (pre-existing, A18 scope):** `tests/integration_routes` shared-DB
+  isolation flakiness (order-dependent) + `test_truthcore_reads_and_writes_memory_each_layer`
+  (needs a Neo4j service CI lacks). These predate the auth work and need the A18 test-isolation
+  overhaul (function-scoped/per-test DBs) + a Neo4j-skip guard.
 - Validation: security (234), unit (864), trace/gateway/mcp/feature-flag (143), admin/model (60+22) green;
   1935-test collection clean; pre-commit green on every commit.
 
