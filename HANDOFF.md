@@ -14,9 +14,16 @@ Started Phase 4 / A18 by clearing the recorded test-isolation backlog:
   (resolves URI as `GraphStore`, 0.75s socket probe) + `@pytest.mark.skipif`. Now skips cleanly.
 - **`integration_routes` isolation** — the "10 failed + 10 errors" memory baseline predated this session's
   fixes; passes **98/98 standalone** on current `main`; the conftest fix enables clean combined collection.
-- Validation: targeted runs green (698/0, affected files 75/75, memory 3+1skip, integration_routes 98/98),
-  ruff clean; full-suite confirmation run launched. Next: A18 remaining (21 skipped-tests justification,
-  dual-engine SQLite+Postgres check, resilience tests) → then A19 (`backend/services/`).
+- **Bonus find (full-suite run):** the clean suite (1875 passed / 1 failed) surfaced
+  `test_canonical_v1_simulation_routes_have_strict_happy_path_contract` (500≠201). Cause: the contract file's
+  local `app` fixture built `User(role="user", …)` — `role` was dropped in E-2c, so the constructor raised and
+  the fixture's bare `except` swallowed it → no test user → route 500. A leftover the E-2c sweep missed; fails
+  standalone (not from the conftest move). Fixed by dropping the `role=` kwarg; swept tests/ for siblings (none
+  — all other role/is_admin hits are mocks or non-persisting helper params). Contract file 6/6 green.
+- Validation: targeted runs green (698/0, affected files 75/75, memory 3+1skip, integration_routes 98/98,
+  contract 6/6), ruff clean. Clean full suite was 1875 passed/20 skipped/1 failed → that 1 is now fixed
+  (expect 1876/20/0). Next: A18 remaining (20 skipped-tests justification, dual-engine SQLite+Postgres check,
+  resilience tests) → then A19 (`backend/services/`).
 
 ### Session log — 2026-06-21e (F5-frontend — web-login vestige removal, A17-1 resolved)
 

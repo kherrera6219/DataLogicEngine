@@ -25,10 +25,12 @@ def app():
             SimulationSession.query.delete()
             user = User.query.filter_by(username="testuser").first()
             if user is None:
+                # `role`/`is_admin` columns were removed under single-mode
+                # (auth-deprecation Phase E-2c) — do not pass them to the
+                # constructor or it raises and the user is never created.
                 user = User(
                     username="testuser",
                     _email="test@example.com",
-                    role="user",
                     password_hash=generate_password_hash("SecureTest789$#@"),
                 )
                 db.session.add(user)

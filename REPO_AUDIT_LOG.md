@@ -28,10 +28,21 @@ Opened Phase 4 by clearing the recorded A18 backlog (reproduced each issue first
   passes **98/98 standalone**, and the conftest fix lets it collect cleanly with the rest of the suite. The
   root `app` fixture is already function-scoped (per-test `create_all`/`drop_all` on a clean schema). Recorded
   remedy (function-scoped/per-test DB fixtures) retained in case order-dependent flakiness ever resurfaces.
+- **Stale E-2c fixture (FIXED, found via full-suite run).** The clean full suite (1875 passed / 20 skipped /
+  **1 failed**) surfaced `test_canonical_v1_simulation_routes_have_strict_happy_path_contract` returning 500≠201.
+  Root cause: the contract file's local `app` fixture constructed `User(..., role="user", ...)` — but `role`/
+  `is_admin` were dropped in auth-deprecation E-2c, so the constructor raised `TypeError`, which the fixture's
+  bare `except Exception: rollback()` swallowed → the test user was never created → the simulation-create route
+  500'd. A leftover the 2026-06-19f E-2c sweep missed (fails standalone — not order-dependent, not from the
+  conftest move). Fixed by dropping the `role=` kwarg (matches how the codebase constructs users post-E-2c).
+  Swept the whole `tests/` tree for siblings: the only real `User(role=/is_admin=)` ORM-constructor bug was this
+  one; all other `role=`/`is_admin=` hits are mock objects (`MockUser`/`MagicMock`/`SimpleNamespace`) or the
+  `create_test_user`/`seed_login_session` helper params (accepted but not persisted) — all harmless.
 - Validation: targeted runs green (698/0 collection; `gdpr_comprehensive`+`api_endpoints` 75/75; memory
-  3 passed/1 skipped; `integration_routes` 98/98); `ruff check` clean on all 5 changed test files; full-suite
-  confirmation run launched. **A18 backlog DONE.** Remaining A18 (plan): 21 skipped-tests justification,
-  dual-engine SQLite+Postgres parity, resilience-test fault injection — then A19 (`backend/services/`).
+  3 passed/1 skipped; `integration_routes` 98/98; contract file 6/6); `ruff check` clean on all changed files.
+  Clean full suite (logging enabled): **1875 passed / 20 skipped / 1 failed → now fixed** (expect 1876/20/0).
+  **A18 backlog DONE.** Remaining A18 (plan): 20 skipped-tests justification, dual-engine SQLite+Postgres
+  parity, resilience-test fault injection — then A19 (`backend/services/`).
 
 ---
 
