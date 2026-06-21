@@ -269,7 +269,24 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
         `DatabaseSettings.tsx` was the last gap — associated all 12 Local/Cloud config inputs with their labels
         (`htmlFor`/`id`), added `role="status"`+sr-only to the loading spinner, and `aria-busy` on the root;
         added an a11y regression test (10/10 DatabaseSettings tests pass). typecheck clean.
-    - **Next: A17 `frontend/lib/` + `hooks/` + `contexts/`** (Socket.IO trace stream, API client paths, auth context).
+    - **A17 `frontend/lib/` + `hooks/` + `contexts/` — ✅ COMPLETE (verify-only) 2026-06-21.** All 3 plan
+      exit questions verified by concept against live code:
+      1. **Socket.IO trace stream end-to-end — ✅ wired:** `useTraceStream`→`joinRunRoom`→`join_run_room`
+         (`backend/websocket.py:82`, room `run_{id}`)→`emit_trace_stage_update` (room-scoped, called from
+         `gateway.py:1936`)→`socket.ts:197` binds `trace_stage_update`. Room naming matches both sides.
+      2. **API client paths — ✅ correct** (`index.ts` composes all 8 modules; `trace.ts` matches TV backend),
+         **except A17-1 (forward → F5-frontend):** `api/auth.ts` `login`/`logout` call removed `/auth/login`
+         + `/auth/logout` (404); `client.ts` CSRF-exempt list still has `/auth/login`+`/auth/register`. The
+         vestigial multi-user web-login surface (login/register pages + auth.ts methods + AuthContext non-desktop
+         branch) — unreachable in desktop mode; remove as a coordinated F5-frontend change (can't cut `auth.ts.login`
+         alone — the login page imports it).
+      3. **Auth refresh — ✅ wired:** `AuthContext.checkAuth`→`desktopAutoLogin` on no-session; `client.ts` 401→
+         `tryDesktopAutoLogin`+retry (desktop only).
+      Supporting lib (policy/telemetry/storage/feature-flags/sanitization/utils) confirmed live by usage; no orphans.
+      No code changes (verify-only, like A11/A13). **→ PHASE 3 COMPLETE (A15+A16+A17).**
+    - **Next: Phase 4 — A18 `tests/`** (start with the recorded A18 test-isolation backlog: integration_routes
+      shared-DB isolation, conftest-name collision, Neo4j-skip guard), then A19→A32. Plus **F5-frontend** (A17-1
+      web-login vestige removal) when coordinating the final auth cleanup.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

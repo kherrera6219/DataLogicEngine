@@ -104,6 +104,49 @@ Type Safety 100% (23/23 UI primitives) and Test Coverage (80%+) were reached in 
 
 ---
 
+## Phase 3 / A17 — `frontend/lib/` + `hooks/` + `contexts/` (✅ verify-only, 2026-06-21)
+Scope: 19 `lib/` files (`socket.ts`, `utils.ts`, `api/*` ×12, `feature-flags`, `runtime/policy`,
+`security/input-sanitization`, `state/storage`, `telemetry/client-errors`), 1 hook
+(`useTraceStream.ts`), 3 contexts (`AuthContext`, `FeatureFlagContext`, `ThemeContext`). The plan's
+three exit questions, verified by concept against live code (frontend ↔ backend):
+
+1. **Socket.IO trace stream receives `trace_stage_update` end-to-end — ✅ CONFIRMED WIRED.**
+   `hooks/useTraceStream.ts` → `socketClient.joinRunRoom(runId)` → emits `join_run_room` →
+   backend `@socketio.on('join_run_room')` (`backend/websocket.py:82`) joins room `run_{run_id}`.
+   Backend `emit_trace_stage_update(run_id, stage)` (`websocket.py:132`) emits `trace_stage_update`
+   **scoped to `room=f"run_{run_id}"`**, called from `backend/llm_gateway/gateway.py:1936`.
+   `lib/socket.ts:197` binds `trace_stage_update` → `onTraceStageUpdate` → `useTraceStream` dedupes by
+   `stage_id` and filters by `run_id`. Room naming matches both sides; join/leave on mount/unmount.
+2. **API client paths correct — ✅ (one vestige, A17-1).** `lib/api/index.ts` composes all 8 domain
+   modules + analytics; `trace.ts` paths (`/trace/runs[/<id>/{bundle,stages,evidence,personas,axes,
+   kas,metrics,export}]`) match the TV-wired backend. **A17-1 (forward → F5-frontend):** the
+   vestigial multi-user web-login client surface still calls removed backend endpoints —
+   `lib/api/auth.ts` `login` (`POST /auth/login`) + `logout` (`POST /auth/logout`) now **404**
+   (`auth_routes.py` only has `/check`, `/csrf-token`, `/desktop/challenge`, `/desktop/auto-login`),
+   and `client.ts` `CSRF_EXEMPT_ENDPOINT_PREFIXES` still lists `/auth/login` + `/auth/register`.
+   Reachable only via the `(auth)/login` + `(auth)/register` pages and `AuthContext`'s non-desktop
+   branch — all unreachable in the shipped desktop app (`shouldUseDesktopSessionFlow()` redirects away
+   from `/login`). **Not an isolated cut:** removing `auth.ts.login` breaks the login page that imports
+   it via `useAuth().login`. This is the frontend mirror of the backend auth deprecation → forward as
+   a coordinated **F5-frontend** removal (login/register pages + auth.ts methods + AuthContext branches
+   + the 2 CSRF-exempt entries + login-page tests), not a mid-A17 rip-out (confirm-before-cut).
+3. **Auth refresh / session recovery — ✅ CONFIRMED WIRED.** `AuthContext.checkAuth()` →
+   `api.auth.check()`; on no session under desktop runtime it calls `api.auth.desktopAutoLogin()`.
+   `client.ts` independently recovers a 401 via `tryDesktopAutoLogin()` then retries the original
+   request (desktop runtime only); provider-test 401 is exempted from the redirect (C3-related).
+
+**Supporting lib confirmed live by usage:** `runtime/policy` ↔ AuthContext, `telemetry/client-errors`
+↔ client.ts + global-error, `state/storage` ↔ global-error/DesktopStatus, `feature-flags` ↔
+FeatureFlagContext, `security/input-sanitization` + `utils` ↔ components. No orphans found.
+**Minor (noted, not changed — low value / change-risk):** `useSocket()` performs `connect()` +
+`setHandlers()` during render rather than in an effect (functional, idempotent guard, but a React
+side-effect-in-render anti-pattern); `api.system.health` is a hardcoded `'Operational'` stub (real
+health is `api.chat.getHealth`). **No code changes this session — A17 is a verify-only pass** (like
+A11/A13); the one actionable finding (A17-1) is forwarded to F5-frontend. **→ A17 COMPLETE. Phase 3
+(A15+A16+A17) COMPLETE.**
+
+---
+
 ## Pre-Phase-3 cleanup sweep — outstanding carry-overs (A) + doc reconciliation (B) + cosmetic (C)
 **Date:** 2026-06-18
 **Branch:** main

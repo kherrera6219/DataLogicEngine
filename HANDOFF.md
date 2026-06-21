@@ -1,5 +1,26 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21d (A17 verify-only — Phase 3 COMPLETE)
+
+Audited `frontend/lib/` (19 files) + `hooks/useTraceStream.ts` + 3 contexts. Verify-only pass
+(like A11/A13) — all three plan exit questions confirmed against live code:
+- **Socket.IO trace stream end-to-end ✅** — `useTraceStream` → `joinRunRoom` → `join_run_room`
+  (`backend/websocket.py:82`, room `run_{id}`) → `emit_trace_stage_update` (room-scoped, from
+  `gateway.py:1936`) → `socket.ts:197` binds `trace_stage_update`. Room naming matches both sides;
+  client dedupes by `stage_id`, filters by `run_id`.
+- **API client paths ✅** — `index.ts` composes all 8 domain modules; `trace.ts` matches the TV backend.
+- **Auth refresh ✅** — `AuthContext.checkAuth` → `desktopAutoLogin` on no-session; `client.ts` recovers
+  401 via `tryDesktopAutoLogin` + retry (desktop only).
+- **A17-1 finding (forwarded → F5-frontend):** vestigial multi-user web-login client surface still
+  present — `api/auth.ts` `login`/`logout` hit removed `/auth/login`+`/auth/logout` (404); `client.ts`
+  CSRF-exempt list still lists `/auth/login`+`/auth/register`; `(auth)/login`+`(auth)/register` pages +
+  AuthContext non-desktop branch. Unreachable in desktop mode. Not an isolated cut (login page imports
+  `useAuth().login`) → coordinated F5-frontend removal alongside the final auth cleanup.
+- Minor (noted, unchanged): `useSocket()` connects/setHandlers during render; `api.system.health` is a
+  stub. No code changes. **→ A17 COMPLETE. PHASE 3 (A15+A16+A17) COMPLETE.**
+- **Next: Phase 4 — A18 `tests/`** (the recorded test-isolation backlog: `tests/integration_routes`
+  shared-DB isolation → function-scoped/per-test DBs; A18-pre conftest-name collision; Neo4j-skip guard).
+
 ### Session log — 2026-06-21c (A16 close-out — C3 + final accessibility sweep — A16 COMPLETE)
 
 Closed the last two A16 items (Type Safety 100% + Test Coverage 80%+ were already met):
