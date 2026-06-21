@@ -50,7 +50,7 @@ flowchart TD
         SQL[PostgreSQL / SQLite via SQLAlchemy]
         Models[models.py\nUsers + Sessions + TruthSession + Artifacts + Graph Rows + Audit Tables]
         Migrations[migrations/\nSchema Evolution]
-        TenantRLS[Tenant RLS\nOptional Postgres Policy Binding]
+        TenantRLS[Tenant Scoping\nVestigial tenant_id columns; RLS removed single-mode]
     end
 
     PGConfig --> SQL

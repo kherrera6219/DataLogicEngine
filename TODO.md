@@ -231,10 +231,24 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);
       `backend/security/tenant_rls.py` (Postgres RLS + app startup + prometheus); `User.role/is_admin` column slim
       (DB migration). Remove these as coordinated frontend+backend pairs — not as isolated backend sweeps.
-    - **B2 RBAC doc reconciliation (folded in 2026-06-18):** correct multi-user/RBAC claims that contradict
-      single-mode in `docs/PRODUCT_OVERVIEW.md` (capability table "role-gated"/"admin users"),
-      `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md` ("RBAC enforcement"/"user management"),
-      and `docs/ARCHITECTURE.md` — change docs alongside the admin-UI code removal so they stay in sync.
+    - **B2 RBAC doc reconciliation — ✅ DONE 2026-06-21.** The 3 originally-named targets
+      (`PRODUCT_OVERVIEW.md`, `ARCHITECTURE.md`, `diagrams/11`) were already single-mode-clean. A live
+      grep-by-concept against the now-COMPLETE auth deprecation surfaced **8 other live docs** still
+      referencing deleted modules/columns; all corrected (verified against live code — `rbac.py`/`mfa.py`/
+      `tenant_rls.py`/`zero_trust.py`/`token_manager.py` gone, `session_manager.py` kept, User MFA/role/
+      is_admin columns dropped, `auth_routes.py` only `/check`+`/csrf-token`+`/desktop/*`):
+      - `API.md` — replaced fictional `/login`,`/register`,`/logout`,`/mfa/*`,`/login/sso` (all 404 now)
+        with the 4 real desktop-auth endpoints; dropped "user and role management" + tenant-RLS metric + SSO/MFA.
+      - `AUTH_DECORATORS.md` — removed deleted `from backend.security.rbac import require_permission` example;
+        documented `@api_admin_required` as alias of `@api_login_required` + `current_user_is_owner()` gate.
+      - `DATABASE_SCHEMA.md` — users ER diagram dropped `is_admin`/`role`/`mfa_enabled`/`mfa_secret`/`backup_codes`
+        (added `last_successful_login`/`last_password_change`); tenant-isolation section reframed; sensitive-fields trimmed.
+      - `SECURITY.md` — "Tenant isolation" → "Tenant scope (single-mode)"; removed deleted module/metric/test refs.
+      - `ARCHITECTURE_MAP.md`, `DEVELOPER_GUIDE.md`, `AI_MANAGEMENT_SYSTEM_42001.md`, `SDLC_SSDF_MAPPING.md`,
+        `diagrams/02`, `diagrams/07` — removed RBAC/RLS/tenant-RLS/user-management references.
+      - Left as-is by design: `docs/archive/**` (historical), generated inventories (`GENERATED_STRUCTURE.md`/
+        `FILE_INVENTORY.csv` → A31/A32), and audit records (`docs/audits/**`, `REPO_AUDIT_LOG.md`).
+        `verify_docs_references.py`: 0 errors.
     - Auth deprecation plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` (Phases D+E+F remain).
     - **Next up after A15: A16 `frontend/components/`, A17 `frontend/lib/` + hooks.**
     - **A16 carries C3 (folded in 2026-06-18):** surface `test_provider` status codes inline in

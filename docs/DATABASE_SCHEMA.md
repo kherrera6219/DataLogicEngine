@@ -141,13 +141,10 @@ erDiagram
         string password_hash
         string sid
         bool active
-        bool is_admin
-        string role
-        bool mfa_enabled
-        string mfa_secret
-        json backup_codes
         int failed_login_attempts
         datetime locked_until
+        datetime last_successful_login
+        datetime last_password_change
         datetime created_at
     }
 
@@ -577,20 +574,17 @@ trace bundle
 
 This supports judge/auditor review because exported traces can include deterministic integrity metadata.
 
-## Tenant isolation pattern
+## Tenant scoping columns (single-mode)
 
-Multi-tenant tables include a `tenant_id` column where applicable. PostgreSQL deployments can enforce tenant isolation through session-level RLS using `backend/security/tenant_rls.py`.
+> **Single-mode note.** The app runs in **single operating mode with OS-level
+> auth** (one owner; even cloud runs on a single-tenant VM). The PostgreSQL
+> row-level-security enforcement module (`backend/security/tenant_rls.py`) and
+> its app wiring/metrics were **removed** (auth deprecation Phase D). The
+> `tenant_id` columns below are **left in place** as vestigial scoping columns
+> (intentionally wider than RLS — a separate concern) but are not enforced by an
+> RLS policy. Under single-mode, tenant scope is the local profile/app context.
 
-Example pattern:
-
-```sql
-SET LOCAL app.tenant_id = '<tenant_uuid>';
-
-CREATE POLICY tenant_isolation ON knowledge_graph_nodes
-    USING (tenant_id = current_setting('app.tenant_id')::text);
-```
-
-Representative tenant-scoped tables:
+Several tables still carry a `tenant_id` column:
 
 | Table | tenant_id column | Notes |
 |---|---|---|
@@ -602,7 +596,7 @@ Representative tenant-scoped tables:
 | `mcp_servers` | `tenant_id` | connector/server registry |
 | `trace_runs` | `tenant_id` | trace/session scoping |
 
-Desktop/local mode should treat tenant scope as local profile/app context unless a deployment explicitly enables multi-user tenancy.
+Desktop/local mode (the only mode) treats tenant scope as local profile/app context.
 
 ## Field-level encryption pattern
 
@@ -633,7 +627,7 @@ Representative sensitive fields:
 
 | Area | Example data |
 |---|---|
-| users | email, MFA secret, backup-code metadata |
+| users | email (MFA secret/backup-code columns dropped in auth deprecation Phase E-1) |
 | LLM providers | API keys and provider credentials |
 | MCP servers | connector credentials/tokens |
 | OAuth accounts | tokens and refresh tokens |

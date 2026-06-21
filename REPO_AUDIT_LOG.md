@@ -34,8 +34,35 @@ Frontend typecheck + eslint clean; updated `AppSidebar.test.tsx` (icon mock) + `
 (chrome-only assertions); full component suite **51 files / 150 tests pass**.
 
 ### Remaining for A15
-F5 coordinated auth removal + B2 docs; per-page error/loading-state verification for the live pages
-(def-of-done). Then A16 (`frontend/components/`, incl. C3 `ApiOverlayConfig` test_provider status) + A17.
+F5 coordinated auth removal (E-2c done) + ~~B2 docs~~ (✅ done 2026-06-21, below);
+per-page error/loading-state verification for the live pages (def-of-done). Then A16
+(`frontend/components/`, incl. C3 `ApiOverlayConfig` test_provider status) + A17.
+
+### B2 doc reconciliation — RBAC/multi-user vs single-mode (✅ 2026-06-21)
+The auth deprecation (Phases A–F) is COMPLETE in code, so docs describing the old multi-user
+surface were actively misleading. **Confirm-by-concept against live code first:** `rbac.py`/`mfa.py`/
+`tenant_rls.py`/`zero_trust.py`/`token_manager.py` are deleted; `session_manager.py` is KEPT
+(session-cookie hardening, not multi-user login); User `role`/`is_admin`/`mfa_enabled`/`mfa_secret`/
+`backup_codes` columns are dropped; `auth_routes.py` exposes only `/check`, `/csrf-token`,
+`/desktop/challenge`, `/desktop/auto-login`; `api_admin_required` is an alias of `api_login_required`;
+owner gate is `current_user_is_owner()`.
+
+The 3 originally-named B2 targets (`PRODUCT_OVERVIEW.md`, `ARCHITECTURE.md`, `diagrams/11`) were
+**already** single-mode-clean. A live grep-by-concept found **8 other live docs** still stale; all fixed:
+- `API.md` — Section 1 documented `/login`,`/register`,`/logout`,`/mfa/*`,`/login/sso` (all 404 now) →
+  replaced with the 4 real desktop-auth endpoints; removed "user and role management" admin capability,
+  the `/metrics` tenant-RLS signal, and the SSO/MFA mention in the API summary.
+- `AUTH_DECORATORS.md` — removed the deleted `from backend.security.rbac import require_permission`
+  example; documented the alias + `current_user_is_owner()` gate pattern.
+- `DATABASE_SCHEMA.md` — users ER diagram dropped the 5 removed columns (+ added the 2 live login-audit
+  columns); tenant-isolation section reframed (RLS removed; `tenant_id` vestigial); sensitive-fields trimmed.
+- `SECURITY.md` — "Tenant isolation" → "Tenant scope (single-mode)"; dropped deleted module/metric/test refs.
+- `ARCHITECTURE_MAP.md`, `DEVELOPER_GUIDE.md`, `AI_MANAGEMENT_SYSTEM_42001.md`, `SDLC_SSDF_MAPPING.md`,
+  `diagrams/02`, `diagrams/07` — removed RBAC/RLS/tenant-RLS/user-management references.
+
+**Left as-is by design:** `docs/archive/**` (historical record), generated inventories
+(`GENERATED_STRUCTURE.md`, `FILE_INVENTORY.csv` → A31/A32), and audit records (`docs/audits/**`,
+`REPO_AUDIT_LOG.md`). Validation: `verify_docs_references.py` → 0 errors (18 pre-existing style warnings).
 
 ---
 

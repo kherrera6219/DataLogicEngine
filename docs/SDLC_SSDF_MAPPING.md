@@ -55,7 +55,7 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | Practice | DataLogicEngine implementation | Evidence |
 |---|---|---|
 | PO.1 Define security requirements | Security, production readiness, testing, deployment, and runbook documents define security and release criteria. | `docs/SECURITY.md`, `docs/PRODUCTION_READINESS.md`, `docs/TESTING.md` |
-| PO.2 Assign roles and responsibilities | Active docs include owner and review cadence metadata; admin/RBAC surfaces govern platform roles. | document metadata, `frontend/app/admin/`, auth/RBAC code |
+| PO.2 Assign roles and responsibilities | Active docs include owner and review cadence metadata; single-mode OS-level auth defines the single owner (application RBAC removed). | document metadata, `frontend/app/admin/`, `backend/auth/api_decorators.py` |
 | PO.3 Implement supporting toolchain | CI validates backend, frontend, contract, parity, security, packaging, governance, and Docker builds. | `.github/workflows/ci.yml` |
 | PO.4 Define criteria for software security checks | Release gates include runtime precheck, schema parity, docs validation, tests, packaging smoke, lockfile governance. | `docs/RELEASE_CHECKLIST.md`, `docs/TESTING.md` |
 | PO.5 Collect and share vulnerability information | Security incident response and operational runbooks define escalation and support bundle evidence. | `docs/SECURITY.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `scripts/generate_support_bundle.py` |

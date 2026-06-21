@@ -101,7 +101,7 @@ Governance mechanisms:
 - version/date metadata in active docs;
 - release-governance verifier;
 - protected-branch CI gates;
-- admin/RBAC surfaces;
+- single-owner admin surfaces (OS-level auth; RBAC removed);
 - audit and trace artifacts;
 - issue/remediation tracking through TODO/release artifacts.
 
@@ -263,7 +263,7 @@ Improvement mechanisms:
 | Control area | DataLogicEngine implementation |
 |---|---|
 | AI policy | Architecture, Security, Production Readiness, Testing, and Operational Runbooks define governance expectations. |
-| Roles and responsibilities | Document metadata owners, admin/RBAC surfaces, release checklist ownership, incident runbook owners. |
+| Roles and responsibilities | Document metadata owners, single-owner admin surfaces (OS-level auth; no application RBAC), release checklist ownership, incident runbook owners. |
 | Risk management | TierClassifier, Axis 15, Axis 16, Axis 17, TruthGate, EvidenceModel, ConvergencePolicy. |
 | Impact assessment | risk/criticality axes, high-stakes/extreme/autonomous tiers, trace review, policy decisions. |
 | Data for AI | SQL/Neo4j/USKD/Chroma/object-store architecture, ingestion controls, schema parity, trace evidence. |

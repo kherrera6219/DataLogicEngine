@@ -270,23 +270,21 @@ Object-store safety controls include null-byte rejection, absolute-path rejectio
 
 ---
 
-## Tenant isolation
+## Tenant scope (single-mode)
 
-Tenant isolation can be enforced through authenticated context and PostgreSQL RLS where configured.
+The app runs in **single operating mode with OS-level auth** — one owner, even on
+a cloud single-tenant VM. Application-level multi-tenant isolation has been
+removed: the PostgreSQL row-level-security module (`backend/security/tenant_rls.py`),
+its app wiring, its `/metrics` signal, and its test were deleted in auth
+deprecation Phase D.
 
 Security expectations:
 
-1. Multi-tenant tables include `tenant_id` where applicable.
-2. PostgreSQL RLS uses session-level tenant context when enabled.
-3. Cross-tenant graph traversal must be prevented.
-4. Tenant context propagation failures should be treated as security incidents.
-5. Desktop/local mode should treat tenant scope as local profile/app context unless a deployment explicitly enables multi-user tenancy.
-
-Relevant implementation:
-
-- `backend/security/tenant_rls.py`
-- `/metrics` tenant RLS status signals where enabled
-- `tests/unit/test_tenant_rls_controls.py`
+1. Several tables still carry a vestigial `tenant_id` column (intentionally
+   wider than RLS — a separate concern), but it is not enforced by an RLS policy.
+2. Tenant scope is the local profile/app context for the single owner.
+3. The security boundary is the OS account plus desktop local-auth (per-install
+   secret, nonce/HMAC signed loopback), not application tenancy.
 
 ---
 

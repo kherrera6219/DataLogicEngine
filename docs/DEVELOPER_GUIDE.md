@@ -279,7 +279,7 @@ DataLogicEngine/
 | Graph | `frontend/app/graph/`, `frontend/app/knowledge/` | Knowledge graph and node/edge review. |
 | Truth monitor | `frontend/app/truth-engine/` | Truth Engine status surface. |
 | MCP hub | `frontend/app/mcp/`, `frontend/components/mcp/` | Connector/server management. |
-| Admin | `frontend/app/admin/` | Admin/compliance/provider/user management. |
+| Admin | `frontend/app/admin/` | Admin compliance/provider/MCP views (single owner; no user management). |
 | Runtime policy | `frontend/lib/runtime/policy.ts` | local/hybrid/cloud runtime behavior. |
 | Electron | `frontend/electron/` | desktop shell and safe IPC bridge. |
 

@@ -56,21 +56,32 @@ errors instead of HTML redirects).
 
 ---
 
-## Admin-only routes
+## Admin / owner-only routes
 
-For endpoints that require administrator privileges, stack `@api_admin_required`
-(or `@require_permission(Permission.X)`) on top of the auth decorator:
+> **Single-mode note.** The app now runs in **single operating mode with
+> OS-level auth** — there is one owner and no multi-user roles. The RBAC layer
+> (`backend.security.rbac`, `require_permission`, `Permission`) has been
+> **removed** (auth deprecation Phase B). `@api_admin_required` is retained only
+> as an **alias of `@api_login_required`** for source compatibility; it grants no
+> extra privilege. Do not import `require_permission` — it no longer exists.
+
+For the few endpoints that should be owner-only, gate on the owner helper inside
+the handler rather than stacking a privilege decorator:
 
 ```python
-from backend.auth.api_decorators import api_login_required, api_admin_required
-from backend.security.rbac import require_permission, Permission
+from backend.auth.api_decorators import api_login_required, current_user_is_owner
 
 @blueprint.route('/admin/action', methods=['POST'])
 @api_login_required
-@api_admin_required
 def admin_action():
+    if not current_user_is_owner():
+        return jsonify({"error": "forbidden"}), 403
     ...
 ```
+
+Under single-mode `current_user_is_owner()` is effectively always true for the
+authenticated owner; the check is kept so the gate is explicit and survives any
+future re-introduction of multiple identities.
 
 ---
 
@@ -84,4 +95,4 @@ Is the route web-UI-only (browser session, HTML redirect on 401)?
           No  → @api_login_required  ← DEFAULT
 ```
 
-Last updated: 2026-06-07
+Last updated: 2026-06-21 (single-mode: RBAC removed; `@api_admin_required` is an alias of `@api_login_required`)

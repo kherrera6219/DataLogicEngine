@@ -111,7 +111,7 @@ flowchart TD
         BackendAPI[app.py + backend/routes + routes\nFlask API, Canonical /api/v1 Surface, GraphQL, WebSockets]
         LLMGateway[backend/llm_gateway\nProvider Routing, Governance, Usage, Latency]
         MCP[backend/mcp_server + core/mcp\nConnector Registry, Scope Enforcement, OAuth, Contract Validation]
-        SecurityCode[backend/security + backend/middleware\nRBAC, CSRF, SSRF, PII, DPAPI, Encryption, RLS, Headers, Request Limits]
+        SecurityCode[backend/security + backend/middleware\nDesktop Auth, CSRF, SSRF, PII, DPAPI, Encryption, Headers, Request Limits]
         StorageCode[backend/storage + models + migrations\nSQL, Graph, Vector, Object, Runtime Settings, USKD Memory]
         TraceCode[backend/tracing + TruthMemory\nTrace Runs, Provenance, Audit Persistence]
         FrontendCode[frontend/app + frontend/components + frontend/lib\nDashboard, Chat, Graph, Runs, Trace Viewer, Admin, MCP, Privacy]

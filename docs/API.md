@@ -38,7 +38,7 @@ Provide source-of-truth API contract guidance for DataLogicEngine REST endpoints
 
 DataLogicEngine exposes a Flask REST API with canonical versioned routes under `/api/v1/*` and selected operational routes that remain intentionally unversioned. The current backend architecture includes these major API-facing systems:
 
-1. Authentication, session, SSO, MFA, API key, and desktop local-auth flows.
+1. Desktop local-auth (Windows identity + signed Electron loopback), session, API key, and CSRF-token flows.
 2. LLM Gateway routes for provider-managed model access.
 3. DMRF control-plane execution for governed AI reasoning.
 4. Truth Engine routes for TruthGate, TruthCore, TruthMemory, and TruthLink operations.
@@ -212,51 +212,32 @@ See `docs/diagrams/12_end_to_end_request_lifecycle.md` for the full lifecycle di
 
 ## 1. Authentication Routes (`/auth`)
 
-Manage user authentication, sessions, identity, MFA, and desktop local-auth session behavior.
+Establish and check the single owner's session via Windows identity and signed
+Electron loopback. The app runs in **single operating mode with OS-level auth**:
+whoever has OS access to the machine is the owner. Multi-user web-app auth
+patterns (username/password login, registration, MFA, SSO) have been removed —
+see `backend/routes/auth_routes.py` and the memory of the single-mode architecture.
 
 Primary prefix: `/api/v1/auth`.
-
-### Login
-
-- **POST** `/login`
-  - Standard username/password login.
-  - Body:
-    ```json
-    {
-      "username": "user",
-      "password": "pass"
-    }
-    ```
-
-### Register
-
-- **POST** `/register`
-  - Create a new user account where enabled by deployment policy.
-  - Current UI note: the local-first frontend route `/register` is intentionally disabled and redirects to `/dashboard`. Use this API route only when a deployment explicitly reopens web self-registration.
-
-### Logout
-
-- **POST** `/logout`
-  - Terminate current session.
 
 ### Check auth
 
 - **GET** `/check`
-  - Check current authentication status and MFA verification state.
+  - Return the current authentication status for the owner session.
 
-### MFA setup and confirmation
+### CSRF token
 
-- **POST** `/mfa/setup`
-  - Initiate TOTP MFA setup.
-- **POST** `/mfa/confirm`
-  - Confirm and enable MFA.
-- **POST** `/mfa/verify`
-  - Verify MFA challenge where supported by the auth flow.
+- **GET** `/csrf-token`
+  - Issue (or return) the API CSRF token for state-changing requests.
 
-### SSO login
+### Desktop challenge / auto-login
 
-- **GET** `/login/sso`
-  - Initiate OIDC/Azure AD/Entra ID login flow where configured.
+- **POST** `/desktop/challenge`
+  - Issue a one-time nonce challenge for the desktop local-auth handshake
+    (loopback + Windows desktop host only).
+- **POST** `/desktop/auto-login`
+  - Complete the signed handshake (per-install secret + HMAC over the nonce,
+    timestamp-skew checked) and establish the owner's Flask-Login session.
 
 ### Desktop local auth
 
@@ -757,10 +738,11 @@ Operational/admin namespaces:
 5. `/api/honeycomb/*`
 6. `/api/v1/locations/*` (migrated from `/api/locations*` in Sprint 4)
 
-Representative admin capabilities:
+Representative admin capabilities (single owner — no multi-user/role management
+under single-mode OS-level auth):
 
 - provider configuration;
-- user and role management;
+- operational admin (cache clear, admin health);
 - compliance dashboard;
 - MCP server management;
 - audit export;
@@ -793,7 +775,7 @@ Representative route:
 ### Metrics
 
 - **GET** `/metrics`
-  - Prometheus-format metrics including uptime, request counters, database state, LLM latency, tenant RLS, and DMRF observability where available.
+  - Prometheus-format metrics including uptime, request counters, database state, LLM latency, and DMRF observability where available.
 
 ---
 

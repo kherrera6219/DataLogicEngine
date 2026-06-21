@@ -1,5 +1,31 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21 (A15 B2 — RBAC/multi-user doc reconciliation, single-mode)
+
+Closed the A15 **B2** carry-over: reconcile docs that still describe the now-removed multi-user
+auth surface. The auth deprecation (Phases A–F) is COMPLETE in code, so these docs were actively
+misleading. Verified the 3 originally-named targets (`PRODUCT_OVERVIEW.md`, `ARCHITECTURE.md`,
+`diagrams/11`) were already single-mode-clean; a live grep-by-concept surfaced **8 other live docs**
+still referencing deleted modules/columns. All corrected **after confirming against live code**
+(`rbac.py`/`mfa.py`/`tenant_rls.py`/`zero_trust.py`/`token_manager.py` deleted; `session_manager.py`
+kept; User `role`/`is_admin`/`mfa_*`/`backup_codes` columns dropped; `auth_routes.py` exposes only
+`/check`, `/csrf-token`, `/desktop/challenge`, `/desktop/auto-login`):
+- **`docs/API.md`** — biggest fix: Section 1 documented `/login`, `/register`, `/logout`, `/mfa/setup`,
+  `/mfa/confirm`, `/mfa/verify`, `/login/sso` — **all return 404 now**. Replaced with the 4 real
+  desktop-auth endpoints; dropped "user and role management" admin capability + tenant-RLS metric + SSO/MFA.
+- **`docs/AUTH_DECORATORS.md`** — removed the deleted `from backend.security.rbac import require_permission`
+  example; documented `@api_admin_required` as an alias of `@api_login_required` + the `current_user_is_owner()` gate.
+- **`docs/DATABASE_SCHEMA.md`** — users ER diagram dropped 5 removed columns; tenant-isolation section reframed
+  (RLS module gone, `tenant_id` columns vestigial); sensitive-fields table trimmed.
+- **`docs/SECURITY.md`** — "Tenant isolation" → "Tenant scope (single-mode)"; removed deleted module/metric/test refs.
+- **`ARCHITECTURE_MAP.md`, `DEVELOPER_GUIDE.md`, `AI_MANAGEMENT_SYSTEM_42001.md`, `SDLC_SSDF_MAPPING.md`,
+  `diagrams/02`, `diagrams/07`** — removed RBAC/RLS/tenant-RLS/user-management references.
+- Left untouched by design: `docs/archive/**` (historical record), generated inventories
+  (`GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` → A31/A32), and audit records (`docs/audits/**`, `REPO_AUDIT_LOG.md`).
+- Validation: `scripts/verify_docs_references.py` → **0 errors** (18 pre-existing heading-style warnings).
+- **Remaining A15:** F5 (E-2c is already done) + per-page error/loading-state verification. **Remaining A16:**
+  final accessibility sweep + carry-over C3 (`test_provider` status codes in `ApiOverlayConfig.tsx`). **A17 not started.**
+
 ### Session log — 2026-06-19e (CRITICAL models.py restore + auth Phase D & E-1/E-2a/E-2b)
 
 **🔴 Critical regression found + fixed.** HEAD commit `6c7cf68b` (scoped "fix(mfa): verify_totp")
