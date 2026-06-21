@@ -26,8 +26,6 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-TEST_DB_PATH = ROOT_DIR / "test_suite.sqlite3"
-
 import pytest
 from flask import has_app_context
 from app import app as flask_app, db
@@ -37,7 +35,13 @@ from sqlalchemy.engine import Engine
 # Shared helpers live in a regular importable module (not this conftest) so test
 # modules can import them by a collision-free name. Re-exported here for
 # backward compatibility with any `from conftest import ...` call sites. See A18.
-from tests._helpers import authenticate_client_session, drop_all_test_tables
+from tests._helpers import (
+    TEST_DATABASE_URL,
+    TEST_DB_PATH,
+    authenticate_client_session,
+    drop_all_test_tables,
+    is_sqlite_test_db,  # noqa: F401  (re-exported for tests)
+)
 
 
 def _dispose_sqlalchemy_engines() -> None:
@@ -68,7 +72,7 @@ def _dispose_stray_sqlalchemy_engines() -> None:
 def app():
     """Provide app fixture for tests that need app context."""
     flask_app.config['TESTING'] = True
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = TEST_DATABASE_URL
     flask_app.config['WTF_CSRF_ENABLED'] = False
     flask_app.config['CACHE_TYPE'] = 'NullCache'
     flask_app.config['RATELIMIT_ENABLED'] = False

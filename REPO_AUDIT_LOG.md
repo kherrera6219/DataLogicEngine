@@ -57,8 +57,29 @@ Every skip site reviewed; each is legitimate environment/opt-in gating except th
 | `contract/test_api_contract.py` (2) | `RUN_SCHEMATHESIS` opt-in / "schemathesis not installed" | ✅ legit (opt-in property fuzzing) |
 | `knowledge_algorithms/test_ka_bulk.py` (3) | per-KA defensive (`no valid class/schema/method`) | ✅ legit (parametrized guards) |
 | `security/test_dpapi_crypto.py`, `windows/test_windows_platform.py` | `skipUnless/skipif` win32 | ✅ legit (platform; **run** on this Windows box, skip on Linux CI) |
-  **A18 backlog + skipped-tests justification DONE.** Remaining A18 (plan): dual-engine SQLite+Postgres
-  parity, resilience-test fault injection — then A19 (`backend/services/`).
+  **A18 backlog + skipped-tests justification DONE.**
+
+### A18 dual-engine (SQLite + PostgreSQL) parity (2026-06-21)
+- **Schema portability — ✅ CONFIRMED.** `scripts/validate_schema_parity.py` (the existing release gate)
+  statically compiles every ORM table + column type to **both** SQLite and PostgreSQL DDL and flags
+  Postgres-only types lacking a SQLite variant. After this session's model changes (E-2c column drops, etc.)
+  it returns **status=pass, 0 errors, 0 warnings** — every table/column is portable to Postgres.
+- **Runtime suite was SQLite-only.** The root `app` fixture hard-coded `sqlite:///…`; nothing pointed the
+  suite at Postgres, and `tests/parity/test_local_mode_parity.py` is *runtime-mode* (desktop/cloud) parity,
+  not DB-engine parity. **Enabled dual-engine runtime testing:** added `TEST_DATABASE_URL` +
+  `is_sqlite_test_db()` to `tests/_helpers.py`; the `app` fixture now uses `TEST_DATABASE_URL` (defaults to
+  the local SQLite file — **no-op unless set**, so current behavior is unchanged). Postgres is the app's
+  **local internal** store (start it via `scripts/windows/start_local_stack.ps1`, port 5432), so dual-engine
+  runs are `TEST_DATABASE_URL=postgresql://…@localhost:5432/… pytest tests`.
+- **Postgres-gated the concurrency suites.** The 7 `tests/unit/test_user_model_concurrency.py` classes were
+  unconditionally `@pytest.mark.skip` ("SQLite concurrency limitation") so they never ran on any engine. Now
+  `@_skip_on_sqlite = skipif(is_sqlite_test_db())` — they **skip on SQLite (16 tests, unchanged)** and
+  **run on PostgreSQL**, finally exercising the live atomic-increment/lockout-race security logic.
+- Validation: schema-parity gate pass (0/0); ruff clean; concurrency file 16 skipped on SQLite (unchanged);
+  conftest slice 15 passed/1 skipped (override = no-op on SQLite). **Local Postgres wasn't running this
+  session (5432 refused), so the Postgres run path is enabled but not yet executed — validate via a CI
+  Postgres-matrix job or `start_local_stack.ps1` + `TEST_DATABASE_URL`** (forward).
+  Remaining A18 (plan): resilience-test fault injection — then A19 (`backend/services/`).
 
 ---
 

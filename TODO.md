@@ -239,7 +239,14 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
   conftest fix lets it collect cleanly alongside the rest of the suite. (If order-dependent flakiness ever
   resurfaces, the recorded remedy stands: function-scoped/per-test DB fixtures.)
 - Validation: targeted runs all green (698/0 collection, affected files 75/75, memory 3+1skip, integration_routes
-  98/98), ruff clean; full-suite confirmation run launched.
+  98/98), ruff clean; full suite 1876 passed / 19 skipped / 0 failed.
+- ✅ **Skipped-tests justified + dead test removed** (`63abbff5`): removed dead `end_to_end/test_full_simulation.py`;
+  all 19 remaining skips justified (table in REPO_AUDIT_LOG). Neo4j framing corrected (local internal, not external).
+- ✅ **Dual-engine (SQLite+Postgres) parity**: `validate_schema_parity.py` gate passes (0 errors/warnings — schema
+  portable to both). Added `TEST_DATABASE_URL` + `is_sqlite_test_db()` (tests/_helpers.py) so the suite can run on
+  Postgres (no-op default = SQLite); Postgres-gated the 7 concurrency classes (`skipif(is_sqlite_test_db())`) so they
+  run on Postgres instead of always skipping. **Forward:** execute the Postgres run via CI matrix / local stack
+  (Postgres wasn't running this session). **Remaining A18:** resilience-test fault injection — then A19.
     - **Also this session — CRITICAL fix** (`8362882b`): restored 47 ORM classes truncated from `models.py` by `6c7cf68b`; added `test_models_orm_surface_is_complete` regression guard. Last-20-commit damage review: that was the only damage.
     - Remaining A15: ~~F5 finish (E-2c)~~ ✅ + ~~B2 docs~~ ✅ (2026-06-21) + ~~per-page error/loading-state
       verification~~ ✅ (2026-06-21). **Per-page verification DONE:** audited all 29 `frontend/app` pages for

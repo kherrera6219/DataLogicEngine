@@ -19,7 +19,26 @@ resolves regardless of collection order. The root ``tests/conftest.py``
 re-exports these names for backward compatibility.
 """
 
+import os
+from pathlib import Path
+
 from extensions import db
+
+_ROOT_DIR = Path(__file__).resolve().parent.parent
+TEST_DB_PATH = _ROOT_DIR / "test_suite.sqlite3"
+# The test database URI. Defaults to a local SQLite file (the desktop default);
+# set ``TEST_DATABASE_URL`` to point the suite at the app's local internal
+# PostgreSQL for dual-engine coverage (e.g. after `start_local_stack.ps1`).
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL") or f"sqlite:///{TEST_DB_PATH.as_posix()}"
+
+
+def is_sqlite_test_db() -> bool:
+    """True when the configured test database is SQLite (the desktop default).
+
+    Used to gate engine-specific tests: SQLite cannot run concurrent-write tests
+    reliably, so those run only when ``TEST_DATABASE_URL`` selects PostgreSQL.
+    """
+    return TEST_DATABASE_URL.startswith("sqlite")
 
 
 def drop_all_test_tables() -> None:

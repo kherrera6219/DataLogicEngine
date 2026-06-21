@@ -19,9 +19,21 @@ from unittest.mock import patch
 from models import User, db
 from sqlalchemy.exc import SQLAlchemyError
 
+from tests._helpers import is_sqlite_test_db
+
+# These suites exercise concurrent writes (atomic failed-login increments,
+# lockout race conditions). SQLite cannot run them reliably, so they are gated
+# to run only when TEST_DATABASE_URL selects PostgreSQL (dual-engine coverage);
+# they skip on the SQLite desktop default. See A18.
+_skip_on_sqlite = pytest.mark.skipif(
+    is_sqlite_test_db(),
+    reason="SQLite cannot run concurrent-write tests reliably; "
+    "runs on PostgreSQL (set TEST_DATABASE_URL)",
+)
 
 
-@pytest.mark.skip(reason="SQLite in-memory database does not support concurrent write tests reliably")
+
+@_skip_on_sqlite
 class TestFailedLoginConcurrency:
     """Test concurrent failed login attempts"""
 
@@ -216,7 +228,7 @@ class TestFailedLoginConcurrency:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestSuccessfulLoginConcurrency:
     """Test concurrent successful login handling"""
 
@@ -303,7 +315,7 @@ class TestSuccessfulLoginConcurrency:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestAccountLockoutConcurrency:
     """Test account lockout checking with concurrent access"""
 
@@ -381,7 +393,7 @@ class TestAccountLockoutConcurrency:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestDatabaseIsolation:
     """Test database transaction isolation"""
 
@@ -453,7 +465,7 @@ class TestDatabaseIsolation:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestErrorHandling:
     """Test error handling in concurrent scenarios"""
 
@@ -538,7 +550,7 @@ class TestErrorHandling:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestEdgeCases:
     """Test edge cases in concurrent operations"""
 
@@ -658,7 +670,7 @@ class TestEdgeCases:
             db.session.commit()
 
 
-@pytest.mark.skip(reason="SQLite concurrency limitation")
+@_skip_on_sqlite
 class TestPerformance:
     """Test performance of concurrent operations"""
 

@@ -1,5 +1,23 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21h (A18 dual-engine SQLite+Postgres parity)
+
+- **Schema parity ✅ confirmed:** `scripts/validate_schema_parity.py` (release gate) compiles every ORM
+  table/column to both SQLite + Postgres DDL → **pass, 0 errors/0 warnings** after this session's model
+  changes. Schema is fully portable to Postgres.
+- **Enabled runtime dual-engine testing:** the suite was SQLite-only (root `app` fixture hard-coded sqlite).
+  Added `TEST_DATABASE_URL` + `is_sqlite_test_db()` to `tests/_helpers.py`; `app` fixture now reads
+  `TEST_DATABASE_URL` (defaults to the local SQLite file — **no-op unless set**). Run on Postgres with
+  `TEST_DATABASE_URL=postgresql://…@localhost:5432/… pytest` (Postgres is the app's local internal store via
+  `start_local_stack.ps1`).
+- **Postgres-gated the 7 concurrency classes:** were unconditional `@pytest.mark.skip` (never ran on any
+  engine) → now `skipif(is_sqlite_test_db())` so they skip on SQLite (16 tests, unchanged) and **run on
+  Postgres**, exercising the live atomic-increment/lockout-race logic.
+- Validation: parity gate 0/0; ruff clean; concurrency 16 skipped on SQLite (unchanged); conftest slice 15
+  passed/1 skipped. **Local Postgres not running this session (5432 refused) → Postgres run path enabled but
+  not yet executed; validate via CI Postgres-matrix or local stack** (forward).
+- Next A18: resilience-test fault injection → then A19 (`backend/services/`).
+
 ### Session log — 2026-06-21g (A18 skipped-tests justification + Neo4j framing correction)
 
 - **Skipped-tests justified** (A18 def-of-done). Reviewed every skip site (table in `REPO_AUDIT_LOG.md`).
