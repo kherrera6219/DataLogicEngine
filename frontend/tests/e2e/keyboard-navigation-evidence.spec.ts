@@ -142,15 +142,15 @@ test.describe('Keyboard navigation evidence', () => {
   test('settings sidebar tabs and privacy link are keyboard-operable', async ({ page }) => {
     await page.goto('/settings', { waitUntil: 'domcontentloaded' });
 
-    const storage = page.getByRole('button', { name: /^storage$/i });
+    const storage = page.getByRole('tab', { name: /^storage$/i });
     await focusAndActivate(page, storage);
     await expect(page.getByRole('heading', { name: /database connections/i })).toBeVisible();
 
-    const aiModels = page.getByRole('button', { name: /ai models/i });
+    const aiModels = page.getByRole('tab', { name: /ai models/i });
     await focusAndActivate(page, aiModels);
     await expect(page.getByRole('heading', { name: /ai model controls/i })).toBeVisible();
 
-    const security = page.getByRole('button', { name: /^security$/i });
+    const security = page.getByRole('tab', { name: /^security$/i });
     await focusAndActivate(page, security);
     const privacyLink = page.getByRole('link', { name: /open privacy controls/i });
     await focusAndActivate(page, privacyLink);

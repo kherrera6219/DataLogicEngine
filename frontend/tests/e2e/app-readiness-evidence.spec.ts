@@ -199,7 +199,7 @@ test.describe('Application readiness evidence', () => {
     });
 
     await page.goto('/settings', { waitUntil: 'domcontentloaded' });
-    await page.getByText('Storage', { exact: true }).click();
+    await page.getByRole('tab', { name: /^storage$/i }).click();
 
     await expect(page.getByText(/failed to fetch storage health/i).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: /page not found/i })).toHaveCount(0);
@@ -212,8 +212,8 @@ test.describe('Application readiness evidence', () => {
     });
 
     await page.goto('/settings', { waitUntil: 'domcontentloaded' });
-    await page.getByText('AI Models', { exact: true }).click();
-    await page.getByRole('button', { name: /test model/i }).click();
+    await page.getByRole('tab', { name: /ai models/i }).click();
+    await page.getByRole('button', { name: /test provider model/i }).click();
 
     await expect(page.getByText(/provider model test failed/i)).toBeVisible();
     record('AI provider failure UX', 'Provider test failure is surfaced in the AI model settings UI.');
