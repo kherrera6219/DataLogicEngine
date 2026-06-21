@@ -258,9 +258,18 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
         `FILE_INVENTORY.csv` → A31/A32), and audit records (`docs/audits/**`, `REPO_AUDIT_LOG.md`).
         `verify_docs_references.py`: 0 errors.
     - Auth deprecation plan: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` (Phases D+E+F remain).
-    - **Next up after A15: A16 `frontend/components/`, A17 `frontend/lib/` + hooks.**
-    - **A16 carries C3 (folded in 2026-06-18):** surface `test_provider` status codes inline in
-      `frontend/components/settings/ApiOverlayConfig.tsx`.
+    - **A16 `frontend/components/` — ✅ COMPLETE 2026-06-21.** Type Safety 100% (23/23) + Test Coverage 80%+
+      were already met; this session closed the last two items:
+      - **C3 DONE:** `ApiOverlayConfig.tsx` already surfaced `test_provider` status codes inline (the
+        "Connection Error" card with an `HTTP {statusCode}` badge + mapped 401/429/422/504 message, not just a
+        toast) — added the missing regression test (`surfaces the provider-test HTTP status code inline on
+        failure (C3)`; 7/7 ApiOverlayConfig tests pass).
+      - **Final a11y sweep DONE:** all settings components (AiModelSettings, ApiOverlayConfig, DatabaseSettings,
+        KnowledgeIngestionSettings) + projects/ProjectDetail now swept; `admin` has no components (pages = A15).
+        `DatabaseSettings.tsx` was the last gap — associated all 12 Local/Cloud config inputs with their labels
+        (`htmlFor`/`id`), added `role="status"`+sr-only to the loading spinner, and `aria-busy` on the root;
+        added an a11y regression test (10/10 DatabaseSettings tests pass). typecheck clean.
+    - **Next: A17 `frontend/lib/` + `hooks/` + `contexts/`** (Socket.IO trace stream, API client paths, auth context).
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

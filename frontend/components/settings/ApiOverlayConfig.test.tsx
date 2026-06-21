@@ -150,6 +150,44 @@ describe('ApiOverlayConfig', () => {
     }, { timeout: 3000 });
   });
 
+  it('surfaces the provider-test HTTP status code inline on failure (C3)', async () => {
+    // Re-stub fetch so the provider-test endpoint returns a 401, while the
+    // provider list / save endpoints still succeed.
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/gateway/providers/provider-openai-id/test')) {
+        return jsonResponse({ error: 'authentication failed' }, 401);
+      }
+      if (url.includes('/gateway/keys')) {
+        return jsonResponse({
+          success: true,
+          provider: { id: 'provider-openai-id', provider_type: 'openai', name: 'Openai' },
+        });
+      }
+      if (url.includes('/gateway/providers')) {
+        return jsonResponse({
+          providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai', model: 'gpt-5.5', is_default: true }],
+        });
+      }
+      if (url.includes('/analytics/activity')) return jsonResponse([]);
+      if (url.includes('/gateway/health')) return jsonResponse({ active_providers: 1 });
+      if (url.includes('/analytics/overview')) return jsonResponse({ compliance_score: 99.5 });
+      return jsonResponse({ success: true });
+    }));
+
+    render(<ApiOverlayConfig />);
+    const input = screen.getByLabelText('API Key');
+    fireEvent.change(input, { target: { value: 'sk-bad-key' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Test provider connection' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Connection Error')).toBeInTheDocument();
+      expect(screen.getByText('HTTP 401')).toBeInTheDocument();
+      expect(screen.getByText(/Invalid API key/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+  });
+
   it('should run playground test', async () => {
     render(<ApiOverlayConfig />);
     const promptInput = screen.getByLabelText('Test Prompt');

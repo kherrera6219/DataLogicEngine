@@ -1,5 +1,22 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21c (A16 close-out — C3 + final accessibility sweep — A16 COMPLETE)
+
+Closed the last two A16 items (Type Safety 100% + Test Coverage 80%+ were already met):
+- **C3** (`test_provider` status codes inline) was **already implemented** in
+  `ApiOverlayConfig.tsx` — `mapProviderTestError` maps 401/429/422/504 and `handleTestConnection`
+  renders an inline "Connection Error" card with an `HTTP {statusCode}` badge (not just a toast).
+  Added the missing regression test asserting the inline `HTTP 401` + "Invalid API key" path
+  (7/7 ApiOverlayConfig tests pass).
+- **Final accessibility sweep** — verified every settings/projects component is swept. All 4 settings
+  components + `projects/ProjectDetail` carry ARIA; `admin` has no components (admin surfaces are pages,
+  covered under A15). The one remaining gap was `DatabaseSettings.tsx`: its 12 Local/Cloud config inputs
+  used `<Label>` without `htmlFor` and `<Input>` without `id` (visually but not programmatically
+  associated). Fixed all 12 label/input associations, added `role="status"` + sr-only text to the
+  loading spinner, and `aria-busy` to the root container. Added an a11y regression test
+  (10/10 DatabaseSettings tests pass). typecheck clean.
+- **→ A16 COMPLETE.** Next in order: **A17** (`frontend/lib/`, `hooks/`, `contexts/`).
+
 ### Session log — 2026-06-21b (A15 per-page error/loading verification — A15 COMPLETE)
 
 Closed the last A15 def-of-done item: per-page error + loading-state verification across all 29

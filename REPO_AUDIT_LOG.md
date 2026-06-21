@@ -83,6 +83,27 @@ The 3 originally-named B2 targets (`PRODUCT_OVERVIEW.md`, `ARCHITECTURE.md`, `di
 
 ---
 
+## Phase 3 / A16 — `frontend/components/` (✅ COMPLETE 2026-06-21)
+Type Safety 100% (23/23 UI primitives) and Test Coverage (80%+) were reached in prior sessions
+(2026-06-19b/c). This session closed the final two items:
+- **C3 (test_provider status codes inline):** already implemented in `ApiOverlayConfig.tsx` —
+  `mapProviderTestError` maps HTTP 401/429/422/504 to actionable messages + `statusCode`, and
+  `handleTestConnection` renders an inline "Connection Error" card with an `HTTP {statusCode}` badge
+  in the Testing Playground (not just a toast). Gap was test coverage → added a regression test that
+  stubs a 401 provider-test and asserts the inline `HTTP 401` badge + "Invalid API key" message.
+  7/7 `ApiOverlayConfig` tests pass.
+- **Final accessibility sweep:** confirmed all `frontend/components/settings/*` (AiModelSettings,
+  ApiOverlayConfig, DatabaseSettings, KnowledgeIngestionSettings) + `projects/ProjectDetail` are swept;
+  `admin` has no components (admin surfaces are pages → A15). The last gap was `DatabaseSettings.tsx`:
+  its 12 Local + Cloud config inputs used `<Label>` with no `htmlFor` and `<Input>` with no `id`
+  (visually but not programmatically associated — a WCAG name/role/value gap). Fixed all 12
+  label/input associations; added `role="status"` + sr-only text to the loading spinner; added
+  `aria-busy` to the root (matching the `ApiOverlayConfig` pattern). Added an a11y regression test
+  asserting inputs are reachable via `getByLabelText`. 10/10 `DatabaseSettings` tests pass; tsc clean.
+- **→ A16 COMPLETE.** Next: A17 (`frontend/lib/`, `hooks/`, `contexts/`).
+
+---
+
 ## Pre-Phase-3 cleanup sweep — outstanding carry-overs (A) + doc reconciliation (B) + cosmetic (C)
 **Date:** 2026-06-18
 **Branch:** main

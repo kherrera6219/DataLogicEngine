@@ -383,8 +383,9 @@ export function DatabaseSettings() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center p-8" role="status" aria-live="polite">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Loading database status…</span>
       </div>
     );
   }
@@ -393,7 +394,7 @@ export function DatabaseSettings() {
   const totalCount = health ? Object.keys(health.services).length : 5;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" aria-busy={refreshing || lifecycleAction !== null || backupRunning || savingCloud}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -570,20 +571,20 @@ export function DatabaseSettings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>PostgreSQL Port</Label>
-                  <Input type="number" defaultValue="5432" />
+                  <Label htmlFor="db-postgres-port">PostgreSQL Port</Label>
+                  <Input id="db-postgres-port" type="number" defaultValue="5432" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Redis Port</Label>
-                  <Input type="number" defaultValue="6379" />
+                  <Label htmlFor="db-redis-port">Redis Port</Label>
+                  <Input id="db-redis-port" type="number" defaultValue="6379" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Neo4j Bolt Port</Label>
-                  <Input type="number" defaultValue="7687" />
+                  <Label htmlFor="db-neo4j-port">Neo4j Bolt Port</Label>
+                  <Input id="db-neo4j-port" type="number" defaultValue="7687" />
                 </div>
                 <div className="space-y-2">
-                  <Label>ChromaDB Path</Label>
-                  <Input defaultValue="./databases/chroma" />
+                  <Label htmlFor="db-chroma-path">ChromaDB Path</Label>
+                  <Input id="db-chroma-path" defaultValue="./databases/chroma" />
                 </div>
               </div>
               <div className="flex items-center space-x-2 pt-4">
@@ -617,11 +618,12 @@ export function DatabaseSettings() {
             <CardContent className="space-y-6">
               {/* PostgreSQL Cloud */}
               <div className="space-y-2">
-                <Label>
+                <Label htmlFor="cloud-postgres-url">
                   PostgreSQL Cloud URL
                   {savedCloudKeys.postgres_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                 </Label>
                 <Input
+                  id="cloud-postgres-url"
                   type="password"
                   placeholder={savedCloudKeys.postgres_url ? '••••••••  (update to change)' : 'postgresql://user:pass@host:5432/db'}
                   value={cloudConfig.postgres_url}
@@ -631,11 +633,12 @@ export function DatabaseSettings() {
 
               {/* Redis Cloud */}
               <div className="space-y-2">
-                <Label>
+                <Label htmlFor="cloud-redis-url">
                   Redis Cloud URL
                   {savedCloudKeys.redis_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                 </Label>
                 <Input
+                  id="cloud-redis-url"
                   type="password"
                   placeholder={savedCloudKeys.redis_url ? '••••••••  (update to change)' : 'redis://user:pass@host:6379'}
                   value={cloudConfig.redis_url}
@@ -645,11 +648,12 @@ export function DatabaseSettings() {
 
               {/* Neo4j Aura */}
               <div className="space-y-2">
-                <Label>
+                <Label htmlFor="cloud-neo4j-uri">
                   Neo4j Aura Connection URI
                   {savedCloudKeys.neo4j_uri && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                 </Label>
                 <Input
+                  id="cloud-neo4j-uri"
                   type="password"
                   placeholder={savedCloudKeys.neo4j_uri ? '••••••••  (update to change)' : 'neo4j+s://xxxx.databases.neo4j.io'}
                   value={cloudConfig.neo4j_uri}
@@ -659,11 +663,12 @@ export function DatabaseSettings() {
 
               {/* Pinecone */}
               <div className="space-y-2">
-                <Label>
+                <Label htmlFor="cloud-pinecone-key">
                   Pinecone API Key
                   {savedCloudKeys.pinecone_api_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                 </Label>
                 <Input
+                  id="cloud-pinecone-key"
                   type="password"
                   placeholder={savedCloudKeys.pinecone_api_key ? '••••••••  (update to change)' : 'Enter Pinecone API key'}
                   value={cloudConfig.pinecone_api_key}
@@ -674,27 +679,30 @@ export function DatabaseSettings() {
               {/* S3 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>S3 Endpoint URL</Label>
+                  <Label htmlFor="cloud-s3-endpoint">S3 Endpoint URL</Label>
                   <Input
+                    id="cloud-s3-endpoint"
                     placeholder="https://s3.amazonaws.com"
                     value={cloudConfig.s3_endpoint}
                     onChange={(e) => setCloudConfig((p) => ({ ...p, s3_endpoint: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>S3 Bucket</Label>
+                  <Label htmlFor="cloud-s3-bucket">S3 Bucket</Label>
                   <Input
+                    id="cloud-s3-bucket"
                     placeholder="datalogic"
                     value={cloudConfig.s3_bucket}
                     onChange={(e) => setCloudConfig((p) => ({ ...p, s3_bucket: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
+                  <Label htmlFor="cloud-s3-access-key">
                     S3 Access Key
                     {savedCloudKeys.s3_access_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                   </Label>
                   <Input
+                    id="cloud-s3-access-key"
                     type="password"
                     placeholder={savedCloudKeys.s3_access_key ? '••••••••  (update to change)' : 'Access Key ID'}
                     value={cloudConfig.s3_access_key}
@@ -702,11 +710,12 @@ export function DatabaseSettings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
+                  <Label htmlFor="cloud-s3-secret-key">
                     S3 Secret Key
                     {savedCloudKeys.s3_secret_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
                   </Label>
                   <Input
+                    id="cloud-s3-secret-key"
                     type="password"
                     placeholder={savedCloudKeys.s3_secret_key ? '••••••••  (update to change)' : 'Secret Access Key'}
                     value={cloudConfig.s3_secret_key}

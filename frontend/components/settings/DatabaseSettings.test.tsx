@@ -280,6 +280,25 @@ describe('DatabaseSettings', () => {
     });
   });
 
+  it('associates config inputs with their labels for accessibility', async () => {
+    mockRequestRoutes({
+      '/storage/cloud-config': { cloud_config: {} },
+    });
+
+    render(<DatabaseSettings />);
+    await screen.findByText('Database Connections');
+
+    // Local config tab — inputs reachable by accessible name.
+    fireEvent.click(await screen.findByText('Local Config'));
+    expect(screen.getByLabelText('PostgreSQL Port')).toBeInTheDocument();
+    expect(screen.getByLabelText('ChromaDB Path')).toBeInTheDocument();
+
+    // Cloud config tab — secret inputs reachable by accessible name.
+    fireEvent.click(screen.getByText('Cloud Config'));
+    expect(await screen.findByLabelText(/PostgreSQL Cloud URL/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/S3 Secret Key/)).toBeInTheDocument();
+  });
+
   it('shows a backup error toast when the backup call fails', async () => {
     installElectronApi({
       chooseBackupFolder: vi.fn().mockResolvedValue(undefined),
