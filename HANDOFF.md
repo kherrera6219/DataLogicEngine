@@ -1,5 +1,23 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21e (F5-frontend — web-login vestige removal, A17-1 resolved)
+
+Removed the dead multi-user web-login client surface (the A17-1 finding). **Confirm-before-cut
+shrank the scope:** the `(auth)/login`+`(auth)/register` pages are already `redirect('/dashboard')`
+stubs (PRODUCT_OVERVIEW's disabled-by-design state) and a zero-consumer scan showed **no component
+uses `useAuth().login`** (only `settings/privacy` uses `logout`). So only the plumbing was dead:
+- `lib/api/auth.ts` — removed `login` (`POST /auth/login`) + `logout` (`POST /auth/logout`) (both
+  404 now) + `LoginCredentials`/`LoginResponse`; kept `check` + `desktopAutoLogin`.
+- `contexts/AuthContext.tsx` — removed the unused `login` method + `LoginCredentials` import;
+  simplified `logout` to single-mode (dropped the dead non-desktop `api.auth.logout()` + `/login`
+  push; navigates to `/dashboard` = existing desktop behavior; `settings/privacy` logout still works).
+- `lib/api/client.ts` — dropped stale `/auth/login` + `/auth/register` CSRF-exempt entries.
+- Tests — rewrote `auth.test.ts` (kept check + desktopAutoLogin + a guard that login/logout are gone);
+  neutralized a stale `buildApiUrl('auth/login')` example in `client.test.ts`.
+- **Kept by design:** the redirect-stub pages + middleware/client session-expired `/login` redirect
+  (documented disabled-by-design single-mode neutralization — not dead code).
+- Validation: **full frontend suite 76 files / 378 tests pass**; tsc clean; pre-commit green. A17-1 RESOLVED.
+
 ### Session log — 2026-06-21d (A17 verify-only — Phase 3 COMPLETE)
 
 Audited `frontend/lib/` (19 files) + `hooks/useTraceStream.ts` + 3 contexts. Verify-only pass

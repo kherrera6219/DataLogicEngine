@@ -10,14 +10,12 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { api, User } from "@/lib/api";
-import { LoginCredentials } from "@/lib/api/auth";
 import { shouldUseDesktopSessionFlow } from "@/lib/runtime/policy";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   showNotification: (
@@ -77,35 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await api.auth.login(credentials);
-      // If we're here, the request was successful (2xx)
-      if (response && response.user) {
-        setUser(response.user);
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        throw new Error("Login failed: Invalid response format");
-      }
-    } catch (error) {
-      // Re-throw or handle error
-      const message =
-        error instanceof Error ? error.message : "Authentication failed";
-      throw new Error(message);
-    }
-  };
-
   const logout = async () => {
-    if (shouldUseDesktopSessionFlow()) {
-      router.push("/dashboard");
-      router.refresh();
-      return;
-    }
-
-    await api.auth.logout();
-    setUser(null);
-    router.push("/login");
+    // Single-mode: authentication is at the OS level (Windows identity + signed
+    // Electron loopback) — there is no app-level session to tear down and no web
+    // login to return to. Return to the dashboard (the installed app's home).
+    router.push("/dashboard");
     router.refresh();
   };
 
@@ -148,7 +122,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isAuthenticated: !!user,
         isLoading,
-        login,
         logout,
         checkAuth,
         showNotification,

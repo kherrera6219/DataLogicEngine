@@ -81,7 +81,7 @@ describe('lib/api/client', () => {
 
       expect(buildApiUrl('https://example.com/endpoint')).toBe('https://example.com/endpoint');
       expect(buildApiUrl('/auth/check')).toBe(`${API_BASE}/auth/check`);
-      expect(buildApiUrl('auth/login')).toBe(`${API_BASE}/auth/login`);
+      expect(buildApiUrl('gateway/chat')).toBe(`${API_BASE}/gateway/chat`);
     });
   });
 

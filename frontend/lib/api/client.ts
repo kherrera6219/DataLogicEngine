@@ -42,9 +42,9 @@ const DEFAULT_API_BASE = 'http://localhost:5000/api/v1';
 export const API_BASE = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 const CSRF_TOKEN_ENDPOINT = '/auth/csrf-token';
 const DESKTOP_CHALLENGE_ENDPOINT = '/auth/desktop/challenge';
+// Single-mode: only the desktop local-auth handshake endpoints are CSRF-exempt.
+// The legacy '/auth/login' and '/auth/register' web endpoints were removed.
 const CSRF_EXEMPT_ENDPOINT_PREFIXES = [
-  '/auth/login',
-  '/auth/register',
   '/auth/desktop/challenge',
   '/auth/desktop/auto-login',
 ];

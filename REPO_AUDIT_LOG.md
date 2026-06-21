@@ -147,6 +147,32 @@ A11/A13); the one actionable finding (A17-1) is forwarded to F5-frontend. **→ 
 
 ---
 
+## F5-frontend — web-login vestige removal (A17-1) (✅ 2026-06-21)
+Coordinated removal of the dead multi-user web-login client surface left over from the backend auth
+deprecation. **Confirm-before-cut findings that shrank the scope:** the `(auth)/login` + `(auth)/register`
+pages are *already* `redirect('/dashboard')` stubs (the disabled-by-design state documented in
+PRODUCT_OVERVIEW), and a zero-consumer scan showed **no component destructures `login` from `useAuth()`**
+(only `settings/privacy` uses `logout`). So the only genuinely-dead code was the plumbing:
+- **`lib/api/auth.ts`** — removed `login` (`POST /auth/login`) + `logout` (`POST /auth/logout`) (both hit
+  removed backend endpoints → 404) and the `LoginCredentials`/`LoginResponse` types. Kept `check` +
+  `desktopAutoLogin` (added `DesktopAuthResponse`). Docstring explains single-mode.
+- **`contexts/AuthContext.tsx`** — removed the unused `login` method (type + impl + context value) and the
+  `LoginCredentials` import; simplified `logout` to single-mode (drop the dead non-desktop `api.auth.logout()`
+  + `/login` push — OS-level auth has no app session to end; navigates to `/dashboard`, the existing desktop
+  behavior). `settings/privacy` post-deletion `logout()` still works.
+- **`lib/api/client.ts`** — dropped the stale `/auth/login` + `/auth/register` `CSRF_EXEMPT_ENDPOINT_PREFIXES`
+  entries (endpoints don't exist); kept the desktop handshake exemptions.
+- **Tests** — rewrote `tests/unit/lib/api/auth.test.ts` (removed login/logout/MFA-required tests; kept check +
+  desktopAutoLogin + a guard asserting `auth.login`/`auth.logout` are gone); neutralized a stale
+  `buildApiUrl('auth/login')` example in `client.test.ts`.
+**Kept by design (NOT removed):** the `(auth)/login` + `(auth)/register` redirect-stub pages, the `(auth)`
+layout, and the middleware/`client.ts` session-expired `/login` redirect — these are the documented
+"disabled-by-design" single-mode neutralization (unauth → `/login` stub → `/dashboard`), not dead code.
+**Validation:** full frontend suite **76 files / 378 tests pass**; `tsc` typecheck clean; pre-commit green.
+A17-1 RESOLVED.
+
+---
+
 ## Pre-Phase-3 cleanup sweep — outstanding carry-overs (A) + doc reconciliation (B) + cosmetic (C)
 **Date:** 2026-06-18
 **Branch:** main

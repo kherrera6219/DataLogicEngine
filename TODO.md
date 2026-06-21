@@ -284,9 +284,16 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
          `tryDesktopAutoLogin`+retry (desktop only).
       Supporting lib (policy/telemetry/storage/feature-flags/sanitization/utils) confirmed live by usage; no orphans.
       No code changes (verify-only, like A11/A13). **→ PHASE 3 COMPLETE (A15+A16+A17).**
+    - **F5-frontend (A17-1 web-login vestige) — ✅ DONE 2026-06-21.** Scope shrank after confirm-before-cut:
+      the `(auth)/login`+`register` pages are already `redirect('/dashboard')` stubs and NO component uses
+      `useAuth().login`. Removed the dead plumbing only: `api/auth.ts` `login`/`logout` (404 endpoints) + their
+      types; `AuthContext` `login` method + `LoginCredentials` import + simplified `logout` to single-mode (drop
+      dead non-desktop `api.auth.logout()`/`/login` push); `client.ts` stale `/auth/login`+`/auth/register`
+      CSRF-exempt entries. Rewrote `auth.test.ts` (kept check + desktopAutoLogin + a guard that login/logout are
+      gone); neutralized a stale `buildApiUrl('auth/login')` example. **Kept by design:** the redirect-stub pages +
+      session-expired `/login` redirect (documented disabled-by-design). Full suite 76 files/378 tests pass; tsc clean.
     - **Next: Phase 4 — A18 `tests/`** (start with the recorded A18 test-isolation backlog: integration_routes
-      shared-DB isolation, conftest-name collision, Neo4j-skip guard), then A19→A32. Plus **F5-frontend** (A17-1
-      web-login vestige removal) when coordinating the final auth cleanup.
+      shared-DB isolation, conftest-name collision, Neo4j-skip guard), then A19→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
