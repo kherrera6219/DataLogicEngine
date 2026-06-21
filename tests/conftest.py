@@ -34,6 +34,11 @@ from app import app as flask_app, db
 from extensions import limiter, login_manager
 from sqlalchemy.engine import Engine
 
+# Shared helpers live in a regular importable module (not this conftest) so test
+# modules can import them by a collision-free name. Re-exported here for
+# backward compatibility with any `from conftest import ...` call sites. See A18.
+from tests._helpers import authenticate_client_session, drop_all_test_tables
+
 
 def _dispose_sqlalchemy_engines() -> None:
     """Dispose SQLAlchemy engines to reduce leaked sqlite handles in tests."""
@@ -57,19 +62,6 @@ def _dispose_stray_sqlalchemy_engines() -> None:
                 obj.dispose()
             except Exception:
                 pass
-
-
-def drop_all_test_tables() -> None:
-    """Drop test tables while tolerating SQLite foreign-key cycles."""
-    db.session.remove()
-    if db.engine.dialect.name == "sqlite":
-        with db.engine.connect() as connection:
-            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
-            db.metadata.drop_all(bind=connection)
-            connection.exec_driver_sql("PRAGMA foreign_keys=ON")
-        return
-
-    db.drop_all()
 
 
 @pytest.fixture
@@ -180,14 +172,6 @@ def create_test_user(
 
     db.session.commit()
     return user.id
-
-
-def authenticate_client_session(client, user_id):
-    """Mark a Flask test client as logged in via Flask-Login session keys."""
-    with client.session_transaction() as session:
-        session["_user_id"] = str(user_id)
-        session["_fresh"] = True
-    return client
 
 
 def seed_login_session(client, app, *, username='testuser', email=None,

@@ -220,10 +220,23 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       - **A18 finding:** `tests/integration_routes` has a severe pre-existing shared-DB test-isolation bug (baseline standalone = 10 failed + 10 errors; failures vary per run) + the A18-pre conftest-name collision. Flag for A18 (tests/) audit; not introduced by this work.
       - **CI repair (`379437bd`):** CI had been red since before this session (pre-session `test_mfa_comprehensive` collection error masked the suite). Fixed 2 of my regressions (`user_data_routes` read dropped `current_user.role`; E2E specs listed bare `/admin` which 404s after the admin-page removal) + 2 pre-existing Phase-B fallout failures (`create_pillar/create_sector` 400 validation; obsolete `test_connect_requires_admin` → `test_connect_requires_auth`). **Still red (A18, pre-existing, not fixed):** integration_routes isolation flakiness + Neo4j-dependent `test_truthcore_..._memory`.
 
-#### A18 (tests/) — concrete actionable items (when Phase 4 reaches A18)
-- Fix the `tests/integration_routes` shared-DB isolation bug: failures are order-dependent (e.g. `no such table: user_notification_preferences`, user-data deletion 500s). Move to function-scoped/per-test DB fixtures or per-test create/teardown so tables are always present.
-- Resolve the **A18-pre** conftest-name collision: `from conftest import authenticate_client_session` resolves to `tests/unit/conftest.py` when `tests/unit`+`tests/compliance` are collected together → ImportError. Disambiguate the conftest module shadowing.
-- Guard `tests/memory/test_unified_memory_service.py::test_truthcore_reads_and_writes_memory_each_layer` to skip when Neo4j is unavailable (or provision Neo4j in CI).
+#### A18 (tests/) — ✅ backlog cleared 2026-06-21
+- ✅ **A18-pre conftest-name collision RESOLVED.** Only 2 files used the fragile `from conftest import …`
+  (`tests/compliance/test_gdpr_comprehensive.py` → `authenticate_client_session`,
+  `tests/integration/test_api_endpoints.py` → `drop_all_test_tables`). Moved both shared helpers into a new
+  collision-free module `tests/_helpers.py`; root `tests/conftest.py` re-exports them (single source of truth,
+  back-compat); re-pointed the 2 imports to `from tests._helpers import …`. Repro now clean: `tests/unit
+  tests/compliance` collects **698 tests, 0 errors** (was 1 collection ImportError).
+- ✅ **Neo4j-skip guard ADDED.** `test_truthcore_reads_and_writes_memory_each_layer` failed `assert 1 == 3`
+  (`memory_writes`) because the graph-backed layers need Neo4j (127.0.0.1:7690 refused in CI). Added
+  `_neo4j_available()` (resolves the URI exactly as `GraphStore`, then a 0.75s socket probe) +
+  `@pytest.mark.skipif`. Now skips cleanly instead of failing (`3 passed, 1 skipped`).
+- ✅ **`integration_routes` shared-DB isolation — no longer reproducing.** The memory's "10 failed + 10 errors"
+  baseline predated this session's auth/CI fixes; on current `main` it passes **98/98 standalone**, and the
+  conftest fix lets it collect cleanly alongside the rest of the suite. (If order-dependent flakiness ever
+  resurfaces, the recorded remedy stands: function-scoped/per-test DB fixtures.)
+- Validation: targeted runs all green (698/0 collection, affected files 75/75, memory 3+1skip, integration_routes
+  98/98), ruff clean; full-suite confirmation run launched.
     - **Also this session — CRITICAL fix** (`8362882b`): restored 47 ORM classes truncated from `models.py` by `6c7cf68b`; added `test_models_orm_surface_is_complete` regression guard. Last-20-commit damage review: that was the only damage.
     - Remaining A15: ~~F5 finish (E-2c)~~ ✅ + ~~B2 docs~~ ✅ (2026-06-21) + ~~per-page error/loading-state
       verification~~ ✅ (2026-06-21). **Per-page verification DONE:** audited all 29 `frontend/app` pages for

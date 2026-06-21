@@ -1,5 +1,23 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21f (A18 tests/ — backlog cleared: conftest collision + Neo4j guard)
+
+Started Phase 4 / A18 by clearing the recorded test-isolation backlog:
+- **A18-pre conftest collision** — repro confirmed: `tests/unit tests/compliance` collected together raised
+  `ImportError: cannot import name 'authenticate_client_session' from 'conftest'
+  (tests/unit/conftest.py)`. Only 2 files used the fragile `from conftest import …`. Created
+  `tests/_helpers.py` (collision-free module) with `authenticate_client_session` + `drop_all_test_tables`;
+  root `tests/conftest.py` re-exports them (single source of truth, back-compat); re-pointed the 2 imports.
+  Now collects **698 tests, 0 errors**.
+- **Neo4j-skip guard** — `test_truthcore_reads_and_writes_memory_each_layer` failed `assert 1 == 3`
+  (Neo4j refused at 127.0.0.1:7690, so graph-backed memory writes don't happen). Added `_neo4j_available()`
+  (resolves URI as `GraphStore`, 0.75s socket probe) + `@pytest.mark.skipif`. Now skips cleanly.
+- **`integration_routes` isolation** — the "10 failed + 10 errors" memory baseline predated this session's
+  fixes; passes **98/98 standalone** on current `main`; the conftest fix enables clean combined collection.
+- Validation: targeted runs green (698/0, affected files 75/75, memory 3+1skip, integration_routes 98/98),
+  ruff clean; full-suite confirmation run launched. Next: A18 remaining (21 skipped-tests justification,
+  dual-engine SQLite+Postgres check, resilience tests) → then A19 (`backend/services/`).
+
 ### Session log — 2026-06-21e (F5-frontend — web-login vestige removal, A17-1 resolved)
 
 Removed the dead multi-user web-login client surface (the A17-1 finding). **Confirm-before-cut

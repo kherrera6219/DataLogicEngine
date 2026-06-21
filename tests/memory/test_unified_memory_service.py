@@ -1,4 +1,7 @@
 import json
+import os
+import socket
+from urllib.parse import urlparse
 
 import pytest
 
@@ -6,6 +9,32 @@ import app as app_module
 from backend.memory.unified_memory_service import UnifiedMemoryService
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from core.system.frost_service import FROSTService
+
+
+def _neo4j_available() -> bool:
+    """Return True if a Neo4j server is reachable at the configured URI.
+
+    The end-to-end TruthCore workflow writes graph-backed memory through Neo4j;
+    without a running Neo4j the workflow records only the in-memory write and
+    ``memory_writes`` is incomplete (1 instead of 3). CI environments without a
+    Neo4j service should skip this test rather than fail it. The URI is resolved
+    the same way ``backend.storage.graph_store.GraphStore`` does. (A18.)
+    """
+    uri = os.getenv("NEO4J_URI")
+    if not uri:
+        try:
+            from backend.config_manager import get_config
+            uri = getattr(get_config(), "NEO4J_URI", "bolt://localhost:7687")
+        except Exception:
+            uri = "bolt://localhost:7687"
+    parsed = urlparse(uri)
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 7687
+    try:
+        with socket.create_connection((host, port), timeout=0.75):
+            return True
+    except OSError:
+        return False
 
 
 def test_unified_memory_persists_and_namespaces_recall(tmp_path):
@@ -37,6 +66,10 @@ def test_unified_memory_persists_and_namespaces_recall(tmp_path):
     assert json.loads(path.read_text(encoding="utf-8"))["vertices"]
 
 
+@pytest.mark.skipif(
+    not _neo4j_available(),
+    reason="Neo4j service is not available; graph-backed memory writes require it",
+)
 @pytest.mark.asyncio
 async def test_truthcore_reads_and_writes_memory_each_layer(tmp_path, monkeypatch):
     service = UnifiedMemoryService(storage_path=tmp_path / "memory_graph.json", auto_load=False)

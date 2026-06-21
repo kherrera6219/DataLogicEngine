@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import patch
 from app import app, db
 import backend.routes.simulation_routes as simulation_routes_module
-from conftest import drop_all_test_tables
+from tests._helpers import drop_all_test_tables
 
 
 from extensions import limiter

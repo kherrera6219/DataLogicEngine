@@ -16,7 +16,7 @@ from unittest.mock import patch
 from datetime import datetime, timedelta, UTC
 from werkzeug.security import generate_password_hash
 
-from conftest import authenticate_client_session
+from tests._helpers import authenticate_client_session
 
 
 class TestGDPRDataExport:
