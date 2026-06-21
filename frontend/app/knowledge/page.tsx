@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Database, Layers } from "lucide-react";
 
 export default function KnowledgePage() {
-  const { data: pillars, isLoading } = useSWR('knowledge-pillars', api.knowledge.pillars);
+  const { data: pillars, isLoading, error } = useSWR('knowledge-pillars', api.knowledge.pillars);
 
   return (
     <div className="min-h-full bg-background text-foreground font-sans">
@@ -32,6 +32,14 @@ export default function KnowledgePage() {
             The Universal Knowledge Graph is organized into hierarchical pillars.
             Each pillar contains interconnected domain nodes verified by the Truth Engine.
           </p>
+
+          {error && (
+            <Card className="border-red-500/30 bg-red-500/10" role="alert">
+              <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
+                {error instanceof Error ? error.message : 'Failed to load the Knowledge Graph pillars.'}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading && Array.from({ length: 6 }).map((_, i) => (

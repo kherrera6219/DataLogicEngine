@@ -83,7 +83,7 @@ export default function ProfilePage() {
 
   const handleSave = (event: React.FormEvent) => {
     event.preventDefault();
-    toast('Profile edits are not exposed yet. Use Admin > User Management for account changes.', 'info');
+    toast('Profile edits are not exposed yet. Account identity is managed by the OS-level (Windows) sign-in for the single owner.', 'info');
   };
 
   if (isLoading) {

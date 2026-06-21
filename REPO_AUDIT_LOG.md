@@ -33,10 +33,27 @@ Map-first pass over all 29 `frontend/app/**/page.tsx`. Reachability sources: `Ap
 Frontend typecheck + eslint clean; updated `AppSidebar.test.tsx` (icon mock) + `NavBar.test.tsx`
 (chrome-only assertions); full component suite **51 files / 150 tests pass**.
 
-### Remaining for A15
-F5 coordinated auth removal (E-2c done) + ~~B2 docs~~ (✅ done 2026-06-21, below);
-per-page error/loading-state verification for the live pages (def-of-done). Then A16
+### Remaining for A15 — ✅ A15 COMPLETE (2026-06-21)
+F5 coordinated auth removal (E-2c done) + ~~B2 docs~~ (✅ 2026-06-21, below) +
+~~per-page error/loading-state verification~~ (✅ 2026-06-21, below). Then A16
 (`frontend/components/`, incl. C3 `ApiOverlayConfig` test_provider status) + A17.
+
+### A15 per-page error/loading-state verification (✅ 2026-06-21)
+Audited all 29 `frontend/app` pages for loading + error coverage (def-of-done).
+- **Already covered:** 11 segments have a route-level `error.tsx` using the shared `RouteErrorFallback`
+  (admin, analytics, chat, dashboard, graph, mcp, projects, runs, settings, simulations, truth-engine),
+  plus `global-error.tsx` + `not-found.tsx`. Next.js error boundaries inherit to children, so
+  `settings/privacy`, `projects/view`, `runs/view`, `admin/compliance`, `admin/mcp[/servers]` were covered.
+  Loading handled per-page (root + chat `loading.tsx`; data pages use in-component skeleton/loading).
+- **Gaps closed:** added route `error.tsx` (RouteErrorFallback) to the 4 data-driven segments lacking one —
+  `algorithms`, `knowledge`, `profile`, `tools/history`.
+- **Real bug:** `knowledge/page.tsx` used `useSWR` but discarded the `error` field → a failed
+  `api.knowledge.pillars` fetch rendered the misleading "No pillars defined" *empty* state. Now renders an
+  error card (empty state only fires on an actual empty array, so the two don't collide).
+- **Single-mode cleanup:** `profile/page.tsx` toast said "Use Admin > User Management" (removed E-2a) →
+  reworded to single-owner OS-auth copy.
+- **Tests:** `app/app-surfaces.test.tsx` now asserts all 15 module error boundaries (5/5 pass); `tsc` clean.
+- Static pages (`about/*`, `legal/privacy`, `(auth)/*`) need no data boundaries by design.
 
 ### B2 doc reconciliation — RBAC/multi-user vs single-mode (✅ 2026-06-21)
 The auth deprecation (Phases A–F) is COMPLETE in code, so docs describing the old multi-user

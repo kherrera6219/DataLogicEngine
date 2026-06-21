@@ -1,5 +1,25 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21b (A15 per-page error/loading verification — A15 COMPLETE)
+
+Closed the last A15 def-of-done item: per-page error + loading-state verification across all 29
+`frontend/app` pages. Eleven route segments already had a route-level `error.tsx` (the shared
+`RouteErrorFallback` pattern), and error boundaries inherit to children (so `settings/privacy`,
+`projects/view`, `runs/view`, `admin/compliance`+`admin/mcp*` were already covered). The data-driven
+pages **without** a boundary were `algorithms`, `knowledge`, `profile`, `tools/history`.
+- Added route `error.tsx` (RouteErrorFallback) to those 4 segments — render-exception boundary now
+  matches the other 11.
+- **Real bug fixed:** `knowledge/page.tsx` destructured SWR but **ignored `error`**, so a failed
+  `api.knowledge.pillars` fetch showed the misleading "No pillars defined" *empty* state. Now surfaces
+  an error card (the empty state only renders for an actual empty array, so no conflict).
+- Single-mode cleanup: `profile/page.tsx` toast told users to "Use Admin > User Management" (removed
+  in E-2a) → reworded to OS-level single-owner copy.
+- `app/app-surfaces.test.tsx` extended to assert all **15** module error boundaries (was 11); 5/5 pass.
+  `tsc` typecheck clean. (`algorithms`/`profile`/`tools-history` already had thorough in-component
+  loading+error handling; `knowledge` now does too.)
+- **→ A15 COMPLETE.** Next in order: **A16** final accessibility sweep + carry-over **C3**
+  (`test_provider` status codes inline in `ApiOverlayConfig.tsx`), then **A17** (`frontend/lib`/hooks/contexts).
+
 ### Session log — 2026-06-21 (A15 B2 — RBAC/multi-user doc reconciliation, single-mode)
 
 Closed the A15 **B2** carry-over: reconcile docs that still describe the now-removed multi-user

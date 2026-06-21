@@ -7,15 +7,19 @@ import ChatLoading from './chat/loading';
 import NotFound from './not-found';
 import GlobalError from './global-error';
 import AdminError from './admin/error';
+import AlgorithmsError from './algorithms/error';
 import AnalyticsError from './analytics/error';
 import ChatError from './chat/error';
 import DashboardError from './dashboard/error';
 import GraphError from './graph/error';
+import KnowledgeError from './knowledge/error';
 import McpError from './mcp/error';
+import ProfileError from './profile/error';
 import ProjectsError from './projects/error';
 import RunsError from './runs/error';
 import SettingsError from './settings/error';
 import SimulationsError from './simulations/error';
+import ToolHistoryError from './tools/history/error';
 import TruthEngineError from './truth-engine/error';
 
 const mockPush = vi.fn();
@@ -93,29 +97,37 @@ describe('frontend app surfaces', () => {
     render(
       <>
         <AdminError error={error} reset={reset} />
+        <AlgorithmsError error={error} reset={reset} />
         <AnalyticsError error={error} reset={reset} />
         <ChatError error={error} reset={reset} />
         <DashboardError error={error} reset={reset} />
         <GraphError error={error} reset={reset} />
+        <KnowledgeError error={error} reset={reset} />
         <McpError error={error} reset={reset} />
+        <ProfileError error={error} reset={reset} />
         <ProjectsError error={error} reset={reset} />
         <RunsError error={error} reset={reset} />
         <SettingsError error={error} reset={reset} />
         <SimulationsError error={error} reset={reset} />
+        <ToolHistoryError error={error} reset={reset} />
         <TruthEngineError error={error} reset={reset} />
       </>,
     );
 
     expect(screen.getByTestId('route-error-admin')).toHaveTextContent('Admin:route failed');
+    expect(screen.getByTestId('route-error-algorithm registry')).toHaveTextContent('Algorithm Registry:route failed');
     expect(screen.getByTestId('route-error-analytics')).toHaveTextContent('Analytics:route failed');
     expect(screen.getByTestId('route-error-chat')).toHaveTextContent('Chat:route failed');
     expect(screen.getByTestId('route-error-dashboard')).toHaveTextContent('Dashboard:route failed');
     expect(screen.getByTestId('route-error-graph')).toHaveTextContent('Graph:route failed');
+    expect(screen.getByTestId('route-error-knowledge base')).toHaveTextContent('Knowledge Base:route failed');
     expect(screen.getByTestId('route-error-mcp')).toHaveTextContent('MCP:route failed');
+    expect(screen.getByTestId('route-error-profile')).toHaveTextContent('Profile:route failed');
     expect(screen.getByTestId('route-error-projects')).toHaveTextContent('Projects:route failed');
     expect(screen.getByTestId('route-error-runs')).toHaveTextContent('Runs:route failed');
     expect(screen.getByTestId('route-error-settings')).toHaveTextContent('Settings:route failed');
     expect(screen.getByTestId('route-error-simulations')).toHaveTextContent('Simulations:route failed');
+    expect(screen.getByTestId('route-error-tool execution history')).toHaveTextContent('Tool Execution History:route failed');
     expect(screen.getByTestId('route-error-truth engine')).toHaveTextContent('Truth Engine:route failed');
   });
 

@@ -225,7 +225,15 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
 - Resolve the **A18-pre** conftest-name collision: `from conftest import authenticate_client_session` resolves to `tests/unit/conftest.py` when `tests/unit`+`tests/compliance` are collected together → ImportError. Disambiguate the conftest module shadowing.
 - Guard `tests/memory/test_unified_memory_service.py::test_truthcore_reads_and_writes_memory_each_layer` to skip when Neo4j is unavailable (or provision Neo4j in CI).
     - **Also this session — CRITICAL fix** (`8362882b`): restored 47 ORM classes truncated from `models.py` by `6c7cf68b`; added `test_models_orm_surface_is_complete` regression guard. Last-20-commit damage review: that was the only damage.
-    - Remaining A15: F5 finish (E-2c) + B2 docs (below); per-page error/loading-state verification.
+    - Remaining A15: ~~F5 finish (E-2c)~~ ✅ + ~~B2 docs~~ ✅ (2026-06-21) + ~~per-page error/loading-state
+      verification~~ ✅ (2026-06-21). **Per-page verification DONE:** audited all 29 `frontend/app` pages for
+      loading + error coverage. 11 segments already had route `error.tsx` (RouteErrorFallback); inheritance covers
+      settings/privacy, projects/view, runs/view, admin/compliance+mcp. Added route `error.tsx` to the 4 data-driven
+      gap segments (`algorithms`, `knowledge`, `profile`, `tools/history`); fixed `knowledge/page.tsx` swallowing its
+      SWR `error` (was showing a misleading "No pillars defined" empty state on fetch failure — now renders an error
+      card); fixed stale `profile` toast referencing removed "Admin > User Management" → single-mode OS-auth copy.
+      Extended `app/app-surfaces.test.tsx` to assert all 15 error boundaries (5/5 pass); typecheck clean.
+      Static pages (`about/*`, `legal/privacy`, `(auth)/*`) need no data boundaries. **A15 COMPLETE.**
     - Scope: all Next.js page files under `frontend/app/`; coordinated frontend+backend deferred auth cleanup.
     - Deferred auth: admin user-mgmt UI (`frontend/app/admin/page.tsx` 268-line form ↔ `backend/routes/admin_routes.py`
       user-mgmt/ownership routes); MFA (`backend/security/mfa.py` + `User.mfa_enabled/mfa_secret` ↔ 3 frontend files);
