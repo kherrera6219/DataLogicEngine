@@ -47,8 +47,33 @@ import from `tests/unit/test_mcp_tracing_repo_rest_coverage.py` (+ now-unused `i
 Vestigial-but-kept (single-mode, by design): `_user_is_owner()` always-True + `TRACE_PERMISSIONS` map +
 `tenant_id` filter in `get_ka_execution_feed` — left in line with the auth-deprecation keep decisions.
 **Forward → A31/A32:** `docs/FILE_INVENTORY.csv` still lists the deleted `logger.py` (generated inventory —
-batch-regenerate). **→ A26 COMPLETE. Next: A27 (`backend/schemas/`)** — `request_schemas.py` vs
-`api_request_schemas.py` duplicate check.
+batch-regenerate).
+
+### A26 follow-on — orphaned-module scanner (operationalized the TraceLogger heuristic)
+The TraceLogger removal was found by reading; to catch the shape systematically I added
+`scripts/find_orphaned_modules.py` (peer of `find_core_backend_inversions.py`). For each `backend/` module it
+`ast`-extracts public top-level symbols (+ module-level `Blueprint` singletons) and reports modules whose path
+and symbols are referenced by **no production file** (excluding the module itself + `tests/`): `ORPHAN` (no
+caller anywhere) vs `TEST-ONLY` (dead production — referenced only by tests). Conservative by design
+(substring reference match over-counts → under-reports; output is *candidates*, confirm-before-cut). Report is
+gitignored (like the other audit `.txt`s). Run: `python scripts/find_orphaned_modules.py [root]`.
+**First run (verified) — 3 genuine candidates + 1 false-positive class fixed:**
+- *(false positive, fixed)* `routes/feature_flag_routes.py` — IS registered (`routes/__init__.py:86`
+  `from .feature_flag_routes import feature_flag_bp`); the bp is a module-level **variable**, which the symbol
+  extractor originally missed. Scanner now captures `Blueprint(...)` assignment names → no longer flagged.
+- **`backend/utils/db_utils.py` (`DatabaseManager`) — ORPHAN, genuinely dead.** Its own docstring says it
+  exists "so the Phase 3 test suite can exercise database behavior"; strict whole-word scan finds zero
+  importers (every `DatabaseManager` hit is the *distinct* live `UkgDatabaseManager` in `backend/ukg_db.py`),
+  and no test references it either. TraceLogger-class dead code. → candidate removal (see carry-over).
+- **`backend/api_gateway/unified_middleware.py` (`UnifiedMiddleWare`/`PIIShield`/`APIParityService`) —
+  TEST-ONLY.** No production consumer; only `tests/` import it. → assess in **A28** (api_gateway is one of the
+  3 standalone FastAPI services already queued for A28).
+- **`backend/mcp_server/oauth_manager.py` (connector OAuth token helpers) — ORPHAN candidate.** A21 listed it
+  as a "supporting" file but never confirmed a *caller*; no production reference to its symbols. → **A21
+  revisit**: confirm whether connector OAuth is wired into the MCP flow or is dead.
+
+**→ A26 COMPLETE. Next: A27 (`backend/schemas/`)** — `request_schemas.py` vs `api_request_schemas.py`
+duplicate check. (Run `find_orphaned_modules.py` at the start of A27–A32 as a standing check.)
 
 ---
 

@@ -102,6 +102,7 @@ audit_dup_stdout.txt
 audit_dup_stderr.txt
 core_backend_inversions.txt
 core_backend_inversions_err.txt
+orphaned_modules.txt
 enc_check.txt
 enc_err.txt
 
