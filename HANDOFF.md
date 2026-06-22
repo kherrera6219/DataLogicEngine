@@ -1,5 +1,41 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-22 (carry-over backlog knock-out — STARTED, EOD pause)
+
+Goal this session: clear all open ☐ carry-over findings before opening A27. Enumerated the backlog and
+started; paused at EOD with most items still pending. **Resume here next session, then A27 (`backend/schemas/`).**
+
+**Authoritative open carry-over list (verify against live code — table drifts):**
+1. **A18-pre — ✅ VERIFIED RESOLVED this session (doc-close only).** The `drop_all_test_tables` conftest-name
+   collision is gone: the helper now lives in `tests/_helpers.py:44` and the two consumers import it via
+   `from tests._helpers import drop_all_test_tables` (`tests/integration/test_api_endpoints.py:9`; root
+   `tests/conftest.py:42` re-exports). No code change needed — closed the stale ☐ in the plan table.
+2. **ORPH-1 `backend/utils/db_utils.py` (`DatabaseManager`) — confirmed dead; removal PENDING.** Self-described
+   "Phase 3 test suite" helper; zero importers incl. tests; distinct from the live `UkgDatabaseManager`
+   (`backend/ukg_db.py`). Clean delete (no test to trim).
+3. **ORPH-2 `backend/api_gateway/unified_middleware.py` — investigated; PENDING (→A28).** Read confirms it's a
+   Starlette `BaseHTTPMiddleware` (`UnifiedMiddleWare`) + `PIIShield` + `APIParityService` for the standalone
+   `api_gateway` FastAPI service; **only tests import it** — no production consumer. Decide alongside the A28
+   assessment of the 3 standalone FastAPI services (if that service is dead, this goes with it).
+4. **ORPH-3 `backend/mcp_server/oauth_manager.py` — investigated; PENDING (→A21 revisit).** Read confirms it's
+   real, coherent connector-OAuth token lifecycle (`get_/upsert_connector_oauth_token` against the
+   `OAuthAccount` model) but with **zero callers** — built-but-unwired. Decide: wire into the MCP connector
+   execution path or remove.
+5. **A3-4 — NOT STARTED.** `backend/security/defense_supervisor.py`: `user_role` always "user"; HONEYPOT
+   treated as BLOCK. Reconcile to single-mode (owner) + distinct HONEYPOT handling, or document.
+6. **A5-2 — NOT STARTED.** Confirm the five overlapping injection defenses (shield/guardrail/supervisor/
+   truthgate/dmrf) form a union (not redundant); decide consolidation; document verdict.
+7. **SC-2 — NOT STARTED.** Confirm AES-256-GCM `EncryptionManager` is the implemented reality; fix any docs
+   still describing Fernet/target-state.
+8. **A32-mini — NOT STARTED.** `audit_deep.py:144` stale regex; `find_core_backend_inversions.py` docstring
+   false-positive (`sufficiency.py:414`); `.bandit-baseline.json` stale all-zero blocks (`input_sanitizer.py`
+   + `operator/operator.py` + `operator/controller.py`) → batch-regenerate.
+9. **A12-followup — INFRA-GATED.** Dual-engine Postgres run; path enabled but needs the local Postgres stack
+   running (`start_local_stack.ps1`). Not runnable in a bare session; run via local stack / CI matrix.
+
+A task list (#1–#9) tracks these. Today's committed work prior to this pause: A25 (operator removal), A26
+(tracing + A3-5 fix + TraceLogger removal), and `scripts/find_orphaned_modules.py` (+ ORPH-1/2/3 findings).
+
 ### Session log — 2026-06-21q (A26 backend/tracing — verify + A3-5 fix + dead TraceLogger removed)
 
 Plan: "separate from TruthMemory? both fire on query?" → **separate, both fire** (distinct points).
