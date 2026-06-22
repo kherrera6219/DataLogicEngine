@@ -62,11 +62,11 @@ class AudioService:
             if google_key:
                 from google import genai
                 from google.genai import types
+                from backend.llm_gateway.model_defaults import GOOGLE_LATEST_MODEL
                 client = genai.Client(api_key=google_key)
-                
-                # Gemini 2.0 Flash or 1.5 Flash supports native audio
-                # Using 1.5 Flash as stable fallback for multimodal
-                model_id = 'gemini-1.5-flash'
+
+                # Current Google model (gemini-3.5-flash) supports native audio.
+                model_id = GOOGLE_LATEST_MODEL
                 
                 logger.info("AudioService: Attempting Google Gemini failover for audio...")
                 

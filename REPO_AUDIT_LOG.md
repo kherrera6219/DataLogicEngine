@@ -5,6 +5,34 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A19 — `backend/services/` (2026-06-21)
+Audited all 6 services (`rag_service`, `audio_service`, `video_service`, `document_processor`,
+`file_upload_service`, `analytics_service`). **All real and wired — no stubs** (zero stub/TODO/NotImplemented
+markers across the dir).
+- **RAG populates context — ✅ CONFIRMED REAL.** `rag_service.get_context_for_query()` does vector search
+  (`search_documents`) → relevance-score gating (`RAG_MIN_SCORE`, default 0.15) → prompt-injection
+  marker screening (`SUSPICIOUS_RETRIEVAL_MARKERS`) → token-budget bounding → optional source citations
+  (KI-3). Wired into the live pipeline: `llm_gateway/gateway.py`, `truth_core/engine.py`,
+  `trust_validation_gateway.py`, `emergence_controller.py`, `meta_reasoning_controller.py`, `chat.py`,
+  `ingestion/local_ingestion.py`.
+- **Audio/Video real (not stubs) — ✅.** `AudioService` = OpenAI Whisper STT with 3-layer failover
+  (Whisper → Google Gemini native audio → error) + OpenAI TTS. `VideoService` = OpenCV keyframe extraction
+  (lazy `cv2`, graceful when absent) + Vision LLM via the gateway. Both wired into `multimodal_routes.py`.
+- **Model-currency fixes (user-flagged "gpt-4o vision is very old"):** updated stale model pins to the
+  project's canonical constants — `video_service` `gpt-4o` → `OPENAI_LATEST_MODEL` (gpt-5.5);
+  `audio_service` `gemini-1.5-flash` → `GOOGLE_LATEST_MODEL` (gemini-3.5-flash); `ka_06_config.json`
+  `gpt-4o`/`gpt-4o-mini` → `gpt-5.5`. Used the `model_defaults` constants so they can't drift again.
+- `analytics_service` (↔ `analytics_routes`), `document_processor` (↔ `file_upload` + ingestion),
+  `file_upload_service` — all live/wired.
+- **Minor (forward):** `backend/model_context/model_context_server.py` `/list_models` is a hardcoded
+  placeholder stub ("in a real implementation, this would query…") with stale `ukg-gpt-4`/`openai-gpt-4`
+  display names → A21/A28. `governance.py` keeps a legacy `gpt-4` entry in the cost-fallback table (harmless;
+  gpt-5.5/5.4/5 already present). Validation: ruff clean; JSON valid; service imports OK
+  (`OPENAI_LATEST_MODEL=gpt-5.5`, `GOOGLE_LATEST_MODEL=gemini-3.5-flash`). **→ A19 COMPLETE. Next: A20
+  (`backend/middleware/`).**
+
+---
+
 ## Phase 4 / A18 — `tests/` (test-isolation backlog cleared, 2026-06-21)
 Opened Phase 4 by clearing the recorded A18 backlog (reproduced each issue first, then fixed):
 - **A18-pre conftest-name collision (RESOLVED).** Repro: `pytest tests/unit tests/compliance --co` →

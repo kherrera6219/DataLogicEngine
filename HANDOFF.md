@@ -1,5 +1,21 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21j (A19 backend/services — verify + model-currency fixes)
+
+Audited all 6 `backend/services/` — **all real and wired, no stubs**:
+- **RAG populates context (✅ real):** `rag_service.get_context_for_query()` = vector search → score gating
+  (`RAG_MIN_SCORE`) → injection-marker screening → token budgeting → optional citations; wired into gateway,
+  truth_core, chat, ingestion.
+- **Audio/Video real:** Whisper STT + Gemini failover + OpenAI TTS; OpenCV frames + Vision LLM via gateway;
+  both wired into `multimodal_routes`.
+- **Model-currency fixes (user flagged gpt-4o vision as very old):** `video_service` `gpt-4o` →
+  `OPENAI_LATEST_MODEL` (gpt-5.5); `audio_service` `gemini-1.5-flash` → `GOOGLE_LATEST_MODEL`
+  (gemini-3.5-flash); `ka_06_config.json` `gpt-4o`/`gpt-4o-mini` → `gpt-5.5`. Now reference `model_defaults`
+  constants (no future drift). ruff clean, imports OK.
+- **Forward (minor):** `model_context_server.py` `/list_models` is a placeholder stub with stale `*-gpt-4`
+  display names → A21/A28; `governance.py` legacy `gpt-4` cost-fallback entry (harmless).
+- **→ A19 COMPLETE. Next: A20 (`backend/middleware/`).**
+
 ### Session log — 2026-06-21i (A18 resilience fault-injection — A18 COMPLETE)
 
 Plan question "Resilience tests inject real failures?" → **YES**.

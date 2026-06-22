@@ -316,8 +316,13 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       gone); neutralized a stale `buildApiUrl('auth/login')` example. **Kept by design:** the redirect-stub pages +
       session-expired `/login` redirect (documented disabled-by-design). Full suite 76 files/378 tests pass; tsc clean.
     - **Phase 4 — A18 `tests/` ✅ COMPLETE 2026-06-21** (isolation backlog + stale-fixture fix + skipped-tests
-      justification + dual-engine SQLite/Postgres parity + resilience fault-injection confirmed). **Next: A19
-      `backend/services/`** (RAG context population, audio/video real-vs-stub), then A20→A32.
+      justification + dual-engine SQLite/Postgres parity + resilience fault-injection confirmed).
+    - **A19 `backend/services/` ✅ COMPLETE 2026-06-21** (verify + model-currency fixes): all 6 services real &
+      wired, no stubs; RAG `get_context_for_query` confirmed real (vector search + score gate + injection
+      screen + token budget + citations; wired into gateway/truth_core/chat/ingestion); audio/video real.
+      **Fixed stale model pins** (user flagged gpt-4o vision): video_service→`OPENAI_LATEST_MODEL` (gpt-5.5),
+      audio_service→`GOOGLE_LATEST_MODEL` (gemini-3.5-flash), ka_06_config→gpt-5.5. Forward: model_context_server
+      `/list_models` placeholder stub w/ stale names → A21/A28. **Next: A20 `backend/middleware/`**, then A21→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
