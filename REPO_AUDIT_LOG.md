@@ -5,6 +5,32 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A20 — `backend/middleware/` (2026-06-21)
+Plan question: "All middleware active in the app factory? Correct ordering?" The 7 module files map to the
+plan's "9" as: correlation_id, security_headers, request_limits, timeout, resource_governor, etag, audit
+(7 Flask) + asgi_security (FastAPI) + input_sanitizer (the disconnected one).
+- **Stack is active & correctly wired.** `setup_middleware(app)` is called at `app.py:588`. It wires (Flask):
+  correlation_id (`configure_correlation_id`), security_headers (`backend.security.security_headers`),
+  request_limits, RequestTimeout, resource_governor, then `after_request` etag + audit. **Ordering is sound:**
+  correlation_id registers first so `request_id`/correlation is set before anything logs/audits; size/concurrency
+  gates (request_limits, resource_governor) run early; etag/audit are `after_request`.
+- **`asgi_security.py` is correctly wired** into the FastAPI sub-services (`api_gateway`, `model_context_server`,
+  `webhook_server`) via `apply_standard_fastapi_middleware` — it's ASGI middleware, so its absence from the
+  Flask factory is correct, not a gap.
+- **`input_sanitizer.py` (InputSanitizer) was disconnected — REMOVED** (user decision). It was a generic
+  `before_request` blocker that 400s any request whose JSON/form/query matches SQL/shell/path regexes
+  (`union select`, `drop table`, `[;&|\`$]`, `bash|sh|cmd|wget`…). Only a unit test referenced it; it was never
+  wired — and wiring it to an **AI gateway would block legitimate LLM prompts** (e.g. "how do I DROP a table?").
+  Real input protection is already the right shape: SQLAlchemy parameterization (actual SQL safety) + the
+  semantic injection-defense stack (prompt_injection_shield / defense_supervisor / ai_guardrail / TruthGate L8,
+  which understand prompt *context*) + RAG suspicious-marker screening. Removed `input_sanitizer.py` + its
+  `test_input_sanitizer_json` test (trimmed `test_middleware_units.py`, which still covers the other 4 middleware).
+- **Minor (forward → A32):** `.bandit-baseline.json` keeps an all-zeros metrics block for the deleted file;
+  harmless (generated baseline; corrected on next regeneration). Validation: middleware units 7 pass; ruff clean;
+  no remaining `input_sanitizer`/`InputSanitizer` code refs. **→ A20 COMPLETE. Next: A21 (`backend/mcp_server/`).**
+
+---
+
 ## Phase 4 / A19 — `backend/services/` (2026-06-21)
 Audited all 6 services (`rag_service`, `audio_service`, `video_service`, `document_processor`,
 `file_upload_service`, `analytics_service`). **All real and wired — no stubs** (zero stub/TODO/NotImplemented

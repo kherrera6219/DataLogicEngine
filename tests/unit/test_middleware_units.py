@@ -1,12 +1,11 @@
 
 import pytest
-from flask import Flask, request, jsonify
+from flask import Flask
 from unittest.mock import patch
 import hashlib
 
 from backend.middleware.correlation_id import CorrelationIdMiddleware
 from backend.middleware.etag import etag_middleware
-from backend.middleware.input_sanitizer import InputSanitizer
 from backend.middleware.request_limits import RequestLimitsMiddleware
 from backend.middleware.timeout import RequestTimeout
 
@@ -73,22 +72,6 @@ def test_etag_304(app):
     with app.test_client() as client:
         resp = client.get("/test", headers={"If-None-Match": etag})
         assert resp.status_code == 304
-
-# --- Input Sanitizer Tests ---
-def test_input_sanitizer_json(app):
-    InputSanitizer(app)
-    
-    @app.route("/test", methods=["POST"])
-    def index():
-        return jsonify(request.get_json())
-        
-    with app.test_client() as client:
-        # SQL Injection attempt (should be blocked)
-        payload = {"text": "UNION SELECT * FROM users"}
-        
-        resp = client.post("/test", json=payload)
-        assert resp.status_code == 400
-        assert resp.json['error']['code'] == 'INVALID_INPUT'
 
 # --- Request Limits Tests ---
 def test_request_limits_length(app):

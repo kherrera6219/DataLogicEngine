@@ -322,7 +322,11 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       screen + token budget + citations; wired into gateway/truth_core/chat/ingestion); audio/video real.
       **Fixed stale model pins** (user flagged gpt-4o vision): video_service→`OPENAI_LATEST_MODEL` (gpt-5.5),
       audio_service→`GOOGLE_LATEST_MODEL` (gemini-3.5-flash), ka_06_config→gpt-5.5. Forward: model_context_server
-      `/list_models` placeholder stub w/ stale names → A21/A28. **Next: A20 `backend/middleware/`**, then A21→A32.
+      `/list_models` placeholder stub w/ stale names → A21/A28.
+    - **A20 `backend/middleware/` ✅ COMPLETE 2026-06-21:** middleware stack active (`setup_middleware` called) +
+      correctly ordered; `asgi_security` wired into FastAPI sub-services. **Removed disconnected `input_sanitizer.py`**
+      (InputSanitizer; user decision) — test-only, never wired, harmful if wired to an AI gateway (regex-blocks
+      legit LLM prompts), redundant with ORM + semantic defenses. **Next: A21 `backend/mcp_server/`**, then A22→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

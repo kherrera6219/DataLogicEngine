@@ -1,5 +1,20 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21k (A20 backend/middleware — verify + remove disconnected InputSanitizer)
+
+- **Stack active & correctly ordered:** `setup_middleware(app)` called at `app.py:588`; wires correlation_id
+  (first, so request_id precedes logging/audit), security_headers, request_limits, timeout, resource_governor,
+  + after_request etag/audit. `asgi_security` correctly wired into the FastAPI sub-services (not the Flask
+  factory). Ordering sound.
+- **Removed disconnected `input_sanitizer.py` (InputSanitizer)** — user decision. Built but only referenced by
+  a unit test; never wired. Wiring it to an AI gateway would 400 legitimate LLM prompts (regex-blocks
+  SQL/shell terms). Real protection already covered (SQLAlchemy params + semantic injection defenses + RAG
+  screening). Deleted the module + its `test_input_sanitizer_json` (trimmed `test_middleware_units.py`, which
+  still covers the other 4 middleware). Fixed resulting unused imports.
+- Minor (forward → A32): `.bandit-baseline.json` has a stale all-zeros metrics block for the deleted file
+  (harmless; generated baseline). Validation: middleware units 7 pass; ruff clean.
+- **→ A20 COMPLETE. Next: A21 (`backend/mcp_server/`).**
+
 ### Session log — 2026-06-21j (A19 backend/services — verify + model-currency fixes)
 
 Audited all 6 `backend/services/` — **all real and wired, no stubs**:
