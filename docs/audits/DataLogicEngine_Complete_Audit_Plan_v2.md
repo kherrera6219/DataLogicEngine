@@ -43,7 +43,7 @@
 | **A23** | `backend/memory/` | ✅ done | `db58148d` | verify-only: DB-M confirmed — UnifiedMemoryService wraps StructuredMemoryGraph; wired into truth_core/frost/health |
 | **A24** | `backend/observability/` | ✅ done | `f2d61e60` | verify-only: Sentry wired (startup + error capture); SLO eval real; /metrics Prometheus-compatible |
 | **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
-| **A26** | `backend/tracing/` | ✅ done | _pending_ | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
+| **A26** | `backend/tracing/` | ✅ done | `07c8444a` | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
 | **A27** | `backend/schemas/` | ⏭ NEXT | — | `request_schemas.py` vs `api_request_schemas.py` — duplicate? |
 | A28–A32 | root-level, core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
