@@ -1,5 +1,21 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21l (A21 backend/mcp_server — verify-only)
+
+All 9 files real and wired, no stubs.
+- **MCP inversion fix confirmed** — plan said "LY-4" but that's PersonaConstructionService; the MCP fix is
+  **LY-6**. `scope_enforcement.py` (+ siblings) are shims re-exporting `core.mcp.*` (provider-neutral logic
+  promoted to core; backend re-exports = correct backend→core direction). 0 real inversions.
+- **Sampling real & wired:** `MCPSamplingService.create_message` (provider or deterministic local) via
+  `mcp_routes` + `app.py`. **Subscriptions real & wired:** `MCPSubscriptionManager` subscribe/notify/SSE via
+  `truth_link.transport.SSETransport`.
+- **Forward:** (A32) `find_core_backend_inversions.py` false-positives on a *docstring* in
+  `sufficiency.py:414` (prose mentioning `backend.truth_engine…`, not an import) — scanner should skip
+  comments; real inversion count is 0; not CI-gating. (A28) `model_context_server.py` `/list_models` is a
+  placeholder stub — assess the 3 standalone FastAPI services (api_gateway/model_context_server/webhook_server)
+  together in A28.
+- No code changes (verify-only, like A11/A13). **→ A21 COMPLETE. Next: A22 (`backend/ingestion/`).**
+
 ### Session log — 2026-06-21k (A20 backend/middleware — verify + remove disconnected InputSanitizer)
 
 - **Stack active & correctly ordered:** `setup_middleware(app)` called at `app.py:588`; wires correlation_id

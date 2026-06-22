@@ -326,7 +326,13 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - **A20 `backend/middleware/` ✅ COMPLETE 2026-06-21:** middleware stack active (`setup_middleware` called) +
       correctly ordered; `asgi_security` wired into FastAPI sub-services. **Removed disconnected `input_sanitizer.py`**
       (InputSanitizer; user decision) — test-only, never wired, harmful if wired to an AI gateway (regex-blocks
-      legit LLM prompts), redundant with ORM + semantic defenses. **Next: A21 `backend/mcp_server/`**, then A22→A32.
+      legit LLM prompts), redundant with ORM + semantic defenses.
+    - **A21 `backend/mcp_server/` ✅ COMPLETE 2026-06-21 (verify-only):** all 9 files real & wired, no stubs.
+      MCP inversion fix confirmed (plan's "LY-4" was stale → actual MCP fix = LY-6; `scope_enforcement.py`+siblings
+      are shims re-exporting `core.mcp.*`). Sampling + subscriptions (SSE via truth_link) real & wired via mcp_routes.
+      Forward: (A32) inversion scanner false-positives on a docstring in `sufficiency.py:414`; (A28) assess the 3
+      standalone FastAPI services (api_gateway/model_context_server/webhook_server) together. **Next: A22
+      `backend/ingestion/`**, then A23→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

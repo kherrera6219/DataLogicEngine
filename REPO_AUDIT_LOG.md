@@ -5,6 +5,35 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A21 — `backend/mcp_server/` (✅ verify-only, 2026-06-21)
+Plan questions: "LY-4 inversion fix confirmed? Sampling/subscriptions working?" (Plan-number drift: **LY-4 is
+`PersonaConstructionService`; the MCP inversion fix is LY-6.**) Audited all 9 files — all real and wired, no stubs.
+- **MCP inversion fix (LY-6) — ✅ CONFIRMED.** `backend/mcp_server/scope_enforcement.py` (and siblings) are
+  **compatibility shims that re-export from `core.mcp.*`** — provider-neutral logic was promoted to `core.mcp`
+  and the backend re-exports it (correct `backend → core` direction). The inversion scanner reports 0 real
+  inversions in `core/mcp` / `backend/mcp_server`.
+- **Sampling — ✅ real & wired.** `sampling.py` `MCPSamplingService.create_message()` builds the prompt from
+  MCP messages and returns a proper `createMessage` response — calling an injected provider when supplied,
+  else a deterministic local completion. Wired via `backend/routes/mcp_routes.py` + `app.py`.
+- **Subscriptions — ✅ real & wired.** `subscriptions.py` `MCPSubscriptionManager` does subscribe/unsubscribe/
+  notify/stream with SSE fan-out via `truth_engine/truth_link/transport.SSETransport` (resource `resources/updated`
+  events by URI). Wired via `mcp_routes.py`.
+- Supporting files (`registry`, `router`, `oauth_manager`, `contract_validation`, `connector_metrics`,
+  `scope_enforcement` shim) all real and consumed by `mcp_routes`. No stub/TODO markers in the package.
+- **Forward findings (no code change this session):**
+  - **→ A32:** `scripts/find_core_backend_inversions.py` **false-positives on a docstring** — it flags
+    `core/persona/quad/persona_scaling/sufficiency.py:414`, which is *prose* ("Consolidated here from
+    backend.truth_engine.truth_core.persona_sufficiency…"), not an import. The scanner should skip
+    comments/docstrings (same class as the A11 `audit_deep.py` regex finding). Not CI-gating (pre-commit runs
+    ruff/frontend only). The real inversion count is 0.
+  - **→ A28:** `backend/model_context/model_context_server.py` `/list_models` is a hardcoded placeholder stub
+    ("in a real implementation, this would query…") with stale `ukg-gpt-4`/`openai-gpt-4` names. It's one of
+    three standalone FastAPI ASGI services (with `api_gateway`, `webhook_server`) — assess their wiring/liveness
+    together in A28 (root-level), not piecemeal here.
+  **→ A21 COMPLETE. Next: A22 (`backend/ingestion/`).**
+
+---
+
 ## Phase 4 / A20 — `backend/middleware/` (2026-06-21)
 Plan question: "All middleware active in the app factory? Correct ordering?" The 7 module files map to the
 plan's "9" as: correlation_id, security_headers, request_limits, timeout, resource_governor, etag, audit
