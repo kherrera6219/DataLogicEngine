@@ -5,6 +5,26 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A23 — `backend/memory/` (✅ verify-only, 2026-06-21)
+Plan question: "`unified_memory_service.py` wraps StructuredMemoryGraph as DB-M claimed?" — **YES, confirmed.**
+`backend/memory/` = `unified_memory_service.py` + clean `__init__` exports.
+- **Wraps `StructuredMemoryGraph` (DB-M) — ✅.** `UnifiedMemoryService.__init__` holds
+  `self.graph = StructuredMemoryGraph()` (from `core.persona.quad.mathematical_framework`). `consolidate()`
+  delegates to `graph.memory_consolidation()` (the MC(M,I,t) formula); `recall()` ranks via the graph's
+  `_relevance_function` × `_temporal_importance` × importance, gated by `graph.theta_m`. Deterministic local
+  embeddings via `truth_core.historical_embeddings.text_to_embedding`.
+- **Local internal persistence** (consistent with [[architecture-local-databases]]): JSON-backed graph at
+  `databases/memory/memory_graph.json` (`DLE_MEMORY_GRAPH_PATH` override) — app-owned, not external;
+  save/load/export + `checkpoint`/`restore` for FROST branch memory; process-wide singleton with `atexit` save.
+- **Layer/persona namespacing** in vertex metadata; `record_layer_result` (TruthCore L1–L10 steps),
+  `record_release_commit` (L10 Lane B).
+- **Wired live:** `truth_core/engine.py` (per-layer memory writes), `emergence_controller.py`,
+  `core/system/frost_service.py` (checkpoint/restore), `app.py` `_structured_memory_stats` (/health DB-M
+  status). Memory tests 3 pass / 1 skip (graph-backed E2E skips when the local Neo4j stack isn't started — see
+  A18 guard). No stubs. **→ A23 COMPLETE. Next: A24 (`backend/observability/`).**
+
+---
+
 ## Phase 4 / A22 — `backend/ingestion/` (✅ verify-only, 2026-06-21)
 Plan questions: "Populates ChromaDB (linked to A12)? Async queue and Neo4j sync working?" — **all YES.**
 `backend/ingestion/` = `local_ingestion.py` (`LocalKnowledgeIngestionService`) + clean `__init__` exports.

@@ -335,7 +335,11 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - **A22 `backend/ingestion/` ✅ COMPLETE 2026-06-21 (verify-only):** `local_ingestion.py` — ChromaDB
       population (rag.ingest_knowledge_node→knowledge_nodes), async queue (`ingest_path_async`+status endpoint),
       Neo4j sync (`_sync_to_neo4j`) all real & wired (5 routes + CLI + evidence; 14 KI tests pass). No stubs.
-      **Next: A23 `backend/memory/`**, then A24→A32.
+    - **A23 `backend/memory/` ✅ COMPLETE 2026-06-21 (verify-only):** DB-M confirmed — `UnifiedMemoryService`
+      wraps `StructuredMemoryGraph` (consolidate→memory_consolidation MC(M,I,t); recall via graph relevance×
+      temporal×importance); local JSON persistence; FROST checkpoint/restore; wired into truth_core/frost/health.
+      No stubs. (User: ALL DBs are local internal app-owned — memory `architecture-local-databases`.)
+      **Next: A24 `backend/observability/`**, then A25→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

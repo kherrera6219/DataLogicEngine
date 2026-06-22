@@ -1,5 +1,18 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21n (A23 backend/memory — verify-only + all-databases-internal note)
+
+- **Architecture note (user, 2026-06-21):** ALL databases (Postgres/Redis/Neo4j/Chroma/object/SQLite) are
+  **local internal app-owned** components like Neo4j — not external services. Saved memory
+  `architecture-local-databases`.
+- **A23 DB-M confirmed:** `UnifiedMemoryService` genuinely wraps `StructuredMemoryGraph`
+  (core.persona.quad.mathematical_framework): `consolidate`→`graph.memory_consolidation` (MC(M,I,t)),
+  `recall` via graph relevance×temporal×importance. Local JSON persistence at
+  `databases/memory/memory_graph.json` (app-owned); FROST checkpoint/restore; layer/persona namespacing.
+  Wired into truth_core engine/emergence_controller, frost_service, /health. Memory tests 3 pass/1 skip
+  (graph-backed E2E skips without the local Neo4j stack). No stubs, no code changes.
+- **→ A23 COMPLETE. Next: A24 (`backend/observability/`).**
+
 ### Session log — 2026-06-21m (A22 backend/ingestion — verify-only)
 
 All 3 plan questions YES. `backend/ingestion/` = `local_ingestion.py` (`LocalKnowledgeIngestionService`).
