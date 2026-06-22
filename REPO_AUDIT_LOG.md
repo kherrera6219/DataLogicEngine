@@ -5,6 +5,26 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A24 — `backend/observability/` (✅ verify-only, 2026-06-21)
+Plan questions: "Sentry wired? SLO alerts firing? Metrics Prometheus-compatible?" — **all YES.**
+`backend/observability/` = `crash_reporting.py` + `latency_slo.py`.
+- **Sentry wired — ✅.** `initialize_crash_reporting()` is called at startup (`app.py:38`) — real
+  `sentry_sdk.init` with `FlaskIntegration` + `SqlalchemyIntegration`, traces/profiles sample rates,
+  env/release. Fail-soft: no DSN → disabled; SDK import/init failure → fallback mode (never crashes startup).
+  `capture_exception_with_fallback()` (wired into the app error handler, `app.py:1257`) always returns a stable
+  crash id (Sentry event id or fallback UUID) and counts captured/fallback totals.
+- **SLO evaluation — ✅.** `evaluate_latency_slos()` pulls `ai_latency_metrics_snapshot` (llm_gateway) +
+  `connector_metrics_snapshot` (mcp_server), compares p95/p99 against env-configurable thresholds with a
+  `min_samples` gate, and emits per-provider/per-connector violation flags. (Alerting is downstream: the
+  violation gauges feed Prometheus + the deploy alert configs `deploy/SENTRY_ALERTS.md`/`UPTIME_MONITORING.md`.)
+- **Prometheus-compatible — ✅.** `/metrics` (`app.py:1193`) aggregates `latency_slo_prometheus_lines` +
+  `crash_reporting_prometheus_lines` (proper `# HELP`/`# TYPE`/labelled metric lines) alongside the other app
+  metrics. Both modules export valid Prometheus text.
+- Wired + tested: `test_latency_slo_alerts.py` + `test_health_endpoint.py` 9 pass. No stubs, no code changes.
+  **→ A24 COMPLETE. Next: A25 (`backend/operator/`).**
+
+---
+
 ## Phase 4 / A23 — `backend/memory/` (✅ verify-only, 2026-06-21)
 Plan question: "`unified_memory_service.py` wraps StructuredMemoryGraph as DB-M claimed?" — **YES, confirmed.**
 `backend/memory/` = `unified_memory_service.py` + clean `__init__` exports.

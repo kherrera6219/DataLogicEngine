@@ -1,5 +1,17 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21o (A24 backend/observability — verify-only)
+
+All 3 plan questions YES. `crash_reporting.py` + `latency_slo.py`.
+- **Sentry ✅:** `initialize_crash_reporting()` at startup (app.py:38) — real sentry_sdk.init (Flask+SQLAlchemy
+  integrations), fail-soft (no DSN→disabled, import/init failure→fallback). `capture_exception_with_fallback`
+  wired into app error handler (app.py:1257), always returns a stable crash id.
+- **SLO ✅:** `evaluate_latency_slos` compares ai/connector p95/p99 vs env thresholds (min_samples gate) →
+  violation flags; alerting downstream via Prometheus gauges + deploy/SENTRY_ALERTS/UPTIME_MONITORING.
+- **Prometheus ✅:** `/metrics` (app.py:1193) aggregates latency_slo + crash_reporting prometheus lines.
+- Tested: test_latency_slo_alerts + test_health_endpoint 9 pass. No stubs, no code changes.
+- **→ A24 COMPLETE. Next: A25 (`backend/operator/`).**
+
 ### Session log — 2026-06-21n (A23 backend/memory — verify-only + all-databases-internal note)
 
 - **Architecture note (user, 2026-06-21):** ALL databases (Postgres/Redis/Neo4j/Chroma/object/SQLite) are

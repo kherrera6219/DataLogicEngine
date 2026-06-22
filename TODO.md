@@ -339,7 +339,10 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       wraps `StructuredMemoryGraph` (consolidate→memory_consolidation MC(M,I,t); recall via graph relevance×
       temporal×importance); local JSON persistence; FROST checkpoint/restore; wired into truth_core/frost/health.
       No stubs. (User: ALL DBs are local internal app-owned — memory `architecture-local-databases`.)
-      **Next: A24 `backend/observability/`**, then A25→A32.
+    - **A24 `backend/observability/` ✅ COMPLETE 2026-06-21 (verify-only):** Sentry wired (`initialize_crash_reporting`
+      at startup + `capture_exception_with_fallback` in error handler, fail-soft); SLO eval real (`evaluate_latency_slos`
+      p95/p99 vs env thresholds → violation flags); `/metrics` Prometheus-compatible (aggregates latency_slo +
+      crash_reporting lines). 9 tests pass. No stubs. **Next: A25 `backend/operator/`**, then A26→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
