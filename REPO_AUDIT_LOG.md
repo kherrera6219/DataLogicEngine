@@ -5,6 +5,29 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Carry-over knock-out (2026-06-22) — clearing all open ☐ findings before A27
+User directive: clear the entire carry-over backlog before opening A27. Status by item:
+- **A18-pre ✅** verified resolved (helper in `tests/_helpers.py`; consumers import from it; no collision).
+- **ORPH-1 ✅** `backend/utils/db_utils.py` (`DatabaseManager`) deleted — self-described "Phase 3 test suite"
+  helper, zero importers incl. tests, distinct from the live `UkgDatabaseManager` (`backend/ukg_db.py`). No
+  test to trim; `find_orphaned_modules.py` re-run confirms it's gone.
+- **A32-mini ✅** (scanner/baseline hygiene):
+  - `find_core_backend_inversions.py` — now matches only lines that *start with* `from backend`/`import
+    backend` (after strip), eliminating the prose false-positive at `sufficiency.py:414` ("Consolidated here
+    from backend.truth_engine…"). Re-run: **0 inversions** (was 1 false-positive).
+  - `audit_deep.py` — dropped the deleted root-level `routes/` dir from `count_importers` default roots
+    (migrated to `backend/routes/` in df29906b).
+  - `.bandit-baseline.json` — **regenerated** via the CI command (`bandit -r backend/ core/ --exit-zero -f
+    json`). Cleared 4 stale all-zero blocks for deleted files (`middleware/input_sanitizer.py` [A20],
+    `operator/operator.py` + `operator/controller.py` [A25], `tracing/logger.py` [A26]) and brought the
+    baseline current (was a stale 372 files → now 496; 112 results baselined; CI uses `--exit-zero`, so this
+    is comparison/reporting only — not a gate).
+- **PENDING (batch 2, this session):** ORPH-2 (`api_gateway/unified_middleware.py`), ORPH-3
+  (`mcp_server/oauth_manager.py`), A3-4 (defense supervisor), A5-2 (injection-defense union), SC-2
+  (encryption docs). **A12** infra-gated (needs local Postgres stack).
+
+---
+
 ## Phase 4 / A26 — `backend/tracing/` (✅ verify + A3-5 fix + dead TraceLogger removed, 2026-06-21)
 Plan questions: "Separate from TruthMemory? Both fire on query?" — **separate, both fire.** Plus carry-over
 **A3-5** (governance no-op without a db session) — **fixed.**

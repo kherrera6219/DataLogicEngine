@@ -13,8 +13,10 @@ def src(p): return open(p, errors="ignore").read()
 def count_importers(symbol, root_dirs=None):
     """Count how many files import a given module path or symbol."""
     if root_dirs is None:
+        # Note: the root-level ``routes/`` tree was migrated into
+        # ``backend/routes/`` (df29906b) and deleted, so it is no longer scanned.
         root_dirs = [os.path.join(ROOT, "backend"), os.path.join(ROOT, "core"),
-                     os.path.join(ROOT, "routes"), os.path.join(ROOT, "tests")]
+                     os.path.join(ROOT, "tests")]
     count = 0
     files = []
     for d in root_dirs:

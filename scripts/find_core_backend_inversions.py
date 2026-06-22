@@ -18,7 +18,12 @@ for root, dirs, files in os.walk("core"):
         path = os.path.join(root, f).replace("\\", "/")
         for line_no, line in enumerate(open(os.path.join(root, f), errors="ignore"), 1):
             s = line.strip()
-            if ("from backend" in s or "import backend" in s) and not s.startswith("#"):
+            # Match real import statements only — a line that *starts with*
+            # ``from backend`` / ``import backend`` (after indentation is
+            # stripped). Substring matching also flagged prose/docstrings that
+            # merely mention a backend module (e.g. "Consolidated here from
+            # backend.truth_engine…" in sufficiency.py), which are not imports.
+            if (s.startswith("from backend") or s.startswith("import backend")):
                 if "# inversion:ok" in s:
                     continue  # approved lazy-import pattern — documented exception
                 results.append((path, line_no, s))

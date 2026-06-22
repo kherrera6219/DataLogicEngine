@@ -75,7 +75,7 @@ A12-followup (execute the dual-engine Postgres run via CI matrix / local stack).
 | A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ✅ resolved 2026-06-12 (fabricated `completed`/0.8 → honest `skipped`/0.0; was polluting memory graph + downstream context) |
 | A18-pre | `tests/integration/test_api_endpoints.py` + `tests/knowledge_algorithms/` share a `drop_all_test_tables` conftest name → collection error when collected together | A18 | ✅ resolved 2026-06-22 (verified: helper moved to `tests/_helpers.py`; consumers import `from tests._helpers import drop_all_test_tables`; root conftest re-exports — no collision) |
 | SC-2 | Encryption: Fernet→AES-256-GCM decision (note: AES-256-GCM landed in Sprint 2 `EncryptionManager`; confirm docs) | A10 / A31 | ☐ |
-| ORPH-1 | `backend/utils/db_utils.py` (`DatabaseManager`) — orphaned (self-described "Phase 3 test suite" helper; zero importers incl. tests; distinct from live `UkgDatabaseManager`). Found by `find_orphaned_modules.py` | A26 follow-on | ☐ candidate removal |
+| ORPH-1 | `backend/utils/db_utils.py` (`DatabaseManager`) — orphaned (self-described "Phase 3 test suite" helper; zero importers incl. tests; distinct from live `UkgDatabaseManager`). Found by `find_orphaned_modules.py` | A26 follow-on | ✅ resolved 2026-06-22 (deleted; no test to trim; scanner re-run clean) |
 | ORPH-2 | `backend/api_gateway/unified_middleware.py` (`UnifiedMiddleWare`/`PIIShield`/`APIParityService`) — test-only, no production consumer | A28 | ☐ |
 | ORPH-3 | `backend/mcp_server/oauth_manager.py` — connector OAuth helpers with no caller; confirm wired-vs-dead | A21 revisit | ☐ |
 
