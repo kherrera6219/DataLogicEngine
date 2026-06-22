@@ -6,7 +6,7 @@
 
 ## Audit Status Summary
 
-### Execution progress (updated 2026-06-11)
+### Execution progress (updated 2026-06-21)
 
 | Session | Scope | Status | Commit | Key result |
 |---|---|---|---|---|
@@ -29,17 +29,34 @@
 | **A11** | `core/axes/` | ✅ done | (verify-only) | 17 axes register correctly; N3/N4/DUP-4 confirmed resolved (Sprint 0); Axis 5 unmanaged by design; no code changes |
 | **A12** | `backend/storage/` | ✅ done | — | DB-N/DB-C/DB-M all live (re-confirmed); connection_manager not rate-limiting (moot single-mode); RT-10 atomic-write fix |
 | **A13** | `core/system/` | ✅ done | (verify-only) | all 11 services live; DUP-2 = 3 distinct orchestrators (retained by design); SekreEngine wired live; TV-6 Socket.IO is gateway/websocket not trace_service |
-| **A14** | `sdk/UKG_Python_SDK/` | ⏭ NEXT | — | SDK API surface, providers, coordinates17, version |
-| **A15** | `frontend/app/` + deferred auth removal | 🔶 in progress | `c60f3daf`+ | nav/structure batch done (2026-06-18); **auth deprecation Phase D + E-1/E-2a/E-2b done 2026-06-19** (tenant_rls removed; MFA columns dropped; admin user-mgmt UI/routes removed; ~50 is_admin gates collapsed to single-owner). E-2c (drop role/is_admin columns) remaining — see `DataLogicEngine_Auth_Deprecation_Plan.md` |
-| A16–A32 | rest of Phases 3–4 | ☐ | — | see session sequence below |
+| **A14** | `sdk/UKG_Python_SDK/` | ✅ done | `008287ca` | SDK surface confirmed; 5 Antigravity build-break bugs fixed; 33 tests pass |
+| **— PHASE 2 COMPLETE (A7–A14) —** | reasoning depth | ✅ | — | |
+| **A15** | `frontend/app/` + deferred auth removal | ✅ done | `ddf141d1`+ | nav/structure; **auth deprecation A–F COMPLETE** (MFA/tenancy/admin-UI/roles removed, gates → `current_user_is_owner()`); B2 docs reconciled; per-page error/loading (knowledge SWR-error fix) |
+| **A16** | `frontend/components/` | ✅ done | `3be8abdd` | Type Safety 100%, coverage 80%+; C3 (inline test_provider status) tested; final a11y sweep (DatabaseSettings labels) |
+| **A17** | `frontend/lib/`+`hooks/`+`contexts/` | ✅ done | `aeff5bb9` `9ed0c544` | verify-only: Socket.IO trace stream, API paths, auth-refresh confirmed; F5-frontend web-login vestige removed (A17-1) |
+| **— PHASE 3 COMPLETE (A15–A17) —** | frontend | ✅ | — | |
+| **A18** | `tests/` | ✅ done | `5ac16f33`+ | conftest collision → `tests/_helpers.py`; Neo4j-skip guard; stale E-2c contract fixture fixed; 19 skips justified (1 dead test removed); dual-engine schema-parity gate + Postgres test path enabled; resilience fault-injection confirmed |
+| **A19** | `backend/services/` | ✅ done | `4ab62bba` | all 6 real & wired (RAG context, audio/video); model-currency fixes gpt-4o/gemini-1.5 → gpt-5.5/gemini-3.5 |
+| **A20** | `backend/middleware/` | ✅ done | `167ae092` | stack active + correctly ordered; asgi_security in FastAPI subapps; removed disconnected InputSanitizer |
+| **A21** | `backend/mcp_server/` | ✅ done | `5d9e7993` | verify-only: MCP inversion (LY-6) confirmed (shims re-export core.mcp); sampling/subscriptions real & wired |
+| **A22** | `backend/ingestion/` | ✅ done | `793a8de1` | verify-only: ChromaDB population + async queue + Neo4j sync all real & wired (5 routes + CLI; 14 tests) |
+| **A23** | `backend/memory/` | ✅ done | `db58148d` | verify-only: DB-M confirmed — UnifiedMemoryService wraps StructuredMemoryGraph; wired into truth_core/frost/health |
+| **A24** | `backend/observability/` | ✅ done | `f2d61e60` | verify-only: Sentry wired (startup + error capture); SLO eval real; /metrics Prometheus-compatible |
+| **A25** | `backend/operator/` | ⏭ NEXT | — | what is this pattern? used by anything? if not: document or remove |
+| A26–A32 | tracing, schemas, root-level, core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
-Live test baseline: **2066 passed / 21 skipped / 0 failed** (commit `bb3b5ed3`).
-**Phase 1 COMPLETE (8/8); Phase 2 in progress.** The `knowledge_algorithms`
-audit (A7+A8) is complete: registry 125/125 resolves, configs complete, all KAs
-rated (117 real + 8 compact-real + 0 stub). Next is **A9** (`core/persona/quad/`).
+Live test baseline (2026-06-21): **1876 passed / 19 skipped / 0 failed** (SQLite).
+**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A24 done; A25 next.**
 Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
-and N1 (SEKRE, A6b).
+and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
+is fully complete (Phases A–F + F5-frontend); all data stores are local internal
+app-owned components (Postgres/Redis/Neo4j/Chroma/object/SQLite), not external
+services. Open forward items: A28 (3 standalone FastAPI services
+api_gateway/model_context_server/webhook_server — wiring/liveness + the
+`/list_models` placeholder stub); A32 (`find_core_backend_inversions.py`
+docstring false-positive; `.bandit-baseline.json` stale metrics block);
+A12-followup (execute the dual-engine Postgres run via CI matrix / local stack).
 
 ### Open carry-over findings (tracked across sessions)
 
@@ -422,17 +439,15 @@ Phase 1 — Live query path:
   N1   ✅ Wired SekreEngine post-L10 in SimulationEngine (A6b)
   A2-2 ✅ DSQP LLM-assisted construction (dsqp_answer_generator.py)
 
-Phase 2 — Reasoning depth (8 sessions):
-  A7 → A8a → A8b → A9 → A10 → A11 → A12 → A13 → A14
+Phase 2 — Reasoning depth (8 sessions):  ✅ COMPLETE
+  A7 ✅ → A8 ✅ → A9 ✅ → A10 ✅ → A11 ✅ → A12 ✅ → A13 ✅ → A14 ✅
 
-  Execute remaining RT tasks (RT-4 through RT-18) before Phase 3.
+Phase 3 — Frontend:  ✅ COMPLETE
+  A15 ✅ → A16 ✅ → A17 ✅   (+ F5-frontend web-login removal)
 
-Phase 3 — Frontend (4 sessions):
-  A15 → A16 → A17
-
-Phase 4 — Quality + ops (11 sessions):
-  A18 → A19 → A20 → A21 → A22 → A23 → A24 →
-  A25 → A26 → A27 → A28 → A29 → A30 → A31 → A32
+Phase 4 — Quality + ops:  in progress
+  A18 ✅ → A19 ✅ → A20 ✅ → A21 ✅ → A22 ✅ → A23 ✅ → A24 ✅ →
+  A25 ⏭ → A26 ☐ → A27 ☐ → A28 ☐ → A29 ☐ → A30 ☐ → A31 ☐ → A32 ☐
 ```
 
 ---
