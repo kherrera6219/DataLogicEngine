@@ -77,8 +77,12 @@ for dirpath, dirnames, filenames in os.walk("."):
             if ext == ".py":
                 text = open(path, encoding="utf-8", errors="ignore").read()
                 (test_corpus if _is_test_path(path) else prod_corpus)[path] = text
-            elif ext in {".yaml", ".yml", ".json", ".spec", ".txt", ".md",
-                         ".cfg", ".toml", ".ini"}:
+            elif ext in {".yaml", ".yml", ".json", ".spec", ".cfg", ".toml", ".ini"}:
+                # Real config/registry/build references (ka_registry.yaml,
+                # backend.spec, mcp_servers.json, …). Prose docs (.md/.txt) are
+                # deliberately excluded: an audit log or handoff that *mentions*
+                # a module path by name is not wiring, and would mask a genuine
+                # orphan (e.g. this scanner's own findings referencing the path).
                 aux_corpus[path] = open(path, encoding="utf-8", errors="ignore").read()
         except OSError:
             continue

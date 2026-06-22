@@ -1,7 +1,6 @@
 import pytest
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool, SufficiencyMode
-from backend.api_gateway.unified_middleware import UnifiedMiddleWare
 
 class MockKAController:
     def __init__(self):
@@ -78,34 +77,6 @@ async def test_parallel_pod_execution(engine):
     assert len(pod_keys) > 0, f"No persona pods were triggered. Results: {persona_results.keys()}"
     assert persona_results[pod_keys[0]]['specialist_count'] > 0
 
-@pytest.mark.asyncio
-async def test_api_middleware_hardening():
-    # We test the middleware logic in isolation
-    from fastapi import Request, Response
-    from starlette.datastructures import Headers
-    
-    middleware = UnifiedMiddleWare(None)
-    
-    class MockApp:
-        async def __call__(self, scope, receive, send):
-            pass # Not used for isolation test
-            
-    async def call_next(request):
-        return Response(content="OK", status_code=200)
-
-    # Test Header Sanitization
-    headers = Headers({"X-UKG-Axis": "8:9:INVALID", "X-Nurnburg-Alias": "TEST!@#$ALIAS"})
-    # Mock FastAPI request
-    scope = {"type": "http", "method": "GET", "path": "/", "headers": headers.raw}
-    request = Request(scope)
-    
-    response = await middleware.dispatch(request, call_next)
-    
-    # Check Security Headers
-    assert response.headers["X-Content-Type-Options"] == "nosniff"
-    assert response.headers["X-Frame-Options"] == "DENY"
-    assert "hardened_v2" in response.headers["X-Nurnburg-Compliance"]
-    
-    # Check trace context (internal state)
-    assert request.state.ukg_metadata["axis"] == "8:9:" # Sanitized
-    assert request.state.ukg_metadata["nurnburg_alias"] == "TESTALIAS" # Sanitized
+# (test_api_middleware_hardening removed: it exercised the dead
+# backend/api_gateway/unified_middleware.UnifiedMiddleWare, which the api_gateway
+# service never used — it applies middleware/asgi_security instead. See ORPH-2.)

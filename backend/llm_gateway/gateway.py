@@ -1707,6 +1707,11 @@ class LLMGateway:
                 user_role="owner",
             )
             request.meta["defense_supervisor"] = verdict
+            # HONEYPOT collapses to BLOCK by design: this is a single-user,
+            # local-first app (one OS owner), so there is no external adversary
+            # to feed a decoy response — blocking is the correct, conservative
+            # action for both verdicts. The distinct HONEYPOT label is preserved
+            # in request.meta for the audit trail. (A3-4; user_role is "owner".)
             if verdict.get("available") and verdict.get("recommended_action") in {
                 "BLOCK",
                 "HONEYPOT",

@@ -22,9 +22,51 @@ User directive: clear the entire carry-over backlog before opening A27. Status b
     `operator/operator.py` + `operator/controller.py` [A25], `tracing/logger.py` [A26]) and brought the
     baseline current (was a stale 372 files → now 496; 112 results baselined; CI uses `--exit-zero`, so this
     is comparison/reporting only — not a gate).
-- **PENDING (batch 2, this session):** ORPH-2 (`api_gateway/unified_middleware.py`), ORPH-3
-  (`mcp_server/oauth_manager.py`), A3-4 (defense supervisor), A5-2 (injection-defense union), SC-2
-  (encryption docs). **A12** infra-gated (needs local Postgres stack).
+- **ORPH-2 ✅** `backend/api_gateway/unified_middleware.py` removed (confirmed dead): the api_gateway service
+  wires `middleware/asgi_security` (`apply_standard_fastapi_middleware`) + `CORSMiddleware`, **not**
+  `UnifiedMiddleWare` — a superseded parallel "hardened middleware." `PIIShield`/`APIParityService` likewise
+  had no production caller. Deleted the module + the dedicated `tests/unit/test_middleware_security.py`;
+  trimmed the test-only `test_api_middleware_hardening` (test_hardening_assembly.py) and `test_pii_shield_active`
+  (test_production_fidelity.py). Both files green (6 pass); scanner re-run confirms gone.
+- **A3-4 ✅** defense supervisor: `user_role` is already `"owner"` (gateway:1707, fixed in the C1/C2 sweep);
+  HONEYPOT collapsing to BLOCK is **correct by design** under single-mode (no external adversary to feed a
+  decoy in a single-user local app) — added a clarifying comment at the gateway verdict block; the distinct
+  HONEYPOT label is still recorded in `request.meta` for the audit trail.
+- **SC-2 ✅ verified (no change):** `encryption_manager.py` writes AES-256-GCM (`AESGCM`, KEK-wrapped) with
+  legacy Fernet decrypt for back-compat; all active docs (`ARCHITECTURE:516/638`, `DATABASE_SCHEMA:608-609`,
+  `AI_MANAGEMENT_SYSTEM_42001:308`, …) already describe it as *implemented*, not target-state (resolved by
+  SC-6/B1). Remaining "Fernet" doc mentions are correct (separate provider-key path + legacy decrypt + optional
+  export encryption).
+- **A5-2 ✅ verdict = defense-in-depth UNION (keep all five; no consolidation):** the five pattern/semantic
+  injection defenses fire at *different stages with different methods*, so they are complementary, not
+  redundant — (1) `prompt_injection_shield.validate_user_input` regex at input (governance.prepare_request);
+  (2) `ai_guardrail` regex at input+output; (3) `defense_supervisor` LLM-semantic at input (gateway, catches
+  Crescendo/social-engineering regexes can't); (4) TruthGate L8 adversarial/policy gate inside reasoning;
+  (5) DMRF injection defense at the control-plane stage. Consolidating would shrink coverage. Documented; no
+  code change.
+- **ORPH-3 `mcp_server/oauth_manager.py` — confirmed unwired; DECISION PENDING (user).** Real, complete
+  connector-OAuth token lifecycle (`get_/upsert_connector_oauth_token` against `OAuthAccount`) but **zero
+  callers** — `router.py:26`'s `"token"` is an unrelated string literal. Its likely consumers (the Jira/
+  Salesforce external SaaS connectors) were **removed in the local-first pivot** (see the removed
+  `test_jira_tools_paths`/`test_salesforce_tools_paths`), which orphaned it. Recommend removal as consistent
+  with single-mode local-first; flagged for explicit confirmation (deleting a complete coherent subsystem).
+- **A12 — INFRA-GATED (unchanged):** dual-engine Postgres run path is enabled; needs the local Postgres stack
+  running (`start_local_stack.ps1`). Not runnable in a bare session; run via local stack / CI matrix.
+
+### Orphan-scanner v2 — prose-doc exclusion + a wider candidate set (verify per-area, do NOT mass-delete)
+Hardened `find_orphaned_modules.py`: the aux reference corpus now excludes prose docs (`.md`/`.txt`) — an
+audit log / handoff / generated-structure doc that *mentions* a module path is not wiring, and was masking
+real orphans (including this scanner's own findings). With that fixed it surfaces **13 candidates** (was 4).
+These are **candidates pending per-module verification (confirm-before-cut)** — several are very plausibly
+dead-by-single-mode-pivot, but each needs the per-area check (the `feature_flag_routes` false-positive earlier
+shows why). Routed to their sessions, NOT actioned now:
+- **→ A27 (next):** `backend/schemas/auth_schemas.py` (`LoginRequest`/`RegisterRequest`/`TokenRequest` — dead
+  multi-user auth schemas), `backend/schemas/simulation_schemas.py`.
+- **→ A10 revisit (security):** `api_security.py`, `context_aware.py`, `data_classification.py`, `honeypot.py`,
+  `security_monitoring.py`, `vulnerability_scanner.py` (TEST-ONLY — several likely dead post-single-mode).
+- **→ A19 revisit (services):** `email_service.py` (multi-user email: reset/verify/welcome — likely dead),
+  `export_service.py`, `services/file_upload_service.py`.
+- **→ A28 / root:** `backend/i18n.py`.
 
 ---
 

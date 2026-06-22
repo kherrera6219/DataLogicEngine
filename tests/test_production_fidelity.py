@@ -64,14 +64,6 @@ async def test_production_tiering_and_routing(production_engine):
     assert session['tier'] in ["high_stakes", "moderate"]
     assert session['routing_profile'] in ["default", "analysis"]
 
-def test_pii_shield_active():
-    from backend.api_gateway.unified_middleware import PIIShield
-    
-    raw_text = "Contact me at bob@example.com or SSN 123-45-6789. ID: UKG-998877"
-    redacted = PIIShield.redact(raw_text)
-    
-    assert "[PROTECTED_EMAIL]" in redacted
-    assert "[PROTECTED_SSN]" in redacted
-    assert "[PROTECTED_EMPLOYEE_ID]" in redacted
-    assert "bob@example.com" not in redacted
-    assert "123-45-6789" not in redacted
+# (test_pii_shield_active removed: it exercised the dead
+# backend/api_gateway/unified_middleware.PIIShield, which has no production
+# caller — the api_gateway service uses middleware/asgi_security. See ORPH-2.)
