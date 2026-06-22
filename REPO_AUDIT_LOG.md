@@ -79,7 +79,24 @@ Every skip site reviewed; each is legitimate environment/opt-in gating except th
   conftest slice 15 passed/1 skipped (override = no-op on SQLite). **Local Postgres wasn't running this
   session (5432 refused), so the Postgres run path is enabled but not yet executed — validate via a CI
   Postgres-matrix job or `start_local_stack.ps1` + `TEST_DATABASE_URL`** (forward).
-  Remaining A18 (plan): resilience-test fault injection — then A19 (`backend/services/`).
+### A18 resilience / fault-injection (✅ 2026-06-21)
+Plan question: "Resilience tests inject real failures?" — **YES, confirmed** (just not where the plan
+expected).
+- **`tests/resilience/` is dead** — nothing git-tracked; its source `test_self_healing.py` was removed long
+  ago (commit `742aec82`). Only an untracked local `__pycache__/*.pyc` ghost remained (absent from a fresh
+  clone). Removed the on-disk orphan; no git change.
+- **Resilience IS tested with genuine fault injection**, relocated to the gateway suites:
+  - `tests/integration/test_llm_gateway_integration.py::test_gateway_failover` — injects
+    `mock_sdk.complete.side_effect = Exception("API Down")` and asserts failover to the second provider.
+  - `…::test_gateway_enforces_provider_timeout` — injects a slow `complete` and asserts the per-provider
+    timeout bounds execution.
+  - `tests/unit/test_llm_gateway_internal_units.py::TestCircuitBreaker` — real `record_failure()` trips the
+    breaker at threshold; `recovery_timeout` re-closes it; a `query.filter_by.side_effect = Exception("DB
+    unavailable")` exercises DB-degradation handling.
+  - 9 of these pass live (not skipped). Real failures injected → recovery asserted.
+- **→ A18 COMPLETE** (test-isolation backlog, stale-fixture fix, skipped-tests justification, dual-engine
+  parity, resilience all done). **Next: A19 (`backend/services/`)** — RAG context population, audio/video
+  real-vs-stub.
 
 ---
 

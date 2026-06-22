@@ -315,8 +315,9 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       CSRF-exempt entries. Rewrote `auth.test.ts` (kept check + desktopAutoLogin + a guard that login/logout are
       gone); neutralized a stale `buildApiUrl('auth/login')` example. **Kept by design:** the redirect-stub pages +
       session-expired `/login` redirect (documented disabled-by-design). Full suite 76 files/378 tests pass; tsc clean.
-    - **Next: Phase 4 — A18 `tests/`** (start with the recorded A18 test-isolation backlog: integration_routes
-      shared-DB isolation, conftest-name collision, Neo4j-skip guard), then A19→A32.
+    - **Phase 4 — A18 `tests/` ✅ COMPLETE 2026-06-21** (isolation backlog + stale-fixture fix + skipped-tests
+      justification + dual-engine SQLite/Postgres parity + resilience fault-injection confirmed). **Next: A19
+      `backend/services/`** (RAG context population, audio/video real-vs-stub), then A20→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

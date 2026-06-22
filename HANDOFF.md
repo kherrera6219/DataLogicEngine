@@ -1,5 +1,19 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21i (A18 resilience fault-injection — A18 COMPLETE)
+
+Plan question "Resilience tests inject real failures?" → **YES**.
+- `tests/resilience/` is **dead**: nothing git-tracked; source `test_self_healing.py` removed long ago
+  (`742aec82`); only an untracked local `.pyc` ghost remained (absent from fresh clones). Removed the on-disk
+  orphan (no git change).
+- Real fault injection lives in the gateway suites: `test_gateway_failover` (inject `Exception("API Down")`
+  → assert failover to 2nd provider), `test_gateway_enforces_provider_timeout` (slow provider → timeout
+  bound), `TestCircuitBreaker` (real `record_failure` trips breaker + `recovery_timeout` re-closes; DB
+  `side_effect` exercises degradation). 9 pass live.
+- **→ A18 COMPLETE.** All A18 plan items done: test-isolation backlog, stale-fixture fix, skipped-tests
+  justification, dual-engine parity, resilience. **Next: A19 (`backend/services/`)** — RAG context
+  population, audio/video real-vs-stub.
+
 ### Session log — 2026-06-21h (A18 dual-engine SQLite+Postgres parity)
 
 - **Schema parity ✅ confirmed:** `scripts/validate_schema_parity.py` (release gate) compiles every ORM
