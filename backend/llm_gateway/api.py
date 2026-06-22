@@ -280,8 +280,11 @@ async def gateway_chat():
         meta=data.get('meta', {}),
     )
     
-    # Process request
-    gateway = LLMGateway()
+    # Process request. Pass the request-scoped DB session so governance can
+    # persist AIAuditEvent rows and enforce the daily token budget (A3-5):
+    # a bare LLMGateway() leaves AIGovernanceEngine.db None, silently no-opping
+    # both. Mirrors the known-good chat.py live path.
+    gateway = LLMGateway(db_session=db.session)
     response = await gateway.process(gateway_request)
     
     if not response:
@@ -561,7 +564,8 @@ async def replay_offline_queue():
     queue = list_queue()
     pending = [item for item in queue["items"] if item.get("status") == "pending"]
     results = []
-    gateway = LLMGateway()
+    # DB-bound so replayed requests are governance-audited (A3-5).
+    gateway = LLMGateway(db_session=db.session)
 
     for item in pending:
         payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
@@ -639,7 +643,8 @@ def gateway_chat_stream():
     )
     
     def generate():
-        gateway = LLMGateway()
+        # DB-bound so streamed chats are governance-audited (A3-5).
+        gateway = LLMGateway(db_session=db.session)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         

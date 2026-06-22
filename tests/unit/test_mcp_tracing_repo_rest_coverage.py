@@ -1,5 +1,4 @@
 import asyncio
-import uuid
 from datetime import datetime, UTC
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -12,7 +11,6 @@ import backend.mcp_server.registry as registry_module
 import backend.mcp_server.router as router_module
 import backend.repositories.node_repository as node_repo_module
 import backend.rest_api as rest_api_module
-import backend.tracing.logger as tracing_logger_module
 
 
 def test_tool_registry_sync_async_and_errors():
@@ -107,54 +105,6 @@ def test_mcp_router_paths(monkeypatch):
 # The Jira and Salesforce MCP connectors are legacy external SaaS
 # integrations that have been removed from this local-first / desktop-only
 # build.
-
-
-def test_trace_logger_paths(monkeypatch):
-    session = MagicMock()
-    monkeypatch.setattr(tracing_logger_module.db, "session", session)
-
-    assert tracing_logger_module.TraceLogger.log_ka_invocation("KA-1", {}, {}, run_id=None) is None
-
-    invocation_obj = SimpleNamespace(invocation_id=uuid.uuid4())
-    monkeypatch.setattr(tracing_logger_module, "TraceKAInvocation", lambda **kwargs: invocation_obj)
-    inv_id = tracing_logger_module.TraceLogger.log_ka_invocation(
-        "KA-2",
-        {"q": 1},
-        {"a": 2},
-        run_id=str(uuid.uuid4()),
-        stage_id=str(uuid.uuid4()),
-        duration_ms=12.0,
-        success=True,
-    )
-    assert isinstance(inv_id, str)
-    session.add.assert_called()
-    session.commit.assert_called()
-
-    monkeypatch.setattr(tracing_logger_module, "TraceKAInvocation", MagicMock(side_effect=RuntimeError("insert fail")))
-    assert tracing_logger_module.TraceLogger.log_ka_invocation("KA-3", {}, {}, run_id=str(uuid.uuid4())) is None
-    session.rollback.assert_called()
-
-    run_obj = SimpleNamespace(run_id=uuid.uuid4())
-    monkeypatch.setattr(tracing_logger_module, "TraceRun", lambda **kwargs: run_obj)
-    created_run_id = tracing_logger_module.TraceLogger.create_run(1, "query", tier="moderate")
-    assert isinstance(created_run_id, str)
-
-    monkeypatch.setattr(tracing_logger_module, "TraceRun", MagicMock(side_effect=RuntimeError("run fail")))
-    fallback_id = tracing_logger_module.TraceLogger.create_run(1, "query")
-    assert isinstance(fallback_id, str)
-
-    mock_run = SimpleNamespace(status="processing", confidence=0.0, completed_at=None)
-    trace_run_model = MagicMock()
-    trace_run_model.query.filter_by.return_value.first.return_value = mock_run
-    monkeypatch.setattr(tracing_logger_module, "TraceRun", trace_run_model)
-    tracing_logger_module.TraceLogger.update_run_status(created_run_id, "completed", confidence=0.9)
-    assert mock_run.status == "completed"
-    assert mock_run.confidence == 0.9
-    assert mock_run.completed_at is not None
-
-    trace_run_model.query.filter_by.return_value.first.side_effect = RuntimeError("update fail")
-    tracing_logger_module.TraceLogger.update_run_status(created_run_id, "failed")
-    session.rollback.assert_called()
 
 
 def test_node_repository_paths(monkeypatch):

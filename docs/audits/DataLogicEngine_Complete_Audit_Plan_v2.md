@@ -43,12 +43,13 @@
 | **A23** | `backend/memory/` | ✅ done | `db58148d` | verify-only: DB-M confirmed — UnifiedMemoryService wraps StructuredMemoryGraph; wired into truth_core/frost/health |
 | **A24** | `backend/observability/` | ✅ done | `f2d61e60` | verify-only: Sentry wired (startup + error capture); SLO eval real; /metrics Prometheus-compatible |
 | **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
-| **A26** | `backend/tracing/` | ⏭ NEXT | — | separate from TruthMemory? both fire on query? (+ carry-over A3-5 governance no-op) |
-| A27–A32 | schemas, root-level, core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
+| **A26** | `backend/tracing/` | ✅ done | _pending_ | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
+| **A27** | `backend/schemas/` | ⏭ NEXT | — | `request_schemas.py` vs `api_request_schemas.py` — duplicate? |
+| A28–A32 | root-level, core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline (2026-06-21): **1876 passed / 19 skipped / 0 failed** (SQLite).
-**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A25 done; A26 next.**
+**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A26 done; A27 next.**
 Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
 and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
 is fully complete (Phases A–F + F5-frontend); all data stores are local internal
@@ -69,7 +70,7 @@ A12-followup (execute the dual-engine Postgres run via CI matrix / local stack).
 | A3-4 | defense supervisor `user_role` always "user"; HONEYPOT treated as BLOCK | A10 | ☐ |
 | A5-2 | five overlapping pattern-injection defenses (shield/guardrail/supervisor/truthgate/dmrf) — confirm union, consider consolidation | A10 | ☐ |
 | A5-3 | `DMRFTierClassifier.ka_controller` unused; also KA-005 never emitted a tier (TruthCore tiering branch dead) | A8 | ✅ resolved 2026-06-11 (KA-005 emits `suggested_tier`; DMRF param dropped) |
-| A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ☐ |
+| A3-5 | governance `record_audit_event` / daily-usage no-op without db session | A26 | ✅ resolved 2026-06-21 (api.py `gateway_chat`/stream/`replay_offline_queue` now `LLMGateway(db_session=db.session)`; bare instance left only AIGovernanceEngine.db None → silent no-op) |
 | A1a-2 | `truth_core/router.py` `LLMRouter` parallel dead code, stale model names | A6b / cleanup | ✅ resolved 2026-06-12 (deleted module + `__init__` export + vanity test; no live caller) |
 | A1a-4 | `_execute_refinement_step` "Mock result" fallback when no KA controller | A6 | ✅ resolved 2026-06-12 (fabricated `completed`/0.8 → honest `skipped`/0.0; was polluting memory graph + downstream context) |
 | A18-pre | `tests/integration/test_api_endpoints.py` + `tests/knowledge_algorithms/` share a `drop_all_test_tables` conftest name → collection error when collected together | A18 | ☐ |

@@ -153,16 +153,14 @@ flowchart TD
 
     subgraph TRACE[Trace and Export Evidence]
         TraceAPI[backend/tracing/api.py]
-        TraceLogger[backend/tracing/logger.py]
         ExportIntegrity[backend/security/export_integrity.py]
         ExportManifest[Manifest\nsection hashes + bundle hash + optional HMAC + optional encryption]
         ExportObjects[Export Bundles / Audit Evidence]
     end
 
+    Gateway[backend/llm_gateway/gateway.py] -->|writes Trace* rows| SQL
     App --> TraceAPI
-    TraceAPI --> TraceLogger
-    TraceLogger --> SQL
-    TraceLogger --> ObjectStore
+    TraceAPI -->|reads Trace* rows| SQL
     ExportIntegrity --> ExportManifest
     ExportManifest --> ExportObjects
     ExportObjects --> ObjectStore

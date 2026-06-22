@@ -353,7 +353,16 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       `k8s/operator/**`, `deploy/k8s/operator/**`). **Kept** `k8s/base/` (generic Deployments → A30) + KA-107
       (independently registered in `ka_registry.yaml`). Post-delete `git grep` clean. **Forward:** A32
       (`.bandit-baseline.json` 2 stale operator blocks), A30 (k8s/ vs deploy/k8s/ dup + k8s/base fate).
-      **Next: A26 `backend/tracing/`**, then A27→A32.
+    - **A26 `backend/tracing/` ✅ COMPLETE 2026-06-21 (verify + A3-5 fix + dead TraceLogger removed):**
+      `backend/tracing/` = Trace* ORM re-exports + `trace_bp` read API (frontend Trace Viewer / compliance
+      export). **Separate from TruthMemory** (audit-provenance in relational Trace* tables, write-once / read
+      by UI vs DB-M reasoning memory `StructuredMemoryGraph` recall/consolidate) — **both fire on query** at
+      distinct points (gateway writes TraceRun/TraceStage inline `gateway.py:1899`; TruthMemory in truth_core).
+      **A3-5 FIXED:** api.py `gateway_chat`/streaming `generate()`/`replay_offline_queue` built bare
+      `LLMGateway()` → governance `record_audit_event` no-op (no AIAuditEvent) + daily budget unenforced;
+      now `LLMGateway(db_session=db.session)` (mirrors chat.py). **Removed dead `TraceLogger`** (logger.py;
+      zero production callers — gateway open-codes the writes) + its test + diagram ref. 47 focused tests pass,
+      ruff clean. Forward → A31/A32 (FILE_INVENTORY.csv lists deleted logger.py). **Next: A27 `backend/schemas/`**.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

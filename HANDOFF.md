@@ -1,5 +1,25 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21q (A26 backend/tracing — verify + A3-5 fix + dead TraceLogger removed)
+
+Plan: "separate from TruthMemory? both fire on query?" → **separate, both fire** (distinct points).
+- **Separate:** tracing = forensic audit-provenance in relational `Trace*` tables (write-once, read by the
+  frontend Trace Viewer + compliance export, never re-read by reasoning); TruthMemory (DB-M) = the AI's
+  reasoning memory (`StructuredMemoryGraph`, recall/consolidate per layer, feeds back). Orthogonal.
+- **Both fire on query:** gateway writes `TraceRun`/`TraceStage` inline (`gateway.py:1899–1951`) + Socket.IO;
+  TruthMemory recalls/consolidates inside `truth_core` (A23). `trace_bp` registered in both app factories.
+- **A3-5 FIXED (silent compliance gap):** api.py's user-facing endpoints built bare `LLMGateway()` →
+  `AIGovernanceEngine.db=None` → `process()`'s `record_audit_event` no-op'd (no `AIAuditEvent`) + daily token
+  budget unenforced; traces still wrote (they import `db` directly), so 200s hid it. Passed
+  `db_session=db.session` at the 3 reasoning sites (`gateway_chat`, streaming `generate()`,
+  `replay_offline_queue`); mirrors known-good `chat.py:175`. Left `test_provider` (health-check) bare.
+- **Dead `TraceLogger` removed (user decision):** writer helper with zero production callers (gateway
+  open-codes the writes); deleted `backend/tracing/logger.py`, trimmed its test + import (+ unused `uuid`),
+  fixed `docs/diagrams/07` to show gateway-writes / api-reads. Same class as the A20 test-only InputSanitizer.
+- **Validation:** 47 focused tests pass (governance/gateway-api/tracing/integration_routes), ruff clean.
+- **Forward → A31/A32:** `docs/FILE_INVENTORY.csv` still lists deleted `logger.py` (generated; batch-regen).
+- **→ A26 COMPLETE. Next: A27 (`backend/schemas/`)** — `request_schemas.py` vs `api_request_schemas.py` dup?
+
 ### Session log — 2026-06-21p (A25 backend/operator — removed obsolete K8s operator)
 
 Plan question "what is this pattern? used by anything? if not: document or remove." → **removed.**

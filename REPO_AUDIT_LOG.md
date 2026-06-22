@@ -5,6 +5,53 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A26 — `backend/tracing/` (✅ verify + A3-5 fix + dead TraceLogger removed, 2026-06-21)
+Plan questions: "Separate from TruthMemory? Both fire on query?" — **separate, both fire.** Plus carry-over
+**A3-5** (governance no-op without a db session) — **fixed.**
+
+`backend/tracing/` = `__init__.py` (re-exports Trace* ORM models) + `api.py` (`trace_bp` read API) +
+`logger.py` (removed, see below).
+
+**Q1 — separate from TruthMemory? YES.** Orthogonal subsystems:
+- **Tracing** = forensic **audit/provenance** trail. Relational `Trace*` tables (SQL). Write-once record of
+  what each run did; served read-only to the frontend Trace Viewer + compliance export. Never re-read by
+  reasoning. (Has a `TraceMemoryEvent` model — it *observes* that a memory event happened; not the memory.)
+- **TruthMemory** (DB-M, A23) = the AI's **reasoning memory**. `StructuredMemoryGraph` (JSON/Neo4j). Recall
+  *before* + consolidate *after* each layer; feeds back into future reasoning.
+
+**Q2 — both fire on query? YES, at distinct points.** Tracing fires in `gateway.py:1899–1951` (builds
+`TraceRun` + child `TraceStage` rows inline, commits, emits Socket.IO `trace_stage_update`) on every
+reasoning run. TruthMemory fires inside `truth_core` (recall/consolidate per L1–L10 step, confirmed live in
+A23). Distinct storage + distinct fire points — **not duplicates.**
+
+**Wiring:** `trace_bp` registered in both app factories (`app.py:726`, `backend/__init__.py:75`) — live.
+
+**A3-5 FIXED (mis-wiring / silent compliance gap).** `get_gateway()` (`gateway.py:2176`) passes
+`db.session`, but the user-facing endpoints in `backend/llm_gateway/api.py` built **bare `LLMGateway()`** →
+`AIGovernanceEngine.db = None` → `process()`'s 8 `record_audit_event(...)` calls silently no-op'd (no
+`AIAuditEvent` persisted) and `_daily_usage_tokens` returned 0 (daily token budget unenforced). Trace writing
+was unaffected (it imports `db` directly), so the gap was invisible — endpoints returned 200 while the
+governance audit trail was never written. Fixed by passing `db_session=db.session` at the 3 reasoning sites
+(`gateway_chat`, streaming `generate()`, `replay_offline_queue`) — mirrors the known-good `chat.py:175`
+live path. Left `test_provider`'s connection-health-check instance bare (no reasoning, no audit needed).
+
+**Dead code removed — `TraceLogger` (`logger.py`, user decision).** A trace-writer helper (create_run /
+log_ka_invocation / update_run_status) with **zero production callers** — the gateway open-codes the
+`TraceRun`/`TraceStage` writes inline instead, so the helper was fully superseded. Referenced only by itself,
+one combined coverage test, and a docs diagram (not even re-exported from `__init__.py`). Same class as the
+test-only `InputSanitizer` removed in A20. Deleted `logger.py`; trimmed `test_trace_logger_paths` + its
+import from `tests/unit/test_mcp_tracing_repo_rest_coverage.py` (+ now-unused `import uuid`); updated
+`docs/diagrams/07` to show the real path (gateway *writes* Trace* rows, `tracing/api.py` *reads* them).
+
+**Validation:** 47 focused tests pass (governance/gateway-api/tracing/integration_routes), ruff clean.
+Vestigial-but-kept (single-mode, by design): `_user_is_owner()` always-True + `TRACE_PERMISSIONS` map +
+`tenant_id` filter in `get_ka_execution_feed` — left in line with the auth-deprecation keep decisions.
+**Forward → A31/A32:** `docs/FILE_INVENTORY.csv` still lists the deleted `logger.py` (generated inventory —
+batch-regenerate). **→ A26 COMPLETE. Next: A27 (`backend/schemas/`)** — `request_schemas.py` vs
+`api_request_schemas.py` duplicate check.
+
+---
+
 ## Phase 4 / A25 — `backend/operator/` (✅ removed obsolete K8s operator, 2026-06-21)
 Plan question: "What is this pattern? Used by anything? If not: document or remove." → **Removed.**
 
