@@ -42,7 +42,7 @@
 | **A22** | `backend/ingestion/` | ✅ done | `793a8de1` | verify-only: ChromaDB population + async queue + Neo4j sync all real & wired (5 routes + CLI; 14 tests) |
 | **A23** | `backend/memory/` | ✅ done | `db58148d` | verify-only: DB-M confirmed — UnifiedMemoryService wraps StructuredMemoryGraph; wired into truth_core/frost/health |
 | **A24** | `backend/observability/` | ✅ done | `f2d61e60` | verify-only: Sentry wired (startup + error capture); SLO eval real; /metrics Prometheus-compatible |
-| **A25** | `backend/operator/` | ✅ done | _pending_ | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
+| **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
 | **A26** | `backend/tracing/` | ⏭ NEXT | — | separate from TruthMemory? both fire on query? (+ carry-over A3-5 governance no-op) |
 | A27–A32 | schemas, root-level, core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
