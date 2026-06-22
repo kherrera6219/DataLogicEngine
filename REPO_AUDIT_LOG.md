@@ -5,6 +5,51 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A25 — `backend/operator/` (✅ removed obsolete K8s operator, 2026-06-21)
+Plan question: "What is this pattern? Used by anything? If not: document or remove." → **Removed.**
+
+**What it was.** A Kubernetes operator (the `kopf` framework) for multi-node *cloud-cluster*
+orchestration — the infrastructure twin of the (already-removed) multi-user auth surface, obsoleted
+by the same single-mode decision.
+- `operator.py` — `kopf` handlers reconciling `UKGNode` + `MCPServer` CRDs into K8s Deployments
+  (spins up backend replicas loaded with personas).
+- `controller.py` — `KAOperator` loop scaling **KA worker pods by Redis queue depth** + `DRController`
+  for **multi-region disaster recovery** (lazy-imports KA-107).
+
+**Used by anything? — No (zero-importer scan).**
+- **Zero Python importers.** The lone `import operator` (`core/simulation/agentic/graph_state.py`) is the
+  stdlib module — false positive. No `__init__.py` → `backend/operator/` was never even a package.
+- **Not bundled in the desktop app** — absent from `backend.spec` (PyInstaller).
+- **Can't even run as wired** — `kopf` is not in `requirements.txt`; the deploy YAML's own comment assumes
+  "kopf installed" but it isn't.
+- **`controller.py` was doubly-dead** — no Python importer *and* no manifest invoked it (only `operator.py`
+  was named, in `k8s/operator/operator_deploy.yaml`).
+- Only other references were K8s YAML (duplicated across `k8s/operator/` **and** `deploy/k8s/operator/`) and
+  an archived `docs/archive/research/K8S_OPERATOR_DESIGN.md` marked **"Status: Planning / Phase 30 / v3.0
+  Strategy"** — aspirational, never integrated, predates single-mode.
+
+**Verdict:** obsolete parallel subsystem, fundamentally incompatible with single-mode local-first
+(even "cloud" = single-tenant single VM — no cluster to scale, no queue-depth autoscaling, no multi-region
+DR). **Removed** (user decision: code + all operator manifests).
+
+**Deleted (13 files):** `backend/operator/` (`operator.py`, `controller.py`); `k8s/operator/**`
+(`operator_deploy.yaml`, `rbac.yaml`, `ukgnode_crd.yaml`, `mcpserver_crd.yaml`, `crds/ka_crd.yaml`,
+`crds/tracerun_crd.yaml`, `samples/ka_38_example.yaml`); `deploy/k8s/operator/**` (4 files; emptied
+`deploy/k8s/` removed).
+**Kept:** `k8s/base/` (generic backend/frontend Deployments — *not* operator-specific; the broader "does
+single-mode deploy to K8s at all?" question → **A30**). KA-107 stays reachable independently (registered in
+`ka_registry.yaml` as `KA-107` → it was never operator-dependent).
+**Verification:** post-deletion `git grep` for `backend.operator|kopf|UKGNode|mcpservers|KAOperator|DRController`
+across active code/manifests = **zero real hits** (remaining `mcpServers`/`UkgNode`/`MCPServersPage` are the
+app's MCP-client config + the `Node` ORM alias + a frontend page — unrelated). Pure deletion of zero-importer
+code; no runtime path touched.
+**Forward → A32:** `.bandit-baseline.json` now has 2 stale all-zero metrics blocks for the deleted operator
+files (joins the deleted-`input_sanitizer.py` block — batch-regenerate the bandit baseline in A32).
+**Forward → A30:** the duplicated `k8s/` vs `deploy/k8s/` trees + the fate of `k8s/base/` under single-mode.
+**→ A25 COMPLETE. Next: A26 (`backend/tracing/`).**
+
+---
+
 ## Phase 4 / A24 — `backend/observability/` (✅ verify-only, 2026-06-21)
 Plan questions: "Sentry wired? SLO alerts firing? Metrics Prometheus-compatible?" — **all YES.**
 `backend/observability/` = `crash_reporting.py` + `latency_slo.py`.

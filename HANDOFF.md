@@ -1,5 +1,25 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21p (A25 backend/operator — removed obsolete K8s operator)
+
+Plan question "what is this pattern? used by anything? if not: document or remove." → **removed.**
+- **What:** a Kubernetes `kopf` operator for multi-node cloud-cluster orchestration — `operator.py`
+  (reconciles `UKGNode`/`MCPServer` CRDs → Deployments) + `controller.py` (`KAOperator` scales KA worker
+  pods by Redis queue depth; `DRController` multi-region DR). Infrastructure twin of the removed multi-user
+  auth surface; obsoleted by the same single-mode decision (even "cloud" = single-tenant single VM).
+- **Zero-importer scan:** no Python importers (the one `import operator` is stdlib — false positive);
+  no `__init__.py` (never a package); not in `backend.spec` (not bundled); `kopf` not in `requirements.txt`
+  (can't run as wired); `controller.py` doubly-dead (no importer *and* no manifest invokes it). Only refs =
+  duplicated `k8s/operator/` + `deploy/k8s/operator/` manifests + an archived "Planning/v3.0" design doc.
+- **Deleted 13 files** (user decision: code + all operator manifests): `backend/operator/**`,
+  `k8s/operator/**`, `deploy/k8s/operator/**` (emptied `deploy/k8s/` removed). **Kept** `k8s/base/`
+  (generic Deployments — A30 question) and KA-107 (independently registered in `ka_registry.yaml`).
+- **Verified clean:** post-delete `git grep` over active code/manifests = zero real operator refs.
+- **Forward:** A32 (`.bandit-baseline.json` 2 stale all-zero operator blocks → batch-regen with the
+  input_sanitizer block); A30 (duplicated `k8s/` vs `deploy/k8s/` + `k8s/base/` fate under single-mode).
+- **→ A25 COMPLETE. Next: A26 (`backend/tracing/`)** — separate from TruthMemory? both fire on query?
+  (folds in carry-over A3-5: governance `record_audit_event` no-op without a db session).
+
 ### Session log — 2026-06-21o (A24 backend/observability — verify-only)
 
 All 3 plan questions YES. `crash_reporting.py` + `latency_slo.py`.

@@ -342,7 +342,18 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
     - **A24 `backend/observability/` ✅ COMPLETE 2026-06-21 (verify-only):** Sentry wired (`initialize_crash_reporting`
       at startup + `capture_exception_with_fallback` in error handler, fail-soft); SLO eval real (`evaluate_latency_slos`
       p95/p99 vs env thresholds → violation flags); `/metrics` Prometheus-compatible (aggregates latency_slo +
-      crash_reporting lines). 9 tests pass. No stubs. **Next: A25 `backend/operator/`**, then A26→A32.
+      crash_reporting lines). 9 tests pass. No stubs.
+    - **A25 `backend/operator/` ✅ COMPLETE 2026-06-21 (removed obsolete K8s operator):** a Kubernetes `kopf`
+      operator for multi-node cloud-cluster orchestration (`operator.py` reconciles `UKGNode`/`MCPServer` CRDs →
+      Deployments; `controller.py` `KAOperator` scales KA worker pods by Redis queue depth + `DRController`
+      multi-region DR). **Zero importers** (the one `import operator` is stdlib; no `__init__.py`; not in
+      `backend.spec`; `kopf` not in requirements; `controller.py` doubly-dead — no importer *and* no manifest).
+      Obsoleted by single-mode (infra twin of the removed multi-user auth; even "cloud" = single-tenant single
+      VM). **Deleted 13 files** (user decision: code + all operator manifests — `backend/operator/**`,
+      `k8s/operator/**`, `deploy/k8s/operator/**`). **Kept** `k8s/base/` (generic Deployments → A30) + KA-107
+      (independently registered in `ka_registry.yaml`). Post-delete `git grep` clean. **Forward:** A32
+      (`.bandit-baseline.json` 2 stale operator blocks), A30 (k8s/ vs deploy/k8s/ dup + k8s/base fate).
+      **Next: A26 `backend/tracing/`**, then A27→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
