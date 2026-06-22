@@ -5,6 +5,27 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A22 — `backend/ingestion/` (✅ verify-only, 2026-06-21)
+Plan questions: "Populates ChromaDB (linked to A12)? Async queue and Neo4j sync working?" — **all YES.**
+`backend/ingestion/` = `local_ingestion.py` (`LocalKnowledgeIngestionService`) + clean `__init__` exports.
+- **Populates ChromaDB — ✅.** `ingest_path()` chunks each file (via `RAGService.chunk_text`), creates
+  dedup'd SQL `KnowledgeGraphNode` rows (uid = `ki_<chunk_hash>`), and indexes each chunk into Chroma via
+  `rag.ingest_knowledge_node(uid, chunk, "ingested_document_chunk", metadata)` — the `knowledge_nodes`
+  collection confirmed live in A12 (DB-C). `chunks_indexed` tracks the Chroma handoff.
+- **Async queue — ✅.** `ingest_path_async()` runs ingestion in a daemon `threading.Thread` under a pushed
+  Flask `app_context`, tracks state in `_ASYNC_STATUS` (lock-guarded), exposed via `get_async_status()` and
+  `GET /status/<ingestion_id>`.
+- **Neo4j sync — ✅.** `_sync_to_neo4j()` calls `scripts.sync_nodes_to_neo4j.sync()` post-ingestion when
+  `sync_neo4j=True` and chunks were created (graceful on failure).
+- **Hardening present:** prompt-injection scrubbing (`_scrub_text` strips "ignore previous instructions",
+  `<script`, etc.), size cap, PDF/DOCX delegation to `DocumentProcessor`, JSON manifests.
+- **Fully wired:** `backend/routes/ingestion_routes.py` (5 endpoints: `/supported`, `/history`, `/local`,
+  `/local/async`, `/status/<id>`), `scripts/ingest_local_corpus.py` (CLI), `scripts/verify_ki_ingestion.py`
+  (evidence). 14 `test_ki_local_ingestion.py` tests pass. No stubs. **→ A22 COMPLETE. Next: A23
+  (`backend/memory/`).**
+
+---
+
 ## Phase 4 / A21 — `backend/mcp_server/` (✅ verify-only, 2026-06-21)
 Plan questions: "LY-4 inversion fix confirmed? Sampling/subscriptions working?" (Plan-number drift: **LY-4 is
 `PersonaConstructionService`; the MCP inversion fix is LY-6.**) Audited all 9 files — all real and wired, no stubs.

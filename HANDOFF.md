@@ -1,5 +1,16 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-21m (A22 backend/ingestion — verify-only)
+
+All 3 plan questions YES. `backend/ingestion/` = `local_ingestion.py` (`LocalKnowledgeIngestionService`).
+- **ChromaDB population ✅:** chunks → dedup'd SQL `KnowledgeGraphNode` rows → `rag.ingest_knowledge_node`
+  into Chroma `knowledge_nodes` (A12 DB-C). **Async queue ✅:** `ingest_path_async` daemon thread +
+  app_context + `_ASYNC_STATUS` + `GET /status/<id>`. **Neo4j sync ✅:** `_sync_to_neo4j` →
+  `scripts.sync_nodes_to_neo4j.sync()` when `sync_neo4j=True`.
+- Hardening: injection scrubbing, size cap, PDF/DOCX via DocumentProcessor, manifests. Wired: 5
+  ingestion_routes endpoints + CLI + evidence script; 14 KI tests pass. No stubs, no code changes.
+- **→ A22 COMPLETE. Next: A23 (`backend/memory/`).**
+
 ### Session log — 2026-06-21l (A21 backend/mcp_server — verify-only)
 
 All 9 files real and wired, no stubs.

@@ -331,8 +331,11 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       MCP inversion fix confirmed (plan's "LY-4" was stale → actual MCP fix = LY-6; `scope_enforcement.py`+siblings
       are shims re-exporting `core.mcp.*`). Sampling + subscriptions (SSE via truth_link) real & wired via mcp_routes.
       Forward: (A32) inversion scanner false-positives on a docstring in `sufficiency.py:414`; (A28) assess the 3
-      standalone FastAPI services (api_gateway/model_context_server/webhook_server) together. **Next: A22
-      `backend/ingestion/`**, then A23→A32.
+      standalone FastAPI services (api_gateway/model_context_server/webhook_server) together.
+    - **A22 `backend/ingestion/` ✅ COMPLETE 2026-06-21 (verify-only):** `local_ingestion.py` — ChromaDB
+      population (rag.ingest_knowledge_node→knowledge_nodes), async queue (`ingest_path_async`+status endpoint),
+      Neo4j sync (`_sync_to_neo4j`) all real & wired (5 routes + CLI + evidence; 14 KI tests pass). No stubs.
+      **Next: A23 `backend/memory/`**, then A24→A32.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).
