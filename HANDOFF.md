@@ -1,5 +1,24 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-22b (carry-over knock-out — 7/9 DONE; ORPH-3 + A12 remain)
+
+Cleared the carry-over backlog in two commits (`ff30a072` batch 1, `3781e1df` batch 2). **DONE:** A18-pre
+(verified), ORPH-1 (db_utils removed), ORPH-2 (unified_middleware removed — api_gateway uses asgi_security,
+not it), A3-4 (HONEYPOT→BLOCK correct single-mode + comment; user_role already "owner"), A5-2 (verdict:
+defense-in-depth UNION, keep all five), SC-2 (AES-256-GCM verified implemented + docs consistent), A32-mini
+(inversion-scanner startswith fix → 0; audit_deep stale routes/ dropped; bandit baseline regenerated).
+**REMAIN:** **ORPH-3** `mcp_server/oauth_manager.py` — confirmed unwired (SaaS-connector consumers removed in
+local-first pivot); removal recommended, **awaiting user confirm**. **A12** Postgres run — infra-gated (needs
+local stack). **Then A27 (`backend/schemas/`).**
+
+**Orphan-scanner v2 (NEW, important):** hardened `find_orphaned_modules.py` to exclude prose docs (.md/.txt)
+from the reference corpus (an audit/handoff/structure doc that *mentions* a path is not wiring and was masking
+orphans). Now surfaces **13 candidates** (was 4) — recorded for **per-area verification, NOT mass-deletion**:
+schemas/auth_schemas+simulation_schemas → **A27 (next)**; security/{api_security,context_aware,
+data_classification,honeypot,security_monitoring,vulnerability_scanner} → A10; email_service/export_service/
+file_upload_service → A19; i18n → A28. Several are plausibly dead-by-single-mode-pivot (esp. auth_schemas,
+email_service) but each needs the per-module check (cf. the `feature_flag_routes` false-positive).
+
 ### Session log — 2026-06-22 (carry-over backlog knock-out — STARTED, EOD pause)
 
 Goal this session: clear all open ☐ carry-over findings before opening A27. Enumerated the backlog and
