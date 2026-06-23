@@ -44,12 +44,14 @@ User directive: clear the entire carry-over backlog before opening A27. Status b
   Crescendo/social-engineering regexes can't); (4) TruthGate L8 adversarial/policy gate inside reasoning;
   (5) DMRF injection defense at the control-plane stage. Consolidating would shrink coverage. Documented; no
   code change.
-- **ORPH-3 `mcp_server/oauth_manager.py` — confirmed unwired; DECISION PENDING (user).** Real, complete
-  connector-OAuth token lifecycle (`get_/upsert_connector_oauth_token` against `OAuthAccount`) but **zero
-  callers** — `router.py:26`'s `"token"` is an unrelated string literal. Its likely consumers (the Jira/
-  Salesforce external SaaS connectors) were **removed in the local-first pivot** (see the removed
-  `test_jira_tools_paths`/`test_salesforce_tools_paths`), which orphaned it. Recommend removal as consistent
-  with single-mode local-first; flagged for explicit confirmation (deleting a complete coherent subsystem).
+- **ORPH-3 `mcp_server/oauth_manager.py` ✅ removed (user decision).** Real, complete connector-OAuth token
+  lifecycle (`get_/upsert_connector_oauth_token` against `OAuthAccount`) but **zero callers** — `router.py:26`'s
+  `"token"` is an unrelated string literal. Its likely consumers (the Jira/Salesforce external SaaS connectors)
+  were **removed in the local-first pivot** (see the removed `test_jira_tools_paths`/`test_salesforce_tools_paths`),
+  which orphaned it. Verified zero importers + no tests before cutting; `mcp_server/__init__` doesn't re-export
+  it; mcp_server tests + ruff green after removal. **`OAuthAccount` ORM model LEFT IN PLACE** (forward
+  **ORPH-4**): now used only by model-surface tests, but dropping it needs an Alembic migration + an update to
+  the 65-class `test_models` ORM pin → assess in A27/schema, not as a carry-over cut.
 - **A12 — INFRA-GATED (unchanged):** dual-engine Postgres run path is enabled; needs the local Postgres stack
   running (`start_local_stack.ps1`). Not runnable in a bare session; run via local stack / CI matrix.
 
