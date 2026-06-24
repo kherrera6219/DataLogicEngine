@@ -1,5 +1,16 @@
 # DataLogicEngine — Session Handoff
 
+## ▶ START HERE (next session) — updated 2026-06-22
+**Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A29 ✅; ⏭ A30 NEXT.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
+
+- **Next = A30** (`config/` + `migrations/` + `k8s/`): (a) A25-deferred `k8s/` vs `deploy/k8s/` near-dup + `k8s/base/` fate under single-mode; (b) A28-deferred stale `config_manager.py` enterprise port/service entries (services removed, config data wasn't); (c) migrations review. Then **A31** (docs + regenerate `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` — they still list this session's many deletions) → **A32** (scripts; consider retiring one-off `audit_deep.py`/`audit_duplicates.py`).
+- **Start each session by running** `scripts/find_orphaned_modules.py <root>` (dead-module scanner; conservative candidates → confirm-before-cut; gitignored report).
+- **Other open items:** A12 dual-engine Postgres run (infra-gated — needs local stack); **ORPH-4** drop `OAuthAccount` model (needs Alembic migration + 65-class `test_models` ORM-pin update); **ORPH-v2 remaining** orphan candidates to verify per-module — security/* → A10, `email_service`/`export_service`/`file_upload_service` → A19.
+- **This session retired 3 whole obsolete subsystems** (enterprise FastAPI microservices, dead Marshmallow validation, `core/algorithms` shadow-KA) + cleared the carry-over backlog (8/9). All committed + pushed (`origin/main` = HEAD).
+- **Gotchas:** `.venv311` for pytest, `.venv`/PATH for ruff; git = `"C:\Program Files\Git\cmd\git.exe"`; pre-commit runs ruff + frontend lint/typecheck (NOT pytest — so grep ALL test importers after deleting a module); after deletions, regenerate `.bandit-baseline.json` via `python -m bandit -r backend/ core/ --exit-zero -f json -o .bandit-baseline.json`. Work local during the day; push at EOD (don't push proactively).
+
+---
+
 ### Session log — 2026-06-22e (A29 core/* — orphan/dead sweep of the deepest layer)
 
 Ran `find_orphaned_modules.py core` over all 115 files. Most of `core/` was already audited (A9 persona/quad,

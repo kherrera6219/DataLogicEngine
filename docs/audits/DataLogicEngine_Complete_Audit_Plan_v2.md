@@ -57,11 +57,14 @@ Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
 and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
 is fully complete (Phases A–F + F5-frontend); all data stores are local internal
 app-owned components (Postgres/Redis/Neo4j/Chroma/object/SQLite), not external
-services. Open forward items: A28 (3 standalone FastAPI services
-api_gateway/model_context_server/webhook_server — wiring/liveness + the
-`/list_models` placeholder stub); A32 (`find_core_backend_inversions.py`
-docstring false-positive; `.bandit-baseline.json` stale metrics block);
-A12-followup (execute the dual-engine Postgres run via CI matrix / local stack).
+services. Open forward items (as of A29): **A30 next** (config/migrations/k8s —
+incl. A25-deferred k8s dup + A28-deferred stale config_manager enterprise ports);
+A31 (docs + regenerate GENERATED_STRUCTURE/FILE_INVENTORY for this session's
+deletions); A32 (retire one-off scanners audit_deep/audit_duplicates); A12-followup
+(dual-engine Postgres run — infra-gated); ORPH-4 (`OAuthAccount` model drop — needs
+migration); ORPH-v2 remaining (security/* → A10, services/email → A19 — per-module
+verify). The enterprise multi-service layer + the A32-mini scanner/baseline items
+are now DONE (A28/A26).
 
 ### Open carry-over findings (tracked across sessions)
 
