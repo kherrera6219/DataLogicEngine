@@ -45,7 +45,7 @@
 | **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
 | **A26** | `backend/tracing/` | ✅ done | `07c8444a` | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
 | **A27** | `backend/schemas/` | ✅ done | `58583df2` | NOT a dup (request_schemas vs api_request_schemas = both live Pydantic, distinct classes/routes). Real find: removed dead **Marshmallow** layer — emptied __init__.py (255L), deleted simulation_schemas.py + auth_schemas.py (zero importers; superseded by Pydantic; multi-user auth obsolete) |
-| **A28** | `backend/*.py` root-level | ✅ done | _pending_ | graphql=live, celery=wired (no desktop worker), app.py/N1 ok; removed dead i18n.py; **retired the enterprise multi-service layer** (3 FastAPI services + enterprise_architecture + asgi_security + run_enterprise scripts, 10 files — never launched by desktop) + fixed an ORPH-2 test regression |
+| **A28** | `backend/*.py` root-level | ✅ done | `5834280d` | graphql=live, celery=wired (no desktop worker), app.py/N1 ok; removed dead i18n.py; **retired the enterprise multi-service layer** (3 FastAPI services + enterprise_architecture + asgi_security + run_enterprise scripts, 10 files — never launched by desktop) + fixed an ORPH-2 test regression |
 | **A29** | `core/*` | ⏭ NEXT | — | core packages sweep (deepest layer) |
 | A30–A32 | config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
