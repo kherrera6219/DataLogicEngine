@@ -5,6 +5,46 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Dependency vulnerability remediation (✅ 2026-06-24)
+Fixed all dependency vulnerabilities across Python + Node. CI gates on
+`pip-audit -r requirements.txt --ignore-vuln CVE-2025-3000` (torch.jit.script,
+accepted-risk, not reachable) and `npm audit`; both now clean.
+
+**Python — pip-audit flagged ~13 packages, but most were venv drift, not requirements.txt:**
+- The 6 direct pins it flagged (aiohttp, Authlib, cryptography, langchain, PyJWT, pypdf) were **already
+  patched in `requirements.txt`** — the local `.venv311` had simply drifted stale. Re-synced the venv to the
+  declared pins (surgical upgrade, not a full `--upgrade`).
+- **bleach** — directly imported by live `backend/security/sanitizer.py` but **undeclared** in requirements.txt
+  (it was an implicit transitive). Added explicit pin `bleach==6.4.0` (patches GHSA-gj48-438w-jh9v /
+  GHSA-8rfp-98v4-mmr6).
+- **starlette** (transitive via `chromadb`→`fastapi`) — pinned `starlette>=1.3.1` to patch
+  CVE-2026-48817/48818/54282/54283. The Chroma server path is unused (we use embedded Chroma), so these were
+  non-exploitable in our usage, but the dep is now patched anyway.
+- **langsmith** (transitive via `langchain-core`, which only floors `>=0.3.45`) — pinned `langsmith>=0.8.18`
+  to patch GHSA-f4xh-w4cj-qxq8.
+- **zeep** (CVE) — came from `simple-salesforce`, an **orphaned leftover install** from the removed SaaS
+  connectors (see `mcp_server/tools/__init__.py`: "Salesforce... have been removed"). Not declared in
+  requirements.txt and required by nothing → uninstalled from the venv; absent from clean builds. Resolved.
+- **msgpack** (CVE) — pulled **only by `pip_audit`'s own `CacheControl`** (a dev/audit tool), not a shipped
+  dependency → no app action; upgraded in the venv only to silence the local audit.
+- **pip** itself 26.1.1→26.1.2 — tooling, not bundled; upgraded.
+- **Result:** `pip-audit -r requirements.txt --ignore-vuln CVE-2025-3000` → **No known vulnerabilities found.**
+
+**Node — `npm audit fix` (non-breaking, no `--force`):** resolved all **4 high-severity** advisories
+(`undici` TLS-bypass / header-injection / DoS cluster; `ws` DoS via `engine.io-client`). `npm audit` → **0
+vulnerabilities**; frontend typecheck + lint + **378 tests pass**.
+
+**Validation:** full Python suite **1787 passed / 18 skipped / 1 failed** — the 1 failure
+(`test_truthcore_..._memory_each_layer`) is the **Neo4j e2e test, environmental + pre-existing, NOT a
+dependency regression**: a local Neo4j came up mid-session (7687/7690 opened), so its skip-guard ran the test
+against an unseeded instance (`memory_writes` 1≠3). Forcing the guard to see Neo4j down →
+**3 passed / 1 skipped** (healthy baseline), confirming the upgraded dep set is regression-free. **Forward
+finding:** the skip-guard (`tests/memory/test_unified_memory_service.py::_neo4j_available`) checks TCP
+port-reachability, not Neo4j functionality — harden to run a trivial Cypher (`RETURN 1`) so an up-but-unseeded
+Neo4j skips instead of fails.
+
+---
+
 ## ORPH-v2 security/services batch — per-module verify + cut (✅ outstanding-item knock-out, 2026-06-24)
 The orphan-scanner-v2 candidates flagged for "A10 revisit" (security/\*) and "A19 revisit" (services). Ran
 `find_orphaned_modules.py backend` → all 9 candidates classified **TEST-ONLY** (zero production importers).
