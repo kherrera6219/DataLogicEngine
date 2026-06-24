@@ -362,7 +362,15 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       `LLMGateway()` → governance `record_audit_event` no-op (no AIAuditEvent) + daily budget unenforced;
       now `LLMGateway(db_session=db.session)` (mirrors chat.py). **Removed dead `TraceLogger`** (logger.py;
       zero production callers — gateway open-codes the writes) + its test + diagram ref. 47 focused tests pass,
-      ruff clean. Forward → A31/A32 (FILE_INVENTORY.csv lists deleted logger.py). **Next: A27 `backend/schemas/`**.
+      ruff clean. Forward → A31/A32 (FILE_INVENTORY.csv lists deleted logger.py).
+    - **A27 `backend/schemas/` ✅ COMPLETE 2026-06-22 (removed dead Marshmallow layer):** plan asked
+      "request_schemas vs api_request_schemas — duplicate?" → **No** (both live Pydantic, distinct classes,
+      different routes; kept both). Real find = a dead parallel **Marshmallow** validation system (validation
+      migrated to Pydantic): emptied `__init__.py` (255 dead lines → minimal docstring), deleted
+      `simulation_schemas.py` (Marshmallow) + `auth_schemas.py` (Pydantic multi-user auth) — all zero importers.
+      Resolves ORPH-v2 schemas candidates. 24 focused tests pass, ruff clean, bandit baseline regenerated.
+      `OAuthAccount` (ORPH-4) deferred (models/migration). **Next: A28 `backend/*.py` root-level**.
+      (Also landed this session before A27: carry-over knock-out 8/9 — see HANDOFF 2026-06-22b.)
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

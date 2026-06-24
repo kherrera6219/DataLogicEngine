@@ -1,5 +1,23 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-22c (A27 backend/schemas — removed dead Marshmallow validation layer)
+
+Plan: "request_schemas vs api_request_schemas — duplicate?" → **No.** Both are live **Pydantic** request-model
+modules with distinct classes used by different routes (api_request_schemas → api/knowledge/compliance/
+simulation routes; request_schemas → multimodal/storage). Arbitrary naming split + minor overlap
+(PillarCreateRequest vs PillarLevelCreateRequest) but both used — kept both.
+- **Real find = dead parallel Marshmallow layer** (validation migrated Marshmallow→Pydantic): emptied
+  `__init__.py` (255 lines of Marshmallow `User*Schema`/`validate_with_schema`/… → minimal docstring),
+  **deleted** `simulation_schemas.py` (Marshmallow) + `auth_schemas.py` (Pydantic multi-user auth). All had
+  **zero importers + zero tests** (every ref was self-internal or in generated/audit docs).
+- Verified: `import backend.schemas` + live submodule imports OK; ruff clean; 24 focused tests pass; orphan
+  scanner schemas candidates gone (ORPHAN 3→1, only `i18n` left → A28); bandit baseline regenerated (492 files).
+- **ORPH-4** (`OAuthAccount` model, models.py:244) NOT touched — needs an Alembic migration + 65-class ORM-pin
+  update; deferred to a models/schema migration session.
+- **→ A27 COMPLETE. Next: A28 (`backend/*.py` root-level)** — graphql_schema/celery_app/app.py factory; the 3
+  standalone FastAPI services (api_gateway/model_context_server/webhook_server, incl. model_context_server
+  `/list_models` placeholder stub); ORPH-v2 `backend/i18n.py`.
+
 ### Session log — 2026-06-22b (carry-over knock-out — 8/9 DONE; only A12 remains)
 
 Cleared the carry-over backlog in commits `ff30a072` (batch 1), `3781e1df` (batch 2), `7b575e5b` (ORPH-3).

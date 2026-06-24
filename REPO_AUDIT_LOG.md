@@ -5,6 +5,40 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A27 — `backend/schemas/` (✅ removed dead Marshmallow layer + auth_schemas, 2026-06-22)
+Plan question: "`request_schemas.py` vs `api_request_schemas.py` — duplicate?" → **No, not duplicates.** Both
+are **Pydantic** request-model modules, both **live**, with *distinct* classes used by different routes:
+- `api_request_schemas.py` (QueryRequest/SimulationRunRequest/…/ComplianceReportRequest) — used by
+  `api_routes`, `knowledge_routes`, `compliance_routes`, `simulation_routes`.
+- `request_schemas.py` (StorageTestRequest/AudioSynthesizeRequest/PillarCreateRequest) — used by
+  `multimodal_routes`, `storage_routes` (+ `tests/security/test_request_schemas.py`).
+The naming split is arbitrary and there's minor conceptual overlap (`PillarCreateRequest` vs
+`PillarLevelCreateRequest`), but both are used and the classes differ — **kept both** (merging would touch 6
+route import sites for marginal gain; not a duplicate to collapse).
+
+**The real finding — a dead parallel validation system (Marshmallow vs Pydantic).** Request validation
+migrated to Pydantic, orphaning the entire **Marshmallow** layer. Confirmed zero external importers + zero
+tests (every reference was self-internal or in generated/audit docs):
+- **`__init__.py` (255 lines) → reduced to a minimal package docstring.** Held Marshmallow
+  `UserRegistrationSchema`/`UserLoginSchema`/`PasswordChangeSchema` (dead multi-user auth),
+  `SimulationCreateSchema`/`KnowledgeNodeCreateSchema`/`QuerySchema`/`PaginationSchema`/`EmailSchema`/
+  `APIKeyCreateSchema`, plus `validate_request_data` + the `validate_with_schema` decorator — **none imported
+  anywhere** (live routes use the Pydantic submodules via `from backend.schemas.<submodule> import …`, which
+  work with a minimal `__init__`).
+- **`simulation_schemas.py` (242 lines, Marshmallow) → deleted.** `CreateSimulationSchema`/
+  `UpdateSimulationSchema`/`SimulationQuerySchema` + validators; only self-referenced. Superseded by the
+  Pydantic `SimulationCreateRequest`/`SimulationRunRequest` in `api_request_schemas.py`.
+- **`auth_schemas.py` (25 lines, Pydantic) → deleted.** `LoginRequest`/`RegisterRequest`/`TokenRequest` —
+  dead multi-user auth (single-mode removed login/register). Resolves the ORPH-v2 schemas candidates.
+**Validation:** `import backend.schemas` + live submodule imports OK; ruff clean; 24 focused tests pass
+(`test_request_schemas` + gateway-api + canonical route contracts). Orphan scanner: schemas candidates gone
+(ORPHAN 3→1; only `i18n` left → A28). Regenerated `.bandit-baseline.json` (clears this session's deleted-file
+blocks; 492 files). **`OAuthAccount` model (ORPH-4) is a separate models/migration item — not touched here.**
+**→ A27 COMPLETE. Next: A28 (`backend/*.py` root-level — graphql_schema/celery_app/app.py factory; the 3
+standalone FastAPI services api_gateway/model_context_server/webhook_server; ORPH-v2 → A28 `i18n`).**
+
+---
+
 ## Carry-over knock-out (2026-06-22) — clearing all open ☐ findings before A27
 User directive: clear the entire carry-over backlog before opening A27. Status by item:
 - **A18-pre ✅** verified resolved (helper in `tests/_helpers.py`; consumers import from it; no collision).
