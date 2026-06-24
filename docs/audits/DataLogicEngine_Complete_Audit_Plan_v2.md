@@ -44,7 +44,7 @@
 | **A24** | `backend/observability/` | ✅ done | `f2d61e60` | verify-only: Sentry wired (startup + error capture); SLO eval real; /metrics Prometheus-compatible |
 | **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
 | **A26** | `backend/tracing/` | ✅ done | `07c8444a` | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
-| **A27** | `backend/schemas/` | ✅ done | _pending_ | NOT a dup (request_schemas vs api_request_schemas = both live Pydantic, distinct classes/routes). Real find: removed dead **Marshmallow** layer — emptied __init__.py (255L), deleted simulation_schemas.py + auth_schemas.py (zero importers; superseded by Pydantic; multi-user auth obsolete) |
+| **A27** | `backend/schemas/` | ✅ done | `58583df2` | NOT a dup (request_schemas vs api_request_schemas = both live Pydantic, distinct classes/routes). Real find: removed dead **Marshmallow** layer — emptied __init__.py (255L), deleted simulation_schemas.py + auth_schemas.py (zero importers; superseded by Pydantic; multi-user auth obsolete) |
 | **A28** | `backend/*.py` root-level | ⏭ NEXT | — | graphql_schema/celery_app/app.py factory; 3 standalone FastAPI services (api_gateway/model_context_server/webhook_server); ORPH-v2 `i18n` |
 | A29–A32 | core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
