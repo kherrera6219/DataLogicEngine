@@ -45,12 +45,13 @@
 | **A25** | `backend/operator/` | ✅ done | `8506b5ab` | removed obsolete K8s `kopf` operator + all operator manifests (zero importers, not bundled, single-mode-incompatible); k8s/base kept → A30 |
 | **A26** | `backend/tracing/` | ✅ done | `07c8444a` | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
 | **A27** | `backend/schemas/` | ✅ done | `58583df2` | NOT a dup (request_schemas vs api_request_schemas = both live Pydantic, distinct classes/routes). Real find: removed dead **Marshmallow** layer — emptied __init__.py (255L), deleted simulation_schemas.py + auth_schemas.py (zero importers; superseded by Pydantic; multi-user auth obsolete) |
-| **A28** | `backend/*.py` root-level | ⏭ NEXT | — | graphql_schema/celery_app/app.py factory; 3 standalone FastAPI services (api_gateway/model_context_server/webhook_server); ORPH-v2 `i18n` |
-| A29–A32 | core/*, config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
+| **A28** | `backend/*.py` root-level | ✅ done | _pending_ | graphql=live, celery=wired (no desktop worker), app.py/N1 ok; removed dead i18n.py; **retired the enterprise multi-service layer** (3 FastAPI services + enterprise_architecture + asgi_security + run_enterprise scripts, 10 files — never launched by desktop) + fixed an ORPH-2 test regression |
+| **A29** | `core/*` | ⏭ NEXT | — | core packages sweep (deepest layer) |
+| A30–A32 | config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline (2026-06-21): **1876 passed / 19 skipped / 0 failed** (SQLite).
-**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A27 done; A28 next.**
+**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A28 done; A29 next.**
 Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
 and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
 is fully complete (Phases A–F + F5-frontend); all data stores are local internal
@@ -80,7 +81,7 @@ A12-followup (execute the dual-engine Postgres run via CI matrix / local stack).
 | ORPH-2 | `backend/api_gateway/unified_middleware.py` (`UnifiedMiddleWare`/`PIIShield`/`APIParityService`) — test-only, no production consumer | A28 | ✅ resolved 2026-06-22 (confirmed dead — api_gateway uses asgi_security, not UnifiedMiddleWare; removed module + dedicated test + trimmed 2 test-only tests) |
 | ORPH-3 | `backend/mcp_server/oauth_manager.py` — connector OAuth helpers with no caller; confirm wired-vs-dead | A21 revisit | ✅ resolved 2026-06-22 (user decision REMOVE; deleted — verified zero importers + no tests; scanner re-run clean). `OAuthAccount` model (models.py:244) LEFT IN PLACE → forward ORPH-4. |
 | ORPH-4 | `OAuthAccount` ORM model (`models.py:244`) now used only by model-surface tests after ORPH-3 — assess dropping model + `oauth_accounts` table (needs Alembic migration + update `test_models` 65-class pin) | A27 / schema | ☐ |
-| ORPH-v2-batch | orphan-scanner v2 (prose-doc exclusion) surfaced 13 candidates — verify per-area, do NOT mass-delete. **schemas/auth_schemas+simulation_schemas ✅ removed in A27.** REMAIN: security/{api_security,context_aware,data_classification,honeypot,security_monitoring,vulnerability_scanner} → A10; email_service/export_service/services/file_upload_service → A19; i18n → A28 | A10/A19/A28 | ◑ schemas done; rest per-module verify |
+| ORPH-v2-batch | orphan-scanner v2 (prose-doc exclusion) surfaced 13 candidates — verify per-area, do NOT mass-delete. **schemas/auth_schemas+simulation_schemas ✅ removed in A27.** **i18n ✅ removed in A28.** REMAIN: security/{api_security,context_aware,data_classification,honeypot,security_monitoring,vulnerability_scanner} → A10; email_service/export_service/services/file_upload_service → A19 | A10/A19 | ◑ schemas+i18n done; security/services per-module verify |
 
 ---
 

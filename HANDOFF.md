@@ -1,5 +1,25 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-22d (A28 backend root-level — retired enterprise multi-service layer)
+
+Plan questions: graphql_schema=**live** (register_graphql wired in app.py, tested); celery_app=**wired** but no
+worker in the packaged desktop app (`make_celery` at app.py:497; one `.delay` site in ka_master_controller);
+app.py factory + N1/SEKRE **ok** (A6b/A13). 
+- **Removed dead `backend/i18n.py`** — Flask-Babel **template** i18n for a server-rendered app, but this is
+  Electron + Next.js (frontend owns i18n); `init_babel` never called, zero importers. (ORPH-v2 i18n resolved.)
+- **Retired the enterprise multi-service layer (user decision) — 10 files.** The 3 standalone uvicorn FastAPI
+  apps (`api_gateway`/`webhook_server`/`model_context_server`) + `enterprise_architecture.py` +
+  `middleware/asgi_security.py` (their only consumer) + `scripts/run_enterprise_*`/`check_enterprise_health`/
+  `start_enterprise.sh` + `tests/unit/test_api_gateway_auth.py`. Never launched by the desktop Flask backend —
+  the microservices sibling of the retired K8s operator; also held the `model_context_server /list_models`
+  stale stub. Blast radius verified (desktop factory + `backend.spec` reference none of it). **Kept**
+  `config_manager` port entries (harmless data → A31/A32 cleanup) and `ka_111_api_gateway` (a KA, unrelated).
+- **Fixed an ORPH-2 regression** (from `3781e1df`): two test files still imported the deleted
+  `unified_middleware` (`test_unified_middleware.py` deleted; `test_unified_coverage.py` trimmed, kept its live
+  `unified_mapping_api` tests). **Lesson:** grep ALL test importers after a module delete — pre-commit ≠ pytest.
+- Validation: desktop backend+config+middleware import OK; middleware units 12 pass; ruff clean; bandit
+  baseline regenerated (486 files). **→ A28 COMPLETE. Next: A29 (`core/*`).**
+
 ### Session log — 2026-06-22c (A27 backend/schemas — removed dead Marshmallow validation layer)
 
 Plan: "request_schemas vs api_request_schemas — duplicate?" → **No.** Both are live **Pydantic** request-model

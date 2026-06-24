@@ -369,8 +369,17 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       migrated to Pydantic): emptied `__init__.py` (255 dead lines → minimal docstring), deleted
       `simulation_schemas.py` (Marshmallow) + `auth_schemas.py` (Pydantic multi-user auth) — all zero importers.
       Resolves ORPH-v2 schemas candidates. 24 focused tests pass, ruff clean, bandit baseline regenerated.
-      `OAuthAccount` (ORPH-4) deferred (models/migration). **Next: A28 `backend/*.py` root-level**.
-      (Also landed this session before A27: carry-over knock-out 8/9 — see HANDOFF 2026-06-22b.)
+      `OAuthAccount` (ORPH-4) deferred (models/migration).
+    - **A28 `backend/*.py` root-level ✅ COMPLETE 2026-06-22:** graphql_schema=live (wired app.py, tested);
+      celery_app=wired (`make_celery` in app.py; one `.delay` site) but no worker in desktop; app.py factory/N1
+      ok (A6b/A13). **Removed dead `i18n.py`** (Flask-template i18n; Electron+Next owns i18n; never init'd).
+      **Retired the enterprise multi-service layer** (user decision) — 10 files: 3 standalone FastAPI services
+      (api_gateway/webhook_server/model_context_server) + `enterprise_architecture.py` + `asgi_security.py`
+      (orphaned w/ them) + 4 run_enterprise/check/start scripts + `test_api_gateway_auth.py`. Never launched by
+      the desktop app (the microservices sibling of the retired K8s operator). **Fixed an ORPH-2 regression**
+      (2 test files still importing the deleted unified_middleware). Verified: desktop imports OK, middleware
+      tests pass, ruff clean, bandit baseline regenerated. Forward → A31 docs (enterprise refs in deploy/**) +
+      config_manager stale port entries. **Next: A29 `core/*`**.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

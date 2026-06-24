@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2026-06-24T16:52:27Z",
+  "generated_at": "2026-06-24T17:13:39Z",
   "metrics": {
     "_totals": {
       "CONFIDENCE.HIGH": 97,
       "CONFIDENCE.LOW": 1,
-      "CONFIDENCE.MEDIUM": 14,
+      "CONFIDENCE.MEDIUM": 13,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 111,
+      "SEVERITY.LOW": 110,
       "SEVERITY.MEDIUM": 1,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 83276,
+      "loc": 81970,
       "nosec": 0,
       "skipped_tests": 6
     },
@@ -38,19 +38,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 430,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/api_gateway\\api_gateway.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 344,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -561,19 +548,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "backend/enterprise_architecture.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 1,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 1,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 191,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "backend/export_service.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -610,19 +584,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 137,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/i18n.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 82,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2875,19 +2836,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "backend/middleware\\asgi_security.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 46,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "backend/middleware\\correlation_id.py": {
       "CONFIDENCE.HIGH": 1,
       "CONFIDENCE.LOW": 0,
@@ -2950,19 +2898,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 126,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/model_context\\model_context_server.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 370,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -4890,19 +4825,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "backend/webhook_server\\webhook_server.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 273,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "backend/websocket.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -6461,29 +6383,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
       "test_id": "B110",
       "test_name": "try_except_pass"
-    },
-    {
-      "code": "65                 \"provider\": \"jwt\",\n66                 \"token_expiry_minutes\": 60\n67             },\n68             \"cross_runtime\": {\n69                 \"python_dotnet_bridge\": \"grpc\"\n70             }\n",
-      "col_offset": 16,
-      "end_col_offset": 38,
-      "filename": "backend/enterprise_architecture.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: '60'",
-      "line_number": 66,
-      "line_range": [
-        64,
-        65,
-        66,
-        67
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
     },
     {
       "code": "66         for name, params in rubrics.items():\n67             results[name] = random.uniform(0.6, 1.0) # Baseline\n68             if name == \"accuracy\" and \"unknown\" in content.lower():\n",

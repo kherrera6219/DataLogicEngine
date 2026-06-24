@@ -28,18 +28,26 @@ One entry per sprint. Append; do not overwrite.
   UnifiedMiddleWare/PIIShield tests, **kept** the live `unified_mapping_api` blueprint tests). Both files green
   (11 pass). **Lesson:** after deleting a module, grep ALL test importers exhaustively (don't trust a
   possibly-truncated first pass) — pre-commit doesn't run pytest, so a broken collection slips through.
-- **⏳ DECISION PENDING — the standalone "enterprise multi-service" layer.** `backend/api_gateway/api_gateway.py`,
-  `backend/webhook_server/webhook_server.py`, `backend/model_context/model_context_server.py` are each a
-  standalone **uvicorn FastAPI** app (`app = FastAPI()` + `uvicorn.run(...)` in `__main__`), tied together by
-  `backend/enterprise_architecture.py` and launched **only** by `scripts/run_enterprise_{ukg,services}.py` as
-  separate processes. The **desktop Flask backend (`app.py`) never imports or launches them.** This is the
-  microservices/enterprise deployment — orthogonal to single-mode local-first (the infra sibling of the
-  removed K8s operator). `model_context_server` `/list_models` is also a hardcoded placeholder stub (stale
-  `ukg-gpt-4`/`openai-gpt-4` names). **Whether to retire this whole layer (like the operator) or keep it as a
-  supported deployment is a user decision** — it's a coherent multi-file subsystem (3 services +
-  enterprise_architecture + run_enterprise scripts + config ports + `test_api_gateway_auth`), so flagged, not cut.
-- **Remaining root files** (chat/config/data_loader/*_api blueprints/seed_data/init_db/ukg_db/websocket/…)
-  appear live (blueprints registered via `register_routes`); spot-check + finalize after the enterprise decision.
+- **✅ RETIRED — the standalone "enterprise multi-service" layer (user decision).** The 3 standalone uvicorn
+  **FastAPI** apps + their glue were never launched by the desktop Flask backend (only by `run_enterprise_*`
+  scripts) — the microservices/enterprise deployment, orthogonal to single-mode local-first (infra sibling of
+  the removed K8s operator). Also carried the `model_context_server /list_models` placeholder stub. **Deleted
+  10 files:** `backend/api_gateway/api_gateway.py`, `backend/webhook_server/webhook_server.py`,
+  `backend/model_context/model_context_server.py`, `backend/enterprise_architecture.py`,
+  `backend/middleware/asgi_security.py` (orphaned once the 3 services went — its **only** consumers; resolves
+  the A20 "asgi_security wired into the FastAPI sub-services" note), `scripts/run_enterprise_ukg.py`,
+  `scripts/run_enterprise_services.py`, `scripts/check_enterprise_health.py`, `scripts/start_enterprise.sh`,
+  `tests/unit/test_api_gateway_auth.py`. **Blast radius verified:** desktop factory (`app.py`/`backend/__init__`)
+  imports none of it; `backend.spec` references none of it (not bundled); `enterprise_architecture`/
+  `asgi_security` consumers were exclusively the removed set. **Kept:** `config_manager.py` enterprise port/
+  service config entries (harmless data; removing dict keys risks the desktop config — minor forward cleanup);
+  `backend/knowledge_algorithms/ka_111_api_gateway.py` (a *Knowledge Algorithm*, unrelated to the service).
+  **Validation:** desktop backend+config+middleware import OK; middleware units 12 pass; ruff clean; bandit
+  baseline regenerated (486 files, no stale blocks). **Forward → A31 docs:** enterprise references in
+  `deploy/**`, `DEPLOYMENT_CHECKLIST`, etc.; **→ A31/A32:** stale `config_manager` enterprise port entries.
+- **Remaining root files** (chat/config/data_loader/*_api blueprints/seed_data/init_db/ukg_db/websocket/…) are
+  live — Flask blueprints registered via `register_routes`/`app.py`; no further orphans (scanner clean for
+  root after i18n). **→ A28 COMPLETE. Next: A29 (`core/*`).**
 
 ---
 
