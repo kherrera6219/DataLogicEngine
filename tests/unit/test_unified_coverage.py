@@ -4,40 +4,8 @@ from unittest.mock import MagicMock, patch
 from flask import Flask
 import sys 
 
-# --- Unified Middleware Tests (Unit) ---
-# Since UnifiedMiddleWare relies on Starlette/FastAPI, filtering Flask requests might behave differently.
-# But the class logic _detect_malicious is framework agnostic.
-
-from backend.api_gateway.unified_middleware import UnifiedMiddleWare, PIIShield
-
-def test_detect_malicious_sql():
-    mw = UnifiedMiddleWare(app=MagicMock())
-    # SQLi patterns
-    assert mw._detect_malicious("UNION SELECT * FROM users")
-    assert mw._detect_malicious("DROP TABLE users")
-    assert mw._detect_malicious("admin' --")
-    assert not mw._detect_malicious("Select regular topic")
-
-def test_detect_malicious_cmd():
-    mw = UnifiedMiddleWare(app=MagicMock())
-    assert mw._detect_malicious("cat /etc/passwd | nc host")
-    assert mw._detect_malicious("bash -i >& /dev/tcp/")
-    assert not mw._detect_malicious("Just a command discussion")
-
-def test_detect_malicious_path():
-    mw = UnifiedMiddleWare(app=MagicMock())
-    assert mw._detect_malicious("../../../etc/shadow")
-    assert mw._detect_malicious("..\\windows\\system32")
-    assert not mw._detect_malicious("normal/path/segment")
-
-def test_pii_shield():
-    text = "Contact me at bob@example.com or 123-45-6789. Key: sk-abcdef1234567890abcdef1234567890"
-    redacted = PIIShield.redact(text)
-    assert "[PROTECTED_EMAIL]" in redacted
-    assert "[PROTECTED_SSN]" in redacted
-    assert "[PROTECTED_SECRET_KEY]" in redacted
-    assert "bob@example.com" not in redacted
-    assert "sk-abcdef" not in redacted
+# (Unified Middleware / PIIShield tests removed with
+# backend/api_gateway/unified_middleware.py — dead code, ORPH-2/A28.)
 
 # --- Unified Mapping API Tests ---
 

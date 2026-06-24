@@ -5,6 +5,44 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A28 — `backend/*.py` root-level + standalone FastAPI services (in progress, 2026-06-22)
+32 root-level modules. Plan questions answered + one big decision pending.
+- **`graphql_schema.py` ✅ LIVE** — `register_graphql` is wired into the Flask app at `app.py:747`; covered by
+  `tests/integration/test_service_api_sweep.py`. Not dead. (verify-only)
+- **`celery_app.py` ✅ wired (worker not part of desktop runtime)** — `make_celery(app)` is called at
+  `app.py:497`; tasks registered (`retention_service.register_celery_tasks`, `ka_master_controller`
+  `@celery_app.task`) and dispatched at exactly one site (`ka_master_controller.py:77 run_ka_task.delay(...)`).
+  So it's not dead, but no Celery **worker** runs inside the packaged desktop app (the `.delay` path needs a
+  Redis broker + a separate worker, i.e. the enterprise deployment) — in desktop the KA path falls back to
+  synchronous execution. Verdict: keep; vestigial-at-runtime in desktop, real in the enterprise deployment.
+- **`app.py` factory + N1** — SEKRE wiring confirmed live back in A6b/A13 (`system_initializer` →
+  `app_orchestrator`); factory unchanged. (verify-only)
+- **`i18n.py` ✅ REMOVED (dead).** Flask-Babel **template** i18n (`@app.context_processor`,
+  `current_user.language`) for a server-rendered Flask app — but this is an Electron + Next.js front end (the
+  frontend owns i18n). `init_babel` is **never called** and the module has **zero importers**. Resolves the
+  ORPH-v2 `i18n` candidate.
+- **ORPH-2 follow-up — fixed a regression I introduced in `3781e1df`.** Removing
+  `api_gateway/unified_middleware.py` (ORPH-2) left **two** test files still importing it that my ORPH-2
+  importer grep missed (truncated): `tests/unit/test_unified_middleware.py` (entirely about the dead
+  middleware → **deleted**) and `tests/unit/test_unified_coverage.py` (mixed → **trimmed** the 4
+  UnifiedMiddleWare/PIIShield tests, **kept** the live `unified_mapping_api` blueprint tests). Both files green
+  (11 pass). **Lesson:** after deleting a module, grep ALL test importers exhaustively (don't trust a
+  possibly-truncated first pass) — pre-commit doesn't run pytest, so a broken collection slips through.
+- **⏳ DECISION PENDING — the standalone "enterprise multi-service" layer.** `backend/api_gateway/api_gateway.py`,
+  `backend/webhook_server/webhook_server.py`, `backend/model_context/model_context_server.py` are each a
+  standalone **uvicorn FastAPI** app (`app = FastAPI()` + `uvicorn.run(...)` in `__main__`), tied together by
+  `backend/enterprise_architecture.py` and launched **only** by `scripts/run_enterprise_{ukg,services}.py` as
+  separate processes. The **desktop Flask backend (`app.py`) never imports or launches them.** This is the
+  microservices/enterprise deployment — orthogonal to single-mode local-first (the infra sibling of the
+  removed K8s operator). `model_context_server` `/list_models` is also a hardcoded placeholder stub (stale
+  `ukg-gpt-4`/`openai-gpt-4` names). **Whether to retire this whole layer (like the operator) or keep it as a
+  supported deployment is a user decision** — it's a coherent multi-file subsystem (3 services +
+  enterprise_architecture + run_enterprise scripts + config ports + `test_api_gateway_auth`), so flagged, not cut.
+- **Remaining root files** (chat/config/data_loader/*_api blueprints/seed_data/init_db/ukg_db/websocket/…)
+  appear live (blueprints registered via `register_routes`); spot-check + finalize after the enterprise decision.
+
+---
+
 ## Phase 4 / A27 — `backend/schemas/` (✅ removed dead Marshmallow layer + auth_schemas, 2026-06-22)
 Plan question: "`request_schemas.py` vs `api_request_schemas.py` — duplicate?" → **No, not duplicates.** Both
 are **Pydantic** request-model modules, both **live**, with *distinct* classes used by different routes:
