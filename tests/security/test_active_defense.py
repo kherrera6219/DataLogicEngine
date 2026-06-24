@@ -1,11 +1,6 @@
 import pytest
 from backend.security.active_defense import ActiveDefenseService
 
-
-# Fix import path (honeypot.py is not a package in that way if file is named honeypot.py in backend/security)
-# Correct import assuming: backend.security.honeypot module
-from backend.security.honeypot import HoneypotRouter 
-
 from unittest.mock import patch, MagicMock
 
 class TestActiveDefense:
@@ -51,19 +46,3 @@ class TestActiveDefense:
             assert verdict.is_safe is False
             assert verdict.recommended_action == "BLOCK"
             assert "System Failure" in verdict.threat_type
-
-    def test_honeypot_returns_fake_data(self):
-        router = HoneypotRouter()
-        
-        # Simulate attacker trying to dump generic table
-        response = router.handle_request("SELECT * FROM users", "attacker_1")
-        
-        assert response["status"] == "success"
-        assert "FakeHash" in str(response["data"])
-        
-    def test_honeypot_fake_delete(self):
-        router = HoneypotRouter()
-        response = router.handle_request("DROP TABLE production_db", "attacker_1")
-        
-        assert response["status"] == "success"
-        assert "deleted successfully" in response["message"]

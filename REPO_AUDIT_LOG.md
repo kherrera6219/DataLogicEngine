@@ -5,6 +5,79 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## ORPH-v2 security/services batch — per-module verify + cut (✅ outstanding-item knock-out, 2026-06-24)
+The orphan-scanner-v2 candidates flagged for "A10 revisit" (security/\*) and "A19 revisit" (services). Ran
+`find_orphaned_modules.py backend` → all 9 candidates classified **TEST-ONLY** (zero production importers).
+Per-module verification (confirm-before-cut): each is dead-by-pivot or redundant with a live equivalent; none
+are in `backend.spec` (not bundled); no `__init__` re-exports; no dynamic/string refs.
+**User decision: delete 7, keep 2.**
+
+**Deleted (7):**
+- `security/honeypot.py` (`HoneypotRouter`) — attacker-decoy "shadow sessions"; no adversary in a single-user
+  local app (A3-4 already collapsed HONEYPOT→BLOCK). The live `defense_supervisor`'s "HONEYPOT" action *label*
+  is unrelated (a string in its verdict vocabulary) — unaffected.
+- `security/context_aware.py` (`ContextDriftDetector`) — Crescendo multi-turn defense, **superseded** by the live
+  `defense_supervisor` ("summary of the last 5 turns to detect Crescendo"); was a self-described "simulated" toy
+  (hardcoded `SENSITIVE_TOPICS`).
+- `security/api_security.py` (`RequestSigner`, HMAC request signing/replay) — for the multi-client enterprise API
+  gateway **retired in A28**; single-mode uses loopback + signed desktop challenge.
+- `security/security_monitoring.py` (`SecurityMonitor`, SIEM-style alerting) — multi-user SOC concept; unused by
+  the live `compliance_manager`.
+- `email_service.py` — password-reset/verification/welcome emails = **removed multi-user auth** features;
+  `init_mail` never called; notifications use in-app prefs (nothing dispatches email).
+- `export_service.py` — the export **routes** (gdpr/compliance/user_data `/export`) implement export inline;
+  nothing imports this parallel impl.
+- `services/file_upload_service.py` — `multimodal_routes` does its own upload hardening (size/ext/signature,
+  `secure_filename`); this parallel service is unused.
+
+**Kept (2, user decision — plausible future compliance value, still test-only orphans):**
+`security/data_classification.py` (PII/GDPR/HIPAA classifier) + `security/vulnerability_scanner.py` (CVE/SBOM).
+Reassess for wire-or-cut if they remain unwired.
+
+**Test cleanup** (pre-commit runs ruff, not pytest — so every test importer was grepped, per the A28 lesson):
+deleted 1 dedicated file (`test_email_service_comprehensive.py`); **trimmed 7 shared files**, preserving their
+live-code coverage — `test_more_services.py` (kept search/retention), `test_security_critical.py` (kept
+password_security + the kept data_classification), `test_sanitizer_and_context_aware.py` (kept sanitizer),
+`test_active_defense.py` (kept ActiveDefenseService), `test_security_storage_deep.py` (kept session/connection/
+object-store), `test_service_api_sweep.py` + `test_services.py` (kept the other services). `test_defense_supervisor.py`
+only mentioned HONEYPOT in a comment → untouched.
+
+**Validation:** full pytest **collection clean (1806 tests, 0 import errors)**; **full suite 1787 passed / 19
+skipped / 0 failed** (10:22; was 1876 — −89 from the ORPH-4 + ORPH-v2 module/test removals); all 8 affected test
+files pass (66) + model tests (32); ruff clean; bandit baseline regenerated 479→472. **New finding (out of
+scope):** `active_defense` + `sanitizer` are now also test-only candidates → future pass.
+
+---
+
+## ORPH-4 — drop `OAuthAccount` model + `oauth_accounts` table (✅ outstanding-item knock-out, 2026-06-24)
+Forward item carried since ORPH-3 (which removed the model's only consumer, `mcp_server/oauth_manager.py`).
+User decision: **DROP**. Confirm-before-cut grep showed the only live references were the model definition
+(`models.py:244`) + 2 tests (`test_models.py` ORM-surface pin, `test_models_extended.py` repr test) — zero
+production callers, the `user.oauth_accounts` backref unused anywhere.
+- **Removed** the `OAuthAccount` class from `models.py` (class + `users` backref + repr).
+- **Updated the ORM-surface guard** `test_models.py::EXPECTED_MODEL_CLASSES` (65 → 64; the guard is a
+  `missing`/subset check, so a dropped class must also leave the pin or it fails).
+- **Trimmed** `test_models_extended.py` — removed the `OAuthAccount` import + `test_oauth_account_repr`.
+- **New migration** `migrations/versions/d6e7f8a9b0c1_drop_oauth_accounts_table.py` (chained off the current
+  head `c5d6e7f8a9b0`, single head preserved). Idempotent (guards on table existence) + reversible (downgrade
+  recreates the table with its original schema incl. the `uq_provider_user` unique constraint). **Validated**
+  in isolation on SQLite: pre-upgrade present → upgrade drops → downgrade recreates → idempotent re-upgrade,
+  all as expected.
+- **Docs:** `docs/DATABASE_SCHEMA.md` ER diagram — removed the `oauth_accounts` entity + its `users` relation.
+- **Validation:** 32 model tests pass; ruff clean on all touched files; mapper config clean
+  (`create_app()` + `db.create_all()` succeed — no dangling relationship to the dropped model); no remaining
+  live `OAuthAccount`/`oauth_accounts` references outside docs/audit records + generated coverage artifacts.
+
+**⚠️ Pre-existing finding surfaced (NOT caused by ORPH-4 — forward to A30 "migration head correct?"):** a
+from-scratch `flask db upgrade` cannot complete — migration `f3a4b5c6d7e8` (Add TruthSession input embedding)
+fails with `NoSuchTableError: truth_sessions` because earlier migrations never create the bulk schema (the app
+builds most tables via `db.create_all()`/`AUTO_CREATE_SCHEMA`; migrations only cover incremental ALTERs). The
+revision chain is structurally valid + single-headed (`flask db heads` → `d6e7f8a9b0c1`), but the chain is not
+independently replayable on a bare DB. A30 should decide whether to (a) document migrations as ALTER-only
+deltas layered on `create_all`, or (b) backfill create-table migrations for the base schema.
+
+---
+
 ## Phase 4 / A29 — `core/*` (✅ orphan/dead sweep of the deepest layer, 2026-06-22)
 115 `.py` across 15 subdirs. Most were already audited (A9 `persona/quad`, A11 `axes`, A13 `system`, A6a/A6b
 `simulation` L1–L10, A21/LY-6 `mcp`, N1 `self_evolving`). Ran `find_orphaned_modules.py core` over **all 115**

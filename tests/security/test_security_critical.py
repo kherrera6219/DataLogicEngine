@@ -1,86 +1,9 @@
 
 from unittest.mock import Mock, patch
-from uuid import uuid4
 
 # Import Targets
-from backend.security.api_security import RequestSigner
 from backend.security.password_security import PasswordSecurity
 from backend.security.data_classification import DataClassifier, DataClassification, PIIType
-
-# -----------------------------------------------------------------------------
-# Request Signer Tests
-# -----------------------------------------------------------------------------
-
-class TestRequestSigner:
-    def setup_method(self):
-        self.audit_logger = Mock()
-        self.signer = RequestSigner(audit_logger=self.audit_logger)
-        self.api_key = "test_key"
-        self.api_secret = "test_secret"
-
-    def test_sign_and_verify_success(self):
-        method = "POST"
-        path = "/api/data"
-        body = '{"foo": "bar"}'
-        
-        # Sign
-        headers = self.signer.sign_request(method, path, body, self.api_key, self.api_secret)
-        
-        # Verify
-        valid, error = self.signer.verify_request(
-            method=method,
-            path=path,
-            body=body,
-            api_key_id=headers["X-API-Key"],
-            api_secret=self.api_secret,
-            timestamp=headers["X-API-Timestamp"],
-            signature=headers["X-API-Signature"]
-        )
-        assert valid is True
-        assert error is None
-
-    def test_verify_fails_tampered_body(self):
-        method = "POST"
-        path = "/api/data"
-        body = '{"foo": "bar"}'
-        headers = self.signer.sign_request(method, path, body, self.api_key, self.api_secret)
-        
-        # Tamper body
-        valid, error = self.signer.verify_request(
-            method=method,
-            path=path,
-            body='{"foo": "baz"}', # changed
-            api_key_id=headers["X-API-Key"],
-            api_secret=self.api_secret,
-            timestamp=headers["X-API-Timestamp"],
-            signature=headers["X-API-Signature"]
-        )
-        assert valid is False
-        assert "Invalid signature" in error
-
-    def test_verify_fails_replay_attack(self):
-        method = "GET"
-        path = "/api/status"
-        headers = self.signer.sign_request(method, path, None, self.api_key, self.api_secret)
-        
-        # First verification (stores nonce if provided, but sign_request doesn't add nonce by default in output dict?)
-        # Let's verify nonce logic if we manually add a nonce.
-        nonce = f"unique-nonce-{uuid4()}"
-        
-        # Verify first time
-        valid, _ = self.signer.verify_request(
-            method, path, None, headers["X-API-Key"], self.api_secret, 
-            headers["X-API-Timestamp"], headers["X-API-Signature"], nonce=nonce
-        )
-        assert valid is True
-        
-        # Verify second time (Replay)
-        valid, error = self.signer.verify_request(
-            method, path, None, headers["X-API-Key"], self.api_secret, 
-            headers["X-API-Timestamp"], headers["X-API-Signature"], nonce=nonce
-        )
-        assert valid is False
-        assert "replay attack detected" in str(error)
 
 # -----------------------------------------------------------------------------
 # Password Security Tests

@@ -253,7 +253,7 @@ EXPECTED_MODEL_CLASSES = frozenset({
     "IntegratedView", "KAArtifactLink", "KAExecution", "KnowledgeAlgorithm",
     "KnowledgeGraphEdge", "KnowledgeGraphNode", "LLMProvider", "LLMProviderUsage",
     "Location", "MCPPrompt", "MCPResource", "MCPServer", "MCPTool", "MemoryEntry",
-    "MethodNode", "ModelRoutingPolicy", "Node", "OAuthAccount", "PasswordHistory",
+    "MethodNode", "ModelRoutingPolicy", "Node", "PasswordHistory",
     "Persona", "PersonaEvidenceLink", "Perspective", "PillarLevel", "PromptTemplate",
     "Sector", "SimulationSession", "StageArtifactLink", "StageLog", "TimeContext",
     "TraceArtifact", "TraceAxisVector", "TraceClaim", "TraceEvidence", "TraceExport",

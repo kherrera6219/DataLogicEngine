@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2026-06-24T17:24:52Z",
+  "generated_at": "2026-06-24T18:25:29Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 97,
+      "CONFIDENCE.HIGH": 96,
       "CONFIDENCE.LOW": 1,
-      "CONFIDENCE.MEDIUM": 13,
+      "CONFIDENCE.MEDIUM": 8,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 110,
+      "SEVERITY.LOW": 104,
       "SEVERITY.MEDIUM": 1,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 80466,
+      "loc": 78916,
       "nosec": 0,
       "skipped_tests": 6
     },
@@ -532,32 +532,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 63,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/email_service.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 122,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/export_service.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 188,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3473,19 +3447,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "backend/security\\api_security.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 356,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "backend/security\\audit_logger.py": {
       "CONFIDENCE.HIGH": 3,
       "CONFIDENCE.LOW": 0,
@@ -3509,19 +3470,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 512,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/security\\context_aware.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 76,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3600,19 +3548,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 87,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/security\\honeypot.py": {
-      "CONFIDENCE.HIGH": 1,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 3,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 4,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 48,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3717,19 +3652,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 300,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/security\\security_monitoring.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 2,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 475,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3860,19 +3782,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 163,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/services\\file_upload_service.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 285,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6753,129 +6662,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html",
       "test_id": "B112",
       "test_name": "try_except_continue"
-    },
-    {
-      "code": "38                 \"data\": [\n39                     {\"id\": 1, \"username\": \"admin\", \"password_hash\": \"$2b$12$FakeHashForHoneypot...\"},\n40                     {\"id\": 2, \"username\": \"root\", \"password_hash\": \"$2b$12$AnotherFakeHash...\"}\n",
-      "col_offset": 51,
-      "end_col_offset": 66,
-      "filename": "backend/security\\honeypot.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: '$2b$12$FakeHashForHoneypot...'",
-      "line_number": 39,
-      "line_range": [
-        39
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
-    },
-    {
-      "code": "39                     {\"id\": 1, \"username\": \"admin\", \"password_hash\": \"$2b$12$FakeHashForHoneypot...\"},\n40                     {\"id\": 2, \"username\": \"root\", \"password_hash\": \"$2b$12$AnotherFakeHash...\"}\n41                 ]\n",
-      "col_offset": 50,
-      "end_col_offset": 65,
-      "filename": "backend/security\\honeypot.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: '$2b$12$AnotherFakeHash...'",
-      "line_number": 40,
-      "line_range": [
-        40
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
-    },
-    {
-      "code": "49                      \"AWS_ACCESS_KEY\": \"AKIA_FAKE_HONEYPOT_KEY_123\",\n50                      \"AWS_SECRET\": \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"\n51                  }\n52             }\n53 \n54         # Generic fake success\n",
-      "col_offset": 21,
-      "end_col_offset": 33,
-      "filename": "backend/security\\honeypot.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'",
-      "line_number": 50,
-      "line_range": [
-        48,
-        49,
-        50,
-        51
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
-    },
-    {
-      "code": "56             \"status\": \"success\",\n57             \"message\": random.choice(self.SIMPLE_RESPONSES),\n58             \"data\": {}\n",
-      "col_offset": 23,
-      "end_col_offset": 59,
-      "filename": "backend/security\\honeypot.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 57,
-      "line_range": [
-        57
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "58     ACCOUNT_LOCKOUT = \"account_lockout\"\n59     PASSWORD_CHANGE = \"password_change\"\n60     SUSPICIOUS_LOGIN = \"suspicious_login\"\n",
-      "col_offset": 22,
-      "end_col_offset": 39,
-      "filename": "backend/security\\security_monitoring.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'password_change'",
-      "line_number": 59,
-      "line_range": [
-        59
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
-    },
-    {
-      "code": "74     API_RATE_LIMIT_EXCEEDED = \"api_rate_limit_exceeded\"\n75     API_INVALID_TOKEN = \"api_invalid_token\"\n76     API_SUSPICIOUS_PATTERN = \"api_suspicious_pattern\"\n",
-      "col_offset": 24,
-      "end_col_offset": 43,
-      "filename": "backend/security\\security_monitoring.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'api_invalid_token'",
-      "line_number": 75,
-      "line_range": [
-        75
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
     },
     {
       "code": "15 import json\n16 import subprocess\n17 from datetime import datetime, UTC\n",

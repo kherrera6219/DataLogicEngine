@@ -1,15 +1,40 @@
 # DataLogicEngine — Session Handoff
 
-## ▶ START HERE (next session) — updated 2026-06-22
+## ▶ START HERE (next session) — updated 2026-06-24
 **Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A29 ✅; ⏭ A30 NEXT.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
+**2026-06-24:** cleared the outstanding backlog ahead of A30 — **ORPH-4** (dropped `OAuthAccount` model + table) and **ORPH-v2 security/services** (verified 9, deleted 7, kept 2). Only **A12** remains (infra-gated). Full suite green **1787 passed / 19 skipped / 0 failed**. Committed (not pushed — push at EOD).
 
 - **Next = A30** (`config/` + `migrations/` + `k8s/`): (a) A25-deferred `k8s/` vs `deploy/k8s/` near-dup + `k8s/base/` fate under single-mode; (b) A28-deferred stale `config_manager.py` enterprise port/service entries (services removed, config data wasn't); (c) migrations review. Then **A31** (docs + regenerate `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` — they still list this session's many deletions) → **A32** (scripts; consider retiring one-off `audit_deep.py`/`audit_duplicates.py`).
 - **Start each session by running** `scripts/find_orphaned_modules.py <root>` (dead-module scanner; conservative candidates → confirm-before-cut; gitignored report).
-- **Other open items:** A12 dual-engine Postgres run (infra-gated — needs local stack); **ORPH-4** drop `OAuthAccount` model (needs Alembic migration + 65-class `test_models` ORM-pin update); **ORPH-v2 remaining** orphan candidates to verify per-module — security/* → A10, `email_service`/`export_service`/`file_upload_service` → A19.
-- **This session retired 3 whole obsolete subsystems** (enterprise FastAPI microservices, dead Marshmallow validation, `core/algorithms` shadow-KA) + cleared the carry-over backlog (8/9). All committed + pushed (`origin/main` = HEAD).
+- **Other open items:** ~~**ORPH-4** drop `OAuthAccount`~~ ✅ **DONE 2026-06-24** (model + table dropped; migration `d6e7f8a9b0c1`; ORM pin 65→64); ~~**ORPH-v2 remaining** security/services~~ ✅ **DONE 2026-06-24** (per-module verify; deleted 7 dead-by-pivot/redundant: honeypot/context_aware/api_security/security_monitoring + email_service/export_service/file_upload_service; **kept 2** by user decision: `data_classification` + `vulnerability_scanner` — still test-only, reassess later; **new candidates** surfaced: `active_defense` + `sanitizer` are now test-only too → future pass). **A12 dual-engine Postgres run — STILL infra-gated** (Postgres/Docker not available this session; path enabled since A18, needs the local stack running — cannot be cleared without it).
+- **A30 forward (new, found during ORPH-4):** a from-scratch `flask db upgrade` can't complete — `f3a4b5c6d7e8` raises `NoSuchTableError: truth_sessions` because migrations are ALTER-only deltas layered on `db.create_all()`, not a replayable base schema. Chain is structurally valid + single-headed (`flask db heads` → `d6e7f8a9b0c1`). A30 to decide: document as ALTER-only, or backfill base create-table migrations.
+- **Test baseline (2026-06-24): 1787 passed / 19 skipped / 0 failed** (was 1876; −89 from this session's removed/trimmed tests — the deleted modules + their coverage).
 - **Gotchas:** `.venv311` for pytest, `.venv`/PATH for ruff; git = `"C:\Program Files\Git\cmd\git.exe"`; pre-commit runs ruff + frontend lint/typecheck (NOT pytest — so grep ALL test importers after deleting a module); after deletions, regenerate `.bandit-baseline.json` via `python -m bandit -r backend/ core/ --exit-zero -f json -o .bandit-baseline.json`. Work local during the day; push at EOD (don't push proactively).
 
 ---
+
+### Session log — 2026-06-24 (outstanding-backlog knock-out — ORPH-4 + ORPH-v2; A30 prep)
+
+Cleared the open forward backlog before opening A30. Two items done, one confirmed un-runnable here.
+- **ORPH-4 ✅** — dropped the orphaned `OAuthAccount` model + `oauth_accounts` table (its only consumer,
+  `oauth_manager.py`, went in ORPH-3). Removed the class from `models.py`, the `test_models` ORM pin (65→64),
+  the `test_models_extended` import/test; new reversible+idempotent migration
+  `d6e7f8a9b0c1_drop_oauth_accounts_table` off head `c5d6e7f8a9b0` (single head preserved); upgrade/downgrade
+  round-trip + idempotency validated on SQLite; `DATABASE_SCHEMA.md` ER diagram updated.
+- **ORPH-v2 security/services ✅** — orphan scanner → all 9 candidates TEST-ONLY. Per-module verify
+  (confirm-before-cut): all zero prod importers, not bundled, dead-by-pivot or redundant with live code.
+  **User decision: deleted 7** (`security/honeypot|context_aware|api_security|security_monitoring`,
+  `email_service`, `export_service`, `services/file_upload_service`), **kept 2** (`security/data_classification`
+  + `security/vulnerability_scanner` — plausible future compliance value, still test-only → reassess).
+  Deleted 1 dedicated test file + trimmed 7 shared ones (kept their live-code coverage). Detail in
+  `REPO_AUDIT_LOG.md`.
+- **A12 ⛔ infra-gated** — Postgres (5432) + Docker unavailable in a bare session; can't run the dual-engine
+  Postgres pass here. Path enabled since A18; run via `start_local_stack.ps1 -WithDataServices` or a CI matrix.
+- **New findings forwarded:** (1) `active_defense.py` + `sanitizer.py` are now also test-only candidates →
+  future pass; (2) a from-scratch `flask db upgrade` can't complete (`f3a4b5c6d7e8` → `NoSuchTableError:
+  truth_sessions`; migrations are ALTER-only deltas on `db.create_all()`) → A30 "migration head" decision.
+- **Validation:** full suite **1787 passed / 19 skipped / 0 failed** (10:22); collection clean (1806 pre-run);
+  ruff clean; bandit baseline regenerated 479→472. **→ Backlog cleared (A12 excepted). Next: A30.**
 
 ### Session log — 2026-06-22e (A29 core/* — orphan/dead sweep of the deepest layer)
 

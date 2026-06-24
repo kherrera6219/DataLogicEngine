@@ -1,87 +1,13 @@
 
 import pytest
 import os
-import json
 from datetime import datetime, UTC, timedelta
 from unittest.mock import MagicMock, patch
 
 # Import targets
-from backend.security.security_monitoring import SecurityMonitor, SecurityEventType, ThreatLevel
 from backend.security.session_manager import SessionManager
 from backend.storage.connection_manager import ConnectionManager, ConnectionMode
 from backend.storage.object_store import ObjectStore, LocalFileBackend
-
-@pytest.fixture
-def mock_audit_logger():
-    return MagicMock()
-
-@pytest.fixture
-def security_monitor(mock_audit_logger, tmp_path):
-    # Set alert file to tmp path
-    alert_file = tmp_path / "alerts.jsonl"
-    with patch("backend.security.security_monitoring.os.makedirs"):
-        monitor = SecurityMonitor(audit_logger=mock_audit_logger)
-        monitor.alert_file = str(alert_file)
-        return monitor
-
-class TestSecurityMonitoring:
-    def test_alert_creation_and_persistence(self, security_monitor):
-        alert = security_monitor.create_alert(
-            event_type=SecurityEventType.SUSPICIOUS_LOGIN,
-            threat_level=ThreatLevel.MEDIUM,
-            message="Test alert",
-            details={"ip": "1.2.3.4"}
-        )
-        
-        assert alert.event_type == SecurityEventType.SUSPICIOUS_LOGIN
-        assert alert.threat_level == ThreatLevel.MEDIUM
-        assert len(security_monitor.alerts) == 1
-        
-        # Verify persistence
-        assert os.path.exists(security_monitor.alert_file)
-        with open(security_monitor.alert_file, 'r') as f:
-            line = f.readline()
-            saved_alert = json.loads(line)
-            assert saved_alert['event_type'] == "suspicious_login"
-            assert saved_alert['details']['ip'] == "1.2.3.4"
-
-    def test_brute_force_detection(self, security_monitor):
-        ip = "10.0.0.1"
-        # 5 failed logins within 5 mins
-        for _ in range(5):
-            security_monitor.process_event(
-                event_type=SecurityEventType.LOGIN_FAILURE,
-                details={},
-                ip_address=ip
-            )
-        
-        # Should have created an alert
-        alerts = security_monitor.get_alerts(event_type=SecurityEventType.LOGIN_BRUTE_FORCE)
-        assert len(alerts) == 1
-        assert security_monitor.is_ip_blocked(ip)
-
-    def test_suspicious_pattern_detection(self, security_monitor):
-        # SQL Injection
-        security_monitor.process_event(
-            event_type=SecurityEventType.ANOMALOUS_BEHAVIOR,
-            details={"query": "' OR '1'='1"},
-            ip_address="1.1.1.1"
-        )
-        assert len(security_monitor.get_alerts(event_type=SecurityEventType.SQL_INJECTION_ATTEMPT)) == 1
-        
-        # XSS
-        security_monitor.process_event(
-            event_type=SecurityEventType.ANOMALOUS_BEHAVIOR,
-            details={"payload": "<script>alert(1)</script>"},
-            ip_address="2.2.2.2"
-        )
-        assert len(security_monitor.get_alerts(event_type=SecurityEventType.XSS_ATTEMPT)) == 1
-
-    def test_metrics(self, security_monitor):
-        security_monitor.create_alert(SecurityEventType.COMPLIANCE_BREACH, ThreatLevel.CRITICAL, "Err", {})
-        metrics = security_monitor.get_metrics()
-        assert metrics['total_alerts'] == 1
-        assert metrics['critical_alerts'] == 1
 
 class TestSessionManager:
     @pytest.fixture

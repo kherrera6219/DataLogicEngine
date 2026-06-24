@@ -10,7 +10,6 @@ from backend.services.analytics_service import AnalyticsService
 from backend.services.document_processor import DocumentProcessor
 from backend.services.rag_service import RAGService
 from backend.services.video_service import VideoService
-from backend.services.file_upload_service import FileUploadService
 
 # --- Analytics Service Tests ---
 
@@ -271,50 +270,6 @@ async def test_video_service_analyze():
             assert result['status'] == "completed"
             assert result['summary'] == "Video Summary"
 
-
-# --- File Upload Service Tests ---
-
-def test_file_upload_validation():
-    service = FileUploadService()
-    # Mock internal lazy loaders to return Nones or Mocks if needed
-    # But for validation we don't need them
-    
-    valid, msg = service.validate_file(b"content", "valid.txt", "text/plain")
-    assert valid is True
-    
-    valid, msg = service.validate_file(b"", "empty.txt", "text/plain")
-    assert valid is False
-    assert "empty" in msg
-
-@patch('backend.services.file_upload_service.get_file_upload_service') 
-def test_file_upload_process(mock_get_service):
-    # We test the service instance directly
-    mock_store = MagicMock()
-    mock_processor = MagicMock()
-    mock_rag = MagicMock()
-    
-    service = FileUploadService(object_store=mock_store, document_processor=mock_processor, rag_service=mock_rag)
-    
-    # Mock processor
-    mock_processor.process_file.return_value = {"text": "Extracted Content"}
-    
-    # Mock RAG
-    mock_rag.ingest_document.return_value = ["chunk1"]
-    
-    result = service.upload_file(
-        file_bytes=b"file_content",
-        filename="test.txt",
-        mime_type="text/plain",
-        user_id=123
-    )
-    
-    assert result.filename == "test.txt"
-    assert result.processed is True
-    assert "embedded_chunks" in result.metadata
-    
-    mock_store.put.assert_called()
-    mock_processor.process_file.assert_called()
-    mock_rag.ingest_document.assert_called()
 
 # --- Audio Service Tests ---
 from backend.services.audio_service import AudioService

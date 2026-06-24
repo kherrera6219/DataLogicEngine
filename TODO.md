@@ -389,6 +389,20 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       "enterprise" L4 wrapper — live uses base pov_engine) + `query_analysis_system.py`. KEPT core/data
       (ka_registry.json live + bundled). 66 tests pass, ruff clean, bandit regenerated (479). **Next: A30
       `config/`+`migrations/`+`k8s/`**.
+    - **Outstanding-backlog knock-out ✅ 2026-06-24 (ahead of A30):**
+      - **ORPH-4 ✅** — dropped orphaned `OAuthAccount` model + `oauth_accounts` table (consumer removed in
+        ORPH-3). New reversible+idempotent migration `d6e7f8a9b0c1`; `test_models` ORM pin 65→64; round-trip
+        validated; `DATABASE_SCHEMA.md` ER diagram updated.
+      - **ORPH-v2 security/services ✅** — all 9 candidates verified TEST-ONLY (zero prod importers, not bundled).
+        **Deleted 7** (user decision): `security/{honeypot,context_aware,api_security,security_monitoring}` +
+        `email_service` + `export_service` + `services/file_upload_service` (dead-by-pivot or redundant with live
+        defense_supervisor / route-export / multimodal hardening). **Kept 2** (plausible future compliance value,
+        still test-only → reassess): `security/data_classification` + `security/vulnerability_scanner`. Trimmed 7
+        shared test files (kept live coverage) + deleted 1 dedicated.
+      - **A12 ⛔ still infra-gated** — Postgres/Docker unavailable; run via local stack or CI matrix.
+      - **New (forward):** `active_defense` + `sanitizer` now also test-only candidates; from-scratch
+        `flask db upgrade` can't complete (`f3a4b5c6d7e8` NoSuchTableError) → A30 migration decision.
+      - **Suite: 1787 passed / 19 skipped / 0 failed** (was 1876; −89 from removals); ruff clean; bandit 479→472.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

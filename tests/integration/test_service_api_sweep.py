@@ -6,7 +6,6 @@ from flask import Flask
 # Target modules
 from backend.regulatory_api import regulatory_api
 from backend.time_api import time_api
-from backend.services.file_upload_service import FileUploadService
 from backend.graphql_schema import register_graphql
 
 @pytest.fixture
@@ -125,67 +124,6 @@ class TestTimeAPI:
             
             mock_session.add.assert_called_once()
             mock_session.commit.assert_called_once()
-
-class TestFileUploadService:
-    def test_validate_file(self):
-        service = FileUploadService()
-        # Valid
-        valid, msg = service.validate_file(b"content", "test.txt", "text/plain")
-        assert valid is True
-        # Empty
-        valid, msg = service.validate_file(b"", "test.txt", "text/plain")
-        assert valid is False
-        assert "empty" in msg.lower()
-        # Large
-        large_content = b"x" * (FileUploadService.MAX_SIZES["text/plain"] + 1)
-        valid, msg = service.validate_file(large_content, "test.txt", "text/plain")
-        assert valid is False
-        assert "size" in msg.lower()
-
-    @patch("backend.services.file_upload_service.uuid.uuid4")
-    def test_upload_file_success(self, mock_uuid):
-        mock_uuid.return_value = "fixed-uuid"
-        mock_store = MagicMock()
-        mock_processor = MagicMock()
-        mock_rag = MagicMock()
-        
-        service = FileUploadService(
-            object_store=mock_store,
-            document_processor=mock_processor,
-            rag_service=mock_rag
-        )
-        
-        mock_processor.process_file.return_value = {'text': 'Extracted content'}
-        mock_rag.ingest_document.return_value = 5
-        
-        file_bytes = b"%PDF-1.7\nsample pdf content"
-        result = service.upload_file(
-            file_bytes=file_bytes,
-            filename="test.pdf",
-            mime_type="application/pdf",
-            user_id=123
-        )
-        
-        assert result.id == "fixed-uuid"
-        assert result.processed is True
-        assert result.metadata["embedded_chunks"] == 5
-        
-        # Verify store.put called correctly
-        mock_store.put.assert_called_once()
-        args, kwargs = mock_store.put.call_args
-        assert kwargs['bucket'] == "documents"
-        assert kwargs['content_type'] == "application/pdf"
-        assert kwargs['data'] == file_bytes
-
-    def test_get_and_delete_file(self):
-        mock_store = MagicMock()
-        service = FileUploadService(object_store=mock_store)
-        
-        mock_store.get.return_value = b"data"
-        assert service.get_file("bucket", "key") == b"data"
-        
-        service.delete_file("bucket", "key")
-        mock_store.delete.assert_called_with("bucket", "key")
 
 class TestGraphQLAPI:
     def test_graphql_view_basic(self, client):

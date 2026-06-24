@@ -159,16 +159,6 @@ erDiagram
         datetime revoked_at
     }
 
-    oauth_accounts {
-        int id PK
-        int user_id FK
-        string provider
-        string provider_user_id
-        json token
-        string refresh_token
-        datetime token_expires_at
-    }
-
     audit_logs {
         int id PK
         datetime timestamp
@@ -204,7 +194,6 @@ erDiagram
     }
 
     users ||--o{ api_keys : has
-    users ||--o{ oauth_accounts : linked_to
     users ||--o{ audit_logs : generates
     users ||--|| user_ai_preferences : configures
     users ||--|| user_notification_preferences : configures

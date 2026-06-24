@@ -4,7 +4,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 from models import (
-    KnowledgeGraphEdge, OAuthAccount, PasswordHistory, AuditLog,
+    KnowledgeGraphEdge, PasswordHistory, AuditLog,
     LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage,
     TraceEvidence, TraceClaim, TraceAxisVector, TracePersona,
     TraceKAInvocation, TracePolicyDecision, TraceMemoryEvent, TraceArtifact
@@ -33,11 +33,6 @@ def test_graph_edge_dict(app):
     assert d['target_id'] == "n2"
     assert d['edge_type'] == "related_to"
     assert d['weight'] == 0.5
-
-# --- OAuthAccount ---
-def test_oauth_account_repr(app):
-    acc = OAuthAccount(provider="google", provider_user_id="123")
-    assert "OAuthAccount" in repr(acc) # Assuming default repr or updated
 
 # --- PasswordHistory ---
 def test_password_history_repr(app):

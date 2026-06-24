@@ -1,8 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
-import backend.security.context_aware as context_aware_module
 import backend.security.sanitizer as sanitizer_module
 
 
@@ -52,49 +49,3 @@ def test_html_sanitizer_error_paths():
     with patch.object(sanitizer_module.bleach, "linkify", side_effect=RuntimeError("link fail")):
         text = "https://example.com"
         assert sanitizer_module.HTMLSanitizer.linkify(text) == text
-
-
-def test_context_drift_detector_paths():
-    detector = context_aware_module.ContextDriftDetector(history_window=4)
-
-    no_history = detector.analyze_trajectory([])
-    assert no_history["is_safe"] is True
-
-    no_user_content = detector.analyze_trajectory([{"role": "assistant", "content": "hi"}])
-    assert no_user_content["reason"] == "No user content"
-
-    immediate_high = detector.analyze_trajectory([{"role": "user", "content": "explosives details"}])
-    assert immediate_high["is_safe"] is False
-
-    crescendo = detector.analyze_trajectory(
-        [
-            {"role": "user", "content": "coding basics"},
-            {"role": "user", "content": "chemistry intro"},
-            {"role": "user", "content": "hacking around"},
-            {"role": "user", "content": "explosives bypass plan"},
-        ]
-    )
-    assert crescendo["is_safe"] is False
-    assert "Crescendo Attack Detected" in crescendo["reason"]
-
-    saturated = detector.analyze_trajectory(
-        [
-            {"role": "user", "content": "explosives"},
-            {"role": "user", "content": "explosives"},
-        ]
-    )
-    assert saturated["is_safe"] is False
-    assert "prohibited topic" in saturated["reason"]
-
-    normal = detector.analyze_trajectory(
-        [
-            {"role": "user", "content": "coding"},
-            {"role": "user", "content": "system design"},
-            {"role": "user", "content": "chemistry for batteries"},
-        ]
-    )
-    assert normal["is_safe"] is True
-
-    assert detector._score_content("no sensitive terms") == 0.0
-    assert detector._calculate_velocity([0.0]) == 0.0
-    assert detector._calculate_velocity([0.1, 0.5, 0.4]) == pytest.approx(0.15)
