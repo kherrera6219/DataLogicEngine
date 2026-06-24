@@ -46,12 +46,13 @@
 | **A26** | `backend/tracing/` | ✅ done | `07c8444a` | separate from TruthMemory (audit-provenance vs reasoning-memory; both fire, distinct points); A3-5 fixed (api.py endpoints now DB-bound → AIAuditEvent + daily budget enforced); removed dead TraceLogger |
 | **A27** | `backend/schemas/` | ✅ done | `58583df2` | NOT a dup (request_schemas vs api_request_schemas = both live Pydantic, distinct classes/routes). Real find: removed dead **Marshmallow** layer — emptied __init__.py (255L), deleted simulation_schemas.py + auth_schemas.py (zero importers; superseded by Pydantic; multi-user auth obsolete) |
 | **A28** | `backend/*.py` root-level | ✅ done | `5834280d` | graphql=live, celery=wired (no desktop worker), app.py/N1 ok; removed dead i18n.py; **retired the enterprise multi-service layer** (3 FastAPI services + enterprise_architecture + asgi_security + run_enterprise scripts, 10 files — never launched by desktop) + fixed an ORPH-2 test regression |
-| **A29** | `core/*` | ⏭ NEXT | — | core packages sweep (deepest layer) |
-| A30–A32 | config/migrations/k8s, docs, scripts | ☐ | — | see session sequence below |
+| **A29** | `core/*` | ✅ done | _pending_ | orphan sweep of all 115 files (rest already audited A9/A11/A13/A6/A21/N1 or scanner-clean). Removed 7 dead: core/algorithms/ (dead parallel KA framework, 3 files), resilience_router, rag_sanitizer (redundant relocations), pov_engine_enterprise (dead "enterprise" L4 wrapper), query_analysis_system. Kept core/data (live ka_registry.json) |
+| **A30** | `config/`, `migrations/`, `k8s/` | ⏭ NEXT | — | k8s/ vs deploy/k8s/ dup + k8s/base fate (A25-deferred); stale config_manager enterprise ports (A28-deferred); migrations review |
+| A31–A32 | docs, scripts | ☐ | — | see session sequence below |
 
 Per-session findings and verdicts are recorded in `REPO_AUDIT_LOG.md`.
 Live test baseline (2026-06-21): **1876 passed / 19 skipped / 0 failed** (SQLite).
-**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A28 done; A29 next.**
+**Phases 1, 2 & 3 COMPLETE. Phase 4 in progress — A18–A29 done; A30 next.**
 Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
 and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
 is fully complete (Phases A–F + F5-frontend); all data stores are local internal

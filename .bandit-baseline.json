@@ -1,6 +1,6 @@
 {
   "errors": [],
-  "generated_at": "2026-06-24T17:13:39Z",
+  "generated_at": "2026-06-24T17:24:52Z",
   "metrics": {
     "_totals": {
       "CONFIDENCE.HIGH": 97,
@@ -11,7 +11,7 @@
       "SEVERITY.LOW": 110,
       "SEVERITY.MEDIUM": 1,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 81970,
+      "loc": 80466,
       "nosec": 0,
       "skipped_tests": 6
     },
@@ -4851,45 +4851,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "core/algorithms\\base_algorithm.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 81,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "core/algorithms\\perspective_analyzer.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 344,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "core/algorithms\\query_analyzer.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 177,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "core/axes\\__init__.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -5212,19 +5173,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 116,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "core/knowledge_algorithm\\resilience_router.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 69,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -5683,19 +5631,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "core/security\\rag_sanitizer.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 35,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "core/self_evolving\\sekre_engine.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -6060,19 +5995,6 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "core/simulation\\pov_engine_enterprise.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 488,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
     "core/simulation\\pov_policy.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -6083,19 +6005,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 447,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "core/simulation\\query_analysis_system.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 310,
       "nosec": 0,
       "skipped_tests": 0
     },

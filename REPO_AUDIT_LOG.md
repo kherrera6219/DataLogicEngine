@@ -5,6 +5,35 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A29 — `core/*` (✅ orphan/dead sweep of the deepest layer, 2026-06-22)
+115 `.py` across 15 subdirs. Most were already audited (A9 `persona/quad`, A11 `axes`, A13 `system`, A6a/A6b
+`simulation` L1–L10, A21/LY-6 `mcp`, N1 `self_evolving`). Ran `find_orphaned_modules.py core` over **all 115**
+→ 6 ORPHAN candidates; verified each (zero importers, no `__init__` re-exports, not in registries/specs/tests).
+**Removed 7 dead files:**
+- **`core/algorithms/` (entire dir — `base_algorithm.py` + `perspective_analyzer.py` + `query_analyzer.py`).**
+  A self-contained parallel "knowledge algorithm" framework (`BaseKnowledgeAlgorithm` + 2 impls) completely
+  disconnected from the **live** KA system (`backend/knowledge_algorithms/`, 125 KAs + `ka_registry.yaml`,
+  A7/A8). `base_algorithm` was a second-order orphan (used only by the 2 dead impls).
+- **`core/knowledge_algorithm/resilience_router.py`** (`ResilienceRouter`/`get_resilience_router`) — relocated
+  from `backend/core/` in AUDIT-SPRINT-1 but never wired; redundant with the gateway's live circuit-breaker/
+  failover resilience.
+- **`core/security/rag_sanitizer.py`** (`RAGSanitizer`) — relocated in Sprint 1, never wired; redundant with
+  the live RAG injection-marker screening in `rag_service.get_context_for_query` (A19/A22).
+- **`core/simulation/pov_engine_enterprise.py`** (`POVEngineEnterprise`) — answers the plan's open "which POV
+  engine is called at L4?": the **base** `pov_engine.POVEngine` is live (demos + layer7); the "enterprise"
+  wrapper has zero importers → dead (the enterprise-pattern orphan again).
+- **`core/simulation/query_analysis_system.py`** (`QueryAnalysisSystem`) — zero importers; superseded.
+**Kept:** `core/data/` (`ka_registry.json` is LIVE — read by `core/mcp/mcp_manager`, `backend/routes/ka_routes`,
+`scripts/expand_mcp_library`, and bundled via `backend.spec` `('core/data','core/data')`). The remaining
+un-audited small subdirs (`engine`/`graph`/`memory`/`nlp`/`orchestration`) are **not orphaned** (scanner
+clean → they have live importers); `core/memory` vs `backend/memory` already reconciled in A23 (DB-M).
+**Validation:** `core.simulation`/`core.security`/`core.knowledge_algorithm` import OK + live `POVEngine`
+imports OK; ruff clean; 66 simulation/axis tests pass; bandit baseline regenerated (479 files). **→ A29
+COMPLETE. Next: A30 (`config/`, `migrations/`, `k8s/` — incl. the A25-deferred `k8s/` vs `deploy/k8s/` dup +
+`k8s/base/` fate, and the A28-deferred stale `config_manager` enterprise port entries).**
+
+---
+
 ## Phase 4 / A28 — `backend/*.py` root-level + standalone FastAPI services (in progress, 2026-06-22)
 32 root-level modules. Plan questions answered + one big decision pending.
 - **`graphql_schema.py` ✅ LIVE** — `register_graphql` is wired into the Flask app at `app.py:747`; covered by

@@ -379,7 +379,16 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       the desktop app (the microservices sibling of the retired K8s operator). **Fixed an ORPH-2 regression**
       (2 test files still importing the deleted unified_middleware). Verified: desktop imports OK, middleware
       tests pass, ruff clean, bandit baseline regenerated. Forward → A31 docs (enterprise refs in deploy/**) +
-      config_manager stale port entries. **Next: A29 `core/*`**.
+      config_manager stale port entries.
+    - **A29 `core/*` ✅ COMPLETE 2026-06-22 (orphan/dead sweep, 115 files):** most already audited
+      (A9/A11/A13/A6/A21/N1); ran orphan scanner over all of core/. **Removed 7 dead files:** `core/algorithms/`
+      entire dir (dead parallel KA framework — base_algorithm + perspective_analyzer + query_analyzer,
+      disconnected from the live backend/knowledge_algorithms 125-KA system); `core/knowledge_algorithm/
+      resilience_router.py` + `core/security/rag_sanitizer.py` (Sprint-1 relocations, never wired, redundant
+      with live gateway resilience / rag_service screening); `core/simulation/pov_engine_enterprise.py` (dead
+      "enterprise" L4 wrapper — live uses base pov_engine) + `query_analysis_system.py`. KEPT core/data
+      (ka_registry.json live + bundled). 66 tests pass, ruff clean, bandit regenerated (479). **Next: A30
+      `config/`+`migrations/`+`k8s/`**.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

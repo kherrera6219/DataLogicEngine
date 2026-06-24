@@ -1,5 +1,22 @@
 # DataLogicEngine — Session Handoff
 
+### Session log — 2026-06-22e (A29 core/* — orphan/dead sweep of the deepest layer)
+
+Ran `find_orphaned_modules.py core` over all 115 files. Most of `core/` was already audited (A9 persona/quad,
+A11 axes, A13 system, A6a/b simulation, A21 mcp, N1 self_evolving); the un-audited small subdirs
+(engine/graph/memory/nlp/orchestration) are scanner-clean = wired. **Removed 7 dead files** (all zero-importer,
+verified):
+- `core/algorithms/` entire dir (base_algorithm + perspective_analyzer + query_analyzer) — a dead parallel KA
+  framework disconnected from the live backend/knowledge_algorithms (125 KAs, A7/A8).
+- `core/knowledge_algorithm/resilience_router.py` + `core/security/rag_sanitizer.py` — relocated from
+  backend/core in Sprint 1, never wired; redundant with live gateway resilience / rag_service injection screen.
+- `core/simulation/pov_engine_enterprise.py` — dead "enterprise" POV wrapper (answers the plan's "which POV
+  engine at L4?": live path uses base `pov_engine.POVEngine`); `core/simulation/query_analysis_system.py`.
+- **Kept** `core/data/` (ka_registry.json is live + bundled in backend.spec).
+- Validation: core imports OK, ruff clean, 66 simulation/axis tests pass, bandit baseline regenerated (479).
+- **→ A29 COMPLETE. Next: A30 (`config/`, `migrations/`, `k8s/`)** — folds in the A25-deferred k8s/ vs
+  deploy/k8s/ dup + k8s/base fate, and the A28-deferred stale config_manager enterprise port entries.
+
 ### Session log — 2026-06-22d (A28 backend root-level — retired enterprise multi-service layer)
 
 Plan questions: graphql_schema=**live** (register_graphql wired in app.py, tested); celery_app=**wired** but no
