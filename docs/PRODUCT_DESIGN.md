@@ -164,7 +164,7 @@ Relevant files:
 
 - `frontend/app/layout.tsx`
 - `frontend/components/layout/AppSidebar.tsx`
-- `frontend/components/layout/NavBar.tsx`
+- `frontend/components/NavBar.tsx`
 - `frontend/contexts/AuthContext.tsx`
 - `frontend/lib/runtime/policy.ts`
 
