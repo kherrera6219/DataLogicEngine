@@ -276,8 +276,8 @@ The CI pipeline is actively maintained as part of the development cycle. Failure
 
 Current validation evidence from most recent passing local runs:
 
-- Backend CI-equivalent test command: `python -m pytest tests/ --no-cov -q` passed with `1823 passed, 21 skipped`.
-- Frontend validation passed with `npm run lint`, `npm run typecheck`, and `npm test` (`234 passed`).
+- Backend CI-equivalent test command: `python -m pytest tests/ --no-cov -q` passed with `1769 passed, 19 skipped`.
+- Frontend validation passed with `npm run lint`, `npm run typecheck`, and `npm test` (`378 passed`).
 - Dependency security checks passed locally: `pip-audit -r requirements.txt --desc` reported no known vulnerabilities, and `npm audit --audit-level=moderate` reported no vulnerabilities.
 
 Windows packaging checks:
@@ -314,7 +314,7 @@ High-value implementation paths:
 | Truth Engine | `backend/truth_engine/` |
 | DSQP | `backend/dsqp/` |
 | MCP | `backend/mcp_server/` |
-| API/security | `app.py`, `routes/`, `backend/security/`, `backend/auth/` |
+| API/security | `app.py`, `backend/routes/`, `backend/security/`, `backend/auth/` |
 | Frontend product surface | `frontend/app/`, `frontend/components/` |
 | Tests | `tests/` |
 | CI/release | `.github/workflows/`, `scripts/` |

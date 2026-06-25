@@ -22,9 +22,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in `KNOWN_CONNECTORS`. These external SaaS integrations are not part of the
   local-first / desktop-only product. Connector-specific tests were removed and
   generic connector-framework tests repointed to the `github` connector label.
+- **Multi-user authentication stack (single-mode consolidation)**: retired the
+  obsolete multi-user RBAC, web login/register, MFA/TOTP, SSO/OIDC, role, and
+  tenant-isolation/RLS paths in favor of single-owner OS-level desktop auth
+  (`current_user_is_owner()` + desktop auto-login). Dropped the `OAuthAccount`
+  model/table (migration `d6e7f8a9b0c1_drop_oauth_accounts_table`), removed
+  `backend/security/tenant_rls.py`, and retired dead security modules and
+  one-off audit scripts. `tenant_id` columns are kept as vestigial. See
+  [`REPO_AUDIT_LOG.md`](REPO_AUDIT_LOG.md) for the full v2.0 audit record.
 
 ### Changed
 - Replaced explicit KA stub behavior in `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` with deterministic local implementations and focused tests.
+- **Documentation accuracy sweep (v2.0 audit)**: reviewed and corrected the
+  `docs/` tree, `docs/diagrams/`, and root docs against the post-audit
+  single-mode application — removed stale multi-user/SSO/RBAC/MFA descriptions,
+  fixed migrated `routes/` -> `backend/routes/` paths, refreshed test baselines
+  (`1769 passed, 19 skipped`), corrected the Fernet/AES-128 note to AES-256-GCM,
+  and archived superseded planning docs under `docs/archive/`.
 - **Test suite aligned to desktop-only auth**: added a route-independent
   `seed_login_session` helper in `tests/conftest.py` and refactored the
   `authenticated_client`/admin/owner fixtures and per-file login helpers to seed a
@@ -56,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - Mitigated Dependabot alert 389 / CVE-2026-45829 by pinning `chromadb` to `0.5.23`, outside the vulnerable `>=1.0.0, <=1.5.9` range while no patched 1.x release is available.
+- **Dependency vulnerabilities cleared (v2.0 audit)**: after the audit dependency pass, both `pip-audit` (Python) and `npm audit` (Node) report no known advisories.
 
 ## [4.2.0] - 2026-05-12
 
@@ -658,13 +673,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated all core documentation (README, Architecture, Production Readiness) to reflect 116 KA count and resilience features.
 - Expanded error handling guide with backend exception framework details.
-
-## [Unreleased]
-
-### Planned
-
-- WebSocket real-time trace updates
-- Trace capture integration into chat flow
 
 ## [1.3.0] - 2026-01-08
 

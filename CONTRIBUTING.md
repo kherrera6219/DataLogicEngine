@@ -43,7 +43,7 @@ Before contributing, ensure you have the following installed and configured:
 | Requirement | Minimum Version | Notes |
 |-------------|----------------|-------|
 | Python | 3.11 | 3.12+ supported |
-| Node.js | 20.x LTS | Required for frontend and tooling |
+| Node.js | 24.x | Required for frontend and tooling |
 | PostgreSQL | 16+ | Required for integration tests |
 | Git | 2.40+ | |
 
@@ -274,12 +274,11 @@ All contributions must comply with the enterprise hardening architecture. Non-co
 
 | Requirement | Detail |
 |-------------|--------|
-| **PII Protection** | Any model field containing PII must use `EncryptionManager` property-based encryption (AES-256) |
-| **Access Control** | API routes must use granular permissions (e.g., `require_permission(Permission.USER_READ)`) — not blanket admin flags |
-| **Tenant Isolation** | All database queries must include `tenant_id` filtering |
+| **PII Protection** | Any model field containing PII must use `EncryptionManager` field-level encryption (AES-256-GCM) |
+| **Access Control** | DataLogicEngine is single-owner / local-first. Authenticated routes use `@api_login_required` (or `@login_required`); owner-only endpoints add a `current_user_is_owner()` check. There is no multi-user RBAC/roles/permissions. |
 | **Input Validation** | All inputs must be validated using Pydantic models or Marshmallow schemas |
 | **No Hardcoded Secrets** | No hardcoded credentials, tokens, or "TODO security" stubs |
-| **MFA Compatibility** | New authentication flows must respect MFA verification status |
+| **Desktop Auth** | New authentication flows must respect the single-owner desktop auto-login model (OS-level identity). There is no multi-user login, MFA/TOTP, or SSO/OIDC. |
 
 **Secure coding examples:**
 
@@ -294,15 +293,20 @@ class NodeSchema(Schema):
 # Database queries — always parameterized
 from sqlalchemy import text
 
-query = text("SELECT * FROM nodes WHERE id = :node_id AND tenant_id = :tenant_id")
-result = db.session.execute(query, {"node_id": node_id, "tenant_id": tenant_id})
+query = text("SELECT * FROM nodes WHERE id = :node_id")
+result = db.session.execute(query, {"node_id": node_id})
 
-# Route protection — use granular permissions
-from backend.security import require_permission, Permission
+# Route protection — single-owner desktop auth (no multi-user RBAC)
+from flask import abort
+from flask_login import current_user
+from backend.auth.api_decorators import api_login_required, current_user_is_owner
 
 @app.route('/api/nodes')
-@require_permission(Permission.KNOWLEDGE_READ)
+@api_login_required
 def list_nodes():
+    # owner-only endpoints add an explicit ownership check
+    if not (current_user.is_authenticated and current_user_is_owner()):
+        abort(403)
     ...
 ```
 
@@ -411,8 +415,7 @@ Brief description of what this PR changes and why.
 ## Security Checklist
 - [ ] No hardcoded secrets or credentials
 - [ ] Input validation applied to all user-facing inputs
-- [ ] Proper authentication and authorization enforced
-- [ ] Tenant isolation maintained in all database queries
+- [ ] Single-owner desktop auth enforced (`@api_login_required` / `current_user_is_owner()` where applicable)
 - [ ] No new SQL injection, XSS, or SSRF vectors introduced
 
 ## Documentation
