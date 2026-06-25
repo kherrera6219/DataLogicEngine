@@ -43,7 +43,7 @@ Model Context Protocol (MCP) is an open protocol that standardizes how applicati
    - MCPTool: Tool specifications
    - MCPPrompt: Prompt templates
 
-6. **API Endpoints** (`routes/mcp_routes.py`)
+6. **API Endpoints** (`backend/routes/mcp_routes.py`)
    - REST API for MCP management
    - Server/client CRUD operations
    - Resource/tool/prompt access

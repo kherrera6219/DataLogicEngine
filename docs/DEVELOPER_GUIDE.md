@@ -245,7 +245,6 @@ DataLogicEngine/
 ├── backend/               # Backend services, DMRF, Truth Engine, storage, security, APIs
 ├── core/                  # Core axes, FROST, knowledge framework primitives
 ├── frontend/              # Next.js UI and Electron runtime
-├── routes/                # Canonical and compatibility route modules
 ├── scripts/               # Local ops, validation, packaging, governance scripts
 ├── tests/                 # Backend tests
 ├── docs/                  # Active docs, diagrams, ADRs, archived material

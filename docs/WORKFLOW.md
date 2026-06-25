@@ -100,7 +100,7 @@ flowchart TD
 | Stage | Responsibility | Key implementation paths |
 |---|---|---|
 | Frontend/runtime policy | determine desktop/web behavior, auth UX, route handling, API calls. | `frontend/app/`, `frontend/lib/runtime/policy.ts`, `frontend/contexts/AuthContext.tsx` |
-| API/security envelope | sessions, CSRF, CORS, trusted hosts, rate limits, JSON errors, health/metrics. | `app.py`, `routes/`, `backend/auth/`, `backend/security/` |
+| API/security envelope | sessions, CSRF, CORS, trusted hosts, rate limits, JSON errors, health/metrics. | `app.py`, `backend/routes/`, `backend/auth/`, `backend/security/` |
 | DMRF InjectionDefense | detect prompt injection, logical traps, obfuscation, persona hijack, resource exhaustion. | `backend/dmrf/injection_defense.py` |
 | TruthGate | trust, budget, priority, compliance, PII, blocked-pattern gate. | `backend/truth_engine/truth_gate/gateway.py` |
 | TierClassifier | classify request as trivial/moderate/high-stakes/extreme/autonomous. | `backend/dmrf/tier_classifier.py` |

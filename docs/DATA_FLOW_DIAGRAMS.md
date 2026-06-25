@@ -35,7 +35,7 @@ These diagrams are source-of-truth data-flow references for the current architec
 | Class | Examples | Handling guidance |
 |---|---|---|
 | User content | prompts, uploaded files, notes, project data | local-first by default; may be sent to providers/connectors only when configured/required. |
-| Identity/session data | username, email, role, session, desktop auth metadata | protect with auth/session controls and avoid leaking to traces/logs. |
+| Identity/session data | username, email, session, desktop auth metadata | protect with auth/session controls and avoid leaking to traces/logs. |
 | Provider secrets | API keys, tokens, connector credentials | store through configured secret paths; never log raw values. |
 | AI trace data | stages, evidence, claims, personas, policy decisions | audit/review value; may include sensitive context; protect export paths. |
 | Operational telemetry | metrics, latency, errors, health, readiness | sanitize where needed; use for reliability and release evidence. |

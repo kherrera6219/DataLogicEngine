@@ -57,7 +57,7 @@ Every feature usually touches one or more of these layers:
 |---|---|---|
 | Product UI | Dashboard, chat, traces, graph, Truth Engine, MCP, settings, admin. | `frontend/app/`, `frontend/components/` |
 | Runtime policy | local/hybrid/cloud behavior and Electron integration. | `frontend/lib/runtime/policy.ts`, `frontend/electron/` |
-| API/security envelope | Flask app, middleware, sessions, auth, CSRF, CORS, metrics, health. | `app.py`, `routes/`, `backend/auth/`, `backend/security/` |
+| API/security envelope | Flask app, middleware, sessions, auth, CSRF, CORS, metrics, health. | `app.py`, `backend/routes/`, `backend/auth/`, `backend/security/` |
 | DMRF | AI control plane and governed request lifecycle. | `backend/dmrf/` |
 | Truth Engine | TruthGate, TruthCore, TruthMemory, TruthLink. | `backend/truth_engine/` |
 | 17-axis model | coordinate/risk/trust/FROST routing context. | `core/axes/`, `backend/dmrf/router.py` |
@@ -148,7 +148,6 @@ DataLogicEngine/
 ├── extensions.py              # shared Flask extensions
 ├── backend/                   # backend services, DMRF, Truth Engine, storage, security
 ├── core/                      # axes, FROST, knowledge framework primitives
-├── routes/                    # route modules and compatibility surfaces
 ├── frontend/                  # Next.js UI and Electron runtime
 ├── scripts/                   # validation, packaging, governance, local ops
 ├── tests/                     # backend test suites

@@ -114,7 +114,7 @@ Security expectations:
 
 Relevant implementation:
 
-- `routes/auth_routes.py`
+- `backend/routes/auth_routes.py`
 - `backend/auth/api_decorators.py`
 - `frontend/contexts/AuthContext.tsx`
 - `tests/contract/test_canonical_v1_route_contracts.py`

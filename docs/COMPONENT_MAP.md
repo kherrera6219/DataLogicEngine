@@ -39,7 +39,7 @@ flowchart TB
 
     subgraph Backend[Flask API / Security Envelope]
         App[app.py]
-        Routes[routes/ and backend routes]
+        Routes[backend/routes/]
         Auth[Auth / Session / API decorators]
         Security[CSRF / CORS / Trusted Hosts / Rate Limits]
         DesktopAuth[Desktop Local Auth]
@@ -116,8 +116,8 @@ flowchart TB
 | Frontend shell | `frontend/app/`, `frontend/components/` | Product routes, UI surfaces, trace/runs/graph/settings/admin UX. |
 | Electron runtime | `frontend/electron/` | Windows desktop shell, local launch, desktop trust boundary. |
 | Runtime policy | `frontend/lib/runtime/` | Local/hybrid/cloud runtime behavior. |
-| API assembly | `app.py`, `routes/`, `backend/routes/` | Flask app, route registration, middleware, canonical/compat APIs. |
-| Auth/security | `backend/auth/`, `backend/security/` | Auth decorators, sessions, desktop auth, export integrity, DPAPI, tenant/security controls. |
+| API assembly | `app.py`, `backend/routes/` | Flask app, route registration, middleware, canonical/compat APIs. |
+| Auth/security | `backend/auth/`, `backend/security/` | Auth decorators, sessions, desktop auth, export integrity, DPAPI, security controls (single-mode OS-level auth). |
 | DMRF | `backend/dmrf/` | Governed AI request lifecycle and orchestration. |
 | Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
 | 17-axis/FROST | `backend/dmrf/router.py`, `core/axes/` | Coordinate routing, FROST depth, TruthCore mode selection. |

@@ -28,10 +28,9 @@ Define repository layout, ownership boundaries, naming conventions, inventory ge
 
 ```text
 DataLogicEngine/
-├── backend/           # DMRF, Truth Engine, security, storage, APIs
+├── backend/           # DMRF, Truth Engine, security, storage, APIs, routes (backend/routes/)
 ├── core/              # 17-axis, FROST, domain abstractions
 ├── frontend/          # Next.js UI and Electron desktop runtime
-├── routes/            # Route wiring and compatibility surfaces
 ├── scripts/           # Validation, generation, packaging, governance
 ├── tests/             # Unit, integration, security, parity, E2E
 ├── docs/              # Active docs, diagrams, ADRs, standards
