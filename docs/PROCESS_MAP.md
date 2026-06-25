@@ -140,7 +140,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    USER[User/admin requests privacy action] --> AUTH[Auth and role check]
+    USER[Owner requests privacy action] --> AUTH[Auth and single-owner check]
     AUTH --> ACTION{Export or delete?}
     ACTION -- Export --> COLLECT[Collect eligible user data]
     COLLECT --> PACKAGE[Package export]
