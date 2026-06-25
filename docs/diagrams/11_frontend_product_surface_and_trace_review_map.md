@@ -112,7 +112,7 @@ flowchart TD
 
     subgraph API[Frontend API Client Layer]
         ApiBase[frontend/lib/api/index.ts\nbase request + CSRF handling]
-        AuthApi[auth.ts\nlogin/logout/session/desktop auto-login]
+        AuthApi[auth.ts\ncheck/session/desktop auto-login]
         ChatApi[chat.ts + system_chat.ts]
         TraceApi[trace.ts\nfetch/export trace runs]
         KnowledgeApi[knowledge.ts\ngraph nodes/edges]

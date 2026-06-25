@@ -115,7 +115,7 @@ flowchart TD
         CORS[CORS Allowlist]
         CSRF[CSRF Origin / Token Checks]
         RateLimit[Rate Limiting]
-        Middleware[Security Middleware\nInput Sanitization + Request Limits + Timeouts]
+        Middleware[Security Middleware\nRequest Limits + Timeouts + Resource Governor]
     end
 
     BackendAuth --> App
@@ -271,9 +271,9 @@ A technical judge should inspect these files in order:
 7. `app.py` — verifies backend session, CORS, CSRF, trusted host, HTTPS, rate limiting, and middleware envelope.
 8. `frontend/electron/main.ts` and `frontend/electron/preload.ts` — verifies desktop runtime and IPC exposure boundaries.
 
-## Implementation Caveat
+## Encryption algorithm note
 
-The local-first security standard references AES-256-GCM as the target data-encryption standard. The current `EncryptionManager` implementation uses Fernet and records the algorithm as `Fernet-AES-128-CBC`; DPAPI uses Windows platform crypto through `win32crypt`. This diagram maps the implementation as it exists in code. If the target is strict AES-256-GCM everywhere, the code should either be upgraded or the standard should explicitly distinguish current implementation from target future state.
+The `EncryptionManager` implements **AES-256-GCM** for field/data encryption (via `cryptography`'s `AESGCM`), with **Fernet** retained only for the KEK wrapper and legacy-payload decryption. Each encrypted value carries a key-version prefix, so older Fernet-encrypted data remains readable after rotation. DPAPI uses Windows platform crypto through `win32crypt`. This diagram maps the implementation as it exists in code.
 
 ## Interpretation
 

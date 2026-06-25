@@ -208,10 +208,8 @@ This is important because the repo validates more than ordinary unit behavior. I
 The testing guide records a backend baseline of:
 
 ```text
-1518 passed, 21 skipped
-coverage baseline: 71.47%
+1769 passed, 19 skipped (SQLite, 2026-06-24)
 coverage gate: >=70%
-latest targeted regression sweep: 271 passed
 ```
 
 These values should be periodically regenerated and dated, but they are useful as current repository evidence for judging maturity.
