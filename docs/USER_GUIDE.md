@@ -19,7 +19,7 @@ This guide reflects the current local-first product: dashboard, chat, projects, 
 ## Audience
 
 1. Analysts and operators
-2. Admin users
+2. The single owner/operator (single-mode admin)
 3. Pilot users validating workflows
 4. Technical judges and reviewers
 5. Sponsors or employers reviewing the product experience
@@ -58,7 +58,7 @@ The current local-first build intentionally disables self-service registration. 
 | `/mcp` | MCP connector hub where enabled. |
 | `/settings` | API, storage, AI model, preferences, and local configuration. |
 | `/settings/privacy` | Export/delete profile data and manage privacy controls. |
-| `/admin` | Admin telemetry/user/provider/compliance views. |
+| `/admin` | Admin telemetry/provider/compliance views (single owner; no user management). |
 | `/admin/mcp/servers` | MCP server registry management. |
 | `/legal/privacy` | Privacy policy surface. |
 
@@ -141,7 +141,7 @@ Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store,
 
 ### 8. Manage MCP connectors
 
-1. Open `/mcp` or `/admin/mcp/servers` depending on role.
+1. Open `/mcp` or `/admin/mcp/servers`.
 2. Review registered servers.
 3. Add or remove servers where permitted.
 4. Validate scopes and tool contract behavior.
@@ -190,8 +190,8 @@ Review `docs/PRIVACY_POLICY.md` for details.
 6. Storage status panel returns service state.
 7. Privacy page shows export/delete controls.
 8. Graph/knowledge pages render expected empty or populated states.
-9. Admin route loads for admin/owner users.
-10. MCP admin route loads for admin users where enabled.
+9. Admin route loads for the single owner.
+10. MCP admin route loads where enabled.
 
 ## Known limitations
 

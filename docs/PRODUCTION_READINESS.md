@@ -279,7 +279,7 @@ Required compliance/audit controls:
 4. trace exports include integrity metadata;
 5. privacy settings and export/delete flows are present;
 6. cloud-service and AI-limitation disclosures are present;
-7. admin/compliance surfaces are protected by role/admin checks;
+7. admin/compliance surfaces are protected by the single-owner auth check (single-mode OS-level auth);
 8. release evidence is attached to release checklist.
 
 ---
