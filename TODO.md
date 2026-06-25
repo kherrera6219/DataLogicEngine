@@ -432,6 +432,12 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       `scan_backend_routes`), KA codemods (`fix_ka_imports`/`fix_kas`); **kept** reusable `find_orphaned_modules.py`/
       `find_core_backend_inversions.py`. **Guarded `seed_data.py`** (production block via `_seeding_allowed`).
       Collection clean (1806). **→ v2.0 FIRST-PASS AUDIT COMPLETE (A1–A32, all 4 phases).**
+    - **Optional-items second-pass cleanup ✅ 2026-06-24** (post-audit review): cut 5 dead/redundant security
+      modules (~1,394 LOC, zero importers) — `active_defense` (broken duplicate of wired DefenseSupervisor),
+      `security_scan_api` (unregistered blueprint), `sanitizer` (+ dropped the `bleach` pin — its only consumer),
+      `vulnerability_scanner` (CI does pip-audit/bandit), `data_classification` (compliance_manager does PII).
+      **Hardened the Neo4j skip-guard** → real `RETURN 1` Cypher so up-but-unauth Neo4j skips not fails. Full
+      suite 1769 passed / 19 skipped / 0 failed; bandit 472→467; pip-audit clean.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

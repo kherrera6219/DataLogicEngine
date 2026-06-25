@@ -5,6 +5,35 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Optional-items second-pass cleanup — dead security modules + Neo4j guard (✅ 2026-06-24)
+Reviewed the post-audit optional follow-ups; user decision: action all. Cut 5 dead/redundant security modules
+(~1,394 LOC, all zero production importers) + hardened the Neo4j skip-guard.
+
+- **`security/active_defense.py` (`ActiveDefenseService`) — dead duplicate.** A parallel copy of the WIRED
+  `DefenseSupervisor` (N2/A3): same `assess_incoming`→`SecurityVerdict` LLM-screening shape, and it opens
+  `"prompts/defense_supervisor.txt"` — the **old root path A3 moved** to `backend/security/prompts/` — so it was
+  also broken. Removed + `test_active_defense.py`.
+- **`security_scan_api.py` — dead unregistered blueprint** (new find). `scan_bp` / `register_scan_api` are
+  **never called** anywhere; it scanned via `security_manager`, not the vuln scanner. Removed + trimmed its
+  tests out of `test_uncovered_blueprints.py` (kept the live methods_api + security_api tests).
+- **`security/sanitizer.py` (`HTMLSanitizer`) — dead.** Zero importers; Electron+Next/React auto-escapes HTML
+  (no server-rendered HTML to sanitize). It was **`bleach`'s only consumer**, so also **dropped `bleach==6.4.0`
+  from requirements.txt** (the security pin added during the dep-fix is now moot — no bleach, no bleach CVE).
+  Removed + `test_sanitizer.py`. `pip-audit -r requirements.txt` still clean.
+- **`security/vulnerability_scanner.py` — redundant.** Zero consumers; CI already runs `pip-audit` + `bandit`
+  (security.yml). Removed + `test_vulnerability_coverage.py`.
+- **`security/data_classification.py` — redundant.** Zero importers; `compliance_manager` already does its own
+  PII scan (SC-4). Removed + trimmed `test_security_critical.py` (kept the live `TestPasswordSecurity`).
+- **Neo4j skip-guard hardened** (`tests/memory/test_unified_memory_service.py::_neo4j_available`): was a TCP
+  port probe → now runs a real `RETURN 1` Cypher (resolving URI/creds exactly as `GraphStore`). An
+  up-but-unauthenticated/uninitialized Neo4j (which bit A12) now SKIPS the e2e test instead of failing it.
+- **Validation:** no remaining live refs to the 5 modules; ruff clean; affected slices 218 passed/1 skipped;
+  collection clean (1788); bandit baseline regenerated 472→467; `pip-audit -r requirements.txt` clean.
+  These were the post-audit optional items — the kept ORPH-v2 pair (data_classification/vulnerability_scanner)
+  and the new test-only candidates (active_defense/sanitizer) are now all resolved.
+
+---
+
 ## Phase 4 / A32 — `scripts/` (✅ 2026-06-24) — FINAL AREA; v2.0 first-pass audit COMPLETE
 DoD: audit scripts clean & committed? `seed_data.py` guarded? stale files cleaned up?
 

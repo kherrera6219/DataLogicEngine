@@ -1,7 +1,5 @@
 import json
 import os
-import socket
-from urllib.parse import urlparse
 
 import pytest
 
@@ -21,8 +19,14 @@ def _neo4j_available() -> bool:
     Neo4j has not been started the workflow records only the in-memory write and
     ``memory_writes`` is incomplete (1 instead of 3). A bare ``pytest`` run that
     has not brought up the local data stack should skip this end-to-end test
-    rather than fail it. The URI is resolved the same way
-    ``backend.storage.graph_store.GraphStore`` does. (A18.)
+    rather than fail it. The URI/credentials are resolved the same way
+    ``backend.storage.graph_store.GraphStore`` does. (A18; hardened post-A12.)
+
+    Probes with a real ``RETURN 1`` Cypher, NOT just a TCP connect: a port being
+    open is not enough — an up-but-unauthenticated/uninitialized Neo4j accepts the
+    socket yet fails the graph-backed memory writes (``memory_writes`` 1 != 3),
+    which would make this e2e test FAIL instead of SKIP. Only run when a real
+    query succeeds.
     """
     uri = os.getenv("NEO4J_URI")
     if not uri:
@@ -31,13 +35,20 @@ def _neo4j_available() -> bool:
             uri = getattr(get_config(), "NEO4J_URI", "bolt://localhost:7687")
         except Exception:
             uri = "bolt://localhost:7687"
-    parsed = urlparse(uri)
-    host = parsed.hostname or "localhost"
-    port = parsed.port or 7687
+    user = os.getenv("NEO4J_USER") or "neo4j"
+    password = os.getenv("NEO4J_PASSWORD") or "password"
     try:
-        with socket.create_connection((host, port), timeout=0.75):
+        from neo4j import GraphDatabase
+        driver = GraphDatabase.driver(uri, auth=(user, password), connection_timeout=1.0)
+        try:
+            with driver.session() as session:
+                session.run("RETURN 1").single()
             return True
-    except OSError:
+        except Exception:
+            return False
+        finally:
+            driver.close()
+    except Exception:
         return False
 
 

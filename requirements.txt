@@ -47,7 +47,6 @@ pyotp==2.9.0
 qrcode==8.2
 email-validator==2.3.0
 python-json-logger==3.3.0
-bleach==6.4.0  # direct dep of backend/security/sanitizer.py; 6.4.0 patches GHSA-gj48-438w-jh9v / GHSA-8rfp-98v4-mmr6
 
 # API and provider clients
 openai==2.41.0
