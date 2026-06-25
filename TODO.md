@@ -426,6 +426,12 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       MS Graph, Azure Storage, wrong-framework `REACT_APP_*`) while keeping wired `AZURE_OPENAI_API_KEY` +
       `NEXT_PUBLIC_API_URL`; renamed `test_sanitizer_and_context_aware.py`→`test_sanitizer.py`. verify_docs_references
       0 errors; deploy/** clean; tests/*.md phase-summaries left historical. **Next: A32 (scripts) — last area.**
+    - **A32 ✅ COMPLETE 2026-06-24** (scripts, FINAL area): retired 12 dead one-off scripts — superseded scanners
+      (`audit_deep`/`audit_duplicates`), one-shot doc-patchers (`patch_todo`/`patch_handoff`/`patch_audit_plan_session`/
+      `patch_audit_plan_v2`/`fix_todo_dup`/`dedup_todo_item16`), hardcoded route diagnostics (`find_all_routes`/
+      `scan_backend_routes`), KA codemods (`fix_ka_imports`/`fix_kas`); **kept** reusable `find_orphaned_modules.py`/
+      `find_core_backend_inversions.py`. **Guarded `seed_data.py`** (production block via `_seeding_allowed`).
+      Collection clean (1806). **→ v2.0 FIRST-PASS AUDIT COMPLETE (A1–A32, all 4 phases).**
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

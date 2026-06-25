@@ -5,6 +5,41 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A32 — `scripts/` (✅ 2026-06-24) — FINAL AREA; v2.0 first-pass audit COMPLETE
+DoD: audit scripts clean & committed? `seed_data.py` guarded? stale files cleaned up?
+
+- **Retired 12 dead one-off scripts** (all verified unreferenced by CI/tests/other scripts; confirm-before-cut):
+  - superseded one-off scanners: `audit_deep.py` + `audit_duplicates.py` (machine-hardcoded ROOT; produced the
+    now-historical Sprint Plan; superseded by the reusable parameterized `find_orphaned_modules.py` +
+    `find_core_backend_inversions.py`, which are **kept**).
+  - one-shot doc-patchers (hardcoded path + specific past string-edits, already executed): `patch_todo.py`,
+    `patch_handoff.py`, `patch_audit_plan_session.py`, `patch_audit_plan_v2.py`, `fix_todo_dup.py`,
+    `dedup_todo_item16.py`.
+  - hardcoded-path route diagnostics (served the complete RT-1..RT-18 routes audit): `find_all_routes.py`,
+    `scan_backend_routes.py`.
+  - one-shot KA codemods (the fixes are already applied + validated by the 125-KA tests): `fix_ka_imports.py`,
+    `fix_kas.py`.
+- **Guarded `seed_data.py`** — its `__main__` ran `db.create_all()` + inserted sample reference data with no
+  guard. Added `_seeding_allowed()`: refuse when `FLASK_ENV/ENV=production` unless `ALLOW_SEED=true`
+  (mirrors the `AUTO_CREATE_SCHEMA` production-block in app.py). Verified: production→blocked,
+  production+ALLOW_SEED→allowed, dev/empty→allowed.
+- **Stale-script sweep:** after the retirements, **no** scripts carry a hardcoded `C:\software\DataLogicEngine`
+  ROOT and **no** scripts import any module deleted this audit (only the deleted `audit_duplicates.py` had ever
+  mentioned them, as scan strings). The orphan scanner reports 35 scripts/ "orphans", but that is expected and
+  NOT actionable: scripts are CLI entry points (nothing imports them by design), so the import-based scanner
+  over-reports — `verify_*`/`test_gateway`/etc. are legitimate standalone tools, kept.
+- **Validation:** pytest collection clean (1806, 0 import errors); ruff clean; no test references the retired
+  scripts.
+
+**→ A32 COMPLETE. This was the final area — the DataLogicEngine Complete Audit Plan v2.0 first pass is DONE
+(A1–A32, all 4 phases).** Recurring theme across the run: the single-mode local-first pivot orphaned whole
+enterprise/multi-node/multi-user subsystems (K8s operator → multi-user auth → SaaS connectors → enterprise
+FastAPI microservices → shadow-KA frameworks → enterprise config/SSO), all removed; live reasoning components
+that were built-but-disconnected (N1 SEKRE, N2 defense_supervisor) were wired. A possible second long-tail pass
+remains for the ~10-20% not covered at high confidence.
+
+---
+
 ## Phase 4 / A31 — docs + generated inventories (✅ 2026-06-24)
 DoD: are the docs current after this run's many deletions? regenerate the generated inventories; reconcile
 stale enterprise/cloud config.

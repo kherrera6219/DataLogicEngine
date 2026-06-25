@@ -3,12 +3,28 @@ Seed script for populating the UKG database with sample 17-axis knowledge graph 
 Run this script to populate the database with initial reference data.
 """
 
+import os
+import sys
 import uuid
 import logging
 from app import app, db
 from models import Node, Edge, PillarLevel, Sector, Domain
 
 logger = logging.getLogger(__name__)
+
+
+def _seeding_allowed() -> tuple[bool, str]:
+    """Guard: seeding runs db.create_all() + inserts sample reference data, so it
+    must not run against a production database. Allow it everywhere except
+    FLASK_ENV=production, unless ALLOW_SEED=true is set as an explicit override."""
+    env = (os.environ.get("FLASK_ENV") or os.environ.get("ENV") or "").strip().lower()
+    if env in {"production", "prod"} and os.environ.get("ALLOW_SEED", "").lower() != "true":
+        return False, (
+            "Refusing to seed: FLASK_ENV=production. Seeding calls db.create_all() and "
+            "inserts sample reference data — not intended for production. "
+            "Set ALLOW_SEED=true to override."
+        )
+    return True, ""
 
 def generate_uid(prefix):
     """Generate a unique identifier with prefix."""
@@ -225,4 +241,8 @@ def run_seed():
         return total
 
 if __name__ == "__main__":
+    allowed, reason = _seeding_allowed()
+    if not allowed:
+        logger.error(reason)
+        sys.exit(1)
     run_seed()

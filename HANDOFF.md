@@ -1,13 +1,14 @@
 # DataLogicEngine — Session Handoff
 
 ## ▶ START HERE (next session) — updated 2026-06-24
-**Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A31 ✅; ⏭ A32 (scripts) — the LAST area.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
+**Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): ✅ COMPLETE — A1–A32, all 4 phases done (2026-06-24).** The v2.0 first-pass audit is finished; ~80–90% of major structural problems addressed (deliberate-pace plan), a second long-tail pass may follow. Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state in memory `audit_plan_progress`.
+- **No audit area is "next" — first pass done.** Remaining optional follow-ups (none blocking): ORPH-v2 kept modules `data_classification`/`vulnerability_scanner` (reassess wire-or-cut if still unwired); `active_defense`/`sanitizer` (test-only candidates surfaced in ORPH-v2); harden the Neo4j skip-guard in `tests/memory/test_unified_memory_service.py` (probe `RETURN 1`, not just a TCP port); a second long-tail audit pass.
 **2026-06-24:** cleared the outstanding backlog ahead of A30 — **ORPH-4** (dropped `OAuthAccount`) + **ORPH-v2 security/services** (deleted 7, kept 2). **A12 dual-engine Postgres ✅ NOW DONE** (it's not external-infra — the local Postgres just needed to run; ran it against DataLogicEngine's own isolated pg container, fixed the local-stack container-naming bug + a real Postgres-only lockout TypeError + 2 stale fixtures). **All outstanding items cleared.** Full suite green **1787 passed / 19 skipped / 0 failed**. Committed (not pushed — push at EOD).
 **2026-06-24 (dependency security):** fixed **all** dependency vulnerabilities. Python: `pip-audit -r requirements.txt` → clean (added pins `bleach==6.4.0`, `starlette>=1.3.1`, `langsmith>=0.8.18`; the 6 direct pins were already patched in requirements.txt — venv was just stale; removed dead `simple-salesforce`/`zeep` venv leftovers; `msgpack` was pip_audit-only, not shipped). Node: `npm audit fix` → **0 vulnerabilities** (undici/ws cluster). Frontend 378 tests pass. **Forward:** harden the Neo4j skip-guard in `tests/memory/test_unified_memory_service.py` (it probes a TCP port, not Neo4j function — an up-but-unseeded Neo4j makes the e2e test fail instead of skip).
 
 - **A30 ✅ DONE 2026-06-24** (config/migrations/k8s): deleted `k8s/` (base manifests, multi-node twin of A25 operator); trimmed `config_manager.py` stale enterprise ports + JWT block (kept api_gateway=backend/frontend/system/database); added OLLAMA local-model block to `.env.template`; documented migrations bootstrap (create_all + deltas) in `migrations/README`. See REPO_AUDIT_LOG A30 entry.
 - **A31 ✅ DONE 2026-06-24** (docs): regenerated `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` (1634 files; dropped this run's deletions); cleaned `.env.template` stale multi-user SSO/cloud config (removed Azure AD/Entra/MS Graph/Azure Storage/`REACT_APP_*`; kept wired Azure OpenAI key + `NEXT_PUBLIC_API_URL`); renamed `test_sanitizer_and_context_aware.py`→`test_sanitizer.py`. verify_docs_references 0 errors; deploy/** clean; `tests/*.md` phase-summaries left as historical. See REPO_AUDIT_LOG A31 entry.
-- **Next = A32 (scripts) — the LAST audit area:** retire/refresh the one-off `audit_deep.py` + `audit_duplicates.py` (machine-hardcoded ROOT / stale paths; superseded by `find_orphaned_modules.py` + `find_core_backend_inversions.py`); confirm `seed_data.py` is guarded; stale-script sweep. After A32, the v2.0 first-pass audit is complete.
+- **A32 ✅ DONE 2026-06-24** (scripts) — the final area: retired 12 dead one-off scripts (superseded scanners `audit_deep`/`audit_duplicates`; one-shot doc-patchers `patch_*`/`fix_todo_dup`/`dedup_todo_item16`; hardcoded route diagnostics `find_all_routes`/`scan_backend_routes`; KA codemods `fix_ka_imports`/`fix_kas`); guarded `seed_data.py` (production block); kept the reusable scanners. **→ v2.0 first-pass audit COMPLETE.** See REPO_AUDIT_LOG A32 entry.
 - **Start each session by running** `scripts/find_orphaned_modules.py <root>` (dead-module scanner; conservative candidates → confirm-before-cut; gitignored report).
 - **Other open items:** ~~**ORPH-4** drop `OAuthAccount`~~ ✅ **DONE 2026-06-24** (model + table dropped; migration `d6e7f8a9b0c1`; ORM pin 65→64); ~~**ORPH-v2 remaining** security/services~~ ✅ **DONE 2026-06-24** (per-module verify; deleted 7 dead-by-pivot/redundant: honeypot/context_aware/api_security/security_monitoring + email_service/export_service/file_upload_service; **kept 2** by user decision: `data_classification` + `vulnerability_scanner` — still test-only, reassess later; **new candidates** surfaced: `active_defense` + `sanitizer` are now test-only too → future pass). **A12 dual-engine Postgres run — STILL infra-gated** (Postgres/Docker not available this session; path enabled since A18, needs the local stack running — cannot be cleared without it).
 - **A30 forward (new, found during ORPH-4):** a from-scratch `flask db upgrade` can't complete — `f3a4b5c6d7e8` raises `NoSuchTableError: truth_sessions` because migrations are ALTER-only deltas layered on `db.create_all()`, not a replayable base schema. Chain is structurally valid + single-headed (`flask db heads` → `d6e7f8a9b0c1`). A30 to decide: document as ALTER-only, or backfill base create-table migrations.
@@ -15,6 +16,19 @@
 - **Gotchas:** `.venv311` for pytest, `.venv`/PATH for ruff; git = `"C:\Program Files\Git\cmd\git.exe"`; pre-commit runs ruff + frontend lint/typecheck (NOT pytest — so grep ALL test importers after deleting a module); after deletions, regenerate `.bandit-baseline.json` via `python -m bandit -r backend/ core/ --exit-zero -f json -o .bandit-baseline.json`. Work local during the day; push at EOD (don't push proactively).
 
 ---
+
+### Session log — 2026-06-24 (A32 — scripts; FINAL area, audit complete)
+
+- **Retired 12 dead one-off scripts** (all unreferenced; hardcoded-path or already-executed): superseded
+  scanners `audit_deep.py`+`audit_duplicates.py`; one-shot doc-patchers `patch_todo`/`patch_handoff`/
+  `patch_audit_plan_session`/`patch_audit_plan_v2`/`fix_todo_dup`/`dedup_todo_item16`; hardcoded route
+  diagnostics `find_all_routes`/`scan_backend_routes`; KA codemods `fix_ka_imports`/`fix_kas`. **Kept** the
+  reusable parameterized scanners `find_orphaned_modules.py` + `find_core_backend_inversions.py`.
+- **Guarded `seed_data.py`** — `__main__` now refuses to seed when FLASK_ENV/ENV=production unless ALLOW_SEED=true
+  (it runs db.create_all + inserts sample data; mirrors the AUTO_CREATE_SCHEMA block in app.py).
+- **Sweep:** no remaining hardcoded-path scripts; no scripts import a deleted module; collection clean (1806).
+  The scanner's 35 scripts/ "orphans" are legit CLI entry points (import-based scan over-reports here) — kept.
+- **→ A32 COMPLETE. This was the last area — the v2.0 first-pass audit (A1–A32) is DONE.**
 
 ### Session log — 2026-06-24 (A31 — docs + generated inventories)
 
