@@ -31,11 +31,10 @@ This version reflects the current code-backed architecture: local-first runtime 
 2. `docs/DEPLOYMENT.md`
 3. `docs/PRODUCTION_READINESS.md`
 4. `docs/TESTING.md`
-5. `docs/diagrams/01_master_system_architecture.md`
-6. `docs/diagrams/04_17_axis_coordinate_model.md`
-7. `docs/diagrams/05_truth_engine_architecture.md`
-8. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
-9. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+5. `docs/diagrams/04_17_axis_coordinate_model.md`
+6. `docs/diagrams/05_truth_engine_architecture.md`
+7. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+8. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 
 ## Architecture overview
 

@@ -104,7 +104,7 @@ flowchart TD
 | Desktop shell | `frontend/electron/`, `frontend/build_installer.ps1`, `scripts/windows/` | Electron runtime, installer/update controls, desktop IPC boundary, packaging smoke. |
 | Frontend application | `frontend/app/`, `frontend/components/`, `frontend/lib/` | UI routes, product shell, Trace Explorer, settings, graph, MCP, admin, API clients. |
 | Runtime policy | `frontend/lib/runtime/policy.ts`, `frontend/contexts/AuthContext.tsx` | local/hybrid/cloud runtime behavior and desktop auto-login. |
-| API and app assembly | `app.py`, `routes/`, `backend/routes/` | Flask app, middleware, route registration, canonical and compatibility APIs. |
+| API and app assembly | `app.py`, `backend/routes/` | Flask app, middleware, route registration, canonical and compatibility APIs. |
 | Security | `backend/security/`, `backend/auth/` | desktop auth, DPAPI, encryption, export integrity, API decorators (single-mode OS-level auth; RBAC/tenant-RLS removed). |
 | DMRF | `backend/dmrf/` | governed AI request lifecycle and control plane. |
 | Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
@@ -161,7 +161,6 @@ sequenceDiagram
 
 | Diagram | Use |
 |---|---|
-| `docs/diagrams/01_master_system_architecture.md` | top-level platform architecture. |
 | `docs/diagrams/02_research_to_code_traceability.md` | research-to-implementation traceability. |
 | `docs/diagrams/03_ai_reasoning_sequence.md` | AI reasoning sequence. |
 | `docs/diagrams/04_17_axis_coordinate_model.md` | 17-axis coordinate model. |

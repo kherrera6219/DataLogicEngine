@@ -197,7 +197,6 @@ The most important point: the LLM gateway is not the entire architecture. The ga
 
 ## Related Diagrams
 
-- `docs/diagrams/01_master_system_architecture.md`
 - `docs/diagrams/02_research_to_code_traceability.md`
 - Future: `docs/diagrams/04_17_axis_coordinate_model.md`
 - Future: `docs/diagrams/05_truth_engine_architecture.md`
