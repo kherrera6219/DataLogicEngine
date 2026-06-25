@@ -5,6 +5,42 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## A12-followup — dual-engine Postgres run executed + local-stack naming fix (✅ 2026-06-24)
+A12's dual-engine Postgres validation had been deferred as "infra-gated." Per the local-first architecture
+([[architecture-local-databases]]), the databases are app-owned and just need to be running — so it is NOT
+external-infra-blocked. Executed it against DataLogicEngine's **own isolated** Postgres.
+
+- **Local-stack naming fix (`scripts/windows/start_local_stack.ps1`) — the user-flagged "naming issue":** the
+  script identified data-service containers by **published port** (`Get-DockerContainerByPublishedPort -Port
+  5432/7687/9000`) and adopted whatever container squatted the standard port — on a machine also running an
+  unrelated app's stack (`devonz-*`), it latched onto **that app's** Postgres/Neo4j/MinIO and reused *their*
+  credentials, instead of DataLogicEngine's own `ukg-*` containers (which the compose pins via `container_name`).
+  Fixed: added `Get-DockerContainerByName` + `Resolve-DataServiceContainer` (prefer the `ukg-*` container by
+  NAME; fall back to port only when ours isn't running, and WARN loudly if a non-`ukg-` container owns the port).
+  Also made the reuse-vs-start decision name-based (was: skip startup if any standard port is merely busy →
+  silently reused the foreign stack). `devonz` appears nowhere in the repo — it is a genuinely separate app, not
+  a mis-named DataLogicEngine resource. (`setup_local_databases.py` has no equivalent port-based detection.)
+- **Schema parity (no live DB needed):** `validate_schema_parity.py` → `status=pass errors=0 warnings=0` — the
+  full ORM (incl. the ORPH-4 OAuthAccount drop) compiles to both SQLite + Postgres DDL.
+- **Ran the 7 Postgres-gated concurrency classes** (`tests/unit/test_user_model_concurrency.py`, 16 tests) on a
+  throwaway DataLogicEngine-owned Postgres (`docker run ukg-a12-pgtest`, pg15, port 5433 — NOT the foreign
+  devonz DB). They had been `skipif(is_sqlite_test_db())` since A18, so they had **never executed** after the
+  auth deprecation — the dual-engine run surfaced 3 issues:
+  1. **stale fixtures** — `User(role="user")` (the `role` column was dropped in E-2c) → removed from all 16.
+  2. **stale weak password** — `set_password("TestPassword123!")` is now rejected (strengthened validation bans
+     the "password" common pattern) → changed to a strong value in all 16.
+  3. **REAL production bug (Postgres-only)** — `User.is_account_locked()` (`models.py:114`) did
+     `self.locked_until > datetime.now(UTC)`; `locked_until` round-trips from Postgres (`TIMESTAMP WITHOUT TIME
+     ZONE` via psycopg2) as a **naive** datetime → `TypeError: can't compare offset-naive and offset-aware
+     datetimes`. On a Postgres deployment, account lockout would crash. Fixed: normalize `locked_until` to
+     aware-UTC before comparing (handles both naive DB round-trip and aware in-memory).
+- **Validation:** 16/16 concurrency tests pass on Postgres; broader Postgres slice (security + models +
+  concurrency) **272 passed**; SQLite regression of the same slice **256 passed / 16 skipped** (concurrency
+  correctly skips on SQLite); ruff clean; PS script parses clean. Test Postgres container torn down.
+  **→ A12 COMPLETE** (was the last non-A31/A32 open item).
+
+---
+
 ## Phase 4 / A30 — `config/` + `migrations/` + `k8s/` (✅ 2026-06-24)
 DoD questions: migration head correct? k8s manifests include Ollama? `.env.template` has `OLLAMA_*` vars?
 Plus the A25-deferred k8s fate + A28-deferred stale `config_manager` enterprise ports.

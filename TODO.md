@@ -413,6 +413,14 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       api_gateway=backend/frontend/system/database); added OLLAMA local-model block to `.env.template`;
       documented migrations bootstrap (create_all + deltas) in `migrations/README`. `config.env` kept. Full suite
       green. **Next: A31 (docs).**
+    - **A12 dual-engine Postgres ✅ DONE 2026-06-24** (was "infra-gated" — but DBs are app-owned local components,
+      not external; just need to run). Ran against DataLogicEngine's OWN isolated pg container (5433, not the
+      unrelated `devonz-*` app's DB). Schema parity pass 0/0; the 16 Postgres-gated concurrency tests (never run
+      since A18 skipif) surfaced + fixed: stale `User(role=...)` fixtures, stale weak password, and a **real
+      Postgres-only bug** — `User.is_account_locked()` naive-vs-aware `locked_until` TypeError (lockout crashes on
+      Postgres) → normalized to aware-UTC. Also fixed `start_local_stack.ps1` container-naming bug (identified DB
+      containers by port → grabbed the foreign `devonz-*` app's containers/creds; now name-first via
+      `Resolve-DataServiceContainer`). 16/16 PG, broader PG slice 272 pass, SQLite 256 pass/16 skip.
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

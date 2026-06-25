@@ -2,7 +2,7 @@
 
 ## ▶ START HERE (next session) — updated 2026-06-24
 **Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A30 ✅; ⏭ A31 (docs) NEXT.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
-**2026-06-24:** cleared the outstanding backlog ahead of A30 — **ORPH-4** (dropped `OAuthAccount` model + table) and **ORPH-v2 security/services** (verified 9, deleted 7, kept 2). Only **A12** remains (infra-gated). Full suite green **1787 passed / 19 skipped / 0 failed**. Committed (not pushed — push at EOD).
+**2026-06-24:** cleared the outstanding backlog ahead of A30 — **ORPH-4** (dropped `OAuthAccount`) + **ORPH-v2 security/services** (deleted 7, kept 2). **A12 dual-engine Postgres ✅ NOW DONE** (it's not external-infra — the local Postgres just needed to run; ran it against DataLogicEngine's own isolated pg container, fixed the local-stack container-naming bug + a real Postgres-only lockout TypeError + 2 stale fixtures). **All outstanding items cleared.** Full suite green **1787 passed / 19 skipped / 0 failed**. Committed (not pushed — push at EOD).
 **2026-06-24 (dependency security):** fixed **all** dependency vulnerabilities. Python: `pip-audit -r requirements.txt` → clean (added pins `bleach==6.4.0`, `starlette>=1.3.1`, `langsmith>=0.8.18`; the 6 direct pins were already patched in requirements.txt — venv was just stale; removed dead `simple-salesforce`/`zeep` venv leftovers; `msgpack` was pip_audit-only, not shipped). Node: `npm audit fix` → **0 vulnerabilities** (undici/ws cluster). Frontend 378 tests pass. **Forward:** harden the Neo4j skip-guard in `tests/memory/test_unified_memory_service.py` (it probes a TCP port, not Neo4j function — an up-but-unseeded Neo4j makes the e2e test fail instead of skip).
 
 - **A30 ✅ DONE 2026-06-24** (config/migrations/k8s): deleted `k8s/` (base manifests, multi-node twin of A25 operator); trimmed `config_manager.py` stale enterprise ports + JWT block (kept api_gateway=backend/frontend/system/database); added OLLAMA local-model block to `.env.template`; documented migrations bootstrap (create_all + deltas) in `migrations/README`. See REPO_AUDIT_LOG A30 entry.
@@ -14,6 +14,24 @@
 - **Gotchas:** `.venv311` for pytest, `.venv`/PATH for ruff; git = `"C:\Program Files\Git\cmd\git.exe"`; pre-commit runs ruff + frontend lint/typecheck (NOT pytest — so grep ALL test importers after deleting a module); after deletions, regenerate `.bandit-baseline.json` via `python -m bandit -r backend/ core/ --exit-zero -f json -o .bandit-baseline.json`. Work local during the day; push at EOD (don't push proactively).
 
 ---
+
+### Session log — 2026-06-24 (A12 dual-engine Postgres — DONE + local-stack naming fix)
+
+Re-framed A12: it's NOT external-infra-gated — the databases are app-owned local components, just needed to be
+running. Ran it against DataLogicEngine's OWN isolated Postgres.
+- **Naming fix (the user's flag) — `start_local_stack.ps1`:** it identified data containers by published port,
+  so on a machine also running another app's stack (`devonz-*`) it adopted *their* Postgres/Neo4j/MinIO + creds
+  instead of our `ukg-*` containers. Added name-first resolution (`Get-DockerContainerByName` /
+  `Resolve-DataServiceContainer`, prefer `ukg-*`, warn on foreign port-squatters) + made reuse-vs-start
+  name-based. (`devonz` is nowhere in the repo — a genuinely separate app.)
+- **Ran A12:** schema parity `pass 0/0`; the 16 Postgres-gated concurrency tests (never executed since A18's
+  skipif gate) surfaced **3 issues**, all fixed: (1) stale `User(role=...)` fixtures (role dropped E-2c);
+  (2) stale weak password `TestPassword123!` (now rejected); (3) **REAL Postgres-only bug** —
+  `User.is_account_locked()` compared a naive `locked_until` (psycopg2 TIMESTAMP WITHOUT TIME ZONE) to aware
+  `datetime.now(UTC)` → TypeError; lockout would crash on Postgres. Fixed by normalizing to aware-UTC.
+- **Validation:** 16/16 concurrency on Postgres; broader Postgres slice 272 passed; SQLite same slice 256
+  passed/16 skipped (no regression); ruff clean; PS parses clean; test container torn down.
+  **→ A12 COMPLETE. All non-A31/A32 items cleared.**
 
 ### Session log — 2026-06-24 (A30 — config/ + migrations/ + k8s/)
 

@@ -76,6 +76,48 @@ function Get-DockerContainerByPublishedPort([int]$Port) {
     return $null
 }
 
+function Get-DockerContainerByName([string]$Name) {
+    # Exact-name match among running containers. DataLogicEngine's compose pins
+    # container_name (ukg-db / ukg-neo4j / ukg-minio / ukg-redis), so this finds
+    # *our* container regardless of which host port it ended up on.
+    $dockerPath = Get-Command docker -ErrorAction SilentlyContinue
+    if (-not $dockerPath) {
+        return $null
+    }
+
+    $id = docker ps --filter "name=^/$Name$" --format "{{.ID}}" 2>$null | Select-Object -First 1
+    if ($id) {
+        return $id.Trim()
+    }
+    return $null
+}
+
+function Resolve-DataServiceContainer([string]$PreferredName, [int]$Port) {
+    # Prefer DataLogicEngine's OWN named container (ukg-*) so we never adopt a
+    # *different* application's container that merely happens to publish the same
+    # standard port (e.g. an unrelated Postgres squatting 5432). Only when our
+    # named container is absent do we fall back to the port-based lookup — and
+    # then we warn loudly if the port owner is a foreign (non-ukg-) container,
+    # because reusing its credentials silently couples us to another app's data.
+    $byName = Get-DockerContainerByName -Name $PreferredName
+    if ($byName) {
+        return $byName
+    }
+
+    $byPort = Get-DockerContainerByPublishedPort -Port $Port
+    if ($byPort) {
+        $foreignName = docker inspect -f "{{.Name}}" $byPort 2>$null
+        if ($foreignName) {
+            $foreignName = $foreignName.TrimStart("/")
+        }
+        if ($foreignName -and -not $foreignName.StartsWith("ukg-")) {
+            Write-Step "WARNING: port $Port is owned by container '$foreignName', not DataLogicEngine's '$PreferredName'. Reusing its credentials — start DataLogicEngine's own stack (or free the port) to avoid coupling to another app." "Yellow"
+        }
+        return $byPort
+    }
+    return $null
+}
+
 function Get-DockerEnvMap([string]$ContainerId) {
     $map = @{}
     if (-not $ContainerId) {
@@ -213,19 +255,38 @@ if ($FrontendPort -eq $BackendPort) {
 }
 
 if ($WithDataServices) {
-    $requiredPorts = @(5432, 6379, 7687, 9000)
-    $busyPorts = @()
-    foreach ($port in $requiredPorts) {
-        if (Test-PortOpen -Port $port) {
-            $busyPorts += $port
+    # Key the reuse-vs-start decision on whether DataLogicEngine's OWN containers
+    # (ukg-*) are running — NOT on bare port-busy checks. A different app squatting
+    # the standard ports (e.g. an unrelated Postgres on 5432) must not be mistaken
+    # for our stack and silently reused.
+    $ownContainers = [ordered]@{
+        "ukg-db"    = 5432
+        "ukg-redis" = 6379
+        "ukg-neo4j" = 7687
+        "ukg-minio" = 9000
+    }
+
+    $runningOwn = @()
+    $foreignBusy = @()
+    foreach ($name in $ownContainers.Keys) {
+        if (Get-DockerContainerByName -Name $name) {
+            $runningOwn += $name
+        }
+        elseif (Test-PortOpen -Port $ownContainers[$name]) {
+            $owner = Get-DockerContainerByPublishedPort -Port $ownContainers[$name]
+            $ownerName = if ($owner) { (docker inspect -f "{{.Name}}" $owner 2>$null).TrimStart("/") } else { "?" }
+            $foreignBusy += "$($ownContainers[$name]) -> '$ownerName'"
         }
     }
 
-    if ($busyPorts.Count -gt 0) {
-        Write-Step "Detected existing services on ports: $($busyPorts -join ', '). Using existing local services; skipping docker compose startup." "Yellow"
+    if ($runningOwn.Count -eq $ownContainers.Count) {
+        Write-Step "DataLogicEngine data containers already running ($($runningOwn -join ', ')). Reusing them." "Yellow"
     }
     else {
-        Write-Step "Starting local data services (PostgreSQL, Redis, Neo4j, MinIO) via docker compose..."
+        if ($foreignBusy.Count -gt 0) {
+            Write-Step "WARNING: standard data-service ports are held by other apps' containers ($($foreignBusy -join ', ')). DataLogicEngine's own containers cannot bind those ports — stop the other stack or free the ports." "Yellow"
+        }
+        Write-Step "Starting DataLogicEngine data services (ukg-db / ukg-redis / ukg-neo4j / ukg-minio) via docker compose..."
         $dockerPath = Get-Command docker -ErrorAction SilentlyContinue
         if (-not $dockerPath) {
             throw "Docker is required for -WithDataServices but was not found in PATH."
@@ -235,7 +296,7 @@ if ($WithDataServices) {
         try {
             docker compose up -d db redis neo4j minio | Out-Null
             if ($LASTEXITCODE -ne 0) {
-                throw "docker compose failed while starting data services."
+                throw "docker compose failed while starting data services (a standard port may be held by another app's container)."
             }
         }
         finally {
@@ -258,8 +319,9 @@ if ($WithDataServices) {
     $objectAccessKey = "minioadmin"
     $objectSecretKey = "minioadmin123"
 
-    # If another local stack already owns these ports, discover credentials from containers.
-    $postgresContainer = Get-DockerContainerByPublishedPort -Port 5432
+    # Discover credentials from DataLogicEngine's own data containers (by name,
+    # falling back to port only if our named container isn't running).
+    $postgresContainer = Resolve-DataServiceContainer -PreferredName "ukg-db" -Port 5432
     if ($postgresContainer) {
         $pgEnv = Get-DockerEnvMap -ContainerId $postgresContainer
         $pgUser = Get-FirstNonEmptyValue @($pgEnv["POSTGRES_USER"], $pgUser) $pgUser
@@ -267,7 +329,7 @@ if ($WithDataServices) {
         $pgDatabase = Get-FirstNonEmptyValue @($pgEnv["POSTGRES_DB"], $pgDatabase) $pgDatabase
     }
 
-    $neo4jContainer = Get-DockerContainerByPublishedPort -Port 7687
+    $neo4jContainer = Resolve-DataServiceContainer -PreferredName "ukg-neo4j" -Port 7687
     if ($neo4jContainer) {
         $neo4jEnv = Get-DockerEnvMap -ContainerId $neo4jContainer
         $neo4jUser = Get-FirstNonEmptyValue @($neo4jEnv["NEO4J_USER"], $neo4jUser) $neo4jUser
@@ -282,7 +344,7 @@ if ($WithDataServices) {
         }
     }
 
-    $minioContainer = Get-DockerContainerByPublishedPort -Port 9000
+    $minioContainer = Resolve-DataServiceContainer -PreferredName "ukg-minio" -Port 9000
     if ($minioContainer) {
         $minioEnv = Get-DockerEnvMap -ContainerId $minioContainer
         $objectAccessKey = Get-FirstNonEmptyValue @($minioEnv["MINIO_ROOT_USER"], $minioEnv["MINIO_ACCESS_KEY"], $objectAccessKey) $objectAccessKey

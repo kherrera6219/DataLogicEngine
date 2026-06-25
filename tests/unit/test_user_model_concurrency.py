@@ -43,10 +43,9 @@ class TestFailedLoginConcurrency:
             # Create test user
             user = User(
                 username="testuser",
-                email="test@example.com",
-                role="user"
+                email="test@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -74,10 +73,9 @@ class TestFailedLoginConcurrency:
             # Create test user
             user = User(
                 username="concurrenttest",
-                email="concurrent@example.com",
-                role="user"
+                email="concurrent@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -130,10 +128,9 @@ class TestFailedLoginConcurrency:
             # Create test user
             user = User(
                 username="lockouttest",
-                email="lockout@example.com",
-                role="user"
+                email="lockout@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -184,10 +181,9 @@ class TestFailedLoginConcurrency:
             # Create user
             user = User(
                 username="racetest",
-                email="race@example.com",
-                role="user"
+                email="race@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -238,10 +234,9 @@ class TestSuccessfulLoginConcurrency:
             # Create user with failed attempts
             user = User(
                 username="resettest",
-                email="reset@example.com",
-                role="user"
+                email="reset@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             user.failed_login_attempts = 3
             db.session.add(user)
             db.session.commit()
@@ -269,10 +264,9 @@ class TestSuccessfulLoginConcurrency:
             # Create user
             user = User(
                 username="mixedtest",
-                email="mixed@example.com",
-                role="user"
+                email="mixed@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -325,10 +319,9 @@ class TestAccountLockoutConcurrency:
             # Create locked user
             user = User(
                 username="lockeduser",
-                email="locked@example.com",
-                role="user"
+                email="locked@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             user.locked_until = datetime.utcnow() + timedelta(minutes=15)
             db.session.add(user)
             db.session.commit()
@@ -364,10 +357,9 @@ class TestAccountLockoutConcurrency:
             # Create user locked until very soon
             user = User(
                 username="expiringuser",
-                email="expiring@example.com",
-                role="user"
+                email="expiring@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             # Lock expires in 100ms
             user.locked_until = datetime.utcnow() + timedelta(milliseconds=100)
             db.session.add(user)
@@ -403,10 +395,9 @@ class TestDatabaseIsolation:
             # Create user
             user = User(
                 username="isolationtest",
-                email="isolation@example.com",
-                role="user"
+                email="isolation@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -442,10 +433,9 @@ class TestDatabaseIsolation:
             # Create user
             user = User(
                 username="consistencytest",
-                email="consistency@example.com",
-                role="user"
+                email="consistency@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -475,10 +465,9 @@ class TestErrorHandling:
             # Create user
             user = User(
                 username="errortest",
-                email="error@example.com",
-                role="user"
+                email="error@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -501,10 +490,9 @@ class TestErrorHandling:
             # Create user
             user = User(
                 username="recoverytest",
-                email="recovery@example.com",
-                role="user"
+                email="recovery@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -560,10 +548,9 @@ class TestEdgeCases:
             # Create user
             user = User(
                 username="rapidtest",
-                email="rapid@example.com",
-                role="user"
+                email="rapid@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -588,10 +575,9 @@ class TestEdgeCases:
             # Create user
             user = User(
                 username="cycletest",
-                email="cycle@example.com",
-                role="user"
+                email="cycle@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -636,10 +622,9 @@ class TestEdgeCases:
             # Create user
             user = User(
                 username="boundarytest",
-                email="boundary@example.com",
-                role="user"
+                email="boundary@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id
@@ -680,10 +665,9 @@ class TestPerformance:
             # Create user
             user = User(
                 username="perftest",
-                email="perf@example.com",
-                role="user"
+                email="perf@example.com"
             )
-            user.set_password("TestPassword123!")
+            user.set_password("Tr0ub4dor&3xtra!")
             db.session.add(user)
             db.session.commit()
             user_id = user.id

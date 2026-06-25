@@ -111,9 +111,16 @@ class User(db.Model, UserMixin):
 
     def is_account_locked(self) -> bool:
         """Check if account is currently locked."""
-        if self.locked_until and self.locked_until > datetime.now(UTC):
-            return True
-        return False
+        if not self.locked_until:
+            return False
+        # locked_until is stored in UTC, but some backends return a naive
+        # datetime (e.g. PostgreSQL TIMESTAMP WITHOUT TIME ZONE via psycopg2),
+        # which can't be compared to an aware datetime.now(UTC). Normalize to
+        # aware-UTC first to avoid a naive/aware TypeError.
+        locked_until = self.locked_until
+        if locked_until.tzinfo is None:
+            locked_until = locked_until.replace(tzinfo=UTC)
+        return locked_until > datetime.now(UTC)
 
     def record_failed_login(self) -> None:
         """
