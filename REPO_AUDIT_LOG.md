@@ -5,6 +5,47 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A30 — `config/` + `migrations/` + `k8s/` (✅ 2026-06-24)
+DoD questions: migration head correct? k8s manifests include Ollama? `.env.template` has `OLLAMA_*` vars?
+Plus the A25-deferred k8s fate + A28-deferred stale `config_manager` enterprise ports.
+
+- **`k8s/` deleted** (`k8s/base/backend-deployment.yaml` + `frontend-deployment.yaml`; dir now gone). They were
+  generic multi-replica `Deployment`s + a `LoadBalancer` `Service` + `ukg-secrets` — the multi-node cloud
+  pattern, the infra twin of the A25-removed `kopf` operator, incompatible with single-mode local-first.
+  Zero-reference scan: not applied by any CI workflow (no kubectl/kustomize step), not in `backend.spec`, not
+  referenced by any deploy script (the `ukg-backend`/`ukg-frontend` hits are Docker *image names* in the
+  aws/azure/gcp cloud-build configs, not refs to these manifests). User decision ("choice A"). NOTE: the plan's
+  "k8s/ vs deploy/k8s/ near-dup" was already moot — A25 deleted `deploy/k8s/`.
+- **`config_manager.py` trimmed** (A28-deferred): removed the 4 dead enterprise-service entries from `ports` +
+  `services` (`webhook_server`/`model_context`/`core_ukg`/`dotnet_service` — the standalone FastAPI services
+  retired in A28) and the `auth` JWT block (multi-user auth, removed). Verified **zero readers** (live consumers
+  are only `graph_store.get_config()` — which reads nothing via a getattr that misses the dict — and
+  `verify_sqlite.py` which reads `database.url`; no test reads ports/services/auth). **Kept** `api_gateway`
+  (== the desktop Flask backend, port 5000), `frontend`, `system` (UKG_DATA_DIR), `database`. Updated the stale
+  "Enterprise" module docstring. `get_env_dict()` now emits only the live backend/frontend port vars.
+- **`.env.template`: added a LOCAL MODELS (OLLAMA) section** — it was missing the `OLLAMA_BASE_URL` / `OLLAMA_PORT`
+  / `OLLAMA_TIMEOUT` / `LOCAL_SLM_ENDPOINT` vars that `backend/llm_gateway` (`gateway.py:145,185`) and
+  `backend/local_model_acceleration/config.py` actually read, despite Ollama being the primary local provider
+  (6-tier chain T0–T3). (Cloud provider keys remain DB-stored via Settings, by design — not added.)
+- **Migrations review:** the revision chain is **linear + single-headed** (`flask db heads` → `d6e7f8a9b0c1`).
+  The base schema is created by **`db.create_all()`** (via `init_db` / `setup_local_databases` /
+  `AUTO_CREATE_SCHEMA`), and the Alembic `versions/` are **incremental deltas** on top — there is no
+  base-create-table migration (root `b0d09ef7daef` only adds tracing tables). A from-scratch `flask db upgrade`
+  on an empty DB therefore fails (`f3a4b5c6d7e8` ALTERs the create_all-owned `truth_sessions`). This is the
+  intentional local-first pattern → **documented in `migrations/README`** rather than backfilling base
+  migrations.
+- **`config.env` KEPT** — referenced by `runtime_precheck.py` / `security_manager.py` as a valid `.env`
+  alternative (not stale-dead).
+- **Forward → A31 (docs):** `.env.template` still carries heavy stale *enterprise/cloud* content (Azure AD /
+  Entra / MS Graph / `REACT_APP_AUTH_PROVIDER=azure_ad` / multi-domain CORS) that contradicts single-mode — a
+  docs-pass rewrite. Plus regenerate `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` and the stale `tests/*.md`
+  summaries referencing deleted modules.
+- **Validation:** `config_manager` imports clean (ports/services = api_gateway+frontend; auth gone; database +
+  UKG_DATA_DIR intact); ruff clean; windows-platform config tests 9 pass; full suite green (Neo4j forced down).
+  **→ A30 COMPLETE. Next: A31 (docs).**
+
+---
+
 ## Dependency vulnerability remediation (✅ 2026-06-24)
 Fixed all dependency vulnerabilities across Python + Node. CI gates on
 `pip-audit -r requirements.txt --ignore-vuln CVE-2025-3000` (torch.jit.script,

@@ -1,8 +1,9 @@
 
 """
-UKG Enterprise Configuration Manager
+DataLogicEngine Configuration Manager
 
-Provides centralized configuration for all UKG enterprise services.
+Provides centralized configuration (ports, data directories, database URL) for the
+single-mode local-first app — the desktop Flask backend and the Next.js frontend.
 """
 
 import os
@@ -43,12 +44,14 @@ class ConfigManager:
         api_host = os.environ.get("API_HOST", default_bind_host)
         
         self._config = {
+            # Single-mode local-first: the only services are the desktop Flask
+            # backend ("api_gateway" == port 5000) and the Next.js frontend.
+            # The standalone enterprise FastAPI services (webhook_server /
+            # model_context / core_ukg / dotnet_service) and the JWT auth block
+            # were retired with the multi-service layer (A28) and multi-user auth
+            # deprecation — their config entries are removed here (A30).
             "ports": {
                 "api_gateway": int(os.environ.get("API_GATEWAY_PORT", 5000)),
-                "webhook_server": int(os.environ.get("WEBHOOK_SERVER_PORT", 5001)),
-                "model_context": int(os.environ.get("MODEL_CONTEXT_PORT", 5002)),
-                "core_ukg": int(os.environ.get("UKG_CORE_PORT", 5003)),
-                "dotnet_service": int(os.environ.get("DOTNET_SERVICE_PORT", 5005)),
                 "frontend": int(os.environ.get("FRONTEND_PORT", 3000))
             },
             "services": {
@@ -57,22 +60,6 @@ class ConfigManager:
                     "health_check_path": "/health",
                     "workers": 2,
                     "enable_cors": True
-                },
-                "webhook_server": {
-                    "host": default_bind_host,
-                    "health_check_path": "/health"
-                },
-                "model_context": {
-                    "host": default_bind_host,
-                    "health_check_path": "/health"
-                },
-                "core_ukg": {
-                    "host": default_bind_host,
-                    "health_check_path": "/health"
-                },
-                "dotnet_service": {
-                    "host": default_bind_host,
-                    "health_check_path": "/health"
                 },
                 "frontend": {
                     "host": default_bind_host,
@@ -85,10 +72,6 @@ class ConfigManager:
                 "debug": os.environ.get("DEBUG", "False").lower() == "true",
                 "environment": os.environ.get("ENV", "development"),
                 "startup_timeout": 30  # seconds
-            },
-            "auth": {
-                "jwt_secret": os.environ.get("JWT_SECRET", "ukg-development-secret"),
-                "token_expiry_minutes": int(os.environ.get("JWT_TOKEN_EXPIRY_MINUTES", "60"))
             },
             "database": {
                 "url": self._get_db_url(),

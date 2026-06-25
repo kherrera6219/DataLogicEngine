@@ -403,6 +403,16 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       - **New (forward):** `active_defense` + `sanitizer` now also test-only candidates; from-scratch
         `flask db upgrade` can't complete (`f3a4b5c6d7e8` NoSuchTableError) → A30 migration decision.
       - **Suite: 1787 passed / 19 skipped / 0 failed** (was 1876; −89 from removals); ruff clean; bandit 479→472.
+    - **Dependency vulnerabilities ✅ fixed 2026-06-24** (Python + Node): `pip-audit -r requirements.txt` → clean
+      (added pins `bleach==6.4.0`, `starlette>=1.3.1`, `langsmith>=0.8.18`; 6 direct pins were already patched —
+      venv drift; removed dead `simple-salesforce`/`zeep`; `msgpack` was pip_audit-only). `npm audit fix` → 0
+      vulns (undici/ws). Frontend 378 tests pass.
+    - **A30 ✅ COMPLETE 2026-06-24** (`config/`+`migrations/`+`k8s/`): deleted `k8s/` (base manifests, multi-node
+      twin of A25 operator — zero CI/deploy refs; user "choice A"); trimmed `config_manager.py` stale enterprise
+      ports/services (webhook_server/model_context/core_ukg/dotnet_service) + JWT auth block (zero readers; kept
+      api_gateway=backend/frontend/system/database); added OLLAMA local-model block to `.env.template`;
+      documented migrations bootstrap (create_all + deltas) in `migrations/README`. `config.env` kept. Full suite
+      green. **Next: A31 (docs).**
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

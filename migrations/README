@@ -1,1 +1,19 @@
 Single-database configuration for Flask.
+
+Schema bootstrap (IMPORTANT — read before running `flask db upgrade`):
+
+The base schema is created by `db.create_all()`, NOT by a base migration. The
+models in `models.py` are the source of truth for table creation; the app builds
+them on first run via `backend/init_db.py` / `setup_local_databases.py` (and the
+`AUTO_CREATE_SCHEMA=true` escape hatch in dev). The Alembic migrations in
+`versions/` are INCREMENTAL DELTAS layered on top of that created schema (column
+adds, table additions for tracing, drops for the auth-deprecation, etc.).
+
+Consequence: a from-scratch `flask db upgrade` against an EMPTY database will fail
+(e.g. `f3a4b5c6d7e8` ALTERs `truth_sessions`, which `create_all` — not a migration —
+creates). The supported bootstrap is: create the schema (`create_all` via init_db /
+the local stack), THEN `flask db stamp head` (or apply only newer deltas). This is
+intentional for the local-first single-mode app; do not expect the migration chain
+to stand up a database on its own.
+
+The revision chain is linear and single-headed (verify with `flask db heads`).
