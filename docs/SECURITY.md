@@ -110,7 +110,7 @@ Security expectations:
 - Canonical `/api/v1/*` auth failures must return JSON-native `401`/`403` responses, not browser redirects.
 - Admin and retention routes must enforce the single-owner auth check.
 - API principal resolution must not assume browser session identity when API key identity is used.
-- Role checks should fail closed when identity/role state is ambiguous.
+- Auth checks should fail closed when desktop/session identity state is ambiguous.
 
 Relevant implementation:
 

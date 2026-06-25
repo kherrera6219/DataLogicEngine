@@ -252,7 +252,7 @@ Exported files may leave the application boundary after download and should be h
 
 ```mermaid
 flowchart TD
-    USER[User/admin privacy action] --> AUTH[Auth/session/role check]
+    USER[Owner privacy action] --> AUTH[Auth/session/single-owner check]
     AUTH --> ACTION{Export or delete?}
     ACTION -- Export --> COLLECT[Collect eligible user data]
     COLLECT --> REDACT[Redact/sanitize where configured]

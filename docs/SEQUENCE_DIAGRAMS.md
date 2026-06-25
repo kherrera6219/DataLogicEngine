@@ -234,7 +234,7 @@ sequenceDiagram
     actor User
     participant UI as Privacy UI
     participant API as Privacy API
-    participant Auth as Auth/Role Check
+    participant Auth as Auth/Single-Owner Check
     participant Stores as Data Stores
     participant Audit as Audit Log
 

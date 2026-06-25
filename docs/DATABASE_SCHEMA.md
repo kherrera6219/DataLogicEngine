@@ -52,7 +52,7 @@ This document replaces the older PostgreSQL-only framing with the current multi-
 6. [Object storage architecture](#object-storage-architecture)
 7. [Memory architecture](#memory-architecture)
 8. [Trace and export architecture](#trace-and-export-architecture)
-9. [Tenant isolation pattern](#tenant-isolation-pattern)
+9. [Tenant scoping (single-mode)](#tenant-scoping-columns-single-mode)
 10. [Field-level encryption pattern](#field-level-encryption-pattern)
 11. [Schema parity and validation](#schema-parity-and-validation)
 12. [Reviewer verification path](#reviewer-verification-path)
