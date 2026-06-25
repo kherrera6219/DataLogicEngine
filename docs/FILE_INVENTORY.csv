@@ -1,5 +1,5 @@
 Path,Size_Bytes,Extension,Last_Modified
-.bandit-baseline.json,264788,.json,2026-06-24 18:25:29 UTC
+.bandit-baseline.json,255872,.json,2026-06-25 02:19:25 UTC
 .dockerignore,588,,2026-02-07 20:33:21 UTC
 .env.template,10278,.template,2026-06-25 01:42:10 UTC
 .eslintrc.json,43,.json,2026-01-06 01:00:27 UTC
@@ -404,12 +404,10 @@ backend\schemas\api_request_schemas.py,3057,.py,2026-02-16 11:51:53 UTC
 backend\schemas\request_schemas.py,1164,.py,2026-02-16 22:44:40 UTC
 backend\search_service.py,6363,.py,2026-02-16 22:44:40 UTC
 backend\security\__init__.py,1607,.py,2026-01-06 01:00:29 UTC
-backend\security\active_defense.py,4863,.py,2026-02-16 22:44:40 UTC
 backend\security\ai_guardrail.py,4000,.py,2026-06-18 21:08:58 UTC
 backend\security\api_csrf.py,1557,.py,2026-02-16 11:16:13 UTC
 backend\security\audit_logger.py,29547,.py,2026-05-15 03:35:59 UTC
 backend\security\compliance_manager.py,26505,.py,2026-06-08 01:51:46 UTC
-backend\security\data_classification.py,15295,.py,2026-02-16 22:44:40 UTC
 backend\security\defense_supervisor.py,7996,.py,2026-06-12 01:09:24 UTC
 backend\security\desktop_local_auth.py,5469,.py,2026-05-21 08:20:53 UTC
 backend\security\dpapi_store.py,2113,.py,2026-01-30 18:33:06 UTC
@@ -420,16 +418,13 @@ backend\security\password_security.py,7589,.py,2026-02-08 03:37:37 UTC
 backend\security\pii_redaction.py,4217,.py,2026-01-28 19:34:56 UTC
 backend\security\prompt_injection_shield.py,3964,.py,2026-01-29 02:44:15 UTC
 backend\security\prompts\defense_supervisor.txt,1459,.txt,2026-01-15 19:16:25 UTC
-backend\security\sanitizer.py,6059,.py,2026-01-06 01:00:29 UTC
 backend\security\secret_resolver.py,5047,.py,2026-02-16 17:34:38 UTC
 backend\security\security_headers.py,6829,.py,2026-02-20 23:46:15 UTC
 backend\security\security_manager.py,16082,.py,2026-02-16 22:44:40 UTC
 backend\security\session_manager.py,11575,.py,2026-02-07 12:15:12 UTC
 backend\security\ssrf.py,3884,.py,2026-02-16 12:36:41 UTC
-backend\security\vulnerability_scanner.py,14211,.py,2026-02-16 22:44:40 UTC
 backend\security_api.py,7891,.py,2026-02-16 22:44:40 UTC
-backend\security_scan_api.py,8265,.py,2026-05-23 21:18:18 UTC
-backend\seed_data.py,12838,.py,2026-05-25 04:22:15 UTC
+backend\seed_data.py,13728,.py,2026-06-25 02:04:05 UTC
 backend\services\__init__.py,143,.py,2026-01-28 19:05:49 UTC
 backend\services\analytics_service.py,6695,.py,2026-05-31 06:49:59 UTC
 backend\services\audio_service.py,4564,.py,2026-06-22 00:07:45 UTC
@@ -737,7 +732,7 @@ docs\assets\readme\architecture-overview.svg,4203,.svg,2026-05-23 04:54:05 UTC
 docs\audits\DataLogicEngine_Audit_Sprint_Plan_v2.md,27859,.md,2026-06-08 01:59:14 UTC
 docs\audits\DataLogicEngine_Auth_Deprecation_Plan.md,17949,.md,2026-06-20 06:16:49 UTC
 docs\audits\DataLogicEngine_Complete_Audit_Plan.md,2561,.md,2026-06-12 03:34:48 UTC
-docs\audits\DataLogicEngine_Complete_Audit_Plan_v2.md,38227,.md,2026-06-25 00:04:36 UTC
+docs\audits\DataLogicEngine_Complete_Audit_Plan_v2.md,39697,.md,2026-06-25 02:08:26 UTC
 docs\audits\DataLogicEngine_Routes_Audit.md,24725,.md,2026-06-08 05:48:08 UTC
 docs\AUTH_DECORATORS.md,3457,.md,2026-06-21 17:40:25 UTC
 docs\BRANCH_PROTECTION_POLICY.md,2893,.md,2026-05-31 00:59:32 UTC
@@ -766,9 +761,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13654,.md,2026-06-09 04:08:37 UTC
-docs\FILE_INVENTORY.csv,125146,.csv,2026-06-25 01:39:01 UTC
+docs\FILE_INVENTORY.csv,125128,.csv,2026-06-25 01:46:18 UTC
 docs\FILE_STRUCTURE.md,4571,.md,2026-06-09 04:09:12 UTC
-docs\GENERATED_STRUCTURE.md,72004,.md,2026-06-25 01:39:01 UTC
+docs\GENERATED_STRUCTURE.md,71986,.md,2026-06-25 01:46:18 UTC
 docs\HANDOFF_quad_persona.md,10914,.md,2026-06-05 04:15:24 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\LOCAL_MODEL_ACCELERATION.md,8808,.md,2026-06-09 05:41:19 UTC
@@ -1168,7 +1163,7 @@ frontend\types\electron.d.ts,3961,.ts,2026-05-29 05:35:24 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,85500,.md,2026-06-25 00:47:59 UTC
+HANDOFF.md,88837,.md,2026-06-25 02:20:08 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1193,7 +1188,7 @@ playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
 README.md,14339,.md,2026-06-18 23:13:45 UTC
-REPO_AUDIT_LOG.md,167597,.md,2026-06-25 00:47:28 UTC
+REPO_AUDIT_LOG.md,175052,.md,2026-06-25 02:19:57 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,2383,.json,2026-05-22 22:58:30 UTC
 reports\app-readiness\keyboard-navigation-report.json,601,.json,2026-06-21 22:41:20 UTC
@@ -1203,7 +1198,7 @@ reports\app-readiness\ui-placeholder-audit.md,1940,.md,2026-05-23 04:55:48 UTC
 reports\codesigning_certificate_health.json,1068,.json,2026-05-15 03:59:24 UTC
 reports\dev_doctor_report.json,4576,.json,2026-05-23 04:54:27 UTC
 reports\dmrf_phase_f_validation.json,1357,.json,2026-05-26 23:27:18 UTC
-reports\dsqp_benchmark.json,324,.json,2026-06-25 00:47:09 UTC
+reports\dsqp_benchmark.json,324,.json,2026-06-25 02:19:48 UTC
 reports\dsqp_provider_audit_report.json,33136,.json,2026-05-26 05:53:45 UTC
 reports\installer_integrity_report.json,463,.json,2026-05-30 07:07:44 UTC
 reports\installer_integrity_validation_report.json,463,.json,2026-05-15 04:03:21 UTC
@@ -1221,7 +1216,7 @@ reports\release_governance_report.json,4154,.json,2026-05-30 06:17:55 UTC
 reports\RPT-20260128183324_SOC2.pdf,2336,.pdf,2026-01-29 02:33:24 UTC
 reports\schema_parity_report.json,124,.json,2026-06-25 00:38:03 UTC
 reports\trace_viewer_wiring_evidence.json,751,.json,2026-05-29 07:13:36 UTC
-requirements.txt,2250,.txt,2026-06-24 23:18:04 UTC
+requirements.txt,2131,.txt,2026-06-25 02:15:00 UTC
 run_test_suite.py,2423,.py,2026-02-16 18:01:23 UTC
 scripts\archive\verify_axis_mapper.py,2070,.py,2026-02-17 01:58:29 UTC
 scripts\archive\verify_batch_e.py,861,.py,2026-02-17 02:05:55 UTC
@@ -1237,8 +1232,6 @@ scripts\archive\verify_stack_integration.py,2813,.py,2026-06-04 08:00:02 UTC
 scripts\archive\verify_truth_engine.py,2749,.py,2026-02-17 01:58:29 UTC
 scripts\archive\verify_updates.py,2576,.py,2026-06-04 08:00:02 UTC
 scripts\archive\verify_workflow_wiring.py,1896,.py,2026-01-11 20:16:16 UTC
-scripts\audit_deep.py,9166,.py,2026-06-22 16:58:39 UTC
-scripts\audit_duplicates.py,5900,.py,2026-06-07 23:06:53 UTC
 scripts\audit_ka_files.py,2042,.py,2026-02-16 22:21:52 UTC
 scripts\backup_database.sh,5419,.sh,2026-01-15 04:08:49 UTC
 scripts\build_backend.py,1471,.py,2026-01-28 07:21:02 UTC
@@ -1248,7 +1241,6 @@ scripts\create_missing_kas.py,2935,.py,2026-01-16 10:18:27 UTC
 scripts\create_simulation_database.py,9793,.py,2026-06-04 07:38:53 UTC
 scripts\custom_start.sh,527,.sh,2026-01-06 01:00:29 UTC
 scripts\debug_ka_import.py,854,.py,2026-02-16 22:18:46 UTC
-scripts\dedup_todo_item16.py,2109,.py,2026-06-11 06:11:21 UTC
 scripts\demos\compliance\run_refinement_workflow_demo.py,8734,.py,2026-06-05 02:40:15 UTC
 scripts\demos\compliance\run_regulatory_compliance_demo.py,15351,.py,2026-02-17 02:46:49 UTC
 scripts\demos\compliance\security_compliance_demo.py,12028,.py,2026-02-17 01:58:29 UTC
@@ -1276,15 +1268,11 @@ scripts\dev_doctor.py,9007,.py,2026-04-01 02:31:42 UTC
 scripts\dev_setup.py,3945,.py,2026-04-01 01:24:28 UTC
 scripts\expand_mcp_library.py,4514,.py,2026-01-28 07:16:02 UTC
 scripts\export_audit_logs.py,1840,.py,2026-01-09 00:56:16 UTC
-scripts\find_all_routes.py,772,.py,2026-06-08 03:43:01 UTC
 scripts\find_core_backend_inversions.py,1953,.py,2026-06-22 16:57:22 UTC
 scripts\find_duplicates.py,1424,.py,2026-02-17 02:44:19 UTC
 scripts\find_failing_kas.py,824,.py,2026-02-16 22:18:46 UTC
 scripts\find_frontend_duplicates.py,2373,.py,2026-02-17 02:44:19 UTC
 scripts\find_orphaned_modules.py,8488,.py,2026-06-22 17:09:20 UTC
-scripts\fix_ka_imports.py,1040,.py,2026-02-03 05:16:00 UTC
-scripts\fix_kas.py,3059,.py,2026-02-03 05:15:27 UTC
-scripts\fix_todo_dup.py,1727,.py,2026-06-11 06:11:21 UTC
 scripts\generate_docs.py,7928,.py,2026-02-16 21:34:42 UTC
 scripts\generate_keys.py,1372,.py,2026-01-06 20:14:00 UTC
 scripts\generate_registry_yaml.py,1369,.py,2026-02-17 02:44:19 UTC
@@ -1296,10 +1284,6 @@ scripts\index_knowledge_nodes.py,2769,.py,2026-05-25 04:49:40 UTC
 scripts\ingest_local_corpus.py,1598,.py,2026-05-29 06:09:18 UTC
 scripts\inventory_scan.py,3855,.py,2026-02-16 22:18:46 UTC
 scripts\migrate_legacy_kas.py,692,.py,2026-01-16 10:18:23 UTC
-scripts\patch_audit_plan_session.py,13000,.py,2026-06-11 05:42:30 UTC
-scripts\patch_audit_plan_v2.py,4976,.py,2026-06-11 05:59:35 UTC
-scripts\patch_handoff.py,5443,.py,2026-06-08 03:52:07 UTC
-scripts\patch_todo.py,2565,.py,2026-06-08 03:54:28 UTC
 scripts\persona_manager.py,7560,.py,2026-06-05 02:40:15 UTC
 scripts\profile_simulation.py,1410,.py,2026-06-04 08:00:02 UTC
 scripts\restore_database.sh,2749,.sh,2026-01-15 04:08:49 UTC
@@ -1309,7 +1293,6 @@ scripts\run_tests.sh,3048,.sh,2026-01-15 04:08:49 UTC
 scripts\run_ukg.py,3468,.py,2026-02-16 22:18:46 UTC
 scripts\run_ukg_server.py,757,.py,2026-02-17 02:46:49 UTC
 scripts\runtime_precheck.py,16507,.py,2026-05-28 07:28:53 UTC
-scripts\scan_backend_routes.py,1992,.py,2026-06-13 19:35:22 UTC
 scripts\seed_neo4j.py,8503,.py,2026-05-24 23:12:54 UTC
 scripts\send_sentry_test_event.py,1543,.py,2026-01-15 04:08:49 UTC
 scripts\setup_database.sh,6221,.sh,2026-01-15 04:08:49 UTC
@@ -1494,7 +1477,7 @@ tests\integration_routes\test_notification_routes.py,7296,.py,2026-06-08 05:42:5
 tests\integration_routes\test_regulatory_api_coverage.py,6871,.py,2026-02-07 07:04:50 UTC
 tests\integration_routes\test_route_coverage_expansion.py,13107,.py,2026-06-08 05:19:36 UTC
 tests\integration_routes\test_ukg_api_coverage.py,4977,.py,2026-02-04 04:39:55 UTC
-tests\integration_routes\test_uncovered_blueprints.py,18213,.py,2026-06-13 19:35:22 UTC
+tests\integration_routes\test_uncovered_blueprints.py,9527,.py,2026-06-25 02:18:51 UTC
 tests\knowledge_algorithms\conftest.py,1083,.py,2026-02-03 05:48:32 UTC
 tests\knowledge_algorithms\test_ka_05_suggested_tier.py,1335,.py,2026-06-12 19:13:02 UTC
 tests\knowledge_algorithms\test_ka_113_complexity_router.py,2319,.py,2026-06-12 03:48:22 UTC
@@ -1505,7 +1488,7 @@ tests\knowledge_algorithms\test_ka_master_controller.py,4275,.py,2026-02-16 22:2
 tests\knowledge_algorithms\test_ka_stub_replacements.py,36422,.py,2026-06-08 01:03:09 UTC
 tests\knowledge_algorithms\test_ka_suite.py,3365,.py,2026-02-16 22:26:49 UTC
 tests\knowledge_algorithms\test_phase_e_depth.py,2494,.py,2026-05-26 05:48:31 UTC
-tests\memory\test_unified_memory_service.py,4831,.py,2026-06-21 22:54:18 UTC
+tests\memory\test_unified_memory_service.py,5431,.py,2026-06-25 02:16:14 UTC
 tests\parity\test_local_mode_parity.py,2544,.py,2026-06-08 05:57:12 UTC
 tests\performance\locustfile.py,575,.py,2026-01-06 01:00:29 UTC
 tests\persona\quad\test_persona_scaling.py,21439,.py,2026-06-05 02:40:15 UTC
@@ -1515,7 +1498,6 @@ tests\PHASE_2_SUMMARY.md,14627,.md,2026-01-28 06:20:49 UTC
 tests\phase_g\test_advanced_mcp.py,6628,.py,2026-06-08 04:31:24 UTC
 tests\phase_g\test_phase_g_integrations.py,4981,.py,2026-05-28 06:45:17 UTC
 tests\phase_g\test_phase_gb_integrations.py,4611,.py,2026-05-28 06:53:30 UTC
-tests\security\test_active_defense.py,2220,.py,2026-06-24 18:22:42 UTC
 tests\security\test_audit_logger_comprehensive.py,27321,.py,2026-02-16 22:27:03 UTC
 tests\security\test_audit_logger_immutable_replica.py,1730,.py,2026-02-16 17:39:37 UTC
 tests\security\test_compliance_manager_coverage.py,22402,.py,2026-06-08 01:54:41 UTC
@@ -1525,14 +1507,12 @@ tests\security\test_fuzzing.py,5378,.py,2026-02-04 00:28:34 UTC
 tests\security\test_password_security_comprehensive.py,24541,.py,2026-02-16 22:25:20 UTC
 tests\security\test_request_limits.py,2103,.py,2026-02-16 22:25:20 UTC
 tests\security\test_request_schemas.py,1560,.py,2026-01-30 18:40:12 UTC
-tests\security\test_sanitizer.py,2018,.py,2026-06-24 18:22:28 UTC
 tests\security\test_security_coverage.py,4976,.py,2026-06-13 19:35:22 UTC
-tests\security\test_security_critical.py,4344,.py,2026-06-24 18:21:53 UTC
+tests\security\test_security_critical.py,2050,.py,2026-06-25 02:14:53 UTC
 tests\security\test_security_headers.py,2257,.py,2026-01-06 01:00:29 UTC
 tests\security\test_security_storage_deep.py,5946,.py,2026-06-24 18:23:44 UTC
 tests\security\test_session_security.py,741,.py,2026-03-16 05:12:15 UTC
 tests\security\test_system_chaos.py,2760,.py,2026-02-16 22:25:20 UTC
-tests\security\test_vulnerability_coverage.py,4063,.py,2026-06-13 19:13:48 UTC
 tests\simulation\test_e2e_simulation_pipeline.py,10596,.py,2026-06-04 08:00:02 UTC
 tests\simulation\test_sekre_wiring.py,4074,.py,2026-06-12 03:14:10 UTC
 tests\simulation\test_simulation_layers.py,14368,.py,2026-02-16 22:25:20 UTC
@@ -1630,6 +1610,6 @@ tests\verify_ml_routing_v2.py,3851,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,108063,.md,2026-06-25 00:58:16 UTC
+TODO.md,109976,.md,2026-06-25 02:29:57 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC
