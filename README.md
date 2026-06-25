@@ -1,6 +1,6 @@
 # DataLogicEngine
 
-> **Licensed local-first Windows AI gateway and governed reasoning runtime for applications, agents, chatbots, and enterprise knowledge workflows.**
+> **Licensed local-first Windows AI gateway and governed reasoning runtime for applications, agents, chatbots, and enterprise knowledge workflows — currently under active development.**
 
 > ⚠️ **Active Development — Not Production Ready**
 > DataLogicEngine is under active development. The architecture, subsystems, and documentation below reflect the current build state and intended design. **The application is not yet fully operational end-to-end.** Individual subsystems (DMRF, Truth Engine, DSQP, LLM Gateway, Knowledge Graph, Trace Explorer) are implemented and tested in isolation; full integration, stabilization, and end-to-end validation are ongoing. Use for evaluation, architecture review, and non-production exploration only. Formal release status is tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
