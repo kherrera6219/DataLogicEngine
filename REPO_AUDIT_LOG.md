@@ -5,6 +5,33 @@ One entry per sprint. Append; do not overwrite.
 
 ---
 
+## Phase 4 / A31 — docs + generated inventories (✅ 2026-06-24)
+DoD: are the docs current after this run's many deletions? regenerate the generated inventories; reconcile
+stale enterprise/cloud config.
+
+- **Regenerated `docs/GENERATED_STRUCTURE.md` + `docs/FILE_INVENTORY.csv`** via `scripts/generate_docs.py`
+  (git-ls-files-driven, deterministic). They were dated Jun 18 and still listed every module deleted this run
+  (db_utils, unified_middleware, oauth_manager, schemas, i18n, the enterprise layer, core/algorithms, the 7
+  ORPH-v2 modules, OAuthAccount, k8s, …). Now 1634 files indexed; the only "deleted-module" substring left is
+  the legitimately-existing `test_sanitizer*.py`.
+- **`.env.template` single-mode reconciliation** — removed dead, zero-reader multi-user/cloud config that
+  contradicts single-mode / OS-level auth: the entire **Azure AD / Entra ID** SSO block, **Microsoft Graph
+  API** block, **Azure Storage** block, and the wrong-framework **`REACT_APP_API_URL` / `REACT_APP_AUTH_PROVIDER=
+  azure_ad`** vars (this is Next.js → `NEXT_PUBLIC_*`). **Kept** the wired bits: `AZURE_OPENAI_API_KEY` (the
+  gateway maps a "azure" provider to it — `gateway.py:172,1271`) and `NEXT_PUBLIC_API_URL` (read by
+  `config_manager.get_env_dict`). Verified each removed var has zero readers in backend/core/frontend.
+- **Renamed** `tests/security/test_sanitizer_and_context_aware.py` → `test_sanitizer.py` (the `context_aware`
+  tests were removed in ORPH-v2; the name was stale). Zero references to the old name; 2 tests still pass.
+- **Verified clean:** `verify_docs_references.py` → **0 errors** (17 pre-existing heading-style warnings); no
+  docs/*.md carries a broken reference to a deleted module (the A15-B2 pass already reconciled the multi-user
+  docs); `deploy/**` has no enterprise-layer source refs (only binary build artifacts match).
+- **Left as historical snapshots** (B2 precedent — point-in-time records, like the audit log): the three
+  `tests/*.md` phase summaries (`COMPLETE_TEST_COVERAGE_SUMMARY` / `PHASE_2_SUMMARY` / `TEST_IMPROVEMENTS_SUMMARY`)
+  that mention the deleted email-service test.
+- **→ A31 COMPLETE. Next: A32 (`scripts/`)** — the last audit area.
+
+---
+
 ## A12-followup — dual-engine Postgres run executed + local-stack naming fix (✅ 2026-06-24)
 A12's dual-engine Postgres validation had been deferred as "infra-gated." Per the local-first architecture
 ([[architecture-local-databases]]), the databases are app-owned and just need to be running — so it is NOT

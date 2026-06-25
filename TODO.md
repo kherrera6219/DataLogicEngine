@@ -421,6 +421,11 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
       Postgres) → normalized to aware-UTC. Also fixed `start_local_stack.ps1` container-naming bug (identified DB
       containers by port → grabbed the foreign `devonz-*` app's containers/creds; now name-first via
       `Resolve-DataServiceContainer`). 16/16 PG, broader PG slice 272 pass, SQLite 256 pass/16 skip.
+    - **A31 ✅ COMPLETE 2026-06-24** (docs): regenerated `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` (1634 files;
+      dropped this run's deletions); cleaned `.env.template` of dead multi-user SSO/cloud config (Azure AD/Entra,
+      MS Graph, Azure Storage, wrong-framework `REACT_APP_*`) while keeping wired `AZURE_OPENAI_API_KEY` +
+      `NEXT_PUBLIC_API_URL`; renamed `test_sanitizer_and_context_aware.py`→`test_sanitizer.py`. verify_docs_references
+      0 errors; deploy/** clean; tests/*.md phase-summaries left historical. **Next: A32 (scripts) — last area.**
 
 34. [x] AUDIT-A14: Phase 2 (FINAL) — `sdk/UKG_Python_SDK/` SDK surface audit + Antigravity breakage repair.
     Commits: `087a9917` (Antigravity initial A14 work), `008287ca` (Claude repair), `25f3e929` (docs).

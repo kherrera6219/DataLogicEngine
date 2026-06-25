@@ -1,12 +1,13 @@
 # DataLogicEngine — Session Handoff
 
 ## ▶ START HERE (next session) — updated 2026-06-24
-**Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A30 ✅; ⏭ A31 (docs) NEXT.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
+**Repo audit (plan `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md`): Phases 1–3 ✅; Phase 4 = A18–A31 ✅; ⏭ A32 (scripts) — the LAST area.** Per-session detail below + in `REPO_AUDIT_LOG.md`; durable state + forward items in memory `audit_plan_progress`.
 **2026-06-24:** cleared the outstanding backlog ahead of A30 — **ORPH-4** (dropped `OAuthAccount`) + **ORPH-v2 security/services** (deleted 7, kept 2). **A12 dual-engine Postgres ✅ NOW DONE** (it's not external-infra — the local Postgres just needed to run; ran it against DataLogicEngine's own isolated pg container, fixed the local-stack container-naming bug + a real Postgres-only lockout TypeError + 2 stale fixtures). **All outstanding items cleared.** Full suite green **1787 passed / 19 skipped / 0 failed**. Committed (not pushed — push at EOD).
 **2026-06-24 (dependency security):** fixed **all** dependency vulnerabilities. Python: `pip-audit -r requirements.txt` → clean (added pins `bleach==6.4.0`, `starlette>=1.3.1`, `langsmith>=0.8.18`; the 6 direct pins were already patched in requirements.txt — venv was just stale; removed dead `simple-salesforce`/`zeep` venv leftovers; `msgpack` was pip_audit-only, not shipped). Node: `npm audit fix` → **0 vulnerabilities** (undici/ws cluster). Frontend 378 tests pass. **Forward:** harden the Neo4j skip-guard in `tests/memory/test_unified_memory_service.py` (it probes a TCP port, not Neo4j function — an up-but-unseeded Neo4j makes the e2e test fail instead of skip).
 
 - **A30 ✅ DONE 2026-06-24** (config/migrations/k8s): deleted `k8s/` (base manifests, multi-node twin of A25 operator); trimmed `config_manager.py` stale enterprise ports + JWT block (kept api_gateway=backend/frontend/system/database); added OLLAMA local-model block to `.env.template`; documented migrations bootstrap (create_all + deltas) in `migrations/README`. See REPO_AUDIT_LOG A30 entry.
-- **Next = A31 (docs):** regenerate `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` (they list this run's many deletions — db_utils, unified_middleware, oauth_manager, schemas, i18n, enterprise layer, core/algorithms, the 7 ORPH-v2 modules, OAuthAccount, k8s); rewrite the stale *enterprise/cloud* content in `.env.template` (Azure AD/Entra/MS Graph/`REACT_APP_AUTH_PROVIDER=azure_ad`/multi-domain CORS — contradicts single-mode); clean stale `tests/*.md` summaries referencing deleted `email_service`. Then **A32** (scripts; consider retiring one-off `audit_deep.py`/`audit_duplicates.py`).
+- **A31 ✅ DONE 2026-06-24** (docs): regenerated `GENERATED_STRUCTURE.md`/`FILE_INVENTORY.csv` (1634 files; dropped this run's deletions); cleaned `.env.template` stale multi-user SSO/cloud config (removed Azure AD/Entra/MS Graph/Azure Storage/`REACT_APP_*`; kept wired Azure OpenAI key + `NEXT_PUBLIC_API_URL`); renamed `test_sanitizer_and_context_aware.py`→`test_sanitizer.py`. verify_docs_references 0 errors; deploy/** clean; `tests/*.md` phase-summaries left as historical. See REPO_AUDIT_LOG A31 entry.
+- **Next = A32 (scripts) — the LAST audit area:** retire/refresh the one-off `audit_deep.py` + `audit_duplicates.py` (machine-hardcoded ROOT / stale paths; superseded by `find_orphaned_modules.py` + `find_core_backend_inversions.py`); confirm `seed_data.py` is guarded; stale-script sweep. After A32, the v2.0 first-pass audit is complete.
 - **Start each session by running** `scripts/find_orphaned_modules.py <root>` (dead-module scanner; conservative candidates → confirm-before-cut; gitignored report).
 - **Other open items:** ~~**ORPH-4** drop `OAuthAccount`~~ ✅ **DONE 2026-06-24** (model + table dropped; migration `d6e7f8a9b0c1`; ORM pin 65→64); ~~**ORPH-v2 remaining** security/services~~ ✅ **DONE 2026-06-24** (per-module verify; deleted 7 dead-by-pivot/redundant: honeypot/context_aware/api_security/security_monitoring + email_service/export_service/file_upload_service; **kept 2** by user decision: `data_classification` + `vulnerability_scanner` — still test-only, reassess later; **new candidates** surfaced: `active_defense` + `sanitizer` are now test-only too → future pass). **A12 dual-engine Postgres run — STILL infra-gated** (Postgres/Docker not available this session; path enabled since A18, needs the local stack running — cannot be cleared without it).
 - **A30 forward (new, found during ORPH-4):** a from-scratch `flask db upgrade` can't complete — `f3a4b5c6d7e8` raises `NoSuchTableError: truth_sessions` because migrations are ALTER-only deltas layered on `db.create_all()`, not a replayable base schema. Chain is structurally valid + single-headed (`flask db heads` → `d6e7f8a9b0c1`). A30 to decide: document as ALTER-only, or backfill base create-table migrations.
@@ -14,6 +15,19 @@
 - **Gotchas:** `.venv311` for pytest, `.venv`/PATH for ruff; git = `"C:\Program Files\Git\cmd\git.exe"`; pre-commit runs ruff + frontend lint/typecheck (NOT pytest — so grep ALL test importers after deleting a module); after deletions, regenerate `.bandit-baseline.json` via `python -m bandit -r backend/ core/ --exit-zero -f json -o .bandit-baseline.json`. Work local during the day; push at EOD (don't push proactively).
 
 ---
+
+### Session log — 2026-06-24 (A31 — docs + generated inventories)
+
+- **Regenerated the inventories** (`scripts/generate_docs.py`, git-ls-files driven) → 1634 files; they no longer
+  list this run's deletions. Only residual "deleted-module" substring is the still-existing `test_sanitizer*.py`.
+- **`.env.template` single-mode reconciliation** — removed zero-reader, single-mode-contradicting config: Azure
+  AD/Entra SSO, Microsoft Graph, Azure Storage, and the wrong-framework `REACT_APP_API_URL`/`REACT_APP_AUTH_PROVIDER=
+  azure_ad` (Next.js uses `NEXT_PUBLIC_*`). Kept the WIRED bits (`AZURE_OPENAI_API_KEY` → gateway "azure" provider;
+  `NEXT_PUBLIC_API_URL` → config_manager.get_env_dict).
+- **Renamed** `test_sanitizer_and_context_aware.py` → `test_sanitizer.py` (context_aware tests removed in ORPH-v2).
+- **Verified:** verify_docs_references 0 errors; deploy/** has no enterprise-layer source refs; docs/ already
+  single-mode-clean from A15-B2. `tests/*.md` phase summaries left as historical snapshots.
+- **→ A31 COMPLETE. Next: A32 (scripts) — last area.**
 
 ### Session log — 2026-06-24 (A12 dual-engine Postgres — DONE + local-stack naming fix)
 
