@@ -38,6 +38,7 @@ DataLogicEngine combines:
 | **Local-first Windows runtime** | Run on a workstation or user-controlled Windows VM. |
 | **API gateway mode** | Accept requests from applications, agents, or chatbots and return governed responses. |
 | **BYOK provider model** | Users bring their own OpenAI/Anthropic/Gemini/Azure/local provider keys and own their API spend. |
+| **6-tier model escalation** | Complexity-classified routing across local Ollama tiers (T0–T3), with optional governance-gated cloud escalation (T4–T5); the handling tier is surfaced on each response. |
 | **DMRF control plane** | Injection defense, tiering, routing, evidence, convergence, memory, and trace hooks. |
 | **Truth Engine** | TruthGate, TruthCore, TruthMemory, and TruthLink for policy, reasoning, memory, and events. |
 | **17-axis routing** | Structured coordinate/risk/context routing for knowledge workflows. |
@@ -223,7 +224,7 @@ python -m venv .venv
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.template .env
-python app.py
+python main.py
 ```
 
 macOS/Linux activation alternative:
@@ -231,7 +232,7 @@ macOS/Linux activation alternative:
 ```bash
 source .venv/bin/activate
 cp .env.template .env
-python app.py
+python main.py
 ```
 
 ### Frontend
