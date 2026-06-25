@@ -119,7 +119,7 @@ flowchart TD
 
     subgraph MODEL[Model and Tool Execution]
         LLMGateway[LLM Gateway\nprovider selection + policy + telemetry]
-        Provider[Model Provider\nOpenAI / Anthropic / Azure / Gemini / Local future]
+        Provider[Model Provider\nOpenAI / Anthropic / Azure / Gemini / Local Ollama]
         MCP[MCP / External Tool Connectors]
     end
 

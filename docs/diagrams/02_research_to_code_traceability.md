@@ -6,7 +6,7 @@ This diagram documents how the DataLogicEngine codebase maps back to its researc
 
 ## Repository Evidence Snapshot
 
-The generated repository structure currently indexes **1,658 files** and **35.3 MB** of project material, including backend code, frontend code, tests, scripts, docs, markdowns, demos, reports, PDFs, and deployment assets.
+The generated repository structure currently indexes **~1,612 files** of project material, including backend code, frontend code, tests, scripts, docs, demos, reports, PDFs, and deployment assets. (Regenerate with `scripts/generate_docs.py`.)
 
 Relevant inventory signals:
 
@@ -108,7 +108,7 @@ flowchart TD
     %% Platform Implementation
     %% =========================
     subgraph P[Platform Implementation Layer]
-        BackendAPI[app.py + backend/routes + routes\nFlask API, Canonical /api/v1 Surface, GraphQL, WebSockets]
+        BackendAPI[app.py + backend/routes\nFlask API, Canonical /api/v1 Surface, GraphQL, WebSockets]
         LLMGateway[backend/llm_gateway\nProvider Routing, Governance, Usage, Latency]
         MCP[backend/mcp_server + core/mcp\nConnector Registry, Scope Enforcement, OAuth, Contract Validation]
         SecurityCode[backend/security + backend/middleware\nDesktop Auth, CSRF, SSRF, PII, DPAPI, Encryption, Headers, Request Limits]
