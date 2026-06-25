@@ -42,7 +42,7 @@ Provide incident-response procedures for common DataLogicEngine security, runtim
 
 | Severity | Definition | Examples |
 |---|---|---|
-| `SEV-1` | Active data exposure, auth compromise, signed-release integrity failure, sustained outage, or export/audit integrity failure. | PII leak, invalid signed installer, tenant isolation failure, trace integrity failure. |
+| `SEV-1` | Active data exposure, auth compromise, signed-release integrity failure, sustained outage, or export/audit integrity failure. | PII leak, invalid signed installer, local data-store exposure, trace integrity failure. |
 | `SEV-2` | Partial outage, degraded reasoning quality, repeated control failure, provider outage, connector failure, or local-first runtime degradation. | TruthGate false negatives, local object store unavailable, DMRF convergence failure surge. |
 | `SEV-3` | Localized issue with no broad customer or data-integrity impact. | Single user desktop auth issue, isolated trace export failure with no audit impact. |
 
@@ -51,7 +51,7 @@ Provide incident-response procedures for common DataLogicEngine security, runtim
 ## Global incident workflow
 
 1. Acknowledge incident and assign severity.
-2. Capture correlation IDs, run IDs, trace IDs, session IDs, tenant/user scope, and timestamps.
+2. Capture correlation IDs, run IDs, trace IDs, session IDs, user scope, and timestamps.
 3. Contain impact before optimizing or debugging.
 4. Execute the incident-specific runbook below.
 5. Validate recovery with `/health`, `/live`, `/ready`, `/metrics`, and relevant user-path checks.
@@ -118,7 +118,7 @@ Relevant files:
 
 **Default severity:** `SEV-2`; upgrade to `SEV-1` for data exposure or safety bypass.
 
-1. Capture request context, tenant/user, budget state, and TruthGate output.
+1. Capture request context, user, budget state, and TruthGate output.
 2. Check TruthGate stats and budget routes where available.
 3. Inspect compliance markers, PII detection, blocked patterns, and priority/budget logic.
 4. Confirm whether DMRF correctly stopped or continued based on gate result.
@@ -207,14 +207,14 @@ Relevant files:
 
 ---
 
-## Incident 6: Unauthorized access or RBAC violation
+## Incident 6: Unauthorized access attempt
 
-**Trigger:** Unauthorized attempts on privileged endpoints, admin surfaces, MCP tools, retention/privacy routes, or trace exports.
+**Trigger:** Unauthorized attempts on privileged endpoints, MCP tools, retention/privacy routes, or trace exports.
 
-**Default severity:** `SEV-2`; upgrade to `SEV-1` for privilege escalation or data access.
+**Default severity:** `SEV-2`; upgrade to `SEV-1` for data access.
 
-1. Verify role/permission mapping.
-2. Force re-authentication and MFA challenge where applicable.
+1. Verify the single-owner desktop-auth gate (loopback + signed challenge; OS-level auth) is enforced on the affected route.
+2. Revoke the affected session/API key and require re-authentication.
 3. Revoke suspicious sessions/API keys/tokens.
 4. Confirm no unauthorized read/write/export occurred.
 5. Inspect canonical API auth behavior for JSON `401`/`403` response correctness.
@@ -406,7 +406,7 @@ Relevant files:
 
 **Default severity:** `SEV-2`.
 
-1. Capture connector, tool, payload, user/tenant context, and contract error.
+1. Capture connector, tool, payload, user context, and contract error.
 2. Confirm scope denial is expected policy behavior rather than auth regression.
 3. Validate role-to-scope mapping and token state.
 4. Check declared input/output schemas.

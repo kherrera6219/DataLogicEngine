@@ -140,7 +140,7 @@ flowchart TD
 2. Integration tests: service interactions, API route behavior, and policy behavior.
 3. Route wiring tests: application-level route registration and canonical route expectations.
 4. Contract tests: OpenAPI/static contract checks and runtime JSON status/error semantics.
-5. Security tests: auth, session, headers, RBAC, sanitization, rate/request limits, and attack-surface controls.
+5. Security tests: desktop auth, session, headers, encryption, injection/prompt-injection defenses, rate/request limits, and attack-surface controls.
 6. Local-mode parity tests: validation that local-first behavior remains consistent.
 7. Truth Engine tests: TruthGate, TruthCore, TruthMemory, TruthLink, layer behavior, and audit behavior.
 8. Knowledge Algorithm tests: KA execution, registry, timing, and contract behavior.
@@ -157,7 +157,7 @@ tests/
   integration/            # Service interaction and API route tests
   integration_routes/     # App-level route wiring tests
   end_to_end/             # Cross-service workflow tests
-  security/               # Auth, RBAC, sanitization, attack-surface tests
+  security/               # Desktop auth, encryption, injection-defense, attack-surface tests
   simulation/             # Simulation engine layer tests
   knowledge_algorithms/   # KA execution and contract tests
   truth_engine/           # Truth Engine layer tests

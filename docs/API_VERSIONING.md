@@ -43,7 +43,7 @@ Canonical application endpoints use:
 
 Examples:
 
-1. `/api/v1/auth/login`
+1. `/api/v1/auth/check`
 2. `/api/v1/simulations`
 3. `/api/v1/truth/health`
 4. `/api/v1/trace/runs`

@@ -133,7 +133,7 @@ Required test coverage areas:
 3. [ ] Security regression suite reviewed.
 4. [ ] Desktop auto-login challenge/security tests reviewed.
 5. [ ] Trace/export integrity regressions reviewed.
-6. [ ] Auth/RBAC route contract tests reviewed.
+6. [ ] Desktop-auth route contract tests reviewed (single-mode / OS-level auth).
 7. [ ] Object-store path traversal/security tests reviewed where changed.
 8. [ ] MCP scope/contract tests reviewed where connector changes are included.
 9. [ ] Lockfile changes reviewed.

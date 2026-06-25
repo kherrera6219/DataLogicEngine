@@ -34,7 +34,7 @@ The default local-first architecture does not require externally hosted PostgreS
 Depending on enabled features, DataLogicEngine may collect or store:
 
 1. **Local identity information** — local Windows profile/session metadata used for local desktop behavior.
-2. **Account/session information** — usernames, email address, role, MFA state, session metadata, API keys/tokens where enabled.
+2. **Account/session information** — username, session metadata, API keys/tokens where enabled (single-mode / OS-level auth — no multi-user roles or MFA).
 3. **User content** — prompts, chat messages, uploaded documents, local corpus data, notes, project data, and knowledge records you explicitly input or ingest.
 4. **AI processing context** — selected prompt context, retrieved evidence, graph context, DSQP persona metadata, model/provider metadata, and trace/run metadata.
 5. **Trace and audit data** — DMRF steps, TruthGate decisions, TruthCore workflow state, evidence, claims, policy decisions, memory events, export records, and audit logs.
@@ -105,7 +105,7 @@ Connector data handling depends on:
 1. the connector being used;
 2. the tool input/output schema;
 3. OAuth/API-token scopes;
-4. tenant/user configuration;
+4. local connector configuration;
 5. the external service's own privacy and retention rules.
 
 MCP connector usage should be governed by connector scope controls, audit logs, and admin configuration.
@@ -117,7 +117,7 @@ DataLogicEngine creates trace and audit records to support explainability, debug
 Trace data may include:
 
 1. run IDs and correlation IDs;
-2. user/session/tenant context;
+2. user/session context;
 3. DMRF steps;
 4. TruthGate decisions;
 5. evidence and claim records;
@@ -179,7 +179,7 @@ Privacy incidents may include:
 
 1. PII leakage in response, logs, traces, exports, or notifications;
 2. unauthorized access to user data;
-3. cross-tenant data exposure;
+3. local data-store exposure;
 4. connector over-sharing;
 5. provider misconfiguration;
 6. export integrity failure;

@@ -173,7 +173,7 @@ sequenceDiagram
     participant Trace as Trace/Metrics
 
     Core->>MCP: Request tool execution
-    MCP->>Scope: Check user/tenant scopes
+    MCP->>Scope: Check connector/tool scopes
     alt Scope denied
         Scope-->>MCP: Deny
         MCP->>Trace: Audit denial
