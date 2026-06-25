@@ -44,7 +44,7 @@ Before contributing, ensure you have the following installed and configured:
 |-------------|----------------|-------|
 | Python | 3.11 | 3.12+ supported |
 | Node.js | 24.x | Required for frontend and tooling |
-| PostgreSQL | 16+ | Required for integration tests |
+| PostgreSQL | 15+ | Required for integration tests (docker dev default is `postgres:15`; the native local stack installs 16) |
 | Git | 2.40+ | |
 
 For documentation standards, see:
@@ -116,8 +116,9 @@ This enforces lint and type checking before each commit, consistent with the CI 
 ### 5. Start Development Servers
 
 ```bash
-# Terminal 1 — Backend
-.venv/bin/python -m flask --app app run --debug --port 5000
+# Terminal 1 — Backend (canonical entry: applies runtime compat patches
+# and manages the local database lifecycle; FLASK_ENV enables debug)
+FLASK_ENV=development python main.py
 
 # Terminal 2 — Frontend
 cd frontend && npm run dev
