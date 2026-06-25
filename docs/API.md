@@ -120,14 +120,15 @@ Most application endpoints require authentication via one of the following metho
 1. **Session authentication**: Cookie-based frontend sessions.
 2. **Bearer token**: `Authorization: Bearer <jwt-token>` for external clients.
 3. **API key**: `X-API-Key: <api-key>` for programmatic access where enabled.
-4. **SSO/OIDC**: Azure AD/Entra ID integration where configured.
-5. **Desktop local auth**: loopback challenge/response and signed desktop requests in local/hybrid desktop mode.
+4. **Desktop local auth**: loopback challenge/response and signed desktop requests in local/hybrid desktop mode (the primary single-mode path).
+
+Single-mode / OS-level auth: one owner per machine; the former SSO/OIDC (Azure AD/Entra) and MFA surfaces were removed in the auth deprecation.
 
 Unauthenticated operational probes are explicitly limited to `/health`, `/live`, `/ready`, and `/metrics`.
 
 Security and runtime context:
 
-- Tenant context is extracted from the authenticated session/JWT/SSO identity where applicable.
+- Auth context is extracted from the authenticated session/JWT where applicable.
 - Responses include correlation metadata for debugging and audit reconstruction.
 - Desktop local auth is only valid when runtime policy permits local or hybrid mode.
 - Cloud mode must not rely on desktop loopback trust.

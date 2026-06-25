@@ -67,7 +67,7 @@ flowchart TD
     Release --> API
 
     subgraph Controls[Primary Controls]
-        Auth[Session / API key / SSO / MFA]
+        Auth[Session / API key]
         Desktop[Desktop loopback auth]
         CSRF[CSRF + origin checks]
         Rate[Rate limiting]
@@ -101,14 +101,14 @@ Supported identity/authentication patterns:
 
 1. **Session authentication** — cookie-based frontend sessions.
 2. **API key / bearer token authentication** — programmatic access where enabled.
-3. **SSO/OIDC** — enterprise identity provider integration where configured.
-4. **MFA** — TOTP setup/confirmation and step-up flows where enabled.
-5. **Desktop local auth** — loopback/Electron-only local-first auth flow.
+3. **Desktop local auth** — loopback/Electron-only local-first auth flow (the primary single-mode path).
+
+Single-mode / OS-level auth: there is one owner — whoever has OS access to the machine. The former multi-user surfaces (SSO/OIDC, MFA/TOTP, and application RBAC) were removed in the auth deprecation.
 
 Security expectations:
 
 - Canonical `/api/v1/*` auth failures must return JSON-native `401`/`403` responses, not browser redirects.
-- Admin and retention routes must enforce admin/role checks.
+- Admin and retention routes must enforce the single-owner auth check.
 - API principal resolution must not assume browser session identity when API key identity is used.
 - Role checks should fail closed when identity/role state is ambiguous.
 
@@ -410,7 +410,7 @@ Use `docs/OPERATIONAL_RUNBOOKS.md` for incident-specific procedures covering:
 1. DMRF injection-defense block/bypass.
 2. TruthGate failure.
 3. PII leakage.
-4. unauthorized access/RBAC violation.
+4. unauthorized access attempt.
 5. desktop local-auth failure.
 6. local object/vector/graph store failure.
 7. runtime precheck failure.

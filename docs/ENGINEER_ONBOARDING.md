@@ -277,7 +277,7 @@ Focus areas:
 2. CSRF/CORS/trusted-host/session controls;
 3. DMRF injection defense;
 4. TruthGate;
-5. tenant isolation;
+5. field encryption and DPAPI local protection;
 6. export integrity;
 7. MCP connector security.
 
