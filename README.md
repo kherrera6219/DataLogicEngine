@@ -183,6 +183,7 @@ curl http://localhost:5000/health
 
 - [Why DataLogicEngine](#why-datalogicengine)
 - [Architecture](#architecture)
+- [Data store design philosophy](#data-store-design-philosophy)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [API Examples](#api-examples)
@@ -236,6 +237,36 @@ flowchart LR
 | Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
 | AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini, Ollama (local) | 6-tier auto-escalation: T0–T3 route to local Ollama models (no key needed); T4–T5 route to cloud when a key is saved. Provider keys resolved at runtime from environment or configured provider records. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
+
+## Data store design philosophy
+
+DataLogicEngine uses eight purpose-built local stores — not because of complexity for its own sake, but because of three founding principles:
+
+**1. Data security by architecture**
+Every store is app-owned and local. There are no external database endpoints, no cloud-managed storage, no third-party data custodians. Field-level AES-256-GCM encryption with Windows DPAPI-bound keys means sensitive data is protected at the OS level — not by a vendor service agreement.
+
+**2. Zero external API calls for data**
+All retrieval — graph traversal, vector search, relational queries, memory recall — operates entirely on local hardware. The only external traffic is LLM inference, and even that is optional via the local Ollama T0–T3 model chain. The data plane has no network dependency.
+
+**3. Internal access speed**
+The USKD NetworkX RAM graph exists specifically so reasoning traversal never touches disk or a network socket during the hot path of a multi-step reasoning chain. At the scale of dozens of retrieval operations per request, local hardware latency vs. network latency compounds significantly across every step.
+
+### These are working databases, not end-client databases
+
+The LLM reasoning engine is the sole client of the data layer. There is no user-facing query interface, no raw export surface, and no direct store access exposed to users. Each store serves a specific cognitive role in the reasoning pipeline — memory, retrieval, traversal, artifact storage — not as a system of record for user data.
+
+| Store | Role |
+|---|---|
+| SQLAlchemy DB (SQLite / PostgreSQL) | Durable application state, traces, audit records, Truth Engine sessions |
+| Redis | Cache, sessions, rate limiting, TruthLink event streams |
+| Neo4j | Graph-native knowledge relationships and durable traversal |
+| USKD NetworkX graph | RAM-resident reasoning graph — fast traversal, no DB round trips on hot path |
+| ChromaDB | Local vector embeddings and semantic retrieval |
+| Local object store | Deliverables, audit logs, trace exports, simulation artifacts |
+| UnifiedMemoryService | Structured reasoning memory with embeddings and JSON persistence |
+| TruthMemory | Audit chain, metrics, explainability, MLflow-style run tracking |
+
+See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the full data architecture reference.
 
 ## Installation
 
