@@ -1,6 +1,9 @@
 # DataLogicEngine
 
-Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform.
+Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform — currently under active development.
+
+> ⚠️ **Active Development — Not Production Ready**
+> DataLogicEngine is under active development. The architecture and subsystems described below reflect the current build state and intended design. **The application is not yet fully operational end-to-end** — individual subsystems (DMRF, Truth Engine, DSQP, LLM Gateway, Knowledge Graph, Trace Viewer) are implemented and tested in isolation while full integration, stabilization, and end-to-end validation are ongoing. Use for evaluation, architecture review, and non-production exploration only. Release status is tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -13,17 +16,17 @@ DataLogicEngine (DLE) is a local-first Enterprise AI Platform built around the U
 
 Unlike traditional AI applications that operate as black boxes, DLE provides explainable reasoning, multi-agent orchestration, GraphRAG retrieval, governance controls, and complete audit traceability.
 
-Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation checkpoints, and immutable audit records compliant with EU AI Act Article 53.
+Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation checkpoints, and immutable audit records designed to align with EU AI Act Article 53 transparency expectations. (Compliance mappings are evidence-guided design references, not a formal certification.)
 
-Current Status: Feature Complete (Local-First Edition)
+Current Status: Active Development — Not Production Ready (Local-First Edition)
 
-Major Systems Completed:
+Major Subsystems Implemented (at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
 
 - Universal Knowledge Graph (UKG)
 - 17-Axis Knowledge Framework
 - 10-Layer Truth Engine
 - 12-Step Refinement Workflow
-- Knowledge Algorithm Framework (120+ KAs)
+- Knowledge Algorithm Framework (100+ KAs)
 - Multi-Agent Orchestration
 - GraphRAG Integration
 - Knowledge Ingestion Pipeline
@@ -68,7 +71,7 @@ A structured reasoning improvement pipeline that continuously validates, refines
 
 **Knowledge Algorithm Framework**
 
-More than 120 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance policy enforcement, and audit trace generation.
+More than 100 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance policy enforcement, and audit trace generation.
 
 **Explainable AI**
 
@@ -106,7 +109,6 @@ Roadmap
 **Enterprise Enhancements:**
 
 - Advanced policy-as-code governance
-- Expanded multi-tenant controls
 - Enhanced cost and usage analytics
 - Human feedback and review workflows
 - Advanced persona orchestration strategies
@@ -203,7 +205,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 | LLM gateway | Multi-provider routing with a 6-tier auto-escalation chain: local Ollama models (T0–T3, no API key required) through cloud providers (T4 Gemini Flash 3.5, T5 GPT-5.5). Includes retries, circuit-breaker behavior, cost tracking, and audit metadata. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
 | Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
-| Governance | RBAC, MFA support, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
+| Governance | Single-owner desktop auth, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
 | Local-first distribution | Browser deployment plus Electron/NSIS Windows packaging for workstation and constrained-network scenarios. |
 | Production operations | Docker Compose, cloud Dockerfile, health/readiness probes, metrics endpoint, Sentry integration, and CI/security workflows. |
 
@@ -213,7 +215,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 flowchart LR
   Client["Web console / API client"] --> Frontend["Next.js frontend"]
   Frontend --> API["Flask API"]
-  API --> Auth["Auth, RBAC, CSRF, rate limits"]
+  API --> Auth["Auth (desktop session), CSRF, rate limits"]
   API --> Gateway["LLM Gateway"]
   API --> Graph["Knowledge Graph APIs"]
   API --> Truth["Truth Engine and tracing"]
@@ -259,7 +261,7 @@ python -m venv .venv
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.template .env
-python app.py
+python main.py
 ```
 
 **macOS/Linux:**
@@ -270,7 +272,7 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 cp .env.template .env
-python app.py
+python main.py
 ```
 
 ### Frontend Development
@@ -296,7 +298,7 @@ python scripts/seed_neo4j.py
 flask db upgrade
 
 # Start the backend (databases auto-start on app launch)
-python app.py
+python main.py
 ```
 
 Verify all services are reachable:
@@ -385,13 +387,12 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | --- | --- | --- |
 | `FLASK_ENV` | Yes | Use `production` for deployed environments. |
 | `SECRET_KEY` | Yes | Flask session secret. Generate a unique 64+ character value. |
-| `JWT_SECRET_KEY` | Yes | JWT signing secret. Generate a unique 64+ character value. |
+| `JWT_SECRET_KEY` | Vestigial | Legacy JWT signing secret (a dev default is provided). Single-mode auth uses Flask-Login sessions + desktop auto-login, not JWT flows; set a unique value only if you wire a token-based integration. |
 | `SESSION_SECRET` | Yes | Session signing secret used by runtime checks. |
 | `DATABASE_URL` | Yes | SQLAlchemy database URL. PostgreSQL is recommended for production. |
 | `CORS_ORIGINS` | Yes | Comma-separated allowed browser origins. Do not use `*` in production. |
-| `ADMIN_USERNAME` | Initial setup | Initial administrative username. |
-| `ADMIN_PASSWORD` | Initial setup | Strong initial password. Rotate after first login. |
-| `ADMIN_EMAIL` | Initial setup | Initial administrator email. |
+
+> **Single-owner note:** DataLogicEngine uses the OS user as the sole owner (desktop auto-login). There is no admin account to provision, so the former `ADMIN_USERNAME` / `ADMIN_PASSWORD` / `ADMIN_EMAIL` setup variables are no longer part of the model (any values set are only checked by the insecure-default security guard).
 
 ### Provider and Integration Variables
 
@@ -441,16 +442,10 @@ curl http://localhost:5000/ready
 
 ### Authentication
 
-```bash
-curl -X POST http://localhost:5000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "operator@example.com",
-    "password": "replace-with-a-secret"
-  }'
-```
-
-API key authentication is also supported for programmatic access. Generate a key via the admin interface and include it as `X-API-Key`:
+DataLogicEngine is single-owner / local-first: the desktop app auto-logs in the
+OS user as the owner (`POST /api/v1/auth/desktop/auto-login`), so there is no
+public username/password login endpoint. For programmatic access, use an API
+key — generate one in the app and include it as `X-API-Key`:
 
 ```bash
 export UKG_KEY="ukg_<prefix>_<secret>"
@@ -562,8 +557,8 @@ DataLogicEngine includes security controls intended for enterprise deployments, 
 
 | Area | Built-in Support |
 | --- | --- |
-| Authentication | Session auth, JWT flows, MFA routes, SSO/OIDC integration hooks, desktop challenge flow. |
-| Authorization | RBAC utilities, admin route controls, tenant-aware patterns. |
+| Authentication | Single-owner desktop auto-login (OS identity), Flask-Login session auth, and API-key auth for programmatic access. Multi-user login, MFA, and SSO/OIDC were removed in the single-mode consolidation. |
+| Authorization | Single-owner ownership checks (`current_user_is_owner()`) with owner-gated admin routes. Multi-user RBAC and tenant isolation were removed; `tenant_id` columns remain as vestigial. |
 | Request security | CSRF, request size limits, CORS enforcement, rate limiting, SSRF allowlisting utilities. |
 | Data protection | Secret resolution controls, encryption manager, PII redaction utilities, audit logging. |
 | AI governance | Prompt-injection checks, provider usage tracking, trace IDs, policy/gateway hooks. |
@@ -637,7 +632,7 @@ npm --prefix frontend audit --audit-level=high
 | Near term | Add public architecture assets under `docs/assets/readme/`. |
 | Mid term | Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j. |
 | Mid term | Publish signed release artifacts with checksums and provenance metadata. |
-| Long term | Harden multi-tenant operations, cost controls, recursive persona evaluation, human feedback loops, and policy-as-code governance for larger deployments. |
+| Long term | Cost controls, recursive persona evaluation, human feedback loops, and policy-as-code governance for larger deployments. |
 
 ## Getting Help
 
