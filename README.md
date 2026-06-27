@@ -20,6 +20,8 @@ Designed for enterprise, government, compliance, cybersecurity, acquisition, and
 
 Current Status: Active Development — Not Production Ready (Local-First Edition)
 
+**Status snapshot (2026-06-26):** The v2.0 single-mode consolidation audit is complete — multi-user auth (RBAC / MFA / SSO / OIDC / tenancy) was removed in favor of single-owner OS-level desktop auth, dead modules and one-off scripts were retired, all known dependency vulnerabilities were cleared (`pip-audit` + `npm audit` clean), and the documentation set was reconciled to the current architecture. The Windows desktop installer builds cleanly end-to-end (PyInstaller backend → Next.js static export → Electron / NSIS). Latest local validation: backend `1769 passed, 19 skipped`; frontend `378 passed`. Still required before a formal release: trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA across deployment modes (see **Current Focus** below and [`TODO.md`](TODO.md)).
+
 Major Subsystems Implemented (at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
 
 - Universal Knowledge Graph (UKG)

@@ -39,6 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fixed migrated `routes/` -> `backend/routes/` paths, refreshed test baselines
   (`1769 passed, 19 skipped`), corrected the Fernet/AES-128 note to AES-256-GCM,
   and archived superseded planning docs under `docs/archive/`.
+- **Single canonical README**: consolidated the duplicate `.github/README.md`
+  (which GitHub rendered on the homepage) and root `README.md` into one
+  source-of-truth README at the repository root, eliminating the precedence
+  ambiguity that hid edits. Brought the displayed content to single-mode
+  accuracy (canonical `python main.py` entry point, 6-tier escalation engine,
+  removed RBAC/MFA/SSO/JWT/multi-tenant claims, dead `/auth/login` example
+  replaced with desktop auto-login), added a dated status snapshot, and verified
+  the Windows desktop installer rebuilds cleanly end-to-end (PyInstaller backend
+  -> Next.js export -> Electron/NSIS) with the freshly built backend embedded.
 - **Test suite aligned to desktop-only auth**: added a route-independent
   `seed_login_session` helper in `tests/conftest.py` and refactored the
   `authenticated_client`/admin/owner fixtures and per-file login helpers to seed a
