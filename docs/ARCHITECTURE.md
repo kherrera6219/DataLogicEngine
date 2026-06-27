@@ -166,8 +166,7 @@ flowchart TD
 | Truth Engine | `backend/truth_engine/` | Security gate, workflow engine, memory/audit, event bus. |
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
 | Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
-| Model access | `backend/llm_gateway/`, MCP server modules | Provider routing, model/tool execution, connector integration. |
-| Local acceleration | `backend/local_model_acceleration/` | Keep-alive daemon + SQLite exact-cache for Ollama T0–T3; fail-open wrapper in gateway. |
+| Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.5-flash), tool execution, connector integration. |
 | Relational store | SQLAlchemy with SQLite/PostgreSQL paths | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
@@ -188,8 +187,7 @@ The current architecture baseline is defined by these code-backed subsystems:
 7. **Local-first runtime** — desktop/local/hybrid behavior uses loopback auth, per-install secret, nonce/HMAC signatures, DPAPI helper, and app-owned storage services.
 8. **Frontend review surface** — `/chat`, `/runs`, `/graph`, `/knowledge`, `/truth-engine`, `/mcp`, `/admin`, and disclosure pages expose system operation to users and reviewers.
 9. **Testing/release governance** — CI validates backend, frontend, contract, parity, security, packaging, environment, lockfile, Docker, and release governance gates.
-10. **6-tier LLM escalation chain** — `backend/llm_gateway/escalation_config.py`, `complexity_classifier.py`, `tier_availability.py`: T0–T3 local Ollama + T4 Gemini + T5 GPT-5.5; `ComplexityClassifier` selects tier heuristically in <1 ms; cascade-down when a local model is not pulled; cloud gated by `_has_active_cloud_providers()`.
-11. **Local Model Acceleration** — `backend/local_model_acceleration/`: keep-alive daemon prevents VRAM eviction; SQLite exact-cache returns previous identical responses in <1 ms; safety filter excludes credentials and dynamic task types; fail-open architecture (any internal failure falls through to normal gateway call). See `docs/LOCAL_MODEL_ACCELERATION.md`.
+10. **Cloud AI model** — `backend/llm_gateway/`: every request is served by the user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`), resolved from `UserAIPreferences` / configured `LLMProvider` records. There is no local model tier or escalation engine; an API key + internet are required for reasoning.
 
 ## DMRF control plane
 
@@ -376,41 +374,23 @@ The stored `LLMProvider.model_id` (set by the user in Settings → API Configura
 | OpenAI / Azure | `gpt-5.5` |
 | Anthropic | `claude-opus-4-7` |
 | Google / Gemini | `gemini-3.5-flash` |
-| Ollama (local) | `gemma4:12b` (T1 primary) |
 
-### 6-tier local-to-cloud model escalation (Sprints 6a–6c)
+### Cloud model selection
 
-When a request reaches `LLMGateway.process()` without a pinned provider or model (and no user preference override), the `ComplexityClassifier` scores the query heuristically and selects the optimal tier from the six-tier chain:
+When a request reaches `LLMGateway.process()`, the gateway uses the caller-pinned provider/model, or the user's saved preference (`UserAIPreferences`), or the first active cloud `LLMProvider` record's default model. Every request is served by **one user-selected cloud model**:
 
-| Tier | Provider type | Model | Label | Approx. latency | Cloud? |
-|---|---|---|---|---|---|
-| T0 | `ollama` | `gemma4:latest` | ultra-light | ~1 s | ✗ |
-| T1 | `ollama` | `gemma4:12b` | primary / default | ~30 s | ✗ |
-| T2 | `ollama` | `qwen3:14b` | medium / coding | ~40 s | ✗ |
-| T3 | `ollama` | `devstral-small-2:latest` | heavy agentic | ~30 s | ✗ |
-| T4 | `google` | `gemini-3.5-flash` | cloud-fast | ~3 s | ✓ |
-| T5 | `openai` | `gpt-5.5` | cloud-full | ~8 s | ✓ |
+| Provider type | Model |
+|---|---|
+| `openai` | `gpt-5.5` |
+| `google` / `gemini` | `gemini-3.5-flash` |
 
-**Local routing (T0–T3):** All four local tiers route through a single Ollama `LLMProvider` DB record. The escalation engine writes the selected model into `request.meta["ollama_model_override"]`; `_resolve_model()` reads this when the provider type is `ollama`.
-
-**Cloud escalation gate (T4–T5):** Cloud tiers are locked by default (classifier caps at T3). `LLMGateway._has_active_cloud_providers()` checks the DB for any `google`/`gemini`/`openai` record with `is_active=True` AND `api_key_encrypted` set. When found, `allow_cloud_escalation=True` is passed to the classifier. Saving a Google or OpenAI API key in Settings is the activation gate — no separate feature flag is needed.
-
-**Thinking model constraint:** `gemma4:12b` (T1) and `qwen3:14b` (T2) emit a `"reasoning"` chain-of-thought field before visible `"content"`. Callers must request `max_tokens ≥ 512`; with a smaller budget the reasoning phase exhausts the token count and `content` is empty.
-
-**OllamaProvider SDK class** (`sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py`) provides the full interface for local Ollama endpoints: `health_check()` (GET `/api/tags`), `list_models()`, `chat_async()`, `chat_stream_async()` (SSE), `generate_json_async()` (with retry and schema validation), and the `complete()` ABC bridge used by the gateway. Errors signal via `raw["ok"]=False`; the provider never raises, maintaining circuit-breaker compatibility.
-
-Key files for escalation:
-
-- `backend/llm_gateway/complexity_classifier.py` — pure-Python heuristic scorer; `classify(query, allow_cloud_escalation=False)`
-- `backend/llm_gateway/escalation_config.py` — `TIER_CHAIN` frozen dataclass tuple; `get_tier_config(tier)`
-- `backend/llm_gateway/model_defaults.py` — `OLLAMA_TIER*_MODEL` and `CLOUD_TIER*_MODEL` constants
-- `sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py` — `OllamaProvider` full implementation
+There is no local model tier or complexity-based escalation; an API key + internet connection are required for reasoning. Internal steps that previously used a local model (DSQP answer generation, the defense-supervisor screen) call the selected cloud model via `backend/llm_gateway/active_model.generate_with_active_model()`, and fall back to their deterministic / fail-open path when no key is configured.
 
 ### Key files
 
 - `backend/llm_gateway/gateway.py` — `LLMGateway`, `_has_active_cloud_providers`, `_is_rate_limit_error`, `_is_retryable_error`, circuit breaker
 - `backend/llm_gateway/api.py` — Flask routes, `gateway_chat()` with 429 early-return
-- `backend/llm_gateway/model_defaults.py` — default model IDs per provider, all tier constants
+- `backend/llm_gateway/model_defaults.py` — default model IDs per provider
 - `models.py` — `LLMProvider.get_api_key()` / `set_api_key()` Fernet encryption
 
 ---

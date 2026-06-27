@@ -902,29 +902,6 @@ def _maybe_start_db_c_indexing() -> None:
 _initialize_storage_collections()
 
 
-def _probe_ollama_tiers_background() -> None:
-    """Run the Ollama tier availability probe in a background daemon thread.
-
-    Fires once at startup.  Non-fatal — if Ollama is not running the
-    probe records all local tiers as unavailable and logs clear pull
-    instructions.  The gateway then cascades gracefully to whatever
-    tiers are available.
-    """
-    import asyncio
-    try:
-        from backend.llm_gateway.tier_availability import probe_local_tiers
-        asyncio.run(probe_local_tiers())
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.warning("Ollama tier probe skipped: %s", exc)
-
-
-Thread(
-    target=_probe_ollama_tiers_background,
-    name="ollama-tier-probe",
-    daemon=True,
-).start()
-
-
 def _initialize_uskd_memory_graph() -> None:
     """Load the RAM-resident USKD graph from SQL rows, then Neo4j if available."""
     try:

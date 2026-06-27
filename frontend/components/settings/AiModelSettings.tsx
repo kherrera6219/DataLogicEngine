@@ -29,23 +29,11 @@ interface SaveKeyResponse {
   };
 }
 
+// The app uses one user-selected cloud model: OpenAI gpt-5.5 or Google gemini-3.5-flash.
 const MODEL_LIBRARY: Record<string, string[]> = {
   openai: ['gpt-5.5'],
-  anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
-  google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
-  azure: ['gpt-5.5'],
-  /** Local Ollama — T0–T3 in the 6-tier escalation chain (no API key required). */
-  ollama: ['gemma4:latest', 'gemma4:12b', 'qwen3:14b', 'devstral-small-2:latest'],
+  google: ['gemini-3.5-flash'],
 };
-
-/** Return tier badge metadata for a configured provider type, or null if not in the escalation chain. */
-function getTierBadge(type: string): { label: string; cls: string } | null {
-  const t = type.toLowerCase();
-  if (t === 'ollama') return { label: 'T0–T3 · local', cls: 'text-green-400 bg-green-500/10 border border-green-500/20' };
-  if (t === 'google' || t === 'gemini') return { label: 'T4 · cloud', cls: 'text-violet-400 bg-violet-500/10 border border-violet-500/20' };
-  if (t === 'openai') return { label: 'T5 · cloud-full', cls: 'text-blue-400 bg-blue-500/10 border border-blue-500/20' };
-  return null;
-}
 
 function formatError(error: unknown): string {
   if (error instanceof Error) {
@@ -134,15 +122,8 @@ export function AiModelSettings() {
     }
   };
 
-  const providerChoices = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          [...providers.map((entry) => entry.type), 'openai', 'anthropic', 'google', 'azure'].filter(Boolean)
-        )
-      ),
-    [providers]
-  );
+  // Only two cloud models are offered: OpenAI (gpt-5.5) and Google (gemini-3.5-flash).
+  const providerChoices = useMemo(() => ['openai', 'google'], []);
 
   const selectedProvider = useMemo(
     () => providers.find((entry) => entry.type === provider),
@@ -328,17 +309,11 @@ export function AiModelSettings() {
               <p className="text-sm text-muted-foreground">No providers detected yet. Save a key to create one.</p>
             )}
             {providers.map((entry) => {
-              const tier = getTierBadge(entry.type);
               return (
                 <div key={`${entry.type}-${entry.id || entry.model || 'provider'}`} className="rounded-lg border p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{entry.type}</span>
                     <div className="flex items-center gap-1.5">
-                      {tier && (
-                        <span className={`inline-flex items-center text-xs font-mono px-2 py-0.5 rounded ${tier.cls}`}>
-                          {tier.label}
-                        </span>
-                      )}
                       {entry.is_default && <Badge variant="secondary">Default</Badge>}
                     </div>
                   </div>

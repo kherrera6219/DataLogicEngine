@@ -82,7 +82,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
-   - Local Ollama requires no API key — ensure Ollama is running on `http://localhost:11434` (or set `OLLAMA_BASE_URL`). T0–T3 integration tests auto-skip when Ollama is offline.
+   - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
 Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.

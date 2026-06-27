@@ -80,11 +80,7 @@ export default function TraceRunsPage() {
                               </Badge>
                            </TableCell>
                            <TableCell>
-                              {run.escalation_label ? (
-                                 <span className="inline-flex items-center text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
-                                    {run.escalation_label}
-                                 </span>
-                              ) : run.model_name ? (
+                              {run.model_name ? (
                                  <span className="text-xs text-muted-foreground font-mono">{run.model_name}</span>
                               ) : (
                                  <span className="text-xs text-muted-foreground">—</span>

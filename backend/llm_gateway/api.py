@@ -32,7 +32,7 @@ from backend.llm_gateway.model_defaults import default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import api_session_login_required, current_user_is_owner
 from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
-from backend.storage.runtime_settings import get_local_slm_audit_mode, get_offline_queue_enabled
+from backend.storage.runtime_settings import get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
 from backend.utils.error_normalization import normalize_public_error_message
 try:
@@ -341,17 +341,6 @@ async def gateway_chat():
     if isinstance(response.explainability, dict):
         output_classification = response.explainability.get('output_classification')
 
-    provider_used = response.provider_used or ""
-    local_slm_audit = None
-    if get_local_slm_audit_mode() and provider_used.lower() in {"local_slm", "ollama", "vllm"}:
-        local_slm_audit = {
-            "mode": "LOCAL_MODEL",
-            "provider": provider_used,
-            "model": response.model_used,
-            "offline_cap_applied": bool(response.meta.get("offline_guard")) if hasattr(response, "meta") else False,
-            "recorded_at": datetime.now(UTC).isoformat(),
-        }
-
     return api_response({
         'response': response.content,
         'run_id': response.run_id,
@@ -365,173 +354,8 @@ async def gateway_chat():
         'claims': [],
         'evidence_count': 0,
         'output_classification': output_classification,
-        'local_slm_audit': local_slm_audit,
         'warnings': response.warnings,
-        # Escalation tier metadata (Sprint 6b) — shows which model tier handled the query.
-        'escalation_tier': response.escalation_tier,
-        'escalation_reason': response.escalation_reason,
-        'escalation_label': response.escalation_label,
-        # Local Model Acceleration metadata — present on cache hits for local tiers.
-        'local_model_acceleration': (
-            response.meta.get("local_model_acceleration")
-            if hasattr(response, "meta") and isinstance(response.meta, dict)
-            else None
-        ),
     })
-
-
-# ---------------------------------------------------------------------------
-# Local Model Acceleration endpoints
-# ---------------------------------------------------------------------------
-
-@gateway_bp.route('/local-acceleration/status', methods=['GET'])
-@api_session_login_required
-def local_acceleration_status():
-    """
-    Return current Local Model Acceleration status.
-
-    Includes Ollama reachability, installed models, keepalive model, and
-    exact-cache statistics.
-    """
-    try:
-        from backend.local_model_acceleration import get_local_model_acceleration_manager
-        from backend.llm_gateway.tier_availability import (
-            get_available_local_tiers,
-            reprobe_in_background,
-        )
-        from backend.storage.runtime_settings import get_local_model_acceleration_settings
-        mgr = get_local_model_acceleration_manager()
-        settings = get_local_model_acceleration_settings()
-        ollama = mgr.ollama_status()
-        cache_stats = mgr.cache_stats()
-        # Refresh stale tier availability in the background so models pulled
-        # mid-session show up without an app restart (throttled to 5 min).
-        reprobe_in_background()
-        available_tiers = get_available_local_tiers()
-        return api_response({
-            "acceleration_enabled": settings.get("local_model_acceleration_enabled", True),
-            "keepalive_enabled": settings.get("local_model_keepalive_enabled", True),
-            "exact_cache_enabled": settings.get("local_model_exact_cache_enabled", True),
-            "keepalive_model": ollama.get("keepalive_model"),
-            "ollama_reachable": ollama.get("ollama_reachable", False),
-            "installed_models": ollama.get("installed_models", []),
-            "available_local_tiers": sorted(available_tiers) if available_tiers is not None else None,
-            "cache": cache_stats,
-            "settings": settings,
-        })
-    except Exception as exc:
-        logger.warning("local_acceleration_status error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/settings', methods=['POST'])
-@api_session_login_required
-def local_acceleration_save_settings():
-    """
-    Persist Local Model Acceleration settings.
-
-    Accepts a JSON body with any subset of the LMA settings keys.
-    Settings take effect immediately on the next gateway request —
-    no restart required.
-    """
-    try:
-        from backend.storage.runtime_settings import save_local_model_acceleration_settings
-        patch_data = request.get_json(silent=True) or {}
-        saved = save_local_model_acceleration_settings(patch_data)
-        return api_response({"saved": True, "settings": saved})
-    except Exception as exc:
-        logger.warning("local_acceleration_save_settings error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/cache/clear', methods=['POST'])
-@api_session_login_required
-def local_acceleration_cache_clear():
-    """Wipe the entire exact-match response cache."""
-    try:
-        from backend.local_model_acceleration import get_local_model_acceleration_manager
-        mgr = get_local_model_acceleration_manager()
-        result = mgr.cache_clear()
-        return api_response({"cleared": True, **result})
-    except Exception as exc:
-        logger.warning("local_acceleration_cache_clear error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/cache/purge-expired', methods=['POST'])
-@api_session_login_required
-def local_acceleration_cache_purge_expired():
-    """Remove expired rows from the exact-match response cache."""
-    try:
-        from backend.local_model_acceleration import get_local_model_acceleration_manager
-        mgr = get_local_model_acceleration_manager()
-        result = mgr.cache_purge_expired()
-        return api_response({"purged": True, **result})
-    except Exception as exc:
-        logger.warning("local_acceleration_cache_purge_expired error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/cache/invalidate-rag', methods=['POST'])
-@api_session_login_required
-def local_acceleration_cache_invalidate_rag():
-    """
-    Evict all RAG-grounded cached responses.
-
-    Call this after ingesting new documents into the knowledge base to
-    ensure stale responses are not served from cache.  Direct-LLM cached
-    responses (no RAG context) are preserved.
-
-    Optional JSON body: ``{ "collection": "<collection_name>" }``
-    """
-    try:
-        from backend.local_model_acceleration import get_local_model_acceleration_manager
-        mgr = get_local_model_acceleration_manager()
-        body = request.get_json(silent=True) or {}
-        result = mgr.invalidate_cache_on_knowledge_update(
-            collection=str(body.get("collection", "")),
-            source="api",
-        )
-        return api_response({"invalidated": True, **result})
-    except Exception as exc:
-        logger.warning("local_acceleration_cache_invalidate_rag error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/reprobe', methods=['POST'])
-@api_session_login_required
-def local_acceleration_reprobe():
-    """Force a background re-probe of local Ollama tier availability."""
-    try:
-        from backend.llm_gateway.tier_availability import (
-            get_available_local_tiers,
-            probe_age_seconds,
-            reprobe_in_background,
-        )
-        started = reprobe_in_background(max_age_seconds=0)
-        available = get_available_local_tiers()
-        return api_response({
-            "reprobe_started": started,
-            "available_local_tiers": sorted(available) if available is not None else None,
-            "probe_age_seconds": probe_age_seconds(),
-        })
-    except Exception as exc:
-        logger.warning("local_acceleration_reprobe error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
-
-
-@gateway_bp.route('/local-acceleration/keepalive/stop', methods=['POST'])
-@api_session_login_required
-def local_acceleration_keepalive_stop():
-    """Stop the keepalive daemon thread (e.g. when freeing VRAM)."""
-    try:
-        from backend.local_model_acceleration import get_local_model_acceleration_manager
-        mgr = get_local_model_acceleration_manager()
-        mgr.stop_keepalive()
-        return api_response({"stopped": True})
-    except Exception as exc:
-        logger.warning("local_acceleration_keepalive_stop error: %s", exc)
-        return jsonify({"error": str(exc)}), 500
 
 
 @gateway_bp.route('/offline-queue', methods=['GET'])

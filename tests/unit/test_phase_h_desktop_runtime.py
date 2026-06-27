@@ -23,31 +23,31 @@ def test_database_manager_prefers_app_owned_jre(tmp_path, monkeypatch):
     assert manager._find_java_home() == str(tmp_path / "jre")
 
 
-def test_network_state_reports_local_model_online(monkeypatch):
+def test_network_state_reports_online_with_cloud_provider(monkeypatch):
     NetworkState._last_checked = None
     NetworkState._last_result = {}
-    for env_name in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+    for env_name in ["ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
         monkeypatch.delenv(env_name, raising=False)
-    monkeypatch.setattr(NetworkState, "_tcp_reachable", staticmethod(lambda host, port: True))
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(list))
 
     status = NetworkState.check(force=True)
 
     assert status["state"] == "ONLINE"
-    assert status["active_provider"] == "local_slm"
-    assert status["details"]["local_model_available"] is True
+    assert status["active_provider"] == "openai"
 
 
-def test_network_state_reports_desktop_degraded_with_remote_only(monkeypatch):
+def test_network_state_reports_offline_without_provider(monkeypatch):
     NetworkState._last_checked = None
     NetworkState._last_result = {}
-    monkeypatch.setenv("IS_DESKTOP_APP", "true")
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-    monkeypatch.setattr(NetworkState, "_tcp_reachable", staticmethod(lambda host, port: False))
+    for env_name in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+        monkeypatch.delenv(env_name, raising=False)
+    monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(list))
 
     status = NetworkState.check(force=True)
 
-    assert status["state"] == "DEGRADED"
-    assert status["active_provider"] == "openai"
+    assert status["state"] == "OFFLINE"
+    assert status["active_provider"] is None
 
 
 def test_network_state_includes_db_configured_providers(monkeypatch):
@@ -59,7 +59,6 @@ def test_network_state_includes_db_configured_providers(monkeypatch):
         monkeypatch.delenv(env_name, raising=False)
     monkeypatch.delenv("LOCAL_SLM_ENDPOINT", raising=False)
     monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
-    monkeypatch.setattr(NetworkState, "_tcp_reachable", staticmethod(lambda host, port: False))
     monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(lambda: ["openai"]))
 
     status = NetworkState.check(force=True)

@@ -342,16 +342,6 @@ class RAGService:
                 metadata=chunk_metadata
             )
             logger.info(f"Ingested document {doc_id}: {len(chunks)} chunks")
-            # Invalidate RAG-grounded LLM response cache so stale answers
-            # are not served after knowledge-base content changes.
-            try:
-                from backend.local_model_acceleration import get_local_model_acceleration_manager
-                get_local_model_acceleration_manager().invalidate_cache_on_knowledge_update(
-                    collection=self.COLLECTION_DOCUMENTS,
-                    source="ingest_document",
-                )
-            except Exception as _cache_exc:  # noqa: BLE001
-                logger.debug("Cache invalidation skipped (non-fatal): %s", _cache_exc)
             return len(chunks)
         except Exception as e:
             logger.error(f"Failed to ingest document {doc_id}: {e}")
@@ -610,15 +600,6 @@ class RAGService:
                     "node_type": node_type
                 }]
             )
-            # Invalidate RAG-grounded LLM response cache (fail-open).
-            try:
-                from backend.local_model_acceleration import get_local_model_acceleration_manager
-                get_local_model_acceleration_manager().invalidate_cache_on_knowledge_update(
-                    collection=self.COLLECTION_KNOWLEDGE,
-                    source="ingest_knowledge_node",
-                )
-            except Exception as _cache_exc:  # noqa: BLE001
-                logger.debug("Cache invalidation skipped (non-fatal): %s", _cache_exc)
             return True
         except Exception as e:
             logger.error(f"Failed to ingest knowledge node: {e}")
@@ -658,15 +639,6 @@ class RAGService:
                 embeddings=[self._embedding_provider(text)],
                 metadata=[self._metadata_for_chroma(metadata)],
             )
-            # Invalidate RAG-grounded LLM response cache (fail-open).
-            try:
-                from backend.local_model_acceleration import get_local_model_acceleration_manager
-                get_local_model_acceleration_manager().invalidate_cache_on_knowledge_update(
-                    collection=collection,
-                    source="ingest_text",
-                )
-            except Exception as _cache_exc:  # noqa: BLE001
-                logger.debug("Cache invalidation skipped (non-fatal): %s", _cache_exc)
             return True
         except Exception as e:
             logger.error(f"Failed to ingest text item {item_id} into {collection}: {e}")

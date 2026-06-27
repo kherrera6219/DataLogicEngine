@@ -108,7 +108,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
-   - Local Ollama: no key needed. Install from [ollama.com](https://ollama.com) and run `ollama pull gemma4:12b`. Set `OLLAMA_BASE_URL` only if Ollama is on a non-default host/port. Integration tests for T0–T3 auto-skip when Ollama is offline.
+   - Cloud model: the app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`). Set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 
 ### Readiness checks
 

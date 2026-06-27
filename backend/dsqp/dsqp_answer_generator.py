@@ -3,18 +3,19 @@
 The DSQP novelty (`docs/ip/dsqp_technical_disclosure.md`) is that each persona's
 seven role-construction components are *derived from the query* at runtime, not
 filled from a per-axis template. This module realizes that substantively: one
-structured local-LLM call per persona axis answers all seven self-questioning
+structured cloud-model call per persona axis answers all seven self-questioning
 questions for the specific query, coordinate, and domain.
 
-Design constraints, mirroring the rest of the local-first stack:
+Design constraints:
 
-- **Local only.** Persona construction runs on the cheapest available local
-  Ollama tier (never a cloud provider) via the canonical ``OllamaClient``.
-- **Fail-safe to deterministic.** If the feature is disabled, no local model is
-  available, the call errors, or the model returns malformed output, the
+- **Cloud model.** Persona construction runs on the user's selected cloud model
+  (OpenAI ``gpt-5.5`` or Google ``gemini-3.5-flash``) via
+  ``generate_with_active_model``.
+- **Fail-safe to deterministic.** If the feature is disabled, no cloud model is
+  configured, the call errors, or the model returns malformed output, the
   generator returns only the components it could validate; the chain fills the
-  rest from the deterministic offline scaffold. The disclosure requires the core
-  protocol to remain "local, deterministic, and offline-capable."
+  rest from the deterministic offline scaffold, so DSQP stays deterministic and
+  offline-capable by default.
 - **Schema-preserving.** Generated components match the exact nested shapes the
   deterministic path produces, so the validator and downstream L5 / SDK overlay
   consumers are unaffected.
@@ -94,26 +95,38 @@ class DSQPAnswerGenerator:
             "on",
         }
 
-    def _resolve_model(self) -> str | None:
-        if self._model:
-            return self._model
+    def _complete(self, prompt: str) -> str | None:
+        """Return the model's raw JSON text, or ``None``.
+
+        Uses an injected client when one is provided (tests / custom backends);
+        otherwise calls the user's selected cloud model. Never raises.
+        """
+        if self._client is not None:
+            try:
+                result = self._client.generate(
+                    model=self._model or "cloud",
+                    prompt=prompt,
+                    system=_SYSTEM_PROMPT,
+                    format_json=True,
+                    timeout_seconds=_GENERATION_TIMEOUT_SECONDS,
+                    options={"temperature": 0.2},
+                )
+                if not result.get("ok"):
+                    logger.debug("DSQP generation unavailable: %s", result.get("error"))
+                    return None
+                return result.get("response", "")
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("DSQP injected client failed open: %s", exc)
+                return None
         try:
-            from backend.llm_gateway.tier_availability import cheapest_available_local_model
+            from backend.llm_gateway.active_model import generate_with_active_model
 
-            # Strict: DSQP runs per-axis in the construction hot path, so only
-            # call the model once the probe has positively confirmed it — never
-            # pay an optimistic connection/timeout on an unprobed Ollama.
-            return cheapest_available_local_model(optimistic=False)
+            return generate_with_active_model(
+                prompt, system=_SYSTEM_PROMPT, temperature=0.2, max_tokens=900
+            )
         except Exception as exc:  # noqa: BLE001
-            logger.debug("DSQP model resolution failed: %s", exc)
+            logger.debug("DSQP answer generation failed open: %s", exc)
             return None
-
-    def _get_client(self) -> Any:
-        if self._client is None:
-            from backend.local_model_acceleration.ollama_client import OllamaClient
-
-            self._client = OllamaClient()
-        return self._client
 
     def generate(
         self,
@@ -131,9 +144,6 @@ class DSQPAnswerGenerator:
         """
         if not self.enabled():
             return {}
-        model = self._resolve_model()
-        if not model:
-            return {}
 
         domain = str(context.get("risk_domain") or context.get("domain") or "standard")
         prompt = json.dumps(
@@ -147,22 +157,10 @@ class DSQPAnswerGenerator:
             },
             ensure_ascii=False,
         )
-        try:
-            result = self._get_client().generate(
-                model=model,
-                prompt=prompt,
-                system=_SYSTEM_PROMPT,
-                format_json=True,
-                timeout_seconds=_GENERATION_TIMEOUT_SECONDS,
-                options={"temperature": 0.2},
-            )
-            if not result.get("ok"):
-                logger.debug("DSQP generation unavailable: %s", result.get("error"))
-                return {}
-            return self._validated_components(result.get("response", ""))
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("DSQP answer generation failed open: %s", exc)
+        raw = self._complete(prompt)
+        if not raw:
             return {}
+        return self._validated_components(raw)
 
     @classmethod
     def _validated_components(cls, raw: str) -> dict[str, dict[str, Any]]:

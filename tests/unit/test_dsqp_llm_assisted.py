@@ -1,6 +1,6 @@
 """LLM-assisted DSQP construction (A2-2).
 
-Exercises the local-LLM answer path with an injected stub client (no network),
+Exercises the LLM-assisted answer path with an injected stub client (no network),
 covering query-derived construction, per-component fallback to the deterministic
 scaffold, provenance recording, the kill switch, and schema preservation.
 """
@@ -34,8 +34,8 @@ _FULL_LLM_JSON = json.dumps({
 })
 
 
-def _gen(client, model="gemma4:test"):
-    # Passing model= bypasses tier-probe resolution so the test never hits the network.
+def _gen(client, model="cloud-test"):
+    # Injecting a client routes generation through it (no network / cloud call).
     return DSQPAnswerGenerator(client=client, model=model)
 
 
@@ -127,11 +127,13 @@ def test_model_error_falls_back(monkeypatch):
     assert DSQPValidator().validate(persona)["valid"] is True
 
 
-def test_no_local_model_returns_empty(monkeypatch):
-    """With no injected model and a strict (unprobed) resolution, generate() is a no-op."""
+def test_no_cloud_model_returns_empty(monkeypatch):
+    """With no injected client and no cloud model configured, generate() is a no-op."""
     monkeypatch.setenv("DSQP_LLM_ASSISTED", "true")
-    gen = DSQPAnswerGenerator(client=_StubClient(_FULL_LLM_JSON), model=None)
-    monkeypatch.setattr(gen, "_resolve_model", lambda: None)
+    import backend.llm_gateway.active_model as active_model
+
+    monkeypatch.setattr(active_model, "generate_with_active_model", lambda *a, **k: None)
+    gen = DSQPAnswerGenerator(client=None, model=None)
 
     out = gen.generate(
         persona_type="regulatory",

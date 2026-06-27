@@ -83,10 +83,12 @@ class TestScreenFailOpen:
         assert verdict["recommended_action"] == "ALLOW"
         assert verdict["available"] is False
 
-    def test_no_local_model_allows(self, monkeypatch):
+    def test_no_cloud_model_allows(self, monkeypatch):
         monkeypatch.setenv("DEFENSE_SUPERVISOR_ENABLED", "true")
+        import backend.llm_gateway.active_model as active_model
+
+        monkeypatch.setattr(active_model, "generate_with_active_model", lambda *a, **k: None)
         supervisor = DefenseSupervisor()
-        monkeypatch.setattr(supervisor, "_resolve_model", lambda: None)
         verdict = supervisor.screen("anything")
         assert verdict["recommended_action"] == "ALLOW"
         assert verdict["available"] is False

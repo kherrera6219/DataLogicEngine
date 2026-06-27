@@ -126,20 +126,6 @@ async def test_gateway_quad_analysis_uses_real_engine_without_monkeypatch():
 
 
 @pytest.mark.asyncio
-async def test_gateway_desktop_adds_local_slm_fallback(monkeypatch):
-    monkeypatch.setenv("IS_DESKTOP_APP", "true")
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-
-    providers = await LLMGateway()._get_eligible_providers(meta={"tier": "high_stakes"})
-
-    assert providers[-1].provider_type == "local_slm"
-    assert providers[-1].endpoint == "http://localhost:11434/v1"
-
-
-@pytest.mark.asyncio
 async def test_truthcore_l5_constructs_profiles_and_uses_pod_orchestrator():
     engine = TruthCoreEngine(ka_controller=FakeController())
     engine.persona_construction = FakePersonaConstruction()
