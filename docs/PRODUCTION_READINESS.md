@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-06-08 |
+| Document version | v2.8.0 |
+| Last updated | 2026-06-26 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -265,7 +265,7 @@ Required evidence:
 2. keyboard navigation evidence;
 3. screen-reader evidence such as NVDA manual pass/fail notes;
 4. documented exceptions with remediation plan;
-5. no critical blocker for login, dashboard, chat, trace review, settings/privacy, and admin/compliance flows.
+5. no critical blocker for desktop auto-login, dashboard, chat, trace review, settings/privacy, and admin/compliance flows.
 
 ---
 
@@ -357,6 +357,16 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 ```
 
 ---
+
+## Change notes for v2.8.0
+
+1. Updated document version to v2.8.0 and last-updated date to 2026-06-26.
+2. v2.0 single-mode consolidation audit complete (A1–A32, all four phases): multi-user RBAC/MFA/SSO/OIDC/tenancy removed in favor of single-owner OS-level desktop auth + desktop auto-login; `OAuthAccount` table dropped (migration `d6e7f8a9b0c1`); dead modules and one-off scripts retired.
+3. All Python and Node dependency vulnerabilities cleared (`pip-audit` + `npm audit` report no known advisories).
+4. Documentation set (`docs/`, `docs/diagrams/`, root docs) reconciled to the current single-mode architecture; the duplicate `.github/README.md` was consolidated into a single canonical root `README.md`.
+5. Windows desktop installer rebuilt and validated end-to-end 2026-06-26 (PyInstaller backend → Next.js static export → Electron/NSIS) with the freshly built backend embedded. Local validation: backend **1769 passed, 19 skipped**; frontend **378 passed**. (Test count is lower than v2.7.0's 1865 because the single-mode audit removed the multi-user auth/connector test suites along with those features.)
+6. New open desktop-packaging item: the installer does not bundle a JRE for Neo4j (`databases/jre` source reported missing during electron-builder packaging) — confirm intended (external/system JRE) or add the bundle before signed distribution.
+7. New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.
 
 ## Change notes for v2.7.0
 
