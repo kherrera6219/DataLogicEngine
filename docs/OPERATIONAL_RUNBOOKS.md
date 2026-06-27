@@ -188,20 +188,19 @@ Relevant files:
 **Default severity:** `SEV-2`; upgrade for broad outage.
 
 1. Confirm provider status and gateway route behavior.
-2. Validate failover to configured fallback provider. For cloud provider (T4/T5) outages, queries will cap at T3 (local `devstral-small-2:latest`) until cloud is restored — no manual intervention required if Ollama is running.
+2. Verify the configured cloud model. The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`); a key must be saved in Settings → AI/Model (or set via `OPENAI_API_KEY` / `GOOGLE_API_KEY`). With no reachable provider, gateway chat returns a clear "No active providers found" error — it does not fail silently.
 3. Check `/metrics` for AI latency/error signals.
 4. Confirm DMRF/TruthCore does not silently return synthetic success.
-5. For local Ollama outages: confirm Ollama service is running on `http://localhost:11434`. Check `GET /api/tags` directly to verify model availability. The gateway logs `cloud_allowed=True/False` and `Escalation → tier=N model=X` at INFO level — inspect these lines to confirm which tier is actually serving requests.
+5. For provider outages (rate limit / 5xx / network): the gateway classifies the error (`invalid_api_key` 401, `rate_limited` 429, `invalid_model` 422, `network_error` 504) and surfaces it to the client. Confirm the saved key is valid and the provider's status page is healthy.
 6. Post internal status update.
 7. Re-enable primary provider only after sustained health.
 8. Capture incident metrics for reliability review.
 
 Relevant files:
 
-- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_has_active_cloud_providers`, circuit breaker
-- `backend/llm_gateway/complexity_classifier.py` — tier selection logic
-- `backend/llm_gateway/escalation_config.py` — `TIER_CHAIN` (T0–T5)
-- `sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py` — `OllamaProvider.health_check()`
+- `backend/llm_gateway/gateway.py` — `LLMGateway`, circuit breaker, provider routing
+- `backend/llm_gateway/active_model.py` — active cloud model resolution
+- `backend/llm_gateway/model_defaults.py` — default model IDs per provider
 - `backend/llm_gateway/api.py`
 - `backend/dmrf/orchestrator.py`
 

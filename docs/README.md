@@ -176,6 +176,10 @@ The active documentation set has been normalized around:
 6. trace, evidence, privacy, export, and release governance;
 7. evidence-based security and compliance claims.
 
+## Change notes for v2.9.0
+
+1. **LLM layer simplified to a single cloud model.** The 6-tier local-Ollama escalation engine was removed; the app now uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`), so reasoning requires a cloud API key + internet (data still stays local). Reframed `docs/ARCHITECTURE.md`, `docs/COMPONENT_MAP.md`, `docs/API.md`, `docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`, `docs/ENGINEER_ONBOARDING.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/FILE_STRUCTURE.md`, and `docs/diagrams/12_end_to_end_request_lifecycle.md` to "local-first data + cloud BYOK"; removed the obsolete local-model-acceleration guide. (Supersedes the 6-tier escalation additions recorded under v2.7.0 below.)
+
 ## Change notes for v2.7.0
 
 1. Updated `docs/ARCHITECTURE.md` (v2.8.0) with a new "6-tier local-to-cloud model escalation" subsection covering T0–T5 tier chain, cloud escalation gate, OllamaProvider, and thinking-model constraint.

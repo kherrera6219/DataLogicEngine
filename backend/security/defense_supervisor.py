@@ -8,10 +8,11 @@ novel DAN-style override phrasings.
 
 Design constraints:
 
-- Screening runs on the **local** Ollama model only. Security analysis of
-  user input is never sent to cloud providers, and the local Tier 0/1
-  model keeps the latency cost small.
-- **Fail-open**: if Ollama is unreachable, no local tier is available, the
+- Screening runs on the user's selected cloud model (OpenAI ``gpt-5.5`` or
+  Google ``gemini-3.5-flash``) via
+  ``backend.llm_gateway.active_model.generate_with_active_model``. Note that
+  the screened user input is therefore sent to the configured cloud provider.
+- **Fail-open**: if no cloud model is configured, the model call fails, the
   model output is not parseable JSON, or the feature is disabled via
   ``DEFENSE_SUPERVISOR_ENABLED=false``, screening returns an ALLOW verdict
   flagged ``available: False``. The pattern-based shields in
@@ -43,7 +44,7 @@ _VALID_THREAT_TYPES = {
 }
 
 # Default per-call generation timeout. Screening sits in the request path,
-# so a hung Ollama must not stall chat for the full 30 s client default.
+# so a slow model call must not stall chat for the full 30 s client default.
 _SCREEN_TIMEOUT_SECONDS = 8
 
 

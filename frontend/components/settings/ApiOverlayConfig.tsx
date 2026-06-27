@@ -58,9 +58,6 @@ const PROVIDER_MODELS: Record<string, string[]> = {
   azure: ['gpt-5.5', 'gpt-5.4'],
 };
 
-/** Provider types that run locally and require no API key (none — cloud only). */
-const LOCAL_PROVIDER_TYPES = new Set<string>();
-
 function formatDayLabel(date: Date): string {
   return date.toLocaleDateString(undefined, { weekday: 'short' });
 }
@@ -140,7 +137,6 @@ export function ApiOverlayConfig() {
   const [showKey, setShowKey] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
-  const [ollamaEndpoint, setOllamaEndpoint] = useState("http://localhost:11434");
 
   const [tier, setTier] = useState("moderate");
   const [confidence, setConfidence] = useState(99.5);
@@ -255,11 +251,8 @@ export function ApiOverlayConfig() {
   const totalQueries = activityData.reduce((sum, point) => sum + point.queries, 0);
   const gatewayChatEndpoint = useMemo(() => buildApiUrl('/gateway/chat'), []);
 
-  /** True when the selected provider runs locally (no API key needed). */
-  const isLocalProvider = LOCAL_PROVIDER_TYPES.has(provider);
-
   const handleSaveKey = async (): Promise<string | null> => {
-    if (!isLocalProvider && !apiKey.trim()) {
+    if (!apiKey.trim()) {
       toast("Enter an API key before saving.", "warning");
       return null;
     }
@@ -270,9 +263,8 @@ export function ApiOverlayConfig() {
         method: 'POST',
         body: JSON.stringify({
           provider,
-          key: isLocalProvider ? undefined : apiKey.trim(),
+          key: apiKey.trim(),
           model,
-          endpoint: isLocalProvider ? ollamaEndpoint : undefined,
         }),
       });
 
@@ -460,44 +452,7 @@ export function ApiOverlayConfig() {
                 </div>
               </div>
 
-              {isLocalProvider ? (
-                <div className="space-y-2">
-                  <label htmlFor="api-overlay-ollama-endpoint" className="text-xs font-bold uppercase text-gray-500">Ollama Endpoint</label>
-                  <div className="flex gap-2 flex-wrap">
-                    <Input
-                      id="api-overlay-ollama-endpoint"
-                      type="text"
-                      value={ollamaEndpoint}
-                      onChange={(e) => setOllamaEndpoint(e.target.value)}
-                      placeholder="http://localhost:11434"
-                      className="bg-white/5 border-white/10 font-mono flex-1"
-                    />
-                    <Button
-                      variant={saveStatus === 'saved' ? 'secondary' : 'default'}
-                      onClick={handleSaveKey}
-                      disabled={saveStatus === 'saving'}
-                      className="w-32"
-                      aria-label="Save Ollama endpoint"
-                    >
-                      {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}
-                    </Button>
-                    <Button
-                      variant={connectionStatus === 'success' ? 'secondary' : 'outline'}
-                      onClick={handleTestConnection}
-                      disabled={connectionStatus === 'testing'}
-                      className="w-40"
-                      aria-label="Test provider connection"
-                    >
-                      {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    No API key needed — Ollama runs locally. Ensure{' '}
-                    <code className="font-mono bg-white/10 px-1 rounded">ollama run gemma4:12b</code>{' '}
-                    is active before testing.
-                  </p>
-                </div>
-              ) : (
+              {(
                 <div className="space-y-2">
                   <label htmlFor="api-overlay-api-key" className="text-xs font-bold uppercase text-gray-500">API Key</label>
                   <div className="flex gap-2 flex-wrap">

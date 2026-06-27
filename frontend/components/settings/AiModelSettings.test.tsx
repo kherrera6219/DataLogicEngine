@@ -133,9 +133,9 @@ describe('AiModelSettings', () => {
     });
   });
 
-  it('should handle Ollama provider (local tier)', async () => {
+  it('should handle a configured cloud provider', async () => {
     const mockProviders = [
-      { id: '1', name: 'Ollama', type: 'ollama' },
+      { id: '1', name: 'Google', type: 'google' },
     ];
 
     (vi.mocked(request) as any).mockResolvedValue({ providers: mockProviders });
@@ -146,7 +146,7 @@ describe('AiModelSettings', () => {
     });
   });
 
-  it('should handle tier badge for different provider types', async () => {
+  it('should render provider status badges', async () => {
     const mockProviders = [
       { id: '1', name: 'OpenAI', type: 'openai' },
       { id: '2', name: 'Google', type: 'google' },
