@@ -47,10 +47,6 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
-  /** Sprint 6b: escalation tier (0–5) that served this response. */
-  escalationTier?: number;
-  /** Sprint 6b: short label shown in the UI badge, e.g. "T1·local-primary". */
-  escalationLabel?: string;
   auditTrail?: {
     decision_path: string;
     complete_trace_url: string;

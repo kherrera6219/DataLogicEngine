@@ -20,7 +20,7 @@ Designed for enterprise, government, compliance, cybersecurity, acquisition, and
 
 Current Status: Active Development — Not Production Ready (Local-First Edition)
 
-**Status snapshot (2026-06-26):** The v2.0 single-mode consolidation audit is complete — multi-user auth (RBAC / MFA / SSO / OIDC / tenancy) was removed in favor of single-owner OS-level desktop auth, dead modules and one-off scripts were retired, all known dependency vulnerabilities were cleared (`pip-audit` + `npm audit` clean), and the documentation set was reconciled to the current architecture. The Windows desktop installer builds cleanly end-to-end (PyInstaller backend → Next.js static export → Electron / NSIS). Latest local validation: backend `1769 passed, 19 skipped`; frontend `378 passed`. Still required before a formal release: trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA across deployment modes (see **Current Focus** below and [`TODO.md`](TODO.md)).
+**Status snapshot (2026-06-27):** The LLM layer was simplified to a **single user-selected cloud model** — OpenAI `gpt-5.5` or Google `gemini-3.5-flash`. The former 6-tier local-Ollama escalation engine (local model tiers, complexity classifier, acceleration cache) was removed; reasoning now requires a cloud API key + internet (data still stays local). Earlier, the v2.0 single-mode consolidation audit was completed — multi-user auth (RBAC / MFA / SSO / OIDC / tenancy) was removed in favor of single-owner OS-level desktop auth, dead modules and one-off scripts were retired, all known dependency vulnerabilities were cleared (`pip-audit` + `npm audit` clean), and the documentation set was reconciled to the current architecture. The Windows desktop installer builds cleanly end-to-end (PyInstaller backend → Next.js static export → Electron / NSIS). Still required before a formal release: trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA across deployment modes (see **Current Focus** below and [`TODO.md`](TODO.md)).
 
 Major Subsystems Implemented (at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
 
@@ -36,7 +36,7 @@ Major Subsystems Implemented (at subsystem level; full end-to-end integration, s
 - MCP Integration Framework
 - Local Database Lifecycle Management
 - Enterprise Audit & Governance Framework
-- 6-Tier Local LLM Chain (Ollama T0–T3, no API key required)
+- Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.5-flash (BYOK)
 
 Current Focus:
 
@@ -87,11 +87,9 @@ Every response can be traced through:
 - Governance policies
 - Audit records
 
-**Local-First Architecture with Built-In Local LLMs**
+**Local-First Data, Cloud AI Model (BYOK)**
 
-Supports disconnected, air-gapped, enterprise, government, and workstation deployments without requiring external cloud infrastructure.
-
-A built-in 6-tier LLM escalation chain runs entirely on-device via [Ollama](https://ollama.com) — no API key required. Local models (T0 `gemma4:latest` → T1 `gemma4:12b` → T2 `qwen3:14b` → T3 `devstral-small-2:latest`) handle the full reasoning workload by default. Cloud providers (T4 Gemini Flash 3.5, T5 GPT-5.5) auto-unlock only when a key is saved in Settings.
+All data stores, retrieval, memory, and reasoning state run locally on the user's machine. The LLM itself is a user-selected cloud model — bring your own key for **OpenAI `gpt-5.5`** or **Google `gemini-3.5-flash`**. An API key and internet connection are therefore required for reasoning; the data plane stays local and only the model inference call leaves the machine.
 
 **Model Context Protocol (MCP)**
 
@@ -117,7 +115,7 @@ Roadmap
 
 **Platform Evolution:**
 
-- ~~Local SLM optimization for lower reasoning tiers~~ — Delivered: 6-tier Ollama chain (T0 `gemma4:latest` → T3 `devstral-small-2:latest`)
+- Cloud AI model selection (OpenAI gpt-5.5 or Google gemini-3.5-flash)
 - Expanded GraphRAG retrieval capabilities
 - Enterprise deployment automation
 - Additional knowledge ingestion connectors
@@ -138,9 +136,7 @@ Roadmap
 - ✅ Enterprise audit traceability framework
 - ✅ Knowledge Algorithm expansion and validation
 - ✅ Truth Engine release readiness improvements
-- ✅ 6-tier local-to-cloud LLM escalation chain (Ollama T0–T3, Gemini Flash T4, GPT-5.5 T5)
-- ✅ OllamaProvider SDK with health check, streaming, and JSON generation
-- ✅ Cloud escalation auto-unlock when Google/OpenAI API key is saved in Settings
+- ✅ Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.5-flash (BYOK)
 
 See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
 
@@ -205,7 +201,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 | Capability | What it provides |
 | --- | --- |
-| LLM gateway | Multi-provider routing with a 6-tier auto-escalation chain: local Ollama models (T0–T3, no API key required) through cloud providers (T4 Gemini Flash 3.5, T5 GPT-5.5). Includes retries, circuit-breaker behavior, cost tracking, and audit metadata. |
+| LLM gateway | Routes requests to the user's selected cloud model (OpenAI gpt-5.5 or Google gemini-3.5-flash) with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
 | Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
 | Governance | Single-owner desktop auth, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
@@ -222,7 +218,7 @@ flowchart LR
   API --> Gateway["LLM Gateway"]
   API --> Graph["Knowledge Graph APIs"]
   API --> Truth["Truth Engine and tracing"]
-  Gateway --> Providers["OpenAI / Anthropic / Azure / Google / Ollama (local)"]
+  Gateway --> Providers["OpenAI (gpt-5.5) / Google (gemini-3.5-flash)"]
   Graph --> Postgres["PostgreSQL"]
   Graph --> Neo4j["Neo4j"]
   API --> Redis["Redis cache and rate limit storage"]
@@ -237,7 +233,7 @@ flowchart LR
 | Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
 | Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
-| AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini, Ollama (local) | 6-tier auto-escalation: T0–T3 route to local Ollama models (no key needed); T4–T5 route to cloud when a key is saved. Provider keys resolved at runtime from environment or configured provider records. |
+| AI | OpenAI (gpt-5.5), Google/Gemini (gemini-3.5-flash) | One user-selected cloud model handles every request. Provider key resolved at runtime from the app DB (Settings) or environment. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
 ## Data store design philosophy
@@ -248,7 +244,7 @@ DataLogicEngine uses eight purpose-built local stores — not because of complex
 Every store is app-owned and local. There are no external database endpoints, no cloud-managed storage, no third-party data custodians. Field-level AES-256-GCM encryption with Windows DPAPI-bound keys means sensitive data is protected at the OS level — not by a vendor service agreement.
 
 **2. Zero external API calls for data**
-All retrieval — graph traversal, vector search, relational queries, memory recall — operates entirely on local hardware. The only external traffic is LLM inference, and even that is optional via the local Ollama T0–T3 model chain. The data plane has no network dependency.
+All retrieval — graph traversal, vector search, relational queries, memory recall — operates entirely on local hardware. The only external traffic is the LLM inference call to the user's selected cloud provider. The data plane itself has no network dependency.
 
 **3. Internal access speed**
 The USKD NetworkX RAM graph exists specifically so reasoning traversal never touches disk or a network socket during the hot path of a multi-step reasoning chain. At the scale of dozens of retrieval operations per request, local hardware latency vs. network latency compounds significantly across every step.
@@ -282,7 +278,6 @@ See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the full data archi
 | PostgreSQL | 15+ | Production relational store |
 | Redis | 7+ | Cache, rate limiting, async support |
 | Neo4j | 5+ | Knowledge graph storage |
-| [Ollama](https://ollama.com) | Current stable | Local LLM inference — required for T0–T3 chain (no API key needed) |
 
 ### Backend Development
 
@@ -353,62 +348,28 @@ Installer artifacts are copied to the repository root as a single canonical setu
 
 ### Model Provider Setup
 
-DataLogicEngine routes queries through a 6-tier escalation chain, but **the full chain is not required**. The app works with any combination of tiers — just one local model, just one cloud provider, a mix of both, or the full chain. Configure only what you have available.
+DataLogicEngine uses **one user-selected cloud model**. Choose either provider and
+configure its key — an API key and internet connection are required for reasoning.
 
-| Tier | Model | Provider | Requires |
-| --- | --- | --- | --- |
-| T0 | `gemma4:latest` | Ollama (local) | Ollama installed + model pulled |
-| T1 | `gemma4:12b` | Ollama (local) | Ollama installed + model pulled |
-| T2 | `qwen3:14b` | Ollama (local) | Ollama installed + model pulled |
-| T3 | `devstral-small-2:latest` | Ollama (local) | Ollama installed + model pulled |
-| T4 | `gemini-3.5-flash` | Google / Gemini | Google API key |
-| T5 | `gpt-5.5` | OpenAI | OpenAI API key |
+| Model | Provider | Requires |
+| --- | --- | --- |
+| `gpt-5.5` | OpenAI | OpenAI API key |
+| `gemini-3.5-flash` | Google / Gemini | Google API key |
 
-#### Local models via Ollama (T0–T3)
-
-[Ollama](https://ollama.com) runs models on-device with no API key or cloud account required.
-
-**Install Ollama**
-
-Download and run the installer from [ollama.com/download](https://ollama.com/download) (Windows, macOS, and Linux). Ollama starts as a background service on `http://localhost:11434`.
-
-**Pull models** — pull only the tiers you want to use:
-
-```bash
-ollama pull gemma4:latest            # T0 — ultra-light, ~1s responses
-ollama pull gemma4:12b               # T1 — local primary reasoning
-ollama pull qwen3:14b                # T2 — extended reasoning (thinking model)
-ollama pull devstral-small-2:latest  # T3 — code and structured output
-```
-
-> **Hardware note:** `gemma4:12b` (T1) and `qwen3:14b` (T2) are thinking models and perform best with 8 GB+ VRAM. `gemma4:latest` (T0) and `devstral-small-2:latest` (T3) are lighter and run on 4–6 GB VRAM or CPU offload.
-
-**Verify:**
-
-```bash
-ollama list                # shows pulled models
-curl http://localhost:11434  # returns: Ollama is running
-```
-
-Set `OLLAMA_BASE_URL` in `.env` only if Ollama is on a non-default host or port.
-
-#### Cloud providers (T4 and T5, optional)
-
-Cloud tiers are optional and unlock automatically when a key is saved in **Settings → AI/Model**. No restart required.
-
-**T4 — Google Gemini Flash 3.5**
-
-1. Get an API key at [aistudio.google.com](https://aistudio.google.com) (free tier available).
-2. In the app: **Settings → AI/Model → Provider: google → paste key → Save**.
-3. Or set `GOOGLE_API_KEY` (or `GEMINI_API_KEY`) in `.env` before starting the backend.
-
-**T5 — OpenAI GPT-5.5**
+**OpenAI — gpt-5.5**
 
 1. Get an API key at [platform.openai.com](https://platform.openai.com).
 2. In the app: **Settings → AI/Model → Provider: openai → paste key → Save**.
 3. Or set `OPENAI_API_KEY` in `.env` before starting the backend.
 
-Once a cloud key is saved, the gateway's cloud escalation gate opens and complex queries will route to T4/T5 automatically. The Dashboard **LLM Escalation Chain** card shows which tiers are currently unlocked.
+**Google — gemini-3.5-flash**
+
+1. Get an API key at [aistudio.google.com](https://aistudio.google.com) (free tier available).
+2. In the app: **Settings → AI/Model → Provider: google → paste key → Save**.
+3. Or set `GOOGLE_API_KEY` (or `GEMINI_API_KEY`) in `.env` before starting the backend.
+
+Once a key is saved, the gateway routes every request to that model. The Dashboard
+**AI Model** card shows which provider is configured.
 
 ## Configuration
 
@@ -435,8 +396,7 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `ANTHROPIC_API_KEY` | Anthropic provider key. |
 | `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL. |
 | `AZURE_OPENAI_API_KEY` | Azure OpenAI provider key. |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables T4 (Gemini Flash 3.5) cloud escalation. |
-| `OLLAMA_BASE_URL` | Optional. Ollama endpoint (default: `http://localhost:11434`). Required when Ollama is on a non-default host/port. T0–T3 local inference requires no API key. |
+| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables the Google gemini-3.5-flash model. |
 | `SENTRY_DSN` | Enables crash reporting when configured. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |

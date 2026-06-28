@@ -30,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `backend/security/tenant_rls.py`, and retired dead security modules and
   one-off audit scripts. `tenant_id` columns are kept as vestigial. See
   [`REPO_AUDIT_LOG.md`](REPO_AUDIT_LOG.md) for the full v2.0 audit record.
+- **Local Ollama LLMs + 6-tier escalation engine → single cloud model**: removed
+  the local-model tier chain (`escalation_config.py`, `complexity_classifier.py`,
+  `tier_availability.py`), the `backend/local_model_acceleration/` keepalive +
+  exact-cache subsystem, the Ollama startup probe, and the SDK
+  `OllamaProvider` / `LocalSLMProvider`. The app now uses **one user-selected
+  cloud model** — OpenAI `gpt-5.5` or Google `gemini-3.5-flash` (BYOK) — so
+  reasoning requires a cloud API key + internet (data still stays local).
+  Internal steps that previously used a local model (DSQP answer generation, the
+  defense-supervisor screen) now call the selected cloud model via the new
+  `backend/llm_gateway/active_model.py`, falling back to their deterministic /
+  fail-open path when no key is configured. Tier/escalation UI was removed from
+  Settings, Dashboard, Chat, and Runs; the `.env.template` `OLLAMA_*` block was
+  dropped.
 
 ### Changed
 - Replaced explicit KA stub behavior in `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` with deterministic local implementations and focused tests.

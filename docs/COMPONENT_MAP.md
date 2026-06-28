@@ -122,7 +122,7 @@ flowchart TB
 | Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
 | 17-axis/FROST | `backend/dmrf/router.py`, `core/axes/` | Coordinate routing, FROST depth, TruthCore mode selection. |
 | DSQP | `backend/dsqp/` | Deterministic structured persona construction. |
-| LLM Gateway | `backend/llm_gateway/` | Provider/model execution, usage/error handling. Includes 6-tier auto-escalation (T0 `gemma4:latest` → T3 `devstral-small-2:latest` via local Ollama; T4 `gemini-3.5-flash`, T5 `gpt-5.5` when a cloud key is saved). |
+| LLM Gateway | `backend/llm_gateway/` | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.5-flash), usage/error handling, retries, circuit breaker. |
 | MCP | `backend/mcp_server/` | Connector registry, scopes, tool execution contracts. |
 | Storage/memory | `backend/storage/`, `backend/memory/`, `models.py` | SQL, Redis, Neo4j, Chroma, object storage, UnifiedMemory, USKD. |
 | Trace/export | `backend/tracing/`, `backend/security/export_integrity.py`, `frontend/app/runs/` | Run traces, evidence review, export integrity. |

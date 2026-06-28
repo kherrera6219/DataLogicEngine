@@ -13,10 +13,8 @@ The gateway provides:
 """
 
 import asyncio
-import inspect
 import logging
 import os
-import socket
 import sys
 import uuid
 from datetime import datetime, UTC, timedelta
@@ -83,11 +81,6 @@ class GatewayResponse:
     explainability: Optional[dict] = None
     warnings: list[str] = field(default_factory=list)
     error: Optional[str] = None
-    # Escalation tier metadata (Sprint 6b) — set by ComplexityClassifier.
-    escalation_tier: Optional[int] = None
-    escalation_reason: Optional[str] = None
-    escalation_label: Optional[str] = None
-    # Acceleration metadata — populated when Local Model Acceleration is active.
     meta: dict[str, Any] = field(default_factory=dict)
 
 
@@ -142,13 +135,10 @@ class NetworkState:
             return dict(cls._last_result)
 
         providers = cls._configured_providers()
-        local_available = cls._tcp_reachable("127.0.0.1", int(os.environ.get("OLLAMA_PORT", "11434")))
-        remote_configured = any(provider not in {"local_slm", "ollama", "vllm"} for provider in providers)
-        state = "ONLINE" if remote_configured or local_available else "OFFLINE"
-        if remote_configured and not local_available and os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}:
-            state = "DEGRADED"
-
-        active_provider = "local_slm" if local_available else (providers[0] if providers else None)
+        # Cloud-only: the app reaches its LLM over the network, so reachability is
+        # simply whether a cloud provider (OpenAI / Google) is configured.
+        state = "ONLINE" if providers else "OFFLINE"
+        active_provider = providers[0] if providers else None
         cls._last_checked = now
         cls._last_result = {
             "state": state,
@@ -156,7 +146,6 @@ class NetworkState:
             "active_provider": active_provider,
             "details": {
                 "configured_providers": providers,
-                "local_model_available": local_available,
                 "ttl_seconds": cls._ttl_seconds,
             },
         }
@@ -182,8 +171,6 @@ class NetworkState:
             if provider_type not in providers:
                 providers.append(provider_type)
 
-        if os.environ.get("LOCAL_SLM_ENDPOINT") or os.environ.get("OLLAMA_BASE_URL"):
-            providers.append("local_slm")
         return providers
 
     @staticmethod
@@ -216,15 +203,6 @@ class NetworkState:
         except Exception as exc:  # pragma: no cover - defensive, status path only
             logger.debug("DB provider status lookup failed: %s", exc)
             return []
-
-    @staticmethod
-    def _tcp_reachable(host: str, port: int) -> bool:
-        try:
-            with socket.create_connection((host, port), timeout=0.25):
-                return True
-        except OSError:
-            return False
-
 
 class LLMGateway:
     """
@@ -333,13 +311,7 @@ class LLMGateway:
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
         if request.model:
             return str(request.model)
-        # For local providers the escalation engine may have selected a model
-        # that differs from the DB-stored default (e.g. Tier 0 vs Tier 1).
         provider_type = str(getattr(provider_record, "provider_type", "") or "").lower()
-        if provider_type in {"ollama", "local_slm", "vllm"}:
-            override = request.meta.get("ollama_model_override")
-            if override:
-                return str(override)
         if provider_record and getattr(provider_record, "model_id", None):
             return str(provider_record.model_id)
         return default_model_for_provider(provider_type or None)
@@ -604,57 +576,17 @@ class LLMGateway:
             except Exception:
                 pass  # Preferences are optional — never block a request on DB failure
 
-        # ── Escalation tier classification (Sprint 6b/6c) ───────────────────
-        # Select the optimal model tier for this query via heuristic scoring.
-        # Runs only when the caller has not pinned a specific provider or model,
-        # AND user preferences have not set one.
-        #
-        # Cloud escalation (T4 = Gemini Flash 3.5, T5 = GPT-5.5) is unlocked
-        # automatically when the user has saved at least one active Google or
-        # OpenAI provider record in Settings.  No manual flag required.
-        if not request.provider and not request.model:
-            try:
-                from backend.llm_gateway.complexity_classifier import ComplexityClassifier
-                from backend.llm_gateway.escalation_config import get_tier_config
-                from backend.llm_gateway.tier_availability import find_best_available_tier
-                allow_cloud = self._has_active_cloud_providers()
-                clf_result = ComplexityClassifier().classify(
-                    query, allow_cloud_escalation=allow_cloud
-                )
-                # Graceful cascade: if the classified tier's model isn't pulled,
-                # fall back to the best available tier rather than failing.
-                effective_tier = find_best_available_tier(
-                    clf_result.tier, allow_cloud=allow_cloud
-                )
-                tier_cfg = get_tier_config(effective_tier)
-                if tier_cfg:
-                    request.meta["escalation_tier"] = effective_tier
-                    request.meta["escalation_reason"] = clf_result.reason
-                    request.meta["escalation_label"] = tier_cfg.label
-                    if tier_cfg.is_cloud:
-                        # Redirect routing to the cloud provider for this tier.
-                        request.provider = tier_cfg.provider_type
-                        request.model = tier_cfg.model
-                    else:
-                        # Local tier — keep Ollama routing, override the model string.
-                        request.meta["ollama_model_override"] = tier_cfg.model
-                    logger.info(
-                        "Escalation → tier=%s model=%s reason=%s cloud_allowed=%s"
-                        "%s",
-                        effective_tier,
-                        tier_cfg.model,
-                        clf_result.reason,
-                        allow_cloud,
-                        f" (cascaded from T{clf_result.tier})"
-                        if effective_tier != clf_result.tier else "",
-                    )
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("Escalation classifier failed open: %s", exc)
+        # Model selection: the request uses the caller-pinned provider/model, or
+        # the user's saved preference (set above from UserAIPreferences), or the
+        # first active cloud provider's default model — gpt-5.5 (OpenAI) or
+        # gemini-3.5-flash (Google) — resolved by _get_eligible_providers +
+        # _resolve_model below. There is no tiered escalation; a single
+        # user-selected cloud model handles every request.
 
         # ── Defense supervisor (N2) ─────────────────────────────────────────
-        # LLM-backed semantic screening on the local model for pipeline
+        # LLM-backed semantic screening on the selected cloud model for pipeline
         # queries. Complements the pattern shields already applied in
-        # governance.prepare_request; fail-open when no local model exists.
+        # governance.prepare_request; fail-open when no model/key is configured.
         supervisor_block = self._screen_with_defense_supervisor(request, query)
         if supervisor_block:
             verdict = request.meta.get("defense_supervisor", {})
@@ -828,85 +760,10 @@ class LLMGateway:
                             max_tokens=request.max_tokens or 1024,
                         )
 
-                    # ------------------------------------------------------------------
-                    # Local Model Acceleration: keep-alive + exact response cache.
-                    # Applies only to local providers (ollama / local_slm / vllm).
-                    # Fail-open: exceptions raised before the model call starts fall
-                    # through to the bare await below; exceptions after the model
-                    # call started (e.g. timeout) propagate to provider failover.
-                    # ------------------------------------------------------------------
-                    _local_provider_types = {"ollama", "local_slm", "vllm"}
-                    _provider_type = str(
-                        getattr(provider_record, "provider_type", "") or ""
-                    ).lower()
-
-                    if _provider_type in _local_provider_types:
-                        try:
-                            from backend.local_model_acceleration import (
-                                get_local_model_acceleration_manager,
-                            )
-                            _accel = get_local_model_acceleration_manager()
-                            _accel.start_keepalive(model, _provider_type)
-
-                            # Capture result_coro in a closure so it is awaited
-                            # exactly once inside generate_with_cache on cache miss.
-                            _captured_coro = result_coro
-
-                            async def _call_model() -> dict:
-                                return await asyncio.wait_for(
-                                    _captured_coro,
-                                    timeout=provider_timeout_seconds,
-                                )
-
-                            result = await _accel.generate_with_cache(
-                                provider_type=_provider_type,
-                                model_name=model,
-                                task_type=(
-                                    request.meta.get("task_type")
-                                    or request.mode
-                                    or "gateway_chat"
-                                ),
-                                prompt=query,
-                                rag_context=_rag_ctx_for_cache,
-                                system=None,
-                                options={
-                                    "temperature": request.temperature,
-                                    "max_tokens": request.max_tokens or 1024,
-                                    "run_ukg_pipeline": request.run_ukg_pipeline,
-                                    "mode": request.mode,
-                                },
-                                metadata=request.meta,
-                                call_model=_call_model,
-                            )
-                            # Hoist acceleration metadata into request.meta so
-                            # _build_response can pass it through to the API response.
-                            _accel_meta = result.pop("_acceleration", None)
-                            if _accel_meta:
-                                request.meta["local_model_acceleration"] = _accel_meta
-                            # On a cache hit the captured pipeline coroutine was
-                            # never started; close it so GC does not emit
-                            # "coroutine was never awaited".
-                            if inspect.getcoroutinestate(result_coro) == inspect.CORO_CREATED:
-                                result_coro.close()
-                        except Exception as _accel_exc:  # noqa: BLE001
-                            # Fail-open only while the pipeline coroutine is still
-                            # unstarted. If generate_with_cache already awaited it,
-                            # re-awaiting would raise RuntimeError and the model
-                            # call may have had side effects — propagate instead.
-                            if inspect.getcoroutinestate(result_coro) != inspect.CORO_CREATED:
-                                raise
-                            logger.warning(
-                                "Local model acceleration failed open — "
-                                "falling back to direct call: %s",
-                                _accel_exc,
-                            )
-                            result = await asyncio.wait_for(
-                                result_coro, timeout=provider_timeout_seconds
-                            )
-                    else:
-                        result = await asyncio.wait_for(
-                            result_coro, timeout=provider_timeout_seconds
-                        )
+                    # Single cloud model per request — no local acceleration cache.
+                    result = await asyncio.wait_for(
+                        result_coro, timeout=provider_timeout_seconds
+                    )
 
                     if result.get("ok", True):
                         cb.record_success()
@@ -974,40 +831,15 @@ class LLMGateway:
                             success=True,
                             metadata={
                                 "timestamp": datetime.now(UTC).isoformat(),
-                                "original_run_id": request.meta.get("local_model_acceleration", {}).get("original_run_id")
                             },
                         )
-                        
+
                         if request.session_id and _store_history:
                             await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
-                        
-                        # If Tier 2+ and it was a cache hit, record a compliance cache hit audit event
-                        _accel_meta = request.meta.get("local_model_acceleration", {})
-                        if _accel_meta.get("cache_hit"):
-                            tier = result.get("tier") or request.meta.get("escalation_tier")
-                            _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
-                            if tier and str(tier).lower().strip() not in _tier_exclusions:
-                                try:
-                                    from backend.truth_engine.truth_memory.manager import TruthMemoryManager
-                                    memory_mgr = TruthMemoryManager(db_session=self.db)
-                                    memory_mgr.audit_logger.log_event(
-                                        session_id=request.session_id or f"session_{uuid.uuid4().hex[:12]}",
-                                        event_type="cache_hit",
-                                        event_data={
-                                            "run_id": run_id,
-                                            "original_run_id": _accel_meta.get("original_run_id"),
-                                            "query": query,
-                                            "model": model,
-                                            "tier": str(tier),
-                                        },
-                                        category="compliance"
-                                    )
-                                except Exception as audit_exc:
-                                    logger.warning("Failed to record cache hit audit event: %s", audit_exc)
-                                              
+
                         return self._build_response(
                             result, run_id, provider_record, model, latency_ms,
-                            escalation_meta=request.meta,
+                            response_meta=request.meta,
                         )
                     
                     # If provider returned !ok but might be retryable (e.g., 503)
@@ -1240,9 +1072,7 @@ class LLMGateway:
                 OpenAIProvider,
                 AzureOpenAIProvider,
                 AnthropicProvider,
-                LocalSLMProvider,
                 GoogleGeminiProvider,
-                OllamaProvider,
             )
         except ImportError:
             logger.warning("UKG SDK providers not available, using fallback")
@@ -1300,18 +1130,6 @@ class LLMGateway:
             return AnthropicProvider(api_key=api_key)
         elif provider_type in ["google", "gemini"]:
              return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or GOOGLE_PRIMARY_MODEL)
-        elif provider_type == "ollama":
-            # OllamaProvider: strips /v1 suffix if stored URL includes it, so the
-            # same base URL works whether the user typed the bare host or the /v1 path.
-            return OllamaProvider(
-                base_url=provider_record.endpoint or "http://localhost:11434"
-            )
-        elif provider_type in ["local_slm", "vllm"]:
-            # LocalSLMProvider: generic OpenAI-compat backend (vLLM, LM Studio, etc.)
-            # that does not expose /api/tags — keep it separate for backward compat.
-            return LocalSLMProvider(
-                base_url=provider_record.endpoint or "http://localhost:11434/v1"
-            )
         else:
             # Default to OpenAI-compatible
             return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
@@ -1508,39 +1326,6 @@ class LLMGateway:
                 )
                 providers = providers_list
 
-        # Phase C local-first fallback: packaged desktop should always attempt
-        # the local Ollama/vLLM adapter after cloud providers have failed.
-        if self._desktop_local_first_enabled():
-            local_types = {"local_slm", "ollama", "vllm"}
-            has_local = any(str(getattr(provider, "provider_type", "")).lower() in local_types for provider in providers)
-            if not has_local:
-                class DesktopLocalProvider:
-                    id = "desktop-local-slm"
-                    name = "desktop-local-slm"
-                    provider_type = "local_slm"
-                    endpoint = os.environ.get("LOCAL_SLM_BASE_URL", "http://localhost:11434/v1")
-                    deployment_name = None
-                    api_version = None
-                    model_id = os.environ.get("LOCAL_SLM_MODEL", default_model_for_provider("ollama"))
-                    priority = 999
-                    timeout_seconds = LLMGateway._positive_int(
-                        os.environ.get("LOCAL_SLM_TIMEOUT_SECONDS"),
-                        5,
-                        minimum=1,
-                        maximum=60,
-                    )
-                    max_retries = 1
-
-                    def get_api_key(self):
-                        return None
-
-                providers.append(DesktopLocalProvider())
-                if task_tier not in {"trivial", "moderate", "t1", "t2", "fast_chat", "structured_workflow"}:
-                    meta["offline_guard"] = "desktop_local_slm_tier_cap"
-                    meta["original_tier"] = task_tier
-                    task_tier = "moderate"
-                logger.info("Desktop local SLM fallback registered for gateway routing")
-        
         if allowed_provider_types:
             providers = [
                 provider
@@ -1556,13 +1341,6 @@ class LLMGateway:
                     filtered_by_model.append(provider)
             providers = filtered_by_model
 
-        # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks
-        if task_tier in ["trivial", "moderate", "t1", "t2"]:
-            # Move local_slm/ollama/vllm to the front of the list
-            locals = [p for p in providers if p.provider_type in ["local_slm", "ollama", "vllm"]]
-            remotes = [p for p in providers if p not in locals]
-            return locals + remotes
-
         return providers
 
     def _build_response(
@@ -1573,7 +1351,7 @@ class LLMGateway:
         model: str,
         latency_ms: int,
         *,
-        escalation_meta: dict | None = None,
+        response_meta: dict | None = None,
     ) -> GatewayResponse:
         usage_data = result.get("usage", {})
         usage_payload = {
@@ -1590,7 +1368,6 @@ class LLMGateway:
         if tier and str(tier).lower().strip() not in _tier_exclusions:
             content = content + "\n\n" + self._audit_footer(result, tier, latency_ms)
 
-        _esc = escalation_meta or {}
         return GatewayResponse(
             content=content,
             run_id=run_id,
@@ -1605,10 +1382,7 @@ class LLMGateway:
             explainability=result.get("explainability"),
             warnings=list(result.get("warnings", [])),
             error=result.get("error"),
-            escalation_tier=_esc.get("escalation_tier"),
-            escalation_reason=_esc.get("escalation_reason"),
-            escalation_label=_esc.get("escalation_label"),
-            meta=dict(_esc),  # carries local_model_acceleration if present
+            meta=dict(response_meta or {}),
         )
 
     @staticmethod
@@ -1645,11 +1419,6 @@ class LLMGateway:
     def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
         public_error = self._public_error_message(error)
-        if request.meta.get("offline_guard") == "desktop_local_slm_tier_cap":
-            public_error = (
-                "Local-first desktop mode could not reach a configured cloud provider or the local SLM "
-                "at localhost:11434. Start Ollama/vLLM locally or configure a provider key."
-            )
         return GatewayResponse(
             content="",
             run_id=run_id,
@@ -1990,9 +1759,8 @@ class LLMGateway:
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
-            # LocalSLMProvider signals errors via response.raw["ok"] == False rather
-            # than raising — cloud SDK providers raise exceptions instead. Check the
-            # sentinel so local model failures propagate correctly.
+            # Some providers signal errors via response.raw["ok"] == False rather
+            # than raising; check the sentinel so those failures propagate correctly.
             raw = response.raw if isinstance(response.raw, dict) else {}
             if raw.get("ok") is False:
                 return {

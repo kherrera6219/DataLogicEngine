@@ -281,13 +281,10 @@ Primary prefix: `/api/v1/gateway`.
       "response": "assistant reply text",
       "run_id": "optional-run-uuid",
       "provider_used": "openai",
-      "model_used": "gpt-5.5",
-      "escalation_tier": 1,
-      "escalation_reason": "medium_length",
-      "escalation_label": "T1·local-primary"
+      "model_used": "gpt-5.5"
     }
     ```
-    `escalation_tier` / `escalation_reason` / `escalation_label` are set when the gateway's `ComplexityClassifier` auto-selected the model tier (i.e., no provider/model was pinned in the request). They are `null` when the caller pinned a specific provider or model.
+    `provider_used` / `model_used` report the user-selected cloud model that served the request (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`).
   - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
     ```json
     {

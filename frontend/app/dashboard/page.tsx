@@ -248,47 +248,36 @@ export default function DashboardPage() {
                     )}
                  </div>
 
-                 {/* LLM Escalation Tier Status */}
+                 {/* Active AI Model */}
                  <Card className="bg-[#1a1a1a] border-[#333] shadow-lg">
                     <CardContent className="p-4">
                        <div className="flex items-center gap-2 mb-3">
                           <Cpu className="h-4 w-4 text-violet-400" />
-                          <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">LLM Escalation Chain</span>
+                          <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">AI Model</span>
                        </div>
                        <div className="space-y-1.5">
                           {[
-                            { tier: 'T0', label: 'ultra-light', model: 'gemma4:latest', cloud: false },
-                            { tier: 'T1', label: 'local-primary', model: 'gemma4:12b', cloud: false },
-                            { tier: 'T2', label: 'reasoning', model: 'qwen3:14b', cloud: false },
-                            { tier: 'T3', label: 'code', model: 'devstral-small-2', cloud: false },
-                            { tier: 'T4', label: 'cloud', model: 'gemini-3.5-flash', cloud: true, providerKey: ['google', 'gemini'] },
-                            { tier: 'T5', label: 'cloud-full', model: 'gpt-5.5', cloud: true, providerKey: ['openai'] },
-                          ].map((t) => {
-                            const unlocked = !t.cloud || cloudProviders.some((p) =>
-                              (t.providerKey ?? []).includes((p.type || '').toLowerCase()) && p.has_api_key
+                            { label: 'OpenAI', model: 'gpt-5.5', providerKey: ['openai'] },
+                            { label: 'Google', model: 'gemini-3.5-flash', providerKey: ['google', 'gemini'] },
+                          ].map((m) => {
+                            const configured = cloudProviders.some((p) =>
+                              m.providerKey.includes((p.type || '').toLowerCase()) && p.has_api_key
                             );
                             return (
-                              <div key={t.tier} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-md bg-black/20 hover:bg-black/30 transition-colors">
+                              <div key={m.model} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-md bg-black/20 hover:bg-black/30 transition-colors">
                                  <div className="flex items-center gap-2">
-                                    <span className={`font-mono font-semibold ${t.cloud ? 'text-violet-400' : 'text-green-400'}`}>{t.tier}</span>
-                                    <span className="text-gray-500 font-mono">{t.model}</span>
+                                    <span className="font-mono font-semibold text-violet-400">{m.label}</span>
+                                    <span className="text-gray-500 font-mono">{m.model}</span>
                                  </div>
-                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-gray-600">{t.label}</span>
-                                    {t.cloud ? (
-                                      unlocked
-                                        ? <Unlock className="h-3 w-3 text-green-400" />
-                                        : <Lock className="h-3 w-3 text-gray-600" />
-                                    ) : (
-                                      <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
-                                    )}
-                                 </div>
+                                 {configured
+                                    ? <Unlock className="h-3 w-3 text-green-400" />
+                                    : <Lock className="h-3 w-3 text-gray-600" />}
                               </div>
                             );
                           })}
                        </div>
                        <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between">
-                          <span className="text-xs text-gray-600">T4/T5 unlock when a cloud key is saved</span>
+                          <span className="text-xs text-gray-600">Save an OpenAI or Google key to enable</span>
                           <Link href="/settings">
                              <Button size="sm" variant="ghost" className="h-6 text-xs text-blue-400 hover:text-white px-2 py-0">
                                 <Settings className="h-3 w-3 mr-1" /> Configure

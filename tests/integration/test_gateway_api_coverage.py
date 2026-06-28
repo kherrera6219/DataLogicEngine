@@ -106,9 +106,6 @@ def test_api_key_auth_header(app_client):
     mock_resp.usage = {}
     mock_resp.coordinate = None
     mock_resp.warnings = []
-    mock_resp.escalation_tier = None
-    mock_resp.escalation_reason = None
-    mock_resp.escalation_label = None
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -159,9 +156,6 @@ def test_gateway_chat_endpoint(app_client):
     mock_resp.coordinate = None
     mock_resp.warnings = []
     mock_resp.ok = True
-    mock_resp.escalation_tier = None
-    mock_resp.escalation_reason = None
-    mock_resp.escalation_label = None
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)

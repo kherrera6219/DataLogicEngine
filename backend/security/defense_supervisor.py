@@ -8,10 +8,11 @@ novel DAN-style override phrasings.
 
 Design constraints:
 
-- Screening runs on the **local** Ollama model only. Security analysis of
-  user input is never sent to cloud providers, and the local Tier 0/1
-  model keeps the latency cost small.
-- **Fail-open**: if Ollama is unreachable, no local tier is available, the
+- Screening runs on the user's selected cloud model (OpenAI ``gpt-5.5`` or
+  Google ``gemini-3.5-flash``) via
+  ``backend.llm_gateway.active_model.generate_with_active_model``. Note that
+  the screened user input is therefore sent to the configured cloud provider.
+- **Fail-open**: if no cloud model is configured, the model call fails, the
   model output is not parseable JSON, or the feature is disabled via
   ``DEFENSE_SUPERVISOR_ENABLED=false``, screening returns an ALLOW verdict
   flagged ``available: False``. The pattern-based shields in
@@ -43,7 +44,7 @@ _VALID_THREAT_TYPES = {
 }
 
 # Default per-call generation timeout. Screening sits in the request path,
-# so a hung Ollama must not stall chat for the full 30 s client default.
+# so a slow model call must not stall chat for the full 30 s client default.
 _SCREEN_TIMEOUT_SECONDS = 8
 
 
@@ -59,7 +60,7 @@ def _allow_verdict(reason: str, *, available: bool) -> dict[str, Any]:
 
 
 class DefenseSupervisor:
-    """LLM security supervisor over the local Ollama model."""
+    """LLM security supervisor over the user's selected cloud model."""
 
     def __init__(self, client: Any | None = None, model: str | None = None) -> None:
         self._client = client
@@ -86,24 +87,37 @@ class DefenseSupervisor:
             "on",
         }
 
-    def _resolve_model(self) -> str | None:
-        """Pick the cheapest available local tier model, or None if none."""
-        if self._model:
-            return self._model
+    def _complete(self, payload: str) -> str | None:
+        """Return the model's raw JSON verdict text, or ``None``.
+
+        Uses an injected client when provided (tests); otherwise the user's
+        selected cloud model. Never raises.
+        """
+        if self._client is not None:
+            try:
+                result = self._client.generate(
+                    model=self._model or "cloud",
+                    prompt=payload,
+                    system=self.load_prompt(),
+                    format_json=True,
+                    timeout_seconds=_SCREEN_TIMEOUT_SECONDS,
+                    options={"temperature": 0},
+                )
+                if not result.get("ok"):
+                    return None
+                return result.get("response", "")
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("Defense supervisor injected client failed open: %s", exc)
+                return None
         try:
-            from backend.llm_gateway.tier_availability import cheapest_available_local_model
+            from backend.llm_gateway.active_model import generate_with_active_model
 
-            return cheapest_available_local_model()
+            return generate_with_active_model(
+                payload, system=self.load_prompt(), temperature=0.0, max_tokens=400
+            )
         except Exception as exc:  # noqa: BLE001
-            logger.debug("Defense supervisor model resolution failed: %s", exc)
-        return None
-
-    def _get_client(self) -> Any:
-        if self._client is None:
-            from backend.local_model_acceleration.ollama_client import OllamaClient
-
-            self._client = OllamaClient()
-        return self._client
+            logger.debug("Defense supervisor screening failed open: %s", exc)
+            return None
 
     # ------------------------------------------------------------------
     # Screening
@@ -134,10 +148,6 @@ class DefenseSupervisor:
         if not self.enabled():
             return _allow_verdict("defense supervisor disabled", available=False)
 
-        model = self._resolve_model()
-        if not model:
-            return _allow_verdict("no local model available", available=False)
-
         try:
             payload = json.dumps(
                 {
@@ -147,20 +157,10 @@ class DefenseSupervisor:
                 },
                 ensure_ascii=False,
             )
-            result = self._get_client().generate(
-                model=model,
-                prompt=payload,
-                system=self.load_prompt(),
-                format_json=True,
-                timeout_seconds=_SCREEN_TIMEOUT_SECONDS,
-                options={"temperature": 0},
-            )
-            if not result.get("ok"):
-                return _allow_verdict(
-                    f"supervisor model unavailable: {result.get('error')}",
-                    available=False,
-                )
-            verdict = self._parse_verdict(result.get("response", ""))
+            raw = self._complete(payload)
+            if not raw:
+                return _allow_verdict("no cloud model available", available=False)
+            verdict = self._parse_verdict(raw)
             if verdict is None:
                 return _allow_verdict("supervisor returned unparseable output", available=False)
             return verdict

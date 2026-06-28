@@ -149,10 +149,9 @@ describe('DesktopStatus', () => {
     expect(screen.getByText('A8 knowledge')).toBeInTheDocument();
   });
 
-  it('shows network and local model details for a running backend', async () => {
+  it('shows network details for a running backend', async () => {
     window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
     window.electronAPI!.getNetworkStatus = vi.fn().mockResolvedValue({ state: 'ONLINE', last_checked: '2026-05-28T00:00:00Z' });
-    window.electronAPI!.getLocalModelStatus = vi.fn().mockResolvedValue({ active_model: 'llama3', ollama_available: true, models_installed: ['llama3'] });
 
     render(<DesktopStatus />);
 
@@ -162,7 +161,6 @@ describe('DesktopStatus', () => {
     });
 
     expect(screen.getByText('ONLINE')).toBeInTheDocument();
-    expect(screen.getByText('llama3')).toBeInTheDocument();
   });
 
   it('can minimize and restore the status panel', async () => {
