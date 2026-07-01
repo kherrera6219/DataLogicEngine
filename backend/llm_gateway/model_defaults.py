@@ -6,7 +6,7 @@ Google ``gemini-3.5-flash``. There is no local/Ollama tier chain.
 
 OPENAI_LATEST_MODEL = "gpt-5.5"
 ANTHROPIC_LATEST_MODEL = "claude-opus-4-7"
-GOOGLE_LATEST_MODEL = "gemini-3.5-flash"
+GOOGLE_LATEST_MODEL = "gemini-3.1-pro-preview"
 
 # Standardized on a single OpenAI model: gpt-5.5 is the only OpenAI model used.
 OPENAI_PRO_MODEL = "gpt-5.5"

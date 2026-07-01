@@ -48,7 +48,7 @@ export interface TraceRun {
       entropy: number;
       bias_risk: number;
   };
-  /** LLM model used for this run (e.g. "gpt-5.5", "gemini-3.5-flash"). */
+  /** LLM model used for this run (e.g. "gpt-5.5", "gemini-3.1-pro-preview"). */
   model_name?: string;
   /** Provider that served this run (e.g. "openai", "google"). */
   provider_used?: string;
