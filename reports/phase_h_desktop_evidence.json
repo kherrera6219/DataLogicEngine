@@ -10,7 +10,6 @@
     },
     "electron_builder": {
       "../dist/DataLogic_Backend": true,
-      "../databases/jre": true,
       "../policies": true
     }
   },

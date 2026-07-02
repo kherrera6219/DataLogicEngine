@@ -32,7 +32,7 @@ interface SaveKeyResponse {
 // The app uses one user-selected cloud model: OpenAI gpt-5.5 or Google gemini-3.5-flash.
 const MODEL_LIBRARY: Record<string, string[]> = {
   openai: ['gpt-5.5'],
-  google: ['gemini-3.5-flash'],
+  google: ['gemini-3.1-pro-preview'],
 };
 
 function formatError(error: unknown): string {

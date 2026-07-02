@@ -258,7 +258,7 @@ export default function DashboardPage() {
                        <div className="space-y-1.5">
                           {[
                             { label: 'OpenAI', model: 'gpt-5.5', providerKey: ['openai'] },
-                            { label: 'Google', model: 'gemini-3.5-flash', providerKey: ['google', 'gemini'] },
+                            { label: 'Google', model: 'gemini-3.1-pro-preview', providerKey: ['google', 'gemini'] },
                           ].map((m) => {
                             const configured = cloudProviders.some((p) =>
                               m.providerKey.includes((p.type || '').toLowerCase()) && p.has_api_key

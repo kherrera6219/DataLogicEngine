@@ -20,9 +20,9 @@ Designed for enterprise, government, compliance, cybersecurity, acquisition, and
 
 Current Status: Active Development — Not Production Ready (Local-First Edition)
 
-**Status snapshot (2026-06-27):** The LLM layer was simplified to a **single user-selected cloud model** — OpenAI `gpt-5.5` or Google `gemini-3.5-flash`. The former 6-tier local-Ollama escalation engine (local model tiers, complexity classifier, acceleration cache) was removed; reasoning now requires a cloud API key + internet (data still stays local). Earlier, the v2.0 single-mode consolidation audit was completed — multi-user auth (RBAC / MFA / SSO / OIDC / tenancy) was removed in favor of single-owner OS-level desktop auth, dead modules and one-off scripts were retired, all known dependency vulnerabilities were cleared (`pip-audit` + `npm audit` clean), and the documentation set was reconciled to the current architecture. The Windows desktop installer builds cleanly end-to-end (PyInstaller backend → Next.js static export → Electron / NSIS). Still required before a formal release: trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA across deployment modes (see **Current Focus** below and [`TODO.md`](TODO.md)).
+**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application — an Electron + Next.js front end over a Flask + SQLAlchemy backend, with every data store (SQL, graph, vector, object, and memory) local to the machine. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.5-flash` (bring your own key) — so an API key and internet connection are required for inference while all data stays local. The Windows desktop installer is produced end-to-end from source (PyInstaller backend → Next.js static export → Electron / NSIS). Release gates still open before a formal release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
 
-Major Subsystems Implemented (at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
+Major Subsystems (implemented at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
 
 - Universal Knowledge Graph (UKG)
 - 17-Axis Knowledge Framework
@@ -115,28 +115,10 @@ Roadmap
 
 **Platform Evolution:**
 
-- Cloud AI model selection (OpenAI gpt-5.5 or Google gemini-3.5-flash)
 - Expanded GraphRAG retrieval capabilities
 - Enterprise deployment automation
 - Additional knowledge ingestion connectors
 - Advanced knowledge graph learning and adaptation
-
-**Recently Completed:**
-
-- ✅ Local-first database lifecycle management
-- ✅ GraphRAG integration
-- ✅ Trace Viewer implementation
-- ✅ PDF and DOCX ingestion support
-- ✅ Async ingestion workflows
-- ✅ SQL to Neo4j synchronization
-- ✅ Advanced MCP integration framework
-- ✅ Real-time trace streaming
-- ✅ Automated documentation validation
-- ✅ Portable workstation deployment stack
-- ✅ Enterprise audit traceability framework
-- ✅ Knowledge Algorithm expansion and validation
-- ✅ Truth Engine release readiness improvements
-- ✅ Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.5-flash (BYOK)
 
 See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
 
@@ -386,7 +368,7 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `DATABASE_URL` | Yes | SQLAlchemy database URL. PostgreSQL is recommended for production. |
 | `CORS_ORIGINS` | Yes | Comma-separated allowed browser origins. Do not use `*` in production. |
 
-> **Single-owner note:** DataLogicEngine uses the OS user as the sole owner (desktop auto-login). There is no admin account to provision, so the former `ADMIN_USERNAME` / `ADMIN_PASSWORD` / `ADMIN_EMAIL` setup variables are no longer part of the model (any values set are only checked by the insecure-default security guard).
+> **Single-owner note:** DataLogicEngine uses the OS user as the sole owner (desktop auto-login). There is no admin account to provision and no admin-account setup variables; authorization is a single-owner ownership check.
 
 ### Provider and Integration Variables
 
@@ -550,8 +532,8 @@ DataLogicEngine includes security controls intended for enterprise deployments, 
 
 | Area | Built-in Support |
 | --- | --- |
-| Authentication | Single-owner desktop auto-login (OS identity), Flask-Login session auth, and API-key auth for programmatic access. Multi-user login, MFA, and SSO/OIDC were removed in the single-mode consolidation. |
-| Authorization | Single-owner ownership checks (`current_user_is_owner()`) with owner-gated admin routes. Multi-user RBAC and tenant isolation were removed; `tenant_id` columns remain as vestigial. |
+| Authentication | Single-owner desktop auto-login (OS identity), Flask-Login session auth, and API-key auth for programmatic access. Single-user by design — no multi-user login, MFA, or SSO/OIDC. |
+| Authorization | Single-owner ownership checks (`current_user_is_owner()`) with owner-gated admin routes. |
 | Request security | CSRF, request size limits, CORS enforcement, rate limiting, SSRF allowlisting utilities. |
 | Data protection | Secret resolution controls, encryption manager, PII redaction utilities, audit logging. |
 | AI governance | Prompt-injection checks, provider usage tracking, trace IDs, policy/gateway hooks. |

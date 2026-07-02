@@ -1,6 +1,24 @@
+## Session Update: July 2, 2026 (Part 2 - LlamaIndex Cache Fix)
+
+### Completed Work
+- **Fixed `[WinError 5] Access is denied` on Knowledge Base Page**: Discovered that LlamaIndex and HuggingFace models were attempting to write their caches directly into the read-only `C:\Program Files` directory where the backend was bundled (`_internal`). 
+- **Electron Cache Variable Injection**: Updated `main.ts` in Electron to inject `LLAMA_INDEX_CACHE_DIR`, `HF_HOME`, and `TRANSFORMERS_CACHE` environment variables into the backend. These now explicitly point to `%APPDATA%\DataLogicEngine Desktop\runtime\cache`, preventing permission errors and restoring functionality to the `/api/v1/gateway/chat` and RAG Knowledge Base endpoints.
+- **Installer Rebuilt**: Successfully packaged these cache directory fixes into `DataLogicEngine Setup Latest.exe`.
+
+## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
+
+### Completed Work
+- **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
+- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro`.
+- **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
+- **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
+- **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
+- **Immediate Testing Fix**: Copied the existing `.env` file into the local runtime directory for immediate testing.
+- **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
+
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-26 (**v2.0 audit complete + desktop rebuild validated** — single-mode consolidation done, docs reconciled, dual README merged to one canonical root README, dependencies clean, installer rebuilt end-to-end; backend 1769/19, frontend 378. See the "v2.0 audit + documentation + rebuild update: 2026-06-26" entry below. Prior, 2026-06-19: **Auth deprecation Phase D + E-1/E-2a/E-2b landed** — tenant_rls removed, MFA columns dropped, admin user-mgmt UI/routes removed, ~50 `is_admin` gates collapsed to single-owner; E-2c (drop role/is_admin columns) is the remaining Phase-F-scale piece. Also a CRITICAL fix this session: restored 47 ORM classes truncated from `models.py` by `6c7cf68b` (`8362882b`). See item 35 + `DataLogicEngine_Auth_Deprecation_Plan.md`. **A16 Priority 2 also in progress** — frontend component coverage remains **80.06%+** and the newest accessibility pass now covers `ProjectDetail`, `ApiOverlayConfig`, `McpServerConfig`, plus a follow-up label fix for the `ChatInterface` session search control. Recent work already covered API + telemetry tests, app error/loading surfaces, DatabaseSettings, and Tier 1/Tier 2 a11y follow-through on `ChatInterface`, `DetailedResponseView`, `MessageBubble`, `CommandBar`, `AiModelSettings`, `KnowledgeIngestionSettings`, and `McpClientConfig`. **NEXT:** continue the remaining A16 accessibility sweep, prioritizing the last settings/admin/project surfaces that still lack explicit ARIA/keynav review and then recalculate the remaining gap.)
+**Last updated:** 2026-07-01 (**LLM API & Database Initialization Fix, App Packaging** — resolved database tables initialization blockers by running `init_db.py` and applying all Alembic migrations forward via `flask db upgrade`, updated `.env` with working OpenAI (`gpt-5.5` reasoning model) and Gemini (`gemini-3.1-pro-preview`) keys from `key.txt`, fixed unit test regression in the memory service suite, rebuilt backend PyInstaller executable, and packaged Next.js and Electron using `npm run electron:dist` into `DataLogicEngine Setup Latest.exe` at the repository root; all 429 unit and 20 integration tests passed 100% green. Prior, 2026-06-26: **v2.0 audit complete + desktop rebuild validated** — single-mode consolidation done, docs reconciled, dual README merged to one canonical root README, dependencies clean, installer rebuilt end-to-end.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.

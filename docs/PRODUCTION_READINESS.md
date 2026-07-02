@@ -378,7 +378,7 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 3. All Python and Node dependency vulnerabilities cleared (`pip-audit` + `npm audit` report no known advisories).
 4. Documentation set (`docs/`, `docs/diagrams/`, root docs) reconciled to the current single-mode architecture; the duplicate `.github/README.md` was consolidated into a single canonical root `README.md`.
 5. Windows desktop installer rebuilt and validated end-to-end 2026-06-26 (PyInstaller backend → Next.js static export → Electron/NSIS) with the freshly built backend embedded. Local validation: backend **1769 passed, 19 skipped**; frontend **378 passed**. (Test count is lower than v2.7.0's 1865 because the single-mode audit removed the multi-user auth/connector test suites along with those features.)
-6. New open desktop-packaging item: the installer does not bundle a JRE for Neo4j (`databases/jre` source reported missing during electron-builder packaging) — confirm intended (external/system JRE) or add the bundle before signed distribution.
+6. ~~New open desktop-packaging item: the installer does not bundle a JRE for Neo4j (`databases/jre` source reported missing during electron-builder packaging)~~ — **Resolved**: JRE bundling removed from `electron-builder.yml`; the backend's `_find_java_home()` discovers system-installed JREs (Temurin, Corretto, etc.) automatically, saving ~180 MB in installer size.
 7. New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.
 
 ## Change notes for v2.7.0

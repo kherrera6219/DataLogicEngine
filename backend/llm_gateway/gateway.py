@@ -1177,9 +1177,9 @@ class LLMGateway:
             logger.warning(f"Failed to query providers from DB: {e}")
             providers = []
         
-        # If no providers found or DB failed, check for environment-based providers
-        if not providers:
-            logger.info("No DB providers found, checking environment variables")
+        # Check for environment-based providers to fill missing types
+        if True:
+            # Create synthetic provider entries based on available API keys
             # Create synthetic provider entries based on available API keys
 
             # Helper class for synthetic providers
@@ -1319,12 +1319,18 @@ class LLMGateway:
                 # Sort by priority
                 providers_list.sort(key=lambda x: x.priority)
                 logger.info(
-                    "Using %s environment-based providers for tier '%s': %s",
+                    "Generated %s environment-based providers for tier '%s': %s",
                     len(providers_list),
                     task_tier,
                     [p.name for p in providers_list],
                 )
-                providers = providers_list
+                db_types = {str(getattr(p, "provider_type", "")).strip().lower() for p in providers}
+                added_types = set()
+                for p in providers_list:
+                    if p.provider_type not in db_types and p.provider_type not in added_types:
+                        providers.append(p)
+                        added_types.add(p.provider_type)
+                providers.sort(key=lambda x: getattr(x, "priority", 10))
 
         if allowed_provider_types:
             providers = [
