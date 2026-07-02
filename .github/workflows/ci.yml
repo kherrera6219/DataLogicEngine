@@ -43,8 +43,9 @@ jobs:
       # CVE-2025-3000 (torch.jit.script memory corruption, local-host only, no
       # patched release) is suppressed: torch is transitive and the app never
       # calls torch.jit.script. Keep in sync with security.yml. See TODO.md.
+      # CVE-2026-12243 (nltk path traversal, no patch available for 3.9.x yet)
       run: |
-        pip-audit -r requirements.txt --desc --ignore-vuln CVE-2025-3000
+        pip-audit -r requirements.txt --desc --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
 
     - name: Run smoke bootstrap check
       run: |

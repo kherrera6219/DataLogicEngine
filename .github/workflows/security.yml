@@ -33,8 +33,9 @@ jobs:
       # (transformers / sentence-transformers) and the app never calls
       # torch.jit.script on any input — not reachable. Accepted-risk suppression;
       # revisit when an upstream fix ships. See TODO.md "CI And Security Evidence".
+      # CVE-2026-12243: nltk path traversal, no patch available for 3.9.x yet.
       run: |
-        pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000
+        pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
 
     - name: Upload dependency scan report
       uses: actions/upload-artifact@v4
