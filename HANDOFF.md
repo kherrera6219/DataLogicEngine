@@ -1,5 +1,17 @@
+## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
+
+### Completed Work
+- **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
+- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro`.
+- **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
+- **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
+- **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
+- **Immediate Testing Fix**: Copied the existing `.env` file into the local runtime directory for immediate testing.
+- **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
+
 # DataLogicEngine — Session Handoff
-## ▶ START HERE (next session) — updated 2026-07-01
+
+## ▶ START HERE (next session) — updated 2026-07-01
 **LLM API, DB Initialization, and Packaging: ✅ COMPLETE (2026-07-01).** 
 - **Database Initialization Fix:** Bootstrapped the local SQLite database schema using `backend/init_db.py` with compliant passwords (enforcing the hardened validation rule), and then successfully played all migrations forward via `flask db upgrade` (d1e2f3a4b5c6 through d6e7f8a9b0c1). This resolved the local desktop auto-login handshake (`/auth/desktop/auto-login` 500 error on missing `users` table) and unblocked the `/chat` 401 Unauthorized API blocker.
 - **API Key Consolidation:** Extracted the correct Google and OpenAI API keys from `API KEY/key.txt` (git-ignored) and updated `.env`.

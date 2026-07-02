@@ -60,7 +60,6 @@ def main() -> int:
                 electron_builder,
                 [
                     "../dist/DataLogic_Backend",
-                    "../databases/jre",
                     "../policies",
                 ],
             ),

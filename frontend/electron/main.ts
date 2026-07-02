@@ -646,6 +646,34 @@ function startBackend() {
   secureDirectoryBestEffort(runtimeDir);
   secureDirectoryBestEffort(path.join(runtimeDir, 'logs'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'instance'));
+
+  // In production, create a template .env in the runtime directory if none exists.
+  // This gives the user a clear, documented location to add API keys.
+  if (!isDev) {
+    const runtimeEnv = path.join(runtimeDir, '.env');
+    if (!fs.existsSync(runtimeEnv)) {
+      const template = [
+        '# DataLogicEngine Desktop — API Keys',
+        '# Place your API keys below. The app will read this file on startup.',
+        '#',
+        '# OpenAI (GPT-5.5):',
+        'OPENAI_API_KEY=',
+        '#',
+        '# Google Gemini (gemini-3.1-pro):',
+        'GOOGLE_API_KEY=',
+        '#',
+        '# Anthropic (optional):',
+        '# ANTHROPIC_API_KEY=',
+        '',
+      ].join('\n');
+      try {
+        fs.writeFileSync(runtimeEnv, template, 'utf8');
+        appendDesktopLog('INFO', `Created template .env at: ${runtimeEnv}`);
+      } catch (err) {
+        appendDesktopLog('WARN', `Failed to create template .env: ${String(err)}`);
+      }
+    }
+  }
   
   let pythonPath = 'python'; // Default to system python
   let scriptPath = path.join(rootDir, 'main.py');
@@ -663,18 +691,28 @@ function startBackend() {
   const encryptionKekSecret = fs.readFileSync(encryptionKekSecretFile, 'utf8').trim();
   // Read API keys from .env so they reach the backend even when Electron's
   // process.env doesn't carry them (avoids "No active providers found").
-  const dotenvPath = path.join(rootDir, '.env');
+  // In production, rootDir points to the packaged resources/ dir (no .env),
+  // so we also check runtimeDir (%APPDATA%/DataLogicEngine Desktop/runtime/).
   const dotenvKeys: Record<string, string> = {};
-  if (fs.existsSync(dotenvPath)) {
-    const lines = fs.readFileSync(dotenvPath, 'utf8').split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const eqIdx = trimmed.indexOf('=');
-      if (eqIdx === -1) continue;
-      const k = trimmed.slice(0, eqIdx).trim();
-      const v = trimmed.slice(eqIdx + 1).trim();
-      if (k) dotenvKeys[k] = v;
+  const dotenvCandidates = [
+    path.join(runtimeDir, '.env'),   // User-writable location (preferred in production)
+    path.join(rootDir, '.env'),      // Dev location / repo root
+  ];
+  for (const dotenvPath of dotenvCandidates) {
+    if (fs.existsSync(dotenvPath)) {
+      appendDesktopLog('INFO', `Loading .env from: ${dotenvPath}`);
+      const lines = fs.readFileSync(dotenvPath, 'utf8').split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx === -1) continue;
+        const k = trimmed.slice(0, eqIdx).trim();
+        const v = trimmed.slice(eqIdx + 1).trim();
+        // Only set if not already set by a higher-priority source
+        if (k && !(k in dotenvKeys)) dotenvKeys[k] = v;
+      }
+      break;  // Use the first .env found
     }
   }
 

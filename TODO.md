@@ -1,3 +1,14 @@
+## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
+
+### Completed Work
+- **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
+- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro`.
+- **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
+- **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
+- **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
+- **Immediate Testing Fix**: Copied the existing `.env` file into the local runtime directory for immediate testing.
+- **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
+
 # DataLogicEngine TODO
 
 **Last updated:** 2026-07-01 (**LLM API & Database Initialization Fix, App Packaging** — resolved database tables initialization blockers by running `init_db.py` and applying all Alembic migrations forward via `flask db upgrade`, updated `.env` with working OpenAI (`gpt-5.5` reasoning model) and Gemini (`gemini-3.1-pro-preview`) keys from `key.txt`, fixed unit test regression in the memory service suite, rebuilt backend PyInstaller executable, and packaged Next.js and Electron using `npm run electron:dist` into `DataLogicEngine Setup Latest.exe` at the repository root; all 429 unit and 20 integration tests passed 100% green. Prior, 2026-06-26: **v2.0 audit complete + desktop rebuild validated** — single-mode consolidation done, docs reconciled, dual README merged to one canonical root README, dependencies clean, installer rebuilt end-to-end.)
