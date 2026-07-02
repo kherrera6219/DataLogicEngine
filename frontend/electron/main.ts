@@ -735,6 +735,7 @@ function startBackend() {
     LLAMA_INDEX_CACHE_DIR: path.join(runtimeDir, 'cache', 'llama_index'),
     HF_HOME: path.join(runtimeDir, 'cache', 'huggingface'),
     TRANSFORMERS_CACHE: path.join(runtimeDir, 'cache', 'huggingface'),
+    NLTK_DATA: path.join(runtimeDir, 'cache', 'nltk_data'),
   };
 
   appendDesktopLog('INFO', `Backend working directory: ${runtimeDir}`);
@@ -743,6 +744,7 @@ function startBackend() {
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'llama_index'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'huggingface'));
+  secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'nltk_data'));
 
   backendProcess = spawn(pythonPath, args, { env, cwd: runtimeDir });
 
