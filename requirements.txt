@@ -64,6 +64,7 @@ transformers>=5.0.0
 langchain==1.3.9
 langgraph==1.2.4
 langsmith>=0.8.18  # transitive via langchain-core (allows >=0.3.45); floor raised to patch GHSA-f4xh-w4cj-qxq8
+nltk>=3.9.5  # transitive via llama-index; pinned to patch CVE-2026-12243 path traversal
 
 # Runtime helpers
 python-dotenv==1.2.2
