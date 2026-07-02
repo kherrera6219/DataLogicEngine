@@ -1,3 +1,10 @@
+## Session Update: July 2, 2026 (Part 2 - LlamaIndex Cache Fix)
+
+### Completed Work
+- **Fixed `[WinError 5] Access is denied` on Knowledge Base Page**: Discovered that LlamaIndex and HuggingFace models were attempting to write their caches directly into the read-only `C:\Program Files` directory where the backend was bundled (`_internal`). 
+- **Electron Cache Variable Injection**: Updated `main.ts` in Electron to inject `LLAMA_INDEX_CACHE_DIR`, `HF_HOME`, and `TRANSFORMERS_CACHE` environment variables into the backend. These now explicitly point to `%APPDATA%\DataLogicEngine Desktop\runtime\cache`, preventing permission errors and restoring functionality to the `/api/v1/gateway/chat` and RAG Knowledge Base endpoints.
+- **Installer Rebuilt**: Successfully packaged these cache directory fixes into `DataLogicEngine Setup Latest.exe`.
+
 ## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
 
 ### Completed Work
