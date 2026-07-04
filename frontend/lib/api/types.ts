@@ -77,6 +77,41 @@ export interface KAExecution {
   error_message?: string;
 }
 
+export interface KAExecutionFeedItem {
+  id: number;
+  uid: string | null;
+  ka_id: string | null;
+  status: string | null;
+  execution_time_ms: number | null;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface KAExecutionFeed {
+  items: KAExecutionFeedItem[];
+  limit: number;
+  updated_at: string;
+}
+
+export interface ToolExecutionHistoryItem {
+  id: string;
+  ka_id: string;
+  ka_name: string;
+  risk_tier: 'read_only' | 'write' | 'destructive' | string;
+  status: 'success' | 'failure' | 'blocked' | string;
+  triggered_by: string;
+  run_id: string | null;
+  duration_ms: number | null;
+  created_at: string | null;
+  error: string | null;
+}
+
+export interface ToolExecutionHistoryResponse {
+  success?: boolean;
+  executions?: ToolExecutionHistoryItem[];
+  error?: string;
+}
+
 export interface TraceDetail extends TraceRun {
   stages?: KAExecution[];
   evidence?: Record<string, unknown>[];

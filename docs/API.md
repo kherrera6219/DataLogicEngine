@@ -474,7 +474,7 @@ Legacy alias: `/api/ka` with deprecation headers.
 - **GET** `/history`
   - Return recent persisted KA executions for the tool execution history page.
   - Query parameters: `limit` (minimum `1`, maximum `200`).
-  - Response records normalize KA ids/names, risk tier (`read_only`, `write`, `destructive`), UI status (`success`, `failure`, `blocked`), duration, error text, and trace-run links when a `run_id` or `trace_run_id` is present in the persisted execution payload.
+  - Response records normalize KA ids/names, risk tier (`read_only`, `write`, `destructive`), UI status (`success`, `failure`, `blocked`), nullable duration/timestamp fields, error text, and trace-run links only when a `run_id` or `trace_run_id` is present in the persisted execution payload.
 
 ### Execute algorithm
 
@@ -575,6 +575,7 @@ Primary prefix: `/api/v1/trace`.
 - **GET** `/ka-execution-feed`
   - Return recent persisted KA execution rows for the Live Trace panel and desktop IPC.
   - Query parameters: `limit` (minimum `1`, maximum `100`).
+  - Response shape: `{ "items": [{ "id", "uid", "ka_id", "status", "execution_time_ms", "started_at", "completed_at" }], "limit", "updated_at" }`. The frontend treats this feed as independent of trace-run list state, so KA activity can render even before a trace run exists.
 
 ### Get trace subresources
 

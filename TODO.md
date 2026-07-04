@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-6** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, live KA route data-contract/workflow defects fixed, and KA execution persistence/history contracts aligned to the current `KAExecution` schema. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, focused KA history/DB-manager pytest 25 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-7** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, live KA route data-contract/workflow defects fixed, and KA execution persistence/history contracts aligned to the current `KAExecution` schema, and KA execution frontend/desktop IPC consumers aligned to those contracts. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, focused KA history/DB-manager pytest 25 passed, focused frontend KA history/live trace Vitest 6 passed, frontend typecheck passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -180,7 +180,29 @@ Validation:
 1. `python -m ruff check backend\routes\ka_routes.py backend\tracing\api.py backend\ukg_db.py tests\integration_routes\test_ka_route_auth_boundaries.py tests\unit\test_ukg_db_coverage.py` — passed.
 2. `python -m pytest -q --no-cov tests\integration_routes\test_ka_route_auth_boundaries.py tests\unit\test_ukg_db_coverage.py` — 25 passed; pytest exited successfully with the existing SQLAlchemy `Query.get()` warning and a teardown-only Neo4j logging warning.
 
-Next code audit slice: audit the KA execution frontend surfaces and desktop IPC consumers (`frontend/app/tools/history`, `LiveTracePanel`, `frontend/types/electron.d.ts`, and Electron `ka-execution-feed`) against the backend contracts.
+## Code audit slice 7 — KA execution frontend/desktop IPC consumers — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited `frontend/app/tools/history/page.tsx`, `frontend/components/Chat/LiveTracePanel.tsx`, `frontend/types/electron.d.ts`, `frontend/lib/api/types.ts`, and the Electron `ka-execution-feed` IPC contract against the backend `/api/v1/ka/history` and `/api/v1/trace/ka-execution-feed` serializers.
+2. Verified Electron `main.ts` already signs the feed request through `desktopFetch()` and `preload.ts` only exposes the allowlisted zero-argument `ka-execution-feed` invoke channel.
+3. Added focused frontend regressions for nullable persisted history rows, trace-run links, and KA feed rendering when no trace run exists.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `LiveTracePanel` returned before loading `/trace/live-progress` and `/trace/ka-execution-feed` when no trace runs existed, and rendered the KA feed only inside the current-run branch. | Started run/progress/feed requests independently, kept stage loading dependent on a selected run, and rendered the KA execution feed outside the current-run branch so persisted KA activity remains visible without trace runs. | Done |
+| KA execution feed types were duplicated between `LiveTracePanel` and `frontend/types/electron.d.ts`, making the frontend contract easy to drift from backend/Electron IPC. | Added shared `KAExecutionFeed`/item types in `frontend/lib/api/types.ts` and reused them from both the component and Electron global API declaration. | Done |
+| Tool execution history assumed non-null timestamps, durations, status/name fields, and run ids from persisted rows. | Added shared history response types, nullable field handling, safe timestamp/duration formatting, KA-name fallback, triggered-by fallback, and trace links only when `run_id` is truthy. | Done |
+| Frontend tests did not cover the KA history page or the no-trace-run live KA feed state. | Added `frontend/app/tools/history/page.test.tsx` and expanded `LiveTracePanel.test.tsx` for these contracts. | Done |
+
+Validation:
+
+1. `npm --prefix frontend test -- components/Chat/LiveTracePanel.test.tsx app/tools/history/page.test.tsx` — 6 passed.
+2. `npm --prefix frontend run typecheck` — passed.
+
+Next code audit slice: audit trace run viewer/list/export frontend surfaces and trace API contracts (`frontend/app/runs`, `frontend/lib/api/trace.ts`, `backend/tracing/api.py`, and trace bundle/export consumers).
 
 ## Unified Backlog
 

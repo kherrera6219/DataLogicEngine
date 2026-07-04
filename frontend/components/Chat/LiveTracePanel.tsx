@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { request } from '@/lib/api';
+import type { KAExecutionFeed, KAExecutionFeedItem } from '@/lib/api/types';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -58,17 +59,6 @@ interface ReasoningLayerProgress {
   frost_snapshot_count: number;
 }
 
-interface KAExecutionFeed {
-  items: Array<{
-    id: number;
-    uid: string;
-    ka_id: string;
-    status: string;
-    execution_time_ms: number | null;
-    started_at: string | null;
-  }>;
-}
-
 function formatStatus(value?: string): string {
   if (!value) return 'unknown';
   return value.replace(/_/g, ' ');
@@ -89,6 +79,15 @@ function scoreToPercent(value?: number): string {
   return `${normalized.toFixed(1)}%`;
 }
 
+function formatExecutionDuration(value?: number | null): string {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '';
+  return ` (${Math.max(0, Math.round(value))}ms)`;
+}
+
+function kaFeedItemKey(item: KAExecutionFeedItem): string {
+  return item.uid || `${item.id}-${item.ka_id || 'unknown'}-${item.started_at || 'unstarted'}`;
+}
+
 export function LiveTracePanel() {
   const [runs, setRuns] = useState<TraceRunRecord[]>([]);
   const [stages, setStages] = useState<TraceStageRecord[]>([]);
@@ -104,33 +103,41 @@ export function LiveTracePanel() {
       // Treat transient backend errors (startup race, 500, IPC timeout) as an
       // empty state rather than surfacing the error banner.  The 15-second poll
       // will recover automatically once the backend is ready.
-      const recentRuns = await api.trace.list(12)
-        .catch(() => [] as unknown[]) as TraceRunRecord[];
-      setRuns(recentRuns || []);
-
-      const selectedRun = (recentRuns || []).find((run) => run.status === 'running') || recentRuns?.[0];
-      if (!selectedRun) {
-        setStages([]);
-        return;
-      }
-
-      const stagePayload = await api.trace
-        .getStages(selectedRun.run_id)
-        .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] };
-      setStages(stagePayload.stages || []);
+      const runsPromise = api.trace.list(12)
+        .catch(() => [] as unknown[]) as Promise<TraceRunRecord[]>;
 
       // IPC calls use invokeWithTimeout which throws on a 5-second timeout.
       // Catch those individually so a slow backend start doesn't abort the
       // whole loadTraceData and blank the panel.
-      const progressPayload = window.electronAPI?.getReasoningLayerProgress
-        ? await window.electronAPI.getReasoningLayerProgress().catch(() => null)
-        : await request<ReasoningLayerProgress>('/trace/live-progress').catch(() => null);
-      setReasoningProgress(progressPayload as ReasoningLayerProgress | null);
+      const progressPromise = window.electronAPI?.getReasoningLayerProgress
+        ? window.electronAPI.getReasoningLayerProgress().catch(() => null)
+        : request<ReasoningLayerProgress>('/trace/live-progress').catch(() => null);
 
-      const feedPayload = window.electronAPI?.getKAExecutionFeed
-        ? await window.electronAPI.getKAExecutionFeed().catch(() => null)
-        : await request<KAExecutionFeed>('/trace/ka-execution-feed?limit=20').catch(() => null);
-      setKaFeed(feedPayload as KAExecutionFeed | null);
+      const feedPromise = window.electronAPI?.getKAExecutionFeed
+        ? window.electronAPI.getKAExecutionFeed().catch(() => null)
+        : request<KAExecutionFeed>('/trace/ka-execution-feed?limit=20').catch(() => null);
+
+      const [recentRuns, progressPayload, feedPayload] = await Promise.all([
+        runsPromise,
+        progressPromise,
+        feedPromise,
+      ]) as [
+        TraceRunRecord[],
+        ReasoningLayerProgress | null,
+        KAExecutionFeed | null,
+      ];
+      setRuns(recentRuns || []);
+
+      const selectedRun = (recentRuns || []).find((run) => run.status === 'running') || recentRuns?.[0];
+      const stagePayload: { stages?: TraceStageRecord[] } = selectedRun
+        ? await api.trace
+          .getStages(selectedRun.run_id)
+          .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] }
+        : { stages: [] as TraceStageRecord[] };
+
+      setStages(stagePayload.stages || []);
+      setReasoningProgress(progressPayload);
+      setKaFeed(feedPayload);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load trace telemetry');
       setRuns([]);
@@ -365,22 +372,6 @@ export function LiveTracePanel() {
               </div>
             )}
 
-            {kaFeed?.items?.length ? (
-              <div className="space-y-2">
-                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">KA Execution Feed</div>
-                <div className="space-y-1">
-                  {kaFeed.items.slice(0, 6).map((item) => (
-                    <div key={item.uid} className="flex items-center justify-between text-xs p-1.5 rounded bg-white/60 dark:bg-white/5">
-                      <span className="font-mono">{item.ka_id}</span>
-                      <span className={statusClass(item.status)}>
-                        {formatStatus(item.status)} {typeof item.execution_time_ms === 'number' ? `(${item.execution_time_ms}ms)` : ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider mb-3">Run Scores</div>
               <div className="grid grid-cols-1 gap-2">
@@ -400,6 +391,23 @@ export function LiveTracePanel() {
             </div>
           </>
         )}
+
+        {!loading && !error && kaFeed?.items?.length ? (
+          <div className="space-y-2">
+            <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">KA Execution Feed</div>
+            <div className="space-y-1">
+              {kaFeed.items.slice(0, 6).map((item) => (
+                <div key={kaFeedItemKey(item)} className="flex items-center justify-between gap-3 text-xs p-1.5 rounded bg-white/60 dark:bg-white/5">
+                  <span className="font-mono truncate">{item.ka_id || 'unknown KA'}</span>
+                  <span className={statusClass(item.status || undefined)}>
+                    {formatStatus(item.status || undefined)}{formatExecutionDuration(item.execution_time_ms)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
       </div>
     </div>
   );

@@ -8,19 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageLayout } from '@/components/ui/page-layout';
 import { request } from '@/lib/api';
-
-interface ToolExecution {
-  id: string;
-  ka_id: string;
-  ka_name: string;
-  risk_tier: 'read_only' | 'write' | 'destructive';
-  status: 'success' | 'failure' | 'blocked';
-  triggered_by: string;
-  run_id?: string;
-  duration_ms?: number;
-  created_at: string;
-  error?: string;
-}
+import type { ToolExecutionHistoryItem, ToolExecutionHistoryResponse } from '@/lib/api/types';
 
 const TIER_BADGE: Record<string, { label: string; class: string }> = {
   read_only: { label: 'Read-only', class: 'border-blue-500/40 text-blue-400' },
@@ -34,8 +22,19 @@ const STATUS_ICON: Record<string, React.ReactNode> = {
   blocked: <AlertTriangle className="h-4 w-4 text-yellow-500" />,
 };
 
+function formatTimestamp(value?: string | null): string {
+  if (!value) return 'Unknown time';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Unknown time' : date.toLocaleString();
+}
+
+function formatDuration(value?: number | null): string | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  return `${Math.max(0, Math.round(value))}ms`;
+}
+
 export default function ToolExecutionHistoryPage() {
-  const [executions, setExecutions] = useState<ToolExecution[]>([]);
+  const [executions, setExecutions] = useState<ToolExecutionHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +42,7 @@ export default function ToolExecutionHistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await request<{ executions: ToolExecution[] }>('/ka/history');
+      const data = await request<ToolExecutionHistoryResponse>('/ka/history');
       setExecutions(data.executions ?? []);
     } catch {
       setError('Failed to load tool execution history.');
@@ -96,16 +95,19 @@ export default function ToolExecutionHistoryPage() {
       <div className="space-y-3">
         {executions.map((exec) => {
           const tierBadge = TIER_BADGE[exec.risk_tier] ?? TIER_BADGE.read_only;
+          const status = exec.status || 'blocked';
+          const duration = formatDuration(exec.duration_ms);
+          const triggeredBy = exec.triggered_by || 'user';
           return (
             <Card key={exec.id} className="border-premium">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    {STATUS_ICON[exec.status]}
+                    {STATUS_ICON[status] ?? STATUS_ICON.blocked}
                     <CardTitle className="text-sm font-mono">
                       {exec.ka_id}
                     </CardTitle>
-                    <span className="text-sm text-muted-foreground">{exec.ka_name}</span>
+                    <span className="text-sm text-muted-foreground">{exec.ka_name || exec.ka_id}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge variant="outline" className={`text-[10px] ${tierBadge.class}`}>
@@ -114,29 +116,29 @@ export default function ToolExecutionHistoryPage() {
                     <Badge
                       variant="outline"
                       className={`text-[10px] ${
-                        exec.status === 'success'
+                        status === 'success'
                           ? 'border-green-500/40 text-green-500'
-                          : exec.status === 'blocked'
+                          : status === 'blocked'
                           ? 'border-yellow-500/40 text-yellow-500'
                           : 'border-red-500/40 text-red-500'
                       }`}
                     >
-                      {exec.status}
+                      {status}
                     </Badge>
                   </div>
                 </div>
                 <CardDescription className="flex items-center gap-3 text-xs pt-1">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {new Date(exec.created_at).toLocaleString()}
+                    {formatTimestamp(exec.created_at)}
                   </span>
-                  {exec.duration_ms != null && (
-                    <span>{exec.duration_ms}ms</span>
+                  {duration && (
+                    <span>{duration}</span>
                   )}
-                  <span>by {exec.triggered_by}</span>
+                  <span>by {triggeredBy}</span>
                 </CardDescription>
               </CardHeader>
-              {(exec.error ?? exec.run_id) && (
+              {(exec.error || exec.run_id) && (
                 <CardContent className="pt-0 space-y-2">
                   {exec.error && (
                     <p className="text-xs text-red-400 bg-red-500/10 rounded p-2">{exec.error}</p>

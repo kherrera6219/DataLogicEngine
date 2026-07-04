@@ -1,3 +1,5 @@
+import type { KAExecutionFeed } from '../lib/api/types';
+
 export interface DesktopUpdateState {
   enabled: boolean;
   status:
@@ -88,20 +90,6 @@ export interface ReasoningLayerProgress {
     status?: string;
   }>;
   frost_snapshot_count: number;
-  updated_at: string;
-}
-
-export interface KAExecutionFeed {
-  items: Array<{
-    id: number;
-    uid: string;
-    ka_id: string;
-    status: string;
-    execution_time_ms: number | null;
-    started_at: string | null;
-    completed_at: string | null;
-  }>;
-  limit: number;
   updated_at: string;
 }
 
