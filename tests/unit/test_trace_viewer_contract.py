@@ -95,3 +95,28 @@ def test_trace_bundle_endpoint_returns_aggregate_contract(app, authenticated_cli
     assert payload["personas"][0]["flagged_conflicts"] == ["Needs citation"]
     assert payload["ka_invocations"][0]["ka_id"] == "KA-018"
     assert payload["coordinate"]["coordinate_hash"] == "abc"
+
+
+
+def test_trace_runs_list_clamps_pagination_bounds(app, authenticated_client):
+    with app.app_context():
+        user = User.query.filter_by(username="testuser").first()
+        for index in range(3):
+            db.session.add(
+                TraceRun(
+                    run_id=uuid.uuid4(),
+                    user_id=user.id,
+                    status="pass",
+                    input_message=f"Trace list pagination contract {index}",
+                )
+            )
+        db.session.commit()
+
+    response = authenticated_client.get("/api/v1/trace/runs?page=0&per_page=999")
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["page"] == 1
+    assert payload["per_page"] == 100
+    assert payload["total"] >= 3
+    assert len(payload["runs"]) >= 3

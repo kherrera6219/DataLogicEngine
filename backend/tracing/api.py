@@ -272,8 +272,10 @@ def list_runs():
     import logging as _logging
     _log = _logging.getLogger(__name__)
 
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
+    requested_page = request.args.get('page', 1, type=int)
+    requested_per_page = request.args.get('per_page', 20, type=int)
+    page = max(requested_page or 1, 1)
+    per_page = min(max(requested_per_page or 20, 1), 100)
     status = request.args.get('status')
 
     try:

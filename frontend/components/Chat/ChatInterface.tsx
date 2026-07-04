@@ -183,8 +183,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           runId: runId || undefined,
           isEnhanced: true,
           traces: data.trace_summary as TracePipeline | undefined,
-          providerUsed: data.provider_used,
-          modelUsed: data.model_used,
+          providerUsed: data.provider_used ?? undefined,
+          modelUsed: data.model_used ?? undefined,
           auditTrail: data.audit_trail,
         };
         setMessages(prev => [...prev, assistantMsg]);

@@ -431,7 +431,7 @@ backend\storage\uskd_memory_graph.py,14770,.py,2026-05-24 07:56:02 UTC
 backend\storage\vector_store.py,15731,.py,2026-05-26 23:25:06 UTC
 backend\time_api.py,13970,.py,2026-02-16 22:44:40 UTC
 backend\tracing\__init__.py,1199,.py,2026-01-29 18:51:52 UTC
-backend\tracing\api.py,29138,.py,2026-07-04 04:41:59 UTC
+backend\tracing\api.py,29255,.py,2026-07-04 05:27:23 UTC
 backend\truth_engine\__init__.py,722,.py,2026-01-06 01:00:29 UTC
 backend\truth_engine\api.py,16757,.py,2026-06-04 08:08:08 UTC
 backend\truth_engine\confidence_calculator.py,5097,.py,2026-05-15 08:09:25 UTC
@@ -491,7 +491,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,5588,.py,2026-05-29 06:58:00 UTC
-CHANGELOG.md,64275,.md,2026-07-04 05:17:50 UTC
+CHANGELOG.md,64649,.md,2026-07-04 05:37:43 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4280,.py,2026-02-16 17:41:21 UTC
@@ -664,7 +664,7 @@ docs\adr\ADR-0002-pq-grpc-transport.md,1183,.md,2026-05-28 06:53:43 UTC
 docs\adr\README.md,2515,.md,2026-05-31 00:59:32 UTC
 docs\AI_MANAGEMENT_SYSTEM_42001.md,12886,.md,2026-06-21 17:41:33 UTC
 docs\AI_PRODUCTION_DOCUMENTATION_BASELINE.md,9694,.md,2026-07-04 03:14:31 UTC
-docs\API.md,29226,.md,2026-07-04 05:17:50 UTC
+docs\API.md,30003,.md,2026-07-04 05:42:17 UTC
 docs\API_VERSIONING.md,5654,.md,2026-06-25 04:12:14 UTC
 docs\ARCHITECTURE.md,25606,.md,2026-07-04 03:12:14 UTC
 docs\ARCHITECTURE_MAP.md,12184,.md,2026-07-04 03:12:47 UTC
@@ -773,12 +773,12 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13600,.md,2026-07-04 03:12:14 UTC
-docs\FILE_INVENTORY.csv,122264,.csv,2026-07-04 04:48:04 UTC
+docs\FILE_INVENTORY.csv,122340,.csv,2026-07-04 05:38:22 UTC
 docs\FILE_STRUCTURE.md,4396,.md,2026-07-02 06:47:45 UTC
-docs\GENERATED_STRUCTURE.md,69801,.md,2026-07-04 04:48:04 UTC
+docs\GENERATED_STRUCTURE.md,69922,.md,2026-07-04 05:38:22 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\MCP_INTEGRATION.md,11952,.md,2026-06-25 04:40:58 UTC
-docs\openapi.yaml,15861,.yaml,2026-07-04 03:10:48 UTC
+docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
 docs\OPERATIONAL_RUNBOOKS.md,19253,.md,2026-07-04 03:12:14 UTC
 docs\PRIVACY_POLICY.md,10745,.md,2026-07-04 03:12:47 UTC
 docs\PROCESS_MAP.md,7773,.md,2026-06-25 04:58:50 UTC
@@ -852,14 +852,15 @@ frontend\app\projects\error.tsx,303,.tsx,2026-02-16 09:54:28 UTC
 frontend\app\projects\page.tsx,12273,.tsx,2026-02-07 23:41:36 UTC
 frontend\app\projects\view\page.tsx,558,.tsx,2026-02-07 23:41:45 UTC
 frontend\app\runs\error.tsx,295,.tsx,2026-02-16 09:54:36 UTC
-frontend\app\runs\page.tsx,4457,.tsx,2026-07-02 06:47:45 UTC
-frontend\app\runs\view\page.tsx,19815,.tsx,2026-07-02 06:47:45 UTC
+frontend\app\runs\page.tsx,5299,.tsx,2026-07-04 05:28:27 UTC
+frontend\app\runs\view\page.tsx,21625,.tsx,2026-07-04 05:40:26 UTC
 frontend\app\settings\error.tsx,303,.tsx,2026-02-16 09:54:21 UTC
 frontend\app\settings\page.tsx,23781,.tsx,2026-06-05 03:40:08 UTC
 frontend\app\settings\privacy\page.tsx,9152,.tsx,2026-05-13 20:17:08 UTC
 frontend\app\simulations\error.tsx,309,.tsx,2026-02-16 09:54:46 UTC
 frontend\app\simulations\page.tsx,12017,.tsx,2026-03-16 05:12:15 UTC
 frontend\app\tools\history\error.tsx,320,.tsx,2026-06-21 17:57:50 UTC
+frontend\app\tools\history\page.test.tsx,2299,.tsx,2026-07-04 05:14:17 UTC
 frontend\app\tools\history\page.tsx,6492,.tsx,2026-07-04 05:11:19 UTC
 frontend\app\truth-engine\error.tsx,310,.tsx,2026-02-16 09:55:16 UTC
 frontend\app\truth-engine\page.tsx,9459,.tsx,2026-02-08 04:46:45 UTC
@@ -869,7 +870,7 @@ frontend\components\AppInitializer.tsx,897,.tsx,2026-02-16 09:44:07 UTC
 frontend\components\Chat\AdvancedControls.test.tsx,1723,.tsx,2026-02-03 00:20:36 UTC
 frontend\components\Chat\AdvancedControls.tsx,6802,.tsx,2026-02-07 18:45:52 UTC
 frontend\components\Chat\ChatInterface.test.tsx,11244,.tsx,2026-06-19 06:33:28 UTC
-frontend\components\Chat\ChatInterface.tsx,25487,.tsx,2026-07-02 06:47:45 UTC
+frontend\components\Chat\ChatInterface.tsx,25513,.tsx,2026-07-04 05:41:03 UTC
 frontend\components\Chat\ChatTracePanel.test.tsx,3794,.tsx,2026-06-19 04:45:46 UTC
 frontend\components\Chat\ChatTracePanel.tsx,7733,.tsx,2026-05-29 07:05:49 UTC
 frontend\components\Chat\DetailedResponseView.test.tsx,4300,.tsx,2026-06-19 06:33:28 UTC
@@ -1002,8 +1003,8 @@ frontend\lib\api\knowledge.ts,403,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\mcp.ts,2483,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\simulation.ts,496,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\system_chat.ts,972,.ts,2026-06-08 20:54:39 UTC
-frontend\lib\api\trace.ts,1040,.ts,2026-05-29 06:59:03 UTC
-frontend\lib\api\types.ts,8220,.ts,2026-07-04 05:10:01 UTC
+frontend\lib\api\trace.ts,1841,.ts,2026-07-04 05:27:23 UTC
+frontend\lib\api\types.ts,8400,.ts,2026-07-04 05:33:53 UTC
 frontend\lib\feature-flags\definitions.ts,1979,.ts,2026-02-16 09:38:12 UTC
 frontend\lib\runtime\policy.ts,2508,.ts,2026-05-15 08:09:29 UTC
 frontend\lib\security\input-sanitization.ts,3226,.ts,2026-02-16 09:38:56 UTC
@@ -1131,7 +1132,7 @@ frontend\tests\unit\lib\api\knowledge.test.ts,1219,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\mcp.test.ts,3073,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\simulation.test.ts,1346,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\system_chat.test.ts,2968,.ts,2026-06-08 22:09:39 UTC
-frontend\tests\unit\lib\api\trace.test.ts,2700,.ts,2026-05-29 07:02:23 UTC
+frontend\tests\unit\lib\api\trace.test.ts,3345,.ts,2026-07-04 05:31:15 UTC
 frontend\tests\unit\lib\runtime\policy.test.ts,2154,.ts,2026-02-16 11:12:01 UTC
 frontend\tests\unit\lib\socket.test.ts,9901,.ts,2026-06-19 06:33:29 UTC
 frontend\tests\unit\lib\state\storage.test.ts,6844,.ts,2026-06-19 06:33:29 UTC
@@ -1145,7 +1146,7 @@ frontend\types\electron.d.ts,3745,.ts,2026-07-04 05:10:01 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,96156,.md,2026-07-04 05:17:50 UTC
+HANDOFF.md,97106,.md,2026-07-04 05:37:43 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1567,7 +1568,7 @@ tests\unit\test_services.py,12974,.py,2026-06-24 18:24:28 UTC
 tests\unit\test_simulation_engine_unit.py,5452,.py,2026-06-07 23:11:27 UTC
 tests\unit\test_storage_hardening.py,3119,.py,2026-05-24 23:07:42 UTC
 tests\unit\test_structured_logging_resilience.py,1182,.py,2026-03-25 20:11:29 UTC
-tests\unit\test_trace_viewer_contract.py,3236,.py,2026-05-29 07:06:56 UTC
+tests\unit\test_trace_viewer_contract.py,4042,.py,2026-07-04 05:32:26 UTC
 tests\unit\test_ukg_db_coverage.py,8109,.py,2026-07-04 04:45:31 UTC
 tests\unit\test_ukg_db_reliability.py,4060,.py,2026-02-16 22:27:59 UTC
 tests\unit\test_unified_coverage.py,2259,.py,2026-06-24 17:08:03 UTC
@@ -1587,6 +1588,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,136088,.md,2026-07-04 05:17:50 UTC
+TODO.md,139284,.md,2026-07-04 05:37:43 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

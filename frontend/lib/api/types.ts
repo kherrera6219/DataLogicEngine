@@ -26,7 +26,7 @@ export interface ChatResponse {
   error?: string;
   queued?: boolean;
   queue_item?: unknown;
-  provider_used?: string;
+  provider_used?: string | null;
   model_used?: string;
 }
 
@@ -39,19 +39,19 @@ export interface AuditTrail {
 export interface TraceRun {
   run_id: string;
   status: string;
-  created_at: string;
-  completed_at?: string;
-  input_message?: string;
-  ka_id?: string;
+  created_at: string | null;
+  completed_at?: string | null;
+  input_message?: string | null;
+  ka_id?: string | null;
   scores?: {
-      confidence: number;
-      entropy: number;
-      bias_risk: number;
-  };
+      confidence?: number | null;
+      entropy?: number | null;
+      bias_risk?: number | null;
+  } | null;
   /** LLM model used for this run (e.g. "gpt-5.5", "gemini-3.1-pro-preview"). */
-  model_name?: string;
+  model_name?: string | null;
   /** Provider that served this run (e.g. "openai", "google"). */
-  provider_used?: string;
+  provider_used?: string | null;
 }
 
 export interface User {
@@ -164,11 +164,11 @@ export interface TraceBundle {
   policy_decisions: Record<string, unknown>[];
   memory_events: Record<string, unknown>[];
   metrics: {
-    total_duration_ms: number;
-    total_tokens_in: number;
-    total_tokens_out: number;
-    total_retrievals: number;
-    stage_count: number;
+    total_duration_ms?: number | null;
+    total_tokens_in?: number | null;
+    total_tokens_out?: number | null;
+    total_retrievals?: number | null;
+    stage_count?: number | null;
     confidence?: number | null;
     entropy?: number | null;
   };
@@ -202,13 +202,13 @@ export interface TracePersona {
   persona_id: string;
   run_id: string;
   persona_type: 'analyst' | 'expert' | 'critic' | 'synthesizer' | 'custom' | 'knowledge' | 'sector' | 'regulatory' | 'compliance';
-  persona_name?: string;
+  persona_name?: string | null;
   status: string;
   draft?: {
-    text?: string;
-    confidence?: number;
+    text?: string | null;
+    confidence?: number | null;
   };
-  confidence?: number; // Top level confidence
+  confidence?: number | null; // Top level confidence
   initial_position?: string | null;
   critique_of_others?: string | null;
   final_position?: string | null;
@@ -220,10 +220,10 @@ export interface TraceAxisVector {
   vector_id: string;
   run_id: string;
   axes: Record<string, {
-    name: string;
-    selected: boolean;
+    name?: string | null;
+    selected?: boolean | null;
     candidates?: string[];
-  }>;
+  }> | null;
   coordinate_hash?: string;
 }
 
@@ -232,17 +232,17 @@ export interface TraceStage {
   run_id: string;
   name: string;
   stage_type: 'layer' | 'step';
-  layer_index?: number;
-  step_index?: number;
+  layer_index?: number | null;
+  step_index?: number | null;
   status: string;
-  start_time?: string;
-  end_time?: string;
-  duration_ms?: number;
+  start_time?: string | null;
+  end_time?: string | null;
+  duration_ms?: number | null;
   inputs?: Record<string, unknown>;
   outputs?: Record<string, unknown>;
   metrics?: Record<string, unknown>;
   algorithm_name?: string; // Legacy support if needed
-  started_at?: string;     // Legacy support
+  started_at?: string | null;     // Legacy support
 }
 
 export interface IngestionRejectedFile {

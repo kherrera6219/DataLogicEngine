@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-7** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, live KA route data-contract/workflow defects fixed, and KA execution persistence/history contracts aligned to the current `KAExecution` schema, and KA execution frontend/desktop IPC consumers aligned to those contracts. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, focused KA history/DB-manager pytest 25 passed, focused frontend KA history/live trace Vitest 6 passed, frontend typecheck passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-8** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, live KA route data-contract/workflow defects fixed, and KA execution persistence/history contracts aligned to the current `KAExecution` schema, and KA execution frontend/desktop IPC consumers aligned to those contracts, and trace run viewer/list/export contracts hardened for nullable trace data, encoded run ids, bounded pagination, and export error states. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, focused KA history/DB-manager pytest 25 passed, focused frontend KA history/live trace Vitest 6 passed, focused trace viewer/export pytest 2 passed, focused frontend trace viewer/API Vitest 13 passed, frontend typecheck passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -202,7 +202,33 @@ Validation:
 1. `npm --prefix frontend test -- components/Chat/LiveTracePanel.test.tsx app/tools/history/page.test.tsx` — 6 passed.
 2. `npm --prefix frontend run typecheck` — passed.
 
-Next code audit slice: audit trace run viewer/list/export frontend surfaces and trace API contracts (`frontend/app/runs`, `frontend/lib/api/trace.ts`, `backend/tracing/api.py`, and trace bundle/export consumers).
+Code audit slice 8 is complete. Next code audit slice: audit trace production/persistence lifecycle and export integrity internals (`backend/tracing/*`, `models.py` trace relationships, `backend/security/export_integrity.py`, and chat/DMRF trace creation call sites).
+
+
+## Code audit slice 8 - Trace run viewer/list/export frontend and API contracts - 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited `backend/tracing/api.py`, `frontend/lib/api/trace.ts`, `frontend/lib/api/types.ts`, `frontend/app/runs/page.tsx`, `frontend/app/runs/view/page.tsx`, and existing trace export/list/detail consumers against the live trace models and serializers.
+2. Validated the Trace Explorer list and detail routes against the backend status vocabulary (`running`, `pass`, `warn`, `fail`, plus historical `completed`/`failed`) and nullable persisted trace fields.
+3. Confirmed trace export remains a signed/encrypted-capable JSON download from `POST /api/v1/trace/runs/<run_id>/export`.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `GET /api/v1/trace/runs` accepted unbounded or invalid pagination values, so `per_page=0` or very large values could produce route errors or expensive queries. | Clamped `page` to at least `1` and `per_page` to `1..100`, and added a backend contract regression. | Done |
+| The frontend trace API wrapper interpolated raw run ids and returned weak `unknown` shapes, even though viewer/export links are URL-derived. | Encoded run ids for every trace subresource/export request, clamped client list limits, unwrapped the backend list envelope, and typed trace list/bundle/subresource responses. | Done |
+| `/runs` assumed every trace row had a string run id and valid timestamp, and treated live `pass` statuses as non-success. | Added safe timestamp/id/status rendering, visible list-load errors, encoded trace-detail links, and disabled detail actions for malformed rows. | Done |
+| `/runs/view` assumed complete bundle fields for timestamps, axes, persona drafts, scores, metrics, and stage indexes. | Added safe formatting/fallbacks for nullable bundle data, status-aware badges, `trace` query fallback, visible bundle-load/export errors, robust axis/persona/stage rendering, and safe JSON previews. | Done |
+| Frontend tests did not cover Trace Explorer nullability, encoded ids, status vocabulary, or export request failure fallback. | Added focused trace API/list/detail Vitest coverage for encoded ids, bounded limits, nullable rows, malformed bundles, load errors, and coordinate/persona fallbacks. | Done |
+
+Validation:
+
+1. `python -m pytest tests\unit\test_trace_viewer_contract.py` - 2 passed; pytest exited successfully, with a Neo4j driver teardown logging warning emitted after the successful run.
+2. `npm --prefix frontend test -- tests/unit/lib/api/trace.test.ts app/runs/page.test.tsx app/runs/view/page.test.tsx` - 13 passed.
+
+Next code audit slice: audit trace production/persistence lifecycle and export integrity internals (`backend/tracing/*`, `models.py` trace relationships, `backend/security/export_integrity.py`, and chat/DMRF trace creation call sites).
 
 ## Unified Backlog
 

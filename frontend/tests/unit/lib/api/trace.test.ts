@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { trace } from '@/lib/api/trace';
 import * as apiBase from '@/lib/api/client';
 
 vi.mock('@/lib/api/client', () => ({
   request: vi.fn(),
-  API_BASE: 'http://localhost:5000/api/v1'
+  API_BASE: 'http://localhost:5000/api/v1',
 }));
 
 describe('trace API', () => {
@@ -12,22 +12,39 @@ describe('trace API', () => {
     vi.clearAllMocks();
   });
 
-  it('lists traces with default limit', async () => {
-    vi.mocked(apiBase.request).mockResolvedValueOnce([]);
-    await trace.list();
+  it('lists traces with default limit and unwraps the backend envelope', async () => {
+    vi.mocked(apiBase.request).mockResolvedValueOnce({
+      runs: [{ run_id: 'run-1', status: 'pass', created_at: null }],
+    });
+
+    const result = await trace.list();
+
+    expect(result).toHaveLength(1);
     expect(apiBase.request).toHaveBeenCalledWith('/trace/runs?per_page=20');
   });
 
-  it('gets a specific trace by ID', async () => {
-    vi.mocked(apiBase.request).mockResolvedValueOnce({ id: '123' });
-    await trace.get('123');
-    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123');
+  it('clamps trace list limits before building the request URL', async () => {
+    vi.mocked(apiBase.request).mockResolvedValue([]);
+
+    await trace.list(1000);
+    await trace.list(Number.NaN);
+    await trace.list(0);
+
+    expect(apiBase.request).toHaveBeenNthCalledWith(1, '/trace/runs?per_page=100');
+    expect(apiBase.request).toHaveBeenNthCalledWith(2, '/trace/runs?per_page=20');
+    expect(apiBase.request).toHaveBeenNthCalledWith(3, '/trace/runs?per_page=1');
   });
 
-  it('gets an aggregate trace bundle', async () => {
+  it('gets a specific trace by encoded ID', async () => {
+    vi.mocked(apiBase.request).mockResolvedValueOnce({ id: '123' });
+    await trace.get('abc/123');
+    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/abc%2F123');
+  });
+
+  it('gets an aggregate trace bundle by encoded ID', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce({ run_id: '123', stages: [] });
-    await trace.getBundle('123');
-    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123/bundle');
+    await trace.getBundle('abc/123');
+    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/abc%2F123/bundle');
   });
 
   it('gets stages for a trace', async () => {
@@ -65,8 +82,8 @@ describe('trace API', () => {
 
   it('exports trace and returns null on failure', async () => {
     vi.mocked(apiBase.request).mockRejectedValueOnce(new Error('Export Failed'));
-    const result = await trace.export('123');
+    const result = await trace.export('abc/123');
     expect(result).toBeNull();
-    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123/export', { method: 'POST' });
+    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/abc%2F123/export', { method: 'POST' });
   });
 });

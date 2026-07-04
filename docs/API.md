@@ -554,6 +554,8 @@ Primary prefix: `/api/v1/trace`.
 
 - **GET** `/runs`
   - List recent trace runs with pagination and filtering.
+  - Query parameters: `page` (minimum `1`), `per_page` (minimum `1`, maximum `100`), and optional `status`.
+  - Response shape: `{ "runs": [...], "total", "page", "per_page", "pages" }`. Trace row fields such as `created_at`, `ka_id`, provider/model metadata, and scores can be absent or null during partial runs and startup recovery.
 
 ### Get run details
 
@@ -564,6 +566,7 @@ Primary prefix: `/api/v1/trace`.
 
 - **GET** `/runs/<run_id>/bundle`
   - Aggregate trace viewer payload containing run, FROST layers, evidence sources, claims, persona positions, KA invocations, coordinate axes, policy decisions, memory events, and summary metrics where available.
+  - Consumers must tolerate nullable or missing timestamps, metrics, persona drafts, stage outputs, and coordinate axes while a run is still being assembled or after partial trace persistence.
 
 ### Get stages
 
@@ -582,6 +585,7 @@ Primary prefix: `/api/v1/trace`.
 - **GET** `/runs/<run_id>/evidence`
 - **GET** `/runs/<run_id>/personas`
 - **GET** `/runs/<run_id>/kas`
+- **GET** `/runs/<run_id>/axes`
 - **GET** `/runs/<run_id>/metrics`
 
 ### Export trace
@@ -589,6 +593,7 @@ Primary prefix: `/api/v1/trace`.
 - **POST** `/runs/<run_id>/export`
   - Downloadable JSON trace export for local evidence retention.
   - Export envelopes may include section hashes, bundle hash, optional HMAC signature, optional encrypted payload, and manifest metadata.
+  - Request body is optional. `sign_bundle` defaults to `true`; `encrypt_bundle` defaults to `false` and requires the configured export encryption key. The response is streamed as `application/json` with an attachment filename.
 
 ---
 
