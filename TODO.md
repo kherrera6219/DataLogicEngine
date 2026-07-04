@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-4** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, and remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-5** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, and live KA route data-contract/workflow defects fixed. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -133,7 +133,31 @@ Validation:
 1. `python -m ruff check app.py tests\integration_routes\test_app_route_wiring.py tests\integration_routes\test_api_routers.py tests\integration_routes\test_ka_route_auth_boundaries.py tests\integration\test_additional_coverage.py` — passed.
 2. `python -m pytest -q --no-cov tests\integration_routes\test_ka_route_auth_boundaries.py tests\integration_routes\test_app_route_wiring.py tests\integration_routes\test_api_routers.py tests\integration\test_app_routes.py` — 10 passed; pytest exited successfully with the shared SQLAlchemy `Query.get()` deprecation warning from `api_decorators.py`.
 
-Next code audit slice: continue in the live KA API implementation (`backend/routes/ka_routes.py`) for behavior/data-contract correctness now that the dead duplicate blueprint is removed.
+## Code audit slice 5 — Live KA API behavior/data-contract correctness — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited the live KA blueprint (`backend/routes/ka_routes.py`) against the frontend algorithm/history consumers, current `docs/API.md`, the KA master controller contract, and TruthCore async engine contract.
+2. Validated the legacy `/api/ka` alias remains wired to the current blueprint and emits successor/deprecation headers.
+3. Expanded focused live KA route coverage around API-key principals, documented payload shape, pagination bounds, batch input validation, non-numeric layer names, TruthCore workflow access, and trace access.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| KA execute/high-stakes workflow routes used Flask-Login `current_user` directly even though `api_login_required` also accepts ExternalAPIKey and signed desktop principals through `g.auth_user`. | Switched KA user-id resolution to the shared authenticated-principal helper so API-key principals do not 500 during execution/workflow logging. | Done |
+| `/api/v1/ka/workflow/high-stakes` and `/api/v1/ka/trace/<session_id>` imported the TruthCore accessor from the wrong module, and the high-stakes route called async TruthCore methods synchronously. | Moved both routes to `backend.truth_engine.api.get_truth_core_engine()` and added a sync async bridge for `create_session()` / `process()`. | Done |
+| `docs/API.md` documented an execute body with `data`/`context`, but the route only accepted `input`. | Added compatibility support for `data` plus optional `context`, kept `input` as the preferred payload, and updated the API doc. | Done |
+| `GET /api/v1/ka/algorithms?per_page=0` could divide by zero; registry metadata without `KA_Name` returned `name: null` despite frontend expecting a string. | Clamped `page`/`per_page` and made algorithm formatting fall back to the KA id for missing names/status. | Done |
+| KA batch and layer endpoints could mis-handle malformed request shapes or non-`L<number>` layer names. | Validated batch JSON/object/list input, reused the documented payload parser for batch execution, and made layer sorting tolerant of non-numeric layer labels. | Done |
+| The KA API reference omitted live endpoints beyond list/execute/workflow/trace. | Documented batch, search, categories, layers, dependencies, stats, and public health endpoints in `docs/API.md`. | Done |
+
+Validation:
+
+1. `python -m ruff check backend\routes\ka_routes.py tests\integration_routes\test_ka_route_auth_boundaries.py` — passed.
+2. `python -m pytest -q --no-cov tests\integration_routes\test_ka_route_auth_boundaries.py` — 15 passed; pytest exited successfully with the existing SQLAlchemy `Query.get()` warning and a teardown-only Neo4j logging warning.
+
+Next code audit slice: continue from the KA API into KA execution persistence/history correctness (`KAExecution`, history route, risk-tier/name mapping, and execution audit behavior).
 
 ## Unified Backlog
 

@@ -467,12 +467,19 @@ Legacy alias: `/api/ka` with deprecation headers.
 
 - **GET** `/algorithms`
   - List available algorithms with metadata and registration status.
+  - Query parameters: `page` (minimum `1`), `per_page` (minimum `1`, maximum `300`), `category`, `status`, `risk_class`, and `layer`.
 
 ### Execute algorithm
 
 - **POST** `/algorithms/<ka_id>/execute`
   - Run a specific Knowledge Algorithm.
-  - Body:
+  - Preferred body:
+    ```json
+    {
+      "input": {}
+    }
+    ```
+  - Compatibility body:
     ```json
     {
       "data": {},
@@ -480,10 +487,48 @@ Legacy alias: `/api/ka` with deprecation headers.
     }
     ```
 
+### Batch execute
+
+- **POST** `/batch`
+  - Run up to 20 Knowledge Algorithms with the same input payload.
+  - Body:
+    ```json
+    {
+      "algorithms": ["KA-001"],
+      "input": {}
+    }
+    ```
+  - The compatibility `data` plus optional `context` payload shape is also accepted.
+
+### Search algorithms
+
+- **GET** `/search?q=<query>`
+  - Search algorithm name, short name, purpose, and notes. Query must be at least 2 characters.
+
+### Categories, layers, dependencies, and stats
+
+- **GET** `/categories`
+  - List KA categories and their algorithms.
+- **GET** `/layers`
+  - List simulation layers and associated primary/allowed algorithms.
+- **GET** `/dependencies/<ka_id>`
+  - List direct KA dependencies and dependents.
+- **GET** `/stats`
+  - Return counts by category, risk class, status, implementation mode, and math metadata.
+- **GET** `/health`
+  - Public KA route-layer health check.
+
 ### High-stakes workflow
 
 - **POST** `/workflow/high-stakes`
-  - Trigger the high-stakes refinement workflow where supported by the KA route layer.
+  - Trigger the TruthCore high-stakes refinement workflow where supported by the KA route layer.
+  - Body:
+    ```json
+    {
+      "query": "Question or task",
+      "context": {}
+    }
+    ```
 
 ### Workflow trace
 

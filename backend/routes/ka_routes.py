@@ -4,12 +4,14 @@ Knowledge Algorithm API Endpoints
 Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-001 to KA-114).
 """
 
-from flask import Blueprint, request, jsonify
-from flask_login import current_user
-from backend.auth.api_decorators import api_login_required
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, UTC
 import logging
 
+from flask import Blueprint, request, jsonify
+
+from backend.auth.api_decorators import api_login_required, get_authenticated_principal
 from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,65 @@ def _get_controller():
     return _controller
 
 
+def _run_async(coro):
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(asyncio.run, coro).result()
+
+
+def _current_user_id():
+    principal = get_authenticated_principal()
+    return getattr(principal, "id", None)
+
+
+def _bounded_int_query(name, default, *, minimum, maximum):
+    value = request.args.get(name, default, type=int)
+    if value is None:
+        value = default
+    return max(minimum, min(value, maximum))
+
+
+def _request_body_object(data):
+    if data is None:
+        return {}, None
+    if not isinstance(data, dict):
+        return None, (jsonify({'success': False, 'error': 'JSON body must be an object'}), 400)
+    return data, None
+
+
+def _request_input_payload(data):
+    data, body_error = _request_body_object(data)
+    if body_error:
+        return None, body_error
+
+    input_data = data.get('input')
+    if input_data is None:
+        input_data = data.get('data', {})
+    if input_data is None:
+        input_data = {}
+    if not isinstance(input_data, dict):
+        return None, (jsonify({'success': False, 'error': 'input/data must be an object'}), 400)
+
+    context = data.get('context')
+    if context is not None:
+        if not isinstance(context, dict):
+            return None, (jsonify({'success': False, 'error': 'context must be an object'}), 400)
+        input_data = {**input_data, 'context': context}
+
+    return input_data, None
+
+
+def _layer_sort_key(item):
+    layer = str(item[0])
+    if layer.upper().startswith('L') and layer[1:].isdigit():
+        return (0, int(layer[1:]), layer)
+    return (1, layer)
+
+
 def parse_list_field(value):
     """Parse semicolon or comma-separated field into list"""
     if not value:
@@ -37,9 +98,12 @@ def parse_list_field(value):
 
 def format_algorithm(ka):
     """Format algorithm data for API response"""
+    ka_id = ka.get('KA_ID') or ka.get('id')
+    ka_name = ka.get('KA_Name') or ka.get('name') or ka_id
+
     return {
-        'id': ka.get('KA_ID'),
-        'name': ka.get('KA_Name'),
+        'id': ka_id,
+        'name': ka_name,
         'short_name': ka.get('Short_Name'),
         'purpose': ka.get('Purpose'),
         'category': ka.get('Category'),
@@ -63,7 +127,7 @@ def format_algorithm(ka):
         'audit_events': ka.get('Audit_Events') == 'Yes',
         'version': ka.get('Version'),
         'owner': ka.get('Owner'),
-        'status': ka.get('Status'),
+        'status': ka.get('Status') or 'Unknown',
         'notes': ka.get('Notes'),
         'implementation': {
             'mode': ka.get('Implementation_Mode'),
@@ -170,8 +234,8 @@ def list_algorithms():
         status = request.args.get('status')
         risk_class = request.args.get('risk_class')
         layer = request.args.get('layer')
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 50, type=int)
+        page = _bounded_int_query('page', 1, minimum=1, maximum=100000)
+        per_page = _bounded_int_query('per_page', 50, minimum=1, maximum=300)
 
         live_registry = _get_controller().get_available_algorithms()
         algorithms = [
@@ -194,7 +258,7 @@ def list_algorithms():
         if layer:
             algorithms = [a for a in algorithms if layer in a['primary_layers'] or layer in a['allowed_layers']]
 
-        algorithms.sort(key=lambda x: x['id'])
+        algorithms.sort(key=lambda x: x.get('id') or '')
 
         total = len(algorithms)
         start = (page - 1) * per_page
@@ -212,7 +276,7 @@ def list_algorithms():
             'algorithms': paginated,
             'pagination': {
                 'page': page,
-            'per_page': per_page,
+                'per_page': per_page,
                 'total': total,
                 'pages': (total + per_page - 1) // per_page
             },
@@ -255,8 +319,9 @@ def execute_algorithm(ka_id):
         if ka_id_norm not in _get_controller().algorithms:
             return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
 
-        data = request.get_json() or {}
-        input_data = data.get('input', {})
+        input_data, payload_error = _request_input_payload(request.get_json())
+        if payload_error:
+            return payload_error
 
         ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
 
@@ -269,7 +334,7 @@ def execute_algorithm(ka_id):
             'execution_time_ms': int(ka_result.get('execution_time', 0) * 1000)
         }
 
-        logger.info("Executed %s for user %s", ka_id_norm, current_user.id)
+        logger.info("Executed %s for user %s", ka_id_norm, _current_user_id())
 
         return jsonify({'success': ka_result.get('success', True), 'result': result}), 200
     except Exception as e:
@@ -299,7 +364,7 @@ def list_categories():
             categories[cat]['count'] += 1
 
         for cat in categories.values():
-            cat['algorithms'].sort(key=lambda x: x['id'])
+            cat['algorithms'].sort(key=lambda x: x.get('id') or '')
 
         return jsonify({
             'success': True,
@@ -317,24 +382,30 @@ def list_categories():
 def execute_high_stakes_workflow():
     """Execute the full 12-step high-stakes refinement workflow."""
     try:
-        data = request.get_json() or {}
+        data, body_error = _request_body_object(request.get_json())
+        if body_error:
+            return body_error
         query = data.get('query')
         if not query:
             return jsonify({'success': False, 'error': 'Query is required'}), 400
 
         context = data.get('context', {})
+        if context is None:
+            context = {}
+        if not isinstance(context, dict):
+            return jsonify({'success': False, 'error': 'context must be an object'}), 400
 
-        from backend.truth_engine.truth_core.engine import get_truth_core_engine
+        from backend.truth_engine.api import get_truth_core_engine
         engine = get_truth_core_engine()
 
-        session = engine.create_session(
+        session = _run_async(engine.create_session(
             query=query,
-            user_id=current_user.id,
+            user_id=_current_user_id(),
             tier='high_stakes',
             context=context
-        )
+        ))
 
-        result = engine.process(session['session_id'])
+        result = _run_async(engine.process(session['session_id']))
 
         return jsonify({
             'success': True,
@@ -351,7 +422,7 @@ def execute_high_stakes_workflow():
 def get_workflow_trace(session_id):
     """Get the execution trace of a workflow session."""
     try:
-        from backend.truth_engine.truth_core.engine import get_truth_core_engine
+        from backend.truth_engine.api import get_truth_core_engine
         engine = get_truth_core_engine()
 
         status = engine.get_session_status(session_id)
@@ -402,7 +473,7 @@ def list_layers():
 
         sorted_layers = dict(sorted(
             layers.items(),
-            key=lambda x: (int(x[0].replace('L', '')) if x[0].startswith('L') else 999)
+            key=_layer_sort_key
         ))
 
         return jsonify({'success': True, 'layers': sorted_layers, 'count': len(layers)}), 200
@@ -416,16 +487,24 @@ def list_layers():
 def batch_execute():
     """Execute multiple Knowledge Algorithms in sequence"""
     try:
-        data = request.get_json()
-        algorithm_ids = data.get('algorithms', []) if data else []
+        data, body_error = _request_body_object(request.get_json())
+        if body_error:
+            return body_error
+
+        algorithm_ids = data.get('algorithms', [])
 
         if not algorithm_ids:
             return jsonify({'success': False, 'error': 'No algorithms specified'}), 400
 
+        if not isinstance(algorithm_ids, list):
+            return jsonify({'success': False, 'error': 'algorithms must be a list'}), 400
+
         if len(algorithm_ids) > 20:
             return jsonify({'success': False, 'error': 'Maximum 20 algorithms per batch'}), 400
 
-        input_data = data.get('input', {}) if data else {}
+        input_data, payload_error = _request_input_payload(data)
+        if payload_error:
+            return payload_error
 
         results = []
         for ka_id in algorithm_ids:
@@ -443,7 +522,7 @@ def batch_execute():
                 ka_meta = _get_controller().algorithms[ka_id_norm].get("metadata", {})
                 results.append({
                     'ka_id': ka_meta.get('KA_ID', ka_id_norm),
-                    'name': ka_meta.get('KA_Name'),
+                    'name': ka_meta.get('KA_Name') or ka_meta.get('KA_ID') or ka_id_norm,
                     'short_name': ka_meta.get('Short_Name'),
                     'category': ka_meta.get('Category'),
                     'status': 'completed' if ka_result.get('success', True) else 'failed',
@@ -490,7 +569,7 @@ def search_algorithms():
             if query in name or query in purpose or query in notes or query in short_name:
                 results.append(format_algorithm(ka))
 
-        results.sort(key=lambda x: x['id'])
+        results.sort(key=lambda x: x.get('id') or '')
 
         return jsonify({'success': True, 'query': query, 'results': results, 'count': len(results)}), 200
     except Exception as e:
