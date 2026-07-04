@@ -7,7 +7,8 @@ Backed by the UserNotificationPreference SQL table (one row per user).
 
 import logging
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user
+
+from backend.auth.api_decorators import api_session_login_required, get_authenticated_principal
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +35,17 @@ def _get_or_create_prefs():
     from models import UserNotificationPreference
     from extensions import db
 
-    prefs = UserNotificationPreference.query.filter_by(user_id=current_user.id).first()
+    user = get_authenticated_principal()
+    prefs = UserNotificationPreference.query.filter_by(user_id=user.id).first()
     if prefs is None:
-        prefs = UserNotificationPreference(user_id=current_user.id)
+        prefs = UserNotificationPreference(user_id=user.id)
         db.session.add(prefs)
         db.session.flush()   # assign PK; caller owns the commit
     return prefs
 
 
 @notification_bp.route('', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_notification_prefs():
     """Return the current user's notification preferences."""
     try:
@@ -54,12 +56,13 @@ def get_notification_prefs():
     except Exception as e:
         from extensions import db
         db.session.rollback()
-        logger.error("Failed to load notification prefs for user %s: %s", current_user.id, e)
+        user = get_authenticated_principal()
+        logger.error("Failed to load notification prefs for user %s: %s", user.id, e)
         return jsonify({'success': False, 'error': 'Failed to load preferences'}), 500
 
 
 @notification_bp.route('', methods=['POST'])
-@login_required
+@api_session_login_required
 def save_notification_prefs():
     """Persist notification preference updates for the current user."""
     data = request.get_json() or {}
@@ -92,5 +95,6 @@ def save_notification_prefs():
     except Exception as e:
         from extensions import db
         db.session.rollback()
-        logger.error("Failed to save notification prefs for user %s: %s", current_user.id, e)
+        user = get_authenticated_principal()
+        logger.error("Failed to save notification prefs for user %s: %s", user.id, e)
         return jsonify({'success': False, 'error': 'Failed to save preferences'}), 500

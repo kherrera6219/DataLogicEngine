@@ -2,7 +2,7 @@
 Integration tests for notification preference routes.
 
 Covers:
-- Unauthenticated requests are rejected (401/302).
+- Unauthenticated requests are rejected as JSON 401s.
 - GET creates a default row on first access and returns all expected keys.
 - POST persists boolean and digest_frequency changes; re-GET reflects them.
 - POST rejects invalid digest_frequency values (400).
@@ -37,6 +37,13 @@ _EXPECTED_KEYS = {
 }
 
 
+def _assert_json_unauthorized(resp):
+    assert resp.status_code == 401
+    body = resp.get_json()
+    assert body["success"] is False
+    assert body["code"] == "UNAUTHORIZED"
+
+
 # ---------------------------------------------------------------------------
 # Auth guard
 # ---------------------------------------------------------------------------
@@ -44,11 +51,11 @@ _EXPECTED_KEYS = {
 class TestNotificationAuthGuard:
     def test_get_requires_auth(self, client):
         resp = client.get(_ENDPOINT)
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
     def test_post_requires_auth(self, client):
         resp = client.post(_ENDPOINT, json={})
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
 
 # ---------------------------------------------------------------------------

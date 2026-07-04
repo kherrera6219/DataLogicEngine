@@ -13,9 +13,9 @@ from typing import Dict, Any, Tuple
 import logging
 
 from flask import Blueprint, Response, request
-from flask_login import login_required, current_user
 
 from extensions import db, limiter, cache
+from backend.auth.api_decorators import api_session_login_required, get_authenticated_principal
 from backend.utils.responses import (
     success_response,
     validation_error,
@@ -34,14 +34,15 @@ admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/v1/admin')
 def _audit_admin_action(action: str, details: Dict[str, Any]) -> None:
     """Log admin action to audit log."""
     try:
+        user = get_authenticated_principal()
         from extensions import audit_logger
         audit_logger.log_audit_event(
             event_type="ADMIN_ACTION",
-            user_id=current_user.id if current_user.is_authenticated else None,
+            user_id=user.id,
             action=action,
             details={
                 **details,
-                "admin_username": current_user.username if current_user.is_authenticated else None,
+                "admin_username": user.username,
                 "timestamp": datetime.now(UTC).isoformat()
             }
         )
@@ -54,7 +55,7 @@ def _audit_admin_action(action: str, details: Dict[str, Any]) -> None:
 # =============================================================================
 
 @admin_bp.route('/cache/clear', methods=['POST'])
-@login_required
+@api_session_login_required
 @limiter.limit("5 per minute")
 def clear_cache() -> Tuple[Response, int]:
     """
@@ -100,7 +101,7 @@ def clear_cache() -> Tuple[Response, int]:
 
 
 @admin_bp.route('/health', methods=['GET'])
-@login_required
+@api_session_login_required
 def admin_health_check() -> Tuple[Response, int]:
     """
     Get detailed system health status for admins.

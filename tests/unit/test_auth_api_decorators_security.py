@@ -106,3 +106,40 @@ def test_api_admin_required_allows_admin_api_key_principal(app, monkeypatch):
         body, status_code = _protected()
         assert status_code == 200
         assert body["ok"] is True
+
+
+def test_get_authenticated_principal_prefers_resolved_auth_user(app, monkeypatch):
+    """Shared API helpers should read the principal resolved by API decorators."""
+    resolved_user = SimpleNamespace(id=21, is_authenticated=True)
+
+    with app.test_request_context("/api/v1/user/data/summary", method="GET"):
+        g.auth_user = resolved_user
+        monkeypatch.setattr(
+            api_decorators,
+            "current_user",
+            SimpleNamespace(id=99, is_authenticated=True),
+        )
+
+        assert api_decorators.get_authenticated_principal() is resolved_user
+
+
+def test_mcp_tool_context_uses_external_api_key_principal(app):
+    """MCP tool execution context should use API-key principals from g.auth_user."""
+    from backend.routes import mcp_routes
+
+    with app.test_request_context(
+        "/api/v1/mcp/servers/server-1/tools/3/call",
+        method="POST",
+        headers={"X-Tenant-ID": "ignored-header-tenant"},
+    ):
+        g.auth_user = SimpleNamespace(id=42, tenant_id="tenant-from-user")
+        g.external_api_key = SimpleNamespace(
+            permissions={"connector_scopes": ["connector:github:read"]}
+        )
+
+        context = mcp_routes._build_tool_execution_context()
+
+        assert context["user_id"] == "42"
+        assert context["tenant_id"] == "tenant-from-user"
+        assert "mcp:execute" in context["scopes"]
+        assert "connector:github:read" in context["scopes"]

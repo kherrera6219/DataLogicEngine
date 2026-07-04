@@ -166,17 +166,14 @@ def test_mcp_routes_admin_endpoints(monkeypatch):
     
     with patch("backend.routes.mcp_routes.get_mcp_manager", return_value=manager), \
          patch("flask_login.utils._get_user", return_value=MagicMock(is_authenticated=True, is_admin=True)):
-        
-        with patch("backend.routes.mcp_routes.login_required", lambda f: f), \
-             patch("backend.routes.mcp_routes.api_admin_required", lambda f: f):
-            
-            # Re-register blueprint without authenticators for testing
-            test_app = Flask(__name__)
-            test_bp = mcp_bp
-            test_app.register_blueprint(test_bp, url_prefix="/api/mcp")
-            test_client = test_app.test_client()
-            
-            resp = test_client.get("/api/mcp/config")
-            assert resp.status_code == 200
-            assert resp.json["success"] is True
-            assert "dummy" in resp.json["config"]
+
+        # Re-register blueprint with a mocked authenticated user.
+        test_app = Flask(__name__)
+        test_bp = mcp_bp
+        test_app.register_blueprint(test_bp, url_prefix="/api/mcp")
+        test_client = test_app.test_client()
+
+        resp = test_client.get("/api/mcp/config")
+        assert resp.status_code == 200
+        assert resp.json["success"] is True
+        assert "dummy" in resp.json["config"]

@@ -228,3 +228,13 @@ def current_user_is_owner() -> bool:
     is ever reintroduced.
     """
     return True
+
+
+def get_authenticated_principal():
+    """Return the authenticated user resolved by the active auth decorator.
+
+    Flask-Login's ``current_user`` only represents cookie/request-loader auth.
+    The API decorators also support signed desktop requests and ExternalAPIKey
+    headers, which resolve the principal into ``g.auth_user``.
+    """
+    return getattr(g, "auth_user", None) or current_user

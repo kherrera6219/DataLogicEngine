@@ -7,7 +7,6 @@ resources, tools, and prompts.
 """
 
 from flask import Blueprint, Response, current_app, jsonify, g, request, stream_with_context
-from flask_login import login_required, current_user
 from datetime import datetime, UTC
 import asyncio
 import logging
@@ -56,7 +55,12 @@ def run_async(coro):
             new_loop.close()
 
 
-from backend.auth.api_decorators import api_admin_required
+from backend.auth.api_decorators import (
+    api_admin_required,
+    api_login_required,
+    api_session_login_required,
+    get_authenticated_principal,
+)
 
 # Create blueprint
 mcp_bp = Blueprint('mcp', __name__)
@@ -101,7 +105,8 @@ def _required_tool_scopes(tool: MCPTool) -> list[str]:
 
 
 def _build_tool_execution_context() -> dict:
-    tenant_id = getattr(current_user, "tenant_id", None) or request.headers.get("X-Tenant-ID")
+    user = get_authenticated_principal()
+    tenant_id = getattr(user, "tenant_id", None) or request.headers.get("X-Tenant-ID")
     # Single-mode / OS-level auth: the one OS user is the owner.
     role = "owner"
     roles = {role}
@@ -121,7 +126,7 @@ def _build_tool_execution_context() -> dict:
         scopes.add("*")
 
     return {
-        "user_id": str(getattr(current_user, "id", "")),
+        "user_id": str(getattr(user, "id", "")),
         "tenant_id": str(tenant_id) if tenant_id else None,
         "roles": sorted(roles),
         "scopes": sorted(scopes),
@@ -130,7 +135,7 @@ def _build_tool_execution_context() -> dict:
 
 
 @mcp_bp.route('/rpc', methods=['POST'])
-@login_required
+@api_session_login_required
 def mcp_rpc():
     """Handle active MCP JSON-RPC requests, including sampling and subscriptions."""
     try:
@@ -143,7 +148,7 @@ def mcp_rpc():
 
 
 @mcp_bp.route('/subscriptions/stream/<client_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def mcp_subscription_stream(client_id):
     """SSE stream for MCP resource subscription notifications."""
     from backend.mcp_server.subscriptions import subscription_manager
@@ -162,7 +167,7 @@ def mcp_subscription_stream(client_id):
 # Server Management Endpoints
 
 @mcp_bp.route('/servers', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_servers():
     """List all MCP servers"""
     try:
@@ -190,7 +195,6 @@ def list_servers():
 
 
 @mcp_bp.route('/servers', methods=['POST'])
-@login_required
 @api_admin_required
 def create_server():
     """Create a new MCP server"""
@@ -249,7 +253,7 @@ def create_server():
 
 
 @mcp_bp.route('/servers/<server_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_server(server_id):
     """Get a specific MCP server"""
     try:
@@ -283,7 +287,6 @@ def get_server(server_id):
 
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
-@login_required
 @api_admin_required
 def delete_server(server_id):
     """Delete an MCP server"""
@@ -323,7 +326,7 @@ def delete_server(server_id):
 # Resource Endpoints
 
 @mcp_bp.route('/servers/<server_id>/resources', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_resources(server_id):
     """List resources for a server"""
     try:
@@ -353,7 +356,7 @@ def list_resources(server_id):
 
 
 @mcp_bp.route('/servers/<server_id>/resources/<int:resource_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def read_resource(server_id, resource_id):
     """Read a specific resource"""
     try:
@@ -402,7 +405,7 @@ def read_resource(server_id, resource_id):
 # Tool Endpoints
 
 @mcp_bp.route('/servers/<server_id>/tools', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_tools(server_id):
     """List tools for a server"""
     try:
@@ -432,7 +435,7 @@ def list_tools(server_id):
 
 
 @mcp_bp.route('/servers/<server_id>/tools/<int:tool_id>/call', methods=['POST'])
-@login_required
+@api_login_required
 def call_tool(server_id, tool_id):
     """Call a tool"""
     try:
@@ -538,7 +541,7 @@ def call_tool(server_id, tool_id):
 # Prompt Endpoints
 
 @mcp_bp.route('/servers/<server_id>/prompts', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_prompts(server_id):
     """List prompts for a server"""
     try:
@@ -568,7 +571,7 @@ def list_prompts(server_id):
 
 
 @mcp_bp.route('/servers/<server_id>/prompts/<int:prompt_id>/get', methods=['POST'])
-@login_required
+@api_session_login_required
 def get_prompt(server_id, prompt_id):
     """Get a prompt template"""
     try:
@@ -627,7 +630,7 @@ def get_prompt(server_id, prompt_id):
 # Client Management Endpoints
 
 @mcp_bp.route('/clients', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_clients():
     """List all MCP clients"""
     try:
@@ -649,7 +652,6 @@ def list_clients():
 
 
 @mcp_bp.route('/clients', methods=['POST'])
-@login_required
 @api_admin_required
 def create_client():
     """Create a new MCP client"""
@@ -676,7 +678,6 @@ def create_client():
 
 
 @mcp_bp.route('/clients/<client_id>/connect/<server_id>', methods=['POST'])
-@login_required
 @api_admin_required
 def connect_client(client_id, server_id):
     """Connect a client to a server"""
@@ -700,7 +701,7 @@ def connect_client(client_id, server_id):
 # Statistics Endpoint
 
 @mcp_bp.route('/stats', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_stats():
     """Get MCP system statistics"""
     try:
@@ -771,7 +772,6 @@ def setup_default_servers():
 
 
 @mcp_bp.route('/console', methods=['POST'])
-@login_required
 @api_admin_required
 def mcp_console():
     """Execute a raw MCP console command (admin only)."""
@@ -804,7 +804,6 @@ def mcp_console():
 
 
 @mcp_bp.route('/config', methods=['GET'])
-@login_required
 @api_admin_required
 def get_external_config():
     """Retrieve external MCP servers configuration"""
@@ -822,7 +821,6 @@ def get_external_config():
 
 
 @mcp_bp.route('/config', methods=['POST'])
-@login_required
 @api_admin_required
 def update_external_config():
     """Update external MCP servers configuration and dynamically hot-reload"""
@@ -853,7 +851,6 @@ def update_external_config():
 
 
 @mcp_bp.route('/servers/<name>/start', methods=['POST'])
-@login_required
 @api_admin_required
 def start_dynamic_server(name):
     """Start a specific configured dynamic MCP server"""
@@ -887,7 +884,6 @@ def start_dynamic_server(name):
 
 
 @mcp_bp.route('/servers/<name>/stop', methods=['POST'])
-@login_required
 @api_admin_required
 def stop_dynamic_server(name):
     """Stop a specific active dynamic MCP server"""

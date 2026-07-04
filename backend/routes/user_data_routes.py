@@ -10,12 +10,12 @@ from datetime import datetime, UTC
 from typing import Tuple, Dict, Any
 
 from flask import Blueprint, Response, request
-from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 
 from extensions import db, limiter
 from models import User, SimulationSession
+from backend.auth.api_decorators import api_session_login_required, get_authenticated_principal
 try:
     from models import ChatSession, ChatMessage
     _HAS_CHAT_MODELS = True
@@ -35,7 +35,7 @@ user_data_bp = Blueprint('user_data', __name__, url_prefix='/api/v1/user/data')
 
 
 @user_data_bp.route('/export', methods=['GET'])
-@login_required
+@api_session_login_required
 @limiter.limit("5 per hour")  # Rate limit exports to prevent abuse
 def export_user_data() -> Tuple[Response, int]:
     """
@@ -48,7 +48,8 @@ def export_user_data() -> Tuple[Response, int]:
         JSON file download with all user data
     """
     try:
-        user_id = current_user.id
+        auth_user = get_authenticated_principal()
+        user_id = auth_user.id
 
         # Optimized query: Only fetch needed columns, not full objects
         # This fixes the N+1 query issue
@@ -66,7 +67,7 @@ def export_user_data() -> Tuple[Response, int]:
         data: Dict[str, Any] = {
             "version": "1.0",
             "export_date": datetime.now(UTC).isoformat(),
-            "profile": current_user.to_dict(),
+            "profile": auth_user.to_dict(),
             "simulations": [
                 {
                     "session_id": sim.session_id,
@@ -90,7 +91,7 @@ def export_user_data() -> Tuple[Response, int]:
                 action="USER_DATA_EXPORTED",
                 status="success",
                 details={
-                    "username": current_user.username,
+                    "username": auth_user.username,
                     "simulation_count": len(simulation_results)
                 }
             )
@@ -101,12 +102,12 @@ def export_user_data() -> Tuple[Response, int]:
             json_data,
             mimetype='application/json',
             headers={
-                'Content-Disposition': f'attachment;filename=ukg_data_export_{current_user.username}.json'
+                'Content-Disposition': f'attachment;filename=ukg_data_export_{auth_user.username}.json'
             }
         )
 
     except SQLAlchemyError as e:
-        logger.error(f"Database error during data export for user {current_user.id}: {e}", exc_info=True)
+        logger.error("Database error during data export: %s", e, exc_info=True)
         return internal_error("Failed to compile data export due to database error")
 
     except (TypeError, ValueError) as e:
@@ -115,7 +116,7 @@ def export_user_data() -> Tuple[Response, int]:
 
 
 @user_data_bp.route('/delete', methods=['POST'])
-@login_required
+@api_session_login_required
 @limiter.limit("1 per hour")  # Very strict - profile deletion is critical
 @validate_json_body(['confirm'])
 def delete_user_profile() -> Tuple[Response, int]:
@@ -132,8 +133,9 @@ def delete_user_profile() -> Tuple[Response, int]:
         JSON response confirming deletion or error
     """
     try:
-        user_id = current_user.id
-        username = current_user.username
+        auth_user = get_authenticated_principal()
+        user_id = auth_user.id
+        username = auth_user.username
         data = request.json
 
         # Confirmation gating (Security Shield)
@@ -149,7 +151,7 @@ def delete_user_profile() -> Tuple[Response, int]:
         # with roles (auth-deprecation Phase E).
 
         # Audit destructive action BEFORE deletion
-        sid = getattr(current_user, 'windows_sid', getattr(current_user, 'sid', 'LOCAL_FALLBACK'))
+        sid = getattr(auth_user, 'windows_sid', getattr(auth_user, 'sid', 'LOCAL_FALLBACK'))
         try:
             from extensions import audit_logger
             audit_logger.log_audit_event(
@@ -186,7 +188,7 @@ def delete_user_profile() -> Tuple[Response, int]:
 
         deleted_kgn = 0
         if _HAS_KGN_MODEL:
-            tenant_id = getattr(current_user, 'tenant_id', None)
+            tenant_id = getattr(auth_user, 'tenant_id', None)
             if tenant_id:
                 deleted_kgn = KnowledgeGraphNode.query.filter_by(
                     tenant_id=tenant_id
@@ -241,7 +243,7 @@ def delete_user_profile() -> Tuple[Response, int]:
 
 
 @user_data_bp.route('/summary', methods=['GET'])
-@login_required
+@api_session_login_required
 @limiter.limit(settings.API_RATE_LIMIT)
 def get_user_data_summary() -> Tuple[Response, int]:
     """
@@ -253,7 +255,8 @@ def get_user_data_summary() -> Tuple[Response, int]:
         JSON response with data summary
     """
     try:
-        user_id = current_user.id
+        auth_user = get_authenticated_principal()
+        user_id = auth_user.id
 
         # Efficient count query
         simulation_count = (
@@ -272,8 +275,8 @@ def get_user_data_summary() -> Tuple[Response, int]:
 
         return success_response({
             "user_id": user_id,
-            "username": current_user.username,
-            "account_created": current_user.created_at.isoformat() if current_user.created_at else None,
+            "username": auth_user.username,
+            "account_created": auth_user.created_at.isoformat() if auth_user.created_at else None,
             "data_summary": {
                 "total_simulations": simulation_count,
                 "simulations_by_status": dict(status_counts)

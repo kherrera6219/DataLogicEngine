@@ -9,6 +9,13 @@ Only operational admin endpoints remain: cache control and health.
 import pytest
 
 
+def _assert_json_unauthorized(response):
+    assert response.status_code == 401
+    body = response.get_json()
+    assert body["success"] is False
+    assert body["code"] == "UNAUTHORIZED"
+
+
 @pytest.fixture
 def admin_client(app, client):
     """Authenticated client (single-mode: the one OS user is the owner).
@@ -41,7 +48,7 @@ class TestAdminHealth:
     def test_health_requires_auth(self, client):
         """Health endpoint requires authentication."""
         response = client.get('/api/v1/admin/health')
-        assert response.status_code in [401, 302]
+        _assert_json_unauthorized(response)
 
 
 class TestCacheManagement:
@@ -76,4 +83,4 @@ class TestCacheManagement:
     def test_clear_requires_auth(self, client):
         """Cache clear requires authentication."""
         response = client.post('/api/v1/admin/cache/clear', json={})
-        assert response.status_code in [401, 302]
+        _assert_json_unauthorized(response)

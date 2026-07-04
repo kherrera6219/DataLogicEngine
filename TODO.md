@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-2** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, and focused backend/frontend/CSRF regressions added. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed with a Neo4j teardown logging warning after successful exit. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-3** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, and API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -89,7 +89,30 @@ Validation:
 2. `python -m pytest -q --no-cov tests\integration_routes\test_settings_routes_auth.py tests\integration_routes\test_desktop_auto_login_security.py tests\security\test_session_security.py tests\unit\test_auth_api_decorators_security.py` — 16 passed.
 3. `npm --prefix frontend test -- tests/unit/lib/api/client.test.ts tests/unit/lib/api/auth.test.ts components/settings/AiModelSettings.test.tsx` — 34 passed.
 
-Next code audit slice: continue with remaining API route decorator consistency and API-key/session boundary review across search, user-data, notification, admin, MCP, and LLM admin endpoints before moving deeper into feature-specific logic.
+## Code audit slice 3 — API route decorator consistency and API-key/session boundaries — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited search, user-data export/delete/summary, notification preferences, operational admin routes, feature flags, MCP routes, and LLM admin endpoints for raw Flask-Login decorators, JSON API auth behavior, and API-key/session boundary drift.
+2. Classified session-only desktop routes separately from external API-key routes: user-data, notifications, search, feature flags, admin health/cache, and LLM admin remain session/signed-desktop only; MCP tool execution keeps API-key access so connector-scope enforcement can run.
+3. Added a shared authenticated-principal helper for code that must work with session, signed desktop, or API-key decorators.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| Several JSON/API route modules still used page-style `@login_required`, so unauthenticated API calls could return redirects or inconsistent status envelopes. | Replaced the scoped routes with `api_session_login_required` and tightened route tests to assert JSON `401` / `UNAUTHORIZED` responses. | Done |
+| MCP admin routes stacked `@login_required` before `@api_admin_required`, blocking the external API-key path that the admin decorator is meant to allow. | Removed the raw Flask-Login wrapper from MCP admin routes and added a route regression proving `/api/v1/mcp/clients` accepts a valid ExternalAPIKey principal. | Done |
+| MCP tool execution built scope context from Flask-Login `current_user`, so API-key principals resolved into `g.auth_user` were invisible to connector-scope enforcement. | Added `get_authenticated_principal()` and switched MCP context construction to it; unit coverage now verifies API-key principal/scopes flow into tool execution context. | Done |
+| LLM admin/provider/API-key/governance routes still used raw `@login_required` and direct `current_user` writes. | Moved those routes to `api_session_login_required`, used the resolved principal for creator/approver/API-key ownership fields, and added an unauthenticated JSON 401 regression. | Done |
+
+Validation:
+
+1. `python -m ruff check backend\auth\api_decorators.py backend\llm_gateway\api.py backend\routes\admin_routes.py backend\routes\feature_flag_routes.py backend\routes\mcp_routes.py backend\routes\notification_routes.py backend\routes\search_routes.py backend\routes\user_data_routes.py tests\integration\test_llm_gateway_coverage.py tests\integration_routes\test_admin_routes.py tests\integration_routes\test_notification_routes.py tests\integration_routes\test_route_coverage_expansion.py tests\integration_routes\test_mcp_route_auth_boundaries.py tests\phase_g\test_advanced_mcp.py tests\unit\test_auth_api_decorators_security.py` — passed.
+2. `python -m pytest -q --no-cov tests\integration_routes\test_route_coverage_expansion.py tests\integration_routes\test_notification_routes.py tests\integration_routes\test_admin_routes.py tests\integration\test_llm_gateway_coverage.py tests\integration_routes\test_mcp_route_auth_boundaries.py tests\unit\test_auth_api_decorators_security.py` — 70 passed; pytest exited successfully, with a Neo4j driver logging warning emitted during interpreter teardown.
+3. `python -m pytest -q --no-cov tests\phase_g\test_advanced_mcp.py::test_mcp_routes_admin_endpoints` — 1 passed; same teardown-only Neo4j logging warning.
+
+Next code audit slice: continue raw decorator and feature-specific route review in `backend/api/ka_management.py` and the remaining app-level Flask routes, then move into deeper KA/API behavior and data-contract validation.
 
 ## Unified Backlog
 

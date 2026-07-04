@@ -6,8 +6,8 @@ Provides search endpoints for knowledge graph and algorithms.
 
 import logging
 from flask import Blueprint, request, jsonify
-from flask_login import login_required
 
+from backend.auth.api_decorators import api_session_login_required
 from backend.search_service import (
     search_knowledge_nodes,
     search_ukg_nodes,
@@ -21,7 +21,7 @@ search_api = Blueprint('search_api', __name__)
 
 
 @search_api.route('/nodes', methods=['GET'])
-@login_required
+@api_session_login_required
 def search_nodes():
     """
     Search knowledge graph nodes.
@@ -67,7 +67,7 @@ def search_nodes():
 
 
 @search_api.route('/ukg', methods=['GET'])
-@login_required
+@api_session_login_required
 def search_ukg():
     """
     Search UKG nodes.
@@ -93,7 +93,7 @@ def search_ukg():
 
 
 @search_api.route('/algorithms', methods=['GET'])
-@login_required
+@api_session_login_required
 def search_ka():
     """
     Search knowledge algorithms.
@@ -117,7 +117,7 @@ def search_ka():
 
 
 @search_api.route('/global', methods=['GET'])
-@login_required
+@api_session_login_required
 def search_global():
     """
     Global search across all entities.
@@ -141,7 +141,7 @@ def search_global():
 
 
 @search_api.route('/suggest', methods=['GET'])
-@login_required
+@api_session_login_required
 def search_suggest():
     """
     Get search suggestions (autocomplete).

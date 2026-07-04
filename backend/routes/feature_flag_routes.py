@@ -9,10 +9,13 @@ Runtime endpoints for reading and managing feature flags.
 
 import logging
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user
 
 from extensions import db
-from backend.auth.api_decorators import current_user_is_owner
+from backend.auth.api_decorators import (
+    api_session_login_required,
+    current_user_is_owner,
+    get_authenticated_principal,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +28,8 @@ def _admin_required(fn):
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not (current_user.is_authenticated and current_user_is_owner()):
+        user = get_authenticated_principal()
+        if not getattr(user, 'is_authenticated', True) or not current_user_is_owner():
             return jsonify({'error': 'Admin access required'}), 403
         return fn(*args, **kwargs)
 
@@ -33,12 +37,13 @@ def _admin_required(fn):
 
 
 @feature_flag_bp.route('/api/v1/feature-flags', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_feature_flags():
     """Return the current feature flag state for the authenticated user."""
     from models import FeatureFlag
     flags = FeatureFlag.query.all()
-    user_role = getattr(current_user, 'role', 'user')
+    user = get_authenticated_principal()
+    user_role = getattr(user, 'role', 'user')
 
     result = {}
     for flag in flags:
@@ -55,12 +60,13 @@ def get_feature_flags():
 
 
 @feature_flag_bp.route('/api/v1/admin/feature-flags/<string:flag_key>', methods=['PATCH'])
-@login_required
+@api_session_login_required
 @_admin_required
 def update_feature_flag(flag_key: str):
     """Toggle or update a feature flag (admin only)."""
     from models import FeatureFlag, FeatureFlagAuditEvent
     data = request.get_json() or {}
+    user = get_authenticated_principal()
 
     flag = FeatureFlag.query.filter_by(flag_key=flag_key).first()
     if not flag:
@@ -82,15 +88,15 @@ def update_feature_flag(flag_key: str):
     if 'description' in data:
         flag.description = str(data['description'])
 
-    flag.updated_by = current_user.id
+    flag.updated_by = user.id
 
     # Write immutable audit record.
     audit = FeatureFlagAuditEvent(
         flag_key=flag_key,
         old_value=old_value,
         new_value=flag.value,
-        actor_id=current_user.id,
-        actor_username=getattr(current_user, 'username', None),
+        actor_id=user.id,
+        actor_username=getattr(user, 'username', None),
         change_reason=data.get('reason'),
         source='api',
     )
@@ -101,7 +107,7 @@ def update_feature_flag(flag_key: str):
 
 
 @feature_flag_bp.route('/api/v1/admin/feature-flags/audit', methods=['GET'])
-@login_required
+@api_session_login_required
 @_admin_required
 def get_feature_flag_audit():
     """Return the audit trail for all feature flag changes (admin only)."""

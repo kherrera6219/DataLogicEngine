@@ -43,6 +43,13 @@ def _login(client, app):
     )
 
 
+def _assert_json_unauthorized(resp):
+    assert resp.status_code == 401
+    body = resp.get_json()
+    assert body["success"] is False
+    assert body["code"] == "UNAUTHORIZED"
+
+
 # ====================================================================
 # 1. User Data Routes  (/api/v1/user/data/*)
 # ====================================================================
@@ -52,18 +59,18 @@ class TestUserDataRoutes:
 
     def test_export_requires_auth(self, client):
         resp = client.get("/api/v1/user/data/export")
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
     def test_summary_requires_auth(self, client):
         resp = client.get("/api/v1/user/data/summary")
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
     def test_delete_requires_auth(self, client):
         resp = client.post(
             "/api/v1/user/data/delete",
             json={"confirm": "DELETE"},
         )
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
     def test_export_authenticated(self, app, client):
         _login(client, app)
@@ -150,7 +157,7 @@ class TestSearchRoutes:
 
     def test_search_nodes_requires_auth(self, client):
         resp = client.get("/api/search/nodes?q=test")
-        assert resp.status_code in (401, 302, 403)
+        _assert_json_unauthorized(resp)
 
     def test_search_nodes_requires_query(self, app, client):
         _login(client, app)
@@ -337,3 +344,23 @@ class TestRouteRegistration:
 
         assert challenge.status_code == 405
         assert csrf.status_code == 200
+
+
+# ====================================================================
+# 10. Feature Flag Routes  (/api/v1/feature-flags*)
+# ====================================================================
+
+class TestFeatureFlagRoutes:
+    """Integration tests for routes/feature_flag_routes.py auth boundaries."""
+
+    def test_feature_flags_requires_json_session_auth(self, client):
+        resp = client.get("/api/v1/feature-flags")
+        _assert_json_unauthorized(resp)
+
+    def test_feature_flag_update_requires_json_session_auth(self, client):
+        resp = client.patch("/api/v1/admin/feature-flags/demo", json={"value": True})
+        _assert_json_unauthorized(resp)
+
+    def test_feature_flag_audit_requires_json_session_auth(self, client):
+        resp = client.get("/api/v1/admin/feature-flags/audit")
+        _assert_json_unauthorized(resp)

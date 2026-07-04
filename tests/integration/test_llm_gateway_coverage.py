@@ -25,6 +25,14 @@ def test_get_usage(authenticated_client):
     response = authenticated_client.get('/api/admin/usage')
     assert response.status_code == 200
 
+def test_llm_admin_requires_json_session_auth(client):
+    """LLM admin endpoints should reject unauthenticated clients with JSON 401."""
+    response = client.get('/api/admin/api-keys')
+    assert response.status_code == 401
+    body = response.get_json()
+    assert body['success'] is False
+    assert body['code'] == 'UNAUTHORIZED'
+
 def test_gateway_chat_validation(authenticated_client):
     """Test chat endpoint with invalid data."""
     # Test missing messages

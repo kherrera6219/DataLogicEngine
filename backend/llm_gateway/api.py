@@ -10,7 +10,7 @@ import asyncio
 from datetime import datetime, UTC
 from functools import wraps
 from flask import Blueprint, request, jsonify, Response, stream_with_context, g
-from flask_login import login_required, current_user
+from flask_login import current_user
 import json
 import logging
 import os
@@ -30,7 +30,11 @@ from models import (
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
 from backend.llm_gateway.model_defaults import SUPPORTED_PROVIDER_TYPES, default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
-from backend.auth.api_decorators import api_session_login_required, current_user_is_owner
+from backend.auth.api_decorators import (
+    api_session_login_required,
+    current_user_is_owner,
+    get_authenticated_principal,
+)
 from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
 from backend.storage.runtime_settings import get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
@@ -730,7 +734,7 @@ def list_user_sessions():
 def admin_required(f):
     """Require admin access."""
     @wraps(f)
-    @login_required
+    @api_session_login_required
     def decorated(*args, **kwargs):
         if not current_user_is_owner():
             return jsonify({'error': 'Admin access required'}), 403
@@ -739,7 +743,7 @@ def admin_required(f):
 
 
 @admin_bp.route('/providers', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_providers():
     """List all providers (admin view)."""
     providers = LLMProvider.query.order_by(LLMProvider.priority).all()
@@ -753,6 +757,7 @@ def list_providers():
 def create_provider():
     """Create a new provider."""
     data = request.get_json() or {}
+    actor = get_authenticated_principal()
     
     required = ['name', 'provider_type']
     for field in required:
@@ -774,7 +779,7 @@ def create_provider():
         timeout_seconds=data.get('timeout_seconds', 30),
         max_retries=data.get('max_retries', 3),
         config=data.get('config'),
-        created_by=current_user.id,
+        created_by=actor.id,
     )
     
     # Set API key if provided
@@ -792,7 +797,7 @@ def create_provider():
 
 
 @admin_bp.route('/providers/<provider_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_provider(provider_id):
     """Get provider details."""
     parsed = _parse_uuid_or_404(provider_id, 'provider_id')
@@ -973,7 +978,7 @@ def test_provider(provider_id):
 # ============== AI Governance Registry ==============
 
 @admin_bp.route('/prompt-templates', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_prompt_templates():
     """List registered prompt templates."""
     query = PromptTemplate.query.order_by(PromptTemplate.template_key.asc(), PromptTemplate.created_at.desc())
@@ -988,6 +993,7 @@ def list_prompt_templates():
 def create_prompt_template():
     """Create a versioned prompt template."""
     data = request.get_json() or {}
+    actor = get_authenticated_principal()
     template_key = str(data.get('template_key') or '').strip()
     version = str(data.get('version') or '1.0.0').strip()
     template_body = str(data.get('template_body') or '').strip()
@@ -1006,7 +1012,7 @@ def create_prompt_template():
         description=data.get('description'),
         template_metadata=data.get('metadata') if isinstance(data.get('metadata'), dict) else {},
         is_active=bool(data.get('is_active', True)),
-        created_by=current_user.id,
+        created_by=actor.id,
     )
     db.session.add(template)
     db.session.commit()
@@ -1040,12 +1046,13 @@ def update_prompt_template(template_id: str):
 @admin_required
 def approve_prompt_template(template_id: str):
     """Approve a prompt template so it can be used by the governance engine."""
+    actor = get_authenticated_principal()
     template = PromptTemplate.query.get(template_id)
     if not template:
         return jsonify({'error': 'Not found'}), 404
 
     template.approval_state = 'approved'
-    template.approved_by = current_user.id
+    template.approved_by = actor.id
     template.approved_at = datetime.now(UTC)
     template.rejected_reason = None
     db.session.commit()
@@ -1082,7 +1089,7 @@ def delete_prompt_template(template_id: str):
 
 
 @admin_bp.route('/routing-policies', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_routing_policies():
     """List registered model routing policies."""
     query = ModelRoutingPolicy.query.order_by(
@@ -1100,6 +1107,7 @@ def list_routing_policies():
 def create_routing_policy():
     """Create a versioned model routing policy."""
     data = request.get_json() or {}
+    actor = get_authenticated_principal()
     policy_name = str(data.get('policy_name') or '').strip()
     version = str(data.get('version') or '1.0.0').strip()
     rules = data.get('rules')
@@ -1116,7 +1124,7 @@ def create_routing_policy():
         version=version,
         rules=rules,
         is_active=bool(data.get('is_active', True)),
-        created_by=current_user.id,
+        created_by=actor.id,
     )
     db.session.add(policy)
     db.session.commit()
@@ -1124,14 +1132,15 @@ def create_routing_policy():
 
 
 @admin_bp.route('/ai-audit', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_ai_audit_events():
     """List AI audit trail events with model/version/policy metadata."""
+    actor = get_authenticated_principal()
     limit = request.args.get('limit', 100, type=int)
     limit = max(1, min(limit, 500))
     query = AIAuditEvent.query.order_by(AIAuditEvent.created_at.desc())
     if not current_user_is_owner():
-        query = query.filter_by(user_id=current_user.id)
+        query = query.filter_by(user_id=actor.id)
     events = query.limit(limit).all()
     return jsonify({'events': [event.to_dict() for event in events]})
 
@@ -1139,13 +1148,14 @@ def list_ai_audit_events():
 # ============== API Key Management ==============
 
 @admin_bp.route('/api-keys', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_api_keys():
     """List API keys (admin sees all, users see their own)."""
+    actor = get_authenticated_principal()
     if current_user_is_owner():
         keys = ExternalAPIKey.query.order_by(ExternalAPIKey.created_at.desc()).all()
     else:
-        keys = ExternalAPIKey.query.filter_by(user_id=current_user.id).order_by(
+        keys = ExternalAPIKey.query.filter_by(user_id=actor.id).order_by(
             ExternalAPIKey.created_at.desc()
         ).all()
     
@@ -1155,10 +1165,11 @@ def list_api_keys():
 
 
 @admin_bp.route('/api-keys', methods=['POST'])
-@login_required
+@api_session_login_required
 def create_api_key():
     """Create a new API key."""
     data = request.get_json() or {}
+    actor = get_authenticated_principal()
     
     if not data.get('name'):
         return jsonify({'error': 'name required'}), 400
@@ -1170,7 +1181,7 @@ def create_api_key():
         name=data['name'],
         key_prefix=prefix,
         key_hash=key_hash,
-        user_id=current_user.id,
+        user_id=actor.id,
         permissions=data.get('permissions', {'read': True, 'write': True, 'admin': False}),
         allowed_providers=data.get('allowed_providers'),
         allowed_models=data.get('allowed_models'),
@@ -1196,16 +1207,17 @@ def create_api_key():
 
 
 @admin_bp.route('/api-keys/<key_id>', methods=['DELETE'])
-@login_required
+@api_session_login_required
 def revoke_api_key(key_id):
     """Revoke an API key."""
+    actor = get_authenticated_principal()
     parsed = _parse_uuid_or_404(key_id, 'key_id')
     if isinstance(parsed, tuple):
         return parsed
     api_key = ExternalAPIKey.query.get_or_404(parsed)
     
     # Only owner or admin can revoke
-    if api_key.user_id != current_user.id:
+    if api_key.user_id != actor.id:
         if not current_user_is_owner():
             return jsonify({'error': 'Access denied'}), 403
     
@@ -1218,11 +1230,12 @@ def revoke_api_key(key_id):
 # ============== Usage Analytics ==============
 
 @admin_bp.route('/usage', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_usage():
     """Get usage analytics."""
     from sqlalchemy import func
     from datetime import timedelta
+    actor = get_authenticated_principal()
     
     # Filter by time range
     days = request.args.get('days', 7, type=int)
@@ -1232,7 +1245,7 @@ def get_usage():
     
     # Non-admins only see their own usage
     if not current_user_is_owner():
-        query = query.filter_by(user_id=current_user.id)
+        query = query.filter_by(user_id=actor.id)
     
     # Aggregate stats
     total_requests = query.count()
