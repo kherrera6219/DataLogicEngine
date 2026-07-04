@@ -469,6 +469,13 @@ Legacy alias: `/api/ka` with deprecation headers.
   - List available algorithms with metadata and registration status.
   - Query parameters: `page` (minimum `1`), `per_page` (minimum `1`, maximum `300`), `category`, `status`, `risk_class`, and `layer`.
 
+### Execution history
+
+- **GET** `/history`
+  - Return recent persisted KA executions for the tool execution history page.
+  - Query parameters: `limit` (minimum `1`, maximum `200`).
+  - Response records normalize KA ids/names, risk tier (`read_only`, `write`, `destructive`), UI status (`success`, `failure`, `blocked`), duration, error text, and trace-run links when a `run_id` or `trace_run_id` is present in the persisted execution payload.
+
 ### Execute algorithm
 
 - **POST** `/algorithms/<ka_id>/execute`
@@ -562,6 +569,12 @@ Primary prefix: `/api/v1/trace`.
 
 - **GET** `/runs/<run_id>/stages`
   - Step-by-step execution flow.
+
+### KA execution feed
+
+- **GET** `/ka-execution-feed`
+  - Return recent persisted KA execution rows for the Live Trace panel and desktop IPC.
+  - Query parameters: `limit` (minimum `1`, maximum `100`).
 
 ### Get trace subresources
 

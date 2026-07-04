@@ -247,7 +247,10 @@ def get_live_progress():
 @api_session_login_required
 def get_ka_execution_feed():
     """Return recent KA execution activity for desktop IPC."""
-    limit = min(max(request.args.get('limit', 20, type=int), 1), 100)
+    requested_limit = request.args.get('limit', 20, type=int)
+    if requested_limit is None:
+        requested_limit = 20
+    limit = min(max(requested_limit, 1), 100)
     query = KAExecution.query
     tenant_id = getattr(current_user, 'tenant_id', None)
     if tenant_id:

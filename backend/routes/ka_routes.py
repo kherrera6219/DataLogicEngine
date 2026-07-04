@@ -89,6 +89,10 @@ def _layer_sort_key(item):
     return (1, layer)
 
 
+def _iso_datetime(value):
+    return value.isoformat() if value else None
+
+
 def parse_list_field(value):
     """Parse semicolon or comma-separated field into list"""
     if not value:
@@ -176,10 +180,10 @@ def get_execution_history():
     try:
         from models import KAExecution
 
-        limit = min(request.args.get('limit', 50, type=int), 200)
+        limit = _bounded_int_query('limit', 50, minimum=1, maximum=200)
         executions = (
             KAExecution.query
-            .order_by(KAExecution.started_at.desc())
+            .order_by(KAExecution.started_at.desc(), KAExecution.id.desc())
             .limit(limit)
             .all()
         )
@@ -191,33 +195,53 @@ def get_execution_history():
             'critical': 'destructive',
         }
 
-        def _risk_tier(ka_id_norm):
-            info = _get_controller().get_available_algorithms().get(ka_id_norm, {})
-            rc = (info.get('metadata') or {}).get('Risk_Class', '').lower()
+        def _metadata_for(ka_id):
+            try:
+                ka_id_norm = _get_controller()._normalize_ka_id(ka_id)
+            except Exception:
+                ka_id_norm = ka_id
+            algorithms = _get_controller().get_available_algorithms()
+            info = algorithms.get(ka_id_norm) or algorithms.get(ka_id) or {}
+            return ka_id_norm, info.get('metadata') or {}
+
+        def _risk_tier(metadata):
+            rc = (metadata.get('Risk_Class') or '').lower()
             return risk_tier_map.get(rc, 'read_only')
 
-        def _ka_name(ka_id_norm):
-            info = _get_controller().get_available_algorithms().get(ka_id_norm, {})
-            return (info.get('metadata') or {}).get('KA_Name', ka_id_norm)
+        def _ka_name(ka_id_norm, metadata):
+            return metadata.get('KA_Name') or metadata.get('name') or ka_id_norm
 
         def _status(raw):
-            return 'success' if raw == 'completed' else ('failure' if raw == 'failed' else raw)
+            normalized = str(raw or '').lower()
+            if normalized in {'completed', 'success', 'succeeded'}:
+                return 'success'
+            if normalized in {'failed', 'failure', 'error'}:
+                return 'failure'
+            return 'blocked'
 
-        records = [
-            {
-                'id': str(e.id),
-                'ka_id': e.ka_id,
-                'ka_name': _ka_name(e.ka_id),
-                'risk_tier': _risk_tier(e.ka_id),
-                'status': _status(e.status),
+        def _trace_run_id(execution):
+            for payload in (execution.output_data, execution.input_data):
+                if isinstance(payload, dict):
+                    run_id = payload.get('run_id') or payload.get('trace_run_id')
+                    if run_id:
+                        return str(run_id)
+            return None
+
+        records = []
+        for execution in executions:
+            ka_id_norm, metadata = _metadata_for(execution.ka_id)
+            records.append({
+                'id': str(execution.id),
+                'ka_id': ka_id_norm,
+                'ka_name': _ka_name(ka_id_norm, metadata),
+                'risk_tier': _risk_tier(metadata),
+                'status': _status(execution.status),
                 'triggered_by': 'user',
-                'run_id': e.uid,
-                'duration_ms': e.execution_time_ms,
-                'created_at': e.started_at.isoformat() if e.started_at else None,
-                'error': e.error_message,
-            }
-            for e in executions
-        ]
+                'run_id': _trace_run_id(execution),
+                'duration_ms': execution.execution_time_ms,
+                'created_at': _iso_datetime(execution.started_at or execution.completed_at),
+                'error': execution.error_message,
+            })
 
         return jsonify({'success': True, 'executions': records}), 200
     except Exception as e:

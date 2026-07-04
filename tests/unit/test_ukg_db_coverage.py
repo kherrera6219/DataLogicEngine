@@ -116,3 +116,99 @@ class TestUkgDatabaseManager:
         assert result is True
         mock_db.session.delete.assert_called_with(mock_node)
         mock_db.session.commit.assert_called()
+
+    def test_create_ka_execution_uses_current_schema(self, db_manager, mock_db):
+        mock_execution = MagicMock()
+        mock_execution.id = 1
+        mock_execution.uid = "exec-1"
+        mock_execution.ka_id = "KA-001"
+        mock_execution.status = "completed"
+        mock_execution.input_data = {"query": "test", "session_id": "session-1"}
+        mock_execution.output_data = {"answer": "ok"}
+        mock_execution.error_message = None
+        mock_execution.execution_time_ms = 12
+        mock_execution.tenant_id = "test_tenant"
+        mock_execution.started_at = datetime(2026, 7, 4, tzinfo=UTC)
+        mock_execution.completed_at = datetime(2026, 7, 4, 0, 0, 1, tzinfo=UTC)
+
+        db_manager.KAExecution = MagicMock(return_value=mock_execution)
+        mock_query = MagicMock()
+        mock_db.session.query.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.first.return_value = MagicMock()
+
+        result = db_manager.create_ka_execution(
+            {
+                "execution_id": "exec-1",
+                "ka_id": "KA-001",
+                "session_id": "session-1",
+                "params": {"query": "test"},
+                "results": {"answer": "ok"},
+                "duration_ms": 12.4,
+                "status": "success",
+                "start_time": "2026-07-04T00:00:00+00:00",
+                "end_time": "2026-07-04T00:00:01+00:00",
+            }
+        )
+
+        kwargs = db_manager.KAExecution.call_args.kwargs
+        assert kwargs["uid"] == "exec-1"
+        assert kwargs["ka_id"] == "KA-001"
+        assert kwargs["status"] == "completed"
+        assert kwargs["input_data"] == {"query": "test", "session_id": "session-1"}
+        assert kwargs["output_data"] == {"answer": "ok"}
+        assert kwargs["execution_time_ms"] == 12
+        assert "algorithm_id" not in kwargs
+        assert "execution_time" not in kwargs
+        assert result["duration_ms"] == 12
+        assert result["session_id"] == "session-1"
+        mock_db.session.add.assert_called_with(mock_execution)
+        mock_db.session.commit.assert_called()
+
+    def test_get_ka_executions_returns_current_schema_dicts(self, db_manager, mock_db):
+        mock_execution = MagicMock()
+        mock_execution.id = 1
+        mock_execution.uid = "exec-1"
+        mock_execution.ka_id = "KA-001"
+        mock_execution.status = "failed"
+        mock_execution.input_data = {"query": "test"}
+        mock_execution.output_data = None
+        mock_execution.error_message = "boom"
+        mock_execution.execution_time_ms = 15
+        mock_execution.tenant_id = "test_tenant"
+        mock_execution.started_at = datetime(2026, 7, 4, tzinfo=UTC)
+        mock_execution.completed_at = datetime(2026, 7, 4, 0, 0, 1, tzinfo=UTC)
+
+        db_manager.KAExecution = MagicMock()
+        mock_query = MagicMock()
+        mock_db.session.query.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.order_by.return_value = mock_query
+        mock_query.offset.return_value = mock_query
+        mock_query.limit.return_value = mock_query
+        mock_query.all.return_value = [mock_execution]
+
+        result = db_manager.get_ka_executions({"ka_id": "KA-001"}, limit=10, offset=0)
+
+        assert result == [
+            {
+                "id": 1,
+                "uid": "exec-1",
+                "execution_id": "exec-1",
+                "ka_id": "KA-001",
+                "session_id": None,
+                "status": "failed",
+                "input_data": {"query": "test"},
+                "output_data": None,
+                "results": None,
+                "error_message": "boom",
+                "error": "boom",
+                "execution_time_ms": 15,
+                "duration_ms": 15,
+                "tenant_id": "test_tenant",
+                "started_at": "2026-07-04T00:00:00+00:00",
+                "completed_at": "2026-07-04T00:00:01+00:00",
+                "start_time": "2026-07-04T00:00:00+00:00",
+                "end_time": "2026-07-04T00:00:01+00:00",
+            }
+        ]

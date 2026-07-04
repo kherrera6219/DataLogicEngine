@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -708,58 +708,190 @@ class UkgDatabaseManager:
             dict: Created execution data or None if creation failed
         """
         try:
-            # Get algorithm ID with tenant isolation
             ka_id = execution_data.get('ka_id')
-            ka_query = self.db.session.query(self.KnowledgeAlgorithm).filter(self.KnowledgeAlgorithm.ka_id == ka_id)
-            if self.tenant_id:
-                ka_query = ka_query.filter(self.KnowledgeAlgorithm.tenant_id == self.tenant_id)
-            algorithm = ka_query.first()
-            
-            if not algorithm:
-                logging.error(f"UKGDB: Knowledge algorithm {ka_id} not found in tenant {self.tenant_id}")
+            if not ka_id:
+                logging.error("UKGDB: KA execution missing ka_id")
                 return None
-            
-            # Create a new KAExecution object
-            execution = self.KAExecution(
-                algorithm_id=algorithm.id,
-                session_id=execution_data.get('session_id'),
-                pass_num=execution_data.get('pass_num', 0),
-                layer_num=execution_data.get('layer_num', 0),
-                input_data=execution_data.get('input_data'),
-                output_data=execution_data.get('output_data'),
-                confidence=execution_data.get('confidence', 0.0),
-                execution_time=execution_data.get('execution_time'),
-                status=execution_data.get('status', 'pending'),
-                error_message=execution_data.get('error_message'),
-                tenant_id=self.tenant_id
+
+            ka_query = self.db.session.query(self.KnowledgeAlgorithm).filter(
+                self.KnowledgeAlgorithm.ka_id == ka_id
             )
-            
-            # Add to session and commit
+            algorithm = ka_query.first()
+
+            if not algorithm:
+                algorithm = self.KnowledgeAlgorithm(
+                    uid=f"ka-{str(ka_id).lower()}",
+                    ka_id=ka_id,
+                    name=str(ka_id),
+                    description="Auto-registered by KA execution telemetry.",
+                    tenant_id=self.tenant_id,
+                )
+                self.db.session.add(algorithm)
+                self.db.session.flush()
+
+            started_at = self._coerce_datetime(
+                execution_data.get('started_at') or execution_data.get('start_time')
+            ) or datetime.now(UTC)
+            completed_at = self._coerce_datetime(
+                execution_data.get('completed_at') or execution_data.get('end_time')
+            )
+            input_data = self._execution_input_data(execution_data)
+
+            execution = self.KAExecution(
+                uid=execution_data.get('uid') or execution_data.get('execution_id') or str(uuid.uuid4()),
+                ka_id=ka_id,
+                status=self._normalize_ka_execution_status(execution_data.get('status')),
+                input_data=input_data,
+                output_data=execution_data.get('output_data') or execution_data.get('results'),
+                error_message=execution_data.get('error_message') or execution_data.get('error'),
+                execution_time_ms=self._duration_ms(execution_data),
+                tenant_id=self.tenant_id,
+                started_at=started_at,
+                completed_at=completed_at,
+            )
+
             self.db.session.add(execution)
             self.db.session.commit()
-            
-            # Get the created execution as a dictionary
-            result = {
-                'id': execution.id,
-                'ka_id': ka_id,
-                'session_id': execution.session_id,
-                'pass_num': execution.pass_num,
-                'layer_num': execution.layer_num,
-                'input_data': execution.input_data,
-                'output_data': execution.output_data,
-                'confidence': execution.confidence,
-                'execution_time': execution.execution_time,
-                'status': execution.status,
-                'error_message': execution.error_message,
-                'created_at': execution.created_at.isoformat() if execution.created_at else None
-            }
-            
-            return result
-            
+
+            return self._ka_execution_to_dict(execution)
+
         except SQLAlchemyError as e:
             self.db.session.rollback()
             logging.error(f"UKGDB: Error creating KA execution: {str(e)}")
             return None
+
+    def get_ka_executions(
+        self,
+        filters: Optional[Dict] = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Dict]:
+        """Return KA execution rows using the current KAExecution schema."""
+        try:
+            filters = filters or {}
+            try:
+                limit = max(1, min(int(limit or 100), 500))
+            except (TypeError, ValueError):
+                limit = 100
+            try:
+                offset = max(0, int(offset or 0))
+            except (TypeError, ValueError):
+                offset = 0
+
+            query = self.db.session.query(self.KAExecution)
+            if self.tenant_id:
+                query = query.filter(self.KAExecution.tenant_id == self.tenant_id)
+            if filters.get('ka_id'):
+                query = query.filter(self.KAExecution.ka_id == filters['ka_id'])
+            if filters.get('status'):
+                query = query.filter(self.KAExecution.status == filters['status'])
+
+            rows = (
+                query.order_by(self.KAExecution.started_at.desc())
+                .offset(offset)
+                .limit(limit)
+                .all()
+            )
+            if filters.get('session_id'):
+                rows = [
+                    row for row in rows
+                    if isinstance(row.input_data, dict)
+                    and row.input_data.get('session_id') == filters['session_id']
+                ]
+            return [self._ka_execution_to_dict(row) for row in rows]
+        except SQLAlchemyError as e:
+            logging.error(f"UKGDB: Error fetching KA executions: {str(e)}")
+            return []
+
+    @staticmethod
+    def _normalize_ka_execution_status(status: Any) -> str:
+        normalized = str(status or 'pending').lower()
+        if normalized in {'started', 'running'}:
+            return 'running'
+        if normalized in {'completed', 'success', 'succeeded'}:
+            return 'completed'
+        if normalized in {'failed', 'failure', 'error'}:
+            return 'failed'
+        if normalized == 'blocked':
+            return 'blocked'
+        return 'pending'
+
+    @staticmethod
+    def _duration_ms(execution_data: Dict) -> Optional[int]:
+        for key in ('execution_time_ms', 'duration_ms'):
+            value = execution_data.get(key)
+            if value is not None:
+                try:
+                    return max(0, int(round(float(value))))
+                except (TypeError, ValueError):
+                    return None
+
+        value = execution_data.get('execution_time')
+        if value is not None:
+            try:
+                return max(0, int(round(float(value) * 1000)))
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    @staticmethod
+    def _coerce_datetime(value: Any) -> Optional[datetime]:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value.replace('Z', '+00:00'))
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
+    def _execution_input_data(execution_data: Dict) -> Any:
+        input_data = execution_data.get('input_data')
+        if input_data is None:
+            input_data = execution_data.get('params')
+
+        session_id = execution_data.get('session_id')
+        if not session_id:
+            return input_data
+        if isinstance(input_data, dict):
+            return {**input_data, 'session_id': session_id}
+        if input_data is None:
+            return {'session_id': session_id}
+        return {'value': input_data, 'session_id': session_id}
+
+    @staticmethod
+    def _iso_datetime(value: Optional[datetime]) -> Optional[str]:
+        return value.isoformat() if value else None
+
+    def _ka_execution_to_dict(self, execution) -> Dict:
+        session_id = (
+            execution.input_data.get('session_id')
+            if isinstance(execution.input_data, dict)
+            else None
+        )
+        return {
+            'id': execution.id,
+            'uid': execution.uid,
+            'execution_id': execution.uid,
+            'ka_id': execution.ka_id,
+            'session_id': session_id,
+            'status': execution.status,
+            'input_data': execution.input_data,
+            'output_data': execution.output_data,
+            'results': execution.output_data,
+            'error_message': execution.error_message,
+            'error': execution.error_message,
+            'execution_time_ms': execution.execution_time_ms,
+            'duration_ms': execution.execution_time_ms,
+            'tenant_id': execution.tenant_id,
+            'started_at': self._iso_datetime(execution.started_at),
+            'completed_at': self._iso_datetime(execution.completed_at),
+            'start_time': self._iso_datetime(execution.started_at),
+            'end_time': self._iso_datetime(execution.completed_at),
+        }
     
     # Session operations
     
