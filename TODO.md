@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-3** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, and API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-4** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, and remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -112,7 +112,28 @@ Validation:
 2. `python -m pytest -q --no-cov tests\integration_routes\test_route_coverage_expansion.py tests\integration_routes\test_notification_routes.py tests\integration_routes\test_admin_routes.py tests\integration\test_llm_gateway_coverage.py tests\integration_routes\test_mcp_route_auth_boundaries.py tests\unit\test_auth_api_decorators_security.py` — 70 passed; pytest exited successfully, with a Neo4j driver logging warning emitted during interpreter teardown.
 3. `python -m pytest -q --no-cov tests\phase_g\test_advanced_mcp.py::test_mcp_routes_admin_endpoints` — 1 passed; same teardown-only Neo4j logging warning.
 
-Next code audit slice: continue raw decorator and feature-specific route review in `backend/api/ka_management.py` and the remaining app-level Flask routes, then move into deeper KA/API behavior and data-contract validation.
+## Code audit slice 4 — Dead KA route module and stale Flask page routes — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited the remaining raw `@login_required` sites after slice 3. The only backend hits were `backend/api/ka_management.py` and two app-level Flask page routes.
+2. Confirmed `backend/api/ka_management.py` is not registered by the live app; current KA routes are served by `backend/routes/ka_routes.py` under `/api/v1/ka` and legacy `/api/ka`.
+3. Confirmed the app-level `/chat` and `/knowledge-graph` Flask routes referenced missing Jinja templates while the UI is owned by Electron/Next routes.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `backend/api/ka_management.py` was a dead duplicate KA blueprint with raw `@login_required`, route shapes that differ from the live KA API, and no production registration. | Removed the module and its synthetic-only `test_api_coverage.py`; trimmed stale imports from `test_api_routers.py`. | Done |
+| The dead duplicate module was masking the real KA route contract in tests. | Added focused live-route coverage for registered `/api/v1/ka` and `/api/ka` rules, JSON auth failure, public KA health, and ExternalAPIKey access to the real KA list route. | Done |
+| `app.py` still registered `/chat` and `/knowledge-graph` Flask routes that rendered missing Jinja templates. | Removed those stale server-rendered page routes and added a route-map regression confirming Flask does not own them. | Done |
+
+Validation:
+
+1. `python -m ruff check app.py tests\integration_routes\test_app_route_wiring.py tests\integration_routes\test_api_routers.py tests\integration_routes\test_ka_route_auth_boundaries.py tests\integration\test_additional_coverage.py` — passed.
+2. `python -m pytest -q --no-cov tests\integration_routes\test_ka_route_auth_boundaries.py tests\integration_routes\test_app_route_wiring.py tests\integration_routes\test_api_routers.py tests\integration\test_app_routes.py` — 10 passed; pytest exited successfully with the shared SQLAlchemy `Query.get()` deprecation warning from `api_decorators.py`.
+
+Next code audit slice: continue in the live KA API implementation (`backend/routes/ka_routes.py`) for behavior/data-contract correctness now that the dead duplicate blueprint is removed.
 
 ## Unified Backlog
 

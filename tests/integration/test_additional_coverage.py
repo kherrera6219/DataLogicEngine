@@ -22,14 +22,14 @@ def client():
 
 @pytest.fixture
 def authenticated_client(client, monkeypatch):
-    # Mock current_user for @login_required decorators
+    # Mock current_user for decorators that still resolve Flask-Login's user.
     mock_user = MagicMock()
     mock_user.id = 1
     mock_user.username = "testuser"
     mock_user.email = "test@example.com"
     mock_user.is_authenticated = True
     
-    # Patch current_user and login_required
+    # Patch Flask-Login user resolution for request handling.
     monkeypatch.setattr("flask_login.utils._get_user", lambda: mock_user)
     return client
 

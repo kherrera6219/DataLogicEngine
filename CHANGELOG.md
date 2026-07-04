@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Google model selection drift**: the gateway overlay no longer offers the retired Google model before the current `gemini-3.1-pro-preview` default, and LLM-path comments/docstrings now match the live model constants.
 
 ### Removed
+- **Dead KA management blueprint and stale Flask page routes**: removed the unregistered duplicate `backend/api/ka_management.py` blueprint and its synthetic-only tests; the live KA API is `backend/routes/ka_routes.py` under `/api/v1/ka` plus legacy `/api/ka`. Also removed broken Flask `/chat` and `/knowledge-graph` page routes that referenced missing Jinja templates; Electron/Next owns those UI routes.
 - **Legacy external SaaS connectors (Jira, Salesforce)**: removed the
   `backend/mcp_server/tools/jira.py` and `backend/mcp_server/tools/salesforce.py`
   MCP connectors, their registrations, the Jira webhook processor in

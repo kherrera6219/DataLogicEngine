@@ -16,7 +16,7 @@ load_dotenv(override=False)  # override=False: Electron env vars take priority; 
 apply_runtime_compatibility_patches()
 
 from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response, g
-from flask_login import login_required, current_user
+from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
 from extensions import limiter
@@ -1175,21 +1175,7 @@ def metrics() -> Response:
         mimetype="text/plain; version=0.0.4; charset=utf-8",
     )
 
-# Note: /login, /register, /logout, /dashboard are defined in routes.py with more complete implementations
-
-
 # Simulation API routes are registered via routes.register_routes()
-
-
-@app.route('/chat')
-@login_required
-def chat():
-    return render_template('chat.html')
-
-@app.route('/knowledge-graph')
-@login_required
-def knowledge_graph():
-    return render_template('knowledge_graph.html')
 
 @app.route('/api-docs')
 def api_docs():

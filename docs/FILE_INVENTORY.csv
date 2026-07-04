@@ -17,12 +17,11 @@ Path,Size_Bytes,Extension,Last_Modified
 .github\workflows\release-installer-signing.yml,3608,.yml,2026-05-14 02:05:19 UTC
 .github\workflows\security.yml,11116,.yml,2026-07-02 06:55:53 UTC
 .gitignore,2070,,2026-06-22 06:07:04 UTC
-app.py,51912,.py,2026-07-02 06:47:45 UTC
+app.py,51559,.py,2026-07-04 04:16:29 UTC
 backend.spec,3934,.spec,2026-06-12 03:12:51 UTC
 backend\.dockerignore,97,,2026-01-09 00:01:01 UTC
 backend\.pylintrc,1395,,2026-01-11 05:35:52 UTC
 backend\__init__.py,4323,.py,2026-06-20 05:11:09 UTC
-backend\api\ka_management.py,15242,.py,2026-05-31 06:49:59 UTC
 backend\api\specs\ukg_api_v3_2.yaml,116157,.yaml,2026-01-05 21:54:50 UTC
 backend\auth\__init__.py,0,.py,2026-01-09 01:09:47 UTC
 backend\auth\api_decorators.py,8495,.py,2026-07-04 03:58:09 UTC
@@ -492,7 +491,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,5588,.py,2026-05-29 06:58:00 UTC
-CHANGELOG.md,62680,.md,2026-07-04 04:10:31 UTC
+CHANGELOG.md,63084,.md,2026-07-04 04:18:39 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4280,.py,2026-02-16 17:41:21 UTC
@@ -774,9 +773,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13600,.md,2026-07-04 03:12:14 UTC
-docs\FILE_INVENTORY.csv,122135,.csv,2026-07-04 03:41:15 UTC
+docs\FILE_INVENTORY.csv,122223,.csv,2026-07-04 04:10:36 UTC
 docs\FILE_STRUCTURE.md,4396,.md,2026-07-02 06:47:45 UTC
-docs\GENERATED_STRUCTURE.md,69774,.md,2026-07-04 03:41:16 UTC
+docs\GENERATED_STRUCTURE.md,69825,.md,2026-07-04 04:10:36 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\MCP_INTEGRATION.md,11952,.md,2026-06-25 04:40:58 UTC
 docs\openapi.yaml,15861,.yaml,2026-07-04 03:10:48 UTC
@@ -1146,7 +1145,7 @@ frontend\types\electron.d.ts,3961,.ts,2026-05-29 05:35:24 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,92028,.md,2026-07-04 04:10:20 UTC
+HANDOFF.md,92876,.md,2026-07-04 04:18:33 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1434,7 +1433,7 @@ tests\contract\test_api_contract.py,3521,.py,2026-06-08 04:41:10 UTC
 tests\contract\test_canonical_v1_route_contracts.py,6945,.py,2026-06-21 19:08:26 UTC
 tests\dmrf\test_dmrf_integration.py,7032,.py,2026-06-12 01:47:30 UTC
 tests\end_to_end\test_e2e_scenarios.py,2808,.py,2026-02-16 22:25:20 UTC
-tests\integration\test_additional_coverage.py,8222,.py,2026-06-08 05:19:58 UTC
+tests\integration\test_additional_coverage.py,8260,.py,2026-07-04 04:17:04 UTC
 tests\integration\test_analytics_api.py,4234,.py,2026-04-01 02:19:08 UTC
 tests\integration\test_api_endpoints.py,17168,.py,2026-06-21 18:36:47 UTC
 tests\integration\test_app_routes.py,561,.py,2026-02-16 22:25:20 UTC
@@ -1450,11 +1449,11 @@ tests\integration\test_truth_engine_api.py,3165,.py,2026-02-16 22:25:20 UTC
 tests\integration_routes\__init__.py,0,.py,2026-01-28 06:20:49 UTC
 tests\integration_routes\conftest.py,982,.py,2026-02-07 05:40:51 UTC
 tests\integration_routes\test_admin_routes.py,2953,.py,2026-07-04 04:06:05 UTC
-tests\integration_routes\test_api_coverage.py,4150,.py,2026-02-16 22:25:20 UTC
 tests\integration_routes\test_api_ext_coverage.py,4007,.py,2026-05-31 06:49:59 UTC
-tests\integration_routes\test_api_routers.py,10024,.py,2026-02-16 22:25:20 UTC
-tests\integration_routes\test_app_route_wiring.py,567,.py,2026-02-16 21:53:33 UTC
+tests\integration_routes\test_api_routers.py,5023,.py,2026-07-04 04:14:15 UTC
+tests\integration_routes\test_app_route_wiring.py,865,.py,2026-07-04 04:16:51 UTC
 tests\integration_routes\test_desktop_auto_login_security.py,5163,.py,2026-06-20 06:10:14 UTC
+tests\integration_routes\test_mcp_route_auth_boundaries.py,1396,.py,2026-07-04 04:06:58 UTC
 tests\integration_routes\test_notification_routes.py,7456,.py,2026-07-04 04:06:00 UTC
 tests\integration_routes\test_regulatory_api_coverage.py,6871,.py,2026-02-07 07:04:50 UTC
 tests\integration_routes\test_route_coverage_expansion.py,14057,.py,2026-07-04 04:05:51 UTC
@@ -1587,6 +1586,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,125521,.md,2026-07-04 04:10:01 UTC
+TODO.md,127814,.md,2026-07-04 04:18:16 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC
