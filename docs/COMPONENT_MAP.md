@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.7.0 |
-| Last updated | 2026-06-08 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, technical reviewers |
@@ -122,7 +122,7 @@ flowchart TB
 | Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
 | 17-axis/FROST | `backend/dmrf/router.py`, `core/axes/` | Coordinate routing, FROST depth, TruthCore mode selection. |
 | DSQP | `backend/dsqp/` | Deterministic structured persona construction. |
-| LLM Gateway | `backend/llm_gateway/` | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.5-flash), usage/error handling, retries, circuit breaker. |
+| LLM Gateway | `backend/llm_gateway/` | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.1-pro-preview), usage/error handling, retries, circuit breaker. |
 | MCP | `backend/mcp_server/` | Connector registry, scopes, tool execution contracts. |
 | Storage/memory | `backend/storage/`, `backend/memory/`, `models.py` | SQL, Redis, Neo4j, Chroma, object storage, UnifiedMemory, USKD. |
 | Trace/export | `backend/tracing/`, `backend/security/export_integrity.py`, `frontend/app/runs/` | Run traces, evidence review, export integrity. |
@@ -171,7 +171,7 @@ flowchart TD
 
 | Dependency class | Examples | Notes |
 |---|---|---|
-| AI providers | OpenAI, Anthropic, Gemini/Azure where configured | Provider calls may move selected prompt/context outside local machine. |
+| AI providers | OpenAI and Google/Gemini where configured | Provider calls may move selected prompt/context outside local machine. |
 | MCP/external tools | configured connector targets | Scope/contract validation required. |
 | Local data services | SQL, Redis, Neo4j, ChromaDB, object store | App-owned local/VM stack by default. |
 | CI/release services | GitHub Actions, signing workflows | Evidence required for release claims. |

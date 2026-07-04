@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.9.0 |
-| Last updated | 2026-06-27 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -360,11 +360,11 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 
 ## Change notes for v2.9.0
 
-1. Updated document version to v2.9.0 and last-updated date to 2026-06-27.
+1. Updated document version to v2.9.0 and last-updated date to 2026-06-27; the 2026-07-04 documentation audit refreshed model-provider wording without changing the readiness decision.
 2. **LLM layer simplified to a single cloud model.** Removed the 6-tier
    local-Ollama escalation engine and the `backend/local_model_acceleration/`
    subsystem; the app now uses one user-selected cloud model (OpenAI `gpt-5.5`
-   or Google `gemini-3.5-flash`).
+   or Google `gemini-3.1-pro-preview`).
 3. **Readiness impact:** reasoning now requires a cloud API key + internet — the
    app is no longer air-gapped/offline-capable for inference (data still stays
    local). Any "offline LLM / air-gapped" acceptance criteria no longer apply;

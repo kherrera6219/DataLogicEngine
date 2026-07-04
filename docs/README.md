@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-06-08 |
+| Document version | v2.10.0 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -168,7 +168,7 @@ python scripts/validate_schema_parity.py
 
 The active documentation set has been normalized around:
 
-1. v2.6.0 document metadata;
+1. active document metadata and current-state routing guidance;
 2. local-first desktop and controlled web/cloud modes;
 3. DMRF as the governed control plane;
 4. Truth Engine as the policy/reasoning/memory layer;
@@ -176,9 +176,13 @@ The active documentation set has been normalized around:
 6. trace, evidence, privacy, export, and release governance;
 7. evidence-based security and compliance claims.
 
+## Change notes for v2.10.0
+
+1. **Documentation audit refresh.** Aligned active docs and `docs/openapi.yaml` to the live model defaults (OpenAI `gpt-5.5`, Google `gemini-3.1-pro-preview`) and single-owner desktop auth surface. Retired stale duplicate API exports from `docs/api/` into `docs/archive/api/`; root scratch-output `.txt` files are cleanup candidates, not maintained docs.
+
 ## Change notes for v2.9.0
 
-1. **LLM layer simplified to a single cloud model.** The 6-tier local-Ollama escalation engine was removed; the app now uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`), so reasoning requires a cloud API key + internet (data still stays local). Reframed `docs/ARCHITECTURE.md`, `docs/COMPONENT_MAP.md`, `docs/API.md`, `docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`, `docs/ENGINEER_ONBOARDING.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/FILE_STRUCTURE.md`, and `docs/diagrams/12_end_to_end_request_lifecycle.md` to "local-first data + cloud BYOK"; removed the obsolete local-model-acceleration guide. (Supersedes the 6-tier escalation additions recorded under v2.7.0 below.)
+1. **LLM layer simplified to a single cloud model.** The 6-tier local-Ollama escalation engine was removed; the app now uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`), so reasoning requires a cloud API key + internet (data still stays local). Reframed `docs/ARCHITECTURE.md`, `docs/COMPONENT_MAP.md`, `docs/API.md`, `docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`, `docs/ENGINEER_ONBOARDING.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/FILE_STRUCTURE.md`, and `docs/diagrams/12_end_to_end_request_lifecycle.md` to "local-first data + cloud BYOK"; removed the obsolete local-model-acceleration guide. (Supersedes the 6-tier escalation additions recorded under v2.7.0 below.)
 
 ## Change notes for v2.7.0
 

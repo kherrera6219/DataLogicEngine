@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Audience | New software engineers and technical reviewers |
@@ -108,7 +108,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
-   - Cloud model: the app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`). Set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
+   - Cloud model: the app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`). Set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 
 ### Readiness checks
 

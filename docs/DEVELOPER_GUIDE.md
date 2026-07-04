@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Developer Experience |
 | Review cadence | Every 30 days |
@@ -82,7 +82,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
-   - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
+   - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
 Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.

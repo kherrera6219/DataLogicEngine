@@ -347,6 +347,64 @@ def test_gateway_chat_enforces_daily_rate_limit(app_client):
 # --- Provider Admin Tests ---
 
 @patch('flask_login.utils._get_user')
+def test_save_provider_key_rejects_unsupported_provider(mock_curr_user, app_client):
+    mocks = app_client.application.mocks
+    MockProvider = mocks['Provider']
+
+    mock_curr_user.return_value = MockUser(is_admin=True)
+
+    resp = app_client.post('/api/v1/gateway/keys', json={
+        'provider': 'ollama',
+        'key': 'local-key',
+        'model': 'llama-local',
+    })
+
+    assert resp.status_code == 400
+    assert resp.json['error'] == 'Unsupported provider selection'
+    assert 'openai' in resp.json['supported_providers']
+    MockProvider.query.filter_by.assert_not_called()
+
+
+@patch('flask_login.utils._get_user')
+def test_save_provider_key_normalizes_provider_key_and_model(mock_curr_user, app_client):
+    mocks = app_client.application.mocks
+    mock_db = mocks['DB']
+    MockProvider = mocks['Provider']
+
+    mock_curr_user.return_value = MockUser(id=7, is_admin=True)
+    MockProvider.query.filter_by.return_value.order_by.return_value.first.return_value = None
+
+    mock_new_provider = MagicMock()
+    mock_new_provider.id = 'provider-google-id'
+    mock_new_provider.provider_type = 'google'
+    mock_new_provider.model_id = None
+    mock_new_provider.to_dict.return_value = {
+        'id': 'provider-google-id',
+        'provider_type': 'google',
+        'model_id': 'gemini-3.1-pro-preview',
+    }
+    MockProvider.return_value = mock_new_provider
+
+    resp = app_client.post('/api/v1/gateway/keys', json={
+        'provider': ' Google ',
+        'key': '  test-google-key  ',
+        'model': ' gemini-3.1-pro-preview ',
+    })
+
+    assert resp.status_code == 200
+    assert resp.json['success'] is True
+    MockProvider.assert_called_once()
+    _, kwargs = MockProvider.call_args
+    assert kwargs['provider_type'] == 'google'
+    assert kwargs['name'] == 'Google'
+    assert kwargs['created_by'] == 7
+    assert mock_new_provider.model_id == 'gemini-3.1-pro-preview'
+    mock_new_provider.set_api_key.assert_called_once_with('test-google-key')
+    mock_db.session.add.assert_called_once_with(mock_new_provider)
+    mock_db.session.commit.assert_called()
+
+
+@patch('flask_login.utils._get_user')
 def test_create_provider(mock_curr_user, app_client):
     mocks = app_client.application.mocks
     mock_db = mocks['DB']

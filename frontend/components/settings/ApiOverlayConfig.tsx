@@ -54,7 +54,7 @@ interface SaveKeyResponse {
 const PROVIDER_MODELS: Record<string, string[]> = {
   openai: ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'],
   anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
-  google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
+  google: ['gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
   azure: ['gpt-5.5', 'gpt-5.4'],
 };
 

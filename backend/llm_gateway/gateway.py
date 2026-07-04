@@ -579,7 +579,7 @@ class LLMGateway:
         # Model selection: the request uses the caller-pinned provider/model, or
         # the user's saved preference (set above from UserAIPreferences), or the
         # first active cloud provider's default model — gpt-5.5 (OpenAI) or
-        # gemini-3.5-flash (Google) — resolved by _get_eligible_providers +
+        # gemini-3.1-pro-preview (Google) — resolved by _get_eligible_providers +
         # _resolve_model below. There is no tiered escalation; a single
         # user-selected cloud model handles every request.
 

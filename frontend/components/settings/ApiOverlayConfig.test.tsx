@@ -210,4 +210,18 @@ describe('ApiOverlayConfig', () => {
     expect(screen.getByRole('slider', { name: 'Confidence threshold' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Copy gateway endpoint' })).toBeInTheDocument();
   });
+
+  it('offers the current Google model choices without the retired model', async () => {
+    render(<ApiOverlayConfig />);
+
+    const providerSelect = screen.getByRole('combobox', { name: 'Provider' });
+    fireEvent.change(providerSelect, { target: { value: 'google' } });
+
+    const modelSelect = screen.getByRole('combobox', { name: 'Model' }) as HTMLSelectElement;
+    await waitFor(() => {
+      const options = Array.from(modelSelect.options).map((option) => option.value);
+      expect(options).toContain('gemini-3.1-pro-preview');
+      expect(options).not.toContain('gemini-3.5-flash');
+    });
+  });
 });

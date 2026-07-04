@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, security reviewers, technical evaluators |
@@ -55,7 +55,7 @@ flowchart LR
     DMRF[DMRF Control Plane]
     TRUTH[Truth Engine\nTruthGate / TruthCore / TruthMemory / TruthLink]
     DATA[(Local / App-Owned Stores\nSQL / Redis / Neo4j / Chroma / Object / Memory)]
-    PROVIDERS[AI Providers\nOpenAI / Anthropic / Gemini / Azure]
+    PROVIDERS[AI Providers\nOpenAI / Google Gemini]
     MCP[MCP Connectors / External Tools]
     EXPORT[Trace Export / Privacy Export]
     OPS[Metrics / Logs / Support Bundles]

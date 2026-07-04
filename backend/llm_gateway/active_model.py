@@ -3,7 +3,7 @@
 This is the cloud-only replacement for the former local-Ollama path used by
 internal steps (DSQP answer generation, defense-supervisor screening). The app
 no longer ships local models, so these steps call the user's configured cloud
-model — OpenAI ``gpt-5.5`` or Google ``gemini-3.5-flash``.
+model — OpenAI ``gpt-5.5`` or Google ``gemini-3.1-pro-preview``.
 
 Design contract
 ---------------
@@ -32,7 +32,7 @@ _SDK_PATH = str(Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Pyt
 if _SDK_PATH not in sys.path:
     sys.path.insert(0, _SDK_PATH)
 
-# Provider types the user can select. gpt-5.5 (openai) and gemini-3.5-flash
+# Provider types the user can select. gpt-5.5 (openai) and gemini-3.1-pro-preview
 # (google/gemini) are the only supported cloud models.
 _CLOUD_TYPES: tuple[str, ...] = ("openai", "google", "gemini")
 

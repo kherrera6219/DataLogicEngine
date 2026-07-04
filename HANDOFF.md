@@ -9,7 +9,7 @@
 
 ### Completed Work
 - **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
-- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro`.
+- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro-preview`.
 - **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
 - **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
 - **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
@@ -17,6 +17,18 @@
 - **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
 
 # DataLogicEngine — Session Handoff
+
+## START HERE (next session) - updated 2026-07-04
+**Audit checkpoint: documentation slice and code audit slice 1 are complete.**
+
+- **Documentation audit slice complete:** root maintained docs and the active `docs/` tree were read against live code. Active docs now align to desktop auth, current gateway/API surfaces, and the live Google default `gemini-3.1-pro-preview`. `docs/openapi.yaml` was replaced with a current partial contract. Legacy duplicate exports were moved from `docs/api/` to `docs/archive/api/`.
+- **Cleanup candidates identified:** root scratch-output files such as `.gitout.txt`, `audit_deep*.txt`, `audit_dup*.txt`, `core_backend_inversions*.txt`, `enc_*.txt`, `commit_msg.txt`, and `orphaned_modules.txt` are not tracked source docs. They remain pending explicit cleanup approval.
+- **Code audit slice 1 complete - LLM provider/model configuration:** `ApiOverlayConfig` no longer offers retired `gemini-3.5-flash`; `/api/v1/gateway/keys` now normalizes provider/key/model input and rejects unsupported provider types before database writes; LLM-path comments/docstrings were corrected to `gemini-3.1-pro-preview` or current model constants.
+- **Validation completed for the checkpoint:** targeted backend ruff passed; frontend `ApiOverlayConfig.test.tsx` passed 8 tests; focused gateway/model pytest passed 53 tests with only a Neo4j driver teardown logging warning after successful exit; `scripts/generate_docs.py` refreshed inventory; `scripts/verify_docs_references.py` passed with 0 errors and 17 existing heading/style warnings; `git diff --check` passed.
+- **Next audit slice:** authentication/session/CSRF and settings-route authorization boundaries. Include route decorators, desktop auto-login preconditions, frontend session-expiry behavior, compatibility aliases, and settings write authorization.
+- **Untracked audit artifact:** `pip-audit-report.json` exists at the repo root and records a current dependency audit result with an NLTK advisory; it is being included in the requested "commit all" checkpoint unless rejected by validation.
+
+---
 
 ## ▶ START HERE (next session) — updated 2026-07-01
 **LLM API, DB Initialization, and Packaging: ✅ COMPLETE (2026-07-01).** 
@@ -360,7 +372,7 @@ Audited all 6 `backend/services/` — **all real and wired, no stubs**:
   both wired into `multimodal_routes`.
 - **Model-currency fixes (user flagged gpt-4o vision as very old):** `video_service` `gpt-4o` →
   `OPENAI_LATEST_MODEL` (gpt-5.5); `audio_service` `gemini-1.5-flash` → `GOOGLE_LATEST_MODEL`
-  (gemini-3.5-flash); `ka_06_config.json` `gpt-4o`/`gpt-4o-mini` → `gpt-5.5`. Now reference `model_defaults`
+  (gemini-3.1-pro-preview); `ka_06_config.json` `gpt-4o`/`gpt-4o-mini` → `gpt-5.5`. Now reference `model_defaults`
   constants (no future drift). ruff clean, imports OK.
 - **Forward (minor):** `model_context_server.py` `/list_models` is a placeholder stub with stale `*-gpt-4`
   display names → A21/A28; `governance.py` legacy `gpt-4` cost-fallback entry (harmless).

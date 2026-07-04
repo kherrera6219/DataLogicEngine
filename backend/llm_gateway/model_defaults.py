@@ -1,7 +1,7 @@
 """Current provider model defaults for LLM gateway configuration.
 
 Cloud-only: the app uses one user-selected cloud model — OpenAI ``gpt-5.5`` or
-Google ``gemini-3.5-flash``. There is no local/Ollama tier chain.
+Google ``gemini-3.1-pro-preview``. There is no local/Ollama tier chain.
 """
 
 OPENAI_LATEST_MODEL = "gpt-5.5"
@@ -28,6 +28,8 @@ DEFAULT_MODEL_BY_PROVIDER = {
     "google": GOOGLE_LATEST_MODEL,
     "gemini": GOOGLE_LATEST_MODEL,
 }
+
+SUPPORTED_PROVIDER_TYPES = frozenset(DEFAULT_MODEL_BY_PROVIDER)
 
 
 def default_model_for_provider(provider_type: str | None) -> str:

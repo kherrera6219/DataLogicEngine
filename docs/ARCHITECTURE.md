@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v3.0.0 |
-| Last updated | 2026-06-18 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -166,7 +166,7 @@ flowchart TD
 | Truth Engine | `backend/truth_engine/` | Security gate, workflow engine, memory/audit, event bus. |
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
 | Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
-| Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.5-flash), tool execution, connector integration. |
+| Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.1-pro-preview), tool execution, connector integration. |
 | Relational store | SQLAlchemy with SQLite/PostgreSQL paths | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
@@ -187,7 +187,7 @@ The current architecture baseline is defined by these code-backed subsystems:
 7. **Local-first runtime** — desktop/local/hybrid behavior uses loopback auth, per-install secret, nonce/HMAC signatures, DPAPI helper, and app-owned storage services.
 8. **Frontend review surface** — `/chat`, `/runs`, `/graph`, `/knowledge`, `/truth-engine`, `/mcp`, `/admin`, and disclosure pages expose system operation to users and reviewers.
 9. **Testing/release governance** — CI validates backend, frontend, contract, parity, security, packaging, environment, lockfile, Docker, and release governance gates.
-10. **Cloud AI model** — `backend/llm_gateway/`: every request is served by the user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`), resolved from `UserAIPreferences` / configured `LLMProvider` records. There is no local model tier or escalation engine; an API key + internet are required for reasoning.
+10. **Cloud AI model** — `backend/llm_gateway/`: every request is served by the user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`), resolved from `UserAIPreferences` / configured `LLMProvider` records. There is no local model tier or escalation engine; an API key + internet are required for reasoning.
 
 ## DMRF control plane
 
@@ -371,9 +371,8 @@ The stored `LLMProvider.model_id` (set by the user in Settings → API Configura
 
 | Provider | Default model |
 |---|---|
-| OpenAI / Azure | `gpt-5.5` |
-| Anthropic | `claude-opus-4-7` |
-| Google / Gemini | `gemini-3.5-flash` |
+| OpenAI | `gpt-5.5` |
+| Google / Gemini | `gemini-3.1-pro-preview` |
 
 ### Cloud model selection
 
@@ -382,7 +381,7 @@ When a request reaches `LLMGateway.process()`, the gateway uses the caller-pinne
 | Provider type | Model |
 |---|---|
 | `openai` | `gpt-5.5` |
-| `google` / `gemini` | `gemini-3.5-flash` |
+| `google` / `gemini` | `gemini-3.1-pro-preview` |
 
 There is no local model tier or complexity-based escalation; an API key + internet connection are required for reasoning. Internal steps that previously used a local model (DSQP answer generation, the defense-supervisor screen) call the selected cloud model via `backend/llm_gateway/active_model.generate_with_active_model()`, and fall back to their deterministic / fail-open path when no key is configured.
 

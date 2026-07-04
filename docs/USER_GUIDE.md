@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Product Operations |
 | Review cadence | Every 30 days |
@@ -86,7 +86,7 @@ The current local-first build intentionally disables self-service registration. 
 6. Select `Test Connection` or `Test Model`.
 7. If the test fails, inspect the returned reason such as `invalid_api_key`, `rate_limited`, `invalid_model`, or `network_error`.
 
-**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.5`) or **Google** (`gemini-3.5-flash`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
+**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.5`) or **Google** (`gemini-3.1-pro-preview`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
 
 ### 2. Start governed AI chat
 

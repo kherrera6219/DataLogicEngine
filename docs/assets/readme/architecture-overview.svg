@@ -39,7 +39,7 @@
 
   <rect x="890" y="105" width="230" height="85" class="service"/>
   <text x="925" y="145" class="label">Security</text>
-  <text x="925" y="170" class="small">Auth, RBAC, CSRF, limits</text>
+  <text x="925" y="170" class="small">OS auth, CSRF, limits</text>
 
   <rect x="890" y="225" width="230" height="85" class="service"/>
   <text x="925" y="264" class="label">Observability</text>
@@ -58,7 +58,7 @@
   <text x="750" y="433" class="small">Trace and evidence</text>
 
   <rect x="55" y="510" width="245" height="70" class="external"/>
-  <text x="85" y="552" class="small">OpenAI, Anthropic, Azure, Google</text>
+  <text x="85" y="552" class="small">OpenAI and Google Gemini</text>
 
   <rect x="375" y="510" width="355" height="70" class="data"/>
   <text x="410" y="552" class="small">PostgreSQL, Neo4j, Redis, S3-compatible storage</text>

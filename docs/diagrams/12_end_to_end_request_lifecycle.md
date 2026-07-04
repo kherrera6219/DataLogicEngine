@@ -119,7 +119,7 @@ flowchart TD
 
     subgraph MODEL[Model and Tool Execution]
         LLMGateway[LLM Gateway\nprovider selection + policy + telemetry]
-        Provider[Model Provider\nOpenAI gpt-5.5 / Google gemini-3.5-flash]
+        Provider[Model Provider\nOpenAI gpt-5.5 / Google gemini-3.1-pro-preview]
         MCP[MCP / External Tool Connectors]
     end
 

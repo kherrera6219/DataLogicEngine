@@ -20,7 +20,7 @@ Designed for enterprise, government, compliance, cybersecurity, acquisition, and
 
 Current Status: Active Development — Not Production Ready (Local-First Edition)
 
-**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application — an Electron + Next.js front end over a Flask + SQLAlchemy backend, with every data store (SQL, graph, vector, object, and memory) local to the machine. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.5-flash` (bring your own key) — so an API key and internet connection are required for inference while all data stays local. The Windows desktop installer is produced end-to-end from source (PyInstaller backend → Next.js static export → Electron / NSIS). Release gates still open before a formal release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
+**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application — an Electron + Next.js front end over a Flask + SQLAlchemy backend, with every data store (SQL, graph, vector, object, and memory) local to the machine. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` (bring your own key) — so an API key and internet connection are required for inference while all data stays local. The Windows desktop installer is produced end-to-end from source (PyInstaller backend → Next.js static export → Electron / NSIS). Release gates still open before a formal release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
 
 Major Subsystems (implemented at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
 
@@ -36,7 +36,7 @@ Major Subsystems (implemented at subsystem level; full end-to-end integration, s
 - MCP Integration Framework
 - Local Database Lifecycle Management
 - Enterprise Audit & Governance Framework
-- Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.5-flash (BYOK)
+- Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.1-pro-preview (BYOK)
 
 Current Focus:
 
@@ -89,7 +89,7 @@ Every response can be traced through:
 
 **Local-First Data, Cloud AI Model (BYOK)**
 
-All data stores, retrieval, memory, and reasoning state run locally on the user's machine. The LLM itself is a user-selected cloud model — bring your own key for **OpenAI `gpt-5.5`** or **Google `gemini-3.5-flash`**. An API key and internet connection are therefore required for reasoning; the data plane stays local and only the model inference call leaves the machine.
+All data stores, retrieval, memory, and reasoning state run locally on the user's machine. The LLM itself is a user-selected cloud model — bring your own key for **OpenAI `gpt-5.5`** or **Google `gemini-3.1-pro-preview`**. An API key and internet connection are therefore required for reasoning; the data plane stays local and only the model inference call leaves the machine.
 
 **Model Context Protocol (MCP)**
 
@@ -122,7 +122,7 @@ Roadmap
 
 See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
 
-> Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
+> Recommended architecture asset path: `docs/assets/readme/architecture-overview.svg`. Keep this dark-mode-safe visual synchronized with the README architecture diagram.
 
 ## Quick Links
 
@@ -183,7 +183,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 | Capability | What it provides |
 | --- | --- |
-| LLM gateway | Routes requests to the user's selected cloud model (OpenAI gpt-5.5 or Google gemini-3.5-flash) with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
+| LLM gateway | Routes requests to the user's selected cloud model (OpenAI gpt-5.5 or Google gemini-3.1-pro-preview) with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
 | Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
 | Governance | Single-owner desktop auth, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
@@ -200,7 +200,7 @@ flowchart LR
   API --> Gateway["LLM Gateway"]
   API --> Graph["Knowledge Graph APIs"]
   API --> Truth["Truth Engine and tracing"]
-  Gateway --> Providers["OpenAI (gpt-5.5) / Google (gemini-3.5-flash)"]
+  Gateway --> Providers["OpenAI (gpt-5.5) / Google (gemini-3.1-pro-preview)"]
   Graph --> Postgres["PostgreSQL"]
   Graph --> Neo4j["Neo4j"]
   API --> Redis["Redis cache and rate limit storage"]
@@ -215,7 +215,7 @@ flowchart LR
 | Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
 | Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
-| AI | OpenAI (gpt-5.5), Google/Gemini (gemini-3.5-flash) | One user-selected cloud model handles every request. Provider key resolved at runtime from the app DB (Settings) or environment. |
+| AI | OpenAI (gpt-5.5), Google/Gemini (gemini-3.1-pro-preview) | One user-selected cloud model handles every request. Provider key resolved at runtime from the app DB (Settings) or environment. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
 ## Data store design philosophy
@@ -336,7 +336,7 @@ configure its key — an API key and internet connection are required for reason
 | Model | Provider | Requires |
 | --- | --- | --- |
 | `gpt-5.5` | OpenAI | OpenAI API key |
-| `gemini-3.5-flash` | Google / Gemini | Google API key |
+| `gemini-3.1-pro-preview` | Google / Gemini | Google API key |
 
 **OpenAI — gpt-5.5**
 
@@ -344,7 +344,7 @@ configure its key — an API key and internet connection are required for reason
 2. In the app: **Settings → AI/Model → Provider: openai → paste key → Save**.
 3. Or set `OPENAI_API_KEY` in `.env` before starting the backend.
 
-**Google — gemini-3.5-flash**
+**Google — gemini-3.1-pro-preview**
 
 1. Get an API key at [aistudio.google.com](https://aistudio.google.com) (free tier available).
 2. In the app: **Settings → AI/Model → Provider: google → paste key → Save**.
@@ -375,10 +375,7 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | Variable | Description |
 | --- | --- |
 | `OPENAI_API_KEY` | OpenAI provider key. |
-| `ANTHROPIC_API_KEY` | Anthropic provider key. |
-| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL. |
-| `AZURE_OPENAI_API_KEY` | Azure OpenAI provider key. |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables the Google gemini-3.5-flash model. |
+| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables the Google gemini-3.1-pro-preview model. |
 | `SENTRY_DSN` | Enables crash reporting when configured. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |
@@ -604,7 +601,7 @@ npm --prefix frontend audit --audit-level=high
 | --- | --- |
 | Near term | Complete app-readiness evidence: authenticated accessibility coverage, keyboard/NVDA checks, failure-mode tests, and export/delete end-to-end validation. |
 | Near term | Tighten public API contracts, reduce legacy route aliases, and improve generated OpenAPI coverage. |
-| Near term | Add public architecture assets under `docs/assets/readme/`. |
+| Near term | Keep public architecture assets under `docs/assets/readme/` synchronized with current architecture changes. |
 | Mid term | Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j. |
 | Mid term | Publish signed release artifacts with checksums and provenance metadata. |
 | Long term | Cost controls, recursive persona evaluation, human feedback loops, and policy-as-code governance for larger deployments. |
@@ -672,7 +669,6 @@ Personal, research, and educational use are permitted under the license terms. C
 
 | Recommendation | Purpose |
 | --- | --- |
-| `docs/assets/readme/architecture-overview.png` | Public README architecture image for GitHub social previews and non-Mermaid consumers. |
 | `.github/FUNDING.yml` | Optional sponsorship metadata if the project accepts funding. |
 | `CITATION.cff` | Citation metadata for research and academic users. |
 | GitHub repository topics | Suggested: `ai`, `llm`, `knowledge-graph`, `flask`, `nextjs`, `governance`, `compliance`, `enterprise-ai`. |

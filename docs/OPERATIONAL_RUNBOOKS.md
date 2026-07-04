@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | SRE + Security Operations |
 | Review cadence | Every 30 days |
@@ -188,7 +188,7 @@ Relevant files:
 **Default severity:** `SEV-2`; upgrade for broad outage.
 
 1. Confirm provider status and gateway route behavior.
-2. Verify the configured cloud model. The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`); a key must be saved in Settings → AI/Model (or set via `OPENAI_API_KEY` / `GOOGLE_API_KEY`). With no reachable provider, gateway chat returns a clear "No active providers found" error — it does not fail silently.
+2. Verify the configured cloud model. The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); a key must be saved in Settings → AI/Model (or set via `OPENAI_API_KEY` / `GOOGLE_API_KEY`). With no reachable provider, gateway chat returns a clear "No active providers found" error — it does not fail silently.
 3. Check `/metrics` for AI latency/error signals.
 4. Confirm DMRF/TruthCore does not silently return synthetic success.
 5. For provider outages (rate limit / 5xx / network): the gateway classifies the error (`invalid_api_key` 401, `rate_limited` 429, `invalid_model` 422, `network_error` 504) and surfaces it to the client. Confirm the saved key is valid and the provider's status page is healthy.

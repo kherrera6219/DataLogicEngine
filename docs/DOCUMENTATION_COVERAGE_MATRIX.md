@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -31,7 +31,7 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 | Data flow diagrams | `docs/DATA_FLOW_DIAGRAMS.md` | Active | Current DMRF/Truth Engine/data/privacy/export flows. |
 | Decision logic | `docs/DECISION_LOGIC.md` | Active | Current decision points and implementation paths. |
 | Workflow | `docs/WORKFLOW.md` | Active | Governed request lifecycle. |
-| API contract | `docs/API.md`, `docs/openapi.yaml` | Active | Human and machine-readable API references. |
+| API contract | `docs/API.md`, `docs/openapi.yaml` | Active | Human and current partial machine-readable API references; superseded duplicate exports live under `docs/archive/api/`. |
 | API versioning | `docs/API_VERSIONING.md` | Active | Canonical `/api/v1/*`, compatibility aliases, deprecation policy. |
 | Data/storage | `docs/DATABASE_SCHEMA.md` | Active | Multi-store data and memory architecture. |
 | Security controls | `docs/SECURITY.md`, root `SECURITY.md` | Active | IAM, desktop auth, export integrity, AI security, release security. |
@@ -72,3 +72,7 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 2. Expanded coverage to include DATA_FLOW_DIAGRAMS, DECISION_LOGIC, API_VERSIONING, SSL/TLS, CIS, SLSA roadmap, and production baseline docs.
 3. Clarified archive/reference status.
 4. Added maintenance rules.
+
+## Change notes for v2.7.0
+
+1. Documented that `docs/openapi.yaml` is the active machine-readable API reference and that stale duplicate exports were moved under `docs/archive/api/`.

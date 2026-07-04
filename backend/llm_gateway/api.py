@@ -28,7 +28,7 @@ from models import (
     AIAuditEvent,
 )
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
-from backend.llm_gateway.model_defaults import default_model_for_provider
+from backend.llm_gateway.model_defaults import SUPPORTED_PROVIDER_TYPES, default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import api_session_login_required, current_user_is_owner
 from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
@@ -547,16 +547,22 @@ def save_provider_key():
     """Create or update an LLM provider API key (basic UI helper).
 
     The app uses one user-selected cloud model (OpenAI ``gpt-5.5`` or Google
-    ``gemini-3.5-flash``), so an API key is required.
+    ``gemini-3.1-pro-preview``), so an API key is required.
     """
     data = request.get_json() or {}
-    provider_type = data.get('provider')
-    api_key = data.get('key')
-    model_id = data.get('model')
+    provider_type = str(data.get('provider') or '').strip().lower()
+    api_key = str(data.get('key') or '').strip()
+    model_id = str(data.get('model') or '').strip()
     auth_user = getattr(g, 'auth_user', None) or current_user
 
     if not provider_type or not api_key:
         return jsonify({'error': 'provider and key required'}), 400
+
+    if provider_type not in SUPPORTED_PROVIDER_TYPES:
+        return jsonify({
+            'error': 'Unsupported provider selection',
+            'supported_providers': sorted(SUPPORTED_PROVIDER_TYPES),
+        }), 400
 
     provider = LLMProvider.query.filter_by(provider_type=provider_type).order_by(
         LLMProvider.created_at.desc()
@@ -564,14 +570,14 @@ def save_provider_key():
 
     if provider is None:
         provider = LLMProvider(
-            name=str(provider_type).title(),
+            name=provider_type.title(),
             provider_type=provider_type,
             is_active=True,
             created_by=auth_user.id,
         )
         db.session.add(provider)
 
-    provider.model_id = str(model_id or provider.model_id or default_model_for_provider(provider_type))
+    provider.model_id = model_id or provider.model_id or default_model_for_provider(provider_type)
     provider.is_active = True
     provider.is_default = True
     provider.priority = 1

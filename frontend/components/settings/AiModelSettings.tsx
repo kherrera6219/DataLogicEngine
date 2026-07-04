@@ -29,7 +29,7 @@ interface SaveKeyResponse {
   };
 }
 
-// The app uses one user-selected cloud model: OpenAI gpt-5.5 or Google gemini-3.5-flash.
+// The app uses one user-selected cloud model: OpenAI gpt-5.5 or Google gemini-3.1-pro-preview.
 const MODEL_LIBRARY: Record<string, string[]> = {
   openai: ['gpt-5.5'],
   google: ['gemini-3.1-pro-preview'],
@@ -122,7 +122,7 @@ export function AiModelSettings() {
     }
   };
 
-  // Only two cloud models are offered: OpenAI (gpt-5.5) and Google (gemini-3.5-flash).
+  // Only two cloud models are offered: OpenAI (gpt-5.5) and Google (gemini-3.1-pro-preview).
   const providerChoices = useMemo(() => ['openai', 'google'], []);
 
   const selectedProvider = useMemo(

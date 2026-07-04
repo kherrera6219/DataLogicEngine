@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 30 days |
@@ -37,7 +37,7 @@ flowchart LR
     dmrf[DMRF Control Plane]
     truth[Truth Engine\nTruthGate / TruthCore / TruthMemory / TruthLink]
     data[(SQL / Redis / Neo4j / Chroma / Object Store / Memory)]
-    providers[AI Providers\nOpenAI / Anthropic / Gemini / Azure]
+    providers[AI Providers\nOpenAI / Google Gemini]
     connectors[MCP Connectors / Tools]
     traces[Trace Explorer / Export Integrity]
     ops[Metrics / Logs / Runbooks / CI]

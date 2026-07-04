@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Last updated | 2026-07-04 |
 | Effective date | 2026-05-30 |
 | Status | Active |
 | Owner | Privacy + Security Engineering |
@@ -84,13 +84,12 @@ Local-first does not mean no data ever leaves the machine. Data can leave the ma
 
 To provide advanced reasoning, DataLogicEngine may send selected prompts, context, provider/model metadata, and tool inputs to configured AI providers.
 
-Potential providers include:
+Current cloud model providers exposed by the active app are:
 
 1. OpenAI;
-2. Anthropic;
-3. Google Gemini / Vertex AI;
-4. Microsoft Azure OpenAI;
-5. locally configured or future local/offline model providers where supported.
+2. Google Gemini.
+
+Archived docs and future integrations may mention other providers, but they are not part of the current user-facing model-selection surface unless explicitly reintroduced and documented.
 
 Data handling by these providers is governed by the provider account, API terms, regional settings, retention settings, enterprise agreement, and user/deployment configuration.
 

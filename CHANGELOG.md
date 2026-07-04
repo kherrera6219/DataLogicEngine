@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Stale bundled backend shipped in the installer (root cause of recurring desktop errors)**: the PyInstaller backend (`dist/DataLogic_Backend/DataLogic_Backend.exe`) was not rebuilt as part of the frontend/installer rebuild, so the packaged app ran a backend from an earlier build. This caused `404` responses for `/api/v1/gateway/dsqp-persona-profiles` and `/api/v1/gateway/network-status` (surfacing as the Live Trace `[object Object]` and System Output 404), kept the Flask app-context provider fix inactive, and made chat fail. The build pipeline now rebuilds the backend before packaging so the shipped backend always matches source.
 - **Provider test now reports the real reason**: `test_provider` in `backend/llm_gateway/api.py` previously returned a generic "Provider connectivity check failed". It now classifies the underlying error and returns a specific status/message — `invalid_api_key` (401), `rate_limited` (429), `invalid_model` (422), or `network_error` (504) — so the UI can tell the user an API key is invalid instead of a generic failure.
+- **Provider key save validation**: `/api/v1/gateway/keys` now normalizes provider names, strips key/model whitespace, and rejects unsupported provider types before creating or updating `LLMProvider` rows.
 - **LLM Gateway — "No active providers found" in desktop mode**: `_get_eligible_providers()` in `backend/llm_gateway/gateway.py` queried `LLMProvider.query` outside a Flask application context when invoked from async coroutines (Electron-spawned backend), raising "Working outside of application context", silently falling back to env-only provider discovery, and ultimately failing every chat with "No active providers found". The DB query is now wrapped in an explicit `app.app_context()` push obtained via `current_app._get_current_object()`.
 - **Desktop API keys not forwarded to backend**: Electron `startBackend()` in `frontend/electron/main.ts` spawned the Python backend without forwarding API keys from `.env`. Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc.) are now parsed from `.env` and merged into the backend process environment (with inherited `process.env` taking precedence).
 - **Settings page crash — `Cannot read properties of undefined (reading 'size_bytes')`**: `DatabaseSettings.tsx` assumed every storage backend metric object was defined. When a backend (Neo4j/Chroma/object store) is not running in local SQLite desktop mode, the metric is `undefined` and the component crashed the whole Settings route. Hardened with `(metric ?? {})` and optional chaining on `data?.size_bytes` / `lastBackup?.size_bytes`; absent backends now render "0 B / Not created" instead of crashing.
+- **Google model selection drift**: the gateway overlay no longer offers the retired Google model before the current `gemini-3.1-pro-preview` default, and LLM-path comments/docstrings now match the live model constants.
 
 ### Removed
 - **Legacy external SaaS connectors (Jira, Salesforce)**: removed the
@@ -35,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tier_availability.py`), the `backend/local_model_acceleration/` keepalive +
   exact-cache subsystem, the Ollama startup probe, and the SDK
   `OllamaProvider` / `LocalSLMProvider`. The app now uses **one user-selected
-  cloud model** — OpenAI `gpt-5.5` or Google `gemini-3.5-flash` (BYOK) — so
+  cloud model** — OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` (BYOK) — so
   reasoning requires a cloud API key + internet (data still stays local).
   Internal steps that previously used a local model (DSQP answer generation, the
   defense-supervisor screen) now call the selected cloud model via the new
@@ -81,6 +83,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `frontend/src/pages/MCPConsolePage.js` -> `frontend/app/mcp/page.tsx`); added
   `docs/REPO_AUDIT_LOG.md` recording the 2026-06-04 audit session and the open
   backlog for future audits.
+- **Documentation audit refresh**: aligned active README/docs model references
+  to the live Google `gemini-3.1-pro-preview` default, replaced the stale
+  `docs/openapi.yaml` login-era contract with the current desktop-auth/API
+  surface, moved duplicate legacy `docs/api/*` exports into the archive, and
+  recorded cleanup candidates in `TODO.md`.
 - **Layering fix — integrity helpers moved to `core/`**: the pure, dependency-free hashing/HMAC helpers in `backend/security/integrity.py` moved to `core/security/integrity.py`. This removes two `core -> backend` import inversions (`core/simulation/trace_system.py`, `core/system/frost_service.py`), restoring the documented `backend -> core` dependency direction. `backend/security/integrity.py` is now a backwards-compatible re-export shim, so existing `from backend.security.integrity import ...` call sites (e.g. `backend/security/export_integrity.py`) continue to work unchanged. No behavior change.
 
 ### Notes

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | Platform Engineering + Documentation Governance |
 | Review cadence | Every 30 days |
@@ -55,7 +55,7 @@ The documentation no longer treats the product as a generic LLM chat wrapper or 
 | User operation | `docs/USER_GUIDE.md` | Updated to v2.6.0 |
 | Engineer onboarding | `docs/ENGINEER_ONBOARDING.md` | Updated to v2.6.0 |
 | Architecture | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` | Updated to v2.6.0 |
-| API | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` | Updated to v2.6.0 where applicable |
+| API | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` | Active; machine-readable partial contract refreshed in the 2026-07-04 documentation audit |
 | Workflow | `docs/WORKFLOW.md` | Updated to v2.6.0 |
 | Data architecture | `docs/DATABASE_SCHEMA.md` | Updated to v2.6.0 |
 | Security | `docs/SECURITY.md`, `SECURITY.md` | Updated to v2.6.0 where applicable |
@@ -103,7 +103,7 @@ DataLogicEngine now has active documentation coverage for each area.
 | Product explanation | Implemented | `docs/PRODUCT_OVERVIEW.md`, `docs/PRODUCT_DESIGN.md`, `docs/USER_GUIDE.md` |
 | Architecture | Implemented | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` |
 | Request workflow | Implemented | `docs/WORKFLOW.md`, `docs/diagrams/12_end_to_end_request_lifecycle.md` |
-| API documentation | Implemented | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
+| API documentation | Implemented | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml`; retired duplicate exports under `docs/archive/api/` |
 | AI governance | Implemented through architecture/control docs | `docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/SDLC_SSDF_MAPPING.md`, `docs/SECURITY.md` |
 | Security | Implemented | `docs/SECURITY.md`, `SECURITY.md`, `tests/security/` |
 | Privacy | Implemented | `docs/PRIVACY_POLICY.md`, privacy/settings routes |

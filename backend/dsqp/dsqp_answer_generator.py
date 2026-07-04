@@ -9,7 +9,7 @@ questions for the specific query, coordinate, and domain.
 Design constraints:
 
 - **Cloud model.** Persona construction runs on the user's selected cloud model
-  (OpenAI ``gpt-5.5`` or Google ``gemini-3.5-flash``) via
+  (OpenAI ``gpt-5.5`` or Google ``gemini-3.1-pro-preview``) via
   ``generate_with_active_model``.
 - **Fail-safe to deterministic.** If the feature is disabled, no cloud model is
   configured, the call errors, or the model returns malformed output, the

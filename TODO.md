@@ -9,7 +9,7 @@
 
 ### Completed Work
 - **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
-- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro`.
+- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro-preview`.
 - **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
 - **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
 - **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
@@ -18,10 +18,57 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-01 (**LLM API & Database Initialization Fix, App Packaging** — resolved database tables initialization blockers by running `init_db.py` and applying all Alembic migrations forward via `flask db upgrade`, updated `.env` with working OpenAI (`gpt-5.5` reasoning model) and Gemini (`gemini-3.1-pro-preview`) keys from `key.txt`, fixed unit test regression in the memory service suite, rebuilt backend PyInstaller executable, and packaged Next.js and Electron using `npm run electron:dist` into `DataLogicEngine Setup Latest.exe` at the repository root; all 429 unit and 20 integration tests passed 100% green. Prior, 2026-06-26: **v2.0 audit complete + desktop rebuild validated** — single-mode consolidation done, docs reconciled, dual README merged to one canonical root README, dependencies clean, installer rebuilt end-to-end.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slice 1** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened against unsupported providers and whitespace drift, and focused backend/frontend regressions added. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, focused pytest 53 passed with a Neo4j teardown logging warning after successful exit. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+
+## Documentation audit slice — 2026-07-04
+
+Scope completed in this slice:
+
+1. Root maintained docs reviewed: `README.md`, `TODO.md`, `HANDOFF.md`, `CHANGELOG.md`, `REPO_AUDIT_LOG.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`, `SECURITY.md`, `SUPPORT.md`, `TESTING.md`, `CODE_OF_CONDUCT.md`, `COMMERCIAL_LICENSE.md`, `requirements.txt`, plus setup documentation in `.env.template`.
+2. Active `docs/` tree reviewed and reconciled against live model defaults, auth routes, and API contract files.
+3. Archive docs reviewed as reference-only; no archived file is treated as current implementation authority.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| Active docs still named an older Google model even though live backend/frontend defaults use `gemini-3.1-pro-preview`. | Updated README/docs/model-provider references and active planning notes to `gemini-3.1-pro-preview`; left only historical audit wording where it describes removed routes or prior work. | Done |
+| `docs/openapi.yaml` still documented removed `/auth/login` and stored schemas outside `components`, breaking `$ref` targets. | Replaced it with a current partial contract covering desktop auth, gateway, Truth Engine, KA, settings, search, ingestion, trace, and health/readiness routes. | Done |
+| `docs/api/openapi.yaml` and `docs/api/postman_collection.json` were stale duplicate exports outside the active portal path. | Moved to `docs/archive/api/` and indexed in `docs/archive/README.md`. | Done |
+| README public architecture asset references pointed at a missing PNG while the repo ships an SVG. | Updated README to the existing SVG and refreshed SVG security/provider labels. | Done |
+| Root scratch-output files such as `.gitout.txt`, `audit_deep*.txt`, `audit_dup*.txt`, `core_backend_inversions*.txt`, `enc_*.txt`, `commit_msg.txt`, and `orphaned_modules.txt` are not tracked source docs. | Classified as cleanup candidates; they should be deleted from the working directory after confirming no local evidence needs to be preserved. | Pending user cleanup approval |
+| Root `COMMERCIAL_LICENSE.md` used placeholder contact text. | Replaced with the repository's GitHub Discussions and issue-entry paths until a dedicated commercial mailbox is published. | Done |
+
+Carry-forward for code audit slice: code comments/docstrings in `backend/llm_gateway/*`, `backend/dsqp/dsqp_answer_generator.py`, `backend/security/defense_supervisor.py`, `backend/services/audio_service.py`, and frontend model-settings comments still contain old model wording and should be corrected while auditing those modules. **Addressed in Code audit slice 1 below.**
+
+## Code audit slice 1 — LLM provider/model configuration — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited backend model defaults, active-model fallback, provider-key save endpoint, gateway provider selection comments, DSQP/defense-supervisor LLM-assisted comments, audio Google failover comment, `AiModelSettings`, `ApiOverlayConfig`, and focused tests.
+2. Validated the end-user settings surface and broader API overlay surface separately: `AiModelSettings` remains OpenAI/Google only; `ApiOverlayConfig` keeps broader gateway-provider support while no longer offering the retired Google model.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `ApiOverlayConfig` still offered a retired Google model first, so selecting Google could save/test an obsolete model ID. | Reordered/trimmed Google overlay choices to `gemini-3.1-pro-preview` plus the current preview option and added a frontend regression. | Done |
+| `/api/v1/gateway/keys` accepted arbitrary provider strings and would create an active default provider for typos/unsupported local providers. | Normalized provider input, stripped key/model whitespace, rejected unsupported providers before DB writes, and added API regression coverage. | Done |
+| Backend/frontend comments and docstrings in the LLM path still described the old Google model. | Updated touched code comments/docstrings to `gemini-3.1-pro-preview` or model-constant wording. | Done |
+
+Validation:
+
+1. `python -m ruff check backend\llm_gateway\model_defaults.py backend\llm_gateway\active_model.py backend\llm_gateway\api.py backend\llm_gateway\gateway.py backend\services\audio_service.py backend\dsqp\dsqp_answer_generator.py backend\security\defense_supervisor.py tests\integration\test_gateway_api_coverage.py` — passed.
+2. `npm --prefix frontend test -- components/settings/ApiOverlayConfig.test.tsx` — 8 passed.
+3. `python -m pytest -q --no-cov tests\integration\test_gateway_api_coverage.py tests\unit\test_llm_gateway_internal_units.py tests\unit\test_dsqp_llm_assisted.py tests\unit\test_defense_supervisor.py` — 53 passed; pytest exited successfully, with a Neo4j driver logging warning emitted during interpreter teardown.
+4. `git diff --check` — passed.
+
+Next code audit slice: continue with authentication/session/CSRF and settings-route authorization boundaries, including route decorators, desktop auto-login preconditions, frontend session-expiry behavior, and remaining compatibility aliases.
+
+Commit checkpoint: this TODO/HANDOFF refresh is the publish point before continuing into the authentication/session/CSRF audit slice.
 
 ## Unified Backlog
 
@@ -72,7 +119,7 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes au
 
 v2.0 audit + documentation + rebuild update: 2026-06-26. The DataLogicEngine Complete Audit Plan v2.0 (A1–A32, all four phases) is complete: single-mode consolidation (multi-user RBAC/MFA/SSO/OIDC/tenancy removed for single-owner desktop auth + desktop auto-login), dead-module/one-off-script retirement, `OAuthAccount` table drop (migration `d6e7f8a9b0c1`), and all Python/Node dependency vulnerabilities cleared (`pip-audit` + `npm audit` clean). The documentation set (`docs/`, `docs/diagrams/`, root docs) was reconciled to the current single-mode architecture, and the duplicate `.github/README.md` was consolidated into a single canonical root `README.md`. The Windows desktop installer was rebuilt and validated end-to-end (PyInstaller backend → Next.js static export → Electron/NSIS) with the freshly built backend embedded. Local validation: backend `1769 passed / 19 skipped`; frontend `378 passed`. Remaining public-release gates (not local-first blockers): trusted production code-signing, NVDA accessibility evidence, provider-backed staging, JRE bundling for Neo4j in the installer, and full end-to-end QA across deployment modes. Open follow-up: dead `/login` + `/register` frontend pages still ship despite the backend auth removal — flagged for cleanup.
 
-LLM simplification update: 2026-06-27. The 6-tier local-Ollama escalation engine was removed in favor of a **single user-selected cloud model** (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`). Deleted `backend/llm_gateway/escalation_config.py` / `complexity_classifier.py` / `tier_availability.py`, the `backend/local_model_acceleration/` subsystem, the Ollama startup probe, and the SDK `OllamaProvider`/`LocalSLMProvider`. DSQP answer generation and the defense-supervisor screen now call the selected cloud model via the new `backend/llm_gateway/active_model.py` (deterministic / fail-open when no key). Tier UI removed from Settings/Dashboard/Chat/Runs; docs + `.env.template` reframed to local-first data + cloud BYOK. Consequence: reasoning now requires a cloud API key + internet (the app is no longer air-gapped for inference). Minor follow-up: the electron `getLocalModelStatus` IPC and the DSQP `local_slm_audit` metadata label are retained as vestigial.
+LLM simplification update: 2026-06-27. The 6-tier local-Ollama escalation engine was removed in favor of a **single user-selected cloud model** (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`). Deleted `backend/llm_gateway/escalation_config.py` / `complexity_classifier.py` / `tier_availability.py`, the `backend/local_model_acceleration/` subsystem, the Ollama startup probe, and the SDK `OllamaProvider`/`LocalSLMProvider`. DSQP answer generation and the defense-supervisor screen now call the selected cloud model via the new `backend/llm_gateway/active_model.py` (deterministic / fail-open when no key). Tier UI removed from Settings/Dashboard/Chat/Runs; docs + `.env.template` reframed to local-first data + cloud BYOK. Consequence: reasoning now requires a cloud API key + internet (the app is no longer air-gapped for inference). Minor follow-up: the electron `getLocalModelStatus` IPC and the DSQP `local_slm_audit` metadata label are retained as vestigial.
 
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
@@ -343,7 +390,7 @@ LLM simplification update: 2026-06-27. The 6-tier local-Ollama escalation engine
       wired, no stubs; RAG `get_context_for_query` confirmed real (vector search + score gate + injection
       screen + token budget + citations; wired into gateway/truth_core/chat/ingestion); audio/video real.
       **Fixed stale model pins** (user flagged gpt-4o vision): video_service→`OPENAI_LATEST_MODEL` (gpt-5.5),
-      audio_service→`GOOGLE_LATEST_MODEL` (gemini-3.5-flash), ka_06_config→gpt-5.5. Forward: model_context_server
+      audio_service→`GOOGLE_LATEST_MODEL` (gemini-3.1-pro-preview), ka_06_config→gpt-5.5. Forward: model_context_server
       `/list_models` placeholder stub w/ stale names → A21/A28.
     - **A20 `backend/middleware/` ✅ COMPLETE 2026-06-21:** middleware stack active (`setup_middleware` called) +
       correctly ordered; `asgi_security` wired into FastAPI sub-services. **Removed disconnected `input_sanitizer.py`**

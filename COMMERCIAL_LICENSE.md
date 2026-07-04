@@ -17,7 +17,8 @@ Commercial use includes (but is not limited to):
 
 Please contact us to discuss commercial terms:
 
-- **Email**: [support@example.com](mailto:support@example.com)
+- **GitHub Discussions**: [DataLogicEngine discussions](https://github.com/kherrera6219/DataLogicEngine/discussions)
+- **GitHub Issues**: [Create a licensing inquiry](https://github.com/kherrera6219/DataLogicEngine/issues/new)
 
 We are happy to provide enterprise-friendly licensing, support, and partnership
 options.

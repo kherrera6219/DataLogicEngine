@@ -9,7 +9,7 @@ novel DAN-style override phrasings.
 Design constraints:
 
 - Screening runs on the user's selected cloud model (OpenAI ``gpt-5.5`` or
-  Google ``gemini-3.5-flash``) via
+  Google ``gemini-3.1-pro-preview``) via
   ``backend.llm_gateway.active_model.generate_with_active_model``. Note that
   the screened user input is therefore sent to the configured cloud provider.
 - **Fail-open**: if no cloud model is configured, the model call fails, the

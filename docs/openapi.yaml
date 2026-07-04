@@ -1,63 +1,296 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: DataLogicEngine (UKG) API
-  description: Enterprise-grade AI Knowledge Synthesis & Orchestration Platform. Bridges the gap between enterprise data and LLMs using a 17-Axis Coordinate Framework and 114 mission-critical Knowledge Algorithms.
-  version: 3.0.0
+  title: DataLogicEngine API
+  description: >
+    Current partial REST contract for the local-first DataLogicEngine desktop
+    application. The live app uses single-owner OS-level desktop auth, Flask
+    sessions, CSRF protection, and optional API-key style integration where
+    explicitly wired. Removed web login/register/MFA/SSO routes are intentionally
+    not part of this contract.
+  version: 3.2.0
   contact:
-    name: Support
-    url: https://your-domain.com/support
+    name: DataLogicEngine Support
+    url: https://github.com/kherrera6219/DataLogicEngine/issues
 
 servers:
   - url: http://localhost:5000/api/v1
-    description: Local Development
-  - url: https://api.your-domain.com/v1
-    description: Production
+    description: Local development or Electron loopback API
+
+tags:
+  - name: Authentication
+    description: Desktop single-owner auth and CSRF helpers.
+  - name: LLM Gateway
+    description: User-selected OpenAI or Google/Gemini cloud model execution.
+  - name: Truth Engine
+    description: Truth Engine sessions, gate checks, memory, and event surfaces.
+  - name: Knowledge Algorithms
+    description: KA registry, workflow execution, and trace helpers.
+  - name: Settings
+    description: User AI preference and model-provider configuration.
+  - name: Search
+    description: Global search and suggestions.
+  - name: Ingestion
+    description: Local-first knowledge ingestion.
+  - name: Tracing
+    description: Run/session trace review and export bundles.
+  - name: Operations
+    description: Health and readiness endpoints.
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    apiKeyAuth:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Flask-Login session cookie established by desktop auto-login.
+    csrfToken:
       type: apiKey
       in: header
-      name: X-API-Key
-
-security:
-  - bearerAuth: []
-  - apiKeyAuth: []
-
-paths:
-  /auth/login:
-    post:
-      summary: Standard Login
-      tags:
-        - Authentication
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
+      name: X-CSRF-Token
+      description: CSRF token issued by GET /auth/csrf-token for mutating requests.
+    desktopTrustHeader:
+      type: apiKey
+      in: header
+      name: X-DataLogic-Desktop
+      description: Desktop loopback trust header used by Electron challenge/auto-login.
+  schemas:
+    StandardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+        error:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+      additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        code:
+          type: string
+          nullable: true
+      additionalProperties: true
+    AuthCheckResponse:
+      allOf:
+        - $ref: "#/components/schemas/StandardResponse"
+        - type: object
+          properties:
+            authenticated:
+              type: boolean
+    DesktopChallengeResponse:
+      allOf:
+        - $ref: "#/components/schemas/StandardResponse"
+        - type: object
+          properties:
+            data:
               type: object
               properties:
-                username:
+                nonce:
                   type: string
-                password:
-                  type: string
+                expires_in_seconds:
+                  type: integer
+    ChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            required:
+              - role
+              - content
+            properties:
+              role:
+                type: string
+                enum:
+                  - user
+                  - assistant
+                  - system
+              content:
+                type: string
+        run_ukg_pipeline:
+          type: boolean
+          default: false
+        mode:
+          type: string
+          enum:
+            - standard
+            - ukg
+          default: ukg
+        provider:
+          type: string
+          enum:
+            - openai
+            - google
+            - gemini
+          nullable: true
+        model:
+          type: string
+          nullable: true
+          description: Defaults to the saved LLMProvider/UserAIPreferences model.
+      required:
+        - messages
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        run_id:
+          type: string
+          nullable: true
+        provider_used:
+          type: string
+          nullable: true
+        model_used:
+          type: string
+          nullable: true
+      additionalProperties: true
+    AISettings:
+      type: object
+      properties:
+        preferred_provider:
+          type: string
+          enum:
+            - auto
+            - openai
+            - google
+            - gemini
+        preferred_model:
+          type: string
+          example: gemini-3.1-pro-preview
+        ai_processing_enabled:
+          type: boolean
+        store_chat_history:
+          type: boolean
+      additionalProperties: true
+    IngestionRequest:
+      type: object
+      required:
+        - path
+      properties:
+        path:
+          type: string
+        sync_to_neo4j:
+          type: boolean
+          default: false
+    IngestionStatus:
+      type: object
+      properties:
+        ingestion_id:
+          type: string
+        status:
+          type: string
+        error:
+          type: string
+          nullable: true
+      additionalProperties: true
+
+paths:
+  /auth/check:
+    get:
+      summary: Check current authentication status
+      tags:
+        - Authentication
       responses:
         "200":
-          description: Successful Login
+          description: Current session or desktop auth status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthCheckResponse"
+
+  /auth/csrf-token:
+    get:
+      summary: Issue a CSRF token
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: CSRF token issued and mirrored in a cookie.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/StandardResponse"
 
+  /auth/desktop/challenge:
+    post:
+      summary: Issue a desktop auto-login challenge nonce
+      tags:
+        - Authentication
+      security:
+        - desktopTrustHeader: []
+      responses:
+        "200":
+          description: One-time desktop challenge issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DesktopChallengeResponse"
+        "400":
+          description: Desktop auto-login unsupported on this platform.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Desktop mode, loopback, or trust-header precondition failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/desktop/auto-login:
+    post:
+      summary: Complete Windows desktop auto-login
+      tags:
+        - Authentication
+      security:
+        - desktopTrustHeader: []
+      parameters:
+        - name: X-Desktop-Auth-Nonce
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Desktop-Auth-Signature
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Desktop session established for the local Windows identity.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardResponse"
+        "403":
+          description: Desktop trust or challenge verification failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /gateway/chat:
     post:
-      summary: UKG-Injected Chat Completion
+      summary: Send a gateway-backed chat request
       tags:
         - LLM Gateway
+      security:
+        - sessionCookie: []
+          csrfToken: []
       requestBody:
         required: true
         content:
@@ -66,17 +299,79 @@ paths:
               $ref: "#/components/schemas/ChatRequest"
       responses:
         "200":
-          description: Successful Chat Response
+          description: Model-backed response returned.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatResponse"
+        "202":
+          description: Request queued for offline replay when enabled and providers are unavailable.
+        "429":
+          description: Provider rate-limited the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: No reachable active provider and offline queue disabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
-  /truth/session:
+  /gateway/providers:
+    get:
+      summary: List active model providers
+      tags:
+        - LLM Gateway
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Active provider records.
+
+  /gateway/keys:
     post:
-      summary: Create Truth Engine Session
+      summary: Save or update a provider API key
+      tags:
+        - LLM Gateway
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - key
+              properties:
+                provider:
+                  type: string
+                  enum:
+                    - openai
+                    - google
+                    - gemini
+                key:
+                  type: string
+                model:
+                  type: string
+      responses:
+        "200":
+          description: Provider key saved.
+        "400":
+          description: Missing or invalid provider/key.
+
+  /truth/core/session:
+    post:
+      summary: Create a Truth Engine session
       tags:
         - Truth Engine
+      security:
+        - sessionCookie: []
+          csrfToken: []
       requestBody:
         required: true
         content:
@@ -90,36 +385,43 @@ paths:
                   type: object
       responses:
         "200":
-          description: Session Created
+          description: Truth Engine session created.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/StandardResponse"
+
+  /truth/gate/evaluate:
+    post:
+      summary: Evaluate a query through TruthGate
+      tags:
+        - Truth Engine
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      responses:
+        "200":
+          description: TruthGate decision returned.
 
   /ka/workflow/high-stakes:
     post:
-      summary: Execute High-Stakes Workflow
+      summary: Execute a high-stakes KA workflow
       tags:
         - Knowledge Algorithms
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/WorkflowRequest"
+      security:
+        - sessionCookie: []
+          csrfToken: []
       responses:
         "200":
-          description: Workflow Initiated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StandardResponse"
+          description: Workflow initiated.
 
   /ka/trace/{session_id}:
     get:
-      summary: Get Workflow Trace
+      summary: Get KA workflow trace
       tags:
         - Knowledge Algorithms
+      security:
+        - sessionCookie: []
       parameters:
         - name: session_id
           in: path
@@ -128,49 +430,40 @@ paths:
             type: string
       responses:
         "200":
-          description: Workflow Trace Data
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StandardResponse"
+          description: Workflow trace data.
 
   /settings/ai:
     get:
-      summary: Get user AI preferences
+      summary: Get AI preferences
       tags:
         - Settings
+      security:
+        - sessionCookie: []
       responses:
         "200":
-          description: Active AI preference configurations
-        "401":
-          description: Unauthorized
+          description: Active AI preference configuration.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AISettings"
     post:
-      summary: Update user AI preferences
+      summary: Update AI preferences
       tags:
         - Settings
+      security:
+        - sessionCookie: []
+          csrfToken: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                preferred_provider:
-                  type: string
-                  enum: [auto, openai, azure, anthropic, google]
-                preferred_model:
-                  type: string
-                ai_processing_enabled:
-                  type: boolean
-                store_chat_history:
-                  type: boolean
+              $ref: "#/components/schemas/AISettings"
       responses:
         "200":
-          description: Settings updated successfully
+          description: Settings updated.
         "400":
-          description: Invalid provider selection
-        "401":
-          description: Unauthorized
+          description: Invalid provider/model selection.
 
   /search/global:
     get:
@@ -190,13 +483,13 @@ paths:
             default: 10
       responses:
         "200":
-          description: Search matches by category
+          description: Search matches by category.
         "400":
-          description: Search query required
+          description: Search query required.
 
   /search/suggest:
     get:
-      summary: Get search suggestions (autocomplete)
+      summary: Get autocomplete search suggestions
       tags:
         - Search
       parameters:
@@ -212,73 +505,66 @@ paths:
             default: 5
       responses:
         "200":
-          description: Autocomplete options list
+          description: Autocomplete options.
 
   /ingestion/supported:
     get:
-      summary: Get supported raw file extensions
+      summary: Get supported local ingestion extensions
       tags:
         - Ingestion
       responses:
         "200":
-          description: List of supported extensions
+          description: Supported extension list.
 
   /ingestion/local:
     post:
-      summary: Ingest raw documents synchronously
+      summary: Ingest local documents synchronously
       tags:
         - Ingestion
+      security:
+        - sessionCookie: []
+          csrfToken: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                path:
-                  type: string
-              required:
-                - path
+              $ref: "#/components/schemas/IngestionRequest"
       responses:
         "200":
-          description: Ingestion completed successfully
+          description: Ingestion completed.
         "400":
-          description: Invalid path or extraction error
+          description: Invalid path, unsupported file, or extraction error.
 
   /ingestion/local/async:
     post:
-      summary: Ingest raw documents in background
+      summary: Start asynchronous local ingestion
       tags:
         - Ingestion
+      security:
+        - sessionCookie: []
+          csrfToken: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                path:
-                  type: string
-              required:
-                - path
+              $ref: "#/components/schemas/IngestionRequest"
       responses:
         "202":
-          description: Ingestion initiated asynchronously
+          description: Ingestion started.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ingestion_id:
-                    type: string
-                  status:
-                    type: string
+                $ref: "#/components/schemas/IngestionStatus"
 
   /ingestion/status/{ingestion_id}:
     get:
-      summary: Get background ingestion status
+      summary: Get asynchronous ingestion status
       tags:
         - Ingestion
+      security:
+        - sessionCookie: []
       parameters:
         - name: ingestion_id
           in: path
@@ -287,13 +573,19 @@ paths:
             type: string
       responses:
         "200":
-          description: Current background ingestion task status
+          description: Current ingestion status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionStatus"
 
   /trace/runs/{run_id}/bundle:
     get:
-      summary: Get complete aggregated trace bundle
+      summary: Get an aggregated trace bundle
       tags:
         - Tracing
+      security:
+        - sessionCookie: []
       parameters:
         - name: run_id
           in: path
@@ -302,70 +594,28 @@ paths:
             type: string
       responses:
         "200":
-          description: Complete trace bundle payload (runs, stages, evidence, KAs, debate, metrics)
+          description: Aggregated trace bundle payload.
 
-schemas:
-  StandardResponse:
-    type: object
-    properties:
-      success:
-        type: boolean
-      data:
-        type: object
-      error:
-        type: string
-        nullable: true
-      timestamp:
-        type: string
-        format: date-time
+  /health:
+    get:
+      summary: Health probe
+      tags:
+        - Operations
+      servers:
+        - url: http://localhost:5000
+          description: Unversioned local operational endpoint
+      responses:
+        "200":
+          description: Backend process health.
 
-  ChatRequest:
-    type: object
-    properties:
-      messages:
-        type: array
-        items:
-          type: object
-          properties:
-            role:
-              type: string
-              enum: [user, assistant, system]
-            content:
-              type: string
-      model:
-        type: string
-      mode:
-        type: string
-        enum: [standard, ukg]
-      trace_enabled:
-        type: boolean
-
-  ChatResponse:
-    type: object
-    properties:
-      success:
-        type: boolean
-      data:
-        type: object
-        properties:
-          id:
-            type: string
-          choices:
-            type: array
-            items:
-              type: object
-          ukg_trace:
-            type: object
-            properties:
-              trace_id:
-                type: string
-              confidence:
-                type: number
-
-  WorkflowRequest:
-    type: object
-    properties:
-      query:
-        type: string
-      context:
-        type: object
+  /ready:
+    get:
+      summary: Readiness probe
+      tags:
+        - Operations
+      servers:
+        - url: http://localhost:5000
+          description: Unversioned local operational endpoint
+      responses:
+        "200":
+          description: Backend ready for traffic.

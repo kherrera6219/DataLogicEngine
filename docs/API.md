@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v3.1.0 |
-| Last updated | 2026-06-08 |
+| Last updated | 2026-07-04 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -54,7 +54,7 @@ Primary application API base URL:
 
 - Local development: `http://localhost:5000/api/v1`
 - Local desktop/Electron runtime: backend loopback API exposed by the desktop app.
-- Production web deployment: `https://your-domain.com/api/v1`
+- Production web deployment: configured deployment origin plus `/api/v1`
 
 Selected operational namespaces remain unversioned, such as `/health`, `/live`, `/ready`, `/metrics`, `/api/docs`, and some admin/internal namespaces.
 
@@ -284,7 +284,7 @@ Primary prefix: `/api/v1/gateway`.
       "model_used": "gpt-5.5"
     }
     ```
-    `provider_used` / `model_used` report the user-selected cloud model that served the request (OpenAI `gpt-5.5` or Google `gemini-3.5-flash`).
+    `provider_used` / `model_used` report the user-selected cloud model that served the request (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`).
   - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
     ```json
     {
@@ -827,6 +827,7 @@ A technical reviewer should validate this document against these files:
 2. Added provider key management (`POST /keys`, `GET /keys`) and provider connection test (`POST /providers/{id}/test`) with all error codes and `mapProviderTestError` frontend mapping.
 3. Documented that `provider` and `model` are optional in the chat body — backend reads `LLMProvider.model_id` from DB when not supplied (Sprint 5f hardcoded-model removal).
 4. Updated document version to v3.1.0 and last-updated date to 2026-06-08.
+5. Documentation audit refresh on 2026-07-04: aligned the documented Google model with the live `gemini-3.1-pro-preview` default and refreshed `docs/openapi.yaml` to remove retired login/register auth routes.
 
 ## Change notes for v3.0.0
 

@@ -54,7 +54,7 @@ sequenceDiagram
     participant Evidence as EvidenceModel\nbackend/dmrf/evidence_model.py
     participant Conv as ConvergencePolicy\nbackend/dmrf/convergence_policy.py
     participant Gateway as LLM Gateway\nbackend/llm_gateway/
-    participant Provider as Model Provider\nOpenAI / Anthropic / Azure / Gemini
+    participant Provider as Model Provider\nOpenAI / Google Gemini
     participant Memory as TruthMemory Adapter\ntruth_integration/memory_adapter.py
     participant Link as TruthLink Adapter\ntruth_integration/link_adapter.py
     participant Obs as DMRF Observability\nbackend/dmrf/observability.py
