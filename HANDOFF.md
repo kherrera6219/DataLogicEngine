@@ -19,14 +19,16 @@
 # DataLogicEngine — Session Handoff
 
 ## START HERE (next session) - updated 2026-07-04
-**Audit checkpoint: documentation slice and code audit slice 1 are complete.**
+**Audit checkpoint: documentation slice and code audit slices 1-2 are complete.**
 
 - **Documentation audit slice complete:** root maintained docs and the active `docs/` tree were read against live code. Active docs now align to desktop auth, current gateway/API surfaces, and the live Google default `gemini-3.1-pro-preview`. `docs/openapi.yaml` was replaced with a current partial contract. Legacy duplicate exports were moved from `docs/api/` to `docs/archive/api/`.
 - **Cleanup candidates identified:** root scratch-output files such as `.gitout.txt`, `audit_deep*.txt`, `audit_dup*.txt`, `core_backend_inversions*.txt`, `enc_*.txt`, `commit_msg.txt`, and `orphaned_modules.txt` are not tracked source docs. They remain pending explicit cleanup approval.
 - **Code audit slice 1 complete - LLM provider/model configuration:** `ApiOverlayConfig` no longer offers retired `gemini-3.5-flash`; `/api/v1/gateway/keys` now normalizes provider/key/model input and rejects unsupported provider types before database writes; LLM-path comments/docstrings were corrected to `gemini-3.1-pro-preview` or current model constants.
-- **Validation completed for the checkpoint:** targeted backend ruff passed; frontend `ApiOverlayConfig.test.tsx` passed 8 tests; focused gateway/model pytest passed 53 tests with only a Neo4j driver teardown logging warning after successful exit; `scripts/generate_docs.py` refreshed inventory; `scripts/verify_docs_references.py` passed with 0 errors and 17 existing heading/style warnings; `git diff --check` passed.
-- **Next audit slice:** authentication/session/CSRF and settings-route authorization boundaries. Include route decorators, desktop auto-login preconditions, frontend session-expiry behavior, compatibility aliases, and settings write authorization.
-- **Untracked audit artifact:** `pip-audit-report.json` exists at the repo root and records a current dependency audit result with an NLTK advisory; it is being included in the requested "commit all" checkpoint unless rejected by validation.
+- **Commit checkpoint:** documentation audit and code audit slice 1 were published to `origin/main` in commit `7be99dc8` before continuing.
+- **Code audit slice 2 complete - authentication/session/CSRF/settings authorization:** `/api/v1/settings/ai` now uses `api_session_login_required`, reads the authenticated user through `g.auth_user`/`current_user`, accepts signed desktop requests without a pre-existing Flask session, and returns JSON 401s for unauthenticated calls. Settings preference writes now canonicalize providers, restrict AI preference providers to `auto`/`openai`/`google`, validate models against current defaults, and clear model preference when provider is `auto`.
+- **CSRF coverage added:** backend regressions now prove untrusted session-cookie mutations are blocked, strict token enforcement rejects missing tokens, and valid Electron `app://-` CSRF-token mutations pass.
+- **Validation completed for current checkpoint:** targeted backend ruff passed; frontend `ApiOverlayConfig.test.tsx` passed 8 tests; focused gateway/model pytest passed 53 tests with only a Neo4j driver teardown logging warning after successful exit; focused auth/settings pytest passed 16 tests; frontend API/auth/AI settings tests passed 34 tests; `scripts/generate_docs.py` refreshed inventory; `scripts/verify_docs_references.py` passes with 0 errors and 17 existing heading/style warnings.
+- **Next audit slice:** remaining API route decorator consistency and API-key/session boundary review across search, user-data, notification, admin, MCP, and LLM admin endpoints before moving deeper into feature-specific logic.
 
 ---
 

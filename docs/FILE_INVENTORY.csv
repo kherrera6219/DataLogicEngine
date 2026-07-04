@@ -384,7 +384,7 @@ backend\routes\notification_routes.py,3403,.py,2026-06-08 05:39:10 UTC
 backend\routes\privacy_routes.py,3339,.py,2026-06-20 04:38:10 UTC
 backend\routes\retention_routes.py,6183,.py,2026-06-08 05:04:09 UTC
 backend\routes\search_routes.py,4325,.py,2026-06-08 05:03:36 UTC
-backend\routes\settings_routes.py,2216,.py,2026-05-31 06:49:59 UTC
+backend\routes\settings_routes.py,2846,.py,2026-07-04 03:37:01 UTC
 backend\routes\simulation_routes.py,7107,.py,2026-06-08 05:18:47 UTC
 backend\routes\storage_routes.py,23390,.py,2026-05-31 06:49:59 UTC
 backend\routes\user_data_routes.py,10787,.py,2026-06-20 06:28:00 UTC
@@ -492,7 +492,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,5588,.py,2026-05-29 06:58:00 UTC
-CHANGELOG.md,61884,.md,2026-07-04 03:24:42 UTC
+CHANGELOG.md,62265,.md,2026-07-04 03:41:02 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4280,.py,2026-02-16 17:41:21 UTC
@@ -669,6 +669,8 @@ docs\API.md,27080,.md,2026-07-04 03:16:11 UTC
 docs\API_VERSIONING.md,5654,.md,2026-06-25 04:12:14 UTC
 docs\ARCHITECTURE.md,25606,.md,2026-07-04 03:12:14 UTC
 docs\ARCHITECTURE_MAP.md,12184,.md,2026-07-04 03:12:47 UTC
+docs\archive\api\openapi-trace-legacy-2026-01.yaml,28316,.yaml,2026-01-08 22:32:39 UTC
+docs\archive\api\postman-legacy-2026-05-22.json,7078,.json,2026-05-22 22:22:34 UTC
 docs\archive\historical-documents\4D_Database_Solution Metadata acquation knowleagde graph.pdf,293190,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\historical-documents\__Nested Simulated Memory Architecture of UKG_USKD – 10-Layer Technical Documentation__ (1).pdf,231504,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\historical-documents\Advanced_4D_Acquisition_Knowledge_Framework_A_Comprehensive_Model_for_Federal_State_City_and_Local_Acquisition_Regulations.pdf,206022,.pdf,2026-06-27 06:50:36 UTC
@@ -772,9 +774,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13600,.md,2026-07-04 03:12:14 UTC
-docs\FILE_INVENTORY.csv,121903,.csv,2026-07-04 03:26:02 UTC
+docs\FILE_INVENTORY.csv,121903,.csv,2026-07-04 03:31:28 UTC
 docs\FILE_STRUCTURE.md,4396,.md,2026-07-02 06:47:45 UTC
-docs\GENERATED_STRUCTURE.md,69728,.md,2026-07-04 03:26:03 UTC
+docs\GENERATED_STRUCTURE.md,69728,.md,2026-07-04 03:31:29 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\MCP_INTEGRATION.md,11952,.md,2026-06-25 04:40:58 UTC
 docs\openapi.yaml,15861,.yaml,2026-07-04 03:10:48 UTC
@@ -1144,7 +1146,7 @@ frontend\types\electron.d.ts,3961,.ts,2026-05-29 05:35:24 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,90389,.md,2026-07-04 03:31:21 UTC
+HANDOFF.md,91102,.md,2026-07-04 03:41:10 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1165,6 +1167,7 @@ models.py,111897,.py,2026-06-25 00:44:23 UTC
 patches\accessibility-fixes.patch,2850,.patch,2026-01-30 20:55:27 UTC
 patches\fix-typography.patch,238,.patch,2026-01-30 20:55:32 UTC
 patches\improve-csp.patch,378,.patch,2026-01-30 20:55:29 UTC
+pip-audit-report.json,14754,.json,2026-07-02 06:51:59 UTC
 playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
@@ -1490,7 +1493,7 @@ tests\security\test_security_coverage.py,4976,.py,2026-06-13 19:35:22 UTC
 tests\security\test_security_critical.py,2050,.py,2026-06-25 02:14:53 UTC
 tests\security\test_security_headers.py,2257,.py,2026-01-06 01:00:29 UTC
 tests\security\test_security_storage_deep.py,5946,.py,2026-06-24 18:23:44 UTC
-tests\security\test_session_security.py,741,.py,2026-03-16 05:12:15 UTC
+tests\security\test_session_security.py,2761,.py,2026-07-04 03:39:05 UTC
 tests\security\test_system_chaos.py,2760,.py,2026-02-16 22:25:20 UTC
 tests\simulation\test_e2e_simulation_pipeline.py,10596,.py,2026-06-04 08:00:02 UTC
 tests\simulation\test_sekre_wiring.py,4074,.py,2026-06-12 03:14:10 UTC
@@ -1583,6 +1586,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,119450,.md,2026-07-04 03:31:06 UTC
+TODO.md,121878,.md,2026-07-04 03:40:33 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

@@ -1,5 +1,7 @@
 import importlib
 
+from tests.conftest import seed_login_session
+
 
 def test_session_cookie_security_defaults(monkeypatch):
     monkeypatch.setenv("FLASK_ENV", "production")
@@ -16,3 +18,60 @@ def test_session_cookie_security_defaults(monkeypatch):
     assert app.config["SESSION_COOKIE_HTTPONLY"] is True
     assert app.config["SESSION_COOKIE_SAMESITE"] in {"Lax", "Strict", "None"}
     assert app.config["SESSION_COOKIE_SECURE"] is True
+
+
+def test_api_session_mutation_blocks_untrusted_origin(app, client, monkeypatch):
+    seed_login_session(client, app, username="csrf_origin_user")
+    monkeypatch.setitem(app.config, "TESTING", False)
+
+    response = client.post(
+        "/api/v1/settings/ai",
+        headers={"Origin": "https://attacker.example"},
+        json={"ai_processing_enabled": False},
+    )
+
+    assert response.status_code == 403
+    payload = response.get_json()
+    assert payload["code"] == "CSRF_ORIGIN_CHECK_FAILED"
+    assert payload["success"] is False
+
+
+def test_api_session_mutation_requires_csrf_token_when_enforced(app, client, monkeypatch):
+    seed_login_session(client, app, username="csrf_token_user")
+    monkeypatch.setitem(app.config, "TESTING", False)
+    monkeypatch.setenv("ENFORCE_API_CSRF_TOKENS", "true")
+
+    response = client.post(
+        "/api/v1/settings/ai",
+        headers={"Origin": "app://-"},
+        json={"ai_processing_enabled": False},
+    )
+
+    assert response.status_code == 403
+    payload = response.get_json()
+    assert payload["code"] == "CSRF_TOKEN_CHECK_FAILED"
+    assert payload["error"] == "CSRF session token missing"
+
+
+def test_api_session_mutation_accepts_valid_csrf_token_when_enforced(app, client, monkeypatch):
+    seed_login_session(client, app, username="csrf_valid_user")
+    monkeypatch.setitem(app.config, "TESTING", False)
+    monkeypatch.setenv("ENFORCE_API_CSRF_TOKENS", "true")
+
+    token_response = client.get("/api/v1/auth/csrf-token")
+    assert token_response.status_code == 200
+    token = token_response.get_json()["data"]["csrf_token"]
+
+    response = client.post(
+        "/api/v1/settings/ai",
+        headers={
+            "Origin": "app://-",
+            "X-CSRF-Token": token,
+        },
+        json={"ai_processing_enabled": False},
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert payload["settings"]["ai_processing_enabled"] is False

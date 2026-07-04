@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slice 1** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened against unsupported providers and whitespace drift, and focused backend/frontend regressions added. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, focused pytest 53 passed with a Neo4j teardown logging warning after successful exit. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-2** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, and focused backend/frontend/CSRF regressions added. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed with a Neo4j teardown logging warning after successful exit. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -66,9 +66,30 @@ Validation:
 3. `python -m pytest -q --no-cov tests\integration\test_gateway_api_coverage.py tests\unit\test_llm_gateway_internal_units.py tests\unit\test_dsqp_llm_assisted.py tests\unit\test_defense_supervisor.py` — 53 passed; pytest exited successfully, with a Neo4j driver logging warning emitted during interpreter teardown.
 4. `git diff --check` — passed.
 
-Next code audit slice: continue with authentication/session/CSRF and settings-route authorization boundaries, including route decorators, desktop auto-login preconditions, frontend session-expiry behavior, and remaining compatibility aliases.
+Commit checkpoint: documentation audit and code audit slice 1 were published to `origin/main` in commit `7be99dc8` before continuing into the authentication/session/CSRF audit slice.
 
-Commit checkpoint: this TODO/HANDOFF refresh is the publish point before continuing into the authentication/session/CSRF audit slice.
+## Code audit slice 2 — Authentication/session/CSRF/settings authorization — 2026-07-04
+
+Scope completed in this slice:
+
+1. Audited desktop auth preconditions, nonce/signature flow, Flask-Login request loader support, API session decorators, backend CSRF origin/token gates, frontend API session recovery, and the settings AI preference route.
+2. Classified remaining `@login_required` API routes: they still receive signed desktop requests through Flask-Login's request loader, but settings is now aligned to the explicit JSON/desktop-aware decorator used by storage and ingestion settings surfaces.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `/api/v1/settings/ai` still used page-style Flask-Login `@login_required` and read `current_user` directly, unlike the desktop-aware settings/storage route pattern. | Switched the route to `api_session_login_required`, read `g.auth_user`/`current_user` through a helper, and added unsigned/session/signed-desktop regressions. | Done |
+| Settings provider/model preference writes accepted non-canonical provider values from the broader historical provider set. | Canonicalized provider input, restricted user AI preferences to `auto`/`openai`/`google`, validated model IDs against current defaults, and clear model preference when provider is `auto`. | Done |
+| Backend CSRF strict origin/token behavior had route-existence coverage but no focused server-side regressions. | Added tests for untrusted origins, enforced missing-token failures, and valid `app://-` Electron-origin CSRF token acceptance. | Done |
+
+Validation:
+
+1. `python -m ruff check backend\routes\settings_routes.py tests\integration_routes\test_settings_routes_auth.py tests\security\test_session_security.py` — passed.
+2. `python -m pytest -q --no-cov tests\integration_routes\test_settings_routes_auth.py tests\integration_routes\test_desktop_auto_login_security.py tests\security\test_session_security.py tests\unit\test_auth_api_decorators_security.py` — 16 passed.
+3. `npm --prefix frontend test -- tests/unit/lib/api/client.test.ts tests/unit/lib/api/auth.test.ts components/settings/AiModelSettings.test.tsx` — 34 passed.
+
+Next code audit slice: continue with remaining API route decorator consistency and API-key/session boundary review across search, user-data, notification, admin, MCP, and LLM admin endpoints before moving deeper into feature-specific logic.
 
 ## Unified Backlog
 
