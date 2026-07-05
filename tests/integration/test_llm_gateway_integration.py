@@ -211,3 +211,95 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
         assert "request failed" in (response.error or "").lower()
         assert mock_usage.call_count >= 1
         assert mock_usage.call_args[0][8] is False
+
+
+
+@pytest.mark.asyncio
+async def test_gateway_persists_trace_run_for_direct_success(app):
+    from extensions import db
+    from models import TraceRun
+
+    with app.app_context():
+        gateway = LLMGateway(db_session=db.session)
+        provider = MagicMock()
+        provider.id = uuid.uuid4()
+        provider.name = "DirectProvider"
+        provider.provider_type = "openai"
+        provider.model_id = "gpt-4"
+        provider.max_retries = 1
+        provider.timeout_seconds = 30
+
+        with patch.object(gateway, "_get_eligible_providers", AsyncMock(return_value=[provider])), \
+             patch.object(gateway, "_create_sdk_provider") as mock_create_sdk, \
+             patch.object(gateway, "_record_usage", AsyncMock()), \
+             patch.object(gateway, "_save_chat_message", AsyncMock()):
+            mock_sdk = AsyncMock()
+            mock_sdk.complete.return_value = MagicMock(
+                text="Direct trace response",
+                usage={"prompt_tokens": 2, "completion_tokens": 3},
+                raw={},
+            )
+            mock_create_sdk.return_value = mock_sdk
+
+            response = await gateway.process(
+                GatewayRequest(
+                    messages=[{"role": "user", "content": "Persist direct trace"}],
+                    run_ukg_pipeline=False,
+                )
+            )
+
+        run = db.session.get(TraceRun, uuid.UUID(response.run_id))
+        assert response.ok is True
+        assert run is not None
+        assert run.input_message == "Persist direct trace"
+        assert run.final_answer == "Direct trace response"
+        assert run.model_name == "gpt-4"
+        assert run.user_id is None
+        assert run.stages.count() == 0
+
+
+@pytest.mark.asyncio
+async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
+    from extensions import db
+    from models import TraceRun
+
+    with app.app_context():
+        gateway = LLMGateway(db_session=db.session)
+        run_id = uuid.uuid4()
+
+        await gateway._create_trace_run(
+            {
+                "ok": True,
+                "answer": "DMRF enriched answer",
+                "trace": [{"ka_id": "dmrf-route", "status": "pass", "output": {"tier": "high_stakes"}}],
+                "metadata": {
+                    "dmrf": {
+                        "run_id": "dmrf_test",
+                        "tier": "high_stakes",
+                        "query_digest": "abc123",
+                        "axis_vector": {
+                            "frost_layer_depth": 7,
+                            "truth_engine_mode": "regulatory_strict",
+                            "confidence": 0.92,
+                        },
+                        "gate_result": {"decision": "allow"},
+                    }
+                },
+            },
+            "Assess finance compliance",
+            str(run_id),
+            "anonymous",
+            "not-a-session-uuid",
+            "gpt-4",
+        )
+
+        run = db.session.get(TraceRun, run_id)
+        assert run is not None
+        assert run.user_id is None
+        assert run.session_id is None
+        assert run.tier == "high_stakes"
+        assert run.frost_depth == 7
+        assert run.truth_engine_mode == "regulatory_strict"
+        assert run.truthgate_decision == "allow"
+        assert run.data_snapshot["dmrf"]["run_id"] == "dmrf_test"
+        assert run.stages.count() == 1

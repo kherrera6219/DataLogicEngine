@@ -326,7 +326,7 @@ backend\knowledge_algorithms\risk_classifier.py,3326,.py,2026-05-13 20:17:08 UTC
 backend\llm_gateway\__init__.py,567,.py,2026-02-16 22:47:44 UTC
 backend\llm_gateway\active_model.py,5783,.py,2026-07-04 03:21:00 UTC
 backend\llm_gateway\api.py,49713,.py,2026-07-04 04:04:49 UTC
-backend\llm_gateway\gateway.py,89508,.py,2026-07-04 03:21:00 UTC
+backend\llm_gateway\gateway.py,93392,.py,2026-07-05 23:40:01 UTC
 backend\llm_gateway\governance.py,15639,.py,2026-05-22 21:38:01 UTC
 backend\llm_gateway\latency_metrics.py,6036,.py,2026-07-02 06:47:45 UTC
 backend\llm_gateway\model_defaults.py,1337,.py,2026-07-04 03:20:41 UTC
@@ -491,7 +491,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,5588,.py,2026-05-29 06:58:00 UTC
-CHANGELOG.md,64988,.md,2026-07-05 23:13:40 UTC
+CHANGELOG.md,64254,.md,2026-07-05 23:38:50 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4280,.py,2026-02-16 17:41:21 UTC
@@ -773,9 +773,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13600,.md,2026-07-04 03:12:14 UTC
-docs\FILE_INVENTORY.csv,122340,.csv,2026-07-04 05:42:26 UTC
+docs\FILE_INVENTORY.csv,122654,.csv,2026-07-05 23:38:59 UTC
 docs\FILE_STRUCTURE.md,4396,.md,2026-07-02 06:47:45 UTC
-docs\GENERATED_STRUCTURE.md,69922,.md,2026-07-04 05:42:26 UTC
+docs\GENERATED_STRUCTURE.md,69922,.md,2026-07-05 23:39:00 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\MCP_INTEGRATION.md,11952,.md,2026-06-25 04:40:58 UTC
 docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
@@ -1148,7 +1148,7 @@ frontend\types\electron.d.ts,3745,.ts,2026-07-04 05:10:01 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,98215,.md,2026-07-05 23:13:40 UTC
+HANDOFF.md,97951,.md,2026-07-05 23:38:50 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1164,6 +1164,7 @@ migrations\versions\c5d6e7f8a9b0_drop_user_role_is_admin.py,2569,.py,2026-06-20 
 migrations\versions\d1e2f3a4b5c6_add_auditbundle_columns_to_trace_runs.py,1645,.py,2026-05-15 08:09:25 UTC
 migrations\versions\d6e7f8a9b0c1_drop_oauth_accounts_table.py,2134,.py,2026-06-24 18:08:03 UTC
 migrations\versions\e2f3a4b5c6d7_add_phase_b_frost_trace_fields.py,1045,.py,2026-05-25 04:22:06 UTC
+migrations\versions\e7f8a9b0c1d2_harden_trace_export_records.py,4119,.py,2026-07-05 23:05:22 UTC
 migrations\versions\f3a4b5c6d7e8_add_truth_session_input_embedding.py,1051,.py,2026-05-26 04:47:19 UTC
 models.py,113030,.py,2026-07-05 23:08:33 UTC
 patches\accessibility-fixes.patch,2850,.patch,2026-01-30 20:55:27 UTC
@@ -1445,7 +1446,7 @@ tests\integration\test_gateway_extended.py,4761,.py,2026-02-16 22:25:20 UTC
 tests\integration\test_graphql_api.py,5629,.py,2026-02-16 22:25:20 UTC
 tests\integration\test_honeycomb_api.py,4777,.py,2026-06-20 06:38:34 UTC
 tests\integration\test_llm_gateway_coverage.py,1955,.py,2026-07-04 04:06:13 UTC
-tests\integration\test_llm_gateway_integration.py,8456,.py,2026-02-16 22:25:20 UTC
+tests\integration\test_llm_gateway_integration.py,11692,.py,2026-07-05 23:34:34 UTC
 tests\integration\test_rag_service_coverage.py,6461,.py,2026-06-05 02:40:15 UTC
 tests\integration\test_service_api_sweep.py,7789,.py,2026-06-24 18:24:07 UTC
 tests\integration\test_truth_engine_api.py,3165,.py,2026-02-16 22:25:20 UTC
@@ -1570,6 +1571,7 @@ tests\unit\test_services.py,12974,.py,2026-06-24 18:24:28 UTC
 tests\unit\test_simulation_engine_unit.py,5452,.py,2026-06-07 23:11:27 UTC
 tests\unit\test_storage_hardening.py,3119,.py,2026-05-24 23:07:42 UTC
 tests\unit\test_structured_logging_resilience.py,1182,.py,2026-03-25 20:11:29 UTC
+tests\unit\test_trace_export_lifecycle.py,3243,.py,2026-07-05 23:10:33 UTC
 tests\unit\test_trace_viewer_contract.py,4042,.py,2026-07-04 05:32:26 UTC
 tests\unit\test_ukg_db_coverage.py,8109,.py,2026-07-04 04:45:31 UTC
 tests\unit\test_ukg_db_reliability.py,4060,.py,2026-02-16 22:27:59 UTC
@@ -1590,6 +1592,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,140710,.md,2026-07-05 23:13:40 UTC
+TODO.md,142565,.md,2026-07-05 23:38:50 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

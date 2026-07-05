@@ -791,6 +791,7 @@ class LLMGateway:
                         explainability["output_classification"] = output_classification
                         result["explainability"] = explainability
                         result["warnings"] = list(result.get("warnings", [])) + governance_warnings
+                        self._attach_dmrf_trace_metadata(result, request.meta)
 
                         await self._record_usage(
                             provider_record.id,
@@ -832,6 +833,15 @@ class LLMGateway:
                             metadata={
                                 "timestamp": datetime.now(UTC).isoformat(),
                             },
+                        )
+
+                        await self._create_trace_run(
+                            result,
+                            query,
+                            run_id,
+                            user_id_str,
+                            request.session_id,
+                            model,
                         )
 
                         if request.session_id and _store_history:
@@ -1392,6 +1402,34 @@ class LLMGateway:
         )
 
     @staticmethod
+    def _attach_dmrf_trace_metadata(result: dict[str, Any], request_meta: dict[str, Any]) -> None:
+        """Carry DMRF control-plane decisions into the trace record payload."""
+        if not isinstance(result, dict) or not isinstance(request_meta, dict):
+            return
+        dmrf_bundle = request_meta.get("dmrf")
+        if not isinstance(dmrf_bundle, dict):
+            return
+
+        metadata = result.get("metadata")
+        if not isinstance(metadata, dict):
+            metadata = {}
+        metadata.setdefault("dmrf", dmrf_bundle)
+        result["metadata"] = metadata
+
+        dmrf_tier = request_meta.get("dmrf_tier") or dmrf_bundle.get("tier")
+        if dmrf_tier and not result.get("tier"):
+            result["tier"] = dmrf_tier
+
+        axis_vector = dmrf_bundle.get("axis_vector")
+        if isinstance(axis_vector, dict):
+            if not result.get("coordinate"):
+                result["coordinate"] = axis_vector
+            if axis_vector.get("frost_layer_depth") is not None and result.get("frost_depth") is None:
+                result["frost_depth"] = axis_vector.get("frost_layer_depth")
+            if axis_vector.get("truth_engine_mode") and not result.get("truth_engine_mode"):
+                result["truth_engine_mode"] = axis_vector.get("truth_engine_mode")
+
+    @staticmethod
     def _audit_footer(result: dict, tier, latency_ms: int) -> str:
         """Return the spec Section 11.2 canonical audit footer for Tier 2+ responses."""
         expl = result.get("explainability") or {}
@@ -1643,6 +1681,32 @@ class LLMGateway:
         
         return result
     
+    @staticmethod
+    def _parse_uuid_or_none(value: Any) -> Optional[uuid.UUID]:
+        if value is None:
+            return None
+        if isinstance(value, uuid.UUID):
+            return value
+        text = str(value).strip()
+        if not text or text.lower() in {"anonymous", "none", "null"}:
+            return None
+        try:
+            return uuid.UUID(text)
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+    @staticmethod
+    def _parse_int_or_none(value: Any) -> Optional[int]:
+        if value is None:
+            return None
+        text = str(value).strip()
+        if not text or text.lower() in {"anonymous", "none", "null"}:
+            return None
+        try:
+            return int(text)
+        except (TypeError, ValueError):
+            return None
+
     async def _create_trace_run(
         self,
         sdk_result: dict[str, Any],
@@ -1652,7 +1716,7 @@ class LLMGateway:
         session_id: Optional[str],
         model: str,
     ) -> None:
-        """Create TraceRun and TraceStage records from SDK result."""
+        """Create or update TraceRun and TraceStage records from gateway output."""
         try:
             from models import TraceRun, TraceStage
             try:
@@ -1663,54 +1727,119 @@ class LLMGateway:
                 import os
                 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
                 from extensions import db
-            import uuid
-            
-            # Create TraceRun
-            from flask import g
-            correlation_id = getattr(g, 'correlation_id', None)
+
+            trace_run_id = self._parse_uuid_or_none(run_id)
+            if trace_run_id is None:
+                logger.debug("Skipping trace persistence for non-UUID run_id: %s", run_id)
+                return
+
+            try:
+                from flask import g, has_app_context
+                correlation_id = getattr(g, "correlation_id", None) if has_app_context() else None
+            except Exception:
+                correlation_id = None
+
+            metadata = sdk_result.get("metadata")
+            if not isinstance(metadata, dict):
+                metadata = {}
+            dmrf_bundle = metadata.get("dmrf") if isinstance(metadata.get("dmrf"), dict) else {}
+            axis_vector = dmrf_bundle.get("axis_vector") if isinstance(dmrf_bundle.get("axis_vector"), dict) else {}
+            gate_result = dmrf_bundle.get("gate_result") if isinstance(dmrf_bundle.get("gate_result"), dict) else {}
+
             model_version = (
                 sdk_result.get("model_version")
-                or (sdk_result.get("metadata", {}) or {}).get("model_version")
+                or metadata.get("model_version")
                 or "unknown"
             )
-            
-            sdk_tier = str(sdk_result.get("tier") or "")
-            trace_run_id = uuid.UUID(run_id)
-            run = TraceRun(
-                run_id=trace_run_id,
-                session_id=uuid.UUID(session_id) if session_id else None,
-                user_id=int(user_id) if user_id else None,
-                status="pass" if sdk_result.get("ok") else "fail",
-                model_name=model,
-                model_version=model_version,
-                input_message=query,
-                final_answer=sdk_result.get("answer", ""),
-                correlation_id=correlation_id,
-                confidence=sdk_result.get("confidence", 0.85),
-                tier=sdk_tier if sdk_tier else None,
-                layers_executed=sdk_result.get("layers"),
-                truthgate_decision=sdk_result.get("truthgate_decision"),
+            confidence = (
+                sdk_result.get("confidence")
+                if sdk_result.get("confidence") is not None
+                else sdk_result.get("confidence_score")
             )
-            db.session.add(run)
-            db.session.flush()  # populate run.run_id before child TraceStage rows reference it
+            if confidence is None:
+                confidence = axis_vector.get("confidence")
+            try:
+                confidence_value = float(confidence if confidence is not None else 0.85)
+            except (TypeError, ValueError):
+                confidence_value = 0.85
 
-            # Create TraceStages from SDK trace
-            trace = sdk_result.get("trace", [])
-            emitted_stages: list[Any] = []
-            for i, trace_item in enumerate(trace):
-                stage = TraceStage(
-                    run_id=run.run_id,
-                    name=trace_item.get("ka_id", f"Stage-{i}"),
-                    stage_type="layer",
-                    layer_index=i + 1,
-                    status=trace_item.get("status", "pass"),
-                    outputs=trace_item.get("output", {}),
+            usage = sdk_result.get("usage") if isinstance(sdk_result.get("usage"), dict) else {}
+            total_tokens = usage.get("total_tokens")
+            if total_tokens is None:
+                total_tokens = int(usage.get("prompt_tokens", 0) or 0) + int(
+                    usage.get("completion_tokens", 0) or 0
                 )
-                db.session.add(stage)
-                emitted_stages.append(stage)
+
+            sdk_tier = str(sdk_result.get("tier") or dmrf_bundle.get("tier") or "")
+            session_uuid = self._parse_uuid_or_none(session_id)
+            user_pk = self._parse_int_or_none(user_id)
+
+            run = db.session.get(TraceRun, trace_run_id)
+            if run is None:
+                run = TraceRun(run_id=trace_run_id)
+                db.session.add(run)
+
+            run.session_id = session_uuid if session_uuid is not None else run.session_id
+            run.user_id = user_pk if user_pk is not None else run.user_id
+            run.status = "pass" if sdk_result.get("ok", True) else "fail"
+            run.model_name = model
+            run.model_version = model_version
+            run.input_message = query
+            run.final_answer = sdk_result.get("answer", run.final_answer or "")
+            run.correlation_id = correlation_id or run.correlation_id
+            run.confidence = confidence_value
+            run.tier = sdk_tier if sdk_tier else run.tier
+            run.layers_executed = sdk_result.get("layers", run.layers_executed)
+            run.truthgate_decision = (
+                sdk_result.get("truthgate_decision")
+                or gate_result.get("decision")
+                or gate_result.get("status")
+                or run.truthgate_decision
+            )
+            run.token_cost = int(total_tokens or 0) if total_tokens is not None else run.token_cost
+
+            if sdk_result.get("frost_depth") is not None:
+                run.frost_depth = int(sdk_result["frost_depth"])
+            elif axis_vector.get("frost_layer_depth") is not None:
+                run.frost_depth = int(axis_vector["frost_layer_depth"])
+            if sdk_result.get("truth_engine_mode"):
+                run.truth_engine_mode = str(sdk_result["truth_engine_mode"])
+            elif axis_vector.get("truth_engine_mode"):
+                run.truth_engine_mode = str(axis_vector["truth_engine_mode"])
+
+            if dmrf_bundle:
+                data_snapshot = dict(run.data_snapshot or {})
+                data_snapshot["dmrf"] = {
+                    "run_id": dmrf_bundle.get("run_id"),
+                    "query_digest": dmrf_bundle.get("query_digest"),
+                    "tier": dmrf_bundle.get("tier"),
+                }
+                run.data_snapshot = data_snapshot
+
+            db.session.flush()
+
+            trace = sdk_result.get("trace", [])
+            if not isinstance(trace, list):
+                trace = []
+            existing_stage_count = TraceStage.query.filter_by(run_id=run.run_id).count()
+            emitted_stages: list[Any] = []
+            if trace and existing_stage_count == 0:
+                for i, trace_item in enumerate(trace):
+                    if not isinstance(trace_item, dict):
+                        trace_item = {"output": trace_item}
+                    stage = TraceStage(
+                        run_id=run.run_id,
+                        name=trace_item.get("ka_id", f"Stage-{i}"),
+                        stage_type="layer",
+                        layer_index=i + 1,
+                        status=trace_item.get("status", "pass"),
+                        outputs=trace_item.get("output", {}),
+                    )
+                    db.session.add(stage)
+                    emitted_stages.append(stage)
 
             db.session.commit()
-            logger.info(f"Created TraceRun {run.run_id} with {len(trace)} stages")
+            logger.info("Persisted TraceRun %s with %s new stages", run.run_id, len(emitted_stages))
             for stage in emitted_stages:
                 try:
                     from backend.websocket import emit_trace_stage_update
@@ -1718,21 +1847,20 @@ class LLMGateway:
                 except Exception as emit_exc:
                     logger.debug("Trace stage websocket emit skipped: %s", emit_exc)
 
-            # Compute F-CONF-01 canonical confidence and update the run
-            try:
-                from backend.truth_engine.confidence_calculator import ConfidenceCalculator
-                canonical_conf = ConfidenceCalculator().calculate(
-                    run,
-                    ka_results=sdk_result.get("trace"),
-                    gate_decision=sdk_result.get("truthgate_decision"),
-                )
-                run.confidence = canonical_conf
-                db.session.add(run)
-                db.session.commit()
-            except Exception as conf_exc:
-                logger.warning("F-CONF-01 calculation failed (non-fatal): %s", conf_exc)
+            if trace:
+                try:
+                    from backend.truth_engine.confidence_calculator import ConfidenceCalculator
+                    canonical_conf = ConfidenceCalculator().calculate(
+                        run,
+                        ka_results=trace,
+                        gate_decision=sdk_result.get("truthgate_decision"),
+                    )
+                    run.confidence = canonical_conf
+                    db.session.add(run)
+                    db.session.commit()
+                except Exception as conf_exc:
+                    logger.warning("F-CONF-01 calculation failed (non-fatal): %s", conf_exc)
 
-            # Commit audit bundle for Tier 2+ runs
             _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
             if sdk_tier and str(sdk_tier).lower().strip() not in _tier_exclusions:
                 try:
@@ -1740,12 +1868,17 @@ class LLMGateway:
                     TruthMemoryCommitService().commit(run, db.session)
                 except Exception as commit_exc:
                     logger.warning("Audit bundle commit failed (non-fatal): %s", commit_exc)
-            
+
         except Exception as e:
-            logger.warning(f"Failed to create trace records: {e}")
+            try:
+                from extensions import db
+                db.session.rollback()
+            except Exception:
+                pass
+            logger.warning("Failed to create trace records: %s", e)
             # Don't fail the request if tracing fails
 
-    
+
     async def _direct_llm_call(
         self,
         sdk_provider: Any,
