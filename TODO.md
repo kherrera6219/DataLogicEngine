@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-05 (**Documentation audit + code audit slices 1-10** - root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened, stale KA routes retired, live KA route and KA execution contracts fixed, trace run viewer/list/export UI contracts hardened, trace export history/download persistence aligned to the `TraceExport` schema, and gateway/DMRF chat trace creation now persists/upserts `TraceRun` rows for successful direct/quad/overlay responses. Validation: focused gateway/trace/DMRF pytest 21 passed with workspace-local temp paths, direct Ruff check passed, plus prior slice validations through frontend typecheck; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** - database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-05 (**Documentation audit + code audit slices 1-11** - root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened, stale KA routes retired, live KA route and KA execution contracts fixed, trace run viewer/list/export UI contracts hardened, trace export history/download persistence aligned to the `TraceExport` schema, gateway/DMRF chat trace creation now persists/upserts `TraceRun` rows for successful direct/quad/overlay responses, and gateway failures/stream/offline replay paths now preserve resolvable trace links. Validation: focused gateway/API/trace/DMRF pytest 57 passed with workspace-local temp paths, direct Ruff check passed, plus prior slice validations through frontend typecheck; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** - database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -271,7 +271,29 @@ Validation:
 1. `set TMP=C:\software\DataLogicEngine\.codex_tmp&& set TEMP=C:\software\DataLogicEngine\.codex_tmp&& set MLFLOW_TRACKING_URI=C:\software\DataLogicEngine\.codex_tmp\mlflow&& .venv311\Scripts\python.exe -m pytest -q --no-cov --basetemp C:\software\DataLogicEngine\.codex_tmp\pytest tests\integration\test_llm_gateway_integration.py tests\unit\test_trace_viewer_contract.py tests\dmrf\test_dmrf_integration.py` - 21 passed; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning after the successful run.
 2. `.\.venv\Scripts\ruff.exe check backend\llm_gateway\gateway.py tests\integration\test_llm_gateway_integration.py` - passed.
 
-Next code audit slice: continue trace production lifecycle auditing at gateway failure, streaming, and offline replay paths (`backend/llm_gateway/api.py`, `backend/llm_gateway/gateway.py` `process_stream()`, offline queue replay, and trace-row behavior for failed/queued responses).
+## Code audit slice 11 - Gateway failure, streaming, and offline replay trace lifecycle - 2026-07-05
+
+Scope completed in this slice:
+
+1. Audited gateway failed-response paths, SSE stream events, and desktop offline queue replay result handling after slice 10 made successful runs trace-backed.
+2. Persisted failed gateway attempts as failed `TraceRun` rows so returned `run_id` values are resolvable from trace routes and Trace Explorer.
+3. Added trace links to failed chat responses, rate-limit responses, queued-offline responses, stream terminal/error events, and offline replay success/failure metadata.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| Governance blocks, no-provider failures, provider exhaustion, DMRF blocks, and user-preference blocks returned `run_id` values without creating a failed `TraceRun`. | Converted `_error_response()` into an async trace-backed response path that writes a failed `TraceRun`, stores sanitized gateway-error metadata in `data_snapshot`, and preserves provider/model context when available. | Done |
+| Failed `/api/v1/gateway/chat` responses exposed `run_id` but not `audit_trail`, leaving clients to reconstruct trace URLs inconsistently. | Added `audit_trail` to rate-limit, queued-offline, and 503 gateway failure payloads. | Done |
+| `/api/v1/gateway/chat/stream` terminal/error events included only `run_id`, so streamed chat clients did not receive the same trace-link contract as non-streaming chat. | Added `audit_trail` to stream `done` and `error` events before SSE serialization. | Done |
+| Offline replay stored only run/provider/model on success and dropped trace metadata on failed replay attempts. | Added `audit_trail` to replay success and failure responses, and persisted failed replay response metadata back onto the queue item. | Done |
+
+Validation:
+
+1. `set TMP=C:\software\DataLogicEngine\.codex_tmp&& set TEMP=C:\software\DataLogicEngine\.codex_tmp&& set MLFLOW_TRACKING_URI=C:\software\DataLogicEngine\.codex_tmp\mlflow&& .venv311\Scripts\python.exe -m pytest -q --no-cov --basetemp C:\software\DataLogicEngine\.codex_tmp\pytest tests\integration\test_gateway_api_coverage.py tests\integration\test_llm_gateway_integration.py tests\unit\test_llm_gateway_internal_units.py tests\unit\test_trace_viewer_contract.py tests\dmrf\test_dmrf_integration.py` - 57 passed; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning after the successful run.
+2. `.\.venv\Scripts\ruff.exe check backend\llm_gateway\api.py backend\llm_gateway\gateway.py tests\integration\test_gateway_api_coverage.py tests\integration\test_llm_gateway_integration.py tests\unit\test_llm_gateway_internal_units.py` - passed.
+
+Next code audit slice: continue trace production lifecycle auditing at frontend and desktop consumers of gateway trace links (`frontend/components/Chat/*`, stream/offline queue UI or IPC consumers, and any Trace Explorer assumptions about failed-run rows).
 
 ## Unified Backlog
 

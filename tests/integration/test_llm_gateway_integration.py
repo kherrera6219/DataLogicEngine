@@ -303,3 +303,30 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
         assert run.truthgate_decision == "allow"
         assert run.data_snapshot["dmrf"]["run_id"] == "dmrf_test"
         assert run.stages.count() == 1
+
+
+
+@pytest.mark.asyncio
+async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
+    from extensions import db
+    from models import TraceRun
+
+    with app.app_context():
+        gateway = LLMGateway(db_session=db.session)
+        with patch.object(gateway, "_get_eligible_providers", AsyncMock(return_value=[])):
+            response = await gateway.process(
+                GatewayRequest(
+                    messages=[{"role": "user", "content": "Persist failed trace"}],
+                    model="gpt-4",
+                    run_ukg_pipeline=False,
+                )
+            )
+
+        run = db.session.get(TraceRun, uuid.UUID(response.run_id))
+        assert response.ok is False
+        assert response.provider_used == "none"
+        assert run is not None
+        assert run.status == "fail"
+        assert run.input_message == "Persist failed trace"
+        assert run.model_name == "gpt-4"
+        assert run.data_snapshot["gateway_error"]["message"] == "No active providers found"

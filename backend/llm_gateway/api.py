@@ -312,6 +312,7 @@ async def gateway_chat():
                 'error': response.error or "Provider rate limited — please wait a moment and try again.",
                 'code': 'RATE_LIMITED',
                 'run_id': response.run_id,
+                'audit_trail': _audit_trail_for_run(response.run_id),
                 'provider_used': response.provider_used,
                 'model_used': response.model_used,
             }), 429
@@ -325,6 +326,7 @@ async def gateway_chat():
                 ),
                 'code': 'GATEWAY_QUEUED_OFFLINE',
                 'run_id': response.run_id,
+                'audit_trail': _audit_trail_for_run(response.run_id),
                 'provider_used': response.provider_used,
                 'model_used': response.model_used,
                 'queued': True,
@@ -337,6 +339,7 @@ async def gateway_chat():
             ),
             'code': 'GATEWAY_REQUEST_FAILED',
             'run_id': response.run_id,
+            'audit_trail': _audit_trail_for_run(response.run_id),
             'provider_used': response.provider_used,
             'model_used': response.model_used,
         }), 503
@@ -416,6 +419,7 @@ async def replay_offline_queue():
         if response and getattr(response, "ok", True):
             replay_response = {
                 "run_id": response.run_id,
+                "audit_trail": _audit_trail_for_run(response.run_id),
                 "provider_used": response.provider_used,
                 "model_used": response.model_used,
             }
@@ -423,8 +427,17 @@ async def replay_offline_queue():
             results.append({"id": item.get("id"), "status": "completed", **replay_response})
         else:
             error = getattr(response, "error", None) if response else "No response generated"
-            mark_item(str(item.get("id")), "failed", error=_public_gateway_error(error, fallback="Replay failed"))
-            results.append({"id": item.get("id"), "status": "failed", "error": _public_gateway_error(error, fallback="Replay failed")})
+            replay_response = {}
+            if response:
+                replay_response = {
+                    "run_id": response.run_id,
+                    "audit_trail": _audit_trail_for_run(response.run_id),
+                    "provider_used": response.provider_used,
+                    "model_used": response.model_used,
+                }
+            public_error = _public_gateway_error(error, fallback="Replay failed")
+            mark_item(str(item.get("id")), "failed", error=public_error, response=replay_response or None)
+            results.append({"id": item.get("id"), "status": "failed", "error": public_error, **replay_response})
 
     return api_response({"replayed": len(results), "results": results, "queue": list_queue()})
 
@@ -479,6 +492,8 @@ def gateway_chat_stream():
         try:
             async def stream():
                 async for chunk in gateway.process_stream(gateway_request):
+                    if isinstance(chunk, dict) and chunk.get('run_id') and chunk.get('type') in {'done', 'error'}:
+                        chunk = {**chunk, 'audit_trail': _audit_trail_for_run(chunk.get('run_id'))}
                     if isinstance(chunk, dict) and chunk.get('type') == 'error':
                         chunk = {
                             **chunk,

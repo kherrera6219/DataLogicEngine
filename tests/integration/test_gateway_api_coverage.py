@@ -472,3 +472,64 @@ def test_health_check(app_client):
     resp = app_client.get('/api/v1/gateway/health')
     assert resp.status_code == 200
     assert resp.json['status'] == 'healthy'
+
+
+
+def test_gateway_chat_failure_includes_audit_trail(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+    mock_gateway_cls = mocks['Gateway']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    MockAPIKey.verify_key.return_value = mock_key
+
+    mock_resp = MagicMock()
+    mock_resp.ok = False
+    mock_resp.error = "provider timeout"
+    mock_resp.run_id = "run-failed"
+    mock_resp.provider_used = "openai"
+    mock_resp.model_used = "gpt-4"
+
+    mock_gateway_cls.return_value.process = AsyncMock(return_value=mock_resp)
+
+    with patch('backend.llm_gateway.api.get_offline_queue_enabled', return_value=False):
+        resp = app_client.post(
+            '/api/v1/gateway/chat',
+            headers={'X-API-Key': 'ukg_valid'},
+            json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+        )
+
+    assert resp.status_code == 503
+    assert resp.json['audit_trail']['decision_path'] == "/api/v1/trace/runs/run-failed"
+    assert resp.json['audit_trail']['complete_trace_url'] == "/api/v1/trace/runs/run-failed/bundle"
+
+
+def test_gateway_stream_done_event_includes_audit_trail(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+    mock_gateway_cls = mocks['Gateway']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    MockAPIKey.verify_key.return_value = mock_key
+
+    async def fake_stream(_request):
+        yield {"type": "done", "run_id": "run-stream", "provider_used": "openai", "model_used": "gpt-4"}
+
+    mock_gateway_cls.return_value.process_stream = fake_stream
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat/stream',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+
+    assert resp.status_code == 200
+    body = resp.get_data(as_text=True)
+    assert '"type": "done"' in body
+    assert '"/api/v1/trace/runs/run-stream/bundle"' in body

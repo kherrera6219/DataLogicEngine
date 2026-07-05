@@ -464,7 +464,7 @@ class LLMGateway:
                 error_message=governance.error,
                 metadata={"timestamp": datetime.now(UTC).isoformat()},
             )
-            return self._error_response(
+            return await self._error_response(
                 run_id,
                 governance.error or "Request blocked by governance policy",
                 start_time,
@@ -521,7 +521,7 @@ class LLMGateway:
                 request.meta["dmrf_tier"] = dmrf_result.tier
                 request.meta["axis_vector"] = dmrf_bundle.get("axis_vector", {})
                 if not dmrf_result.ok:
-                    return self._error_response(
+                    return await self._error_response(
                         run_id,
                         "; ".join(dmrf_result.warnings) or "DMRF blocked request",
                         start_time,
@@ -551,7 +551,7 @@ class LLMGateway:
                 error_message=f"Requested model '{request.model}' is not allowed by policy",
                 metadata={"timestamp": datetime.now(UTC).isoformat()},
             )
-            return self._error_response(
+            return await self._error_response(
                 run_id,
                 f"Requested model '{request.model}' is not allowed by API key policy",
                 start_time,
@@ -565,7 +565,7 @@ class LLMGateway:
                 user_prefs = UserAIPreferences.query.filter_by(user_id=request.user_id).first()
                 if user_prefs:
                     if not user_prefs.ai_processing_enabled:
-                        return self._error_response(
+                        return await self._error_response(
                             run_id, "AI processing is disabled in your account settings.", start_time, request
                         )
                     if not request.provider and user_prefs.preferred_provider:
@@ -610,7 +610,7 @@ class LLMGateway:
                     "recommended_action": verdict.get("recommended_action"),
                 },
             )
-            return self._error_response(
+            return await self._error_response(
                 run_id,
                 "Request blocked by security policy",
                 start_time,
@@ -643,7 +643,7 @@ class LLMGateway:
                 error_message="No active providers found",
                 metadata={"timestamp": datetime.now(UTC).isoformat()},
             )
-            return self._error_response(run_id, "No active providers found", start_time, request)
+            return await self._error_response(run_id, "No active providers found", start_time, request)
 
         last_error = None
 
@@ -671,7 +671,10 @@ class LLMGateway:
                     getattr(provider_record, "name", "unknown"),
                 )
                 continue
-            
+
+            request.meta["last_provider_used"] = getattr(provider_record, "provider_type", None)
+            request.meta["last_model_used"] = model
+
             provider_timeout_seconds = self._provider_timeout_seconds(provider_record)
             max_retries = self._provider_max_retries(provider_record)
             for attempt in range(max_retries):
@@ -1028,7 +1031,7 @@ class LLMGateway:
                     break  # Try next provider
 
         # All eligible providers failed or were unavailable.
-        return self._error_response(
+        return await self._error_response(
             run_id,
             last_error or "All providers failed to generate a response",
             start_time,
@@ -1460,14 +1463,37 @@ class LLMGateway:
             f"What Changes if Wrong: {consequence}"
         )
 
-    def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
+    async def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
         public_error = self._public_error_message(error)
+        model_used = request.meta.get("last_model_used") or request.model or "unknown"
+        provider_used = request.meta.get("last_provider_used") or "none"
+        await self._create_trace_run(
+            {
+                "ok": False,
+                "answer": "",
+                "error": public_error,
+                "metadata": {
+                    "gateway_error": {
+                        "message": public_error,
+                        "raw_message": str(error or ""),
+                        "provider": provider_used,
+                        "model": model_used,
+                        "latency_ms": latency_ms,
+                    }
+                },
+            },
+            self._extract_query(request.messages),
+            run_id,
+            str(request.user_id) if request.user_id else "anonymous",
+            request.session_id,
+            str(model_used),
+        )
         return GatewayResponse(
             content="",
             run_id=run_id,
-            provider_used="none",
-            model_used=request.model or "unknown",
+            provider_used=provider_used,
+            model_used=str(model_used),
             usage={"latency_ms": latency_ms},
             ok=False,
             error=public_error,
@@ -1807,13 +1833,17 @@ class LLMGateway:
             elif axis_vector.get("truth_engine_mode"):
                 run.truth_engine_mode = str(axis_vector["truth_engine_mode"])
 
+            data_snapshot = dict(run.data_snapshot or {})
             if dmrf_bundle:
-                data_snapshot = dict(run.data_snapshot or {})
                 data_snapshot["dmrf"] = {
                     "run_id": dmrf_bundle.get("run_id"),
                     "query_digest": dmrf_bundle.get("query_digest"),
                     "tier": dmrf_bundle.get("tier"),
                 }
+            gateway_error = metadata.get("gateway_error")
+            if isinstance(gateway_error, dict):
+                data_snapshot["gateway_error"] = gateway_error
+            if data_snapshot:
                 run.data_snapshot = data_snapshot
 
             db.session.flush()
