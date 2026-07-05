@@ -1479,8 +1479,34 @@ class TraceExport(db.Model):
 
     format = db.Column(db.String(20), default='json')
     destination = db.Column(db.String(100), nullable=True)  # s3, local, webhook
+    status = db.Column(db.String(20), default='ready')
     exported_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    bundle_ref = db.Column(db.String(512), nullable=True)
+    manifest_hash = db.Column(db.String(128), nullable=True)
+    file_size_bytes = db.Column(db.Integer, nullable=True)
+    payload = db.Column(JSONB, nullable=True)
+    options = db.Column(JSONB, nullable=True)
+    encrypted = db.Column(db.Boolean, default=False)
+    signed = db.Column(db.Boolean, default=False)
+
+    def to_dict(self):
+        return {
+            'export_id': str(self.export_id),
+            'run_id': str(self.run_id),
+            'format': self.format,
+            'destination': self.destination,
+            'status': self.status,
+            'exported_at': self.exported_at.isoformat() if self.exported_at else None,
+            'user_id': self.user_id,
+            'bundle_ref': self.bundle_ref,
+            'download_url': self.bundle_ref,
+            'manifest_hash': self.manifest_hash,
+            'file_size_bytes': self.file_size_bytes,
+            'options': self.options,
+            'encrypted': self.encrypted,
+            'signed': self.signed,
+        }
 
 
 class ComplianceMapping(db.Model):

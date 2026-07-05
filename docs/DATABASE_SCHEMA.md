@@ -270,14 +270,20 @@ erDiagram
     }
 
     trace_exports {
-        int id PK
+        uuid export_id PK
         uuid run_id FK
-        int exported_by FK
+        int user_id FK
         datetime exported_at
         string format
-        string signature
-        string key_id
-        bool redacted
+        string destination
+        string status
+        string bundle_ref
+        string manifest_hash
+        int file_size_bytes
+        json payload
+        json options
+        bool encrypted
+        bool signed
     }
 
     trace_runs ||--o{ trace_stages : has

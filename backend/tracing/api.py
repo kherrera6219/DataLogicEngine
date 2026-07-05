@@ -88,6 +88,10 @@ def _get_run_or_404(run_id: str) -> TraceRun:
     return TraceRun.query.filter_by(run_id=_parse_run_id(run_id)).first_or_404()
 
 
+def _get_export_or_404(export_id: str) -> TraceExport:
+    return TraceExport.query.filter_by(export_id=_parse_run_id(export_id)).first_or_404()
+
+
 def _latest_accessible_run() -> TraceRun | None:
     query = TraceRun.query
     if not _user_is_owner():
@@ -517,7 +521,8 @@ def export_run(run_id):
     if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
     
-    export_options = request.get_json(silent=True) or {}
+    raw_options = request.get_json(silent=True)
+    export_options = raw_options if isinstance(raw_options, dict) else {}
     sign_bundle = bool(export_options.get("sign_bundle", True))
     encrypt_bundle = bool(export_options.get("encrypt_bundle", False))
 
@@ -547,9 +552,33 @@ def export_run(run_id):
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
 
+    serialized_export = json.dumps(export_document, indent=2, default=str)
+    manifest = export_document.get("manifest", {}) if isinstance(export_document, dict) else {}
+    export_id = uuid.uuid4()
+    export_record = TraceExport(
+        export_id=export_id,
+        run_id=run.run_id,
+        user_id=current_user.id,
+        format="json",
+        destination="download",
+        status="ready",
+        bundle_ref=f"/api/v1/trace/exports/{export_id}/download",
+        manifest_hash=manifest.get("envelope_hash") or manifest.get("bundle_hash"),
+        file_size_bytes=len(serialized_export.encode("utf-8")),
+        payload=export_document,
+        options={
+            "sign_bundle": sign_bundle,
+            "encrypt_bundle": encrypt_bundle,
+        },
+        encrypted=bool(manifest.get("encrypted")),
+        signed=manifest.get("signature_algorithm") != "none",
+    )
+    db.session.add(export_record)
+    db.session.commit()
+
     export_suffix = "encrypted" if encrypt_bundle else "signed"
     return Response(
-        json.dumps(export_document, indent=2, default=str),
+        serialized_export,
         mimetype='application/json',
         headers={'Content-Disposition': f'attachment; filename=run_{run_id}_{export_suffix}.json'}
     )
@@ -741,9 +770,12 @@ def get_run_logs(run_id):
 def list_exports():
     """List exports for the current user."""
     
-    exports = TraceExport.query.filter_by(user_id=current_user.id).order_by(
-        TraceExport.created_at.desc()
-    ).limit(50).all()
+    exports = (
+        TraceExport.query.filter_by(user_id=current_user.id)
+        .order_by(TraceExport.exported_at.desc())
+        .limit(50)
+        .all()
+    )
     
     return jsonify({
         'exports': [e.to_dict() for e in exports]
@@ -755,7 +787,7 @@ def list_exports():
 def get_export(export_id):
     """Get a specific export."""
     
-    export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
+    export = _get_export_or_404(export_id)
     
     if export.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
@@ -768,7 +800,7 @@ def get_export(export_id):
 def download_export(export_id):
     """Download an export bundle."""
     
-    export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
+    export = _get_export_or_404(export_id)
     
     if export.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
@@ -776,13 +808,18 @@ def download_export(export_id):
     if export.status != 'ready':
         return jsonify({'error': 'Export not ready'}), 400
     
-    # For now, return the bundle reference
-    # In production, this would stream from blob storage
-    return jsonify({
-        'bundle_ref': export.bundle_ref,
-        'manifest_hash': export.manifest_hash,
-        'file_size_bytes': export.file_size_bytes
-    })
+    if not export.payload:
+        return jsonify({
+            'bundle_ref': export.bundle_ref,
+            'manifest_hash': export.manifest_hash,
+            'file_size_bytes': export.file_size_bytes
+        })
+
+    return Response(
+        json.dumps(export.payload, indent=2, default=str),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename=trace_export_{export_id}.json'}
+    )
 
 
 # ============== Claim-Evidence Links ==============

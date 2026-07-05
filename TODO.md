@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-04 (**Documentation audit + code audit slices 1-8** — root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened across search, user data, notifications, admin, feature flags, MCP, and LLM admin routes, remaining raw Flask-Login route sites retired by removing a dead duplicate KA management blueprint plus broken server-rendered Flask page routes, live KA route data-contract/workflow defects fixed, and KA execution persistence/history contracts aligned to the current `KAExecution` schema, and KA execution frontend/desktop IPC consumers aligned to those contracts, and trace run viewer/list/export contracts hardened for nullable trace data, encoded run ids, bounded pagination, and export error states. Validation: docs reference check 0 errors / 17 existing style warnings, targeted ruff passed, API overlay test 8 passed, AI/API client tests 34 passed, focused auth/settings pytest 16 passed, focused gateway pytest 53 passed, focused route/auth pytest 70 passed, live KA/app route pytest 10 passed, focused KA route pytest 15 passed, focused KA history/DB-manager pytest 25 passed, focused frontend KA history/live trace Vitest 6 passed, focused trace viewer/export pytest 2 passed, focused frontend trace viewer/API Vitest 13 passed, frontend typecheck passed, and the touched MCP phase route test passed; pytest emitted a Neo4j teardown logging warning after successful exits. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** — database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-05 (**Documentation audit + code audit slices 1-9** - root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates identified, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened, stale KA routes retired, live KA route and KA execution contracts fixed, trace run viewer/list/export UI contracts hardened, and trace export history/download persistence aligned to the `TraceExport` schema. Validation: focused trace export/viewer/authenticity pytest 7 passed, direct Ruff check passed, plus prior slice validations through frontend typecheck; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** - database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -202,7 +202,6 @@ Validation:
 1. `npm --prefix frontend test -- components/Chat/LiveTracePanel.test.tsx app/tools/history/page.test.tsx` — 6 passed.
 2. `npm --prefix frontend run typecheck` — passed.
 
-Code audit slice 8 is complete. Next code audit slice: audit trace production/persistence lifecycle and export integrity internals (`backend/tracing/*`, `models.py` trace relationships, `backend/security/export_integrity.py`, and chat/DMRF trace creation call sites).
 
 
 ## Code audit slice 8 - Trace run viewer/list/export frontend and API contracts - 2026-07-04
@@ -228,7 +227,29 @@ Validation:
 1. `python -m pytest tests\unit\test_trace_viewer_contract.py` - 2 passed; pytest exited successfully, with a Neo4j driver teardown logging warning emitted after the successful run.
 2. `npm --prefix frontend test -- tests/unit/lib/api/trace.test.ts app/runs/page.test.tsx app/runs/view/page.test.tsx` - 13 passed.
 
-Next code audit slice: audit trace production/persistence lifecycle and export integrity internals (`backend/tracing/*`, `models.py` trace relationships, `backend/security/export_integrity.py`, and chat/DMRF trace creation call sites).
+## Code audit slice 9 - Trace export persistence/history lifecycle - 2026-07-05
+
+Scope completed in this slice:
+
+1. Audited `backend/tracing/api.py`, `models.py` `TraceExport`, `backend/security/export_integrity.py`, trace export/list/download endpoints, trace export schema docs, and focused export authenticity tests.
+2. Validated that a successful trace export is not just a one-off response: it now creates a queryable export history row and a persisted protected payload for follow-up download.
+3. Added an Alembic delta for existing local databases and model fields for new `db.create_all()` bootstraps.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `POST /api/v1/trace/runs/<run_id>/export` returned a signed/encrypted-capable document but never wrote `TraceExport`, so `/api/v1/trace/exports` was always empty after real exports. | Persist a `TraceExport` row with status, download URL, manifest hash, file size, options, signature/encryption flags, and the protected payload. | Done |
+| `TraceExport` lacked the fields and `to_dict()` method read by the active export history/download API. | Added the model fields, serializer, and migration `e7f8a9b0c1d2_harden_trace_export_records.py`; updated `docs/DATABASE_SCHEMA.md`. | Done |
+| `/api/v1/trace/exports/<export_id>/download` returned placeholder metadata instead of the protected export document. | Store the export document payload and stream it back as JSON with a download disposition; retain metadata fallback for older rows. | Done |
+| Non-object JSON bodies on the trace export route could raise when option parsing called `.get()`. | Treat non-object export options as `{}` and added a route regression. | Done |
+
+Validation:
+
+1. `.\.venv311\Scripts\python.exe -m pytest -q --no-cov tests\unit\test_trace_export_lifecycle.py tests\unit\test_trace_viewer_contract.py tests\unit\test_export_authenticity_controls.py` - 7 passed; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning after the successful run.
+2. `.\.venv\Scripts\ruff.exe check backend\tracing\api.py models.py tests\unit\test_trace_export_lifecycle.py migrations\versions\e7f8a9b0c1d2_harden_trace_export_records.py` - passed.
+
+Next code audit slice: continue trace production lifecycle auditing at gateway trace creation and DMRF/chat call sites (`backend/llm_gateway/gateway.py`, `backend/llm_gateway/api.py`, `backend/dmrf/*`, and trace creation/persistence side effects).
 
 ## Unified Backlog
 
