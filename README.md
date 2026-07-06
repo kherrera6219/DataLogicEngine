@@ -1,9 +1,9 @@
 # DataLogicEngine
 
-Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform — currently under active development.
+Local-first Windows desktop AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform.
 
-> ⚠️ **Active Development — Not Production Ready**
-> DataLogicEngine is under active development. The architecture and subsystems described below reflect the current build state and intended design. **The application is not yet fully operational end-to-end** — individual subsystems (DMRF, Truth Engine, DSQP, LLM Gateway, Knowledge Graph, Trace Viewer) are implemented and tested in isolation while full integration, stabilization, and end-to-end validation are ongoing. Use for evaluation, architecture review, and non-production exploration only. Release status is tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
+> ⚠️ **Current Status — Local Desktop Release Candidate, Not Signed Production Release**
+> DataLogicEngine is usable for local-first desktop evaluation, architecture review, and engineering validation. The Windows desktop build, backend package, Electron/NSIS installer, packaging smoke, install smoke, uninstall smoke, CI/CD pipeline, deploy workflow, and security scan have been validated on the current main line. A public/signed production release still requires trusted Windows code-signing credentials, signed artifact verification, manual NVDA or equivalent screen-reader evidence, and final release checklist approval. Release status is tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -18,11 +18,11 @@ Unlike traditional AI applications that operate as black boxes, DLE provides exp
 
 Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation checkpoints, and immutable audit records designed to align with EU AI Act Article 53 transparency expectations. (Compliance mappings are evidence-guided design references, not a formal certification.)
 
-Current Status: Active Development — Not Production Ready (Local-First Edition)
+Current Status: Local-first desktop release candidate with signed-release caveats
 
-**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application — an Electron + Next.js front end over a Flask + SQLAlchemy backend, with every data store (SQL, graph, vector, object, and memory) local to the machine. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` (bring your own key) — so an API key and internet connection are required for inference while all data stays local. The Windows desktop installer is produced end-to-end from source (PyInstaller backend → Next.js static export → Electron / NSIS). Release gates still open before a formal release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and full end-to-end QA — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
+**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application: an Electron + Next.js front end over a Flask + SQLAlchemy backend, with app-owned SQL, graph, vector, object, cache, and memory stores local to the machine or user-controlled Windows VM. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` (bring your own key) — so an API key and internet connection are required for inference while the data plane stays local. The Windows desktop installer is produced end-to-end from source: PyInstaller backend, Next.js static export, Electron shell, and NSIS installer. Release gates still open before a formal signed release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and final release checklist approval — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
 
-Major Subsystems (implemented at subsystem level; full end-to-end integration, stabilization, and validation are ongoing):
+Major subsystems in the current local-first desktop build:
 
 - Universal Knowledge Graph (UKG)
 - 17-Axis Knowledge Framework
@@ -126,7 +126,7 @@ See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work it
 
 ## Quick Links
 
-- 🚀 **Quick Start**: [Installation & Docker Compose](#quickstart)
+- 🚀 **Quick Start**: [Windows Desktop Build](#quickstart)
 - 🔒 **Report Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
 - ❓ **Ask Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
 - 📚 **Need Help?**: See [Getting Help](#getting-help)
@@ -134,16 +134,56 @@ See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work it
 
 ## Quickstart
 
-Run the full local stack with Docker:
+The primary application target is the Windows desktop app. Use this source-build path when working from a fresh checkout:
 
-```bash
+```powershell
 git clone https://github.com/kherrera6219/DataLogicEngine.git
 cd DataLogicEngine
-cp .env.template .env
-docker compose up --build
+
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+Copy-Item .env.template .env
+npm --prefix frontend ci
+
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
+npm --prefix frontend run electron:dist
 ```
 
-Open:
+The desktop build produces these root artifacts:
+
+| Artifact | Purpose |
+| --- | --- |
+| `DataLogicEngine Setup Latest.exe` | NSIS Windows installer |
+| `DataLogicEngine Setup Latest.exe.sha256` | Installer checksum |
+| `DataLogicEngine Setup Latest.exe.blockmap` | Electron updater block map |
+
+Install interactively:
+
+```powershell
+.\DataLogicEngine Setup Latest.exe
+```
+
+Run packaging governance and smoke checks:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
+```
+
+For developer browser mode, run backend and frontend separately:
+
+```powershell
+flask db upgrade
+.\.venv\Scripts\python.exe main.py
+npm --prefix frontend run dev
+```
+
+Open in browser mode:
 
 | Service | URL |
 | --- | --- |
@@ -157,6 +197,13 @@ Minimal API call:
 
 ```bash
 curl http://localhost:5000/health
+```
+
+Docker Compose remains available for integration and CI-style container validation:
+
+```bash
+cp .env.template .env
+docker compose up --build
 ```
 
 ## Contents
@@ -194,17 +241,19 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 ```mermaid
 flowchart LR
-  Client["Web console / API client"] --> Frontend["Next.js frontend"]
-  Frontend --> API["Flask API"]
+  Client["Desktop shell / Web console / API client"] --> Frontend["Electron + Next.js frontend"]
+  Frontend --> API["Flask API on loopback or configured host"]
   API --> Auth["Auth (desktop session), CSRF, rate limits"]
   API --> Gateway["LLM Gateway"]
   API --> Graph["Knowledge Graph APIs"]
   API --> Truth["Truth Engine and tracing"]
   Gateway --> Providers["OpenAI (gpt-5.5) / Google (gemini-3.1-pro-preview)"]
-  Graph --> Postgres["PostgreSQL"]
-  Graph --> Neo4j["Neo4j"]
-  API --> Redis["Redis cache and rate limit storage"]
-  API --> ObjectStore["S3-compatible object storage"]
+  API --> Stores["App-owned local data plane"]
+  Stores --> SQL["SQLite / PostgreSQL"]
+  Stores --> Neo4j["Neo4j + USKD RAM graph"]
+  Stores --> Vector["ChromaDB"]
+  Stores --> Redis["Redis cache and streams"]
+  Stores --> ObjectStore["Local object store"]
   API --> Metrics["/health /ready /metrics"]
 ```
 
@@ -319,7 +368,11 @@ python scripts/setup_local_databases.py --verify
 
 ### Desktop Build
 
-```bash
+The installer must include a freshly rebuilt backend executable. Use the same order as CI:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
@@ -327,6 +380,8 @@ Installer artifacts are copied to the repository root as a single canonical setu
 
 - `DataLogicEngine Setup Latest.exe`
 - matching `.sha256` and `.blockmap` files
+
+Silent install/uninstall scripts are maintained under `scripts/windows/`; see [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](docs/WINDOWS_11_LOCAL_RUNBOOK.md) for enterprise install and uninstall examples.
 
 ### Model Provider Setup
 
@@ -588,12 +643,12 @@ npm --prefix frontend audit --audit-level=high
 
 ### Current CI Runs
 
-- ✅ Backend tests and dependency audit
-- ✅ Frontend lint, typecheck, tests, and build
+- ✅ Backend tests, API contract tests, local-mode parity tests, and security regression smoke
+- ✅ Frontend lint, typecheck, unit tests, Next build, route smoke, accessibility, and visual checks
 - ✅ Security scan workflow
 - ✅ Deploy build and test workflow
-- ✅ Windows packaging smoke test
-- ✅ Governance and release checklist workflows
+- ✅ Windows backend package, Electron/NSIS installer build, and packaging smoke
+- ✅ Governance, environment parity, lockfile, docs-reference, schema-parity, and Docker build checks
 
 ## Roadmap
 

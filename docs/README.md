@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.11.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -26,12 +26,12 @@ Current planning belongs in root `TODO.md`.
 
 | Role | Read first |
 |---|---|
-| New user / evaluator | `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md` |
+| New user / evaluator | root `README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md` |
 | New engineer | `docs/ENGINEER_ONBOARDING.md`, `docs/DEVELOPER_GUIDE.md` |
 | Architect | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/DATA_FLOW_DIAGRAMS.md`, `docs/DECISION_LOGIC.md` |
 | API integrator | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
 | Security reviewer | `docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, `docs/CIS_BENCHMARKS.md` |
-| Operator / SRE | `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/WINDOWS_11_LOCAL_RUNBOOK.md` |
+| Operator / SRE | `docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` |
 | Release reviewer | `docs/RELEASE_CHECKLIST.md`, `docs/PRODUCTION_READINESS.md`, `docs/SLSA_LEVEL_3_ATTESTATION.md` |
 | Documentation owner | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` |
 
@@ -175,7 +175,13 @@ The active documentation set has been normalized around:
 4. Truth Engine as the policy/reasoning/memory layer;
 5. 17-axis routing and DSQP persona construction;
 6. trace, evidence, privacy, export, and release governance;
-7. evidence-based security and compliance claims.
+7. evidence-based security and compliance claims;
+8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.11.0
+
+1. **GitHub README and desktop documentation refresh.** Reframed the public README around the current local-first Windows desktop application, made the PyInstaller-backend-before-Electron-installer rebuild order explicit, documented install/uninstall packaging smoke evidence, and kept signed-production caveats separate from local desktop readiness.
+2. Updated the active portal routing so evaluators start from the root README/product overview and operators start from the Windows local runbook before broader deployment docs.
 
 ## Change notes for v2.10.0
 

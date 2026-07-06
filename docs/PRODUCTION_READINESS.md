@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.1 |
+| Document version | v2.9.2 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -357,6 +357,11 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 ```
 
 ---
+
+## Change notes for v2.9.2
+
+1. Documented the July 2026 local rebuild lock-in: backend package, Electron/NSIS installer, installer integrity, NSIS governance, portable packaging smoke, installer-mode install/uninstall smoke, Deploy workflow, Security Scan, and CI/CD Pipeline passed on `main`.
+2. Kept the release decision unchanged for public signed distribution: trusted code-signing credentials, signed artifact verification, and manual accessibility evidence remain required.
 
 ## Change notes for v2.9.1
 

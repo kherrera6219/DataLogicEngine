@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -95,13 +95,15 @@ The desktop build uses Electron and a local-first runtime model. The frontend ca
 
 ### Build command
 
-From `frontend/` or through repo scripts:
+Use the CI-equivalent order so the installer embeds the current backend source:
 
 ```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-The CI Windows packaging job also builds the backend executable before producing the Electron distribution.
+The CI Windows packaging job follows the same dependency order: build the backend executable first, then produce the Electron/NSIS distribution.
 
 ### Expected outputs
 
@@ -110,7 +112,8 @@ Typical desktop outputs include:
 - `frontend/dist/` packaged app output;
 - repo-root installer copy such as `DataLogicEngine Setup Latest.exe` where configured by packaging scripts;
 - matching integrity sidecars such as `.sha256` and `.blockmap` where generated;
-- packaging smoke reports under `reports/`.
+- packaging smoke reports under `reports/`;
+- installer integrity and signature reports under `reports/` where verification is run.
 
 ### Manual installer run
 
@@ -422,6 +425,12 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.7.0
+
+1. Updated version/date for the July 2026 rebuild documentation refresh.
+2. Corrected the Windows desktop build procedure to rebuild the PyInstaller backend before Electron/NSIS packaging.
+3. Added installer integrity/signature report outputs to the expected desktop artifacts.
 
 ## Change notes for v2.6.0
 

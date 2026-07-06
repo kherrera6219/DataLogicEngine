@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Developer Experience |
 | Review cadence | Every 30 days |
@@ -80,7 +80,6 @@ Set in `.env`:
    ```
 2. Provider keys only when testing provider-backed flows:
    - `OPENAI_API_KEY`
-   - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
    - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
@@ -153,15 +152,21 @@ npm --prefix frontend run electron:build
 
 ### Desktop installer
 
+Rebuild the backend first, then build the Electron/NSIS installer:
+
 ```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-### Packaging smoke and NSIS governance
+### Packaging smoke, integrity, and NSIS governance
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 ## Daily testing workflow
@@ -349,6 +354,13 @@ Then validate references:
 6. `docs/PRODUCTION_READINESS.md`
 7. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 8. `docs/ENGINEER_ONBOARDING.md`
+
+## Change notes for v2.7.0
+
+1. Updated version/date for the July 2026 rebuild documentation refresh.
+2. Made the backend-before-installer packaging order explicit for local developers.
+3. Added installer integrity plus installer-mode smoke validation to the daily packaging workflow.
+4. Removed Anthropic from the user-facing provider setup list; current app settings support OpenAI and Google/Gemini.
 
 ## Change notes for v2.6.0
 

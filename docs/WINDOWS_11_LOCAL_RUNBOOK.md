@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -55,18 +55,19 @@ Default local mode can use SQLite/in-memory fallbacks. Full local data mode can 
 
 ## Current state
 
-As of v2.6.0:
+As of v2.7.0 (2026-07-06):
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
 3. Desktop mode supports no-login startup through desktop local-auth policy.
 4. Settings API key save/test, AI model controls, and local storage lifecycle controls are wired.
-5. Desktop installer builds and is copied to repo root where configured.
+5. Desktop installer builds from a freshly rebuilt PyInstaller backend and is copied to the repo root with checksum and blockmap sidecars.
 6. Startup script auto-resolves backend/frontend port conflicts by default.
 7. Desktop runtime stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
-8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns.
+8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns; installer-mode smoke validates install and uninstall exit code `0`.
 9. Installer build rebuilds the PyInstaller backend before packaging so the shipped backend matches source.
 10. Provider tests return specific failure reasons such as `invalid_api_key`, `rate_limited`, `invalid_model`, and `network_error`.
+11. Latest local rebuild evidence records installer SHA-256 `a398c6cf1f92b1ff85b29231f58eb6d1ead96184304cf83ce61d5390ab54b496` with integrity, NSIS governance, portable smoke, install smoke, and uninstall smoke passing.
 
 ---
 
@@ -104,7 +105,6 @@ Set in `.env`:
 1. `SESSION_SECRET=<long_random_value>`
 2. Optional provider key:
    - `OPENAI_API_KEY`
-   - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
 
 Install frontend dependencies:
@@ -272,9 +272,11 @@ Relevant files:
 
 ## Desktop installer workflow
 
-Build installer:
+Build installer from source. The backend executable must be rebuilt before Electron packaging so the shipped backend matches the current Python source:
 
 ```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
@@ -284,6 +286,7 @@ Expected files:
 2. `DataLogicEngine Setup Latest.exe.sha256`
 3. `DataLogicEngine Setup Latest.exe.blockmap`
 4. `frontend/dist/` packaged app artifacts
+5. `dist/DataLogic_Backend/` PyInstaller backend bundle
 
 Run manually:
 
@@ -317,7 +320,14 @@ Run before release candidate approval:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+```
+
+Run installer-mode smoke when validating install/uninstall behavior:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 For signed production distribution, run the signing workflow and verify signature:
@@ -326,7 +336,7 @@ For signed production distribution, run the signing workflow and verify signatur
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
 ```
 
-Local unsigned builds are valid for workstation validation, but they are not production release evidence.
+Local unsigned builds are valid for workstation validation, but they are not production release evidence. A local `NotSigned` status is expected unless a trusted production signing certificate is configured.
 
 ---
 
@@ -463,6 +473,13 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
 5. Unsigned local builds are suitable for developer validation but not public/customer release.
 
 ---
+
+## Change notes for v2.7.0
+
+1. Updated version/date for the July 2026 desktop rebuild documentation refresh.
+2. Made the full backend-before-Electron installer rebuild order explicit.
+3. Added installer integrity, portable packaging smoke, and installer-mode install/uninstall smoke commands.
+4. Removed Anthropic from the provider-key setup list because the current supported user-facing model choices are OpenAI and Google/Gemini.
 
 ## Change notes for v2.6.0
 

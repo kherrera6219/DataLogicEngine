@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-06-18 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Product and Platform Engineering |
 | Review cadence | Every 30 days |
@@ -85,7 +85,7 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 
 | Mode | Description | Status |
 |---|---|---|
-| Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and user-provided provider keys. | Primary target |
+| Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and user-provided provider keys. | Primary target; current rebuild, installer, install smoke, and uninstall smoke validated |
 | Windows VM gateway | Same Windows app stack running inside a user-controlled Windows VM as API-in/API-out middleware between applications/agents/chatbots and AI providers/tools. | Supported |
 | Controlled web/cloud | Hosted deployment where explicitly configured by the operator. This is not the default managed SaaS model. | Conditional |
 
@@ -127,8 +127,22 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Data/integrity gates | Live | schema parity, runtime precheck, docs validation, lockfile/environment governance. |
 | Trace export authenticity | Live | hashes, optional HMAC signature, optional encrypted export envelope. |
 | Desktop local-auth | Live | loopback/Electron policy, install secret, nonce/HMAC, timestamp skew. |
-| Installer packaging | Live | Electron/NSIS path, packaging smoke, installer integrity/signing checks. |
+| Installer packaging | Live | PyInstaller backend, Next.js static export, Electron shell, NSIS installer, root checksum/blockmap, packaging smoke, installer-mode install/uninstall smoke, and unsigned-local signature reporting. |
 | Registration flow | Disabled by design | current local-first build redirects `/register` to `/dashboard`; reopen only if web self-registration becomes a requirement. |
+
+## Current rebuild evidence
+
+The latest local rebuild evidence on the current `main` line records:
+
+1. PyInstaller backend rebuild completed before Electron packaging.
+2. Root installer artifacts refreshed: `DataLogicEngine Setup Latest.exe`, `.sha256`, and `.blockmap`.
+3. Installer integrity report passed with SHA-256 `a398c6cf1f92b1ff85b29231f58eb6d1ead96184304cf83ce61d5390ab54b496`.
+4. NSIS governance passed.
+5. Portable packaging smoke passed.
+6. Installer-mode smoke passed with silent install exit code `0` and uninstall exit code `0`.
+7. Local signature verification reports `NotSigned`, which is expected for unsigned workstation builds and remains a blocker for public signed production distribution.
+
+Tracked evidence files: `reports/installer_integrity_report.json`, `reports/installer_signature_report.json`, and `reports/packaging_smoke_report.json`.
 
 ## Data and service model
 
@@ -211,6 +225,12 @@ A product reviewer should inspect:
 6. `docs/SECURITY.md`
 7. `docs/PRIVACY_POLICY.md`
 8. `docs/PRODUCTION_READINESS.md`
+
+## Change notes for v2.8.0
+
+1. Updated document version/date for the post-rebuild documentation refresh.
+2. Clarified that local-first desktop is the primary validated product target and now includes current installer, install-smoke, and uninstall-smoke evidence.
+3. Added a rebuild evidence section with the current installer hash and tracked report locations.
 
 ## Change notes for v2.6.0
 

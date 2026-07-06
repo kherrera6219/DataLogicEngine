@@ -100,6 +100,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   recorded cleanup candidates in `TODO.md`.
 - **Layering fix — integrity helpers moved to `core/`**: the pure, dependency-free hashing/HMAC helpers in `backend/security/integrity.py` moved to `core/security/integrity.py`. This removes two `core -> backend` import inversions (`core/simulation/trace_system.py`, `core/system/frost_service.py`), restoring the documented `backend -> core` dependency direction. `backend/security/integrity.py` is now a backwards-compatible re-export shim, so existing `from backend.security.integrity import ...` call sites (e.g. `backend/security/export_integrity.py`) continue to work unchanged. No behavior change.
 
+### Documentation
+- Refreshed the GitHub-facing README and active desktop/deployment/developer docs around the current local-first Windows desktop application: backend-before-installer rebuild order, root installer/checksum/blockmap artifacts, installer integrity, NSIS governance, portable packaging smoke, installer-mode install/uninstall smoke, and signed-release caveats.
+
 ### Notes
 - Cross-provider failover already exists in `LLMGateway.process()`: providers are tried in priority order, and an authentication/`401`/`invalid api key` error is treated as non-retryable for that provider so the gateway immediately falls over to the next configured provider (e.g. OpenAI → Gemini). This path only works when the current backend build is deployed (see stale-backend fix above).
 
