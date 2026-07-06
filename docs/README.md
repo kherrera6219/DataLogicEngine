@@ -179,7 +179,7 @@ The active documentation set has been normalized around:
 
 ## Change notes for v2.10.0
 
-1. **Documentation audit refresh.** Aligned active docs and `docs/openapi.yaml` to the live model defaults (OpenAI `gpt-5.5`, Google `gemini-3.1-pro-preview`) and single-owner desktop auth surface. Retired stale duplicate API exports from `docs/api/` into `docs/archive/api/`; root scratch-output `.txt` files are cleanup candidates, not maintained docs.
+1. **Documentation audit refresh.** Aligned active docs and `docs/openapi.yaml` to the live model defaults (OpenAI `gpt-5.5`, Google `gemini-3.1-pro-preview`) and single-owner desktop auth surface. Retired stale duplicate API exports into `docs/archive/api/`; approved root scratch-output `.txt` files were removed as non-source artifacts.
 
 ## Change notes for v2.9.0
 
