@@ -92,6 +92,7 @@ Current planning belongs in root `TODO.md`.
 | `docs/OPERATIONAL_RUNBOOKS.md` | Operational and incident runbooks. |
 | `docs/RELEASE_CHECKLIST.md` | Release evidence and approval checklist. |
 | `docs/PRODUCTION_READINESS.md` | Readiness scorecard, current caveats, release posture. |
+| `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
 
 ### Documentation governance
 
