@@ -1,20 +1,20 @@
 ﻿{
-    "generated_at":  "2026-05-31T03:29:59.6590397Z",
+    "generated_at":  "2026-07-06T06:16:52.6159981Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
     "mode":  "installer",
     "installer":  "C:\\software\\DataLogicEngine\\DataLogicEngine Setup Latest.exe",
-    "installer_sha256":  "bcaedadd51d00ae4cc615ffd70b6d60cdeb0d6e14f889034cd9de652758212e1",
+    "installer_sha256":  "a398c6cf1f92b1ff85b29231f58eb6d1ead96184304cf83ce61d5390ab54b496",
     "installer_signature_status":  "NotSigned",
     "portable_executable":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\DataLogicEngine Desktop.exe",
     "portable_launch_started":  true,
     "portable_launch_exit_code":  null,
     "portable_launch_timed_out":  true,
     "installer_mode":  {
-                           "install_path":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-139ff2eb7c21411eb6158840f9eeedeb\\install",
+                           "install_path":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-e7e6dba327bd4917959dd3ecf2a86412\\install",
                            "install_exit_code":  0,
                            "install_success":  true,
-                           "installed_executable":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-139ff2eb7c21411eb6158840f9eeedeb\\install\\DataLogicEngine Desktop.exe",
-                           "uninstaller":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-139ff2eb7c21411eb6158840f9eeedeb\\install\\Uninstall DataLogicEngine Desktop.exe",
+                           "installed_executable":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-e7e6dba327bd4917959dd3ecf2a86412\\install\\DataLogicEngine Desktop.exe",
+                           "uninstaller":  "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-packaging-smoke-e7e6dba327bd4917959dd3ecf2a86412\\install\\Uninstall DataLogicEngine Desktop.exe",
                            "uninstall_exit_code":  0,
                            "uninstall_success":  true
                        }

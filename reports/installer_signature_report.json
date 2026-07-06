@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-05-24T23:23:12.5929480Z",
+    "generated_at":  "2026-07-06T06:16:03.2040654Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
     "artifacts":  [
                       {
@@ -7,7 +7,7 @@
                           "status":  "NotSigned",
                           "signer":  "",
                           "thumbprint":  "",
-                          "revocation_checked":  true,
+                          "revocation_checked":  false,
                           "revocation_valid":  null,
                           "revocation_statuses":  {
 
