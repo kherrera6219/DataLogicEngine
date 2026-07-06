@@ -5,15 +5,15 @@
 | Field | Value |
 |---|---|
 | Prepared | 2026-07-06 |
-| Audit window covered | 2026-07-04 through 2026-07-05 |
+| Audit window covered | 2026-07-04 through 2026-07-06 |
 | Source branch | `main` |
 | Source records | `TODO.md`, `HANDOFF.md`, focused tests, generated docs inventory |
-| Scope | Documentation audit slice plus code audit slices 1 through 12 |
+| Scope | Documentation audit slice plus code audit slices 1 through 12 and selected CodeQL alert remediation |
 | Status | Active audit summary |
 
 ## Executive summary
 
-The audit sequence completed one documentation reconciliation slice and twelve code audit slices. The work moved from documentation/API truth alignment into progressively deeper runtime contract checks: provider configuration, desktop/session authentication, route decorator boundaries, KA route correctness, KA persistence and frontend consumers, Trace Explorer and export lifecycle, gateway trace persistence, gateway failure/offline replay trace lifecycle, and frontend trace-link consumers.
+The audit sequence completed one documentation reconciliation slice, twelve code audit slices, approved scratch-output cleanup, and selected CodeQL alert remediation. The work moved from documentation/API truth alignment into progressively deeper runtime contract checks: provider configuration, desktop/session authentication, route decorator boundaries, KA route correctness, KA persistence and frontend consumers, Trace Explorer and export lifecycle, gateway trace persistence, gateway failure/offline replay trace lifecycle, frontend trace-link consumers, and fixed public error handling for reflected-output and exception-disclosure alerts.
 
 At the end of slice 12, the active `TODO.md` and `HANDOFF.md` records identify no further trace production lifecycle slice. Future work should start from a new live docs/code audit scope rather than continuing the trace-lifecycle queue by assumption.
 
@@ -36,7 +36,7 @@ At the end of slice 12, the active `TODO.md` and `HANDOFF.md` records identify n
 - Replaced `docs/openapi.yaml` with a current partial contract for desktop auth, gateway, Truth Engine, KA, settings, search, ingestion, trace, and health/readiness routes.
 - Moved stale API exports into `docs/archive/api/` and indexed them as reference-only.
 - Updated README asset references to the shipped SVG.
-- Classified scratch files as cleanup candidates pending user approval.
+- Deleted approved scratch-output files; orphan scanner code candidates remain confirm-before-cut and were not removed.
 - Replaced placeholder commercial-license contact text with repository discussion/issue entry paths.
 
 ### Code audit slice 1 - LLM provider/model configuration
@@ -234,17 +234,35 @@ At the end of slice 12, the active `TODO.md` and `HANDOFF.md` records identify n
 - Rendered provider/model badges and `ChatTracePanel` in the active chat message loop when `runId` or `auditTrail` exists.
 - Confirmed no additional desktop IPC code change was needed for gateway trace-link consumption.
 
+### Post-slice CodeQL remediation - Reflected output and exception disclosure
+
+**Found**
+
+- KA route errors reflected attacker-controlled algorithm IDs and returned request-body validation errors through inconsistent tuple/string paths.
+- KA, search, MCP, and trace export route handlers returned raw exception text in JSON responses.
+- MCP console and dynamic-server error paths reflected request-controlled command/server names.
+- Search routes parsed integer query parameters with direct `int(...)`, allowing malformed input to escape into exception handling.
+
+**Corrected**
+
+- Added fixed KA public error responses for invalid IDs, not-found results, malformed request bodies, route failures, and batch per-item failures.
+- Added bounded search query-parameter parsing and generic route-level search errors.
+- Hardened MCP route exception handling across the selected alert paths and adjacent same-class MCP disclosure sites.
+- Replaced trace export `ValueError` response text with a stable public message while logging the detailed exception server-side.
+- Added backend regressions proving malicious/secret exception strings are absent from KA, search, MCP, and trace export responses.
+
 ## Validation summary
 
 The completed slices added or reran focused validation across backend route tests, integration tests, frontend Vitest suites, frontend typechecking, Ruff, ESLint, docs inventory generation, and docs reference validation. The final checkpoint records:
 
 - Focused gateway/API/trace/DMRF pytest: 57 passed with workspace-local temp paths.
+- Focused CodeQL remediation pytest for KA/search/MCP/trace export alert surfaces: 69 passed with workspace-local temp paths; 20 SQLAlchemy legacy-query warnings; known Neo4j driver teardown logging warning after successful exit.
 - Focused frontend chat/API trace-consumer Vitest: 34 passed.
 - Frontend typecheck: passed.
-- Direct Ruff checks for touched gateway, trace, KA, auth, and route files: passed.
+- Direct Ruff checks for touched gateway, trace, KA, auth, security-alert, and route files: passed.
 - `scripts/generate_docs.py`: refreshed generated inventory artifacts.
 - `scripts/verify_docs_references.py`: passed with 0 errors and 17 existing heading/style warnings.
 
 ## Remaining audit queue
 
-The active trace production lifecycle queue is complete as of slice 12. Remaining work is not a numbered trace slice; it should begin as a new production-depth audit scope chosen from live docs/code and current release-readiness goals.
+The active trace production lifecycle queue is complete as of slice 12, and the selected CodeQL reflected-output/exception-disclosure alerts have been remediated. Remaining work before a complete rebuild is release validation rather than another trace slice: run the final rebuild/packaging path, confirm provider-configured staging, attach signed-artifact and accessibility evidence when available, and treat orphan scanner code candidates as confirm-before-cut cleanup if a separate cleanup pass is requested.

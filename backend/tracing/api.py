@@ -5,6 +5,7 @@ REST API for accessing trace data with RBAC-aware filtering.
 """
 
 import json
+import logging
 import uuid
 from datetime import datetime
 from flask import Blueprint, abort, jsonify, request, Response
@@ -22,6 +23,7 @@ from models import (
 )
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
+logger = logging.getLogger(__name__)
 
 
 # ============== Permission Helpers ==============
@@ -549,8 +551,9 @@ def export_run(run_id):
             sign_bundle=sign_bundle,
             encrypt_bundle=encrypt_bundle,
         )
-    except ValueError as exc:
-        return jsonify({'error': str(exc)}), 400
+    except ValueError:
+        logger.exception("Trace export document build rejected the requested options")
+        return jsonify({'error': 'Trace export could not be prepared'}), 400
 
     serialized_export = json.dumps(export_document, indent=2, default=str)
     manifest = export_document.get("manifest", {}) if isinstance(export_document, dict) else {}

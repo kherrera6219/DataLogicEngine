@@ -44,6 +44,11 @@ class _FakeKAController:
         }
 
 
+class _FailingKAController(_FakeKAController):
+    def execute_algorithm(self, ka_id, input_data):
+        raise RuntimeError("<script>alert('secret-stack')</script>")
+
+
 class _FakeTruthEngine:
     def __init__(self):
         self.created_session = None
@@ -217,6 +222,39 @@ def test_ka_execute_accepts_documented_payload_with_api_key_principal(app, clien
     )
 
 
+def test_ka_invalid_algorithm_id_does_not_reflect_path_input(app, client, monkeypatch):
+    monkeypatch.setattr(ka_routes, "_controller", _FakeKAController())
+    _install_api_key_user(app, monkeypatch, username="ka_invalid_id_user")
+
+    response = client.get(
+        "/api/v1/ka/algorithms/KA-%3Cscript%3E",
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 400
+    body = response.get_json()
+    assert body["success"] is False
+    assert body["error"] == "Invalid algorithm ID"
+    assert "<script>" not in response.get_data(as_text=True)
+
+
+def test_ka_execute_hides_backend_exception_details(app, client, monkeypatch):
+    monkeypatch.setattr(ka_routes, "_controller", _FailingKAController())
+    _install_api_key_user(app, monkeypatch, username="ka_execute_exception_user")
+
+    response = client.post(
+        "/api/v1/ka/algorithms/KA-001/execute",
+        json={"input": {"value": 7}},
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 500
+    body = response.get_json()
+    assert body["success"] is False
+    assert body["error"] == "An internal error occurred. Please try again later."
+    assert "secret-stack" not in response.get_data(as_text=True)
+
+
 def test_ka_history_serializes_persisted_execution_for_frontend(app, client, monkeypatch):
     controller = _FakeKAController()
     controller.algorithms["KA-001"]["metadata"]["Risk_Class"] = "High"
@@ -341,6 +379,23 @@ def test_ka_batch_accepts_documented_payload_with_context(app, client, monkeypat
         "KA-001",
         {"value": 7, "context": {"source": "batch-test"}},
     )
+
+
+def test_ka_batch_hides_per_item_exception_details(app, client, monkeypatch):
+    monkeypatch.setattr(ka_routes, "_controller", _FailingKAController())
+    _install_api_key_user(app, monkeypatch, username="ka_batch_exception_user")
+
+    response = client.post(
+        "/api/v1/ka/batch",
+        json={"algorithms": ["KA-001"], "input": {"value": 7}},
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["success"] is True
+    assert body["results"][0]["error"] == "Algorithm execution failed"
+    assert "secret-stack" not in response.get_data(as_text=True)
 
 
 def test_ka_high_stakes_workflow_runs_async_engine_with_api_key_principal(

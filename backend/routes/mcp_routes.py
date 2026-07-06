@@ -85,6 +85,10 @@ def get_mcp_manager():
     return mcp_manager
 
 
+def _mcp_error(message, status=500):
+    return jsonify({'success': False, 'error': message}), status
+
+
 def _tool_uses_write_scope(tool_name: str) -> bool:
     lowered = (tool_name or "").strip().lower()
     write_markers = ("create", "update", "delete", "write", "import", "sync", "patch")
@@ -186,12 +190,9 @@ def list_servers():
             'count': len(servers_data)
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error listing servers: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error listing servers")
+        return _mcp_error('MCP servers are unavailable', 500)
 
 
 @mcp_bp.route('/servers', methods=['POST'])
@@ -243,13 +244,10 @@ def create_server():
             'server': db_server.to_dict()
         }), 201
 
-    except Exception as e:
-        logger.error(f"Error creating server: {e}")
+    except Exception:
+        logger.exception("Error creating server")
         db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return _mcp_error('MCP server could not be created', 500)
 
 
 @mcp_bp.route('/servers/<server_id>', methods=['GET'])
@@ -278,12 +276,9 @@ def get_server(server_id):
             'server': response_data
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error getting server: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error getting server")
+        return _mcp_error('MCP server details are unavailable', 500)
 
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
@@ -314,13 +309,10 @@ def delete_server(server_id):
             'message': 'Server deleted successfully'
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error deleting server: {e}")
+    except Exception:
+        logger.exception("Error deleting server")
         db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return _mcp_error('MCP server could not be deleted', 500)
 
 
 # Resource Endpoints
@@ -347,12 +339,9 @@ def list_resources(server_id):
             'count': len(resources_data)
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error listing resources: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error listing resources")
+        return _mcp_error('MCP resources are unavailable', 500)
 
 
 @mcp_bp.route('/servers/<server_id>/resources/<int:resource_id>', methods=['GET'])
@@ -386,20 +375,17 @@ def read_resource(server_id, resource_id):
                     'resource': resource.to_dict(),
                     'content': content
                 }), 200
-            except Exception as e:
-                logger.error(f"Error reading resource content: {e}")
+            except Exception:
+                logger.exception("Error reading resource content")
 
         return jsonify({
             'success': True,
             'resource': resource.to_dict()
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error reading resource: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error reading resource")
+        return _mcp_error('MCP resource is unavailable', 500)
 
 
 # Tool Endpoints
@@ -426,12 +412,9 @@ def list_tools(server_id):
             'count': len(tools_data)
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error listing tools: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error listing tools")
+        return _mcp_error('MCP tools are unavailable', 500)
 
 
 @mcp_bp.route('/servers/<server_id>/tools/<int:tool_id>/call', methods=['POST'])
@@ -510,7 +493,7 @@ def call_tool(server_id, tool_id):
                 },
             }), 200
 
-        except Exception as e:
+        except Exception:
             duration_ms = (time.perf_counter() - started) * 1000.0
             # Update failure stats
             tool.execution_count += 1
@@ -524,18 +507,12 @@ def call_tool(server_id, tool_id):
                 success=False,
             )
 
-            logger.error(f"Error calling tool: {e}")
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
+            logger.exception("Error calling tool")
+            return _mcp_error('MCP tool execution failed', 500)
 
-    except Exception as e:
-        logger.error(f"Error in tool call endpoint: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error in tool call endpoint")
+        return _mcp_error('MCP tool execution failed', 500)
 
 
 # Prompt Endpoints
@@ -562,12 +539,9 @@ def list_prompts(server_id):
             'count': len(prompts_data)
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error listing prompts: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error listing prompts")
+        return _mcp_error('MCP prompts are unavailable', 500)
 
 
 @mcp_bp.route('/servers/<server_id>/prompts/<int:prompt_id>/get', methods=['POST'])
@@ -612,19 +586,13 @@ def get_prompt(server_id, prompt_id):
                 'prompt': result
             }), 200
 
-        except Exception as e:
-            logger.error(f"Error getting prompt: {e}")
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
+        except Exception:
+            logger.exception("Error getting prompt")
+            return _mcp_error('MCP prompt is unavailable', 500)
 
-    except Exception as e:
-        logger.error(f"Error in get prompt endpoint: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error in get prompt endpoint")
+        return _mcp_error('MCP prompt is unavailable', 500)
 
 
 # Client Management Endpoints
@@ -643,12 +611,9 @@ def list_clients():
             'count': len(clients)
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error listing clients: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error listing clients")
+        return _mcp_error('MCP clients are unavailable', 500)
 
 
 @mcp_bp.route('/clients', methods=['POST'])
@@ -669,12 +634,9 @@ def create_client():
             'client': client.get_client_info()
         }), 201
 
-    except Exception as e:
-        logger.error(f"Error creating client: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error creating client")
+        return _mcp_error('MCP client could not be created', 500)
 
 
 @mcp_bp.route('/clients/<client_id>/connect/<server_id>', methods=['POST'])
@@ -690,12 +652,9 @@ def connect_client(client_id, server_id):
             'connection': result
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error connecting client: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error connecting client")
+        return _mcp_error('MCP client connection failed', 500)
 
 
 # Statistics Endpoint
@@ -725,12 +684,9 @@ def get_stats():
             }
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error getting stats: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    except Exception:
+        logger.exception("Error getting stats")
+        return _mcp_error('MCP statistics are unavailable', 500)
 
 
 # Setup default servers endpoint
@@ -762,13 +718,10 @@ def setup_default_servers():
             'server': db_server.to_dict()
         }), 200
 
-    except Exception as e:
-        logger.error(f"Error setting up default servers: {e}")
+    except Exception:
+        logger.exception("Error setting up default servers")
         db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return _mcp_error('Default MCP servers could not be set up', 500)
 
 
 @mcp_bp.route('/console', methods=['POST'])
@@ -795,12 +748,12 @@ def mcp_console():
                 'description': 'MCP Console — type a command to inspect the MCP system.'
             }
         else:
-            result = {'error': f'Unknown command: {command!r}. Type "help" for available commands.'}
+            result = {'error': 'Unknown command. Type "help" for available commands.'}
 
         return jsonify({'success': True, 'result': result})
-    except Exception as e:
-        logger.error(f"MCP console error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("MCP console error")
+        return jsonify({'success': False, 'error': 'MCP console is unavailable'}), 500
 
 
 @mcp_bp.route('/config', methods=['GET'])
@@ -815,9 +768,9 @@ def get_external_config():
             'config': config,
             'active_servers': list(manager.external_clients.keys())
         }), 200
-    except Exception as e:
-        logger.error(f"Error getting external config: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error getting external config")
+        return jsonify({'success': False, 'error': 'MCP external configuration is unavailable'}), 500
 
 
 @mcp_bp.route('/config', methods=['POST'])
@@ -845,9 +798,9 @@ def update_external_config():
             'message': 'Configuration updated and dynamic servers reloaded',
             'active_servers': list(manager.external_clients.keys())
         }), 200
-    except Exception as e:
-        logger.error(f"Error updating external config: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error updating external config")
+        return _mcp_error('MCP external configuration could not be updated', 500)
 
 
 @mcp_bp.route('/servers/<name>/start', methods=['POST'])
@@ -859,7 +812,7 @@ def start_dynamic_server(name):
         manager.load_external_config()
         
         if name not in manager.external_configs:
-            return jsonify({'success': False, 'error': f"Server configuration '{name}' not found"}), 404
+            return _mcp_error('Server configuration not found', 404)
             
         if name in manager.external_clients:
             return jsonify({'success': True, 'message': f"Server '{name}' is already running"}), 200
@@ -878,9 +831,9 @@ def start_dynamic_server(name):
             'message': f"Dynamic server '{name}' started successfully",
             'server': client.get_client_info()
         }), 200
-    except Exception as e:
-        logger.error(f"Error starting dynamic server {name}: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error starting dynamic server")
+        return _mcp_error('MCP dynamic server could not be started', 500)
 
 
 @mcp_bp.route('/servers/<name>/stop', methods=['POST'])
@@ -891,7 +844,7 @@ def stop_dynamic_server(name):
         manager = get_mcp_manager()
         
         if name not in manager.external_clients:
-            return jsonify({'success': False, 'error': f"Dynamic server '{name}' is not running"}), 404
+            return _mcp_error('Dynamic server is not running', 404)
             
         client = manager.external_clients.pop(name)
         client.disconnect()
@@ -901,6 +854,6 @@ def stop_dynamic_server(name):
             'success': True,
             'message': f"Dynamic server '{name}' stopped successfully"
         }), 200
-    except Exception as e:
-        logger.error(f"Error stopping dynamic server {name}: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error stopping dynamic server")
+        return _mcp_error('MCP dynamic server could not be stopped', 500)

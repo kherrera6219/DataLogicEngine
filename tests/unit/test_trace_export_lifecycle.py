@@ -87,3 +87,40 @@ def test_trace_export_ignores_non_object_options(app, authenticated_client):
     assert response.status_code == 200
     payload = json.loads(response.data)
     assert payload["manifest"]["signature_algorithm"] in {"none", "hmac-sha256"}
+
+
+def test_trace_export_hides_integrity_configuration_errors(
+    app,
+    authenticated_client,
+    monkeypatch,
+):
+    with app.app_context():
+        user = User.query.filter_by(username="testuser").first()
+        run_id = uuid.uuid4()
+        db.session.add(
+            TraceRun(
+                run_id=run_id,
+                user_id=user.id,
+                status="pass",
+                input_message="Trace export integrity error test",
+            )
+        )
+        db.session.commit()
+
+    def fail_export_document(*_args, **_kwargs):
+        raise ValueError("<script>secret-export-key-path</script>")
+
+    monkeypatch.setattr(
+        "backend.tracing.api.build_trace_export_document",
+        fail_export_document,
+    )
+
+    response = authenticated_client.post(
+        f"/api/v1/trace/runs/{run_id}/export",
+        json={"encrypt_bundle": True},
+    )
+
+    assert response.status_code == 400
+    body = response.get_json()
+    assert body["error"] == "Trace export could not be prepared"
+    assert "secret-export-key-path" not in response.get_data(as_text=True)

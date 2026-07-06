@@ -23,6 +23,10 @@ ka_bp = Blueprint('ka', __name__)
 _controller = None
 
 
+def _error_response(message, status=500):
+    return jsonify({'success': False, 'error': message}), status
+
+
 def _get_controller():
     global _controller
     if _controller is None:
@@ -56,7 +60,7 @@ def _request_body_object(data):
     if data is None:
         return {}, None
     if not isinstance(data, dict):
-        return None, (jsonify({'success': False, 'error': 'JSON body must be an object'}), 400)
+        return None, 'JSON body must be an object'
     return data, None
 
 
@@ -71,12 +75,12 @@ def _request_input_payload(data):
     if input_data is None:
         input_data = {}
     if not isinstance(input_data, dict):
-        return None, (jsonify({'success': False, 'error': 'input/data must be an object'}), 400)
+        return None, 'input/data must be an object'
 
     context = data.get('context')
     if context is not None:
         if not isinstance(context, dict):
-            return None, (jsonify({'success': False, 'error': 'context must be an object'}), 400)
+            return None, 'context must be an object'
         input_data = {**input_data, 'context': context}
 
     return input_data, None
@@ -164,12 +168,12 @@ def _parse_ka_id_param(ka_id):
         try:
             num = int(ka_id.upper().replace('KA-', '').lstrip('0') or '0')
         except ValueError:
-            return None, jsonify({'success': False, 'error': f'Invalid algorithm ID: {ka_id}'}), 400
+            return None, _error_response('Invalid algorithm ID', 400)
     else:
         try:
             num = int(ka_id)
         except (ValueError, TypeError):
-            return None, jsonify({'success': False, 'error': f'Invalid algorithm ID: {ka_id}'}), 400
+            return None, _error_response('Invalid algorithm ID', 400)
     return _get_controller()._normalize_ka_id(f"KA-{num:03d}"), None
 
 
@@ -244,9 +248,13 @@ def get_execution_history():
             })
 
         return jsonify({'success': True, 'executions': records}), 200
-    except Exception as e:
-        logger.error("Error fetching execution history: %s", e)
-        return jsonify({'success': False, 'executions': [], 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error fetching execution history")
+        return jsonify({
+            'success': False,
+            'executions': [],
+            'error': 'Execution history is unavailable',
+        }), 500
 
 
 @ka_bp.route('/algorithms', methods=['GET'])
@@ -307,9 +315,9 @@ def list_algorithms():
             'categories': categories,
             'total_count': len(live_registry)
         }), 200
-    except Exception as e:
-        logger.error("Error listing algorithms: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error listing algorithms")
+        return _error_response('Algorithm list is unavailable', 500)
 
 
 @ka_bp.route('/algorithms/<ka_id>', methods=['GET'])
@@ -322,13 +330,13 @@ def get_algorithm(ka_id):
             return err
 
         if ka_id_norm not in _get_controller().algorithms:
-            return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
+            return _error_response('Algorithm not found', 404)
 
         ka_data = _get_controller().algorithms[ka_id_norm].get("metadata", {})
         return jsonify({'success': True, 'algorithm': format_algorithm(ka_data)}), 200
-    except Exception as e:
-        logger.error("Error getting algorithm: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error getting algorithm")
+        return _error_response('Algorithm details are unavailable', 500)
 
 
 @ka_bp.route('/algorithms/<ka_id>/execute', methods=['POST'])
@@ -341,11 +349,11 @@ def execute_algorithm(ka_id):
             return err
 
         if ka_id_norm not in _get_controller().algorithms:
-            return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
+            return _error_response('Algorithm not found', 404)
 
         input_data, payload_error = _request_input_payload(request.get_json())
         if payload_error:
-            return payload_error
+            return _error_response(payload_error, 400)
 
         ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
 
@@ -361,9 +369,9 @@ def execute_algorithm(ka_id):
         logger.info("Executed %s for user %s", ka_id_norm, _current_user_id())
 
         return jsonify({'success': ka_result.get('success', True), 'result': result}), 200
-    except Exception as e:
-        logger.error("Error executing algorithm: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error executing algorithm")
+        return _error_response('Algorithm execution failed', 500)
 
 
 @ka_bp.route('/categories', methods=['GET'])
@@ -396,9 +404,9 @@ def list_categories():
             'category_list': sorted(categories.keys()),
             'count': len(categories)
         }), 200
-    except Exception as e:
-        logger.error("Error listing categories: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error listing categories")
+        return _error_response('Algorithm categories are unavailable', 500)
 
 
 @ka_bp.route('/workflow/high-stakes', methods=['POST'])
@@ -408,7 +416,7 @@ def execute_high_stakes_workflow():
     try:
         data, body_error = _request_body_object(request.get_json())
         if body_error:
-            return body_error
+            return _error_response(body_error, 400)
         query = data.get('query')
         if not query:
             return jsonify({'success': False, 'error': 'Query is required'}), 400
@@ -436,9 +444,9 @@ def execute_high_stakes_workflow():
             'session_id': session['session_id'],
             'result': result
         }), 200
-    except Exception as e:
-        logger.error("Error executing high-stakes workflow: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error executing high-stakes workflow")
+        return _error_response('High-stakes workflow execution failed', 500)
 
 
 @ka_bp.route('/trace/<session_id>', methods=['GET'])
@@ -451,7 +459,7 @@ def get_workflow_trace(session_id):
 
         status = engine.get_session_status(session_id)
         if 'error' in status:
-            return jsonify({'success': False, 'error': status['error']}), 404
+            return _error_response('Workflow trace not found', 404)
 
         return jsonify({
             'success': True,
@@ -459,9 +467,9 @@ def get_workflow_trace(session_id):
             'trace': status.get('workflow_steps', []),
             'status': status.get('status')
         }), 200
-    except Exception as e:
-        logger.error("Error getting workflow trace: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error getting workflow trace")
+        return _error_response('Workflow trace is unavailable', 500)
 
 
 @ka_bp.route('/layers', methods=['GET'])
@@ -501,9 +509,9 @@ def list_layers():
         ))
 
         return jsonify({'success': True, 'layers': sorted_layers, 'count': len(layers)}), 200
-    except Exception as e:
-        logger.error("Error listing layers: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error listing layers")
+        return _error_response('Algorithm layers are unavailable', 500)
 
 
 @ka_bp.route('/batch', methods=['POST'])
@@ -513,7 +521,7 @@ def batch_execute():
     try:
         data, body_error = _request_body_object(request.get_json())
         if body_error:
-            return body_error
+            return _error_response(body_error, 400)
 
         algorithm_ids = data.get('algorithms', [])
 
@@ -528,14 +536,22 @@ def batch_execute():
 
         input_data, payload_error = _request_input_payload(data)
         if payload_error:
-            return payload_error
+            return _error_response(payload_error, 400)
 
         results = []
         for ka_id in algorithm_ids:
-            ka_id_norm = _get_controller()._normalize_ka_id(ka_id)
+            ka_id_norm, ka_id_error = _parse_ka_id_param(ka_id)
+            if ka_id_error:
+                results.append({
+                    'ka_id': None,
+                    'status': 'error',
+                    'error': 'Invalid algorithm ID'
+                })
+                continue
+
             if ka_id_norm not in _get_controller().algorithms:
                 results.append({
-                    'ka_id': ka_id,
+                    'ka_id': ka_id_norm,
                     'status': 'error',
                     'error': 'Algorithm not found'
                 })
@@ -554,12 +570,12 @@ def batch_execute():
                     'execution_time_ms': int(ka_result.get('execution_time', 0) * 1000),
                     'layers_used': parse_list_field(ka_meta.get('Primary_Layers'))
                 })
-            except Exception as exec_err:
-                logger.error("Batch execution error for %s: %s", ka_id_norm, exec_err)
+            except Exception:
+                logger.exception("Batch execution error for %s", ka_id_norm)
                 results.append({
-                    'ka_id': ka_id,
+                    'ka_id': ka_id_norm,
                     'status': 'error',
-                    'error': str(exec_err)
+                    'error': 'Algorithm execution failed'
                 })
 
         return jsonify({
@@ -568,9 +584,9 @@ def batch_execute():
             'executed_count': len([r for r in results if r['status'] == 'completed']),
             'failed_count': len([r for r in results if r['status'] in ('error', 'failed')])
         }), 200
-    except Exception as e:
-        logger.error("Error in batch execution: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error in batch execution")
+        return _error_response('Batch execution failed', 500)
 
 
 @ka_bp.route('/search', methods=['GET'])
@@ -596,9 +612,9 @@ def search_algorithms():
         results.sort(key=lambda x: x.get('id') or '')
 
         return jsonify({'success': True, 'query': query, 'results': results, 'count': len(results)}), 200
-    except Exception as e:
-        logger.error("Error searching algorithms: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error searching algorithms")
+        return _error_response('Algorithm search is unavailable', 500)
 
 
 @ka_bp.route('/dependencies/<ka_id>', methods=['GET'])
@@ -611,7 +627,7 @@ def get_dependencies(ka_id):
             return err
 
         if ka_id_norm not in _get_controller().algorithms:
-            return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
+            return _error_response('Algorithm not found', 404)
 
         ka_data = _get_controller().algorithms[ka_id_norm].get("metadata", {})
         dependencies = parse_list_field(ka_data.get('Dependencies'))
@@ -649,9 +665,9 @@ def get_dependencies(ka_id):
             'dependency_count': len(dep_details),
             'dependent_count': len(dependents)
         }), 200
-    except Exception as e:
-        logger.error("Error getting dependencies: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error getting dependencies")
+        return _error_response('Algorithm dependencies are unavailable', 500)
 
 
 @ka_bp.route('/stats', methods=['GET'])
@@ -694,9 +710,9 @@ def get_stats():
                 'with_math_components': has_math_count
             }
         }), 200
-    except Exception as e:
-        logger.error("Error getting stats: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Error getting stats")
+        return _error_response('Algorithm statistics are unavailable', 500)
 
 
 @ka_bp.route('/health', methods=['GET'])

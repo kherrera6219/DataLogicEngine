@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.9.1 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -358,6 +358,12 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 
 ---
 
+## Change notes for v2.9.1
+
+1. Updated document version to v2.9.1 and last-updated date to 2026-07-06.
+2. Remediated selected CodeQL reflected-output and exception-disclosure alerts in KA, search, MCP, and trace export routes by replacing reflected/raw exception responses with stable public errors and server-side exception logging.
+3. Confirmed the stale `/login` and `/register` frontend-page cleanup item is resolved in the live tree: `frontend/app/login` and `frontend/app/register` are absent; remaining `/login` references are disabled-by-design fallback/navigation strings in the local-first desktop shell.
+
 ## Change notes for v2.9.0
 
 1. Updated document version to v2.9.0 and last-updated date to 2026-06-27; the 2026-07-04 documentation audit refreshed model-provider wording without changing the readiness decision.
@@ -379,7 +385,7 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 4. Documentation set (`docs/`, `docs/diagrams/`, root docs) reconciled to the current single-mode architecture; the duplicate `.github/README.md` was consolidated into a single canonical root `README.md`.
 5. Windows desktop installer rebuilt and validated end-to-end 2026-06-26 (PyInstaller backend → Next.js static export → Electron/NSIS) with the freshly built backend embedded. Local validation: backend **1769 passed, 19 skipped**; frontend **378 passed**. (Test count is lower than v2.7.0's 1865 because the single-mode audit removed the multi-user auth/connector test suites along with those features.)
 6. ~~New open desktop-packaging item: the installer does not bundle a JRE for Neo4j (`databases/jre` source reported missing during electron-builder packaging)~~ — **Resolved**: JRE bundling removed from `electron-builder.yml`; the backend's `_find_java_home()` discovers system-installed JREs (Temurin, Corretto, etc.) automatically, saving ~180 MB in installer size.
-7. New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.
+7. ~~New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.~~ — **Resolved**: live tree check confirms `frontend/app/login` and `frontend/app/register` are absent; remaining `/login` references are disabled-by-design fallback/navigation strings for the local-first desktop shell.
 
 ## Change notes for v2.7.0
 

@@ -176,6 +176,30 @@ class TestSearchRoutes:
         body = resp.get_json()
         assert body.get("success") is True or "results" in body
 
+    def test_search_nodes_hides_backend_exception_details(self, app, client, monkeypatch):
+        _login(client, app)
+
+        def fail_search(**_kwargs):
+            raise RuntimeError("<script>secret-search-path</script>")
+
+        monkeypatch.setattr(
+            "backend.routes.search_routes.search_knowledge_nodes",
+            fail_search,
+        )
+
+        resp = client.get("/api/search/nodes?q=knowledge")
+
+        assert resp.status_code == 500
+        body = resp.get_json()
+        assert body["success"] is False
+        assert body["error"] == "An internal error occurred. Please try again later."
+        assert "secret-search-path" not in resp.get_data(as_text=True)
+
+    def test_search_global_tolerates_invalid_limit(self, app, client):
+        _login(client, app)
+        resp = client.get("/api/search/global?q=compliance&limit=bad")
+        assert resp.status_code == 200
+
     def test_global_search(self, app, client):
         _login(client, app)
         resp = client.get("/api/search/global?q=compliance")
