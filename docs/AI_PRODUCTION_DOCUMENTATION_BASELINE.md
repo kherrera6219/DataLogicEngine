@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering + Documentation Governance |
 | Review cadence | Every 30 days |
@@ -50,26 +50,26 @@ The documentation no longer treats the product as a generic LLM chat wrapper or 
 
 | Area | Source-of-truth documents | Status |
 |---|---|---|
-| Product overview | `docs/PRODUCT_OVERVIEW.md` | Updated to v2.6.0 |
-| Product UX/design | `docs/PRODUCT_DESIGN.md` | Updated to v2.6.0 |
-| User operation | `docs/USER_GUIDE.md` | Updated to v2.6.0 |
-| Engineer onboarding | `docs/ENGINEER_ONBOARDING.md` | Updated to v2.6.0 |
-| Architecture | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` | Updated to v2.6.0 |
+| Product overview | `docs/PRODUCT_OVERVIEW.md` | Active; v2.8.0 reflects the July 2026 desktop rebuild evidence. |
+| Product UX/design | `docs/PRODUCT_DESIGN.md` | Active; design source of truth for the current local-first product surface. |
+| User operation | `docs/USER_GUIDE.md` | Active; v2.7.0 reflects the current OpenAI/Google provider model. |
+| Engineer onboarding | `docs/ENGINEER_ONBOARDING.md` | Active; v2.7.0 reflects current provider setup and desktop packaging checks. |
+| Architecture | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` | Active; architecture docs remain the source for DMRF, Truth Engine, local-first, and trace lifecycle behavior. |
 | API | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` | Active; machine-readable partial contract refreshed in the 2026-07-04 documentation audit |
-| Workflow | `docs/WORKFLOW.md` | Updated to v2.6.0 |
-| Data architecture | `docs/DATABASE_SCHEMA.md` | Updated to v2.6.0 |
-| Security | `docs/SECURITY.md`, `SECURITY.md` | Updated to v2.6.0 where applicable |
-| Privacy | `docs/PRIVACY_POLICY.md` | Updated to v2.6.0 |
-| HTTPS/TLS | `docs/SSL_CONFIGURATION.md` | Updated to v2.6.0 |
-| Testing | `docs/TESTING.md` | Updated to v2.6.0 |
-| Deployment | `docs/DEPLOYMENT.md` | Updated to v2.6.0 |
-| Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Updated to v2.6.0 |
-| Operations | `docs/OPERATIONAL_RUNBOOKS.md` | Updated to v2.6.0 |
-| Release governance | `docs/RELEASE_CHECKLIST.md` | Updated to v2.6.0 |
-| Production readiness | `docs/PRODUCTION_READINESS.md` | Updated to v2.6.0 |
-| Secure SDLC | `docs/SDLC_SSDF_MAPPING.md` | Updated to v2.6.0 |
-| AI management mapping | `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Updated to v2.6.0 |
-| Supply chain roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md` | Updated to v2.6.0 roadmap/current-state format |
+| Workflow | `docs/WORKFLOW.md` | Active; governed request lifecycle reference. |
+| Data architecture | `docs/DATABASE_SCHEMA.md` | Active; multi-store local/VM/auto storage reference. |
+| Security | `docs/SECURITY.md`, `SECURITY.md` | Active; security controls and disclosure policy. |
+| Privacy | `docs/PRIVACY_POLICY.md` | Active; local-first privacy and provider/connector disclosure. |
+| HTTPS/TLS | `docs/SSL_CONFIGURATION.md` | Active; web/cloud TLS and desktop trust-boundary reference. |
+| Testing | `docs/TESTING.md` | Active; v2.7.0 reflects current CI, packaging, and evidence posture. |
+| Deployment | `docs/DEPLOYMENT.md` | Active; v2.7.0 reflects backend-before-installer packaging. |
+| Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Active; v2.7.0 reflects installer integrity, install smoke, and uninstall smoke. |
+| Operations | `docs/OPERATIONAL_RUNBOOKS.md` | Active incident-response reference. |
+| Release governance | `docs/RELEASE_CHECKLIST.md` | Active; v2.7.0 reflects installer integrity and install/uninstall smoke gates. |
+| Production readiness | `docs/PRODUCTION_READINESS.md` | Active; v2.9.2 records current signed-release blockers. |
+| Secure SDLC | `docs/SDLC_SSDF_MAPPING.md` | Active SSDF-style mapping, not a certification claim. |
+| AI management mapping | `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Active ISO/IEC 42001-style mapping, not a certification claim. |
+| Supply chain roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md` | Active roadmap/current-state reference, not a formal SLSA attestation. |
 | Documentation standards | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` | Active governance references |
 
 ---
@@ -158,7 +158,9 @@ When docs reference Windows packaging/release behavior, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 ---
@@ -186,6 +188,12 @@ Current caveats:
 5. Keep release checklist evidence attached to tagged releases.
 6. Move obsolete conceptual documents to archive or mark them as historical.
 7. Use active docs as source of truth for judges, sponsors, enterprise reviewers, and new engineers.
+
+## Change notes for v2.8.0
+
+1. Refreshed the source-of-truth map so it no longer claims every active document is only at the v2.6.0 baseline.
+2. Added installer integrity and installer-mode smoke validation to the packaging evidence commands.
+3. Kept certification and signed-release caveats explicit while reflecting the current local desktop release-candidate documentation state.
 
 ## Change notes for v2.6.0
 

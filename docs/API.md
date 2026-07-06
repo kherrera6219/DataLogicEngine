@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-04 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -118,8 +118,8 @@ Legacy alias responses should emit transition headers so clients can migrate det
 Most application endpoints require authentication via one of the following methods:
 
 1. **Session authentication**: Cookie-based frontend sessions.
-2. **Bearer token**: `Authorization: Bearer <jwt-token>` for external clients.
-3. **API key**: `X-API-Key: <api-key>` for programmatic access where enabled.
+2. **Bearer-form API key**: `Authorization: Bearer ukg_...` for external API-key clients.
+3. **API key header**: `X-API-Key: ukg_...` for programmatic access where enabled.
 4. **Desktop local auth**: loopback challenge/response and signed desktop requests in local/hybrid desktop mode (the primary single-mode path).
 
 Single-mode / OS-level auth: one owner per machine; the former SSO/OIDC (Azure AD/Entra) and MFA surfaces were removed in the auth deprecation.
@@ -128,7 +128,7 @@ Unauthenticated operational probes are explicitly limited to `/health`, `/live`,
 
 Security and runtime context:
 
-- Auth context is extracted from the authenticated session/JWT where applicable.
+- Auth context is extracted from the authenticated session, signed desktop request, or API-key principal where applicable.
 - Responses include correlation metadata for debugging and audit reconstruction.
 - Desktop local auth is only valid when runtime policy permits local or hybrid mode.
 - Cloud mode must not rely on desktop loopback trust.
@@ -693,7 +693,7 @@ Legacy alias: `/api/mcp` with deprecation headers.
 Representative capabilities:
 
 1. MCP connector registry.
-2. OAuth token management.
+2. connector/server credential and scope configuration.
 3. MCP server configuration.
 4. MCP analytics per connector/server.
 5. Tool listing and execution metadata.
@@ -884,6 +884,12 @@ A technical reviewer should validate this document against these files:
 11. `frontend/lib/api/` — frontend API clients and CSRF handling.
 12. `tests/contract/` — canonical API contract tests.
 13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v3.2.0
+
+1. Updated MCP route capabilities to remove stale OAuth token-management wording and align with the live connector registry, credential/scope configuration, analytics, and tool metadata surfaces.
+2. Replaced stale JWT bearer guidance with the current session, signed desktop, and `ukg_...` API-key principal model.
+3. Updated document metadata for the production top-level documentation review.
 
 ## Change notes for v3.1.0
 

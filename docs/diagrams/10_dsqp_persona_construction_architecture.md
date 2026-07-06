@@ -1,5 +1,12 @@
 # DSQP Persona Construction Architecture
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: DSQP persona construction and traceability documentation.
+
 ## Purpose
 
 This diagram maps how DataLogicEngine constructs deterministic seven-component personas for the 17-axis model's persona axes. DSQP is important because it turns axes 8-11 into structured expert profiles rather than leaving them as labels.

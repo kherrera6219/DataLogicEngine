@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, API integrators |
@@ -240,7 +240,7 @@ sequenceDiagram
 
     User->>UI: Request export or delete
     UI->>API: Submit privacy action
-    API->>Auth: Verify identity/role/session
+    API->>Auth: Verify owner/principal/session
     alt Export
         API->>Stores: Collect eligible user data
         Stores-->>API: Data package
@@ -287,7 +287,9 @@ sequenceDiagram
     participant CI as GitHub Actions / CI
     participant Tests as Test Suites
     participant Gov as Governance Scripts
+    participant Backend as PyInstaller Backend
     participant Pkg as Windows Packaging
+    participant Integrity as Installer Integrity
     participant Sign as Signing Verification
     participant Checklist as Release Checklist
 
@@ -297,8 +299,14 @@ sequenceDiagram
     CI->>Gov: Run docs/env/lockfile/release checks
     Gov-->>CI: Governance results
     alt Desktop release
-        CI->>Pkg: Run packaging smoke / NSIS checks
+        CI->>Backend: Build backend executable bundle
+        Backend-->>CI: Backend package evidence
+        CI->>Pkg: Build Electron/NSIS installer + run NSIS checks
         Pkg-->>CI: Packaging evidence
+        CI->>Integrity: Verify checksum/blockmap/root installer artifacts
+        Integrity-->>CI: Integrity report
+        CI->>Pkg: Run portable and installer-mode smoke where scoped
+        Pkg-->>CI: Smoke reports
     end
     alt Signed production release
         CI->>Sign: Verify trusted signature/artifact evidence
@@ -331,6 +339,12 @@ sequenceDiagram
         CI-->>Author: Fix links/metadata/references
     end
 ```
+
+## Change notes for v2.7.0
+
+1. Updated privacy-action auth wording for single-owner/principal verification.
+2. Expanded the release validation sequence to include backend bundle build, installer integrity, and installer-mode smoke.
+3. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

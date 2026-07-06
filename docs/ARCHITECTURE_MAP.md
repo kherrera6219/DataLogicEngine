@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 30 days |
@@ -203,8 +203,11 @@ sequenceDiagram
 | Security regressions | `python -m pytest -q --no-cov tests\security` |
 | Local-mode parity | `python -m pytest -q --no-cov tests\parity` |
 | Frontend validation | `npm --prefix frontend run lint && npm --prefix frontend run typecheck && npm --prefix frontend test` |
-| Windows packaging checks | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path` |
+| Backend desktop bundle | `.\.venv\Scripts\python.exe scripts\build_backend.py` |
+| Windows packaging checks | `npm --prefix frontend run electron:dist` then `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path` |
 | NSIS governance | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path` |
+| Installer integrity | `.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts` |
+| Installer-mode smoke | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer` |
 | Signed installer verification | `powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation` |
 
 ---
@@ -263,6 +266,11 @@ sequenceDiagram
 7. `docs/FILE_STRUCTURE.md`
 8. `docs/PRODUCT_OVERVIEW.md`
 9. `docs/ENGINEER_ONBOARDING.md`
+
+## Change notes for v2.7.0
+
+1. Added backend desktop bundle, installer integrity, and installer-mode smoke gates to the architecture validation matrix.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

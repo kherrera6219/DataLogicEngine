@@ -1,6 +1,23 @@
 # DataLogicEngine — Complete Audit Plan v2.0
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.1.0 |
+| Last updated | 2026-07-06 |
+| Status | Historical / completed first-pass audit plan |
+| Owner | Audit Governance |
+| Review cadence | Reference-only; update only for archive/status clarification |
+
 **Built from:** live MCP scan + full conversation history review | 1,049 commits | June 10, 2026
 **Goal:** Every folder audited, every file in the right place, every feature correctly wired, dead code removed, app complete and to best practices.
+
+> **Current documentation-review status (2026-07-06):** This is the completed
+> v2.0 first-pass audit plan and historical execution record. It is not the
+> active audit queue. Use `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md`,
+> root `TODO.md`, and root `REPO_AUDIT_LOG.md` for current open work and release
+> posture.
 
 ---
 
@@ -59,14 +76,9 @@ Both June-10-scan disconnected components are wired: N2 (defense_supervisor, A3)
 and N1 (SEKRE, A6b). The auth-deprecation programme (single-mode / OS-level auth)
 is fully complete (Phases A–F + F5-frontend); all data stores are local internal
 app-owned components (Postgres/Redis/Neo4j/Chroma/object/SQLite), not external
-services. Open forward items (as of A29): **A30 next** (config/migrations/k8s —
-incl. A25-deferred k8s dup + A28-deferred stale config_manager enterprise ports);
-A31 (docs + regenerate GENERATED_STRUCTURE/FILE_INVENTORY for this session's
-deletions); A32 (retire one-off scanners audit_deep/audit_duplicates); A12-followup
-(dual-engine Postgres run — infra-gated); ORPH-4 (`OAuthAccount` model drop — needs
-migration); ORPH-v2 remaining (security/* → A10, services/email → A19 — per-module
-verify). The enterprise multi-service layer + the A32-mini scanner/baseline items
-are now DONE (A28/A26).
+services. The older A29-era forward queue recorded in this plan is closed by the
+later A30-A32 completion rows and ORPH-4 resolution below. Treat this file as a
+historical execution record, not as an active next-step list.
 
 ### Open carry-over findings (tracked across sessions)
 
@@ -460,9 +472,9 @@ Phase 2 — Reasoning depth (8 sessions):  ✅ COMPLETE
 Phase 3 — Frontend:  ✅ COMPLETE
   A15 ✅ → A16 ✅ → A17 ✅   (+ F5-frontend web-login removal)
 
-Phase 4 — Quality + ops:  in progress
+Phase 4 — Quality + ops:  ✅ COMPLETE
   A18 ✅ → A19 ✅ → A20 ✅ → A21 ✅ → A22 ✅ → A23 ✅ → A24 ✅ →
-  A25 ⏭ → A26 ☐ → A27 ☐ → A28 ☐ → A29 ☐ → A30 ☐ → A31 ☐ → A32 ☐
+  A25 ✅ → A26 ✅ → A27 ✅ → A28 ✅ → A29 ✅ → A30 ✅ → A31 ✅ → A32 ✅
 ```
 
 ---
@@ -505,4 +517,11 @@ The audit is complete when ALL of the following are true:
 
 *DataLogicEngine Complete Audit Plan v2.0 — June 10, 2026*
 *Built from: live MCP scan + full 9-session conversation history review*
-*Previous plan: `docs/audits/DataLogicEngine_Complete_Audit_Plan.md` (v1.0, superseded)*
+*Previous v1.0 plan: deleted during the 2026-07-06 docs cleanup after this v2 plan superseded it.*
+
+## Change notes for v2.1.0
+
+1. Added metadata and a current-status banner marking this as a completed historical first-pass audit plan.
+2. Replaced the stale A29-era open-forward paragraph with completed-plan guidance.
+3. Updated the session sequence so Phase 4 reflects A18-A32 completion instead of showing A25 as next.
+4. Removed the pointer to the deleted v1.0 audit-plan snapshot.

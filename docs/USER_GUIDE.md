@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Product Operations |
 | Review cadence | Every 30 days |
@@ -27,8 +27,8 @@ This guide reflects the current local-first product: dashboard, chat, projects, 
 ## Prerequisites
 
 1. Running local desktop, Windows VM, or deployed instance.
-2. Internet access for cloud provider inference unless using local/offline provider paths.
-3. At least one configured provider API key for provider-backed chat/reasoning.
+2. Internet access for cloud provider inference.
+3. At least one configured OpenAI or Google/Gemini API key for provider-backed chat/reasoning.
 4. Local storage services running when testing graph/vector/object/data features.
 
 ## Mode behavior
@@ -200,6 +200,11 @@ Review `docs/PRIVACY_POLICY.md` for details.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
+
+## Change notes for v2.7.0
+
+1. Updated prerequisites to remove stale local/offline-provider wording.
+2. Clarified that the current user-facing provider choices are OpenAI and Google/Gemini.
 
 ## Troubleshooting
 

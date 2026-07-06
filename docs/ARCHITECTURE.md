@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
-| Last updated | 2026-07-04 |
+| Document version | v3.1.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -474,7 +474,7 @@ The local-first architecture supports:
 5. Desktop local auth using per-install secret, nonce challenge, HMAC signatures, and timestamp skew checks.
 6. Windows DPAPI helper for local protected data.
 7. Local trace export hashing/signing/encryption options.
-8. Windows packaging smoke and NSIS governance checks.
+8. Windows backend rebuild, installer integrity, packaging smoke, installer-mode smoke, and NSIS governance checks.
 
 Supported deployment patterns:
 
@@ -599,6 +599,11 @@ Then inspect these implementation files:
 13. `frontend/app/layout.tsx`
 14. `frontend/components/layout/AppSidebar.tsx`
 15. `.github/workflows/ci.yml`
+
+## Change notes for v3.1.0
+
+1. Reviewed the architecture source of truth during the production top-level documentation pass; the current DMRF, Truth Engine, local-first data, and cloud BYOK model remains authoritative.
+2. Updated metadata so the architecture reference reflects the July 2026 production documentation pass.
 
 ## Change notes for v2.7.0
 

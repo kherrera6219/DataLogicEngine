@@ -1,5 +1,15 @@
 # DataLogicEngine — Multi-User Auth Deprecation Plan
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.1.0 |
+| Last updated | 2026-07-06 |
+| Status | Historical / completed deprecation plan |
+| Owner | Security Engineering |
+| Review cadence | Reference-only; update only for archive/status clarification |
+
 **STATUS (2026-06-19): ✅ COMPLETE — Phases A–F done.** Single-mode fully realized:
 no MFA, no multi-tenant RLS, no admin user-mgmt UI/routes, no roles/admin columns; all
 authorization gates collapsed to a single-owner check (`current_user_is_owner()`).
@@ -23,6 +33,12 @@ entanglement note in §3.
 handled at the **OS access level**; even cloud runs on a single-tenant VM. The old
 multi-user model (application login, roles, access tiers) is gone — see memory
 `architecture-single-mode`.
+
+> **Current documentation-review status (2026-07-06):** This file preserves the
+> auth-deprecation planning history. Do not execute the original proposal sections
+> below as current instructions. The live auth model keeps Flask sessions, signed
+> desktop loopback auth, and `ExternalAPIKey`/`ukg_...` programmatic access as
+> documented in `docs/AUTH_DECORATORS.md`, `docs/API.md`, and `docs/SECURITY.md`.
 
 ---
 
@@ -63,6 +79,13 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 
 ## 2. The 147-decorator question (the main entanglement)
 
+> Historical note: the proposal language in this section is superseded by the
+> completed implementation and later route-hardening slices. Current
+> `@api_login_required` behavior accepts Flask session auth, signed desktop
+> loopback auth, and valid `ExternalAPIKey` principals. Current
+> `@api_session_login_required` accepts Flask session auth or signed desktop
+> loopback auth. Do not remove those paths based on this historical plan.
+
 `@api_login_required` / `@api_session_login_required` / `@require_permission` /
 `@api_admin_required` appear **147 times** across `backend/routes/*.py` + `app.py`
 (heaviest: `mcp_routes` 31, `admin_routes` 16, `storage_routes` 13, `knowledge_routes`
@@ -71,12 +94,11 @@ another* (roles, admin, per-user login/sessions, MFA, multi-tenant isolation, JW
 **Do NOT delete the 147 call sites.** Instead, redefine the decorators centrally in
 `backend/auth/api_decorators.py`:
 
-- `api_login_required` / `api_session_login_required` → keep, but **simplify to the
-  desktop-loopback path only** (drop the Flask-Login session branch and the
-  `ukg_`-prefixed external-API-key branch; both are multi-user features). The
-  signed-loopback check + SID user resolution stays. Net effect: every decorated
-  route still requires a valid signed desktop request, exactly as today, minus the
-  dead multi-user branches.
+- Historical proposal, superseded: `api_login_required` / `api_session_login_required`
+  were originally proposed for simplification to desktop-loopback only. The
+  completed implementation did **not** remove the current Flask session or
+  `ukg_` ExternalAPIKey paths. Current behavior is documented in
+  `docs/AUTH_DECORATORS.md`.
 - `api_admin_required` → **alias to `api_login_required`** (no admin vs. non-admin
   distinction when there is one owner). Keep the name as a thin shim so the 16
   `admin_routes` call sites don't churn, or sed-replace them in one pass.
@@ -246,3 +268,8 @@ reword `compliance_manager` SC-1 access-control to OS-auth.
 *Review this plan, then approve a starting phase. Recommended first step: Phase A
 (delete the two already-dead modules) — it is risk-free and shrinks the surface
 before the structural phases.*
+
+## Change notes for v1.1.0
+
+1. Added metadata and a current-status banner marking this as a completed historical plan.
+2. Added an explicit supersession note for the original decorator proposal so it cannot be mistaken for current auth implementation guidance.

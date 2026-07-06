@@ -4,12 +4,15 @@
 
 | Field | Value |
 |---|---|
+| Document version | v1.1.0 |
+| Last updated | 2026-07-06 |
 | Prepared | 2026-07-06 |
 | Audit window covered | 2026-07-04 through 2026-07-06 |
 | Source branch | `main` |
 | Source records | `TODO.md`, `HANDOFF.md`, focused tests, generated docs inventory |
 | Scope | Documentation audit slice plus code audit slices 1 through 12 and selected CodeQL alert remediation |
 | Status | Active audit summary |
+| Folder review | Reviewed during `docs/audits` Markdown pass on 2026-07-06 |
 
 ## Executive summary
 
@@ -266,3 +269,8 @@ The completed slices added or reran focused validation across backend route test
 ## Remaining audit queue
 
 The active trace production lifecycle queue is complete as of slice 12, and the selected CodeQL reflected-output/exception-disclosure alerts have been remediated. Remaining work before a complete rebuild is release validation rather than another trace slice: run the final rebuild/packaging path, confirm provider-configured staging, attach signed-artifact and accessibility evidence when available, and treat orphan scanner code candidates as confirm-before-cut cleanup if a separate cleanup pass is requested.
+
+## Change notes for v1.1.0
+
+1. Added active document metadata and folder-review status during the `docs/audits` Markdown pass.
+2. Confirmed this file remains the active consolidated audit-slice findings report; older audit plans in this folder are historical/reference unless explicitly promoted.

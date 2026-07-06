@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture + API Governance |
 | Review cadence | Every 60 days |
@@ -196,6 +196,11 @@ API versioning changes must be reflected in:
 4. contract/integration/security tests;
 5. changelog/release notes;
 6. client migration guidance when applicable.
+
+## Change notes for v2.7.0
+
+1. Reviewed canonical `/api/v1/*` versioning policy during the production top-level documentation pass; policy remains active and unchanged.
+2. Updated metadata so this source-of-truth policy is no longer dated to the May documentation baseline.
 
 ## Change notes for v2.6.0
 

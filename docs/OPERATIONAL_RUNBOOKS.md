@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | SRE + Security Operations |
 | Review cadence | Every 30 days |
@@ -349,18 +349,22 @@ Relevant files:
 
 ---
 
-## Incident 12: Packaging smoke or NSIS governance failure
+## Incident 12: Packaging smoke, installer integrity, or NSIS governance failure
 
-**Trigger:** Windows packaging smoke fails, installer launch fails, or NSIS governance check fails.
+**Trigger:** Windows packaging smoke fails, installer integrity verification fails, installer launch/install/uninstall smoke fails, or NSIS governance check fails.
 
 **Default severity:** `SEV-2`; `SEV-1` if release distribution is blocked.
 
-1. Review packaging smoke and NSIS governance reports.
+1. Review packaging smoke, installer integrity, installer-mode smoke, and NSIS governance reports.
 2. Re-run locally:
    ```powershell
+   .\.venv\Scripts\python.exe scripts\build_backend.py
+   $env:CSC_SKIP = "true"
    npm --prefix frontend run electron:dist
    powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+   .\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
    powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
    ```
 3. Check backend executable build output.
 4. Check Electron distribution output.
@@ -371,6 +375,7 @@ Relevant files:
 
 - `scripts/windows/run_packaging_smoke.ps1`
 - `scripts/windows/verify_nsis_governance.ps1`
+- `scripts/verify_installer_integrity.py`
 - `.github/workflows/ci.yml`
 
 ---
@@ -401,13 +406,13 @@ Relevant files:
 
 ## Incident 14: MCP connector scope or contract failure
 
-**Trigger:** repeated `MCP_SCOPE_DENIED`, connector contract validation errors, OAuth/token failures, or connector output schema drift.
+**Trigger:** repeated `MCP_SCOPE_DENIED`, connector contract validation errors, connector credential/token-source failures, or connector output schema drift.
 
 **Default severity:** `SEV-2`.
 
 1. Capture connector, tool, payload, user context, and contract error.
 2. Confirm scope denial is expected policy behavior rather than auth regression.
-3. Validate role-to-scope mapping and token state.
+3. Validate principal-to-scope mapping and connector credential/token-source state.
 4. Check declared input/output schemas.
 5. Roll back connector/tool contract change if regression was introduced.
 6. Add/update MCP route and contract tests.
@@ -469,7 +474,7 @@ Relevant files:
 2. `GET /live` is healthy.
 3. `GET /ready` is healthy.
 4. `GET /metrics` returns expected metrics.
-5. Core auth flow works for expected roles.
+5. Core auth flow works for the expected owner/principal path.
 6. Gateway/DMRF request path returns expected policy behavior.
 7. Truth Engine health/status is normal where enabled.
 8. Trace Explorer can open relevant run or appropriate fallback.
@@ -477,6 +482,12 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.7.0
+
+1. Expanded packaging incident handling to include backend rebuild, installer integrity verification, and installer-mode install/uninstall smoke.
+2. Replaced stale MCP OAuth/role language with connector credential, token-source, principal, and scope wording.
+3. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

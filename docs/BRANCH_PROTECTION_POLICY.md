@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -47,8 +47,9 @@ Representative protected checks:
 4. contract/parity/security tests where configured;
 5. governance validation;
 6. documentation validation;
-7. Windows packaging smoke checks;
-8. release-signing validation where applicable.
+7. Windows packaging smoke, installer integrity, and governance checks;
+8. Deploy/build and security-scan checks where configured;
+9. release-signing validation where applicable.
 
 The exact set may evolve with CI workflow names.
 
@@ -96,6 +97,11 @@ Release-impacting changes should also pass:
 ```powershell
 python scripts/verify_release_governance.py
 ```
+
+## Change notes for v2.7.0
+
+1. Updated representative protected-check guidance to include installer integrity, deploy/build, and security-scan evidence where configured.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

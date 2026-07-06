@@ -1,8 +1,29 @@
 # Model Context Protocol (MCP) Integration
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.2.0 |
+| Last updated | 2026-07-06 |
+| Status | Active |
+| Owner | Platform Engineering + Connector Governance |
+| Review cadence | Every 30 days |
+
 ## Overview
 
-The DataLogicEngine now includes a comprehensive implementation of the **Model Context Protocol (MCP)**, enabling standardized communication between LLM applications and the Universal Knowledge Graph (UKG) system.
+DataLogicEngine includes a Model Context Protocol-style connector and tool layer for governed access to resources, tools, prompts, server configuration, connector metrics, and UKG/knowledge-system capabilities.
+
+Current UI surfaces:
+
+1. `/mcp` — MCP hub with server, client, analytics, and examples tabs.
+2. `/admin/mcp` — admin console entry.
+3. `/admin/mcp/servers` — server registry management.
+
+Current API surfaces:
+
+1. canonical API: `/api/v1/mcp/*`;
+2. compatibility alias: `/api/mcp/*`, redirected/mapped to the canonical family where applicable.
 
 ## What is MCP?
 
@@ -102,8 +123,9 @@ The DataLogicEngine automatically creates a default MCP server named **"DataLogi
 
 ### Accessing the MCP Console
 
-1. Navigate to `/mcp-console` in the web interface
-2. The MCP Console provides:
+1. Navigate to `/mcp` in the product shell.
+2. Use `/admin/mcp` and `/admin/mcp/servers` for owner/admin server management.
+3. The MCP surfaces provide:
    - Server management
    - Resource browsing
    - Tool execution
@@ -187,7 +209,7 @@ result = await client.call_tool(
 #### List Servers
 
 ```bash
-GET /api/mcp/servers
+GET /api/v1/mcp/servers
 ```
 
 Response:
@@ -213,7 +235,7 @@ Response:
 #### Call a Tool
 
 ```bash
-POST /api/mcp/servers/{server_id}/tools/{tool_id}/call
+POST /api/v1/mcp/servers/{server_id}/tools/{tool_id}/call
 Content-Type: application/json
 
 {
@@ -226,7 +248,7 @@ Content-Type: application/json
 #### Get a Prompt
 
 ```bash
-POST /api/mcp/servers/{server_id}/prompts/{prompt_id}/get
+POST /api/v1/mcp/servers/{server_id}/prompts/{prompt_id}/get
 Content-Type: application/json
 
 {
@@ -391,11 +413,12 @@ MCP_PROTOCOL_VERSION = os.environ.get('MCP_PROTOCOL_VERSION', '2024-11-05')
 
 ## Security Considerations
 
-1. **Authentication**: All MCP endpoints require login (`@login_required`)
-2. **Authorization**: Admin-only operations (setup default servers)
-3. **Input Validation**: JSON schema validation for tool arguments
-4. **Error Handling**: Proper error responses, no sensitive data leakage
-5. **Rate Limiting**: Consider implementing rate limiting for production
+1. **Authentication**: MCP routes use the current API decorator policy (`@api_session_login_required`, `@api_login_required`, and `@api_admin_required` compatibility alias depending on endpoint behavior).
+2. **Authorization and scopes**: connector execution enforces MCP/connector scopes such as `mcp:execute` and connector-specific read/write scopes.
+3. **Owner operations**: setup-default, dynamic server start/stop, config writes, and delete operations are owner/admin-style actions under the current single-owner desktop model.
+4. **Input Validation**: JSON schema validation is required for tool arguments.
+5. **Error Handling**: error responses must avoid sensitive exception disclosure.
+6. **Rate Limiting**: production web/cloud deployments should keep MCP endpoints behind the same rate/resource controls as other API routes.
 
 ## Performance
 
@@ -409,7 +432,7 @@ MCP_PROTOCOL_VERSION = os.environ.get('MCP_PROTOCOL_VERSION', '2024-11-05')
 ### Statistics Endpoint
 
 ```bash
-GET /api/mcp/stats
+GET /api/v1/mcp/stats
 ```
 
 Returns:
@@ -429,7 +452,7 @@ All MCP operations are logged:
 
 ## Future Enhancements
 
-MCP future items are consolidated in the root `TODO.md`. Keep implementation decisions there so completed connector/OAuth/metrics work is not restated as future work in this integration reference.
+MCP future items are consolidated in the root `TODO.md`. Keep implementation decisions there so completed connector credential, scope, contract, and metrics work is not restated as future work in this integration reference.
 
 ## Troubleshooting
 
@@ -449,7 +472,7 @@ MCP future items are consolidated in the root `TODO.md`. Keep implementation dec
 
 ### Frontend Not Loading
 
-1. Ensure React app is running (`npm start`)
+1. Ensure the frontend is running (`npm --prefix frontend run dev`) or the packaged Electron shell is active.
 2. Check axios configuration
 3. Verify API endpoints are accessible
 4. Check browser console for errors
@@ -467,4 +490,16 @@ For issues or questions:
 1. Check the logs in `logs/` directory
 2. Review this documentation
 3. Consult ARCHITECTURE.md for system overview
-4. Contact the development team
+4. Follow the escalation path in `docs/OPERATIONAL_RUNBOOKS.md`
+
+## Change notes for v1.2.0
+
+1. Removed the remaining historical OAuth wording from future-work guidance and aligned it to credential, scope, contract, and metrics governance.
+2. Replaced the generic support contact with the operational runbook escalation path.
+
+## Change notes for v1.1.0
+
+1. Added document metadata for active-doc governance.
+2. Updated UI paths from the obsolete `/mcp-console` reference to `/mcp`, `/admin/mcp`, and `/admin/mcp/servers`.
+3. Updated REST examples to the canonical `/api/v1/mcp/*` API family while noting the legacy alias.
+4. Updated security guidance to match the current API decorator and connector-scope model.

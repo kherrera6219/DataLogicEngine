@@ -1,4 +1,15 @@
 # DataLogicEngine — Routes Full Audit
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.1.0 |
+| Last updated | 2026-07-06 |
+| Status | Historical / closed route audit |
+| Owner | API Platform + Audit Governance |
+| Review cadence | Reference-only; update only for archive/status clarification |
+
 **Date:** June 7, 2026 | **Branch:** main | **Scope:** Live code read of all route files
 
 ---
@@ -30,6 +41,12 @@ Commits: `df29906b` (migration), `0eb2b0bb` (Sprint 4 audit), `cc01c15b` (notifi
 | RT-18 | ✅ DONE | `0eb2b0bb` | Local response helpers removed from `simulation_routes.py` |
 
 **All 18 items closed. No open RT items remain.**
+
+> **Current documentation-review status (2026-07-06):** This file is a closed
+> historical route-audit record. The original findings below are preserved for
+> traceability and should not be used as current route inventory or active
+> remediation instructions. Later single-owner/auth-deprecation work superseded
+> multi-user/RBAC remediation language such as ownership-transfer RBAC.
 
 ---
 
@@ -292,9 +309,13 @@ The shared `backend.utils.responses` module provides these with a consistent sch
 
 ### ISSUE-19: `admin_routes.py` — `ownership_transfer` endpoint has no RBAC guard beyond role check
 
+> **Superseded current-state note (2026-07-06):** This finding is historical.
+> The later auth-deprecation work removed the multi-user/RBAC model in favor of
+> single-owner authorization. Do not reintroduce RBAC based on this old verdict.
+
 The `transfer-ownership` endpoint checks `current_user.role != 'owner'` directly rather than going through `require_permission`. This means it bypasses the RBAC audit path. It works correctly today because the role check is accurate, but it's inconsistent with the rest of the admin blueprint.
 
-**Verdict:** Add `@require_permission(Permission.SYSTEM_ADMIN)` in addition to the role check, or document why direct role check is intentional here.
+**Historical verdict, superseded:** The original route-audit recommendation was to add `@require_permission(Permission.SYSTEM_ADMIN)` in addition to the role check. Later single-owner/auth-deprecation work removed that RBAC model; do not apply this old verdict to the current codebase.
 
 ---
 
@@ -355,7 +376,7 @@ All tasks in priority order. Tasks marked **BUG** are functional defects today.
 | RT-15 | ISSUE-12 | Document auth decorator policy | `routes/__init__.py` (header comment) or `docs/AUTH_DECORATORS.md` | Document: which decorator for which scenario; new routes default to `@api_login_required` |
 | RT-16 | ISSUE-4 | Add auth to retention health endpoint | `backend/routes/retention_routes.py` | `GET /api/v1/retention/health` returns 401 for unauthenticated requests |
 | RT-17 | ISSUE-10 | Remove redundant simulation endpoint from `api_routes.py` | `routes/api_routes.py` | `POST /api/v1/simulation/run` removed; `POST /api/v1/simulations` in `simulation_routes.py` is the canonical path |
-| RT-18 | ISSUE-19 | Add RBAC to ownership transfer | `routes/admin_routes.py` | `transfer_ownership` has `@require_permission(Permission.SYSTEM_ADMIN)` in addition to role check |
+| RT-18 | ISSUE-19 | Historical: add RBAC to ownership transfer | `routes/admin_routes.py` | Superseded by later single-owner/auth-deprecation work; do not reintroduce RBAC based on this row. |
 
 ---
 
@@ -396,3 +417,8 @@ All tasks in priority order. Tasks marked **BUG** are functional defects today.
 ---
 
 *DataLogicEngine Routes Full Audit — June 7, 2026 — built from live file reads*
+
+## Change notes for v1.1.0
+
+1. Added metadata and a current-status banner marking this as a closed historical route audit.
+2. Added a supersession note to the old ownership-transfer RBAC finding so it is not mistaken for current single-owner auth guidance.

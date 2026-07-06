@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, security reviewers, technical evaluators |
@@ -446,7 +446,7 @@ IF local engineering/demo release
   -> require local validation and documented caveats
 
 IF desktop release candidate
-  -> require packaging smoke and NSIS governance
+  -> require backend rebuild, Electron/NSIS packaging, installer integrity, portable smoke, installer-mode smoke where scoped, and NSIS governance
 
 IF signed Windows production release
   -> require trusted signing and signature verification evidence
@@ -470,6 +470,11 @@ IF required evidence missing
 6. Do not treat local-first as air-gapped.
 7. Do not treat desktop local-auth as cloud trust.
 8. Persist decision metadata where trace/audit is expected.
+
+## Change notes for v2.7.0
+
+1. Expanded the desktop release readiness decision to include backend rebuild, installer integrity, portable smoke, installer-mode smoke, and NSIS governance.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

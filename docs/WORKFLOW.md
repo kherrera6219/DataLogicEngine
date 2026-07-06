@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -153,6 +153,11 @@ Possible outcomes:
 5. Evidence/claims should connect to final output.
 6. Export manifests should include integrity metadata where export is used.
 7. Metrics should show route/provider/connector behavior through `/metrics`.
+
+## Change notes for v2.7.0
+
+1. Reviewed the governed request lifecycle during the production top-level documentation pass; workflow model remains current.
+2. Updated metadata so this source-of-truth workflow reference is no longer dated to the May documentation baseline.
 
 ## Change notes for v2.6.0
 

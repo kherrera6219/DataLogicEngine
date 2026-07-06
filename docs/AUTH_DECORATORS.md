@@ -1,5 +1,15 @@
 # DataLogicEngine — Auth Decorator Policy
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.2.0 |
+| Last updated | 2026-07-06 |
+| Status | Active |
+| Owner | Security Engineering |
+| Review cadence | Every 30 days |
+
 Defines the three authentication decorator tiers used across Flask route blueprints.
 All new routes must use one of these tiers. Using the wrong tier is a security defect.
 
@@ -13,11 +23,11 @@ All new routes must use one of these tiers. Using the wrong tier is a security d
 from backend.auth.api_decorators import api_login_required
 ```
 
-**Accepts:** Session-based login (Flask-Login) OR desktop bearer token.  
+**Accepts:** Flask-Login session, signed desktop loopback auth, or an `ExternalAPIKey` supplied by `X-API-Key` or bearer-form `ukg_...` token.
 **Use for:** Any authenticated API endpoint reachable from both the web UI and the
 Electron desktop app. This is the correct default for all new `backend/routes/` handlers.
 
-**Currently used in:** `ka_routes.py`, `multimodal_routes.py`, `simulation_routes.py`
+**Currently used for:** canonical API routes and desktop-compatible route families such as API gateway, compliance, knowledge, KA, MCP tool calls, multimodal, and simulation endpoints.
 
 ---
 
@@ -27,16 +37,13 @@ Electron desktop app. This is the correct default for all new `backend/routes/` 
 from flask_login import login_required
 ```
 
-**Accepts:** Session-based login only. Desktop bearer tokens are NOT accepted.  
-**Use for:** Routes that are explicitly web-session-only — for example, OAuth flows,
-browser-redirect handlers, or legacy UI routes in `backend/__init__.py`.
+**Accepts:** Flask-Login session only. Signed desktop loopback auth and API-key principals are not accepted.
+**Use for:** Routes that are explicitly browser-session/HTML-rendered only, such as redirect handlers or legacy UI routes outside JSON API handling.
 
-**Currently used in:** `search_routes.py`, `mcp_routes.py`, `settings_routes.py`,
-`feature_flag_routes.py`, `admin_routes.py` (partial)
+**Current route status:** no top-level `backend/routes/` route file should use this as the default API protection mechanism. Keep it only for true browser-session/HTML redirect paths outside JSON API handling.
 
 > **Note:** Prefer `@api_login_required` for new routes. `@login_required` here is
-> a legacy holdover from before the desktop auth path existed. These will be migrated
-> incrementally.
+> a legacy holdover from before the desktop auth path existed.
 
 ---
 
@@ -46,13 +53,10 @@ browser-redirect handlers, or legacy UI routes in `backend/__init__.py`.
 from backend.auth.api_decorators import api_session_login_required
 ```
 
-**Accepts:** Session-based login only (same as `@login_required` but returns JSON
-errors instead of HTML redirects).  
-**Use for:** API endpoints where the caller is always a browser session and a JSON
-`401` response is preferable to an HTML redirect.
+**Accepts:** Flask-Login session or valid signed desktop loopback auth. It does not accept `ExternalAPIKey` principals.
+**Use for:** API endpoints where the caller is session/desktop authenticated and a JSON `401` response is preferable to an HTML redirect.
 
-**Currently used in:** `analytics_routes.py`, `gdpr_routes.py`, `ingestion_routes.py`,
-`location_routes.py`, `storage_routes.py`, `privacy_routes.py`
+**Currently used for:** browser-session JSON API endpoints such as analytics, admin telemetry, feature flags, GDPR/privacy/user-data, ingestion, location, MCP inventory/configuration, notifications, search, settings, and storage routes.
 
 ---
 
@@ -95,4 +99,13 @@ Is the route web-UI-only (browser session, HTML redirect on 401)?
           No  → @api_login_required  ← DEFAULT
 ```
 
-Last updated: 2026-06-21 (single-mode: RBAC removed; `@api_admin_required` is an alias of `@api_login_required`)
+## Change notes for v1.2.0
+
+1. Corrected the accepted-auth descriptions to match `backend/auth/api_decorators.py`: `@api_login_required` accepts session, signed desktop loopback auth, and `ExternalAPIKey`; `@api_session_login_required` accepts session or signed desktop auth only.
+2. Removed stale OAuth-flow examples from the `@login_required` guidance.
+
+## Change notes for v1.1.0
+
+1. Added document metadata so the policy participates in active docs governance.
+2. Updated decorator usage notes against the live `backend/routes/` tree.
+3. Clarified that `@login_required` is not the default for JSON API route handlers and that `@api_admin_required` remains a compatibility alias under single-owner mode.

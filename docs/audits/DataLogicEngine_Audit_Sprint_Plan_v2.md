@@ -1,8 +1,24 @@
 # DataLogicEngine — Full Audit & Sprint Plan v2.0
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.1.0 |
+| Last updated | 2026-07-06 |
+| Status | Historical / completed sprint plan |
+| Owner | Audit Governance |
+| Review cadence | Reference-only; update only for archive/status clarification |
+
 **Date:** June 7, 2026 | **Branch:** main | **Scope:** Live code scan — no assumptions from notes
 
 > **Sprint 1 COMPLETE** — 2026-06-07. 1830 passed, 21 skipped, 0 failures. ruff clean.
 > See `REPO_AUDIT_LOG.md` for full details, commit hashes, and deferred items.
+
+> **Current documentation-review status (2026-07-06):** This file is a historical
+> sprint-plan artifact. Its Sprint 1-3 work is complete and should not be used as
+> the active audit queue. Use `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md`,
+> root `TODO.md`, and root `REPO_AUDIT_LOG.md` for current status.
 
 ---
 
@@ -397,3 +413,8 @@ backend/core/resilience_router.py    → core/knowledge_algorithm/resilience_rou
 ---
 
 *DataLogicEngine Audit & Sprint Plan v2.0 — June 7, 2026 — built from live code scans on main branch*
+
+## Change notes for v2.1.0
+
+1. Added metadata and a current-status banner marking this as a historical completed sprint plan.
+2. Pointed current readers to the active findings report, root `TODO.md`, and root `REPO_AUDIT_LOG.md`.

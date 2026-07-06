@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Quality Engineering |
 | Review cadence | Every 30 days |
@@ -38,14 +38,14 @@ This version reflects the current validation architecture: backend tests, fronte
 
 ## Current quality baseline
 
-Last recorded full backend baseline:
+Current validation posture:
 
-1. Full backend suite baseline: `1518 passed, 21 skipped`.
-2. Last recorded full coverage baseline: `71.47%`.
-3. Required backend coverage gate: `>=70%`.
-4. Last recorded targeted regression sweep: `271 passed` with `--no-cov`.
+1. GitHub Actions is the release source of truth for routine branch validation: lint, backend-test, frontend-build, Windows packaging smoke, governance, deploy/build, security scan, and Docker checks where applicable.
+2. The July 2026 local desktop rebuild validated backend packaging, Electron/NSIS installer generation, installer integrity, NSIS governance, portable packaging smoke, and installer-mode install/uninstall smoke.
+3. Full local pytest counts are release evidence only when regenerated for that release candidate; do not reuse old pass counts as current production evidence.
+4. Required backend coverage gate remains `>=70%` where the coverage suite is invoked.
 
-Before external submission, award review, sponsorship review, or production release, regenerate this baseline and update this section with the new date.
+Before external submission, award review, sponsorship review, or production release, regenerate the full local baseline and attach the current date, command, environment, and report artifacts.
 
 ## Validation architecture overview
 
@@ -146,7 +146,7 @@ flowchart TD
 8. Knowledge Algorithm tests: KA execution, registry, timing, and contract behavior.
 9. 17-axis tests: coordinate, routing, FROST mode, risk, and trust/ethics behavior.
 10. Frontend tests: Vitest unit tests, lint, typecheck, Next build, E2E, accessibility, and visual regression.
-11. Windows/platform tests: desktop auth, packaging smoke, NSIS governance, installer launch behavior.
+11. Windows/platform tests: desktop auth, backend package build, installer integrity, packaging smoke, NSIS governance, installer launch/install/uninstall behavior.
 12. Governance tests: release governance, environment parity, lockfile governance, pre-commit checks.
 
 ## Directory model
@@ -273,9 +273,13 @@ python .\scripts\dev\run_precommit_checks.py
 ### Windows packaging smoke
 
 ```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 ## CI enforcement pipeline
@@ -287,7 +291,7 @@ The current `.github/workflows/ci.yml` enforces these jobs:
 | `lint` | Python setup and Ruff fatal/error class checks. |
 | `backend-test` | dependency install, `pip-audit`, smoke check, runtime precheck, docs reference validation, schema parity, full pytest without coverage, API contract tests, local-mode parity tests, security regression suite. |
 | `frontend-build` | Node 24, `npm ci`, design token build, frontend lint, typecheck, Vitest, Next build, Playwright install, accessibility sweep, route E2E smoke, visual regression smoke. |
-| `windows-packaging-smoke` | Python/Node setup, backend executable build, frontend install, NSIS governance, Electron installer build, portable launch smoke, report upload. |
+| `windows-packaging-smoke` | Python/Node setup, backend executable build, frontend install, NSIS governance, Electron installer build, installer integrity checks, portable launch smoke, report upload. |
 | `governance` | pre-commit governance, environment parity, lockfile governance, report upload. |
 | `docker-build` | backend and frontend Docker build verification after required jobs succeed. |
 
@@ -302,9 +306,12 @@ The current `.github/workflows/ci.yml` enforces these jobs:
 7. Frontend lint, typecheck, tests, and build pass.
 8. Contract, parity, and security regression sweeps pass.
 9. Windows packaging smoke job passes for desktop release.
-10. NSIS governance passes for installer release.
-11. Environment parity and lockfile governance pass.
-12. Docker build verification passes where applicable.
+10. Backend desktop bundle is rebuilt before Electron/NSIS packaging for release-candidate evidence.
+11. NSIS governance passes for installer release.
+12. Installer integrity verification passes for root installer artifacts.
+13. Installer-mode install/uninstall smoke passes where release scope requires install behavior evidence.
+14. Environment parity and lockfile governance pass.
+15. Docker build verification passes where applicable.
 
 ## Recent validation updates
 
@@ -380,15 +387,28 @@ A reviewer should inspect these files in order:
 9. `scripts/verify_lockfiles.py`
 10. `scripts/verify_docs_references.py`
 11. `scripts/validate_schema_parity.py`
-12. `scripts/windows/run_packaging_smoke.ps1`
-13. `scripts/windows/verify_nsis_governance.ps1`
-14. `tests/contract/`
-15. `tests/security/`
-16. `tests/parity/`
-17. `tests/truth_engine/`
-18. `tests/knowledge_algorithms/`
-19. `tests/axes/`
-20. `frontend/tests/`
+12. `scripts/build_backend.py`
+13. `scripts/verify_installer_integrity.py`
+14. `scripts/windows/run_packaging_smoke.ps1`
+15. `scripts/windows/verify_nsis_governance.ps1`
+16. `tests/contract/`
+17. `tests/security/`
+18. `tests/parity/`
+19. `tests/truth_engine/`
+20. `tests/knowledge_algorithms/`
+21. `tests/axes/`
+22. `frontend/tests/`
+
+## Change notes for v2.8.0
+
+1. Added backend bundle rebuild, installer integrity, and installer-mode install/uninstall smoke to required release gates and reviewer verification.
+2. Clarified Windows/platform tests include installer launch, install, and uninstall behavior.
+
+## Change notes for v2.7.0
+
+1. Replaced stale fixed local test counts with a current validation-posture section tied to CI and release-candidate evidence.
+2. Added backend-before-Electron packaging order, installer integrity verification, and installer-mode smoke validation.
+3. Clarified that full local pytest counts must be regenerated per release candidate before being used as production evidence.
 
 ## Change notes for v2.6.0
 

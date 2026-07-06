@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, security reviewers, technical evaluators |
@@ -186,7 +186,7 @@ Provider calls can transmit selected prompt/context data outside the local machi
 ```mermaid
 flowchart TD
     PLAN[TruthCore / API tool request] --> MCP[MCP registry]
-    MCP --> SCOPE[Scope and tenant/user context checks]
+    MCP --> SCOPE[Scope and authenticated-principal/local-profile checks]
     SCOPE --> VALIDATE[Request contract validation]
     VALIDATE --> OUTBOUND[Outbound/tool call]
     OUTBOUND --> EXT[External service]
@@ -300,6 +300,11 @@ Support bundles must avoid raw secrets and should be treated as sensitive operat
 6. Local data-store boundary.
 7. Trace/export boundary.
 8. Operational logs/support bundle boundary.
+
+## Change notes for v2.7.0
+
+1. Replaced stale tenant/user MCP scope wording with authenticated-principal/local-profile checks.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

@@ -1,5 +1,12 @@
 # DMRF Control Plane Deep Dive
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: DMRF orchestration and governance control-plane documentation.
+
 ## Purpose
 
 This diagram maps the DMRF control plane as implemented in code. DMRF is the orchestration layer that connects injection defense, TruthGate, tier classification, 17-axis routing, DSQP persona construction, TruthCore workflow planning, evidence freshness scoring, convergence/refinement policy, TruthMemory persistence, MLflow-style tracking, TruthLink publishing, FROST snapshots, and observability.

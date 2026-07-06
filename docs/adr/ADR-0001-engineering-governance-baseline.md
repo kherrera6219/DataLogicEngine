@@ -1,5 +1,15 @@
 # ADR-0001: Engineering Governance Baseline
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.1.0 |
+| Last reviewed | 2026-07-06 |
+| Status | Accepted |
+| Owner | Platform Architecture |
+| Review cadence | Historical decision; review only for supersession |
+
 ## Status
 
 Accepted
@@ -45,3 +55,7 @@ Tradeoffs:
 1. Slightly longer CI runtime due additional governance checks.
 2. Contributors must configure repository hooks for full local parity.
 3. Governance scripts require ongoing maintenance as toolchain standards evolve.
+
+## Change notes for v1.1.0
+
+1. Added metadata during the docs subfolder review.

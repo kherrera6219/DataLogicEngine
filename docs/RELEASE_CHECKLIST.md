@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Release Engineering |
 | Review cadence | Every release cycle |
@@ -54,6 +54,8 @@ Local-first desktop Phase 1 completion evidence is recorded in:
 ```text
 reports/release-readiness/local-first-phase1-completion-2026-05-25.md
 ```
+
+The latest local desktop rebuild evidence is tracked through the root installer artifacts, `reports/installer_integrity_report.json`, `reports/installer_signature_report.json`, and `reports/packaging_smoke_report.json`. Local unsigned builds may report `NotSigned`; that is acceptable for workstation validation but not for public/customer signed distribution.
 
 Unchecked items in this checklist should be interpreted as production/public release gates unless explicitly scoped to local engineering or contest/demo release.
 
@@ -148,20 +150,26 @@ Note: only claim CodeQL, Bandit, Safety, SBOM, Sigstore/cosign, DAST, or SAST ev
 Required for desktop release candidate and signed Windows production release:
 
 ```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 Checklist:
 
 1. [ ] Electron installer build completed.
-2. [ ] backend executable build completed where applicable.
+2. [ ] backend executable build completed before Electron packaging.
 3. [ ] NSIS governance passed.
-4. [ ] packaging smoke passed.
-5. [ ] installer artifact paths captured.
-6. [ ] checksum/blockmap sidecars captured where generated.
-7. [ ] packaging reports attached to release record.
+4. [ ] installer integrity verification passed.
+5. [ ] portable packaging smoke passed.
+6. [ ] installer-mode install/uninstall smoke passed where release scope requires install behavior evidence.
+7. [ ] installer artifact paths captured.
+8. [ ] checksum/blockmap sidecars captured where generated.
+9. [ ] packaging reports attached to release record.
 
 ---
 
@@ -274,6 +282,12 @@ Evidence attached:
 ```
 
 ---
+
+## Change notes for v2.7.0
+
+1. Updated the desktop installer gate to require the backend build before Electron/NSIS packaging.
+2. Added installer integrity verification and installer-mode install/uninstall smoke to release-candidate evidence.
+3. Clarified that unsigned local `NotSigned` reports are workstation validation evidence only, not public release evidence.
 
 ## Change notes for v2.6.0
 

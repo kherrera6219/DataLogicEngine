@@ -1,7 +1,15 @@
 # DataLogicEngine UI/UX Wireframes - 2025 Design Standards
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Historical design reference
+> - Owner: Documentation Governance / Frontend
+
 > **Design Documents — Not Implementation Specs.**
 > These wireframes describe design intent and visual language. Version numbers in these documents (e.g. "Next.js 15, React 19") reflect the design-phase target; the production implementation runs **Next.js 16.1 + React 18.3**. See `frontend/README.md` for authoritative stack information.
+
+> **Production boundary:** SSO, Azure AD, Okta, role-based login, landing-page, and mobile-responsive assumptions in this folder are historical design concepts. Current production posture is single-owner local-first desktop auth with active frontend documentation in `frontend/README.md`, `docs/PRODUCT_DESIGN.md`, and `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md`.
 
 ## Overview
 

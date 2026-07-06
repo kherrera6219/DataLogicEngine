@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Security Engineering + Release Engineering |
 | Review cadence | Every 60 days |
@@ -57,7 +57,7 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | PO.1 Define security requirements | Security, production readiness, testing, deployment, and runbook documents define security and release criteria. | `docs/SECURITY.md`, `docs/PRODUCTION_READINESS.md`, `docs/TESTING.md` |
 | PO.2 Assign roles and responsibilities | Active docs include owner and review cadence metadata; single-mode OS-level auth defines the single owner (application RBAC removed). | document metadata, `frontend/app/admin/`, `backend/auth/api_decorators.py` |
 | PO.3 Implement supporting toolchain | CI validates backend, frontend, contract, parity, security, packaging, governance, and Docker builds. | `.github/workflows/ci.yml` |
-| PO.4 Define criteria for software security checks | Release gates include runtime precheck, schema parity, docs validation, tests, packaging smoke, lockfile governance. | `docs/RELEASE_CHECKLIST.md`, `docs/TESTING.md` |
+| PO.4 Define criteria for software security checks | Release gates include runtime precheck, schema parity, docs validation, tests, backend packaging, installer integrity, packaging smoke, lockfile governance. | `docs/RELEASE_CHECKLIST.md`, `docs/TESTING.md` |
 | PO.5 Collect and share vulnerability information | Security incident response and operational runbooks define escalation and support bundle evidence. | `docs/SECURITY.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `scripts/generate_support_bundle.py` |
 
 ---
@@ -81,8 +81,8 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | PW.1 Design software to meet security requirements | Architecture includes API/security envelope, DMRF, TruthGate, local-first security, data protection, export integrity. | `docs/ARCHITECTURE.md`, `docs/SECURITY.md`, diagrams |
 | PW.2 Review software design for security | Security reviewer paths identify implementation files and tests for desktop auth, TruthGate, injection defense, export integrity. | `docs/SECURITY.md`, `docs/diagrams/06_local_first_security_model.md` |
 | PW.4 Reuse well-secured software | Uses standard frameworks/libraries for Flask, SQLAlchemy, Next.js, pytest, Playwright, ChromaDB, Neo4j, Windows DPAPI helper where applicable. | dependency files, code modules |
-| PW.5 Configure build process securely | CI performs deterministic installs, lockfile verification, lint/test gates, frontend build, packaging smoke, Docker build. | `.github/workflows/ci.yml` |
-| PW.6 Produce secure executable artifacts | Electron/NSIS packaging path includes governance and smoke tests; production path includes signing and signature verification. | `scripts/windows/verify_nsis_governance.ps1`, `scripts/windows/run_packaging_smoke.ps1` |
+| PW.5 Configure build process securely | CI performs deterministic installs, lockfile verification, lint/test gates, frontend build, backend packaging, installer integrity, packaging smoke, Docker build. | `.github/workflows/ci.yml` |
+| PW.6 Produce secure executable artifacts | Electron/NSIS packaging path includes backend rebuild, governance, installer integrity, and smoke tests; production path includes signing and signature verification. | `scripts/build_backend.py`, `scripts/verify_installer_integrity.py`, `scripts/windows/verify_nsis_governance.ps1`, `scripts/windows/run_packaging_smoke.ps1` |
 | PW.7 Review/test code for security | Security tests, contract tests, parity tests, route tests, runtime precheck, dependency audit. | `tests/security/`, `tests/contract/`, `tests/parity/` |
 | PW.8 Configure software to have secure settings by default | Production blocks unsafe `AUTO_CREATE_SCHEMA`; `SESSION_SECRET` is required; canonical auth errors are JSON-native; cloud mode cannot rely on desktop auth. | `app.py`, `scripts/runtime_precheck.py`, `docs/API.md` |
 | PW.9 Protect data at rest and in transit | HTTPS/cloud guardrails, CSRF/CORS/trusted hosts, desktop DPAPI helper, encryption manager, export integrity. | `backend/security/`, `docs/SECURITY.md` |
@@ -119,7 +119,7 @@ DataLogicEngine adds AI-specific controls beyond normal application SDLC checks:
 1. Desktop loopback auth uses per-install secret, nonce challenge, HMAC signatures, timestamp skew checks, and constant-time comparison.
 2. DPAPI helper protects local secrets where available.
 3. Desktop auth is not valid as a public cloud trust boundary.
-4. Packaging smoke and NSIS governance validate installer behavior.
+4. Packaging smoke, installer integrity, installer-mode smoke, and NSIS governance validate installer behavior.
 5. Trusted Windows signing workflow validates production release artifacts.
 
 ### Multi-store data security
@@ -146,6 +146,7 @@ DataLogicEngine adds AI-specific controls beyond normal application SDLC checks:
 | Environment parity | `scripts/verify_environment_parity.py` |
 | Schema parity | `scripts/validate_schema_parity.py` |
 | Docs validation | `scripts/verify_docs_references.py` |
+| Installer integrity | `scripts/verify_installer_integrity.py` |
 | Packaging smoke | `scripts/windows/run_packaging_smoke.ps1` |
 | NSIS governance | `scripts/windows/verify_nsis_governance.ps1` |
 | Security tests | `tests/security/` |
@@ -183,16 +184,23 @@ A secure-SDLC reviewer should inspect:
 10. `scripts/verify_lockfiles.py`
 11. `scripts/verify_environment_parity.py`
 12. `scripts/validate_schema_parity.py`
-13. `scripts/windows/run_packaging_smoke.ps1`
-14. `scripts/windows/verify_nsis_governance.ps1`
-15. `backend/dmrf/injection_defense.py`
-16. `backend/truth_engine/truth_gate/gateway.py`
-17. `backend/security/export_integrity.py`
-18. `tests/security/`
-19. `tests/contract/`
-20. `tests/parity/`
+13. `scripts/build_backend.py`
+14. `scripts/verify_installer_integrity.py`
+15. `scripts/windows/run_packaging_smoke.ps1`
+16. `scripts/windows/verify_nsis_governance.ps1`
+17. `backend/dmrf/injection_defense.py`
+18. `backend/truth_engine/truth_gate/gateway.py`
+19. `backend/security/export_integrity.py`
+20. `tests/security/`
+21. `tests/contract/`
+22. `tests/parity/`
 
 ---
+
+## Change notes for v2.7.0
+
+1. Added backend packaging, installer integrity, and installer-mode smoke to SSDF-style release evidence and reviewer paths.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

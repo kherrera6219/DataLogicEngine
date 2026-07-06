@@ -1,5 +1,12 @@
 # Frontend Product Surface and Trace Review Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Current Next.js/Electron review surfaces and traceability UI map.
+
 ## Purpose
 
 This diagram maps how the backend architecture becomes a product surface that judges, reviewers, operators, and users can actually click through. It connects the Next.js frontend routes, provider stack, sidebar navigation, API clients, trace explorer, graph views, Truth Engine monitor, chat interface, MCP hub, admin/compliance views, privacy disclosures, and Electron desktop shell.

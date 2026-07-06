@@ -1,5 +1,12 @@
 # Truth Engine Architecture Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Truth Engine subsystem map for local-first production review.
+
 ## Purpose
 
 This diagram maps the actual Truth Engine implementation into its four primary subsystems:
@@ -46,7 +53,7 @@ flowchart TD
     subgraph TG[TruthGate]
         Gate[TruthGateGateway]
         InputSanitize[Input Sanitization\nAdversarial Pattern Blocking + XSS Cleanup + Length Cap]
-        Budget[Budget Manager\nTenant Budget + Kill Switch]
+        Budget[Budget Manager\nTenant-compatible Budget + Kill Switch]
         Priority[Priority Tiering\np0-p5 SLA Routing]
         Compliance[Compliance Enforcer\nArticle 53 + Article 13 + PII Detection]
         GateStats[Gate Stats]
@@ -165,7 +172,7 @@ flowchart TD
 | `/core/tiers` | Read tier information. |
 | `/gate/evaluate` | Direct TruthGate evaluation. |
 | `/gate/stats` | TruthGate stats. |
-| `/gate/budget/<tenant_id>` | Tenant budget status. |
+| `/gate/budget/<tenant_id>` | Budget status. The `tenant_id` path parameter is retained for route/schema compatibility in the current single-owner local-first posture. |
 | `/memory/session/<session_id>` | TruthMemory session retrieval. |
 | `/memory/artifacts/<session_id>` | Artifact read/write. |
 | `/memory/explain/<session_id>` | Article 13-style explainability data. |
@@ -186,7 +193,7 @@ flowchart TD
 - Blocked adversarial patterns.
 - Dangerous character cleanup.
 - Maximum input length truncation.
-- Tenant budget checks.
+- Tenant-compatible budget checks. In the current local-first posture, tenant fields are compatibility/context fields rather than proof of multi-tenant SaaS operation.
 - Budget kill switch support.
 - Priority tier determination.
 - Compliance result with Article 53 logging and Article 13 enablement markers.

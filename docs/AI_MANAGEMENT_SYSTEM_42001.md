@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | AI Governance + Security Engineering |
 | Review cadence | Every 60 days |
@@ -74,9 +74,9 @@ AI-enabled reasoning workflows
 | AIMS area | DataLogicEngine alignment |
 |---|---|
 | Organizational context | Architecture docs, deployment modes, data architecture, risk/criticality axes, production readiness scorecard. |
-| Leadership and accountability | Security/AI governance ownership in docs, release gates, role/admin controls, audit/reviewer paths. |
+| Leadership and accountability | Security/AI governance ownership in docs, release gates, single-owner/admin controls, audit/reviewer paths. |
 | Planning and risk treatment | DMRF tiering, Axis 15 risk/threat, Axis 16 ethics/trust, TruthGate, EvidenceModel, ConvergencePolicy. |
-| Support and resources | Developer guide, testing guide, runbooks, local-first architecture, CI, runtime precheck, packaging smoke. |
+| Support and resources | Developer guide, testing guide, runbooks, local-first architecture, CI, runtime precheck, installer integrity, packaging smoke. |
 | Operation | End-to-end governed request lifecycle, DMRF/Truth Engine execution, MCP governance, trace review. |
 | Performance evaluation | Metrics, Trace Explorer, TruthMemory, contract/security/parity tests, release governance reports. |
 | Improvement | Change notes, regression testing, incident runbooks, release checklists, documentation versioning. |
@@ -223,8 +223,9 @@ Performance and evaluation controls include:
 6. Trace Explorer and run exports.
 7. TruthMemory metrics and explainability outputs.
 8. CI test and report artifacts.
-9. packaging smoke reports.
-10. release checklist evidence.
+9. installer integrity reports.
+10. packaging smoke and installer-mode smoke reports.
+11. release checklist evidence.
 
 Testing and evaluation layers:
 
@@ -236,7 +237,7 @@ Testing and evaluation layers:
 - Knowledge Algorithm tests;
 - 17-axis tests;
 - frontend unit/E2E/a11y/visual tests;
-- Windows packaging smoke;
+- Windows backend rebuild, installer integrity, and packaging smoke;
 - environment/lockfile/schema/docs governance checks.
 
 ---
@@ -272,7 +273,7 @@ Improvement mechanisms:
 | Information security | desktop local auth, CSRF/CORS/trusted hosts, rate limits, DPAPI, export integrity, TruthGate, injection defense. |
 | Supplier/provider management | LLM Gateway provider config, MCP connector governance, provider validation scripts, connector scope/contract controls. |
 | Logging and audit | TruthMemory, trace tables, audit logs, export manifests, support bundles, release evidence artifacts. |
-| Lifecycle management | CI, deploy workflows, release checklist, production readiness scorecard, packaging smoke, code signing. |
+| Lifecycle management | CI, deploy workflows, release checklist, production readiness scorecard, backend packaging, installer integrity, packaging smoke, code signing. |
 | Monitoring and measurement | `/metrics`, Truth Engine stats, DMRF observability, latency SLO metrics, CI reports. |
 | Incident management | `docs/OPERATIONAL_RUNBOOKS.md`, support bundle generator, post-incident validation checklist. |
 | Improvement | regression tests, docs versioning, governance scripts, postmortem corrective actions. |
@@ -332,6 +333,12 @@ An AI governance reviewer should inspect:
 16. `docs/RELEASE_CHECKLIST.md`
 
 ---
+
+## Change notes for v2.7.0
+
+1. Updated AI management evidence to include installer integrity, backend packaging, and installer-mode smoke.
+2. Replaced stale role/admin wording with single-owner/admin control language.
+3. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

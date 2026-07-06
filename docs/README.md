@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -104,6 +104,9 @@ Current planning belongs in root `TODO.md`.
 | `docs/DOCUMENTATION_VERSIONING.md` | Versioning and lifecycle policy. |
 | `docs/DOCS_VERSION.json` | Documentation manifest where maintained. |
 | `docs/CONTRIBUTING.md` | Documentation-specific contribution guide. |
+| `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | Review status, updates, and cleanup candidates for direct top-level markdown files under `docs/`. |
+| `docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | Review status, updates, and cleanup candidates for Markdown files under direct `docs/` subfolders. |
+| `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md` | Audit-folder Markdown review status and supersession cleanup notes. |
 
 ---
 
@@ -129,6 +132,8 @@ Use `docs/ARCHITECTURE_MAP.md` as the master map for diagram purpose and reviewe
 ## Archive policy
 
 `docs/archive/*` contains historical material. This can include early research, whitepapers, old release notes, wireframes, and prior planning documents.
+
+The current archive Markdown catalog is `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md`.
 
 Rules:
 
@@ -177,6 +182,21 @@ The active documentation set has been normalized around:
 6. trace, evidence, privacy, export, and release governance;
 7. evidence-based security and compliance claims;
 8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.14.0
+
+1. Added the docs subfolder Markdown review report and linked audit/archive review artifacts from the active portal.
+2. Refreshed ADR, diagram, folder-index, IP-disclosure, and archive-index metadata for the 2026-07-06 production documentation pass.
+3. Recorded the approved deletion of the superseded audit v1 plan while preserving the active v2 audit plan.
+
+## Change notes for v2.13.0
+
+1. Linked the production top-level Markdown review report into the active portal.
+2. Updated the portal version after the 2026-07-06 strict top-level docs pass refreshed stale metadata, MCP/OAuth wording, login/register redirect-stub wording, and installer evidence gates.
+
+## Change notes for v2.12.0
+
+1. Added `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` as an active documentation-governance artifact for direct top-level Markdown files under `docs/`.
 
 ## Change notes for v2.11.0
 

@@ -1,5 +1,12 @@
 # Testing, Validation, and Release Governance Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: CI, validation, packaging, and release-governance documentation.
+
 ## Purpose
 
 This diagram maps DataLogicEngine's testing, validation, CI, release, packaging, and governance controls to the actual repository files that enforce them.
@@ -205,7 +212,7 @@ This is important because the repo validates more than ordinary unit behavior. I
 
 ## Quality Baseline
 
-The testing guide records a backend baseline of:
+The testing guide records the latest documented backend baseline as:
 
 ```text
 1769 passed, 19 skipped (SQLite, 2026-06-24)
@@ -213,6 +220,8 @@ coverage gate: >=70%
 ```
 
 These values should be periodically regenerated and dated, but they are useful as current repository evidence for judging maturity.
+
+Before a production rebuild or release lock, regenerate the baseline through the active CI/local validation commands rather than treating this dated snapshot as final release evidence.
 
 ## Required Release Gates
 

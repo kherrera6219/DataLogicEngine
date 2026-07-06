@@ -1,5 +1,12 @@
 # AI Reasoning Execution Sequence
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Current DMRF/Truth Engine reasoning sequence for local-first production review.
+
 ## Purpose
 
 This diagram maps the actual DataLogicEngine reasoning path from user query to governed result. It is grounded in the implementation modules that perform injection screening, TruthGate evaluation, risk tier classification, 17-axis routing, DSQP persona construction, TruthCore workflow planning, evidence freshness scoring, convergence/refinement decisions, memory persistence, MLflow tracking, TruthLink publishing, and observability.
@@ -54,7 +61,7 @@ sequenceDiagram
     participant Evidence as EvidenceModel\nbackend/dmrf/evidence_model.py
     participant Conv as ConvergencePolicy\nbackend/dmrf/convergence_policy.py
     participant Gateway as LLM Gateway\nbackend/llm_gateway/
-    participant Provider as Model Provider\nOpenAI / Google Gemini
+    participant Provider as Configured Model Provider\nOpenAI / Google Gemini / local when enabled
     participant Memory as TruthMemory Adapter\ntruth_integration/memory_adapter.py
     participant Link as TruthLink Adapter\ntruth_integration/link_adapter.py
     participant Obs as DMRF Observability\nbackend/dmrf/observability.py
@@ -163,7 +170,7 @@ sequenceDiagram
 
 ### TruthGate is the policy/trust entry gate
 
-`TruthGateDMRFAdapter.evaluate()` wraps `TruthGateGateway.evaluate()` and passes the query with tenant, user context, and budget limit. This makes the DMRF path tenant-aware and policy-aware before routing and persona expansion.
+`TruthGateDMRFAdapter.evaluate()` wraps `TruthGateGateway.evaluate()` and passes the query with tenant/context-compatible fields, user context, and budget limit. In the current local-first single-owner posture, these fields preserve compatibility while keeping the DMRF path policy-aware before routing and persona expansion.
 
 ### Tier classification changes the route
 
@@ -198,5 +205,5 @@ The most important point: the LLM gateway is not the entire architecture. The ga
 ## Related Diagrams
 
 - `docs/diagrams/02_research_to_code_traceability.md`
-- Future: `docs/diagrams/04_17_axis_coordinate_model.md`
-- Future: `docs/diagrams/05_truth_engine_architecture.md`
+- `docs/diagrams/04_17_axis_coordinate_model.md`
+- `docs/diagrams/05_truth_engine_architecture.md`

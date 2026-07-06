@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Security Engineering + Platform Operations |
 | Review cadence | Every 60 days |
@@ -31,7 +31,7 @@ For web/cloud production deployments, DataLogicEngine requires HTTPS/TLS for:
 
 1. secure cookie transmission;
 2. session protection;
-3. OAuth redirect safety (MCP connector flows);
+3. provider or connector callback safety where callbacks are configured;
 4. API confidentiality and integrity;
 5. CSRF/CORS/trusted-host enforcement;
 6. compliance and audit posture;
@@ -180,9 +180,14 @@ Before public web/cloud release:
 5. [ ] trusted hosts verified;
 6. [ ] CORS allowlist verified;
 7. [ ] CSRF behavior verified;
-8. [ ] OAuth (connector) redirect URLs use HTTPS;
+8. [ ] provider or connector callback URLs use HTTPS where configured;
 9. [ ] rollback plan documented;
 10. [ ] TLS/certificate evidence attached to release record.
+
+## Change notes for v2.7.0
+
+1. Updated TLS guidance to remove stale OAuth-specific MCP wording and cover provider/connector callbacks generically.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

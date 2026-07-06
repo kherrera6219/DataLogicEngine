@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, technical reviewers |
@@ -126,7 +126,7 @@ flowchart TB
 | MCP | `backend/mcp_server/` | Connector registry, scopes, tool execution contracts. |
 | Storage/memory | `backend/storage/`, `backend/memory/`, `models.py` | SQL, Redis, Neo4j, Chroma, object storage, UnifiedMemory, USKD. |
 | Trace/export | `backend/tracing/`, `backend/security/export_integrity.py`, `frontend/app/runs/` | Run traces, evidence review, export integrity. |
-| Ops/release | `scripts/`, `.github/workflows/`, `docs/RELEASE_CHECKLIST.md` | Validation, packaging, governance, release evidence. |
+| Ops/release | `scripts/`, `.github/workflows/`, `docs/RELEASE_CHECKLIST.md` | Validation, backend packaging, installer integrity, packaging smoke, governance, release evidence. |
 
 ---
 
@@ -188,6 +188,11 @@ flowchart TD
 5. Truth Engine persists traceable policy/evidence/memory signals.
 6. MCP tool execution must pass scope and contract validation.
 7. Trace/export flows should preserve integrity metadata.
+
+## Change notes for v2.8.0
+
+1. Updated the ops/release component description to include backend packaging and installer integrity evidence.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

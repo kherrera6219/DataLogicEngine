@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
 | Review cadence | Every 30 days |
@@ -70,7 +70,7 @@ Ask a question
 3. **Governed, not magical** — surface Truth Engine, DMRF, evidence, and policy decisions as understandable product concepts.
 4. **Task-first navigation** — prioritize dashboard, chat, runs/traces, graph/knowledge, settings, and admin workflows.
 5. **Progressive disclosure** — use tabs, side panels, empty states, and details panes instead of overwhelming first-time users.
-6. **Role-aware operations** — admin/MCP/compliance features should be visible and protected according to role/runtime.
+6. **Owner-aware operations** — admin/MCP/compliance features should be visible and protected according to the single-owner/runtime context.
 7. **Accessible by default** — keyboard navigation, labels, empty states, and readable themes are product requirements.
 8. **No false certainty** — AI limitations, provider behavior, privacy, and release caveats should be visible where relevant.
 
@@ -110,7 +110,7 @@ Ask a question
 
 | Route | Purpose |
 |---|---|
-| `/admin` | role-gated admin dashboard. |
+| `/admin` | single-owner admin dashboard. |
 | `/admin/compliance` | compliance dashboard. |
 | `/admin/mcp` | MCP status and governance. |
 | `/admin/mcp/servers` | MCP server registry management. |
@@ -311,6 +311,11 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v2.7.0
+
+1. Replaced stale role-gated product wording with single-owner/runtime language.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

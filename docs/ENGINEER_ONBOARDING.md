@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Audience | New software engineers and technical reviewers |
@@ -106,7 +106,6 @@ Set in `.env`:
 1. `SESSION_SECRET`
 2. optional provider key for provider-backed tests:
    - `OPENAI_API_KEY`
-   - `ANTHROPIC_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
    - Cloud model: the app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`). Set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 
@@ -343,6 +342,18 @@ python .\scripts\verify_docs_references.py
 python .\scripts\validate_schema_parity.py
 ```
 
+For desktop packaging work, rebuild the backend before Electron packaging and run the current installer integrity/smoke checks:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\build_backend.py
+$env:CSC_SKIP = "true"
+npm --prefix frontend run electron:dist
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
+```
+
 ---
 
 ## Week 4: first contribution
@@ -422,6 +433,16 @@ PR checklist:
 7. `docs/SECURITY.md`
 8. `docs/PRODUCTION_READINESS.md`
 9. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+
+## Change notes for v2.8.0
+
+1. Added NSIS governance and portable packaging smoke to the desktop packaging onboarding sequence so it matches release-candidate validation.
+
+## Change notes for v2.7.0
+
+1. Removed Anthropic from the current provider-key setup path; the current user-facing model choices are OpenAI and Google/Gemini.
+2. Added the backend-before-Electron desktop packaging sequence and installer integrity/install-mode smoke commands.
+3. Kept the onboarding path aligned with the July 2026 local desktop release-candidate documentation refresh.
 
 ## Change notes for v2.6.0
 

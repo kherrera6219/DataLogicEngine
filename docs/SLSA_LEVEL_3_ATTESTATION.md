@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-06 |
 | Status | Planning / Partial Implementation |
 | Owner | Security Engineering + Release Engineering |
 | Review cadence | Every 60 days |
@@ -62,8 +62,10 @@ Required evidence before claiming production supply-chain integrity:
 4. artifact checksums;
 5. signature verification report where signing is required;
 6. installer integrity report for Windows artifacts;
-7. release checklist approval;
-8. known waivers documented.
+7. portable packaging smoke report;
+8. installer-mode install/uninstall smoke report where the release scope includes install behavior evidence;
+9. release checklist approval;
+10. known waivers documented.
 
 ## Claims that require verification before use
 
@@ -104,8 +106,18 @@ A supply-chain reviewer should inspect:
 8. `scripts/verify_lockfiles.py`
 9. `scripts/verify_environment_parity.py`
 10. `scripts/verify_installer_integrity.py`
-11. `scripts/windows/verify_installer_signature.ps1`
-12. `scripts/windows/run_packaging_smoke.ps1`
+11. `scripts/windows/verify_nsis_governance.ps1`
+12. `scripts/windows/verify_installer_signature.ps1`
+13. `scripts/windows/run_packaging_smoke.ps1`
+
+## Change notes for v2.8.0
+
+1. Added NSIS governance to the supply-chain reviewer path alongside installer integrity, signing verification, and packaging smoke.
+
+## Change notes for v2.7.0
+
+1. Added installer-mode install/uninstall smoke evidence to the production release evidence list.
+2. Updated metadata for the July 2026 desktop rebuild documentation review.
 
 ## Change notes for v2.6.0
 

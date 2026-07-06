@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -130,6 +130,7 @@ Expected outputs:
 ## Validation
 
 ```powershell
+python scripts/generate_docs.py
 python scripts/verify_docs_references.py
 python scripts/verify_environment_parity.py --strict
 python scripts/verify_lockfiles.py
@@ -145,6 +146,11 @@ python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-proces
 3. `docs/DOCUMENTATION_STANDARDS.md`
 4. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
 5. `docs/PRODUCT_OVERVIEW.md`
+
+## Change notes for v2.7.0
+
+1. Added `scripts/generate_docs.py` to the file-structure validation path so generated inventory artifacts stay in sync.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

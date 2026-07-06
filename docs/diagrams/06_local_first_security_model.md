@@ -1,5 +1,12 @@
 # Local-First Security Model Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Local-first desktop security, with cloud/hybrid notes limited to configured deployment modes.
+
 ## Purpose
 
 This diagram maps DataLogicEngine's local-first Windows security model to the actual code paths that implement desktop identity, loopback authentication, DPAPI protection, encryption/key rotation, export integrity, frontend runtime policy, and desktop session behavior.

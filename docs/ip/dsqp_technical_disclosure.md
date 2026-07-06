@@ -2,7 +2,14 @@
 
 **Disclosure date:** 2026-05-26
 **Project:** DataLogicEngine / UKG
-**Status:** Internal technical disclosure before public DSQP implementation
+**Status:** Internal technical disclosure; DSQP implementation is now present under `backend/dsqp/`
+
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active IP reference, not legal advice
+> - Owner: IP / Platform Architecture
+> - Scope: Technical disclosure summary for DSQP novelty and implementation boundary.
 
 ## Summary
 
@@ -55,4 +62,8 @@ The differentiator to preserve is the combination of UKG axis grounding, seven-c
 
 ## Implementation Boundary
 
-The first implementation slice is deterministic and local-first. It creates a DSQP package, bundled question templates, validator, orchestrator, PersonaConstructionService integration, KA-012 integration, SDK client wrapper, and audit-chain serialization hooks. Later work can add LLM-assisted answer generation while preserving the same schema and validator.
+The implemented boundary is deterministic and local-first. The active codebase includes a DSQP package, bundled question templates, validator, orchestrator, PersonaConstructionService integration, KA integration points, and audit-chain serialization hooks. Later work can add LLM-assisted answer generation while preserving the same schema and validator.
+
+## Production Documentation Note
+
+This file records the technical disclosure, not a legal opinion or filing status. Keep production claims in current architecture docs grounded in the implemented modules under `backend/dsqp/`, `backend/dmrf/`, and `backend/truth_engine/`.

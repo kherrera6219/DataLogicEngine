@@ -1,5 +1,15 @@
 # ADR-0002: PQ-gRPC Transport Research
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v1.1.0 |
+| Last reviewed | 2026-07-06 |
+| Status | Accepted |
+| Owner | Platform Architecture |
+| Review cadence | Historical decision; review only for supersession |
+
 ## Status
 
 Accepted
@@ -23,3 +33,7 @@ If a VM deployment later requires PQ-gRPC, prototype it behind an opt-in feature
 - Desktop installer scope remains unchanged.
 - Phase G-B can close with an ADR instead of a runtime prototype.
 - Future PQ-gRPC work needs a separate performance/security evaluation before implementation.
+
+## Change notes for v1.1.0
+
+1. Added metadata during the docs subfolder review.

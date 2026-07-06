@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Effective date | 2026-05-30 |
 | Status | Active |
 | Owner | Privacy + Security Engineering |
@@ -103,7 +103,7 @@ Connector data handling depends on:
 
 1. the connector being used;
 2. the tool input/output schema;
-3. OAuth/API-token scopes;
+3. API-token, connector credential, or connector-scope configuration;
 4. local connector configuration;
 5. the external service's own privacy and retention rules.
 
@@ -205,6 +205,11 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.7.0
+
+1. Replaced stale OAuth-scope wording with current API-token, connector credential, and connector-scope privacy language.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

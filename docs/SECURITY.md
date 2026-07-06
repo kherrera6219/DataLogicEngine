@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Security Engineering |
 | Review cadence | Every 30 days |
@@ -257,9 +257,9 @@ DataLogicEngine uses multiple data stores with different control requirements.
 
 | Store | Security control focus |
 |---|---|
-| SQLAlchemy DB | auth context, tenant scoping, migrations, encrypted fields, audit records. |
+| SQLAlchemy DB | auth/principal context, vestigial local-profile scoping columns, migrations, encrypted fields, audit records. |
 | Redis | session/cache/rate-limit/queue isolation and secure configuration. |
-| Neo4j | graph scope, connection security, tenant-aware traversal where applicable. |
+| Neo4j | graph scope, connection security, and local profile/app-context traversal where applicable. |
 | ChromaDB | local path permissions, no unintended external telemetry, collection hygiene. |
 | Object store | bucket validation, key normalization, traversal rejection, hashes, metadata sidecars. |
 | USKD NetworkX graph | controlled source loading and runtime memory containment. |
@@ -293,7 +293,7 @@ Security expectations:
 MCP connector security controls:
 
 1. connector/server registry access control;
-2. OAuth/token lifecycle controls;
+2. connector credential handling and scope configuration;
 3. scope enforcement;
 4. input/output schema validation;
 5. connector analytics and audit logging;
@@ -305,7 +305,7 @@ Incident signals:
 - repeated `MCP_SCOPE_DENIED`;
 - schema validation failures;
 - unexpected upstream target;
-- OAuth token refresh failure;
+- connector credential or token-source failure;
 - connector latency SLO surge.
 
 Relevant implementation:
@@ -361,8 +361,10 @@ Release security controls:
 7. Documentation reference validation.
 8. Windows packaging smoke.
 9. NSIS governance.
-10. Trusted Windows code signing for production distribution.
-11. Signature verification before release distribution.
+10. Installer integrity verification.
+11. Installer-mode install/uninstall smoke where release scope requires install behavior evidence.
+12. Trusted Windows code signing for production distribution.
+13. Signature verification before release distribution.
 
 Required signing path:
 
@@ -389,7 +391,7 @@ Required security validation includes:
 8. audit logger immutable replica tests where present.
 9. runtime precheck.
 10. lockfile and environment governance.
-11. packaging smoke and signing validation for release.
+11. installer integrity, packaging smoke, installer-mode smoke, and signing validation for release.
 
 Common commands:
 
@@ -449,6 +451,12 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Change notes for v2.7.0
+
+1. Removed stale OAuth-token lifecycle wording from MCP security guidance and replaced it with connector credential, token-source, scope, and contract controls.
+2. Reframed vestigial tenant-scope wording around local profile/app context instead of active multi-tenant traversal.
+3. Added installer integrity and installer-mode install/uninstall smoke to release and security-validation evidence.
 
 ## Change notes for v2.6.0
 

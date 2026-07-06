@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-04 |
+| Document version | v2.10.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -51,6 +51,10 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 | Documentation standards | `docs/DOCUMENTATION_STANDARDS.md` | Active | Documentation requirements and quality gates. |
 | Documentation versioning | `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCS_VERSION.json` | Active | Docs version/lifecycle policy. |
 | Production docs baseline | `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` | Active | Baseline coverage and evidence rules. |
+| Top-level markdown review | `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Direct top-level markdown review status and cleanup candidates before subfolder review. |
+| Subfolder markdown review | `docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Direct `docs/` subfolder Markdown review status, updates, and cleanup candidates. |
+| Audit-folder markdown review | `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Audit-folder status, supersession notes, and approved deletion record. |
+| Archive markdown review | `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` | Historical/reference governance | Per-file archive catalog and cleanup candidates; not operational source-of-truth. |
 | Branch governance | `docs/BRANCH_PROTECTION_POLICY.md` | Active | Required checks, review gates, branch policy. |
 | Architecture decisions | `docs/adr/*` | Active/reference | Architecture decision records. |
 | Contribution workflow | `CONTRIBUTING.md`, `docs/CONTRIBUTING.md` | Active | Contributor process and doc update policy. |
@@ -76,3 +80,16 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 ## Change notes for v2.7.0
 
 1. Documented that `docs/openapi.yaml` is the active machine-readable API reference and that stale duplicate exports were moved under `docs/archive/api/`.
+
+## Change notes for v2.8.0
+
+1. Added the 2026-07-06 top-level markdown review report as an active audit artifact.
+
+## Change notes for v2.9.0
+
+1. Updated the matrix version for the strict production top-level docs pass and `docs/DOCS_VERSION.json` refresh.
+
+## Change notes for v2.10.0
+
+1. Added subfolder, audit-folder, and archive Markdown review artifacts to the coverage matrix.
+2. Clarified that archive review artifacts catalog historical files without promoting them to source-of-truth status.

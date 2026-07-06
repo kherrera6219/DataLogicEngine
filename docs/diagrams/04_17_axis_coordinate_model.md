@@ -1,5 +1,12 @@
 # 17-Axis Coordinate Model Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Runtime 17-axis model and DMRF routing documentation.
+
 ## Purpose
 
 This diagram maps the Universal Knowledge Graph 17-axis coordinate model to the actual implementation files. It is intended for judges and technical reviewers who need to verify that the 17-axis framework is implemented as code and used in the runtime reasoning path.

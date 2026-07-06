@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -158,6 +158,11 @@ When reviewing documentation:
 5. Verify claims are supported by code, tests, workflows, or release evidence.
 6. Verify archived documents are not being treated as source-of-truth.
 7. Verify new active docs appear in the coverage matrix.
+
+## Change notes for v2.7.0
+
+1. Reviewed versioning and lifecycle rules during the production top-level documentation pass; policy remains active.
+2. Updated metadata after refreshing `docs/DOCS_VERSION.json`.
 
 ## Change notes for v2.6.0
 

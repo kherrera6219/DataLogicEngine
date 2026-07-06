@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v3.1.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 60 days |
@@ -591,7 +591,7 @@ Several tables still carry a `tenant_id` column:
 | `mcp_servers` | `tenant_id` | connector/server registry |
 | `trace_runs` | `tenant_id` | trace/session scoping |
 
-Desktop/local mode (the only mode) treats tenant scope as local profile/app context.
+Desktop/local and user-controlled VM modes treat these vestigial tenant columns as local profile/app context, not as enforced multi-tenant isolation.
 
 ## Field-level encryption pattern
 
@@ -625,7 +625,7 @@ Representative sensitive fields:
 | users | email (MFA secret/backup-code columns dropped in auth deprecation Phase E-1) |
 | LLM providers | API keys and provider credentials |
 | MCP servers | connector credentials/tokens |
-| OAuth accounts | tokens and refresh tokens |
+| MCP server credentials | connector credentials and server configuration secrets where configured |
 | trace exports | optional encrypted export payloads |
 
 ## Schema parity and validation
@@ -667,6 +667,12 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.1.0
+
+1. Updated metadata for the production top-level documentation review.
+2. Removed stale `OAuth accounts` sensitive-field wording after the `oauth_accounts` table/model removal; MCP credential storage is now the active connector-secret concern.
+3. Clarified that vestigial `tenant_id` columns are local profile/app context in desktop and user-controlled VM modes, not active multi-tenant isolation.
 
 ## Change notes for v3.0.0
 

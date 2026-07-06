@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
+| Document version | v2.8.0 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -104,6 +104,15 @@ npm --prefix frontend run electron:dist
 ```
 
 The CI Windows packaging job follows the same dependency order: build the backend executable first, then produce the Electron/NSIS distribution.
+
+Release-candidate verification should then run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
+```
 
 ### Expected outputs
 
@@ -229,7 +238,7 @@ Important CI jobs:
 | `lint` | Ruff lint safety gate. |
 | `backend-test` | Backend dependency install, `pip-audit`, smoke check, runtime precheck, docs references, schema parity, pytest, contract tests, parity tests, security tests. |
 | `frontend-build` | Node 24, npm install, design tokens, lint, typecheck, Vitest, Next build, Playwright, a11y, visual regression. |
-| `windows-packaging-smoke` | PyInstaller backend build, Electron dist, NSIS governance, portable launch smoke, report upload. |
+| `windows-packaging-smoke` | PyInstaller backend build, Electron dist, NSIS governance, installer integrity, portable launch smoke, report upload. |
 | `governance` | Pre-commit governance, environment parity, lockfile governance. |
 | `docker-build` | Backend and frontend Docker build verification. |
 
@@ -368,11 +377,13 @@ Before release, confirm:
 9. Contract, parity, and security sweeps pass.
 10. Windows packaging smoke passes for desktop release.
 11. NSIS governance passes for installer release.
-12. Docker image build verification passes where applicable.
-13. `/health`, `/live`, `/ready`, and `/metrics` respond correctly in the target runtime.
-14. `AUTO_CREATE_SCHEMA` is not enabled in production.
-15. Production secrets are not defaults.
-16. Desktop-only auth is not exposed as cloud trust.
+12. Installer integrity verification passes for root installer artifacts.
+13. Installer-mode install/uninstall smoke passes where release scope requires install behavior evidence.
+14. Docker image build verification passes where applicable.
+15. `/health`, `/live`, `/ready`, and `/metrics` respond correctly in the target runtime.
+16. `AUTO_CREATE_SCHEMA` is not enabled in production.
+17. Production secrets are not defaults.
+18. Desktop-only auth is not exposed as cloud trust.
 
 ## 10. Troubleshooting
 
@@ -425,6 +436,11 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.8.0
+
+1. Added release-candidate verification commands for NSIS governance, installer integrity, portable smoke, and installer-mode install/uninstall smoke.
+2. Updated CI job and readiness checklist wording for installer integrity and install behavior evidence.
 
 ## Change notes for v2.7.0
 

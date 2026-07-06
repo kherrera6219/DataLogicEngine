@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.2 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -55,7 +55,7 @@ Current status: **application-readiness validation is strong for local-first/des
 7. Trace Explorer and export integrity architecture.
 8. Runtime precheck, docs reference validation, schema parity, environment parity, and lockfile governance.
 9. CI jobs for backend, frontend, packaging, governance, and Docker build verification.
-10. Windows packaging smoke and NSIS governance checks.
+10. Windows backend rebuild, installer integrity, packaging smoke, installer-mode install/uninstall smoke, and NSIS governance checks.
 11. Privacy controls, cloud/AI disclosures, local-first product copy, and admin/compliance surfaces.
 12. Frontend accessibility automation path and visual/E2E testing path.
 
@@ -82,7 +82,7 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 | Data/storage | Ready for local-first | Schema parity report, storage mode verification, object/vector/graph health. |
 | Testing | Strong | Backend/frontend/contract/parity/security/governance/packaging CI. |
 | Frontend/product | Strong | Dashboard, chat, trace, graph, Truth Engine, MCP, admin, privacy/disclosure surfaces. |
-| Desktop packaging | Strong but signing-dependent | NSIS governance, packaging smoke, signed artifact verification. |
+| Desktop packaging | Strong but signing-dependent | backend rebuild, NSIS governance, installer integrity, packaging smoke, installer-mode install/uninstall smoke, signed artifact verification. |
 | Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
 | Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |
 | Production cloud | Controlled/conditional | HTTPS, trusted hosts, CORS, secrets, provider staging test, no desktop trust assumptions. |
@@ -102,15 +102,18 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 7. Backend pytest suite passes.
 8. API contract, local-mode parity, and security sweeps pass.
 9. Frontend lint, typecheck, tests, build, E2E, accessibility, and visual regression checks pass or have documented accepted exceptions.
-10. Windows packaging smoke passes for desktop release.
-11. NSIS governance passes for installer release.
-12. Docker build verification passes where applicable.
-13. Release governance verifier passes.
-14. No default secrets are present in production config.
-15. `AUTO_CREATE_SCHEMA=true` is not enabled in production.
-16. Production cloud mode does not rely on desktop loopback auth.
-17. Trace export integrity path is verified.
-18. Health/readiness/metrics endpoints are verified in target runtime.
+10. PyInstaller backend rebuild completes before Electron/NSIS packaging for desktop release.
+11. Windows packaging smoke passes for desktop release.
+12. NSIS governance passes for installer release.
+13. Installer integrity verification passes for generated root installer artifacts.
+14. Installer-mode install/uninstall smoke passes where release scope requires install behavior evidence.
+15. Docker build verification passes where applicable.
+16. Release governance verifier passes.
+17. No default secrets are present in production config.
+18. `AUTO_CREATE_SCHEMA=true` is not enabled in production.
+19. Production cloud mode does not rely on desktop loopback auth.
+20. Trace export integrity path is verified.
+21. Health/readiness/metrics endpoints are verified in target runtime.
 
 ### Required before signed Windows production distribution
 
@@ -165,11 +168,14 @@ Required operational reports:
 2. schema parity report;
 3. environment parity report;
 4. lockfile governance report;
-5. packaging smoke report;
-6. NSIS governance report;
-7. release checklist evidence;
-8. accessibility report/evidence;
-9. signed artifact verification report for production distribution.
+5. backend package build evidence;
+6. installer integrity report;
+7. packaging smoke report;
+8. installer-mode install/uninstall smoke report where scoped;
+9. NSIS governance report;
+10. release checklist evidence;
+11. accessibility report/evidence;
+12. signed artifact verification report for production distribution.
 
 ---
 
@@ -179,7 +185,7 @@ Production readiness must be evaluated by target.
 
 | Target | Readiness requirements |
 |---|---|
-| Windows desktop | local stack, Electron shell, backend loopback service, desktop local auth, internal storage, packaging smoke, signing. |
+| Windows desktop | local stack, Electron shell, backend loopback service, desktop local auth, internal storage, backend rebuild, installer integrity, packaging smoke, install/uninstall smoke, signing. |
 | Windows VM | same internal app stack as desktop, VM-local storage, health/readiness checks, no managed cloud DB substitution by default. |
 | Web/cloud | HTTPS, trusted host/CORS/CSRF/session hardening, provider staging tests, explicit database/storage approval, no desktop trust assumption. |
 
@@ -223,12 +229,15 @@ Required testing gates:
 11. Playwright route smoke;
 12. accessibility sweep;
 13. visual regression;
-14. Windows packaging smoke;
-15. NSIS governance;
-16. environment parity;
-17. lockfile governance;
-18. release governance verifier;
-19. Docker build verification where applicable.
+14. backend desktop bundle rebuild before Electron/NSIS packaging;
+15. Windows packaging smoke;
+16. installer integrity verification;
+17. installer-mode install/uninstall smoke where scoped;
+18. NSIS governance;
+19. environment parity;
+20. lockfile governance;
+21. release governance verifier;
+22. Docker build verification where applicable.
 
 See `docs/TESTING.md` for commands and quality baseline.
 
@@ -299,7 +308,8 @@ A release candidate must demonstrate safe behavior for:
 9. local object-store path rejection;
 10. trace export/signature failure;
 11. frontend API error boundary recovery;
-12. packaging smoke failure.
+12. installer integrity or packaging smoke failure.
+13. installer-mode install/uninstall smoke failure.
 
 Failures must be explicit, logged, and triageable. Do not silently return synthetic success for production paths.
 
@@ -358,6 +368,11 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 
 ---
 
+## Change notes for v2.10.0
+
+1. Made backend rebuild, installer integrity verification, and installer-mode install/uninstall smoke first-class production-readiness evidence throughout the checklist, reports, deployment target, testing gates, and failure-mode sections.
+2. Corrected the `/login` and `/register` source-tree wording: the tracked Next.js pages are redirect stubs under `frontend/app/(auth)/`, not absent pages.
+
 ## Change notes for v2.9.2
 
 1. Documented the July 2026 local rebuild lock-in: backend package, Electron/NSIS installer, installer integrity, NSIS governance, portable packaging smoke, installer-mode install/uninstall smoke, Deploy workflow, Security Scan, and CI/CD Pipeline passed on `main`.
@@ -367,7 +382,7 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 
 1. Updated document version to v2.9.1 and last-updated date to 2026-07-06.
 2. Remediated selected CodeQL reflected-output and exception-disclosure alerts in KA, search, MCP, and trace export routes by replacing reflected/raw exception responses with stable public errors and server-side exception logging.
-3. Confirmed the stale `/login` and `/register` frontend-page cleanup item is resolved in the live tree: `frontend/app/login` and `frontend/app/register` are absent; remaining `/login` references are disabled-by-design fallback/navigation strings in the local-first desktop shell.
+3. Confirmed the stale `/login` and `/register` frontend-page cleanup item is resolved by redirect stubs under `frontend/app/(auth)/login/page.tsx` and `frontend/app/(auth)/register/page.tsx`; both redirect to `/dashboard` in the local-first desktop shell.
 
 ## Change notes for v2.9.0
 
@@ -390,7 +405,7 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 4. Documentation set (`docs/`, `docs/diagrams/`, root docs) reconciled to the current single-mode architecture; the duplicate `.github/README.md` was consolidated into a single canonical root `README.md`.
 5. Windows desktop installer rebuilt and validated end-to-end 2026-06-26 (PyInstaller backend → Next.js static export → Electron/NSIS) with the freshly built backend embedded. Local validation: backend **1769 passed, 19 skipped**; frontend **378 passed**. (Test count is lower than v2.7.0's 1865 because the single-mode audit removed the multi-user auth/connector test suites along with those features.)
 6. ~~New open desktop-packaging item: the installer does not bundle a JRE for Neo4j (`databases/jre` source reported missing during electron-builder packaging)~~ — **Resolved**: JRE bundling removed from `electron-builder.yml`; the backend's `_find_java_home()` discovers system-installed JREs (Temurin, Corretto, etc.) automatically, saving ~180 MB in installer size.
-7. ~~New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.~~ — **Resolved**: live tree check confirms `frontend/app/login` and `frontend/app/register` are absent; remaining `/login` references are disabled-by-design fallback/navigation strings for the local-first desktop shell.
+7. ~~New open frontend item: dead `/login` + `/register` pages still ship despite single-mode backend auth removal — flagged for cleanup.~~ — **Resolved**: the tracked `frontend/app/(auth)/login/page.tsx` and `frontend/app/(auth)/register/page.tsx` pages are disabled-by-design redirect stubs that immediately send users to `/dashboard`.
 
 ## Change notes for v2.7.0
 

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active / Evidence-Guided Mapping |
 | Owner | Security Engineering + Platform Operations |
 | Review cadence | Every 60 days |
@@ -99,7 +99,9 @@ For Windows desktop release candidates:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
 ---
@@ -116,6 +118,11 @@ Do not claim the following without deployment evidence:
 6. Redis TLS/ACL hardening in every deployment;
 7. weekly automated CIS scanner coverage;
 8. scanner integrations that are not present in current workflow evidence.
+
+## Change notes for v2.7.0
+
+1. Added installer integrity and installer-mode install/uninstall smoke commands to the Windows desktop release-candidate verification path.
+2. Kept CIS language evidence-guided and non-attestation.
 
 ## Change notes for v2.6.0
 

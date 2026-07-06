@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Engineers, product managers, QA, technical reviewers |
@@ -198,7 +198,9 @@ flowchart TD
     CHANGE[Release candidate change set] --> TESTS[Run backend/frontend/security/parity tests]
     TESTS --> GOV[Run governance checks]
     GOV --> PACKAGE{Desktop release?}
-    PACKAGE -- Yes --> SMOKE[Run Windows packaging smoke]
+    PACKAGE -- Yes --> BUILD[Rebuild PyInstaller backend + Electron/NSIS package]
+    BUILD --> INTEGRITY[Verify installer integrity]
+    INTEGRITY --> SMOKE[Run portable and installer-mode smoke]
     PACKAGE -- No --> READY[Readiness review]
     SMOKE --> SIGN{Public signed release?}
     SIGN -- Yes --> VERIFY[Verify trusted signature/artifacts]
@@ -226,6 +228,11 @@ flowchart TD
     VERIFY --> RELEASE[Release or document fix]
     RELEASE --> DISCLOSE[Coordinate disclosure where applicable]
 ```
+
+## Change notes for v2.7.0
+
+1. Updated the release process map to include backend rebuild, Electron/NSIS packaging, installer integrity verification, and installer-mode smoke before signing review.
+2. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

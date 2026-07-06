@@ -1,5 +1,12 @@
 # End-to-End Request Lifecycle
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: End-to-end request lifecycle from frontend prompt through trace/export evidence.
+
 ## Purpose
 
 This is the single judge-facing walkthrough for how DataLogicEngine processes an AI request from user prompt to traceable, exportable evidence.
@@ -119,7 +126,7 @@ flowchart TD
 
     subgraph MODEL[Model and Tool Execution]
         LLMGateway[LLM Gateway\nprovider selection + policy + telemetry]
-        Provider[Model Provider\nOpenAI gpt-5.5 / Google gemini-3.1-pro-preview]
+        Provider[Configured Model Provider\nOpenAI / Google Gemini / local when enabled]
         MCP[MCP / External Tool Connectors]
     end
 

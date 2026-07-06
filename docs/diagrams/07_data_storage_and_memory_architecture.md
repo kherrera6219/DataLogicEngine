@@ -1,5 +1,12 @@
 # Data, Storage, and Memory Architecture Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: App-owned local/VM storage and memory architecture.
+
 ## Purpose
 
 This diagram maps where DataLogicEngine stores relational state, graph knowledge, embeddings, artifacts, audit evidence, trace exports, and persistent memory. It is grounded in the actual storage and memory implementation modules.

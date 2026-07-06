@@ -1,8 +1,16 @@
 # Documentation Archive
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active archive index
+> - Owner: Documentation Governance
+
 This folder contains historical, reference-only, or superseded documentation. These files are preserved for research and traceability, but they are not operational source-of-truth for the current application.
 
 Use the active documentation portal at [`docs/README.md`](../README.md) and the canonical open-work list at [`TODO.md`](../../TODO.md) for current guidance.
+
+The latest archive Markdown review is recorded in [`ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md`](ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md).
 
 ## Contents
 
@@ -19,3 +27,4 @@ Use the active documentation portal at [`docs/README.md`](../README.md) and the 
 1. Do not add new planning documents here until actionable items have been folded into the root `TODO.md`.
 2. Do not treat archived content as current implementation status without validating it against code and active docs.
 3. If archived material becomes current again, move it back into the active docs tree and link it from `docs/README.md`.
+4. Prefer cataloging cleanup candidates before deleting archive files; historical value and old external links may still matter.

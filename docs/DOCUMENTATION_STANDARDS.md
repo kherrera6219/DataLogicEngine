@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -167,8 +167,12 @@ When docs reference Windows packaging/release behavior:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+.\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
+
+For desktop installer release docs, also state that `scripts/build_backend.py` runs before Electron/NSIS packaging so the shipped backend matches source.
 
 ---
 
@@ -181,6 +185,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packag
 5. `docs/archive/*` remains historical/reference unless promoted into active docs.
 6. Release-impacting changes must update relevant active docs and release checklist evidence.
 7. Documentation version metadata must be updated when source-of-truth docs change.
+
+## Change notes for v2.7.0
+
+1. Added installer integrity and installer-mode smoke to the packaging/release documentation quality gates.
+2. Added an explicit requirement to document backend-before-Electron packaging order for desktop installer release docs.
+3. Updated metadata for the production top-level documentation review.
 
 ## Change notes for v2.6.0
 

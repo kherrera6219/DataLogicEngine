@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -58,7 +58,7 @@ Create or update an ADR when a change affects:
 ## Recommended ADR template
 
 ```markdown
-# ADR-000X: Title
+## ADR-000X: Title
 
 ## Status
 
@@ -96,6 +96,11 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.7.0
+
+1. Added review metadata to the accepted ADR files.
+2. Adjusted the template heading level so docs validation does not treat the example as a second top-level heading.
 
 ## Change notes for v2.6.0
 

@@ -1,12 +1,19 @@
 # Research-to-Code Traceability Map
 
+> **Document metadata**
+> - Document version: v1.1.0
+> - Last reviewed: 2026-07-06
+> - Status: Active architecture review map
+> - Owner: Platform Architecture
+> - Scope: Production-facing documentation; exact generated inventory counts must come from the latest `scripts/generate_docs.py` run.
+
 ## Purpose
 
 This diagram documents how the DataLogicEngine codebase maps back to its research-first architecture. It is intended for judges, reviewers, and future contributors who need to understand that the implementation is not a code-first prompt-wrapper. The repository contains a research/documentation corpus, architecture artifacts, standards, and implementation modules that trace the original concepts into executable software.
 
 ## Repository Evidence Snapshot
 
-The generated repository structure currently indexes **~1,612 files** of project material, including backend code, frontend code, tests, scripts, docs, demos, reports, PDFs, and deployment assets. (Regenerate with `scripts/generate_docs.py`.)
+The generated repository structure currently indexes roughly 1.6k files of project material, including backend code, frontend code, tests, scripts, docs, demos, reports, PDFs, and deployment assets. Regenerate the exact count with `scripts/generate_docs.py`; the authoritative inventory lives in `docs/GENERATED_STRUCTURE.md` and `docs/FILE_INVENTORY.csv`.
 
 Relevant inventory signals:
 

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Developer Experience |
 | Review cadence | Every 30 days |
@@ -67,6 +67,11 @@ For release-impacting documentation changes:
 ```powershell
 python scripts/verify_release_governance.py
 ```
+
+## Change notes for v2.7.0
+
+1. Reviewed documentation contribution rules during the production top-level documentation pass; contribution policy remains active.
+2. Updated metadata so this source-of-truth policy is no longer dated to the May documentation baseline.
 
 ## Change notes for v2.6.0
 
