@@ -2,16 +2,19 @@ from functools import wraps
 import logging
 import os
 
-from flask import jsonify, request, g
+from flask import current_app, jsonify, request, g
 from flask_login import current_user
 from extensions import db
 from models import ExternalAPIKey, User
+from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
 from backend.security.desktop_local_auth import (
     get_or_create_install_secret,
     verify_desktop_request_signature,
 )
+from backend.utils.cors_policy import DEFAULT_LOCAL_ORIGINS
 
 logger = logging.getLogger(__name__)
+SESSION_MUTATION_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
 def _is_loopback_request() -> bool:
@@ -25,6 +28,62 @@ def _is_desktop_mode() -> bool:
 
 def _desktop_header_present() -> bool:
     return (request.headers.get("X-DataLogic-Desktop") or "").strip().lower() in {"true", "1"}
+
+
+def _parse_origin_list(raw_origins) -> set[str]:
+    if not raw_origins:
+        return set()
+    if isinstance(raw_origins, str):
+        values = raw_origins.split(",")
+    elif isinstance(raw_origins, (list, tuple, set)):
+        values = raw_origins
+    else:
+        return set()
+    return {
+        str(origin).strip().rstrip("/")
+        for origin in values
+        if str(origin).strip() and str(origin).strip() != "*"
+    }
+
+
+def _allowed_session_mutation_origins() -> set[str]:
+    configured_origins = (
+        _parse_origin_list(os.environ.get("CORS_ORIGINS"))
+        or _parse_origin_list(current_app.config.get("CORS_ORIGINS"))
+    )
+    return {origin.rstrip("/") for origin in DEFAULT_LOCAL_ORIGINS} | configured_origins
+
+
+def _forbidden_session_mutation(message: str, code: str):
+    return jsonify({
+        "status": "error",
+        "success": False,
+        "message": message,
+        "error": message,
+        "code": code,
+    }), 403
+
+
+def _validate_session_mutation_request():
+    if request.method not in SESSION_MUTATION_METHODS:
+        return None
+
+    origin = (request.headers.get("Origin") or "").strip().rstrip("/")
+    if origin and origin not in _allowed_session_mutation_origins():
+        return _forbidden_session_mutation(
+            "Request origin is not trusted for session-authenticated API mutations",
+            "CSRF_ORIGIN_CHECK_FAILED",
+        )
+
+    if is_api_csrf_enforced():
+        is_valid, error = validate_api_csrf_request()
+        if not is_valid:
+            return _forbidden_session_mutation(
+                error or "CSRF token validation failed",
+                "CSRF_TOKEN_CHECK_FAILED",
+            )
+
+    return None
 
 
 def _get_or_create_desktop_user() -> User:
@@ -165,6 +224,10 @@ def api_login_required(f):
                 'message': 'Authentication required. Please provide a valid session or API key.',
                 'code': 'UNAUTHORIZED'
             }), 401
+        if getattr(g, "auth_mode", None) == "session":
+            csrf_error = _validate_session_mutation_request()
+            if csrf_error:
+                return csrf_error
         return f(*args, **kwargs)
 
     # Manually preserve function attributes to prevent Flask endpoint collisions
@@ -185,6 +248,9 @@ def api_session_login_required(f):
         if current_user.is_authenticated:
             g.auth_user = current_user
             g.auth_mode = "session"
+            csrf_error = _validate_session_mutation_request()
+            if csrf_error:
+                return csrf_error
             return f(*args, **kwargs)
 
         desktop_auth, desktop_user = check_desktop_request_auth()
