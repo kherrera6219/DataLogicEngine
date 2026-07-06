@@ -293,7 +293,29 @@ Validation:
 1. `set TMP=C:\software\DataLogicEngine\.codex_tmp&& set TEMP=C:\software\DataLogicEngine\.codex_tmp&& set MLFLOW_TRACKING_URI=C:\software\DataLogicEngine\.codex_tmp\mlflow&& .venv311\Scripts\python.exe -m pytest -q --no-cov --basetemp C:\software\DataLogicEngine\.codex_tmp\pytest tests\integration\test_gateway_api_coverage.py tests\integration\test_llm_gateway_integration.py tests\unit\test_llm_gateway_internal_units.py tests\unit\test_trace_viewer_contract.py tests\dmrf\test_dmrf_integration.py` - 57 passed; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning after the successful run.
 2. `.\.venv\Scripts\ruff.exe check backend\llm_gateway\api.py backend\llm_gateway\gateway.py tests\integration\test_gateway_api_coverage.py tests\integration\test_llm_gateway_integration.py tests\unit\test_llm_gateway_internal_units.py` - passed.
 
-Next code audit slice: continue trace production lifecycle auditing at frontend and desktop consumers of gateway trace links (`frontend/components/Chat/*`, stream/offline queue UI or IPC consumers, and any Trace Explorer assumptions about failed-run rows).
+## Code audit slice 12 - Frontend and desktop gateway trace-link consumers - 2026-07-05
+
+Scope completed in this slice:
+
+1. Audited active chat renderers, gateway API client error handling, desktop IPC progress consumers, stream consumers, offline queue UI assumptions, and Trace Explorer failed-row assumptions after slice 11 added `audit_trail` links to failure/queued payloads.
+2. Preserved structured non-OK gateway payloads on frontend `ApiError` so callers can read failed-run `run_id`, provider/model, and `audit_trail` metadata.
+3. Wired the active `ChatInterface` renderer to show provider/model context and `ChatTracePanel` links for direct responses, queued-offline responses, rate-limit failures, and generic desktop fallback failures.
+
+Findings and fixes addressed before the next audit slice:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| `request()` reduced non-OK JSON responses to a message string, so gateway failure payloads with `run_id` and `audit_trail` were unavailable to chat consumers. | `ApiError` now preserves the parsed response payload while keeping the normalized human-readable message and HTTP status. | Done |
+| `ChatInterface` attached trace metadata only on direct success and WebSocket success paths; queued, rate-limited, and generic fallback messages dropped the returned trace links. | Added a shared gateway trace-field extractor and applied it across direct, WebSocket, queued, 429, and desktop fallback message construction. | Done |
+| The reusable `MessageBubble` component rendered `ChatTracePanel`, but the active `ChatInterface` message loop used its own renderer and never mounted trace links. | `ChatInterface` now renders provider/model badges and `ChatTracePanel` when a message has `runId` or `auditTrail`. | Done |
+| No separate frontend stream UI or desktop IPC offline-queue consumer was found beyond chat submission and trace/DMRF progress proxying. | Confirmed no additional code change was needed for IPC consumers; Trace Explorer failed-run row handling remains covered by slices 8 and 11. | Done |
+
+Validation:
+
+1. `npm --prefix frontend test -- components/Chat/ChatInterface.test.tsx tests/unit/lib/api/client.test.ts` - 34 passed.
+2. `npm --prefix frontend run typecheck` - passed.
+
+Next code audit slice: no additional trace production lifecycle slice is currently identified in the active TODO/HANDOFF queue; continue broader production-depth auditing from live docs/code if requested.
 
 ## Unified Backlog
 

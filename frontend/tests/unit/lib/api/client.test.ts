@@ -259,6 +259,42 @@ describe('lib/api/client', () => {
       });
     });
 
+    it('preserves structured non-OK payloads on ApiError', async () => {
+      const errorPayload = {
+        error: 'Gateway failed',
+        run_id: 'run-fail-001',
+        audit_trail: {
+          decision_path: '/api/v1/trace/runs/run-fail-001/decision',
+          complete_trace_url: '/api/v1/trace/runs/run-fail-001',
+          download_url: '/api/v1/trace/runs/run-fail-001/download',
+        },
+        provider_used: 'openai',
+        model_used: 'gpt-5',
+      };
+      const fetchMock = vi.fn().mockResolvedValue(
+        createMockResponse({
+          ok: false,
+          status: 503,
+          statusText: 'Service Unavailable',
+          json: errorPayload,
+        }),
+      );
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { request } = await loadClientModule();
+      await expect(
+        request('/gateway/chat', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': 'csrf-token' },
+          body: JSON.stringify({ messages: [] }),
+        }),
+      ).rejects.toMatchObject({
+        status: 503,
+        message: 'Gateway failed',
+        payload: errorPayload,
+      });
+    });
+
     it('parses detail arrays and nested error codes from failed responses', async () => {
       const fetchMock = vi
         .fn()

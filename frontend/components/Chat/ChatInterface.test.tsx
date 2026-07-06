@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
 import { FeatureFlagProvider } from '@/contexts/FeatureFlagContext';
 import { ToastProvider } from '@/components/ui/use-toast';
-import { api, request } from '@/lib/api';
+import { api, request, ApiError } from '@/lib/api';
 import { socketClient } from '@/lib/socket';
 
 // Mock dependencies
@@ -25,7 +25,7 @@ vi.mock('@/lib/api', () => ({
   // in its 429 rate-limit handler. Without this the right-hand side of instanceof
   // is undefined at test runtime, causing a Vitest mocker error.
   ApiError: class ApiError extends Error {
-    constructor(message: string, public readonly status: number) {
+    constructor(message: string, public readonly status: number, public readonly payload?: unknown) {
       super(message);
       this.name = 'ApiError';
     }
@@ -87,6 +87,11 @@ describe('ChatInterface', () => {
     { id: 'session-1', title: 'Session 1' },
     { id: 'session-2', title: 'Session 2' }
   ];
+  const auditTrail = {
+    decision_path: '/api/v1/trace/runs/run-queued-001/decision',
+    complete_trace_url: '/api/v1/trace/runs/run-queued-001',
+    download_url: '/api/v1/trace/runs/run-queued-001/download',
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -129,6 +134,81 @@ describe('ChatInterface', () => {
     fireEvent.click(sendBtn);
     
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
+  });
+
+  it('should display queued gateway trace links when a provider request is saved offline', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      queued: true,
+      run_id: 'run-queued-001',
+      audit_trail: auditTrail,
+      provider_used: 'local',
+      model_used: 'offline-queue',
+    });
+
+    renderChatInterface();
+
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    fireEvent.change(textarea, { target: { value: 'Queue this request' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    expect(await screen.findByText(/local desktop queue saved this request/i)).toBeInTheDocument();
+    expect(screen.getByText('Reasoning Trace')).toBeInTheDocument();
+    expect(screen.getByText('run-queu')).toBeInTheDocument();
+    expect(screen.getByText(/offline-queue/i)).toBeInTheDocument();
+  });
+
+  it('should display trace links from rate-limited gateway errors without offline queuing', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new ApiError('Provider rate limited', 429, {
+        run_id: 'run-rate-001',
+        audit_trail: {
+          ...auditTrail,
+          complete_trace_url: '/api/v1/trace/runs/run-rate-001',
+        },
+        provider_used: 'openai',
+        model_used: 'gpt-5',
+      }),
+    );
+
+    renderChatInterface();
+
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    fireEvent.change(textarea, { target: { value: 'Rate limit trace' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    expect(await screen.findByText(/currently rate limited/i)).toBeInTheDocument();
+    expect(screen.getByText('Reasoning Trace')).toBeInTheDocument();
+    expect(screen.getByText('run-rate')).toBeInTheDocument();
+    expect(screen.getByText(/gpt-5/i)).toBeInTheDocument();
+    expect(request).not.toHaveBeenCalledWith('/gateway/offline-queue', expect.anything());
+  });
+
+  it('should preserve failed gateway trace links on desktop fallback messages', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new ApiError('Gateway failed', 503, {
+        run_id: 'run-fail-001',
+        audit_trail: {
+          ...auditTrail,
+          complete_trace_url: '/api/v1/trace/runs/run-fail-001',
+        },
+        provider_used: 'openai',
+        model_used: 'gpt-5',
+      }),
+    );
+
+    renderChatInterface();
+
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    fireEvent.change(textarea, { target: { value: 'Failed trace' } });
+    fireEvent.click(screen.getByText('Send'));
+
+    expect(await screen.findByText(/could not be completed/i)).toBeInTheDocument();
+    expect(screen.getByText('Reasoning Trace')).toBeInTheDocument();
+    expect(screen.getByText('run-fail')).toBeInTheDocument();
+    expect(request).toHaveBeenCalledWith(
+      '/gateway/offline-queue',
+      expect.objectContaining({ method: 'POST' }),
+    );
   });
 
   it('should autofocus the message composer and expose the main chat landmark', async () => {

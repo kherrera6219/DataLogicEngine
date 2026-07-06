@@ -25,12 +25,41 @@ import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { AdvancedControls } from './AdvancedControls';
+import { ChatTracePanel } from './ChatTracePanel';
 
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
 }
 
 const MAX_CHAT_INPUT_LENGTH = 8_000;
+
+type GatewayTracePayload = {
+  run_id?: string | null;
+  trace_id?: string | null;
+  audit_trail?: ChatMessage['auditTrail'];
+  provider_used?: string | null;
+  model_used?: string | null;
+};
+
+type ChatTraceFields = Pick<ChatMessage, 'runId' | 'providerUsed' | 'modelUsed' | 'auditTrail'>;
+
+function extractGatewayTraceFields(payload?: GatewayTracePayload | null): Partial<ChatTraceFields> {
+  if (!payload) return {};
+  const runId = payload.run_id || payload.trace_id || undefined;
+  return {
+    runId,
+    providerUsed: payload.provider_used ?? undefined,
+    modelUsed: payload.model_used ?? undefined,
+    auditTrail: payload.audit_trail,
+  };
+}
+
+function getGatewayErrorPayload(error: unknown): GatewayTracePayload | undefined {
+  if (!(error instanceof ApiError) || !error.payload || typeof error.payload !== 'object') {
+    return undefined;
+  }
+  return error.payload as GatewayTracePayload;
+}
 
 function formatMessageTimestamp(value?: string): string {
   if (!value) {
@@ -72,18 +101,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   useSocket({
     onChatResponse: (data) => {
       if (data.session_id === currentSessionId) {
-        const socketRunId = (data as { run_id?: string }).run_id;
         const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: 'assistant',
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          runId: socketRunId,
           isEnhanced: true,
-          providerUsed: (data as { provider_used?: string }).provider_used,
-          modelUsed: (data as { model_used?: string }).model_used,
-          auditTrail: (data as { audit_trail?: ChatMessage['auditTrail'] }).audit_trail,
+          ...extractGatewayTraceFields(data as GatewayTracePayload),
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -173,29 +198,28 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       
       // If the API returns a direct response (not just via WS)
       if (data && data.response) {
-        const runId = (data as { run_id?: string }).run_id || data.trace_id;
+        const traceFields = extractGatewayTraceFields(data);
         const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: 'assistant',
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          runId: runId || undefined,
           isEnhanced: true,
           traces: data.trace_summary as TracePipeline | undefined,
-          providerUsed: data.provider_used ?? undefined,
-          modelUsed: data.model_used ?? undefined,
-          auditTrail: data.audit_trail,
+          ...traceFields,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
       } else if ((data as { queued?: boolean }).queued) {
+        const traceFields = extractGatewayTraceFields(data as GatewayTracePayload);
         const queuedMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: 'assistant',
           content: 'The local desktop queue saved this request for replay when providers are reachable.',
           finalAnswer: 'The local desktop queue saved this request for replay when providers are reachable.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          ...traceFields,
         };
         setMessages(prev => [...prev, queuedMsg]);
         setIsLoading(false);
@@ -210,6 +234,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         module: 'ChatInterface',
         action: 'sendMessage',
       });
+      const errorPayload = getGatewayErrorPayload(error);
 
       // Rate-limit errors from the gateway (HTTP 429) must not be silently
       // queued offline — the provider is reachable, just throttled.  Show the
@@ -221,6 +246,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           content: 'The AI provider is currently rate limited. Please wait a moment and try again.',
           finalAnswer: 'The AI provider is currently rate limited. Please wait a moment and try again.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          ...extractGatewayTraceFields(errorPayload),
         };
         setMessages(prev => [...prev, rateLimitMsg]);
         setIsLoading(false);
@@ -245,7 +271,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         role: 'assistant',
         content: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
         finalAnswer: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        ...extractGatewayTraceFields(errorPayload),
       };
       setMessages(prev => [...prev, errorMsg]);
       setIsLoading(false);
@@ -462,10 +489,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          </div>
                       )}
 
-                      {msg.role === 'assistant' && msg.modelUsed && (
+                      {msg.role === 'assistant' && (msg.providerUsed || msg.modelUsed) && (
                          <div className="flex items-center gap-1.5 text-xs text-violet-400 bg-violet-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-violet-500/20 font-mono">
                             <Target className="h-3 w-3 shrink-0" />
-                            <span>{msg.modelUsed}</span>
+                            <span>
+                              {msg.providerUsed && msg.modelUsed
+                                ? `${msg.providerUsed} / ${msg.modelUsed}`
+                                : msg.modelUsed ?? msg.providerUsed}
+                            </span>
                          </div>
                       )}
 
@@ -476,6 +507,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
                                {/* Detailed Response Analysis */}
                                <DetailedResponseView message={msg} />
+
+                               {(msg.runId || msg.auditTrail) && (
+                                  <ChatTracePanel runId={msg.runId} auditTrail={msg.auditTrail} />
+                               )}
                             </div>
                          ) : (
                             msg.content

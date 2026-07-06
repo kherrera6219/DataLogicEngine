@@ -8,13 +8,14 @@ import { removeLocalStorageItem } from '@/lib/state/storage';
  * Carries the raw HTTP `status` code so callers can map it to actionable
  * messages (e.g. 401 → "Invalid API key" on the provider-test endpoint).
  *
- * `message` is typed as `unknown` so that structural error payloads passed
- * from `parseErrorMessage` can never silently coerce to "[object Object]"
- * via the Error constructor's implicit toString(). The constructor guarantees
- * the stored message is always a human-readable string.
+ * `message` is typed as `unknown` so that structural error payloads can never
+ * silently coerce to "[object Object]" via the Error constructor's implicit
+ * toString(). The constructor guarantees the stored message is always a
+ * human-readable string while `payload` preserves the backend response for
+ * callers that need trace metadata from failed gateway runs.
  */
 export class ApiError extends Error {
-  constructor(message: unknown, public readonly status: number) {
+  constructor(message: unknown, public readonly status: number, public readonly payload?: unknown) {
     let safeMsg: string;
     if (typeof message === 'string') {
       safeMsg = message;
@@ -247,7 +248,12 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return undefined as T;
 }
 
-async function parseErrorMessage(response: Response): Promise<string> {
+type ParsedErrorResponse = {
+  message: string;
+  payload?: unknown;
+};
+
+async function parseErrorResponse(response: Response): Promise<ParsedErrorResponse> {
   if (typeof response.json === 'function') {
     const errorData = await response.json().catch(() => null) as {
       message?: string;
@@ -260,37 +266,53 @@ async function parseErrorMessage(response: Response): Promise<string> {
       details?: unknown;
     } | null;
     if (errorData) {
-      if (typeof errorData.message === 'string' && errorData.message) return errorData.message;
+      if (typeof errorData.message === 'string' && errorData.message) {
+        return { message: errorData.message, payload: errorData };
+      }
       // Envelope shape: { "error": { "code": "...", "message": "..." } }
       if (errorData.error !== null && errorData.error !== undefined) {
-        if (typeof errorData.error === 'string') return errorData.error;
+        if (typeof errorData.error === 'string') {
+          return { message: errorData.error, payload: errorData };
+        }
         if (typeof errorData.error === 'object') {
           const nestedErr = errorData.error as { message?: unknown; code?: unknown };
-          if (typeof nestedErr.message === 'string' && nestedErr.message) return nestedErr.message;
-          if (typeof nestedErr.code === 'string' && nestedErr.code) return nestedErr.code;
+          if (typeof nestedErr.message === 'string' && nestedErr.message) {
+            return { message: nestedErr.message, payload: errorData };
+          }
+          if (typeof nestedErr.code === 'string' && nestedErr.code) {
+            return { message: nestedErr.code, payload: errorData };
+          }
         }
       }
       // `detail` can be a string, or an array of Pydantic/validation error objects
       // [{loc, msg, type}]. Guard against returning a non-string value.
-      if (typeof errorData.detail === 'string' && errorData.detail) return errorData.detail;
+      if (typeof errorData.detail === 'string' && errorData.detail) {
+        return { message: errorData.detail, payload: errorData };
+      }
       if (Array.isArray(errorData.detail) && errorData.detail.length > 0) {
         const firstItem = errorData.detail[0] as Record<string, unknown>;
-        if (typeof firstItem.msg === 'string') return firstItem.msg;
-        if (typeof firstItem.message === 'string') return firstItem.message;
-        return 'Validation error';
+        if (typeof firstItem.msg === 'string') {
+          return { message: firstItem.msg, payload: errorData };
+        }
+        if (typeof firstItem.message === 'string') {
+          return { message: firstItem.message, payload: errorData };
+        }
+        return { message: 'Validation error', payload: errorData };
       }
-      if (typeof errorData.details === 'string') return errorData.details;
+      if (typeof errorData.details === 'string') {
+        return { message: errorData.details, payload: errorData };
+      }
     }
   }
 
   if (typeof response.text === 'function') {
     const text = await response.text().catch(() => '');
     if (text) {
-      return text;
+      return { message: text, payload: text };
     }
   }
 
-  return `System Error: ${response.statusText}`;
+  return { message: `System Error: ${response.statusText}` };
 }
 
 export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -387,8 +409,8 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     }
 
     if (!response.ok) {
-      const message = await parseErrorMessage(response);
-      throw new ApiError(message, response.status);
+      const parsedError = await parseErrorResponse(response);
+      throw new ApiError(parsedError.message, response.status, parsedError.payload);
     }
 
     return parseResponse<T>(response);

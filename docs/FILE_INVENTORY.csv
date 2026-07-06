@@ -773,9 +773,9 @@ docs\DOCUMENTATION_STANDARDS.md,6683,.md,2026-05-31 00:59:32 UTC
 docs\DOCUMENTATION_VERSIONING.md,4036,.md,2026-05-31 00:59:32 UTC
 docs\documents\README.md,138,.md,2026-05-22 22:25:26 UTC
 docs\ENGINEER_ONBOARDING.md,13600,.md,2026-07-04 03:12:14 UTC
-docs\FILE_INVENTORY.csv,122654,.csv,2026-07-05 23:40:51 UTC
+docs\FILE_INVENTORY.csv,122654,.csv,2026-07-05 23:50:48 UTC
 docs\FILE_STRUCTURE.md,4396,.md,2026-07-02 06:47:45 UTC
-docs\GENERATED_STRUCTURE.md,69922,.md,2026-07-05 23:40:51 UTC
+docs\GENERATED_STRUCTURE.md,69922,.md,2026-07-05 23:50:48 UTC
 docs\ip\dsqp_technical_disclosure.md,3925,.md,2026-05-26 05:38:32 UTC
 docs\MCP_INTEGRATION.md,11952,.md,2026-06-25 04:40:58 UTC
 docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
@@ -871,8 +871,8 @@ frontend\components\AppInitializer.test.tsx,1226,.tsx,2026-02-03 06:41:45 UTC
 frontend\components\AppInitializer.tsx,897,.tsx,2026-02-16 09:44:07 UTC
 frontend\components\Chat\AdvancedControls.test.tsx,1723,.tsx,2026-02-03 00:20:36 UTC
 frontend\components\Chat\AdvancedControls.tsx,6802,.tsx,2026-02-07 18:45:52 UTC
-frontend\components\Chat\ChatInterface.test.tsx,11244,.tsx,2026-06-19 06:33:28 UTC
-frontend\components\Chat\ChatInterface.tsx,25513,.tsx,2026-07-04 05:41:03 UTC
+frontend\components\Chat\ChatInterface.test.tsx,14494,.tsx,2026-07-06 00:32:43 UTC
+frontend\components\Chat\ChatInterface.tsx,26669,.tsx,2026-07-06 00:34:18 UTC
 frontend\components\Chat\ChatTracePanel.test.tsx,3794,.tsx,2026-06-19 04:45:46 UTC
 frontend\components\Chat\ChatTracePanel.tsx,7733,.tsx,2026-05-29 07:05:49 UTC
 frontend\components\Chat\DetailedResponseView.test.tsx,4300,.tsx,2026-06-19 06:33:28 UTC
@@ -997,7 +997,7 @@ frontend\eslint.config.mjs,2732,.mjs,2026-05-13 20:17:08 UTC
 frontend\hooks\useTraceStream.ts,1343,.ts,2026-05-29 21:18:55 UTC
 frontend\lib\api\auth.ts,930,.ts,2026-06-21 18:20:15 UTC
 frontend\lib\api\chat.ts,1266,.ts,2026-05-22 21:07:51 UTC
-frontend\lib\api\client.ts,13100,.ts,2026-06-21 18:20:44 UTC
+frontend\lib\api\client.ts,13850,.ts,2026-07-06 00:31:30 UTC
 frontend\lib\api\compliance.ts,561,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\index.ts,1029,.ts,2026-06-08 06:30:45 UTC
 frontend\lib\api\ingestion.ts,1547,.ts,2026-05-30 05:39:24 UTC
@@ -1126,7 +1126,7 @@ frontend\tests\e2e\theme-visual-smoke.spec.ts-snapshots\simulations-light-chromi
 frontend\tests\unit\lib\api\api_modules.test.ts,1555,.ts,2026-02-04 08:06:18 UTC
 frontend\tests\unit\lib\api\auth.test.ts,2700,.ts,2026-06-21 18:20:59 UTC
 frontend\tests\unit\lib\api\chat.test.ts,1868,.ts,2026-05-22 21:08:58 UTC
-frontend\tests\unit\lib\api\client.test.ts,13286,.ts,2026-06-21 18:21:11 UTC
+frontend\tests\unit\lib\api\client.test.ts,14400,.ts,2026-07-06 00:33:01 UTC
 frontend\tests\unit\lib\api\compliance.test.ts,1474,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\index.test.ts,3824,.ts,2026-02-07 10:53:19 UTC
 frontend\tests\unit\lib\api\ingestion.test.ts,1459,.ts,2026-05-29 21:28:41 UTC
@@ -1148,7 +1148,7 @@ frontend\types\electron.d.ts,3745,.ts,2026-07-04 05:10:01 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,98842,.md,2026-07-05 23:50:39 UTC
+HANDOFF.md,99781,.md,2026-07-06 00:35:55 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1592,6 +1592,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,145393,.md,2026-07-05 23:50:39 UTC
+TODO.md,147598,.md,2026-07-06 00:35:32 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC
