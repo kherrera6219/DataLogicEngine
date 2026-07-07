@@ -57,6 +57,14 @@ async function loadClientModule() {
   return import('@/lib/api/client');
 }
 
+const DESKTOP_AUTH_PLACEHOLDER = 'electron-main-process-signed';
+
+function expectDesktopAuthPlaceholderHeaders(headers: Headers): void {
+  expect(headers.get('X-Desktop-Auth-Timestamp')).toBe(DESKTOP_AUTH_PLACEHOLDER);
+  expect(headers.get('X-Desktop-Auth-Request-Signature')).toBe(DESKTOP_AUTH_PLACEHOLDER);
+  expect(headers.get('X-Desktop-Auth-Signature')).toBe(DESKTOP_AUTH_PLACEHOLDER);
+}
+
 describe('lib/api/client', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -162,13 +170,19 @@ describe('lib/api/client', () => {
       expect(fetchMock.mock.calls[0][0]).toContain('/auth/desktop/challenge');
       expect(fetchMock.mock.calls[1][0]).toContain('/auth/desktop/auto-login');
       expect(fetchMock.mock.calls[2][0]).toContain('/auth/csrf-token');
+      const challengeHeaders = new Headers(fetchMock.mock.calls[0][1].headers as HeadersInit);
+      expect(challengeHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expectDesktopAuthPlaceholderHeaders(challengeHeaders);
+      const loginHeaders = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
+      expect(loginHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expect(loginHeaders.get('X-Desktop-Auth-Nonce')).toBe('desktop-nonce');
+      expectDesktopAuthPlaceholderHeaders(loginHeaders);
       const csrfHeaders = new Headers(fetchMock.mock.calls[2][1].headers as HeadersInit);
       expect(csrfHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expectDesktopAuthPlaceholderHeaders(csrfHeaders);
       const mutationHeaders = new Headers(fetchMock.mock.calls[3][1].headers as HeadersInit);
       expect(mutationHeaders.get('X-DataLogic-Desktop')).toBe('true');
-      expect(mutationHeaders.get('X-Desktop-Auth-Timestamp')).toBe('electron-main-process-signed');
-      expect(mutationHeaders.get('X-Desktop-Auth-Request-Signature')).toBe('electron-main-process-signed');
-      expect(mutationHeaders.get('X-Desktop-Auth-Signature')).toBe('electron-main-process-signed');
+      expectDesktopAuthPlaceholderHeaders(mutationHeaders);
       expect(mutationHeaders.get('X-CSRF-Token')).toBe('desktop-csrf-token');
     });
 
@@ -233,12 +247,13 @@ describe('lib/api/client', () => {
 
       await request('/auth/desktop/auto-login', { method: 'POST' });
 
-      const headers = fetchMock.mock.calls[1][1].headers as Headers;
+      const challengeHeaders = new Headers(fetchMock.mock.calls[0][1].headers as HeadersInit);
+      expect(challengeHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expectDesktopAuthPlaceholderHeaders(challengeHeaders);
+      const headers = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
       expect(headers.get('X-DataLogic-Desktop')).toBe('true');
       expect(headers.get('X-Desktop-Auth-Nonce')).toBe('desktop-nonce');
-      expect(headers.get('X-Desktop-Auth-Timestamp')).toBe('electron-main-process-signed');
-      expect(headers.get('X-Desktop-Auth-Request-Signature')).toBe('electron-main-process-signed');
-      expect(headers.get('X-Desktop-Auth-Signature')).toBe('electron-main-process-signed');
+      expectDesktopAuthPlaceholderHeaders(headers);
     });
 
     it('retries the original request after desktop session recovery', async () => {
@@ -280,12 +295,21 @@ describe('lib/api/client', () => {
       });
 
       expect(fetchMock.mock.calls[1][0]).toContain('/auth/desktop/auto-login');
+      const initialChallengeHeaders = new Headers(fetchMock.mock.calls[0][1].headers as HeadersInit);
+      expectDesktopAuthPlaceholderHeaders(initialChallengeHeaders);
       const initialLoginHeaders = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
       expect(initialLoginHeaders.get('X-Desktop-Auth-Nonce')).toBe('initial-nonce');
+      expectDesktopAuthPlaceholderHeaders(initialLoginHeaders);
       expect(fetchMock.mock.calls[5][0]).toContain('/auth/desktop/auto-login');
+      const recoveryChallengeHeaders = new Headers(fetchMock.mock.calls[4][1].headers as HeadersInit);
+      expectDesktopAuthPlaceholderHeaders(recoveryChallengeHeaders);
       const recoveryHeaders = new Headers(fetchMock.mock.calls[5][1].headers as HeadersInit);
       expect(recoveryHeaders.get('X-Desktop-Auth-Nonce')).toBe('recovery-nonce');
+      expectDesktopAuthPlaceholderHeaders(recoveryHeaders);
+      const recoveredCsrfHeaders = new Headers(fetchMock.mock.calls[6][1].headers as HeadersInit);
+      expectDesktopAuthPlaceholderHeaders(recoveredCsrfHeaders);
       const retriedHeaders = new Headers(fetchMock.mock.calls[7][1].headers as HeadersInit);
+      expectDesktopAuthPlaceholderHeaders(retriedHeaders);
       expect(retriedHeaders.get('X-CSRF-Token')).toBe('recovered-desktop-csrf');
     });
 

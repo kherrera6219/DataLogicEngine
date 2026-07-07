@@ -56,6 +56,25 @@ let csrfTokenInFlight: Promise<string | null> | null = null;
 let desktopSessionReady = false;
 let desktopSessionInFlight: Promise<boolean> | null = null;
 
+function addElectronDesktopAuthPlaceholders(headers: Headers): void {
+  if (!isDesktopRendererRuntime()) {
+    return;
+  }
+
+  // Electron's main process replaces these placeholders with HMAC values in
+  // onBeforeSendHeaders. Declaring the names here makes Chromium include them
+  // in CORS/preflight handling before the main-process rewrite happens.
+  if (!headers.has('X-Desktop-Auth-Timestamp')) {
+    headers.set('X-Desktop-Auth-Timestamp', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+  }
+  if (!headers.has('X-Desktop-Auth-Request-Signature')) {
+    headers.set('X-Desktop-Auth-Request-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+  }
+  if (!headers.has('X-Desktop-Auth-Signature')) {
+    headers.set('X-Desktop-Auth-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+  }
+}
+
 export function buildApiUrl(endpoint: string): string {
   if (/^https?:\/\//i.test(endpoint)) {
     return endpoint;
@@ -85,13 +104,16 @@ function extractResponseDataNode(payload: unknown): unknown {
 }
 
 async function fetchDesktopChallengeNonce(): Promise<string | null> {
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    'X-DataLogic-Desktop': 'true',
+  });
+  addElectronDesktopAuthPlaceholders(headers);
+
   const response = await fetch(buildApiUrl(DESKTOP_CHALLENGE_ENDPOINT), {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-DataLogic-Desktop': 'true',
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -117,14 +139,17 @@ async function tryDesktopAutoLogin(): Promise<boolean> {
     return false;
   }
 
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    'X-DataLogic-Desktop': 'true',
+    'X-Desktop-Auth-Nonce': nonce,
+  });
+  addElectronDesktopAuthPlaceholders(headers);
+
   const response = await fetch(buildApiUrl('/auth/desktop/auto-login'), {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-DataLogic-Desktop': 'true',
-      'X-Desktop-Auth-Nonce': nonce,
-    },
+    headers,
   });
   const authenticated = response.ok;
   if (authenticated) {
@@ -171,6 +196,7 @@ async function fetchCsrfToken(desktopRuntime = false): Promise<string | null> {
     const headers = new Headers({ Accept: 'application/json' });
     if (desktopRuntime) {
       headers.set('X-DataLogic-Desktop', 'true');
+      addElectronDesktopAuthPlaceholders(headers);
     }
 
     const response = await fetch(buildApiUrl(CSRF_TOKEN_ENDPOINT), {
@@ -365,18 +391,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     headers.set('X-DataLogic-Desktop', 'true');
   }
   if (electronDesktopRuntime) {
-    // Electron's main process replaces these placeholders with HMAC values in
-    // onBeforeSendHeaders. Declaring the names here makes Chromium include
-    // them in CORS/preflight handling before the main-process rewrite happens.
-    if (!headers.has('X-Desktop-Auth-Timestamp')) {
-      headers.set('X-Desktop-Auth-Timestamp', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
-    }
-    if (!headers.has('X-Desktop-Auth-Request-Signature')) {
-      headers.set('X-Desktop-Auth-Request-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
-    }
-    if (!headers.has('X-Desktop-Auth-Signature')) {
-      headers.set('X-Desktop-Auth-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
-    }
+    addElectronDesktopAuthPlaceholders(headers);
   }
 
   if (

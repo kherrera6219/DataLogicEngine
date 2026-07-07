@@ -18,7 +18,7 @@ if _SDK_PATH not in sys.path:
 a = Analysis(
     ['main.py'],
     pathex=[_SDK_PATH],
-    binaries=collect_dynamic_libs('onnxruntime'),
+    binaries=collect_dynamic_libs('onnxruntime') + collect_dynamic_libs('tokenizers'),
     datas=[
         ('backend', 'backend'),
         ('core', 'core'),
@@ -29,7 +29,7 @@ a = Analysis(
         ('models.py', '.'),
         ('core/data', 'core/data'),
         ('backend/dsqp/templates', 'backend/dsqp/templates'),
-    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('onnxruntime') + copy_metadata('tiktoken') + copy_metadata('onnxruntime'),
+    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('onnxruntime') + collect_data_files('tokenizers') + copy_metadata('tiktoken') + copy_metadata('onnxruntime') + copy_metadata('tokenizers'),
     hiddenimports=[
         'flask',
         'flask_sqlalchemy',
@@ -83,7 +83,8 @@ a = Analysis(
         'torch',
         'dotenv',
         'onnxruntime',
-    ] + collect_submodules('chromadb') + collect_submodules('onnxruntime') + collect_submodules('sentence_transformers') + collect_submodules('ukg_sdk') + collect_submodules('backend.desktop') + collect_submodules('backend.ingestion') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10') + collect_submodules('backend.local_model_acceleration') + collect_submodules('core.self_evolving'),
+        'tokenizers',
+    ] + collect_submodules('chromadb') + collect_submodules('onnxruntime') + collect_submodules('tokenizers') + collect_submodules('sentence_transformers') + collect_submodules('ukg_sdk') + collect_submodules('backend.desktop') + collect_submodules('backend.ingestion') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10') + collect_submodules('backend.local_model_acceleration') + collect_submodules('core.self_evolving'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
