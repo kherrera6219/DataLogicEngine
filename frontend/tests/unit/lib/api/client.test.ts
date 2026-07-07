@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
+import { isDesktopRendererRuntime, shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 
 vi.mock('@/lib/security/input-sanitization', () => ({
   sanitizeJsonPayload: vi.fn((value: unknown) => value),
@@ -10,6 +10,7 @@ vi.mock('@/lib/security/input-sanitization', () => ({
 }));
 
 vi.mock('@/lib/runtime/policy', () => ({
+  isDesktopRendererRuntime: vi.fn(() => false),
   shouldUseDesktopSessionFlow: vi.fn(() => false),
 }));
 
@@ -64,6 +65,8 @@ describe('lib/api/client', () => {
     vi.restoreAllMocks();
     const runtimePolicy = vi.mocked(shouldUseDesktopSessionFlow);
     runtimePolicy.mockReturnValue(false);
+    const desktopPolicy = vi.mocked(isDesktopRendererRuntime);
+    desktopPolicy.mockReturnValue(false);
   });
 
   describe('ApiError', () => {
@@ -131,8 +134,9 @@ describe('lib/api/client', () => {
     });
 
     it('adds a CSRF token to desktop mutation requests while preserving the desktop header', async () => {
-      const { shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
+      const { isDesktopRendererRuntime, shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
       vi.mocked(shouldUseDesktopSessionFlow).mockReturnValue(true);
+      vi.mocked(isDesktopRendererRuntime).mockReturnValue(true);
 
       const fetchMock = vi
         .fn()
@@ -162,6 +166,9 @@ describe('lib/api/client', () => {
       expect(csrfHeaders.get('X-DataLogic-Desktop')).toBe('true');
       const mutationHeaders = new Headers(fetchMock.mock.calls[3][1].headers as HeadersInit);
       expect(mutationHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expect(mutationHeaders.get('X-Desktop-Auth-Timestamp')).toBe('electron-main-process-signed');
+      expect(mutationHeaders.get('X-Desktop-Auth-Request-Signature')).toBe('electron-main-process-signed');
+      expect(mutationHeaders.get('X-Desktop-Auth-Signature')).toBe('electron-main-process-signed');
       expect(mutationHeaders.get('X-CSRF-Token')).toBe('desktop-csrf-token');
     });
 
@@ -210,8 +217,9 @@ describe('lib/api/client', () => {
     });
 
     it('supports desktop auto-login nonce injection for explicit desktop auth calls', async () => {
-      const { shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
+      const { isDesktopRendererRuntime, shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
       vi.mocked(shouldUseDesktopSessionFlow).mockReturnValue(true);
+      vi.mocked(isDesktopRendererRuntime).mockReturnValue(true);
 
       const fetchMock = vi
         .fn()
@@ -228,11 +236,15 @@ describe('lib/api/client', () => {
       const headers = fetchMock.mock.calls[1][1].headers as Headers;
       expect(headers.get('X-DataLogic-Desktop')).toBe('true');
       expect(headers.get('X-Desktop-Auth-Nonce')).toBe('desktop-nonce');
+      expect(headers.get('X-Desktop-Auth-Timestamp')).toBe('electron-main-process-signed');
+      expect(headers.get('X-Desktop-Auth-Request-Signature')).toBe('electron-main-process-signed');
+      expect(headers.get('X-Desktop-Auth-Signature')).toBe('electron-main-process-signed');
     });
 
     it('retries the original request after desktop session recovery', async () => {
-      const { shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
+      const { isDesktopRendererRuntime, shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
       vi.mocked(shouldUseDesktopSessionFlow).mockReturnValue(true);
+      vi.mocked(isDesktopRendererRuntime).mockReturnValue(true);
 
       const fetchMock = vi
         .fn()

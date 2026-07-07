@@ -19,13 +19,15 @@
 # DataLogicEngine — Session Handoff
 
 ## START HERE (next session) - updated 2026-07-07
-**First-run QC checkpoint: desktop API-key save/test CSRF repair and idle DSQP status-polling repair are fixed in source and rebuilt into a new local installer. The user stopped and uninstalled the old app; reinstall the rebuilt app and validate the installed binary.**
+**First-run QC checkpoint: desktop API-key save/test CSRF repair, Electron desktop auth header declaration, stale-backend rebuild protection, frozen-backend ONNX Runtime packaging, and idle DSQP status-polling repair are fixed in source and rebuilt into a new local installer. Reinstall the app before validating the installed binary again.**
 
 - **Installed-app first-run QC report added:** `reports/first_run_qc_2026-07-07.md` records backend/service/database health, SQLite/Chroma/object-store/Neo4j/Redis/MinIO checks, the API-key save/test failure investigation, DSQP idle-polling diagnosis, source corrections, validation, and remaining reinstall-provider checks.
 - **Desktop API-key save/test CSRF repair:** signed Electron loopback requests now win over stale Flask session cookies in both the app-level API CSRF guard and `api_decorators`; frontend desktop mutations now establish/refresh desktop session and CSRF state before save/test calls and recover cleanly on CSRF 403s.
+- **Second installed-app Save Model repair:** the Save Model path uses `/api/v1/gateway/keys`. After reinstall it still reached session CSRF because Electron-injected desktop HMAC headers were not reliably part of the renderer-declared CORS/preflight header set. `frontend/lib/api/client.ts` now declares placeholder `X-Desktop-Auth-*` headers for Electron desktop requests, and Electron main replaces them with real HMAC signatures before send.
+- **Packaging repair:** `npm --prefix frontend run electron:dist` now rebuilds the PyInstaller backend before Electron packaging. The frozen backend also explicitly includes `onnxruntime` and its native DLLs after live logs showed Chroma collection-stat errors in the installed backend.
 - **Idle DSQP status-polling repair:** `DesktopStatus` no longer calls `electronApi.dsqpPersonaProfiles()` during its 5-second status loop, so idle dashboard/status use should not trigger provider-backed DSQP construction or repeated OpenAI quota errors.
-- **Validation completed for this checkpoint:** backend auth/settings pytest passed 14 tests, frontend API/status Vitest passed 24 tests, frontend typecheck passed, focused frontend lint passed, and focused Ruff passed.
-- **Installer rebuilt:** `DataLogicEngine Setup Latest.exe` was rebuilt from current source with SHA-256 `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68`; installer integrity passed and NSIS governance passed.
+- **Validation completed for this checkpoint:** backend gateway/auth/settings pytest passed 16 tests, frontend API Vitest passed 16 tests, frontend typecheck passed, focused frontend lint passed, focused Ruff passed, and the full installer rebuild path passed after rebuilding the backend.
+- **Installer rebuilt:** `DataLogicEngine Setup Latest.exe` was rebuilt from current source with SHA-256 `7edb91c80f55b3aca25c0477c42aacb8a393d717cf930c062f849a945293c783`; installer integrity passed and NSIS governance passed.
 - **Current next action:** reinstall the rebuilt installer, then validate provider save/test behavior for OpenAI and Google plus unsupported legacy-provider status handling.
 
 **Previous audit checkpoint: documentation slice, code audit slices 1-12, cleanup approval, and selected CodeQL alert remediation are complete.**

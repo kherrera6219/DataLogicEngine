@@ -67,10 +67,11 @@ As of v2.7.1 (2026-07-07):
 8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns; installer-mode smoke validates install and uninstall exit code `0`.
 9. Installer build rebuilds the PyInstaller backend before packaging so the shipped backend matches source.
 10. Provider tests return specific failure reasons such as `invalid_api_key`, `rate_limited`, `invalid_model`, and `network_error`.
-11. Latest local rebuild evidence records installer SHA-256 `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68` with installer integrity and NSIS governance passing; reinstall/provider QC is the next validation step.
+11. Latest local rebuild evidence records installer SHA-256 `7edb91c80f55b3aca25c0477c42aacb8a393d717cf930c062f849a945293c783` with installer integrity and NSIS governance passing; reinstall/provider QC is the next validation step.
 12. First-run QC on 2026-07-07 confirmed the installed backend, health endpoints, Redis, Neo4j, MinIO, runtime SQLite, Chroma metadata, and local object-store directories were reachable.
 13. Desktop API-key save/test requests now prefer signed Electron desktop auth over stale Flask session cookies, and desktop mutations refresh desktop session/CSRF state before save/test calls.
 14. The floating desktop status widget no longer auto-polls DSQP persona profiles, preventing idle provider-backed DSQP calls while the app is merely open.
+15. The `electron:dist` build command rebuilds the PyInstaller backend before Electron packaging, and the frozen backend includes ONNX Runtime for Chroma collection statistics.
 
 ---
 

@@ -1,6 +1,6 @@
 import { sanitizeJsonPayload, sanitizeTextInput } from '@/lib/security/input-sanitization';
 import { reportClientError } from '@/lib/telemetry/client-errors';
-import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
+import { isDesktopRendererRuntime, shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 import { removeLocalStorageItem } from '@/lib/state/storage';
 
 /**
@@ -49,6 +49,7 @@ const CSRF_EXEMPT_ENDPOINT_PREFIXES = [
   '/auth/desktop/challenge',
   '/auth/desktop/auto-login',
 ];
+const ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER = 'electron-main-process-signed';
 
 let csrfTokenCache: string | null = null;
 let csrfTokenInFlight: Promise<string | null> | null = null;
@@ -356,11 +357,26 @@ async function parseErrorResponse(response: Response): Promise<ParsedErrorRespon
 export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = buildApiUrl(endpoint);
   const desktopRuntime = shouldUseDesktopSessionFlow();
+  const electronDesktopRuntime = desktopRuntime && isDesktopRendererRuntime();
   const requestMethod = (options.method || 'GET').toUpperCase();
   const headers = buildHeaders(options);
   const normalizedBody = normalizeRequestBody(options.body);
   if (desktopRuntime && !headers.has('X-DataLogic-Desktop')) {
     headers.set('X-DataLogic-Desktop', 'true');
+  }
+  if (electronDesktopRuntime) {
+    // Electron's main process replaces these placeholders with HMAC values in
+    // onBeforeSendHeaders. Declaring the names here makes Chromium include
+    // them in CORS/preflight handling before the main-process rewrite happens.
+    if (!headers.has('X-Desktop-Auth-Timestamp')) {
+      headers.set('X-Desktop-Auth-Timestamp', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+    }
+    if (!headers.has('X-Desktop-Auth-Request-Signature')) {
+      headers.set('X-Desktop-Auth-Request-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+    }
+    if (!headers.has('X-Desktop-Auth-Signature')) {
+      headers.set('X-Desktop-Auth-Signature', ELECTRON_DESKTOP_AUTH_HEADER_PLACEHOLDER);
+    }
   }
 
   if (

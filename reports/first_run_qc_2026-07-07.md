@@ -11,6 +11,7 @@ Two production-readiness issues were found during QC:
 
 1. API-key save/test failures can occur when Electron sends a valid signed desktop request but the backend sees a stale Flask session cookie first and enforces session CSRF before desktop auth. Source fix implemented.
 2. The floating Desktop Engine status panel was polling DSQP persona profiles every 5 seconds. That endpoint constructs DSQP profiles and can call the configured cloud LLM, which caused repeated OpenAI quota errors in the live logs. Source fix implemented.
+3. The standard `npm --prefix frontend run electron:dist` build path could still reuse a stale PyInstaller backend, and the frozen backend was missing ONNX Runtime for Chroma collection-stat calls. Source/build fixes implemented.
 
 The installed app inspected during QC had not been rebuilt with these fixes yet. The user has since stopped and uninstalled the app, so final UI validation should be performed against the next rebuilt installer rather than the old installation.
 
@@ -76,6 +77,18 @@ Source changes:
 - `frontend/lib/api/client.ts`: desktop mutations now establish/refresh the desktop session before CSRF token use and clear stale CSRF tokens after desktop login.
 - Tests added/updated for stale-session desktop mutations and desktop CSRF refresh flow.
 
+### Fixed In Source: Electron Header Declaration For Save Model
+
+Observed after reinstall: the installed app still showed `Failed to save model configuration: CSRF session token missing` when saving a pasted Google key through Settings -> AI Models.
+
+Root cause: the Save Model button calls `/api/v1/gateway/keys`. Electron's main process injects signed `X-Desktop-Auth-*` headers through `webRequest.onBeforeSendHeaders`, but the renderer had not declared those header names before Chromium CORS/preflight handling. The backend then did not reliably receive a valid desktop-auth signature for the save request and fell back to the stale cookie-session CSRF path.
+
+Source changes:
+
+- `frontend/lib/api/client.ts`: Electron desktop requests now declare placeholder `X-Desktop-Auth-Timestamp`, `X-Desktop-Auth-Request-Signature`, and `X-Desktop-Auth-Signature` headers. The Electron main process replaces those placeholder values with real HMAC signatures before the request is sent.
+- `frontend/tests/unit/lib/api/client.test.ts`: coverage now proves Electron desktop requests include the desktop auth header names.
+- `tests/integration_routes/test_gateway_keys_desktop_auth.py`: coverage now proves `/api/v1/gateway/keys` accepts signed desktop requests both without a session and with a stale cookie session while CSRF enforcement is enabled.
+
 ### Fixed In Source: DSQP Status Polling
 
 Observed live log symptom: repeated `GET /api/v1/gateway/dsqp-persona-profiles` calls and OpenAI 429 quota errors.
@@ -87,6 +100,21 @@ Source changes:
 - `frontend/components/DesktopStatus.tsx`: removed automatic DSQP profile polling from the floating status widget.
 - `frontend/components/DesktopStatus.test.tsx`: added coverage confirming DSQP profiles are not auto-loaded while status polling runs.
 
+### Fixed In Build: Backend Rebuild And ONNX Runtime Packaging
+
+Observed live log symptom: the installed backend reported `The onnxruntime python package is not installed` while gathering collection stats.
+
+Root cause: the elevated `frontend/build_installer.ps1` wrapper rebuilt the PyInstaller backend, but the normal `npm --prefix frontend run electron:dist` command did not. The frozen backend could therefore be stale, and `backend.spec` did not explicitly collect ONNX Runtime's package files and native DLLs.
+
+Source/build changes:
+
+- `frontend/scripts/build-backend-for-installer.ps1`: non-interactive backend rebuild helper for installer packaging.
+- `frontend/package.json`: `electron:dist` now rebuilds the PyInstaller backend before Next/Electron packaging.
+- `requirements.txt`: `onnxruntime==1.26.0` is now explicit.
+- `backend.spec`: PyInstaller now collects ONNX Runtime binaries, data files, metadata, and hidden imports.
+
+Validation evidence: the rebuilt `dist\DataLogic_Backend` and `frontend\dist\win-unpacked\resources\backend` payloads contain `onnxruntime.dll`, `onnxruntime_pybind11_state.pyd`, and `onnxruntime-1.26.0.dist-info`.
+
 ## Validation Completed
 
 Commands passed:
@@ -96,6 +124,14 @@ Commands passed:
 - `npm run typecheck` - passed.
 - `npm run lint -- components/DesktopStatus.tsx components/DesktopStatus.test.tsx lib/api/client.ts tests/unit/lib/api/client.test.ts` - passed.
 - `python -m ruff check app.py backend\auth\api_decorators.py tests\security\test_session_security.py` - passed.
+- `python -m pytest tests\integration_routes\test_gateway_keys_desktop_auth.py tests\security\test_session_security.py tests\unit\test_auth_api_decorators_security.py tests\integration_routes\test_settings_routes_auth.py` - 16 passed after the Save Model endpoint patch.
+- `npm run test -- tests/unit/lib/api/client.test.ts` - 16 passed after the Save Model endpoint patch.
+- `npm run lint -- lib/api/client.ts tests/unit/lib/api/client.test.ts` - passed after the Save Model endpoint patch.
+- `npm run typecheck` - passed after the Save Model endpoint patch.
+- `python -m ruff check app.py backend\auth\api_decorators.py tests\security\test_session_security.py tests\integration_routes\test_gateway_keys_desktop_auth.py` - passed after the Save Model endpoint patch.
+- `npm --prefix frontend run electron:dist` - passed after wiring the backend rebuild helper into the standard installer build command.
+- `python scripts\verify_installer_integrity.py --require-artifacts` - passed after the final rebuild.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot "C:\software\DataLogicEngine"` - passed after the final rebuild.
 
 ## Rebuild Evidence
 
@@ -105,7 +141,7 @@ After the user stopped and uninstalled the old app, the installer was rebuilt fr
 | --- | --- |
 | Build command | `npm --prefix frontend run electron:dist` |
 | Installer | `DataLogicEngine Setup Latest.exe` |
-| SHA-256 | `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68` |
+| SHA-256 | `7edb91c80f55b3aca25c0477c42aacb8a393d717cf930c062f849a945293c783` |
 | Checksum sidecar | `DataLogicEngine Setup Latest.exe.sha256` matches the installer hash |
 | Blockmap sidecar | Present |
 | Installer integrity | Passed, report written to `reports/installer_integrity_report.json` |
