@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
+
 vi.mock('@/lib/security/input-sanitization', () => ({
   sanitizeJsonPayload: vi.fn((value: unknown) => value),
   sanitizeTextInput: vi.fn((value: string) => value),
@@ -60,6 +62,8 @@ describe('lib/api/client', () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    const runtimePolicy = vi.mocked(shouldUseDesktopSessionFlow);
+    runtimePolicy.mockReturnValue(false);
   });
 
   describe('ApiError', () => {
@@ -133,6 +137,10 @@ describe('lib/api/client', () => {
       const fetchMock = vi
         .fn()
         .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { nonce: 'desktop-nonce' } } }),
+        )
+        .mockResolvedValueOnce(createMockResponse({ json: { data: { authenticated: true } } }))
+        .mockResolvedValueOnce(
           createMockResponse({ json: { data: { csrf_token: 'desktop-csrf-token' } } }),
         )
         .mockResolvedValueOnce(createMockResponse({ json: { data: { saved: true } } }));
@@ -147,8 +155,12 @@ describe('lib/api/client', () => {
         }),
       ).resolves.toEqual({ saved: true });
 
-      expect(fetchMock.mock.calls[0][0]).toContain('/auth/csrf-token');
-      const mutationHeaders = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
+      expect(fetchMock.mock.calls[0][0]).toContain('/auth/desktop/challenge');
+      expect(fetchMock.mock.calls[1][0]).toContain('/auth/desktop/auto-login');
+      expect(fetchMock.mock.calls[2][0]).toContain('/auth/csrf-token');
+      const csrfHeaders = new Headers(fetchMock.mock.calls[2][1].headers as HeadersInit);
+      expect(csrfHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      const mutationHeaders = new Headers(fetchMock.mock.calls[3][1].headers as HeadersInit);
       expect(mutationHeaders.get('X-DataLogic-Desktop')).toBe('true');
       expect(mutationHeaders.get('X-CSRF-Token')).toBe('desktop-csrf-token');
     });
@@ -225,6 +237,10 @@ describe('lib/api/client', () => {
       const fetchMock = vi
         .fn()
         .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { nonce: 'initial-nonce' } } }),
+        )
+        .mockResolvedValueOnce(createMockResponse({ json: { data: { ok: true } } }))
+        .mockResolvedValueOnce(
           createMockResponse({ json: { data: { csrf_token: 'stale-desktop-csrf' } } }),
         )
         .mockResolvedValueOnce(
@@ -251,10 +267,13 @@ describe('lib/api/client', () => {
         recovered: true,
       });
 
-      expect(fetchMock.mock.calls[3][0]).toContain('/auth/desktop/auto-login');
-      const recoveryHeaders = new Headers(fetchMock.mock.calls[3][1].headers as HeadersInit);
+      expect(fetchMock.mock.calls[1][0]).toContain('/auth/desktop/auto-login');
+      const initialLoginHeaders = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
+      expect(initialLoginHeaders.get('X-Desktop-Auth-Nonce')).toBe('initial-nonce');
+      expect(fetchMock.mock.calls[5][0]).toContain('/auth/desktop/auto-login');
+      const recoveryHeaders = new Headers(fetchMock.mock.calls[5][1].headers as HeadersInit);
       expect(recoveryHeaders.get('X-Desktop-Auth-Nonce')).toBe('recovery-nonce');
-      const retriedHeaders = new Headers(fetchMock.mock.calls[5][1].headers as HeadersInit);
+      const retriedHeaders = new Headers(fetchMock.mock.calls[7][1].headers as HeadersInit);
       expect(retriedHeaders.get('X-CSRF-Token')).toBe('recovered-desktop-csrf');
     });
 

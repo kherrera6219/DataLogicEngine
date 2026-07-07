@@ -139,6 +139,10 @@ def _get_or_create_desktop_user() -> User:
 
 def check_desktop_request_auth():
     """Check signed Electron loopback auth for packaged desktop requests."""
+    cached_desktop_user = getattr(g, "auth_user", None)
+    if getattr(g, "auth_mode", None) == "desktop" and cached_desktop_user is not None:
+        return True, cached_desktop_user
+
     if not (_is_desktop_mode() and _is_loopback_request() and _desktop_header_present()):
         return False, None
 
@@ -182,16 +186,18 @@ def _is_user_active(user: User) -> bool:
 
 def check_api_auth():
     """Check if the request is authenticated via session or API key."""
-    # 1. Check Session Auth
+    # 1. Prefer signed desktop loopback auth. Electron signs API requests, so a
+    # valid desktop signature should not be downgraded to a stale cookie session
+    # that may fail CSRF before the desktop auth path can run.
+    desktop_auth, desktop_user = check_desktop_request_auth()
+    if desktop_auth:
+        return True, desktop_user
+
+    # 2. Check Session Auth
     if current_user.is_authenticated:
         g.auth_user = current_user
         g.auth_mode = "session"
         return True, current_user
-
-    # 2. Check signed desktop loopback auth
-    desktop_auth, desktop_user = check_desktop_request_auth()
-    if desktop_auth:
-        return True, desktop_user
 
     # 3. Check API Key Auth (header only, hashed ExternalAPIKey)
     api_key = _extract_api_key()
@@ -245,18 +251,18 @@ def api_session_login_required(f):
     """Decorator to require an authenticated Flask session or valid desktop auth."""
     @wraps(f)
     def api_session_login_required_wrapper(*args, **kwargs):
+        desktop_auth, desktop_user = check_desktop_request_auth()
+        if desktop_auth:
+            g.auth_user = desktop_user
+            g.auth_mode = "desktop"
+            return f(*args, **kwargs)
+
         if current_user.is_authenticated:
             g.auth_user = current_user
             g.auth_mode = "session"
             csrf_error = _validate_session_mutation_request()
             if csrf_error:
                 return csrf_error
-            return f(*args, **kwargs)
-
-        desktop_auth, desktop_user = check_desktop_request_auth()
-        if desktop_auth:
-            g.auth_user = desktop_user
-            g.auth_mode = "desktop"
             return f(*args, **kwargs)
 
         # Neither session nor desktop auth succeeded.

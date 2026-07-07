@@ -500,6 +500,7 @@ celery = make_celery(app)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
 from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
+from backend.auth import api_decorators as auth_api_decorators
 from backend.utils.error_normalization import normalize_public_error_message
 
 # Keep CSRF protection for forms and enforce strict same-origin checks on
@@ -528,6 +529,11 @@ def _request_uses_stateless_auth() -> bool:
     return bool(request.headers.get("X-API-Key") or auth_header.lower().startswith("bearer "))
 
 
+def _request_uses_signed_desktop_auth() -> bool:
+    desktop_auth, _ = auth_api_decorators.check_desktop_request_auth()
+    return desktop_auth
+
+
 def _is_trusted_origin_request() -> bool:
     origin_header = request.headers.get("Origin", "")
     if origin_header:
@@ -551,6 +557,8 @@ def csrf_for_forms_only():
     is_api_like_request = request.path.startswith("/api/") or request.path.startswith("/graphql")
     if is_api_like_request:
         if _request_uses_session_cookie() and not _request_uses_stateless_auth():
+            if _request_uses_signed_desktop_auth():
+                return None
             if not _is_trusted_origin_request():
                 return jsonify(
                     {

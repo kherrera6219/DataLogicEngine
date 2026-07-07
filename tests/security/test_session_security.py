@@ -1,4 +1,5 @@
 import importlib
+from types import SimpleNamespace
 
 from tests.conftest import seed_login_session
 
@@ -71,7 +72,31 @@ def test_api_session_mutation_accepts_valid_csrf_token_when_enforced(app, client
         json={"ai_processing_enabled": False},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.get_json()
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert payload["settings"]["ai_processing_enabled"] is False
+
+
+def test_signed_desktop_mutation_prefers_desktop_auth_over_stale_session(app, client, monkeypatch):
+    user_id = seed_login_session(client, app, username="desktop_csrf_user")
+    monkeypatch.setitem(app.config, "TESTING", False)
+    monkeypatch.setenv("ENFORCE_API_CSRF_TOKENS", "true")
+    monkeypatch.setattr(
+        "backend.auth.api_decorators.check_desktop_request_auth",
+        lambda: (True, SimpleNamespace(id=user_id)),
+    )
+
+    response = client.post(
+        "/api/v1/settings/ai",
+        headers={
+            "Origin": "app://-",
+            "X-DataLogic-Desktop": "true",
+        },
+        json={"ai_processing_enabled": False},
+    )
+
+    assert response.status_code == 200, response.get_json()
     payload = response.get_json()
     assert payload["success"] is True
     assert payload["settings"]["ai_processing_enabled"] is False

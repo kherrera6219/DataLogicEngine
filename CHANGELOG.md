@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Desktop API-key save/test CSRF failure in the installed app**: signed Electron loopback mutations now authenticate through the desktop HMAC path before stale Flask session cookies can trigger session CSRF handling, and desktop frontend mutations refresh desktop session/CSRF state before save/test requests. This fixes the Settings -> AI Models `CSRF session token missing` failure observed during first-run QC.
+- **Idle DSQP/provider quota noise from the desktop status widget**: the floating Desktop Engine status panel no longer auto-polls DSQP persona profiles every 5 seconds. Provider-backed DSQP construction now stays on explicit user/workflow paths, preventing idle status polling from generating repeated cloud-provider quota errors.
 - **Stale bundled backend shipped in the installer (root cause of recurring desktop errors)**: the PyInstaller backend (`dist/DataLogic_Backend/DataLogic_Backend.exe`) was not rebuilt as part of the frontend/installer rebuild, so the packaged app ran a backend from an earlier build. This caused `404` responses for `/api/v1/gateway/dsqp-persona-profiles` and `/api/v1/gateway/network-status` (surfacing as the Live Trace `[object Object]` and System Output 404), kept the Flask app-context provider fix inactive, and made chat fail. The build pipeline now rebuilds the backend before packaging so the shipped backend always matches source.
 - **Provider test now reports the real reason**: `test_provider` in `backend/llm_gateway/api.py` previously returned a generic "Provider connectivity check failed". It now classifies the underlying error and returns a specific status/message — `invalid_api_key` (401), `rate_limited` (429), `invalid_model` (422), or `network_error` (504) — so the UI can tell the user an API key is invalid instead of a generic failure.
 - **Provider key save validation**: `/api/v1/gateway/keys` now normalizes provider names, strips key/model whitespace, and rejects unsupported provider types before creating or updating `LLMProvider` rows.
@@ -57,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dropped.
 
 ### Changed
+- Added first-run QC evidence in `reports/first_run_qc_2026-07-07.md`, covering installed-app service health, internal database connectivity, desktop API-key save/test failure analysis, DSQP idle polling analysis, focused validation, and remaining reinstall/provider validation steps.
 - Replaced explicit KA stub behavior in `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` with deterministic local implementations and focused tests.
 - **Documentation accuracy sweep (v2.0 audit)**: reviewed and corrected the
   `docs/` tree, `docs/diagrams/`, and root docs against the post-audit

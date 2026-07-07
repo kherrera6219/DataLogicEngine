@@ -42,6 +42,7 @@ Current Focus:
 
 - Accessibility validation (NVDA)
 - Production code signing
+- Reinstall validation of the 2026-07-07 desktop API-key save/test and idle DSQP polling fixes
 - Release evidence package
 - Public architecture assets
 - Expanded integration benchmarks

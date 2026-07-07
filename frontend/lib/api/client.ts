@@ -52,6 +52,8 @@ const CSRF_EXEMPT_ENDPOINT_PREFIXES = [
 
 let csrfTokenCache: string | null = null;
 let csrfTokenInFlight: Promise<string | null> | null = null;
+let desktopSessionReady = false;
+let desktopSessionInFlight: Promise<boolean> | null = null;
 
 export function buildApiUrl(endpoint: string): string {
   if (/^https?:\/\//i.test(endpoint)) {
@@ -123,10 +125,39 @@ async function tryDesktopAutoLogin(): Promise<boolean> {
       'X-Desktop-Auth-Nonce': nonce,
     },
   });
-  return response.ok;
+  const authenticated = response.ok;
+  if (authenticated) {
+    csrfTokenCache = null;
+  }
+  return authenticated;
 }
 
-async function fetchCsrfToken(): Promise<string | null> {
+async function ensureDesktopSessionReady(force = false): Promise<boolean> {
+  if (!force && desktopSessionReady) {
+    return true;
+  }
+
+  if (desktopSessionInFlight) {
+    return desktopSessionInFlight;
+  }
+
+  desktopSessionInFlight = tryDesktopAutoLogin()
+    .then((authenticated) => {
+      if (authenticated) {
+        desktopSessionReady = true;
+        csrfTokenCache = null;
+      }
+      return authenticated;
+    })
+    .catch(() => false)
+    .finally(() => {
+      desktopSessionInFlight = null;
+    });
+
+  return desktopSessionInFlight;
+}
+
+async function fetchCsrfToken(desktopRuntime = false): Promise<string | null> {
   if (csrfTokenCache) {
     return csrfTokenCache;
   }
@@ -136,12 +167,15 @@ async function fetchCsrfToken(): Promise<string | null> {
   }
 
   csrfTokenInFlight = (async () => {
+    const headers = new Headers({ Accept: 'application/json' });
+    if (desktopRuntime) {
+      headers.set('X-DataLogic-Desktop', 'true');
+    }
+
     const response = await fetch(buildApiUrl(CSRF_TOKEN_ENDPOINT), {
       method: 'GET',
       credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -344,7 +378,10 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     shouldAttachCsrfToken(endpoint, requestMethod) &&
     !headers.has('X-CSRF-Token')
   ) {
-    const csrfToken = await fetchCsrfToken().catch(() => null);
+    if (desktopRuntime) {
+      await ensureDesktopSessionReady().catch(() => false);
+    }
+    const csrfToken = await fetchCsrfToken(desktopRuntime).catch(() => null);
     if (csrfToken) {
       headers.set('X-CSRF-Token', csrfToken);
     }
@@ -363,7 +400,10 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       shouldAttachCsrfToken(endpoint, requestMethod)
     ) {
       csrfTokenCache = null;
-      const refreshedToken = await fetchCsrfToken().catch(() => null);
+      if (desktopRuntime) {
+        await ensureDesktopSessionReady(true).catch(() => false);
+      }
+      const refreshedToken = await fetchCsrfToken(desktopRuntime).catch(() => null);
       if (refreshedToken) {
         headers.set('X-CSRF-Token', refreshedToken);
         response = await fetch(url, {
@@ -385,11 +425,11 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       /\/gateway\/providers\/[^/]+\/test/.test(endpoint);
     if (sessionAuthFailure && !isProviderTest) {
       if (desktopRuntime && !endpoint.includes('/auth/desktop/auto-login')) {
-        const recovered = await tryDesktopAutoLogin().catch(() => false);
+        const recovered = await ensureDesktopSessionReady(true).catch(() => false);
         if (recovered) {
           if (shouldAttachCsrfToken(endpoint, requestMethod)) {
             csrfTokenCache = null;
-            const recoveredSessionToken = await fetchCsrfToken().catch(() => null);
+            const recoveredSessionToken = await fetchCsrfToken(desktopRuntime).catch(() => null);
             if (recoveredSessionToken) {
               headers.set('X-CSRF-Token', recoveredSessionToken);
             }

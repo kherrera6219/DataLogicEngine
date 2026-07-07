@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.7.1 |
+| Last updated | 2026-07-07 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -55,7 +55,7 @@ Default local mode can use SQLite/in-memory fallbacks. Full local data mode can 
 
 ## Current state
 
-As of v2.7.0 (2026-07-06):
+As of v2.7.1 (2026-07-07):
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
@@ -67,7 +67,10 @@ As of v2.7.0 (2026-07-06):
 8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns; installer-mode smoke validates install and uninstall exit code `0`.
 9. Installer build rebuilds the PyInstaller backend before packaging so the shipped backend matches source.
 10. Provider tests return specific failure reasons such as `invalid_api_key`, `rate_limited`, `invalid_model`, and `network_error`.
-11. Latest local rebuild evidence records installer SHA-256 `a398c6cf1f92b1ff85b29231f58eb6d1ead96184304cf83ce61d5390ab54b496` with integrity, NSIS governance, portable smoke, install smoke, and uninstall smoke passing.
+11. Latest local rebuild evidence records installer SHA-256 `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68` with installer integrity and NSIS governance passing; reinstall/provider QC is the next validation step.
+12. First-run QC on 2026-07-07 confirmed the installed backend, health endpoints, Redis, Neo4j, MinIO, runtime SQLite, Chroma metadata, and local object-store directories were reachable.
+13. Desktop API-key save/test requests now prefer signed Electron desktop auth over stale Flask session cookies, and desktop mutations refresh desktop session/CSRF state before save/test calls.
+14. The floating desktop status widget no longer auto-polls DSQP persona profiles, preventing idle provider-backed DSQP calls while the app is merely open.
 
 ---
 

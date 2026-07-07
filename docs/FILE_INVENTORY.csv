@@ -17,14 +17,14 @@ Path,Size_Bytes,Extension,Last_Modified
 .github\workflows\release-installer-signing.yml,3608,.yml,2026-05-14 02:05:19 UTC
 .github\workflows\security.yml,11116,.yml,2026-07-02 06:55:53 UTC
 .gitignore,2239,,2026-07-06 19:19:36 UTC
-app.py,51559,.py,2026-07-04 04:16:29 UTC
+app.py,51834,.py,2026-07-07 01:20:28 UTC
 backend.spec,3934,.spec,2026-06-12 03:12:51 UTC
 backend\.dockerignore,97,,2026-01-09 00:01:01 UTC
 backend\.pylintrc,1395,,2026-01-11 05:35:52 UTC
 backend\__init__.py,4323,.py,2026-06-20 05:11:09 UTC
 backend\api\specs\ukg_api_v3_2.yaml,116157,.yaml,2026-01-05 21:54:50 UTC
 backend\auth\__init__.py,0,.py,2026-01-09 01:09:47 UTC
-backend\auth\api_decorators.py,10690,.py,2026-07-06 05:23:33 UTC
+backend\auth\api_decorators.py,11027,.py,2026-07-07 01:20:21 UTC
 backend\auth\sso.py,2753,.py,2026-02-16 22:44:40 UTC
 backend\auth\windows_identity.py,2578,.py,2026-06-04 07:54:42 UTC
 backend\bootstrap_compat.py,1256,.py,2026-04-01 01:26:20 UTC
@@ -491,7 +491,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,5588,.py,2026-05-29 06:58:00 UTC
-CHANGELOG.md,64893,.md,2026-07-06 07:01:31 UTC
+CHANGELOG.md,65926,.md,2026-07-07 01:37:07 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4280,.py,2026-02-16 17:41:21 UTC
@@ -767,9 +767,9 @@ docs\DOCUMENTATION_STANDARDS.md,7381,.md,2026-07-06 07:34:43 UTC
 docs\DOCUMENTATION_VERSIONING.md,4241,.md,2026-07-06 07:35:15 UTC
 docs\documents\README.md,872,.md,2026-07-06 19:00:04 UTC
 docs\ENGINEER_ONBOARDING.md,14856,.md,2026-07-06 07:37:28 UTC
-docs\FILE_INVENTORY.csv,121998,.csv,2026-07-07 00:28:58 UTC
+docs\FILE_INVENTORY.csv,121998,.csv,2026-07-07 01:43:27 UTC
 docs\FILE_STRUCTURE.md,4638,.md,2026-07-06 07:35:29 UTC
-docs\GENERATED_STRUCTURE.md,69531,.md,2026-07-07 00:28:58 UTC
+docs\GENERATED_STRUCTURE.md,69531,.md,2026-07-07 01:43:28 UTC
 docs\ip\dsqp_technical_disclosure.md,4476,.md,2026-07-06 19:00:04 UTC
 docs\MCP_INTEGRATION.md,13816,.md,2026-07-06 07:39:23 UTC
 docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
@@ -778,7 +778,7 @@ docs\PRIVACY_POLICY.md,11005,.md,2026-07-06 07:32:13 UTC
 docs\PROCESS_MAP.md,8171,.md,2026-07-06 07:33:10 UTC
 docs\PRODUCT_DESIGN.md,11551,.md,2026-07-06 07:36:13 UTC
 docs\PRODUCT_OVERVIEW.md,12126,.md,2026-07-06 07:01:31 UTC
-docs\PRODUCTION_READINESS.md,19996,.md,2026-07-06 07:34:09 UTC
+docs\PRODUCTION_READINESS.md,20331,.md,2026-07-07 01:43:20 UTC
 docs\README.md,12455,.md,2026-07-07 00:16:32 UTC
 docs\RELEASE_CHECKLIST.md,10663,.md,2026-07-06 07:18:18 UTC
 docs\REPO_AUDIT_LOG.md,370,.md,2026-06-25 04:14:47 UTC
@@ -798,7 +798,7 @@ docs\whitepapers\Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Know
 docs\whitepapers\README.md,1360,.md,2026-07-07 00:16:11 UTC
 docs\whitepapers\UKG_17_Axis_Mathematical_Framework_v3.md.docx,2374738,.docx,2026-06-08 03:13:24 UTC
 docs\whitepapers\Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf,2541394,.pdf,2026-06-08 03:12:21 UTC
-docs\WINDOWS_11_LOCAL_RUNBOOK.md,14618,.md,2026-07-06 07:01:31 UTC
+docs\WINDOWS_11_LOCAL_RUNBOOK.md,15167,.md,2026-07-07 01:44:00 UTC
 docs\wireframes\README.md,835,.md,2026-07-06 19:00:04 UTC
 docs\WORKFLOW.md,7183,.md,2026-07-06 07:35:36 UTC
 extensions.py,1983,.py,2026-06-19 04:22:03 UTC
@@ -891,8 +891,8 @@ frontend\components\Dashboard\CommandBar.test.tsx,4504,.tsx,2026-06-19 06:33:28 
 frontend\components\Dashboard\CommandBar.tsx,4879,.tsx,2026-06-19 06:33:28 UTC
 frontend\components\Dashboard\ComplianceTrendChart.test.tsx,1632,.tsx,2026-02-03 05:42:06 UTC
 frontend\components\Dashboard\ComplianceTrendChart.tsx,3672,.tsx,2026-06-19 04:41:37 UTC
-frontend\components\DesktopStatus.test.tsx,6947,.tsx,2026-07-02 06:47:45 UTC
-frontend\components\DesktopStatus.tsx,7165,.tsx,2026-07-02 06:47:45 UTC
+frontend\components\DesktopStatus.test.tsx,6695,.tsx,2026-07-07 01:26:31 UTC
+frontend\components\DesktopStatus.tsx,5654,.tsx,2026-07-07 01:26:21 UTC
 frontend\components\feature-flags\FeatureFlagGate.test.tsx,3485,.tsx,2026-06-19 06:33:28 UTC
 frontend\components\feature-flags\FeatureFlagGate.tsx,515,.tsx,2026-02-16 09:38:40 UTC
 frontend\components\Graph\AxisSelector.test.tsx,1147,.tsx,2026-02-02 22:56:29 UTC
@@ -994,7 +994,7 @@ frontend\eslint.config.mjs,2732,.mjs,2026-05-13 20:17:08 UTC
 frontend\hooks\useTraceStream.ts,1343,.ts,2026-05-29 21:18:55 UTC
 frontend\lib\api\auth.ts,930,.ts,2026-06-21 18:20:15 UTC
 frontend\lib\api\chat.ts,1266,.ts,2026-05-22 21:07:51 UTC
-frontend\lib\api\client.ts,14217,.ts,2026-07-07 00:33:40 UTC
+frontend\lib\api\client.ts,15325,.ts,2026-07-07 01:15:59 UTC
 frontend\lib\api\compliance.ts,561,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\index.ts,1029,.ts,2026-06-08 06:30:45 UTC
 frontend\lib\api\ingestion.ts,1547,.ts,2026-05-30 05:39:24 UTC
@@ -1123,7 +1123,7 @@ frontend\tests\e2e\theme-visual-smoke.spec.ts-snapshots\simulations-light-chromi
 frontend\tests\unit\lib\api\api_modules.test.ts,1555,.ts,2026-02-04 08:06:18 UTC
 frontend\tests\unit\lib\api\auth.test.ts,2700,.ts,2026-06-21 18:20:59 UTC
 frontend\tests\unit\lib\api\chat.test.ts,1868,.ts,2026-05-22 21:08:58 UTC
-frontend\tests\unit\lib\api\client.test.ts,16106,.ts,2026-07-07 00:35:15 UTC
+frontend\tests\unit\lib\api\client.test.ts,17275,.ts,2026-07-07 01:18:33 UTC
 frontend\tests\unit\lib\api\compliance.test.ts,1474,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\index.test.ts,3824,.ts,2026-02-07 10:53:19 UTC
 frontend\tests\unit\lib\api\ingestion.test.ts,1459,.ts,2026-05-29 21:28:41 UTC
@@ -1145,7 +1145,7 @@ frontend\types\electron.d.ts,3745,.ts,2026-07-04 05:10:01 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,100672,.md,2026-07-06 01:14:57 UTC
+HANDOFF.md,102471,.md,2026-07-07 01:43:20 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1170,7 +1170,7 @@ patches\improve-csp.patch,378,.patch,2026-01-30 20:55:29 UTC
 playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
-README.md,34456,.md,2026-07-07 00:28:50 UTC
+README.md,34551,.md,2026-07-07 01:37:07 UTC
 REPO_AUDIT_LOG.md,175052,.md,2026-06-25 02:19:57 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,2383,.json,2026-05-22 22:58:30 UTC
@@ -1183,7 +1183,7 @@ reports\dev_doctor_report.json,4576,.json,2026-05-23 04:54:27 UTC
 reports\dmrf_phase_f_validation.json,1357,.json,2026-05-26 23:27:18 UTC
 reports\dsqp_benchmark.json,324,.json,2026-07-06 05:24:28 UTC
 reports\dsqp_provider_audit_report.json,33136,.json,2026-05-26 05:53:45 UTC
-reports\installer_integrity_report.json,463,.json,2026-07-07 01:02:03 UTC
+reports\installer_integrity_report.json,463,.json,2026-07-07 01:41:53 UTC
 reports\installer_integrity_validation_report.json,463,.json,2026-05-15 04:03:21 UTC
 reports\installer_signature_report.json,750,.json,2026-07-06 06:16:03 UTC
 reports\ki_ingestion_evidence.json,8922,.json,2026-05-29 21:48:44 UTC
@@ -1494,7 +1494,7 @@ tests\security\test_security_coverage.py,4976,.py,2026-06-13 19:35:22 UTC
 tests\security\test_security_critical.py,2050,.py,2026-06-25 02:14:53 UTC
 tests\security\test_security_headers.py,2257,.py,2026-01-06 01:00:29 UTC
 tests\security\test_security_storage_deep.py,5946,.py,2026-06-24 18:23:44 UTC
-tests\security\test_session_security.py,2761,.py,2026-07-04 03:39:05 UTC
+tests\security\test_session_security.py,3672,.py,2026-07-07 01:19:06 UTC
 tests\security\test_system_chaos.py,2760,.py,2026-02-16 22:25:20 UTC
 tests\simulation\test_e2e_simulation_pipeline.py,10596,.py,2026-06-04 08:00:02 UTC
 tests\simulation\test_sekre_wiring.py,4074,.py,2026-06-12 03:14:10 UTC
@@ -1588,6 +1588,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,151077,.md,2026-07-06 18:54:22 UTC
+TODO.md,153671,.md,2026-07-07 01:43:20 UTC
 uv.lock,212883,.lock,2026-06-05 03:47:07 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

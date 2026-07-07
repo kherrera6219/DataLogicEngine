@@ -18,10 +18,42 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-06 (**Documentation audit + code audit slices 1-12 plus CodeQL alert remediation** - root/docs tree reconciled to the live desktop-auth/API/model surface, stale duplicate API exports moved to archive, cleanup candidates removed, LLM provider/model configuration audited, `/api/v1/gateway/keys` hardened, `/api/v1/settings/ai` moved to the JSON/desktop-aware auth decorator, settings provider/model validation canonicalized, API route decorator/session/API-key boundaries hardened, stale KA routes retired, live KA route and KA execution contracts fixed, trace run viewer/list/export UI contracts hardened, trace export history/download persistence aligned to the `TraceExport` schema, gateway/DMRF chat trace creation now persists/upserts `TraceRun` rows for successful direct/quad/overlay responses, gateway failures/stream/offline replay paths now preserve resolvable trace links, frontend trace-link consumers are wired, and KA/search/MCP/trace-export CodeQL reflected-output and exception-disclosure alerts are remediated with fixed public error messages plus server-side logging. Validation: focused gateway/API/trace/DMRF pytest 57 passed with workspace-local temp paths, direct Ruff check passed, plus prior slice validations through frontend typecheck; pytest emitted the known cache-permission warning and teardown-only Neo4j logging warning. Prior, 2026-07-01: **LLM API & Database Initialization Fix, App Packaging** - database initialization, provider keys, model defaults, PyInstaller backend, Electron packaging, and 429 unit / 20 integration tests passed.)
+**Last updated:** 2026-07-07 (**First-run QC + desktop API-key save repair** - installed-app QC confirmed backend/service/database connectivity, identified a stale-session CSRF ordering bug in Settings -> AI Models save/test, and identified idle DSQP persona polling from the desktop status widget. Source now prefers signed desktop auth for Electron mutations, refreshes desktop session/CSRF state before desktop mutations, and removes automatic DSQP status polling. Validation: focused backend auth/settings pytest 14 passed, frontend API/status Vitest 24 passed, frontend typecheck passed, focused frontend lint passed, focused Ruff passed, docs reference validation passed with existing warnings, and the Windows installer rebuilt with SHA-256 `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68` plus installer integrity/NSIS governance passing. Current next step: reinstall the rebuilt app, then re-test OpenAI/Google provider save/test and unsupported legacy-provider status handling.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+
+## First-run QC and desktop API-key save repair - 2026-07-07
+
+Scope completed in this checkpoint:
+
+1. Inspected the user's running installed desktop app, backend process, loopback health endpoints, Docker-backed local services, runtime SQLite database, Chroma metadata store, local object-store buckets, Neo4j graph, Redis, and MinIO.
+2. Investigated the Settings -> AI Models API-key save/test failure that surfaced as `CSRF session token missing`.
+3. Investigated repeated idle provider calls in runtime logs and traced them to automatic DSQP persona polling in the floating desktop status widget.
+4. Added `reports/first_run_qc_2026-07-07.md` with service/database results, findings, corrections, validation, and remaining reinstall validation steps.
+
+Findings and fixes addressed before rebuild:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| Signed Electron API-key save/test requests could fail when a stale Flask session cookie was evaluated before desktop HMAC auth and triggered session CSRF enforcement. | `app.py` now accepts valid signed desktop auth at the app-level API CSRF guard, `backend/auth/api_decorators.py` prefers signed desktop auth over cookie session auth for API decorators, and `frontend/lib/api/client.ts` refreshes desktop session/CSRF state before desktop mutations and recovery retries. | Fixed in source and rebuilt; reinstall validation pending |
+| `DesktopStatus` auto-polled DSQP persona profiles every 5 seconds, causing provider-backed DSQP construction and repeated cloud-provider quota errors while idle. | Removed automatic DSQP persona profile polling from the desktop status widget and added a regression proving status polling does not call `dsqpPersonaProfiles`. | Fixed in source and rebuilt; reinstall validation pending |
+| Existing provider-card labels could imply a key was validated when only stored. | The current UI copy already now distinguishes stored keys from tested provider availability; final behavior still needs installed-app validation after rebuild with real provider keys. | Pending reinstall QC |
+
+Validation completed:
+
+1. `python -m pytest tests\security\test_session_security.py tests\unit\test_auth_api_decorators_security.py tests\integration_routes\test_settings_routes_auth.py` - 14 passed.
+2. `npm run test -- tests/unit/lib/api/client.test.ts components/DesktopStatus.test.tsx` - 24 passed.
+3. `npm run typecheck` - passed.
+4. `npm run lint -- components/DesktopStatus.tsx components/DesktopStatus.test.tsx lib/api/client.ts tests/unit/lib/api/client.test.ts` - passed.
+5. `python -m ruff check app.py backend\auth\api_decorators.py tests\security\test_session_security.py` - passed.
+
+Current rebuild/QC sequence:
+
+1. Rebuild `DataLogicEngine Setup Latest.exe` from current source. Done; SHA-256 `5cc9c0d0595a5e1dbfb6db26695d57a861632d3548c16f47f89301b36ca1ef68`.
+2. Verify installer integrity/governance artifacts. Done; installer integrity and NSIS governance passed.
+3. Reinstall the app and validate API-key save/test flows for OpenAI and Google with real keys.
+4. Confirm unsupported legacy provider status remains non-green and that idle dashboard/status usage does not emit DSQP quota calls.
 
 ## Documentation audit slice — 2026-07-04
 

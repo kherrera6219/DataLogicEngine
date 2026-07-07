@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.10.1 |
+| Last updated | 2026-07-07 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -58,6 +58,7 @@ Current status: **application-readiness validation is strong for local-first/des
 10. Windows backend rebuild, installer integrity, packaging smoke, installer-mode install/uninstall smoke, and NSIS governance checks.
 11. Privacy controls, cloud/AI disclosures, local-first product copy, and admin/compliance surfaces.
 12. Frontend accessibility automation path and visual/E2E testing path.
+13. First-run QC evidence covering local backend/service/database connectivity, desktop API-key save/test CSRF repair, removal of idle DSQP provider polling, and a rebuilt local installer with integrity/NSIS governance passing.
 
 ### Remaining release blockers before signed production distribution
 
@@ -65,8 +66,9 @@ Current status: **application-readiness validation is strong for local-first/des
 2. Provisioned trusted production signing credentials.
 3. Signed release artifact validation.
 4. Final provider-configured staging run for gateway-backed query/simulation paths.
-5. Final release checklist completion with generated reports attached.
-6. Confirmation that no production build uses default secrets, `AUTO_CREATE_SCHEMA=true`, or desktop-only trust in cloud mode.
+5. Reinstall validation of the rebuilt desktop installer with real OpenAI/Google provider save/test flows.
+6. Final release checklist completion with generated reports attached.
+7. Confirmation that no production build uses default secrets, `AUTO_CREATE_SCHEMA=true`, or desktop-only trust in cloud mode.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 

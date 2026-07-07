@@ -127,16 +127,9 @@ describe('DesktopStatus', () => {
     expect(screen.getByText('Database connected')).toBeInTheDocument();
   });
 
-  it('displays DSQP persona cards when backend is running', async () => {
+  it('does not auto-load DSQP persona profiles while polling status', async () => {
     window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
-    window.electronAPI!.dsqpPersonaProfiles = vi.fn().mockResolvedValue({
-      success: true,
-      profiles: [
-        { axis: 8, persona_type: 'knowledge', name: 'Lead Knowledge Analyst', coverage_score: 1, job_role: 'Lead Knowledge Analyst', skills: ['Analysis'], chain_steps: 7 },
-      ],
-      partial: false,
-      failures: {},
-    });
+    window.electronAPI!.dsqpPersonaProfiles = vi.fn();
 
     render(<DesktopStatus />);
 
@@ -145,8 +138,12 @@ describe('DesktopStatus', () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByText('DSQP Personas')).toBeInTheDocument();
-    expect(screen.getByText('A8 knowledge')).toBeInTheDocument();
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+      await Promise.resolve();
+    });
+
+    expect(window.electronAPI!.dsqpPersonaProfiles).not.toHaveBeenCalled();
   });
 
   it('shows network details for a running backend', async () => {
