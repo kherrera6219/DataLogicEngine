@@ -23,6 +23,18 @@
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
 
+## Dependabot alert sweep - 2026-07-07
+
+Scope completed in this checkpoint:
+
+1. Queried GitHub Dependabot alerts for `kherrera6219/DataLogicEngine`.
+2. Confirmed 0 open alerts, 418 fixed historical alerts, and 5 dismissed historical alerts.
+3. Remediated the dismissed `fix_started` lockfile alerts by refreshing `uv.lock` transitive packages:
+   - `mako` `1.3.10` -> `1.3.12`
+   - `urllib3` `2.6.3` -> `2.7.0`
+   - `werkzeug` `3.1.5` -> `3.1.8`
+4. Recorded evidence in `reports/dependabot_alerts_2026-07-07.md`.
+
 ## First-run QC and desktop API-key save repair - 2026-07-07
 
 Scope completed in this checkpoint:
