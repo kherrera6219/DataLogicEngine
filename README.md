@@ -126,7 +126,7 @@ See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work it
 
 ## Quick Links
 
-- 🚀 **Quick Start**: [Windows Desktop Build](#quickstart)
+- 🚀 **Quick Start**: [Build the Windows installer from source](#quickstart)
 - 🔒 **Report Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
 - ❓ **Ask Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
 - 📚 **Need Help?**: See [Getting Help](#getting-help)
@@ -134,23 +134,131 @@ See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work it
 
 ## Quickstart
 
-The primary application target is the Windows desktop app. Use this source-build path when working from a fresh checkout:
+The Windows installer is intentionally built locally from source. The generated `.exe`, `.blockmap`, and checksum files are large release artifacts and should not be uploaded to GitHub. Use this path when starting from a clean Windows machine and producing the installer yourself.
+
+### 1. Download and unpack the source
+
+Use either the GitHub ZIP download or a Git clone.
+
+ZIP path:
+
+1. Open `https://github.com/kherrera6219/DataLogicEngine`.
+2. Select **Code** -> **Download ZIP**.
+3. Extract the ZIP into a writable local folder such as `C:\software\DataLogicEngine`.
+4. Open PowerShell in the extracted repository folder.
+
+Git path:
 
 ```powershell
-git clone https://github.com/kherrera6219/DataLogicEngine.git
-cd DataLogicEngine
+git clone https://github.com/kherrera6219/DataLogicEngine.git C:\software\DataLogicEngine
+Set-Location C:\software\DataLogicEngine
+```
 
+### 2. Install required tools
+
+Install these before building:
+
+| Requirement | Use |
+| --- | --- |
+| Windows 11 | Primary desktop build target |
+| Python 3.11 | Backend environment and build scripts |
+| Node.js 24+ with npm | Frontend and Electron packaging |
+| Docker Desktop with Compose v2 | Local database/cache/graph/object services and container validation |
+| Git | Optional if cloning instead of downloading the ZIP |
+| Internet access | Package restore, container pulls, and cloud model inference |
+
+Confirm the tools are available:
+
+```powershell
+py -3.11 --version
+node --version
+npm --version
+docker --version
+docker compose version
+```
+
+### 3. Create local configuration
+
+Copy the template and edit the local `.env` file:
+
+```powershell
+Copy-Item .env.template .env
+notepad .env
+```
+
+For Docker Compose, make sure these local data-service values are present and uncommented:
+
+```dotenv
+POSTGRES_PASSWORD=change-this-postgres-password
+NEO4J_PASSWORD=change-this-neo4j-password
+OBJECT_ENDPOINT_URL=http://127.0.0.1:9000
+OBJECT_ACCESS_KEY=minioadmin
+OBJECT_SECRET_KEY=minioadmin123
+OBJECT_BUCKET=datalogic
+```
+
+Set local application secrets before running the backend or packaged app. Generate a unique 64-character value for each secret, for example:
+
+```powershell
+py -3.11 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Then paste the generated values into `.env`:
+
+```dotenv
+SECRET_KEY=
+JWT_SECRET_KEY=
+SESSION_SECRET=
+WTF_CSRF_SECRET_KEY=
+```
+
+AI provider keys are normally saved encrypted through **Settings -> AI/Model** after installation. For headless or developer runs, set one of these in `.env`:
+
+```dotenv
+OPENAI_API_KEY=
+GOOGLE_API_KEY=
+GEMINI_API_KEY=
+```
+
+### 4. Install source dependencies
+
+From the repository root:
+
+```powershell
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-
-Copy-Item .env.template .env
 npm --prefix frontend ci
+```
 
+### 5. Start Docker services
+
+Start the local data services used by integration checks and developer runs:
+
+```powershell
+docker compose up -d db redis neo4j minio
+docker compose ps
+```
+
+To run the full containerized web stack instead:
+
+```powershell
+docker compose up --build
+```
+
+Default local service ports are `3000`, `5000`, `5432`, `6379`, `7474`, `7687`, `9000`, and `9001`. Stop conflicting services or adjust your local configuration before starting Docker if one of those ports is already in use.
+
+### 6. Build the Windows installer
+
+Build the packaged backend, frontend, Electron shell, and NSIS installer:
+
+```powershell
 .\.venv\Scripts\python.exe scripts\build_backend.py
 $env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
+
+`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires trusted Windows code-signing credentials and the release checklist in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md).
 
 The desktop build produces these root artifacts:
 
@@ -160,13 +268,9 @@ The desktop build produces these root artifacts:
 | `DataLogicEngine Setup Latest.exe.sha256` | Installer checksum |
 | `DataLogicEngine Setup Latest.exe.blockmap` | Electron updater block map |
 
-Install interactively:
+### 7. Verify the generated installer
 
-```powershell
-.\DataLogicEngine Setup Latest.exe
-```
-
-Run packaging governance and smoke checks:
+Run the same local packaging checks used for release evidence:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
@@ -175,7 +279,21 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packag
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode installer
 ```
 
-For developer browser mode, run backend and frontend separately:
+The installer-mode smoke test performs a local install/uninstall cycle. Close any running DataLogicEngine windows before running it.
+
+### 8. Run the installer
+
+Start the installer interactively:
+
+```powershell
+.\DataLogicEngine Setup Latest.exe
+```
+
+After installation, launch DataLogicEngine from the Start menu or desktop shortcut, open **Settings -> AI/Model**, select OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`, paste your provider key, and save it. Unsigned local builds may show a Windows SmartScreen warning until the production code-signing gate is complete.
+
+### 9. Developer browser mode
+
+For local browser development without the packaged installer:
 
 ```powershell
 flask db upgrade
@@ -197,13 +315,6 @@ Minimal API call:
 
 ```bash
 curl http://localhost:5000/health
-```
-
-Docker Compose remains available for integration and CI-style container validation:
-
-```bash
-cp .env.template .env
-docker compose up --build
 ```
 
 ## Contents

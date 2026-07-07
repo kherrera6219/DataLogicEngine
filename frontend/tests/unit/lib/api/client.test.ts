@@ -126,6 +126,33 @@ describe('lib/api/client', () => {
       expect(mutationHeaders.get('X-CSRF-Token')).toBe('csrf-token-1');
     });
 
+    it('adds a CSRF token to desktop mutation requests while preserving the desktop header', async () => {
+      const { shouldUseDesktopSessionFlow } = await import('@/lib/runtime/policy');
+      vi.mocked(shouldUseDesktopSessionFlow).mockReturnValue(true);
+
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { csrf_token: 'desktop-csrf-token' } } }),
+        )
+        .mockResolvedValueOnce(createMockResponse({ json: { data: { saved: true } } }));
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { request } = await loadClientModule();
+
+      await expect(
+        request('/gateway/keys', {
+          method: 'POST',
+          body: JSON.stringify({ provider: 'google', key: 'provider-key', model: 'gemini-3.1-pro-preview' }),
+        }),
+      ).resolves.toEqual({ saved: true });
+
+      expect(fetchMock.mock.calls[0][0]).toContain('/auth/csrf-token');
+      const mutationHeaders = new Headers(fetchMock.mock.calls[1][1].headers as HeadersInit);
+      expect(mutationHeaders.get('X-DataLogic-Desktop')).toBe('true');
+      expect(mutationHeaders.get('X-CSRF-Token')).toBe('desktop-csrf-token');
+    });
+
     it('retries a mutation after a CSRF refresh on 403', async () => {
       const fetchMock = vi
         .fn()
@@ -198,6 +225,9 @@ describe('lib/api/client', () => {
       const fetchMock = vi
         .fn()
         .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { csrf_token: 'stale-desktop-csrf' } } }),
+        )
+        .mockResolvedValueOnce(
           createMockResponse({
             ok: false,
             status: 401,
@@ -209,6 +239,9 @@ describe('lib/api/client', () => {
           createMockResponse({ json: { data: { nonce: 'recovery-nonce' } } }),
         )
         .mockResolvedValueOnce(createMockResponse({ json: { data: { ok: true } } }))
+        .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { csrf_token: 'recovered-desktop-csrf' } } }),
+        )
         .mockResolvedValueOnce(createMockResponse({ json: { data: { recovered: true } } }));
       vi.stubGlobal('fetch', fetchMock);
 
@@ -218,9 +251,11 @@ describe('lib/api/client', () => {
         recovered: true,
       });
 
-      expect(fetchMock.mock.calls[2][0]).toContain('/auth/desktop/auto-login');
-      const recoveryHeaders = new Headers(fetchMock.mock.calls[2][1].headers as HeadersInit);
+      expect(fetchMock.mock.calls[3][0]).toContain('/auth/desktop/auto-login');
+      const recoveryHeaders = new Headers(fetchMock.mock.calls[3][1].headers as HeadersInit);
       expect(recoveryHeaders.get('X-Desktop-Auth-Nonce')).toBe('recovery-nonce');
+      const retriedHeaders = new Headers(fetchMock.mock.calls[5][1].headers as HeadersInit);
+      expect(retriedHeaders.get('X-CSRF-Token')).toBe('recovered-desktop-csrf');
     });
 
     it('clears the session and throws when auth check returns 403', async () => {
@@ -354,6 +389,9 @@ describe('lib/api/client', () => {
     it('returns 204 and plain text responses correctly', async () => {
       const fetchMock = vi
         .fn()
+        .mockResolvedValueOnce(
+          createMockResponse({ json: { data: { csrf_token: 'delete-csrf-token' } } }),
+        )
         .mockResolvedValueOnce(createMockResponse({ status: 204, json: null }))
         .mockResolvedValueOnce(
           createMockResponse({

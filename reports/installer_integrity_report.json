@@ -9,7 +9,7 @@
     "installers": [
       {
         "artifact": "DataLogicEngine Setup Latest.exe",
-        "sha256": "a398c6cf1f92b1ff85b29231f58eb6d1ead96184304cf83ce61d5390ab54b496",
+        "sha256": "3cd45c48e894a2c68b5ca24474c7d2627b3cdcdf4bcb10c72d8f2f18e07f8e4d",
         "checksum_file": "DataLogicEngine Setup Latest.exe.sha256",
         "blockmap_present": true,
         "valid": true

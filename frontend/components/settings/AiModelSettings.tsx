@@ -34,6 +34,30 @@ const MODEL_LIBRARY: Record<string, string[]> = {
   openai: ['gpt-5.5'],
   google: ['gemini-3.1-pro-preview'],
 };
+const CONFIGURABLE_PROVIDER_TYPES = ['openai', 'google'];
+
+function isConfigurableProviderType(providerType: string | undefined): boolean {
+  return CONFIGURABLE_PROVIDER_TYPES.includes((providerType || '').toLowerCase());
+}
+
+export function getProviderStatus(entry: ProviderOption, verified: boolean): {
+  label: string;
+  variant: 'secondary' | 'outline' | 'success';
+} {
+  if (!isConfigurableProviderType(entry.type)) {
+    return { label: 'Unsupported legacy provider', variant: 'outline' };
+  }
+
+  if (verified) {
+    return { label: 'Key verified', variant: 'success' };
+  }
+
+  if (entry.has_api_key) {
+    return { label: 'Key saved', variant: 'secondary' };
+  }
+
+  return { label: 'API key missing', variant: 'outline' };
+}
 
 function formatError(error: unknown): string {
   if (error instanceof Error) {
@@ -52,6 +76,7 @@ export function AiModelSettings() {
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [verifiedProviders, setVerifiedProviders] = useState<Record<string, boolean>>({});
 
   // User AI preference controls
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -73,7 +98,13 @@ export function AiModelSettings() {
         setProviders(loadedProviders);
 
         if (loadedProviders.length > 0) {
-          const preferred = loadedProviders.find((entry) => entry.is_default) || loadedProviders[0];
+          const preferred =
+            loadedProviders.find((entry) => entry.is_default && isConfigurableProviderType(entry.type)) ||
+            loadedProviders.find((entry) => isConfigurableProviderType(entry.type));
+          if (!preferred) {
+            return;
+          }
+
           const nextType = preferred.type || preferred.name.toLowerCase();
           setProvider(nextType);
           if (preferred.model) {
@@ -123,12 +154,13 @@ export function AiModelSettings() {
   };
 
   // Only two cloud models are offered: OpenAI (gpt-5.5) and Google (gemini-3.1-pro-preview).
-  const providerChoices = useMemo(() => ['openai', 'google'], []);
+  const providerChoices = useMemo(() => CONFIGURABLE_PROVIDER_TYPES, []);
 
   const selectedProvider = useMemo(
     () => providers.find((entry) => entry.type === provider),
     [provider, providers]
   );
+  const selectedProviderVerified = Boolean(selectedProvider && verifiedProviders[selectedProvider.type]);
 
   const modelOptions = useMemo(() => {
     const fromProvider = providers
@@ -139,10 +171,12 @@ export function AiModelSettings() {
     return Array.from(new Set([...fromProvider, ...defaults]));
   }, [provider, providers]);
 
-  // Sync model to available options during render instead of via effect.
-  if (modelOptions.length && !modelOptions.includes(model)) {
-    setModel(modelOptions[0]);
-  }
+  const effectiveModel = useMemo(() => {
+    if (modelOptions.length && !modelOptions.includes(model)) {
+      return modelOptions[0];
+    }
+    return model;
+  }, [model, modelOptions]);
 
   const upsertProvider = (providerType: string, providerId: string | null) => {
     setProviders((previous) => {
@@ -152,7 +186,7 @@ export function AiModelSettings() {
         id: providerId || undefined,
         name: providerType,
         type: providerType,
-        model,
+        model: effectiveModel,
         has_api_key: true,
       };
 
@@ -166,6 +200,7 @@ export function AiModelSettings() {
       }
       return next;
     });
+    setVerifiedProviders((previous) => ({ ...previous, [providerType]: false }));
   };
 
   const handleSaveConfiguration = async (): Promise<string | null> => {
@@ -181,7 +216,7 @@ export function AiModelSettings() {
         body: JSON.stringify({
           provider,
           key: apiKey.trim(),
-          model,
+          model: effectiveModel,
         }),
       });
 
@@ -215,8 +250,10 @@ export function AiModelSettings() {
       if (!result?.success) {
         throw new Error(result?.error || result?.message || 'Provider model test failed');
       }
+      setVerifiedProviders((previous) => ({ ...previous, [provider]: true }));
       toast(result.message || 'Provider model test succeeded.', 'success');
     } catch (error) {
+      setVerifiedProviders((previous) => ({ ...previous, [provider]: false }));
       toast(`Provider model test failed: ${formatError(error)}`, 'error');
     } finally {
       setTesting(false);
@@ -309,6 +346,7 @@ export function AiModelSettings() {
               <p className="text-sm text-muted-foreground">No providers detected yet. Save a key to create one.</p>
             )}
             {providers.map((entry) => {
+              const status = getProviderStatus(entry, Boolean(verifiedProviders[entry.type]));
               return (
                 <div key={`${entry.type}-${entry.id || entry.model || 'provider'}`} className="rounded-lg border p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
@@ -320,8 +358,8 @@ export function AiModelSettings() {
                   <div className="text-xs text-muted-foreground">
                     Model: {entry.model || 'Not configured'}
                   </div>
-                  <Badge variant={entry.has_api_key ? 'success' : 'outline'}>
-                    {entry.has_api_key ? 'API key set' : 'API key missing'}
+                  <Badge variant={status.variant}>
+                    {status.label}
                   </Badge>
                 </div>
               );
@@ -352,10 +390,10 @@ export function AiModelSettings() {
                 <label htmlFor="model-select" className="text-xs font-semibold uppercase text-muted-foreground">Model</label>
                 <Select
                   id="model-select"
-                  value={model}
+                  value={effectiveModel}
                   onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setModel(event.target.value)}
                 >
-                  {modelOptions.length === 0 && <option value={model}>{model}</option>}
+                  {modelOptions.length === 0 && <option value={effectiveModel}>{effectiveModel}</option>}
                   {modelOptions.map((entry) => (
                     <option key={entry} value={entry}>{entry}</option>
                   ))}
@@ -396,10 +434,26 @@ export function AiModelSettings() {
               </Button>
             </div>
 
-            {selectedProvider?.has_api_key && (
-              <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-300 flex items-center gap-2" role="status" aria-live="polite">
-                <CheckCircle2 className="h-4 w-4" />
-                Provider key detected for `{selectedProvider.type}`.
+            {selectedProvider?.has_api_key && isConfigurableProviderType(selectedProvider.type) && (
+              <div
+                className={`rounded-md border px-3 py-2 text-sm flex items-center gap-2 ${
+                  selectedProviderVerified
+                    ? 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300'
+                    : 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300'
+                }`}
+                role="status"
+                aria-live="polite"
+              >
+                {selectedProviderVerified && <CheckCircle2 className="h-4 w-4" />}
+                {selectedProviderVerified
+                  ? `Provider key verified for ${selectedProvider.type}.`
+                  : `Provider key saved for ${selectedProvider.type}. Use Test Model to validate it.`}
+              </div>
+            )}
+
+            {selectedProvider && !isConfigurableProviderType(selectedProvider.type) && (
+              <div className="rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-700 dark:text-yellow-300" role="status" aria-live="polite">
+                `{selectedProvider.type}` is a legacy provider row and is not available for the current active cloud model configuration.
               </div>
             )}
           </CardContent>

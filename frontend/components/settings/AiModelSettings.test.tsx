@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AiModelSettings } from './AiModelSettings';
+import { AiModelSettings, getProviderStatus } from './AiModelSettings';
 
 // Mock API and UI components
 vi.mock('@/lib/api', () => ({
@@ -23,8 +23,8 @@ vi.mock('@/components/ui/card', () => ({
 }));
 
 vi.mock('@/components/ui/badge', () => ({
-  Badge: ({ children, className }: any) => (
-    <span data-testid="badge" className={className}>
+  Badge: ({ children, className, variant }: any) => (
+    <span data-testid="badge" className={className} data-variant={variant}>
       {children}
     </span>
   ),
@@ -158,6 +158,61 @@ describe('AiModelSettings', () => {
     await waitFor(() => {
       expect(screen.getAllByTestId('badge').length).toBeGreaterThan(0);
     });
+  });
+
+  it('labels saved keys separately from verified keys', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/providers') {
+        return Promise.resolve({
+          providers: [{ id: '1', name: 'OpenAI', type: 'openai', has_api_key: true }],
+        });
+      }
+      return Promise.resolve({});
+    });
+
+    render(<AiModelSettings />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Key saved')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('API key set')).not.toBeInTheDocument();
+    expect(screen.queryByText('Key verified')).not.toBeInTheDocument();
+    expect(screen.getByText('Key saved').closest('[data-testid="badge"]')).toHaveAttribute(
+      'data-variant',
+      'secondary'
+    );
+  });
+
+  it('maps verified keys to the verified status only when validation has succeeded', () => {
+    expect(getProviderStatus({ id: 'g1', name: 'Google', type: 'google', has_api_key: true }, false)).toEqual({
+      label: 'Key saved',
+      variant: 'secondary',
+    });
+    expect(getProviderStatus({ id: 'g1', name: 'Google', type: 'google', has_api_key: true }, true)).toEqual({
+      label: 'Key verified',
+      variant: 'success',
+    });
+  });
+
+  it('labels unsupported legacy provider rows without a valid-key state', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/providers') {
+        return Promise.resolve({
+          providers: [{ id: 'legacy-1', name: 'Ollama', type: 'ollama', has_api_key: true }],
+        });
+      }
+      return Promise.resolve({});
+    });
+
+    render(<AiModelSettings />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsupported legacy provider')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('API key set')).not.toBeInTheDocument();
+    expect(screen.queryByText('Key verified')).not.toBeInTheDocument();
   });
 
   it('should initialize with default values', async () => {

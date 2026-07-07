@@ -70,6 +70,10 @@ function isCsrfExemptEndpoint(endpoint: string): boolean {
   return CSRF_EXEMPT_ENDPOINT_PREFIXES.some((prefix) => endpoint.startsWith(prefix));
 }
 
+function shouldAttachCsrfToken(endpoint: string, method: string): boolean {
+  return isMutationMethod(method) && !isCsrfExemptEndpoint(endpoint);
+}
+
 function extractResponseDataNode(payload: unknown): unknown {
   if (payload && typeof payload === 'object' && 'data' in payload) {
     return (payload as { data: unknown }).data;
@@ -337,9 +341,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
   }
 
   if (
-    !desktopRuntime &&
-    isMutationMethod(requestMethod) &&
-    !isCsrfExemptEndpoint(endpoint) &&
+    shouldAttachCsrfToken(endpoint, requestMethod) &&
     !headers.has('X-CSRF-Token')
   ) {
     const csrfToken = await fetchCsrfToken().catch(() => null);
@@ -358,9 +360,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
 
     if (
       response.status === 403 &&
-      !desktopRuntime &&
-      isMutationMethod(requestMethod) &&
-      !isCsrfExemptEndpoint(endpoint)
+      shouldAttachCsrfToken(endpoint, requestMethod)
     ) {
       csrfTokenCache = null;
       const refreshedToken = await fetchCsrfToken().catch(() => null);
@@ -387,6 +387,13 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       if (desktopRuntime && !endpoint.includes('/auth/desktop/auto-login')) {
         const recovered = await tryDesktopAutoLogin().catch(() => false);
         if (recovered) {
+          if (shouldAttachCsrfToken(endpoint, requestMethod)) {
+            csrfTokenCache = null;
+            const recoveredSessionToken = await fetchCsrfToken().catch(() => null);
+            if (recoveredSessionToken) {
+              headers.set('X-CSRF-Token', recoveredSessionToken);
+            }
+          }
           const retryResponse = await fetch(url, {
             ...options,
             credentials: options.credentials ?? 'include',

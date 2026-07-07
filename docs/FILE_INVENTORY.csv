@@ -695,13 +695,38 @@ docs\archive\research\CROSS_USER_TESTING.md,8875,.md,2026-01-16 12:17:47 UTC
 docs\archive\research\K8S_OPERATOR_DESIGN.md,3094,.md,2026-01-29 22:51:49 UTC
 docs\archive\research\REACT_NATIVE_RESEARCH.md,4342,.md,2026-01-29 22:51:25 UTC
 docs\archive\research\RELEASE_NOTES_v2.5.0.md,8101,.md,2026-01-16 12:17:09 UTC
+docs\archive\whitepapers\4D_Database_Solution Metadata acquation knowleagde graph.pdf,293190,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf,404266,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\analysis of layered nested simulated database - Monica AI Chat.pdf,3556446,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\ARCHITECTURE_BLUEPRINT.md,2736,.md,2026-01-31 23:57:47 UTC
+docs\archive\whitepapers\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf,187260,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Full-Stack Chatbot with UKG Overlay – Developer Blueprint.pdf,155908,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\Gap Analysis_ UKG_USKD White Paper vs. Full Technical Design Documentation.pdf,79335,.pdf,2026-01-11 04:33:21 UTC
+docs\archive\whitepapers\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf,307610,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\Integration of Knowledge Algorithms (KAs) into the UKG_USKD Architecture.pdf,172912,.pdf,2026-01-11 05:27:08 UTC
+docs\archive\whitepapers\Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf,325678,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\Modular Design for UKG’s 12-Step Workflow and 17-Axis System.pdf,54351,.pdf,2026-01-11 06:01:47 UTC
+docs\archive\whitepapers\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm,156606,.docm,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\MVP Plan_ Universal Knowledge Graph (UKG) System.pdf,125625,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Nested Simulated Memory Architecture ofUSKD 10-Layer Technical Documentation.pdf,231504,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf,3839801,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\The_17_Axis_System__Comprehensive_Technical_Architecture.pdf,4110361,.pdf,2026-01-28 06:43:29 UTC
 docs\archive\whitepapers\UKG_Grok_Whitepaper.md,332828,.md,2026-01-15 22:22:48 UTC
 docs\archive\whitepapers\UKG_USKD Deep Architecture and Compliance System – Supplementary White Paper Part 2.pdf,377058,.pdf,2026-01-11 05:12:01 UTC
 docs\archive\whitepapers\UKG_Workflow_Architecture.md,1106643,.md,2026-01-15 22:23:02 UTC
+docs\archive\whitepapers\ukg_yaml_v2_all_documents.pdf,263450,.pdf,2026-01-28 06:43:05 UTC
+docs\archive\whitepapers\Unified Coordinate System for UKG_USKD – Technical Documentation.pdf,114153,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf,83642,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal Knowledge Algorithm (KA) System – Technical Report.pdf,264120,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) – Technical White  (1).pdf,329522,.pdf,2026-01-11 04:20:34 UTC
+docs\archive\whitepapers\Universal Knowledge Graph (UKG) Application Design & Development Guide.pdf,294100,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal Knowledge Graph (UKG) MVP – System Documentation.pdf,279570,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal Knowledge Graph Simulation Stack – 10-Layer Architecture Report.pdf,307507,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) – System Documentati.pdf,376677,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal Simulated Knowledge Graph (UKG) – A Comprehensive White Paper.pdf,142510,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf,345791,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal_Knowledge_Framework_-_Enhanced_Design_System.pdf,255242,.pdf,2026-01-06 01:00:29 UTC
+docs\archive\whitepapers\Universal_Knowledge_Graph_(UKG)_Mathematical_Framework_Conversion.pdf,693399,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\wireframes\2025-design-system.md,23343,.md,2026-01-06 01:00:29 UTC
 docs\archive\wireframes\chat-interface-2025.md,39816,.md,2026-01-06 01:00:29 UTC
 docs\archive\wireframes\knowledge-graph-dashboard-2025.md,54381,.md,2026-01-15 15:49:47 UTC
@@ -742,9 +767,9 @@ docs\DOCUMENTATION_STANDARDS.md,7381,.md,2026-07-06 07:34:43 UTC
 docs\DOCUMENTATION_VERSIONING.md,4241,.md,2026-07-06 07:35:15 UTC
 docs\documents\README.md,872,.md,2026-07-06 19:00:04 UTC
 docs\ENGINEER_ONBOARDING.md,14856,.md,2026-07-06 07:37:28 UTC
-docs\FILE_INVENTORY.csv,122947,.csv,2026-07-06 19:20:54 UTC
+docs\FILE_INVENTORY.csv,121998,.csv,2026-07-07 00:28:58 UTC
 docs\FILE_STRUCTURE.md,4638,.md,2026-07-06 07:35:29 UTC
-docs\GENERATED_STRUCTURE.md,70050,.md,2026-07-06 19:20:54 UTC
+docs\GENERATED_STRUCTURE.md,69531,.md,2026-07-07 00:28:58 UTC
 docs\ip\dsqp_technical_disclosure.md,4476,.md,2026-07-06 19:00:04 UTC
 docs\MCP_INTEGRATION.md,13816,.md,2026-07-06 07:39:23 UTC
 docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
@@ -757,6 +782,7 @@ docs\PRODUCTION_READINESS.md,19996,.md,2026-07-06 07:34:09 UTC
 docs\README.md,12455,.md,2026-07-07 00:16:32 UTC
 docs\RELEASE_CHECKLIST.md,10663,.md,2026-07-06 07:18:18 UTC
 docs\REPO_AUDIT_LOG.md,370,.md,2026-06-25 04:14:47 UTC
+docs\ROOT_CLEANUP_REVIEW_2026-07-06.md,4169,.md,2026-07-06 19:19:36 UTC
 docs\SDLC_SSDF_MAPPING.md,12700,.md,2026-07-06 07:35:54 UTC
 docs\SECURITY.md,16371,.md,2026-07-06 07:32:01 UTC
 docs\SEQUENCE_DIAGRAMS.md,11785,.md,2026-07-06 07:33:26 UTC
@@ -890,8 +916,8 @@ frontend\components\PlaceholderPage.test.tsx,1276,.tsx,2026-02-03 06:43:08 UTC
 frontend\components\PlaceholderPage.tsx,2703,.tsx,2026-02-03 06:47:35 UTC
 frontend\components\projects\ProjectDetail.test.tsx,3287,.tsx,2026-06-19 06:33:28 UTC
 frontend\components\projects\ProjectDetail.tsx,9996,.tsx,2026-06-19 06:33:29 UTC
-frontend\components\settings\AiModelSettings.test.tsx,6737,.tsx,2026-07-02 06:47:45 UTC
-frontend\components\settings\AiModelSettings.tsx,16550,.tsx,2026-07-04 03:21:00 UTC
+frontend\components\settings\AiModelSettings.test.tsx,8714,.tsx,2026-07-07 00:57:34 UTC
+frontend\components\settings\AiModelSettings.tsx,18815,.tsx,2026-07-07 00:58:01 UTC
 frontend\components\settings\ApiOverlayConfig.test.tsx,8796,.tsx,2026-07-04 03:22:00 UTC
 frontend\components\settings\ApiOverlayConfig.tsx,30022,.tsx,2026-07-04 03:21:00 UTC
 frontend\components\settings\DatabaseSettings.test.tsx,11458,.tsx,2026-06-21 18:06:25 UTC
@@ -968,7 +994,7 @@ frontend\eslint.config.mjs,2732,.mjs,2026-05-13 20:17:08 UTC
 frontend\hooks\useTraceStream.ts,1343,.ts,2026-05-29 21:18:55 UTC
 frontend\lib\api\auth.ts,930,.ts,2026-06-21 18:20:15 UTC
 frontend\lib\api\chat.ts,1266,.ts,2026-05-22 21:07:51 UTC
-frontend\lib\api\client.ts,13850,.ts,2026-07-06 00:31:30 UTC
+frontend\lib\api\client.ts,14217,.ts,2026-07-07 00:33:40 UTC
 frontend\lib\api\compliance.ts,561,.ts,2026-05-22 21:07:51 UTC
 frontend\lib\api\index.ts,1029,.ts,2026-06-08 06:30:45 UTC
 frontend\lib\api\ingestion.ts,1547,.ts,2026-05-30 05:39:24 UTC
@@ -1097,7 +1123,7 @@ frontend\tests\e2e\theme-visual-smoke.spec.ts-snapshots\simulations-light-chromi
 frontend\tests\unit\lib\api\api_modules.test.ts,1555,.ts,2026-02-04 08:06:18 UTC
 frontend\tests\unit\lib\api\auth.test.ts,2700,.ts,2026-06-21 18:20:59 UTC
 frontend\tests\unit\lib\api\chat.test.ts,1868,.ts,2026-05-22 21:08:58 UTC
-frontend\tests\unit\lib\api\client.test.ts,14400,.ts,2026-07-06 00:33:01 UTC
+frontend\tests\unit\lib\api\client.test.ts,16106,.ts,2026-07-07 00:35:15 UTC
 frontend\tests\unit\lib\api\compliance.test.ts,1474,.ts,2026-05-22 21:08:58 UTC
 frontend\tests\unit\lib\api\index.test.ts,3824,.ts,2026-02-07 10:53:19 UTC
 frontend\tests\unit\lib\api\ingestion.test.ts,1459,.ts,2026-05-29 21:28:41 UTC
@@ -1144,7 +1170,7 @@ patches\improve-csp.patch,378,.patch,2026-01-30 20:55:29 UTC
 playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
-README.md,30835,.md,2026-07-06 07:01:31 UTC
+README.md,34456,.md,2026-07-07 00:28:50 UTC
 REPO_AUDIT_LOG.md,175052,.md,2026-06-25 02:19:57 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,2383,.json,2026-05-22 22:58:30 UTC
@@ -1157,7 +1183,7 @@ reports\dev_doctor_report.json,4576,.json,2026-05-23 04:54:27 UTC
 reports\dmrf_phase_f_validation.json,1357,.json,2026-05-26 23:27:18 UTC
 reports\dsqp_benchmark.json,324,.json,2026-07-06 05:24:28 UTC
 reports\dsqp_provider_audit_report.json,33136,.json,2026-05-26 05:53:45 UTC
-reports\installer_integrity_report.json,463,.json,2026-07-06 06:19:20 UTC
+reports\installer_integrity_report.json,463,.json,2026-07-07 01:02:03 UTC
 reports\installer_integrity_validation_report.json,463,.json,2026-05-15 04:03:21 UTC
 reports\installer_signature_report.json,750,.json,2026-07-06 06:16:03 UTC
 reports\ki_ingestion_evidence.json,8922,.json,2026-05-29 21:48:44 UTC
