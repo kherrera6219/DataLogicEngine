@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2026-06-25T02:19:25Z",
+  "generated_at": "2026-07-06T19:18:15Z",
   "metrics": {
     "_totals": {
       "CONFIDENCE.HIGH": 89,
-      "CONFIDENCE.LOW": 1,
+      "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 8,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
       "SEVERITY.LOW": 97,
-      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 77857,
+      "loc": 76304,
       "nosec": 0,
       "skipped_tests": 6
     },
@@ -25,19 +25,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 74,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/api\\ka_management.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 430,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -63,7 +50,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 170,
+      "loc": 232,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -479,7 +466,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 188,
+      "loc": 190,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2394,6 +2381,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "backend/llm_gateway\\active_model.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 130,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "backend/llm_gateway\\api.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -2403,46 +2403,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 1185,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/llm_gateway\\complexity_classifier.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 111,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/llm_gateway\\escalation_config.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 55,
+      "loc": 1058,
       "nosec": 0,
       "skipped_tests": 0
     },
     "backend/llm_gateway\\gateway.py": {
-      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.HIGH": 3,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
+      "SEVERITY.LOW": 3,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 1840,
+      "loc": 1810,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2468,7 +2442,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 144,
+      "loc": 141,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2481,7 +2455,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 36,
+      "loc": 28,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2495,123 +2469,6 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 48,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/llm_gateway\\tier_availability.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 214,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\__init__.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 24,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\config.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 48,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\keepalive.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 115,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\manager.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 275,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\ollama_client.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 1,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 1,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 142,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\paths.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 28,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\response_cache.py": {
-      "CONFIDENCE.HIGH": 1,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 1,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 296,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "backend/local_model_acceleration\\safety.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 87,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3079,7 +2936,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 108,
+      "loc": 109,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3144,7 +3001,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 90,
+      "loc": 96,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3183,7 +3040,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 515,
+      "loc": 607,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3222,7 +3079,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 707,
+      "loc": 654,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3248,7 +3105,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 73,
+      "loc": 76,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3287,7 +3144,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 127,
+      "loc": 164,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3300,7 +3157,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 50,
+      "loc": 62,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3339,7 +3196,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 230,
+      "loc": 233,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3469,7 +3326,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 179,
+      "loc": 181,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3729,7 +3586,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 603,
+      "loc": 579,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3911,7 +3768,7 @@
       "SEVERITY.LOW": 1,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 628,
+      "loc": 671,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -4509,7 +4366,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 782,
+      "loc": 906,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6324,7 +6181,7 @@
       "test_name": "try_except_pass"
     },
     {
-      "code": "442 \n443         sleep_time = (2 ** attempt) + random.uniform(0, 1)\n444         await asyncio.sleep(sleep_time)\n",
+      "code": "414 \n415         sleep_time = (2 ** attempt) + random.uniform(0, 1)\n416         await asyncio.sleep(sleep_time)\n",
       "col_offset": 38,
       "end_col_offset": 58,
       "filename": "backend/llm_gateway\\gateway.py",
@@ -6335,16 +6192,16 @@
       },
       "issue_severity": "LOW",
       "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 443,
+      "line_number": 415,
       "line_range": [
-        443
+        415
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
       "test_id": "B311",
       "test_name": "blacklist"
     },
     {
-      "code": "603                     _store_history = bool(user_prefs.store_chat_history)\n604             except Exception:\n605                 pass  # Preferences are optional \u2014 never block a request on DB failure\n606 \n",
+      "code": "575                     _store_history = bool(user_prefs.store_chat_history)\n576             except Exception:\n577                 pass  # Preferences are optional \u2014 never block a request on DB failure\n578 \n",
       "col_offset": 12,
       "end_col_offset": 20,
       "filename": "backend/llm_gateway\\gateway.py",
@@ -6355,10 +6212,31 @@
       },
       "issue_severity": "LOW",
       "issue_text": "Try, Except, Pass detected.",
-      "line_number": 604,
+      "line_number": 576,
       "line_range": [
-        604,
-        605
+        576,
+        577
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
+      "test_id": "B110",
+      "test_name": "try_except_pass"
+    },
+    {
+      "code": "1905                 db.session.rollback()\n1906             except Exception:\n1907                 pass\n1908             logger.warning(\"Failed to create trace records: %s\", e)\n",
+      "col_offset": 12,
+      "end_col_offset": 20,
+      "filename": "backend/llm_gateway\\gateway.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 703,
+        "link": "https://cwe.mitre.org/data/definitions/703.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Try, Except, Pass detected.",
+      "line_number": 1906,
+      "line_range": [
+        1906,
+        1907
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
       "test_id": "B110",
@@ -6401,51 +6279,6 @@
       "line_range": [
         376,
         377
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "134 \n135             resp = requests.post(\n136                 f\"{self._base}/api/generate\",\n137                 json=payload,\n138                 timeout=timeout_seconds or max(self._timeout, 30),\n139             )\n140             resp.raise_for_status()\n",
-      "col_offset": 19,
-      "end_col_offset": 13,
-      "filename": "backend/local_model_acceleration\\ollama_client.py",
-      "issue_confidence": "LOW",
-      "issue_cwe": {
-        "id": 400,
-        "link": "https://cwe.mitre.org/data/definitions/400.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Call to requests without timeout",
-      "line_number": 135,
-      "line_range": [
-        135,
-        136,
-        137,
-        138,
-        139
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
-      "test_id": "B113",
-      "test_name": "request_without_timeout"
-    },
-    {
-      "code": "171                     metadata = json.loads(row[\"metadata_json\"])\n172                 except Exception:\n173                     pass\n174 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "backend/local_model_acceleration\\response_cache.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 172,
-      "line_range": [
-        172,
-        173
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
       "test_id": "B110",
@@ -6620,7 +6453,7 @@
       "test_name": "try_except_pass"
     },
     {
-      "code": "301             _db.session.rollback()\n302         except Exception:\n303             pass\n304         return jsonify({'runs': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0})\n",
+      "code": "312             _db.session.rollback()\n313         except Exception:\n314             pass\n315         return jsonify({'runs': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0})\n",
       "col_offset": 8,
       "end_col_offset": 16,
       "filename": "backend/tracing\\api.py",
@@ -6631,10 +6464,10 @@
       },
       "issue_severity": "LOW",
       "issue_text": "Try, Except, Pass detected.",
-      "line_number": 302,
+      "line_number": 313,
       "line_range": [
-        302,
-        303
+        313,
+        314
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
       "test_id": "B110",

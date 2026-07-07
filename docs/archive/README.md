@@ -1,7 +1,7 @@
 # Documentation Archive
 
 > **Document metadata**
-> - Document version: v1.1.0
+> - Document version: v1.2.0
 > - Last reviewed: 2026-07-06
 > - Status: Active archive index
 > - Owner: Documentation Governance
@@ -16,11 +16,15 @@ The latest archive Markdown review is recorded in [`ARCHIVE_MARKDOWN_REVIEW_2026
 
 | Folder | Contents | Status |
 | --- | --- | --- |
-| `historical-documents/` | Imported planning PDFs, MVP plans, mathematical framework papers, and source research documents previously stored under `documents/` | Historical reference |
-| `whitepapers/` | UKG/USKD whitepapers and deep architecture narratives previously stored under `docs/whitepapers/` | Historical reference |
+| `historical-documents/` | Residual imported planning/source documents that are not classified as active or archived whitepapers | Historical reference |
+| `whitepapers/` | Consolidated historical UKG/USKD whitepapers, mathematical PDFs, design papers, and deep architecture narratives | Historical reference |
 | `wireframes/` | 2025 design-system and wireframe drafts previously stored under `docs/wireframes/` | Historical design reference |
 | `research/` | Old release notes, platform research, and design spikes not listed in the active documentation portal | Historical reference |
 | `api/` | Superseded OpenAPI/Postman exports that no longer match the active single-owner desktop auth/API surface | Historical reference |
+
+## Whitepaper Reorganization
+
+On 2026-07-06, whitepaper-like historical PDFs and selected historical Markdown references were consolidated under `docs/archive/whitepapers/`. Current high-value whitepaper assets that remain production-facing are indexed in `docs/whitepapers/README.md`.
 
 ## Policy
 

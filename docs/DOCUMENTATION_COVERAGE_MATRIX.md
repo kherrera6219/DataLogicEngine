@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.10.1 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -53,6 +53,7 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 | Production docs baseline | `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` | Active | Baseline coverage and evidence rules. |
 | Top-level markdown review | `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Direct top-level markdown review status and cleanup candidates before subfolder review. |
 | Subfolder markdown review | `docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Direct `docs/` subfolder Markdown review status, updates, and cleanup candidates. |
+| Root cleanup review | `docs/ROOT_CLEANUP_REVIEW_2026-07-06.md` | Active audit artifact | Root document/artifact cleanup status and cleanup candidates. |
 | Audit-folder markdown review | `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md` | Active audit artifact | Audit-folder status, supersession notes, and approved deletion record. |
 | Archive markdown review | `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` | Historical/reference governance | Per-file archive catalog and cleanup candidates; not operational source-of-truth. |
 | Branch governance | `docs/BRANCH_PROTECTION_POLICY.md` | Active | Required checks, review gates, branch policy. |
@@ -93,3 +94,7 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 
 1. Added subfolder, audit-folder, and archive Markdown review artifacts to the coverage matrix.
 2. Clarified that archive review artifacts catalog historical files without promoting them to source-of-truth status.
+
+## Change notes for v2.10.1
+
+1. Added the root cleanup review artifact to the documentation coverage matrix.

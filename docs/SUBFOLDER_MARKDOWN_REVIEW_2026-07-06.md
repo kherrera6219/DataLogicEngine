@@ -15,7 +15,7 @@ This report covers the Markdown review of each direct `docs/` subfolder:
 |---|---:|---|
 | `docs/adr/` | 3 | Reviewed and refreshed. |
 | `docs/api/` | 0 | No Markdown files to update. |
-| `docs/archive/` | 27 | Reviewed and cataloged as historical/reference material. |
+| `docs/archive/` | 21 | Reviewed and cataloged as historical/reference material after the whitepaper reorganization. |
 | `docs/assets/` | 0 | No Markdown files to update. |
 | `docs/audits/` | 6 | Reviewed in separate audit-folder report. |
 | `docs/diagrams/` | 11 | Reviewed and refreshed. |
@@ -33,7 +33,7 @@ This report covers the Markdown review of each direct `docs/` subfolder:
 | Diagrams | `docs/diagrams/*.md` | Added review metadata to all 11 active architecture diagrams. Removed stale exact inventory count, changed brittle provider/model wording to configured-provider wording, removed obsolete "Future:" diagram labels, and clarified tenant-compatible budget wording. |
 | Folder indexes | `docs/documents/README.md`, `docs/whitepapers/README.md`, `docs/wireframes/README.md` | Replaced three-line move notices with active folder indexes, production-use notes, and cleanup guidance. |
 | IP | `docs/ip/dsqp_technical_disclosure.md` | Updated status to reflect that DSQP implementation now exists under `backend/dsqp/`, added metadata, and clarified that the disclosure is not legal advice. |
-| Archive | `docs/archive/**/*.md` | Preserved historical content, updated archive indexes, and created `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` with per-file catalog and cleanup candidates. |
+| Archive | `docs/archive/**/*.md` | Preserved historical content, updated archive indexes, and created `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` with per-file catalog and cleanup candidates. After the whitepaper reorganization, historical whitepaper-like assets are consolidated under `docs/archive/whitepapers/`. |
 
 ## Cleanup Decisions
 

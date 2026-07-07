@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.0 |
+| Document version | v2.14.2 |
 | Last updated | 2026-07-06 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -106,6 +106,7 @@ Current planning belongs in root `TODO.md`.
 | `docs/CONTRIBUTING.md` | Documentation-specific contribution guide. |
 | `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | Review status, updates, and cleanup candidates for direct top-level markdown files under `docs/`. |
 | `docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | Review status, updates, and cleanup candidates for Markdown files under direct `docs/` subfolders. |
+| `docs/ROOT_CLEANUP_REVIEW_2026-07-06.md` | Root document/artifact cleanup review and source-control cleanup decisions. |
 | `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md` | Audit-folder Markdown review status and supersession cleanup notes. |
 
 ---
@@ -182,6 +183,14 @@ The active documentation set has been normalized around:
 6. trace, evidence, privacy, export, and release governance;
 7. evidence-based security and compliance claims;
 8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.14.2
+
+1. Recorded the 2026-07-06 whitepaper reorganization: active whitepaper assets remain indexed under `docs/whitepapers/`, and historical/reference whitepapers are consolidated under `docs/archive/whitepapers/`.
+
+## Change notes for v2.14.1
+
+1. Added the root cleanup review report covering root documents, tracked root artifacts, ignored local outputs, and future cleanup candidates.
 
 ## Change notes for v2.14.0
 
