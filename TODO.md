@@ -18,10 +18,40 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-07 (**First-run QC + desktop API-key save repair** - installed-app QC confirmed backend/service/database connectivity, identified a stale-session CSRF ordering bug in Settings -> AI Models save/test, identified idle DSQP persona polling from the desktop status widget, isolated a second installed-app save failure to Electron-injected desktop auth headers not being declared before Chromium CORS/preflight handling, and found that the common `electron:dist` rebuild path could still package a stale backend. Source now prefers signed desktop auth for Electron mutations, refreshes desktop session/CSRF state before desktop mutations, declares the `X-Desktop-Auth-*` header names from the renderer for the raw desktop challenge/auto-login/CSRF handshake and normal mutations so Electron can fill real HMAC values, rebuilds the PyInstaller backend before Electron packaging, explicitly packages ONNX Runtime and tokenizers for frozen-backend Chroma collection stats, and removes automatic DSQP status polling. Validation: focused backend gateway/auth/settings pytest 16 passed, frontend API Vitest 16 passed, frontend typecheck passed, focused frontend lint passed, focused Ruff passed, docs reference validation passed with existing warnings, and the Windows installer rebuilt with SHA-256 `3afeafef6991f580574290500c702429218c38c0c50dff4088716909661ff8cb` plus installer integrity/NSIS governance passing.)
+**Last updated:** 2026-07-08 (**new-session handoff refresh + code-scanning triage** - GitHub code scanning currently has 8 open medium CodeQL `py/stack-trace-exposure` alerts; Dependabot has 0 open alerts. Next session should remediate CodeQL #593-#596, #598-#601 before final production rebuild/install validation. The prior first-run QC installer checkpoint remains complete with rebuilt installer SHA-256 `3afeafef6991f580574290500c702429218c38c0c50dff4088716909661ff8cb`.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+
+## Code scanning alert remediation - 2026-07-08
+
+Scope checked for the next session:
+
+1. Queried GitHub CodeQL code-scanning alerts for `kherrera6219/DataLogicEngine`.
+2. Current live counts: 8 open, 404 fixed, 189 dismissed.
+3. All open alerts are medium `py/stack-trace-exposure` / "Information exposure through an exception".
+4. Evidence is recorded in `reports/code_scanning_alerts_2026-07-08.md`.
+
+Open alerts to remediate next:
+
+| Alert | File | Line | Rule | Status |
+| --- | --- | ---: | --- | --- |
+| #593 | `backend/routes/search_routes.py` | 85 | `py/stack-trace-exposure` | Open |
+| #594 | `backend/routes/search_routes.py` | 115 | `py/stack-trace-exposure` | Open |
+| #595 | `backend/routes/search_routes.py` | 143 | `py/stack-trace-exposure` | Open |
+| #596 | `backend/routes/search_routes.py` | 171 | `py/stack-trace-exposure` | Open |
+| #598 | `backend/routes/retention_routes.py` | 178 | `py/stack-trace-exposure` | Open |
+| #599 | `backend/security_api.py` | 236 | `py/stack-trace-exposure` | Open |
+| #600 | `backend/routes/storage_routes.py` | 245 | `py/stack-trace-exposure` | Open |
+| #601 | `backend/routes/storage_routes.py` | 265 | `py/stack-trace-exposure` | Open |
+
+Fix plan:
+
+1. Replace public exception-message/traceback responses with generic JSON errors.
+2. Keep exception details in server logs only.
+3. Add focused route regressions proving public responses do not expose exception text or stack traces.
+4. Run targeted Ruff and pytest for touched modules.
+5. Update `CHANGELOG.md`, this TODO, `HANDOFF.md`, and the code-scanning report after remediation.
 
 ## Dependabot alert sweep - 2026-07-07
 

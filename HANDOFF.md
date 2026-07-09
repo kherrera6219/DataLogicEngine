@@ -18,10 +18,13 @@
 
 # DataLogicEngine — Session Handoff
 
-## START HERE (next session) - updated 2026-07-07
-**First-run QC checkpoint: desktop API-key save/test CSRF repair, Electron desktop auth header declaration for session recovery, stale-backend rebuild protection, frozen-backend ONNX Runtime/tokenizers packaging, and idle DSQP status-polling repair are fixed in source and rebuilt into a new local installer. Reinstall the app before validating the installed binary again.**
+## START HERE (next session) - updated 2026-07-08
+**Current next session priority: remediate 8 open GitHub CodeQL code-scanning alerts for `py/stack-trace-exposure` before the final production rebuild/install validation. Dependabot is clean with 0 open alerts.**
 
+- **Open code-scanning alerts:** GitHub CodeQL currently reports 8 open medium alerts, all `py/stack-trace-exposure`: #593-#596 in `backend/routes/search_routes.py`, #598 in `backend/routes/retention_routes.py`, #599 in `backend/security_api.py`, and #600-#601 in `backend/routes/storage_routes.py`. Evidence is recorded in `reports/code_scanning_alerts_2026-07-08.md`.
+- **Recommended next-session fix pattern:** replace public `str(exc)`, traceback, or exception-detail responses with stable generic JSON messages; keep details in server logs only; add focused route regressions for each touched endpoint; run Ruff and focused pytest before commit.
 - **Dependabot alert sweep:** GitHub returned 0 open Dependabot alerts. The remaining 5 dismissed `fix_started` alerts were historical `uv.lock` transitive pins; `uv.lock` now resolves `mako 1.3.12`, `urllib3 2.7.0`, and `werkzeug 3.1.8`. Evidence is recorded in `reports/dependabot_alerts_2026-07-07.md`.
+- **First-run QC checkpoint:** desktop API-key save/test CSRF repair, Electron desktop auth header declaration for session recovery, stale-backend rebuild protection, frozen-backend ONNX Runtime/tokenizers packaging, and idle DSQP status-polling repair are fixed in source and rebuilt into a local installer. Reinstall the app before validating the installed binary again.
 - **Installed-app first-run QC report added:** `reports/first_run_qc_2026-07-07.md` records backend/service/database health, SQLite/Chroma/object-store/Neo4j/Redis/MinIO checks, the API-key save/test failure investigation, DSQP idle-polling diagnosis, source corrections, validation, and remaining reinstall-provider checks.
 - **Desktop API-key save/test CSRF repair:** signed Electron loopback requests now win over stale Flask session cookies in both the app-level API CSRF guard and `api_decorators`; frontend desktop mutations now establish/refresh desktop session and CSRF state before save/test calls and recover cleanly on CSRF 403s.
 - **Second installed-app Save Model/session-recovery repair:** the Save Model path uses `/api/v1/gateway/keys`. After reinstall it still reached session CSRF/session-expired handling because Electron-injected desktop HMAC headers were not reliably part of the renderer-declared CORS/preflight header set, including the raw desktop challenge, auto-login, and CSRF-token calls used during recovery. `frontend/lib/api/client.ts` now declares placeholder `X-Desktop-Auth-*` headers for those Electron desktop requests, and Electron main replaces them with real HMAC signatures before send.
@@ -29,7 +32,7 @@
 - **Idle DSQP status-polling repair:** `DesktopStatus` no longer calls `electronApi.dsqpPersonaProfiles()` during its 5-second status loop, so idle dashboard/status use should not trigger provider-backed DSQP construction or repeated OpenAI quota errors.
 - **Validation completed for this checkpoint:** backend gateway/auth/settings pytest passed 16 tests, frontend API Vitest passed 16 tests, frontend typecheck passed, focused frontend lint passed, focused Ruff passed, and the full installer rebuild path passed after rebuilding the backend.
 - **Installer rebuilt:** `DataLogicEngine Setup Latest.exe` was rebuilt from current source with SHA-256 `3afeafef6991f580574290500c702429218c38c0c50dff4088716909661ff8cb`; installer integrity passed and NSIS governance passed.
-- **Current next action:** reinstall the rebuilt installer, then validate provider save/test behavior for OpenAI and Google plus unsupported legacy-provider status handling.
+- **After CodeQL remediation:** reinstall the rebuilt installer, then validate provider save/test behavior for OpenAI and Google plus unsupported legacy-provider status handling.
 
 **Previous audit checkpoint: documentation slice, code audit slices 1-12, cleanup approval, and selected CodeQL alert remediation are complete.**
 
