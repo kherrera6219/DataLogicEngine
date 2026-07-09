@@ -18,10 +18,49 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-08 (**new-session handoff refresh + code-scanning triage** - GitHub code scanning currently has 8 open medium CodeQL `py/stack-trace-exposure` alerts; Dependabot has 0 open alerts. Next session should remediate CodeQL #593-#596, #598-#601 before final production rebuild/install validation. The prior first-run QC installer checkpoint remains complete with rebuilt installer SHA-256 `3afeafef6991f580574290500c702429218c38c0c50dff4088716909661ff8cb`.)
+**Last updated:** 2026-07-09 (**live installed-app desktop-auth and Knowledge-route QC repair plus root installer rebuild** - source now fixes the reported API-key save/session-expired failures, Knowledge Base/Knowledge Graph stale route failures, and network-status polling rate-limit issue. The root installer has been rebuilt; install it before validating the binary. GitHub code scanning still has 8 open medium CodeQL `py/stack-trace-exposure` alerts; Dependabot has 0 open alerts.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+
+## Live desktop auth and Knowledge-route QC repair - 2026-07-09
+
+Scope completed in this checkpoint:
+
+1. Inspected the user's running installed desktop app and confirmed the packaged backend process was alive on `127.0.0.1:5000`.
+2. Reproduced the reported failure path from live backend/audit evidence: Knowledge pages called stale `/api/v1/ukg/*` paths, desktop auth challenge creation succeeded, desktop auto-login failed, and protected actions then returned `Session expired. Please re-authenticate.` or API fetch errors.
+3. Patched the source so the next installer build carries route compatibility, app-protocol desktop auth recovery, signed-header normalization, and network-status polling protection.
+
+Findings and fixes addressed before rebuild:
+
+| Finding | Resolution | Status |
+| --- | --- | --- |
+| Knowledge Base and Knowledge Graph still called `/api/v1/ukg/pillars`, `/api/v1/ukg/nodes`, and `/api/v1/ukg/edges`, while the canonical backend API is `/api/v1/pillars`, `/api/v1/nodes`, and `/api/v1/edges`. | Updated the frontend knowledge API client and E2E stubs to use canonical paths. Added `/api/v1/ukg` as a deprecated Flask compatibility alias so stale clients receive a valid response plus deprecation/successor headers. | Rebuilt into root installer; installed-app validation pending |
+| Desktop protected actions failed after `/auth/desktop/challenge` because the Electron `app://-` renderer did not reliably return the Flask session cookie to `localhost` during desktop auto-login. | Desktop auth now stores a one-time process-local nonce fallback alongside the session nonce and consumes it during auto-login when the session cookie is unavailable. | Rebuilt into root installer; installed-app validation pending |
+| Renderer-declared placeholder desktop auth headers could remain alongside Electron-injected signed headers with different casing, letting Flask read the placeholder instead of the real HMAC value. | Electron main now removes case-insensitive duplicates before setting canonical signed desktop auth headers. | Rebuilt into root installer; installed-app validation pending |
+| The Cloud Reasoning/network status widget polled `/api/v1/gateway/network-status` every 5 seconds and could hit the global API rate limit. | Marked the network-status endpoint limiter-exempt because it is a local desktop status/readiness signal, not a user workload route. | Rebuilt into root installer; installed-app validation pending |
+| Live health logs still reported packaged Chroma dependency/service-directory warnings. | Deferred to a packaging QC follow-up after the current auth/route repair is rebuilt and installed. | Open follow-up |
+
+Validation completed:
+
+1. `npm --prefix frontend test -- tests/unit/lib/api/knowledge.test.ts tests/unit/lib/api/client.test.ts` - 20 passed.
+2. `python -m pytest tests/integration_routes/test_desktop_auto_login_security.py tests/integration_routes/test_gateway_keys_desktop_auth.py tests/integration_routes/test_settings_routes_auth.py tests/security/test_session_security.py tests/unit/test_phase3_api_surface_governance.py -q` - 23 passed.
+3. `npm --prefix frontend run electron:build` - passed.
+4. `python -m ruff check app.py backend/security/desktop_local_auth.py backend/llm_gateway/api.py tests/integration_routes/test_desktop_auto_login_security.py tests/unit/test_phase3_api_surface_governance.py` - passed.
+5. `git diff --check` - passed with only existing CRLF warnings.
+6. `npm --prefix frontend run electron:dist` - passed; rebuilt PyInstaller backend, Next static export, Electron TypeScript, Electron Builder, and root installer copy.
+
+Installer artifact:
+
+- `C:\software\DataLogicEngine\DataLogicEngine Setup Latest.exe`
+- SHA-256: `a85c42b74e320cd15ced6c72c11b0e6432ca8ff3966bc59277c1a1973d7a13a1`
+
+Next rebuild/QC sequence:
+
+1. Install `DataLogicEngine Setup Latest.exe` from the repo root.
+2. Validate Google and OpenAI provider key save/test flows from Settings -> AI Models.
+3. Validate Knowledge Base, Knowledge Graph, Algorithms, and Settings -> Storage database start/status from the installed app.
+4. Inspect the remaining packaged Chroma/local service warnings if they still appear after the rebuilt install.
 
 ## Code scanning alert remediation - 2026-07-08
 

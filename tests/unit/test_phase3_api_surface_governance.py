@@ -11,6 +11,7 @@ def test_legacy_successor_path_maps_known_prefixes():
     assert _legacy_api_successor_path("/api/pillar/mappings") == "/api/v1/pillar/mappings"
     assert _legacy_api_successor_path("/api/truth/health") == "/api/v1/truth/health"
     assert _legacy_api_successor_path("/api/ukg/pillars") == "/api/v1/pillars"
+    assert _legacy_api_successor_path("/api/v1/ukg/pillars") == "/api/v1/pillars"
     assert _legacy_api_successor_path("/api/admin/providers") is None
     assert _legacy_api_successor_path("/api/search/global") is None
     assert _legacy_api_successor_path("/api/v1/simulations") is None
@@ -45,6 +46,16 @@ def test_legacy_truth_alias_emits_deprecation_headers(client):
 
 def test_legacy_ukg_alias_emits_deprecation_headers(authenticated_client):
     response = authenticated_client.get("/api/ukg/pillars")
+
+    assert response.status_code == 200
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Wed, 30 Sep 2026 00:00:00 GMT"
+    assert response.headers["X-DataLogicEngine-Route-Status"] == "legacy"
+    assert "/api/v1/pillars" in response.headers.get("Link", "")
+
+
+def test_legacy_v1_ukg_alias_emits_deprecation_headers(authenticated_client):
+    response = authenticated_client.get("/api/v1/ukg/pillars")
 
     assert response.status_code == 200
     assert response.headers["Deprecation"] == "true"

@@ -324,6 +324,20 @@ function readHeaderValue(
   return null;
 }
 
+function setHeaderValue(
+  headers: Record<string, string | string[] | undefined>,
+  canonicalName: string,
+  value: string,
+): void {
+  const lowered = canonicalName.toLowerCase();
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === lowered && key !== canonicalName) {
+      delete headers[key];
+    }
+  }
+  headers[canonicalName] = value;
+}
+
 function signDesktopAuthPayload(payload: string): string {
   return crypto
     .createHmac('sha256', desktopInstallSecret)
@@ -586,23 +600,27 @@ app.on('ready', async () => {
       details.url.startsWith('http://localhost:3000') ||
       details.url.startsWith('http://127.0.0.1:3000')
     ) {
-      requestHeaders['X-DataLogic-Desktop'] = 'true';
+      setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
     }
 
     if (
       details.url.startsWith('http://localhost:5000') ||
       details.url.startsWith('http://127.0.0.1:5000')
     ) {
-      requestHeaders['X-DataLogic-Desktop'] = 'true';
+      setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
       const timestamp = Math.floor(Date.now() / 1000).toString();
-      requestHeaders['X-Desktop-Auth-Timestamp'] = timestamp;
-      requestHeaders['X-Desktop-Auth-Request-Signature'] = signDesktopAuthPayload(
-        signedDesktopRequestPayload(details.method || 'GET', details.url, timestamp),
+      setHeaderValue(requestHeaders, 'X-Desktop-Auth-Timestamp', timestamp);
+      setHeaderValue(
+        requestHeaders,
+        'X-Desktop-Auth-Request-Signature',
+        signDesktopAuthPayload(
+          signedDesktopRequestPayload(details.method || 'GET', details.url, timestamp),
+        ),
       );
 
       const nonce = (readHeaderValue(requestHeaders, 'X-Desktop-Auth-Nonce') || '').trim();
       if (nonce && desktopInstallSecret) {
-        requestHeaders['X-Desktop-Auth-Signature'] = signDesktopAuthNonce(nonce);
+        setHeaderValue(requestHeaders, 'X-Desktop-Auth-Signature', signDesktopAuthNonce(nonce));
       }
     }
 

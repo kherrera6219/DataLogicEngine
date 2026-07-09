@@ -40,12 +40,12 @@ from backend.storage.runtime_settings import get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
 from backend.utils.error_normalization import normalize_public_error_message
 try:
-    from extensions import db, cache
+    from extensions import db, cache, limiter
 except ImportError:
     # Final fallback for unusual packaging contexts
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-    from extensions import db, cache
+    from extensions import db, cache, limiter
 
 logger = logging.getLogger(__name__)
 
@@ -630,6 +630,7 @@ def gateway_health():
 
 
 @gateway_bp.route('/network-status', methods=['GET'])
+@limiter.exempt
 @api_session_login_required
 def network_status():
     """Cached local-first provider/network status for desktop IPC."""

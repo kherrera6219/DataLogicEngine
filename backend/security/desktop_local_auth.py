@@ -13,12 +13,15 @@ import os
 import secrets
 import time
 from pathlib import Path
+from threading import Lock
 from typing import MutableMapping, Tuple
 from urllib.parse import urlsplit
 
 
 DESKTOP_NONCE_SESSION_KEY = "desktop_auth_nonce"
 DESKTOP_NONCE_EXPIRES_SESSION_KEY = "desktop_auth_nonce_expires_at"
+_ISSUED_DESKTOP_NONCES: dict[str, int] = {}
+_ISSUED_DESKTOP_NONCES_LOCK = Lock()
 
 
 def _repo_root() -> Path:
@@ -60,6 +63,22 @@ def get_or_create_install_secret() -> str:
         # File mode hardening is best-effort on platforms that support chmod.
         pass
     return generated
+
+
+def _remember_issued_nonce(nonce: str, expires_at: int) -> None:
+    now = int(time.time())
+    with _ISSUED_DESKTOP_NONCES_LOCK:
+        expired = [key for key, expiry in _ISSUED_DESKTOP_NONCES.items() if expiry <= now]
+        for key in expired:
+            _ISSUED_DESKTOP_NONCES.pop(key, None)
+        _ISSUED_DESKTOP_NONCES[nonce] = expires_at
+
+
+def _consume_issued_nonce(nonce: str) -> int | None:
+    if not nonce:
+        return None
+    with _ISSUED_DESKTOP_NONCES_LOCK:
+        return _ISSUED_DESKTOP_NONCES.pop(nonce, None)
 
 
 def build_desktop_auth_signature(nonce: str, install_secret: str) -> str:
@@ -129,8 +148,13 @@ def issue_desktop_auth_challenge(session_obj: MutableMapping[str, object]) -> Tu
     """Issue one-time nonce and persist it in the current session."""
     nonce = secrets.token_urlsafe(32)
     ttl_seconds = _nonce_ttl_seconds()
+    expires_at = int(time.time()) + ttl_seconds
     session_obj[DESKTOP_NONCE_SESSION_KEY] = nonce
-    session_obj[DESKTOP_NONCE_EXPIRES_SESSION_KEY] = int(time.time()) + ttl_seconds
+    session_obj[DESKTOP_NONCE_EXPIRES_SESSION_KEY] = expires_at
+    # Electron renders from app:// and calls the Flask API over localhost. Some
+    # Chromium builds do not send the session cookie back on that CORS POST, so
+    # keep a one-time process-local nonce copy for the packaged desktop flow.
+    _remember_issued_nonce(nonce, expires_at)
     return nonce, ttl_seconds
 
 
@@ -150,13 +174,17 @@ def verify_desktop_auth_challenge(
 
     session_obj.pop(DESKTOP_NONCE_SESSION_KEY, None)
     session_obj.pop(DESKTOP_NONCE_EXPIRES_SESSION_KEY, None)
+    cached_expires_at = _consume_issued_nonce(nonce)
 
     if not nonce:
         return False, "Desktop auth nonce required"
     if not signature:
         return False, "Desktop auth signature required"
     if not expected_nonce:
-        return False, "Desktop auth challenge missing or already consumed"
+        if cached_expires_at is None:
+            return False, "Desktop auth challenge missing or already consumed"
+        expected_nonce = nonce
+        expires_at_raw = cached_expires_at
 
     try:
         expires_at = int(expires_at_raw) if expires_at_raw is not None else 0

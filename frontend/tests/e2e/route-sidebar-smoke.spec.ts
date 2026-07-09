@@ -15,11 +15,11 @@ async function mockApi(page: import('@playwright/test').Page) {
       payload = { nonce: 'visual-smoke-nonce' };
     } else if (path === '/gateway/sessions') {
       payload = { sessions: [] };
-    } else if (path === '/ukg/pillars') {
+    } else if (path === '/pillars') {
       payload = [];
-    } else if (path === '/ukg/nodes') {
+    } else if (path === '/nodes') {
       payload = [];
-    } else if (path === '/ukg/edges') {
+    } else if (path === '/edges') {
       payload = [];
     } else if (path === '/simulations') {
       payload = [];

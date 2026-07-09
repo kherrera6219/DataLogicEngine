@@ -15,7 +15,7 @@ describe('knowledge API', () => {
   it('fetches knowledge pillars', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce([]);
     await knowledge.pillars();
-    expect(apiBase.request).toHaveBeenCalledWith('/ukg/pillars');
+    expect(apiBase.request).toHaveBeenCalledWith('/pillars');
   });
 
   it('fetches knowledge stats', async () => {
@@ -27,12 +27,12 @@ describe('knowledge API', () => {
   it('fetches graph nodes', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce([]);
     await knowledge.getNodes();
-    expect(apiBase.request).toHaveBeenCalledWith('/ukg/nodes');
+    expect(apiBase.request).toHaveBeenCalledWith('/nodes');
   });
 
   it('fetches graph edges', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce([]);
     await knowledge.getEdges();
-    expect(apiBase.request).toHaveBeenCalledWith('/ukg/edges');
+    expect(apiBase.request).toHaveBeenCalledWith('/edges');
   });
 });

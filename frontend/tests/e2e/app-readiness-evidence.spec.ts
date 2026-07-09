@@ -113,7 +113,7 @@ async function mockBaseApi(page: Page) {
     }
 
     if (path === '/gateway/sessions') return route.fulfill(jsonResponse({ sessions: [] }));
-    if (path === '/ukg/pillars' || path === '/ukg/nodes' || path === '/ukg/edges') return route.fulfill(jsonResponse([]));
+    if (path === '/pillars' || path === '/nodes' || path === '/edges') return route.fulfill(jsonResponse([]));
     if (path.startsWith('/trace/runs')) return route.fulfill(jsonResponse({ runs: [] }));
     if (path === '/simulations') return route.fulfill(jsonResponse([]));
 

@@ -45,7 +45,7 @@ async function mockApi(page: Page) {
     if (path === '/analytics/activity') return route.fulfill(jsonResponse([]));
     if (path === '/analytics/summary' || path === '/analytics/overview') return route.fulfill(jsonResponse({}));
     if (path === '/analytics/mcp') return route.fulfill(jsonResponse({ servers: 0, tools: 0, resources: 0 }));
-    if (path === '/ukg/pillars' || path === '/ukg/nodes' || path === '/ukg/edges') return route.fulfill(jsonResponse([]));
+    if (path === '/pillars' || path === '/nodes' || path === '/edges') return route.fulfill(jsonResponse([]));
     if (path === '/simulations') return route.fulfill(jsonResponse([]));
     if (path.startsWith('/trace/runs')) return route.fulfill(jsonResponse({ runs: [] }));
     if (path === '/mcp/servers') return route.fulfill(jsonResponse({ servers: [], runtime_servers: [] }));

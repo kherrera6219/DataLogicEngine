@@ -18,8 +18,17 @@
 
 # DataLogicEngine — Session Handoff
 
-## START HERE (next session) - updated 2026-07-08
-**Current next session priority: remediate 8 open GitHub CodeQL code-scanning alerts for `py/stack-trace-exposure` before the final production rebuild/install validation. Dependabot is clean with 0 open alerts.**
+## START HERE (next session) - updated 2026-07-09
+**Current next session priority: install the freshly rebuilt root installer after the live desktop-auth and Knowledge-route repair, then validate the installed binary against the reported first-run QC failures. CodeQL still has 8 open medium `py/stack-trace-exposure` alerts to remediate before final production signoff. Dependabot is clean with 0 open alerts.**
+
+- **Live installed-app issue reproduced:** the installed backend was reachable on `127.0.0.1:5000`, so the failures were not caused by a dead backend process. Health checks returned successfully while the UI still failed selected pages/actions.
+- **Knowledge Base / Knowledge Graph route mismatch fixed:** live logs showed stale frontend calls to `/api/v1/ukg/pillars`, `/api/v1/ukg/nodes`, and `/api/v1/ukg/edges`, which returned 404 before the UI reported `Failed to fetch from API`. Source now calls canonical `/api/v1/pillars`, `/api/v1/nodes`, and `/api/v1/edges`, and Flask also registers `/api/v1/ukg` as a deprecated compatibility alias for stale clients.
+- **Desktop session-expired/API-key save blocker fixed in source:** live storage/API-key actions showed `/auth/desktop/challenge` succeeded but `/auth/desktop/auto-login` failed because the Electron `app://-` renderer did not reliably carry the Flask session cookie back to `localhost`. Desktop auth now accepts a one-time process-local nonce fallback for the app-protocol challenge, and Electron normalizes signed desktop auth headers so placeholder renderer headers cannot win over real HMAC values.
+- **Cloud Reasoning status polling guard added:** live logs showed `/api/v1/gateway/network-status` being polled every 5 seconds and eventually hitting the global rate limit. The desktop network-status endpoint is now limiter-exempt.
+- **Focused validation completed for this checkpoint:** frontend knowledge/API unit tests passed 20 tests; backend desktop-auth/gateway/settings/session/API-surface tests passed 23 tests; Electron TypeScript build passed; focused Ruff passed; `git diff --check` passed with only existing CRLF warnings.
+- **Installer rebuilt at repo root:** `DataLogicEngine Setup Latest.exe` was rebuilt from current source and copied to `C:\software\DataLogicEngine\DataLogicEngine Setup Latest.exe`; SHA-256 `a85c42b74e320cd15ced6c72c11b0e6432ca8ff3966bc59277c1a1973d7a13a1`.
+- **Installed-app validation still pending:** install the rebuilt root installer, then retest Google/OpenAI provider key save and test flows, Knowledge Base, Knowledge Graph, Algorithms, Settings -> Storage database start/status, and unsupported legacy-provider display.
+- **Separate packaging/QC follow-up:** live health logs still reported packaged Chroma dependency/service-directory warnings. After the auth and route fix is installed, inspect whether Chroma/local database service bundle packaging needs another installer repair.
 
 - **Open code-scanning alerts:** GitHub CodeQL currently reports 8 open medium alerts, all `py/stack-trace-exposure`: #593-#596 in `backend/routes/search_routes.py`, #598 in `backend/routes/retention_routes.py`, #599 in `backend/security_api.py`, and #600-#601 in `backend/routes/storage_routes.py`. Evidence is recorded in `reports/code_scanning_alerts_2026-07-08.md`.
 - **Recommended next-session fix pattern:** replace public `str(exc)`, traceback, or exception-detail responses with stable generic JSON messages; keep details in server logs only; add focused route regressions for each touched endpoint; run Ruff and focused pytest before commit.

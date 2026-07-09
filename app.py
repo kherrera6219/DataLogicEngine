@@ -144,6 +144,7 @@ LEGACY_API_PREFIXES = {
     "/api/simulations": "/api/v1/simulations",
     "/api/truth": "/api/v1/truth",
     "/api/ukg": "/api/v1",
+    "/api/v1/ukg": "/api/v1",
 }
 LEGACY_API_SUNSET = "Wed, 30 Sep 2026 00:00:00 GMT"
 
@@ -707,6 +708,7 @@ def _register_application_routes() -> None:
 
     app.register_blueprint(ukg_api, url_prefix='/api/v1')
     app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
+    app.register_blueprint(ukg_api, name='ukg_v1_legacy', url_prefix='/api/v1/ukg')
 
     try:
         from replit_auth import make_replit_blueprint

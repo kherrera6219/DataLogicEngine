@@ -106,6 +106,36 @@ def test_desktop_auto_login_defaults_first_user_to_standard_role(app, client, mo
         assert user is not None
 
 
+def test_desktop_auto_login_accepts_stateless_app_protocol_challenge(app, client, monkeypatch):
+    monkeypatch.setenv("IS_DESKTOP_APP", "true")
+    monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
+    monkeypatch.setenv("DESKTOP_AUTOLOGIN_BOOTSTRAP_OWNER", "true")
+    monkeypatch.setattr("backend.routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr(
+        "backend.auth.windows_identity.get_windows_user_identity",
+        lambda: {
+            "username": "stateless-desktop",
+            "sid": "S-1-5-21-1000-1000-1000-3001",
+            "domain": "LOCAL",
+            "is_fallback": False,
+        },
+    )
+
+    nonce = _issue_desktop_challenge(client)
+    signature = build_desktop_auth_signature(nonce, "test-install-secret")
+
+    with app.test_client() as stateless_client:
+        response = stateless_client.post(
+            "/api/v1/auth/desktop/auto-login",
+            headers=_desktop_headers(nonce=nonce, signature=signature),
+        )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert payload["data"]["user"]["username"] == "stateless-desktop"
+
+
 def test_desktop_auto_login_can_bootstrap_owner_when_explicitly_enabled(app, client, monkeypatch):
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
     monkeypatch.setenv("DESKTOP_INSTALL_SECRET", "test-install-secret")
