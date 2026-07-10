@@ -12,6 +12,8 @@ interface AlgorithmRecord {
   name: string;
   category?: string;
   purpose?: string;
+  description?: string;
+  notes?: string;
   risk_class?: string;
   status?: string;
 }
@@ -21,6 +23,14 @@ interface AlgorithmListResponse {
   total_count?: number;
 }
 
+function algorithmDescription(entry: AlgorithmRecord): string {
+  return (
+    entry.purpose?.trim() ||
+    entry.description?.trim() ||
+    entry.notes?.trim() ||
+    'No algorithm description is available.'
+  );
+}
 export default function AlgorithmsPage() {
   const [algorithms, setAlgorithms] = useState<AlgorithmRecord[]>([]);
   const [query, setQuery] = useState('');
@@ -57,7 +67,7 @@ export default function AlgorithmsPage() {
     const needle = query.trim().toLowerCase();
     if (!needle) return algorithms;
     return algorithms.filter((entry) =>
-      `${entry.id} ${entry.name} ${entry.category || ''} ${entry.purpose || ''}`.toLowerCase().includes(needle)
+      `${entry.id} ${entry.name} ${entry.category || ''} ${algorithmDescription(entry)}`.toLowerCase().includes(needle)
     );
   }, [algorithms, query]);
 
@@ -120,7 +130,7 @@ export default function AlgorithmsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
-                      {entry.purpose || 'No algorithm description is available.'}
+                      {algorithmDescription(entry)}
                     </p>
                   </CardContent>
                 </Card>

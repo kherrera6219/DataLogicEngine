@@ -110,6 +110,7 @@ Set in `.env`:
 2. Optional provider key:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
+   - `LLM_DEFAULT_PROVIDER=google` when both OpenAI and Google keys are present and Google should be the env fallback default
 
 Install frontend dependencies:
 

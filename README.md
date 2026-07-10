@@ -219,6 +219,9 @@ AI provider keys are normally saved encrypted through **Settings -> AI/Model** a
 OPENAI_API_KEY=
 GOOGLE_API_KEY=
 GEMINI_API_KEY=
+LLM_DEFAULT_PROVIDER=google  # optional when multiple provider keys are set
+GOOGLE_MODEL_PRIMARY=gemini-3.1-pro-preview
+GOOGLE_MODEL_FAST=gemini-3.1-pro-preview
 ```
 
 ### 4. Install source dependencies
@@ -543,6 +546,8 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | --- | --- |
 | `OPENAI_API_KEY` | OpenAI provider key. |
 | `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables the Google gemini-3.1-pro-preview model. |
+| `LLM_DEFAULT_PROVIDER` | Optional env fallback preference (`google` or `openai`) when multiple provider keys are present. |
+| `GOOGLE_MODEL_PRIMARY` / `GOOGLE_MODEL_FAST` | Optional Google model overrides. Use `gemini-3.1-pro-preview` for Gemini 3.1 Pro preview. |
 | `SENTRY_DSN` | Enables crash reporting when configured. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |

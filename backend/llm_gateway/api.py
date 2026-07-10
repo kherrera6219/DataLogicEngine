@@ -948,8 +948,10 @@ def test_provider(provider_id):
         # (e.g. "invalid API key") instead of a generic error.
         raw = str(exc).lower()
         if any(m in raw for m in ("401", "invalid api key", "invalid_api_key",
-                                  "incorrect api key", "unauthorized", "authentication",
-                                  "api key not valid", "permission denied", "403", "forbidden")):
+                                  "incorrect api key", "unauthorized", "unauthenticated",
+                                  "authentication", "invalid authentication credentials",
+                                  "expected oauth 2", "api_key_invalid", "api key not valid",
+                                  "permission denied", "403", "forbidden")):
             return jsonify({
                 'success': False,
                 'status': 'invalid_api_key',

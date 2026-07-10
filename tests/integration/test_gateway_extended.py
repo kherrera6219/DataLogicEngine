@@ -17,6 +17,8 @@ def app_client():
     mock_db = MagicMock()
     mock_models = MagicMock()
     mock_cache = MagicMock()
+    mock_limiter = MagicMock()
+    mock_limiter.exempt.side_effect = lambda func: func
     
     # Mock Gateway and Provider
     mock_gateway_cls = MagicMock()
@@ -34,7 +36,7 @@ def app_client():
     mock_fje.JWTManager = MagicMock()
 
     with patch.dict(sys.modules, {
-        'extensions': MagicMock(db=mock_db, cache=mock_cache),
+        'extensions': MagicMock(db=mock_db, cache=mock_cache, limiter=mock_limiter),
         'models': mock_models,
         'jwt': mock_jwt,
         'flask_jwt_extended': mock_fje,
@@ -140,6 +142,68 @@ def test_test_provider_fail(mock_curr_user, app_client):
     assert resp.status_code == 503
     assert resp.json['success'] is False
     assert 'Failed to create provider adapter' in resp.json['error']
+
+
+@patch('flask_login.utils._get_user')
+def test_test_provider_unauthenticated_error_returns_invalid_api_key(mock_curr_user, app_client):
+    mocks = app_client.application.mocks
+    MockProvider = mocks['Provider']
+    mock_gateway_cls = mocks['Gateway']
+
+    mock_curr_user.return_value = MockUser()
+    mock_prov = MagicMock()
+    mock_prov.model_id = "gemini-3.1-pro-preview"
+    MockProvider.query.get_or_404.return_value = mock_prov
+
+    mock_gw_instance = mock_gateway_cls.return_value
+    mock_adapter = MagicMock()
+
+    async def mock_complete(**kwargs):
+        raise RuntimeError(
+            "UNAUTHENTICATED: Request had invalid authentication credentials. "
+            "Expected OAuth 2 access token."
+        )
+
+    mock_adapter.complete = mock_complete
+    mock_gw_instance._create_sdk_provider.return_value = mock_adapter
+
+    resp = app_client.post('/api/v1/gateway/providers/11111111-1111-1111-1111-111111111111/test')
+
+    assert resp.status_code == 401
+    assert resp.json['success'] is False
+    assert resp.json['status'] == 'invalid_api_key'
+    assert resp.json['code'] == 'INVALID_API_KEY'
+
+
+@patch('flask_login.utils._get_user')
+def test_test_provider_model_error_remains_invalid_model(mock_curr_user, app_client):
+    mocks = app_client.application.mocks
+    MockProvider = mocks['Provider']
+    mock_gateway_cls = mocks['Gateway']
+
+    mock_curr_user.return_value = MockUser()
+    mock_prov = MagicMock()
+    mock_prov.model_id = "gemini-3.1-pro"
+    MockProvider.query.get_or_404.return_value = mock_prov
+
+    mock_gw_instance = mock_gateway_cls.return_value
+    mock_adapter = MagicMock()
+
+    async def mock_complete(**kwargs):
+        raise RuntimeError(
+            "404 NOT_FOUND: models/gemini-3.1-pro is not found for API version v1beta, "
+            "or is not supported for generateContent."
+        )
+
+    mock_adapter.complete = mock_complete
+    mock_gw_instance._create_sdk_provider.return_value = mock_adapter
+
+    resp = app_client.post('/api/v1/gateway/providers/11111111-1111-1111-1111-111111111111/test')
+
+    assert resp.status_code == 422
+    assert resp.json['success'] is False
+    assert resp.json['status'] == 'invalid_model'
+    assert resp.json['code'] == 'INVALID_MODEL'
 
 
 @patch('flask_login.utils._get_user')

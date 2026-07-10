@@ -22,6 +22,7 @@ class _FakeKAController:
                     "KA_ID": "KA-001",
                     "KA_Name": "Algorithm of Thought",
                     "Category": "Reasoning",
+                    "Purpose": "Decompose query into ordered tasks and dependencies",
                     "Status": "Active",
                     "Risk_Class": "Low",
                 }
@@ -167,6 +168,8 @@ def test_ka_algorithm_list_accepts_external_api_key(app, client, monkeypatch):
     body = response.get_json()
     assert body["success"] is True
     assert body["algorithms"][0]["id"] == "KA-001"
+    assert body["algorithms"][0]["purpose"] == "Decompose query into ordered tasks and dependencies"
+    assert body["algorithms"][0]["description"] == "Decompose query into ordered tasks and dependencies"
 
 
 def test_ka_algorithm_list_clamps_invalid_pagination(app, client, monkeypatch):

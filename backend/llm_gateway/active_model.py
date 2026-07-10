@@ -37,6 +37,18 @@ if _SDK_PATH not in sys.path:
 _CLOUD_TYPES: tuple[str, ...] = ("openai", "google", "gemini")
 
 
+def _preferred_env_provider() -> str | None:
+    """Return the configured env-provider preference, if one is supported."""
+    preferred = (
+        os.environ.get("LLM_DEFAULT_PROVIDER")
+        or os.environ.get("AI_PROVIDER")
+        or ""
+    ).strip().lower()
+    if preferred == "gemini":
+        preferred = "google"
+    return preferred if preferred in {"openai", "google"} else None
+
+
 def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
     """Return ``(provider_type, api_key, model)`` for the active cloud provider.
 
@@ -95,11 +107,19 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
         logger.debug("Active cloud model resolution (DB) failed: %s", exc)
 
     # 2. Environment fallback.
-    if os.environ.get("OPENAI_API_KEY"):
-        return ("openai", os.environ["OPENAI_API_KEY"], OPENAI_LATEST_MODEL)
     google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if google_key:
-        return ("google", google_key, GOOGLE_LATEST_MODEL)
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    providers = {
+        "openai": ("openai", openai_key, OPENAI_LATEST_MODEL),
+        "google": ("google", google_key, GOOGLE_LATEST_MODEL),
+    }
+    preferred = _preferred_env_provider()
+    provider_order = [preferred] if preferred else []
+    provider_order.extend(provider for provider in ("openai", "google") if provider != preferred)
+    for provider in provider_order:
+        provider_type, api_key, model = providers[provider]
+        if api_key:
+            return (provider_type, api_key, model)
     return None
 
 

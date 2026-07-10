@@ -331,6 +331,27 @@ class LLMGateway:
             return default
         return min(parsed, maximum)
 
+    @staticmethod
+    def _preferred_env_provider() -> str | None:
+        """Return a supported provider preference for env-only fallback routing."""
+        preferred = (
+            os.environ.get("LLM_DEFAULT_PROVIDER")
+            or os.environ.get("AI_PROVIDER")
+            or ""
+        ).strip().lower()
+        if preferred == "gemini":
+            preferred = "google"
+        return preferred if preferred in {"openai", "google"} else None
+
+    @staticmethod
+    def _env_provider_sort_key(provider_record: Any) -> tuple[int, int]:
+        preferred = LLMGateway._preferred_env_provider()
+        provider_type = str(getattr(provider_record, "provider_type", "") or "").strip().lower()
+        if provider_type == "gemini":
+            provider_type = "google"
+        priority = getattr(provider_record, "priority", 10)
+        return (0 if preferred and provider_type == preferred else 1, priority)
+
     def _provider_timeout_seconds(self, provider_record: Any) -> int:
         env_default = self._positive_int(os.environ.get("LLM_PROVIDER_TIMEOUT_SECONDS"), 30, minimum=1, maximum=300)
         return self._positive_int(getattr(provider_record, "timeout_seconds", None), env_default, minimum=1, maximum=300)
@@ -1329,8 +1350,8 @@ class LLMGateway:
                 add_provider(providers_list, "anthropic-backup", "anthropic", anthropic_primary_model, 4)
 
             if providers_list:
-                # Sort by priority
-                providers_list.sort(key=lambda x: x.priority)
+                # Sort by configured env preference, then by tier priority.
+                providers_list.sort(key=LLMGateway._env_provider_sort_key)
                 logger.info(
                     "Generated %s environment-based providers for tier '%s': %s",
                     len(providers_list),

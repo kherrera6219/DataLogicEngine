@@ -104,16 +104,29 @@ def parse_list_field(value):
     return [v.strip() for v in str(value).replace(';', ',').split(',') if v.strip()]
 
 
+def _first_text_value(*values):
+    for value in values:
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
 def format_algorithm(ka):
     """Format algorithm data for API response"""
     ka_id = ka.get('KA_ID') or ka.get('id')
     ka_name = ka.get('KA_Name') or ka.get('name') or ka_id
+    purpose = _first_text_value(
+        ka.get('Purpose'),
+        ka.get('purpose'),
+        ka.get('description'),
+        ka.get('Notes'),
+    )
 
     return {
         'id': ka_id,
         'name': ka_name,
         'short_name': ka.get('Short_Name'),
-        'purpose': ka.get('Purpose'),
+        'purpose': purpose,
+        'description': purpose,
         'category': ka.get('Category'),
         'primary_layers': parse_list_field(ka.get('Primary_Layers')),
         'allowed_layers': parse_list_field(ka.get('Allowed_Layers')),
@@ -156,7 +169,6 @@ def format_algorithm(ka):
             'assumptions_constraints': ka.get('Assumptions_Constraints')
         }
     }
-
 
 def _parse_ka_id_param(ka_id):
     """
@@ -602,7 +614,7 @@ def search_algorithms():
         for ka_id, ka_info in _get_controller().get_available_algorithms().items():
             ka = ka_info.get("metadata", {})
             name = (ka.get('KA_Name') or '').lower()
-            purpose = (ka.get('Purpose') or '').lower()
+            purpose = (_first_text_value(ka.get('Purpose'), ka.get('purpose'), ka.get('description')) or '').lower()
             notes = (ka.get('Notes') or '').lower()
             short_name = (ka.get('Short_Name') or '').lower()
 

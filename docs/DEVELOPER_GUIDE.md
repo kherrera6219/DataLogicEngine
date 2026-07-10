@@ -81,6 +81,7 @@ Set in `.env`:
 2. Provider keys only when testing provider-backed flows:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
+   - `LLM_DEFAULT_PROVIDER=google` when both OpenAI and Google keys are present and Google should be the env fallback default
    - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 

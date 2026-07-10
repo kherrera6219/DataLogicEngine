@@ -677,7 +677,7 @@ function startBackend() {
         '# OpenAI (GPT-5.5):',
         'OPENAI_API_KEY=',
         '#',
-        '# Google Gemini (gemini-3.1-pro):',
+        '# Google Gemini (gemini-3.1-pro-preview):',
         'GOOGLE_API_KEY=',
         '#',
         '# Anthropic (optional):',

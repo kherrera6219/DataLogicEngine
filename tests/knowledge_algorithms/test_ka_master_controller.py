@@ -47,6 +47,18 @@ class TestKAMasterController:
         assert hasattr(self.controller, 'algorithms')
         assert hasattr(self.controller, 'execute_algorithm')
 
+    def test_controller_registry_merges_catalog_metadata_for_ui_cards(self):
+        """Live registry entries include descriptions for Algorithms page cards."""
+        controller = KAMasterController()
+
+        ka001 = controller.algorithms["KA-001"]["metadata"]
+        assert ka001["KA_Name"] == "Algorithm of Thought"
+        assert ka001["Purpose"] == "Decompose query into ordered tasks and dependencies"
+        assert ka001["Implementation"].endswith("ka_01_algorithm_of_thought.run")
+
+        l10 = controller.algorithms["L10-KA-001"]["metadata"]
+        assert l10["KA_Name"] == "Layer 10 KA 001"
+        assert l10["Purpose"] == "Entropy-based emergence scorer."
 
     def test_execute_registered_algorithm(self):
         """Test executing a registered algorithm."""

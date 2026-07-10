@@ -2,6 +2,7 @@
 
 import pytest
 import sys
+from types import SimpleNamespace
 from unittest.mock import MagicMock, AsyncMock
 from datetime import datetime, timedelta, UTC
 
@@ -106,6 +107,43 @@ class TestGatewayRequest:
         assert req.run_ukg_pipeline is True
         assert req.temperature == 0.5
         assert req.messages == [{"role": "user", "content": "hello"}]
+
+
+class TestProviderPreference:
+    def test_env_provider_sort_key_prefers_google_when_configured(self, monkeypatch):
+        monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
+        openai_provider = SimpleNamespace(provider_type="openai", priority=1)
+        google_provider = SimpleNamespace(provider_type="google", priority=2)
+
+        ordered = sorted(
+            [openai_provider, google_provider],
+            key=LLMGateway._env_provider_sort_key,
+        )
+
+        assert ordered[0] is google_provider
+
+    def test_active_model_env_fallback_prefers_google_when_configured(self, monkeypatch):
+        from backend.llm_gateway.active_model import resolve_active_cloud_model
+        from backend.llm_gateway.model_defaults import GOOGLE_PRIMARY_MODEL
+
+        monkeypatch.setitem(
+            sys.modules,
+            "models",
+            SimpleNamespace(
+                LLMProvider=SimpleNamespace(
+                    query=SimpleNamespace(filter_by=MagicMock(side_effect=RuntimeError("no db")))
+                )
+            ),
+        )
+        monkeypatch.setenv("OPENAI_API_KEY", "openai-test-key")
+        monkeypatch.setenv("GOOGLE_API_KEY", "google-test-key")
+        monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
+
+        assert resolve_active_cloud_model() == (
+            "google",
+            "google-test-key",
+            GOOGLE_PRIMARY_MODEL,
+        )
 
 
 class TestModelDefaults:

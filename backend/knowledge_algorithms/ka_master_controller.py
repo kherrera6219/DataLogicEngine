@@ -6,6 +6,8 @@ providing a unified interface for complex query resolution and system self-manag
 import logging
 import os
 import importlib
+import ast
+import json
 import time
 import uuid
 import yaml
@@ -34,16 +36,93 @@ class KAMasterController(KnowledgeAlgorithm):
         self.algorithms = self._load_registry()
 
     def _load_registry(self) -> Dict[str, Any]:
-        """Load available algorithms from ka_registry.yaml."""
+        """Load executable KAs and merge catalog metadata for UI/API descriptions."""
         try:
             if os.path.exists(self._registry_path):
-                with open(self._registry_path, "r") as f:
-                    data = yaml.safe_load(f)
+                with open(self._registry_path, "r", encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
                     reg = data.get("ka_registry", {})
-                    return {k: {"id": k, "metadata": {"KA_ID": k, "Status": "Active", "Implementation": v}} for k, v in reg.items()}
+                    catalog = self._load_catalog_metadata()
+                    return {
+                        k: {"id": k, "metadata": self._build_algorithm_metadata(k, v, catalog)}
+                        for k, v in reg.items()
+                    }
             return {}
         except Exception as e:
             raise KAConfigError(f"Failed to load KA registry: {str(e)}")
+
+    def _load_catalog_metadata(self) -> Dict[str, Dict[str, Any]]:
+        """Load descriptive KA metadata from the canonical catalog when available."""
+        catalog_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "core", "data", "ka_registry.json")
+        )
+        if not os.path.exists(catalog_path):
+            return {}
+
+        with open(catalog_path, "r", encoding="utf-8") as f:
+            rows = json.load(f)
+
+        catalog: Dict[str, Dict[str, Any]] = {}
+        for row in rows if isinstance(rows, list) else []:
+            if not isinstance(row, dict):
+                continue
+            ka_id = row.get("KA_ID") or row.get("id")
+            if not ka_id:
+                continue
+            catalog[str(ka_id).upper()] = dict(row)
+        return catalog
+
+    def _build_algorithm_metadata(
+        self,
+        ka_id: str,
+        implementation_path: str,
+        catalog: Dict[str, Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        metadata = dict(catalog.get(str(ka_id).upper(), {}))
+        metadata.setdefault("KA_ID", ka_id)
+        metadata.setdefault("KA_Name", self._humanize_ka_id(ka_id))
+        metadata.setdefault("Status", "Active")
+        metadata["Implementation"] = implementation_path
+
+        if not metadata.get("Purpose"):
+            purpose = self._implementation_docstring_summary(implementation_path, ka_id)
+            if purpose:
+                metadata["Purpose"] = purpose
+
+        return metadata
+
+    def _implementation_docstring_summary(self, implementation_path: str, ka_id: str) -> str | None:
+        module_path = implementation_path.rsplit(".", 1)[0]
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        source_path = os.path.join(root_dir, *module_path.split(".")) + ".py"
+        if not os.path.exists(source_path):
+            return None
+
+        try:
+            with open(source_path, "r", encoding="utf-8") as f:
+                module = ast.parse(f.read())
+            docstring = ast.get_docstring(module)
+        except Exception:
+            return None
+
+        if not docstring:
+            return None
+
+        first_line = docstring.strip().splitlines()[0].strip()
+        prefix = f"{ka_id}:"
+        if first_line.upper().startswith(prefix.upper()):
+            first_line = first_line[len(prefix):].strip()
+        return first_line[:1].upper() + first_line[1:] if first_line else None
+
+    @staticmethod
+    def _humanize_ka_id(ka_id: str) -> str:
+        if not isinstance(ka_id, str):
+            return str(ka_id)
+        if ka_id.upper().startswith("L10-KA-"):
+            return f"Layer 10 KA {ka_id.rsplit('-', 1)[-1]}"
+        if ka_id.upper() == "KA-MASTER":
+            return "KA Master Controller"
+        return ka_id
 
     def get_available_algorithms(self) -> Dict[str, Any]:
         return self.algorithms

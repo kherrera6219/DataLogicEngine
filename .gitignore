@@ -79,6 +79,7 @@ reports/phase1_provider_staging.sqlite*
 Thumbs.db
 
 # Security - never commit encryption keys or secrets
+API KEY/
 data/security/*.key
 data/security/*.salt
 data/security/keys/
