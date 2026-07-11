@@ -76,7 +76,82 @@ def api_graph():
     try:
         axis = request.args.get('axis', type=int)
         node_type = request.args.get('nodeType')
-        limit = request.args.get('limit', 100, type=int)
+        limit = min(max(request.args.get('limit', 100, type=int) or 100, 1), 500)
+
+        from backend.storage import get_uskd_memory_graph
+
+        memory_graph = get_uskd_memory_graph()
+        if memory_graph.graph.number_of_nodes() > 0:
+            pillar_by_node = {}
+            for source, target, edge_attrs in memory_graph.graph.edges(data=True):
+                source_attrs = memory_graph.graph.nodes[source]
+                source_data = source_attrs.get("data") if isinstance(source_attrs.get("data"), dict) else {}
+                edge_data = edge_attrs.get("data") if isinstance(edge_attrs.get("data"), dict) else {}
+                source_kind = str(source_attrs.get("kind") or source_data.get("node_type") or "")
+                relationship = str(
+                    edge_attrs.get("relationship_type")
+                    or edge_data.get("edge_type")
+                    or ""
+                )
+                if source_kind == "pillar" and relationship == "HAS_KNOWLEDGE_NODE":
+                    pillar_by_node[str(target)] = (
+                        source_attrs.get("name")
+                        or source_attrs.get("title")
+                        or source_data.get("name")
+                        or str(source)
+                    )
+
+            selected_nodes = []
+            selected_ids = set()
+            for uid, attrs in memory_graph.graph.nodes(data=True):
+                data = attrs.get("data") if isinstance(attrs.get("data"), dict) else {}
+                axis_number = attrs.get("axis_number") or data.get("axis_number")
+                kind = str(attrs.get("kind") or data.get("node_type") or "knowledge_node")
+                if axis and axis_number not in (None, axis):
+                    continue
+                if node_type and kind.lower() != node_type.lower():
+                    continue
+                node_id = str(uid)
+                label = attrs.get("name") or attrs.get("title") or data.get("name") or data.get("title") or node_id
+                selected_ids.add(node_id)
+                selected_nodes.append({
+                    "id": node_id,
+                    "label": label,
+                    "axis_number": axis_number,
+                    "node_type": kind,
+                    "pillar": pillar_by_node.get(node_id) or (label if kind == "pillar" else None),
+                    "description": data.get("description") or data.get("content"),
+                    "size": data.get("size", 8),
+                    "value": data.get("value", 1),
+                    "attributes": data,
+                })
+                if len(selected_nodes) >= limit:
+                    break
+
+            selected_edges = []
+            for source, target, attrs in memory_graph.graph.edges(data=True):
+                source_id = str(source)
+                target_id = str(target)
+                if source_id not in selected_ids or target_id not in selected_ids:
+                    continue
+                data = attrs.get("data") if isinstance(attrs.get("data"), dict) else {}
+                selected_edges.append({
+                    "source": source_id,
+                    "target": target_id,
+                    "label": attrs.get("relationship_type") or data.get("edge_type") or "RELATED_TO",
+                    "value": attrs.get("weight") or data.get("weight") or 1.0,
+                    "directed": True,
+                })
+
+            return jsonify({
+                "nodes": selected_nodes,
+                "links": selected_edges,
+                "pillars": [],
+                "sectors": [],
+                "domains": [],
+                "source": "uskd_memory_graph",
+                "stats": memory_graph.stats().to_dict(),
+            })
         
         node_query = Node.query
         
@@ -132,7 +207,8 @@ def api_graph():
             "links": edge_data,
             "pillars": pillar_data,
             "sectors": sector_data,
-            "domains": domain_data
+            "domains": domain_data,
+            "source": "sql_fallback",
         }
         
         return jsonify(graph_data)

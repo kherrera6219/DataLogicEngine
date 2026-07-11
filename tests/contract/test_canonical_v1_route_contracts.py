@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from werkzeug.security import generate_password_hash
@@ -95,6 +95,31 @@ def test_canonical_v1_auth_failures_are_json_401s(client):
         assert "Authentication required" in body["message"]
 
 
+def test_graph_endpoint_uses_active_uskd_memory_graph(session_authenticated_client):
+    from backend.storage.uskd_memory_graph import UskdMemoryGraph
+
+    graph = UskdMemoryGraph()
+    graph.add_pillar("pillar-1", name="Technology", data={"description": "Technology pillar"})
+    graph.add_knowledge_node("node-1", title="AI Governance", axis_number=8)
+    graph.add_relationship("pillar-1", "node-1", "HAS_KNOWLEDGE_NODE", weight=0.8)
+
+    with patch("backend.storage.get_uskd_memory_graph", return_value=graph):
+        response = session_authenticated_client.get("/api/v1/graph")
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["source"] == "uskd_memory_graph"
+    assert {node["id"] for node in payload["nodes"]} == {"pillar-1", "node-1"}
+    nodes = {node["id"]: node for node in payload["nodes"]}
+    assert nodes["pillar-1"]["pillar"] == "Technology"
+    assert nodes["node-1"]["pillar"] == "Technology"
+    assert payload["links"][0]["label"] == "HAS_KNOWLEDGE_NODE"
+
+    with patch("backend.storage.get_uskd_memory_graph", return_value=graph):
+        axis_response = session_authenticated_client.get("/api/v1/graph?axis=8")
+    assert {node["id"] for node in axis_response.get_json()["nodes"]} == {"pillar-1", "node-1"}
+
+
 def test_canonical_v1_retention_policies_authenticated_returns_ok(session_authenticated_client):
     # Single-mode / OS-level auth (auth deprecation Phase B): no admin gate on
     # retention policies — any authenticated owner can read them.
@@ -132,6 +157,20 @@ def test_canonical_v1_simulation_create_missing_parameters_returns_400(session_a
     error_val = body.get("error", "")
     error_msg = error_val.get("message", "") if isinstance(error_val, dict) else error_val
     assert error_msg == "Missing parameters" or body.get("message") == "Missing parameters"
+
+
+def test_simulation_step_rejects_placeholder_execution(session_authenticated_client):
+    create_response = session_authenticated_client.post(
+        "/api/v1/simulations",
+        json={"name": "Missing scenario", "parameters": {"mode": "standard"}},
+    )
+    assert create_response.status_code == 201
+    session_id = create_response.get_json()["data"]["session_id"]
+
+    run_response = session_authenticated_client.post(f"/api/v1/simulations/{session_id}/step")
+    assert run_response.status_code == 422
+    body = run_response.get_json()
+    assert body["error"]["message"] == "Simulation query is required"
 
 
 def test_canonical_v1_simulation_routes_have_strict_happy_path_contract(session_authenticated_client, monkeypatch):

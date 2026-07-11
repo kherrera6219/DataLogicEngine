@@ -654,6 +654,15 @@ def _initialize_database_schema() -> None:
 
     with app.app_context():
         db.create_all()
+        if IS_DESKTOP_MODE and database_url.startswith("sqlite"):
+            from backend.desktop.schema_upgrade import apply_desktop_sqlite_upgrades
+
+            upgraded_columns = apply_desktop_sqlite_upgrades(db.engine)
+            if upgraded_columns:
+                logger.info(
+                    "Desktop SQLite schema upgraded with columns: %s",
+                    ", ".join(upgraded_columns),
+                )
         logger.warning(
             "Database tables auto-created because AUTO_CREATE_SCHEMA=true. "
             "Do not enable this in managed or production environments."

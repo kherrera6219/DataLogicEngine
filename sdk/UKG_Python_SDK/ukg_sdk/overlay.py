@@ -147,15 +147,18 @@ class UKGOverlay:
         tier = tier_override or out_route.output.get("tier") or "T1"
         layers = out_route.output.get("layers") or ["L1", "L2", "L9"]
 
-        dsqp_trace_output = self._build_dsqp_trace_output(
-            query=query,
-            coord=coord,
-            tier=tier,
-            layers=layers,
-            meta=meta,
-        )
-        if dsqp_trace_output:
-            t("DSQP", "ok", dsqp_trace_output)
+        dmrf_bundle = meta.get("dmrf") if isinstance(meta.get("dmrf"), dict) else {}
+        dmrf_dsqp = dmrf_bundle.get("dsqp_chain") if isinstance(dmrf_bundle, dict) else None
+        if not isinstance(dmrf_dsqp, dict) or not isinstance(dmrf_dsqp.get("profiles"), dict):
+            dsqp_trace_output = await self._build_dsqp_trace_output(
+                query=query,
+                coord=coord,
+                tier=tier,
+                layers=layers,
+                meta=meta,
+            )
+            if dsqp_trace_output:
+                t("DSQP", "ok", dsqp_trace_output)
 
         # light AoT in L2 if present
         aot = None
@@ -193,7 +196,7 @@ class UKGOverlay:
             "explainability": explain.output.get("explainability"),
         }
 
-    def _build_dsqp_trace_output(
+    async def _build_dsqp_trace_output(
         self,
         *,
         query: str,
@@ -219,7 +222,7 @@ class UKGOverlay:
                 "layers": layers,
                 "source": "ukg_sdk_overlay",
             }
-            result = self._dsqp_orchestrator_cls(timeout_seconds=30).construct_all_sync(
+            result = await self._dsqp_orchestrator_cls(timeout_seconds=30).construct_all(
                 query,
                 axis_vector={"coordinate": coord, "tier": tier},
                 context=context,
@@ -229,7 +232,7 @@ class UKGOverlay:
                 "constructed_persona_profiles": result.get("profiles", {}),
             }
         except Exception as exc:  # noqa: BLE001
-            logger.debug("DSQPOrchestrator.construct_all_sync failed: %s: %s", type(exc).__name__, exc)
+            logger.debug("DSQPOrchestrator.construct_all failed: %s: %s", type(exc).__name__, exc)
             return {
                 "dsqp_chain_unavailable": {
                     "error_type": type(exc).__name__,

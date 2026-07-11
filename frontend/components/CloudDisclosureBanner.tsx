@@ -32,7 +32,7 @@ export function CloudDisclosureBanner() {
           </div>
           <div>
             <p className="text-sm font-bold flex items-center gap-2">
-              Cloud AI Features Available
+              Cloud AI Data Notice
               <ShieldCheck className="h-3 w-3" />
             </p>
             <p className="text-xs text-white/95 font-medium leading-tight">

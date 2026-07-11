@@ -730,11 +730,13 @@ def get_stats():
 @ka_bp.route('/health', methods=['GET'])
 def health_check():
     """Check KA system health"""
+    algorithms = _get_controller().get_available_algorithms()
+    available = len(algorithms) > 0
     return jsonify({
         'success': True,
-        'status': 'healthy',
-        'total_algorithms': len(_get_controller().get_available_algorithms()),
-        'available': True,
+        'status': 'healthy' if available else 'degraded',
+        'total_algorithms': len(algorithms),
+        'available': available,
         'version': '2.0.0',
         'registry_source': 'ka_registry.json'
     }), 200

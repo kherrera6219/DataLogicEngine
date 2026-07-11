@@ -67,7 +67,7 @@ describe('api module', () => {
   describe('api analytics object', () => {
       it('summary makes correct request', async () => {
           await api.analytics.summary();
-          expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/analytics/summary'), expect.any(Object));
+          expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/analytics/overview'), expect.any(Object));
       });
 
       it('trends makes correct request with defaults', async () => {
@@ -93,8 +93,13 @@ describe('api module', () => {
   
   describe('api system object', () => {
       it('health returns operational', async () => {
+          mockFetch.mockResolvedValueOnce({
+              ok: true,
+              json: async () => ({ status: 'ok' }),
+              status: 200
+          });
           const status = await api.system.health();
-          expect(status).toBe('Operational');
+          expect(status).toBe('ok');
       });
   });
   

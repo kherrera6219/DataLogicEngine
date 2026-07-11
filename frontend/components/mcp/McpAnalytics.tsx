@@ -2,23 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { 
   AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Line
 } from 'recharts';
-import { 
-  BarChart3, Settings, Download, Mail, 
-  CheckCircle, XCircle, Calendar
-} from "lucide-react";
+import { BarChart3, CheckCircle, XCircle } from "lucide-react";
 import { api, McpStats } from '@/lib/api';
 
 export function McpAnalytics() {
   const [data, setData] = useState<McpStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
+        setError(null);
         const stats = await api.analytics.mcp() as McpStats;
         // Use only API-provided telemetry; no synthetic fallback values.
         const rawErrorStats = stats.error_stats || [];
@@ -37,12 +35,7 @@ export function McpAnalytics() {
         });
       } catch (err) {
         console.error("Failed to fetch MCP analytics:", err);
-        setData({
-          time_series: [],
-          top_tools: [],
-          server_health: [],
-          error_stats: []
-        });
+        setError(err instanceof Error ? err.message : 'MCP analytics are unavailable');
       } finally {
         setLoading(false);
       }
@@ -51,6 +44,9 @@ export function McpAnalytics() {
   }, []);
 
   if (loading || !data) {
+    if (error) {
+      return <div className="p-6 text-sm text-red-400" role="alert">Failed to load MCP analytics: {error}</div>;
+    }
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -65,10 +61,6 @@ export function McpAnalytics() {
           <div>
              <h2 className="text-2xl font-bold text-white">MCP Performance Analytics</h2>
              <p className="text-gray-400">Real-time monitoring and health status</p>
-          </div>
-          <div className="flex gap-2">
-             <Button variant="outline"><Calendar className="mr-2 h-4 w-4" /> Last 24 Hours</Button>
-             <Button variant="outline"><Settings className="h-4 w-4" /></Button>
           </div>
        </div>
 
@@ -200,10 +192,6 @@ export function McpAnalytics() {
                        {data.error_stats.length === 0 && (
                           <div className="text-sm text-gray-500">No error categories reported.</div>
                        )}
-                       <div className="pt-4 flex gap-2">
-                          <Button variant="outline" size="sm" className="w-full"><Download className="mr-2 h-4 w-4" /> Report</Button>
-                          <Button variant="outline" size="sm" className="w-full"><Mail className="mr-2 h-4 w-4" /> Email</Button>
-                       </div>
                    </div>
                 </CardContent>
              </Card>

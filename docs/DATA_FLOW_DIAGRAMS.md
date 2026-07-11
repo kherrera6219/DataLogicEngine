@@ -111,6 +111,8 @@ flowchart TD
     W --> Y[Response to user]
 ```
 
+Desktop enhanced-mode telemetry uses the same gateway `run_id` from request creation through the API response, SQL trace records, chat message history, Trace Explorer bundle, and export. DMRF owns the 17-axis route and DSQP persona chain; the SDK overlay consumes those results and adds its KA/model stages without reconstructing the personas.
+
 ---
 
 ## DFD-03: Desktop local-auth and runtime policy

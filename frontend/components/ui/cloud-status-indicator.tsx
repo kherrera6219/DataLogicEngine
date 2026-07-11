@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cloud, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { request } from '@/lib/api/client';
 
 export interface CloudStatusIndicatorProps {
   className?: string;
@@ -13,41 +14,50 @@ export function CloudStatusIndicator({ className, isProcessing = false }: CloudS
   const [status, setStatus] = useState<'online' | 'degraded' | 'offline' | 'loading'>('loading');
   
   useEffect(() => {
+    let cancelled = false;
+
     const checkHealth = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setStatus('online');
+        const health = await request<{ status?: string }>('/health');
+        if (cancelled) return;
+        setStatus(health.status === 'ok' ? 'online' : 'degraded');
       } catch {
-        setStatus('offline');
+        if (!cancelled) setStatus('offline');
       }
     };
-    checkHealth();
+
+    void checkHealth();
+    const interval = window.setInterval(checkHealth, 30_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, []);
 
   const statusConfig = {
     online: {
       icon: <CheckCircle2 className="h-3 w-3 text-emerald-500" />,
       color: "bg-emerald-500",
-      text: "LLM Gateway: Operational",
-      description: "Cloud reasoning services are active and responding."
+      text: "Application API: Available",
+      description: "The application API and primary database responded successfully."
     },
     degraded: {
       icon: <AlertCircle className="h-3 w-3 text-yellow-500" />,
       color: "bg-yellow-500",
-      text: "LLM Gateway: Degraded",
-      description: "Intermittent latency detected in cloud providers."
+      text: "Application API: Degraded",
+      description: "The API responded, but one or more checked components are unavailable."
     },
     offline: {
       icon: <AlertCircle className="h-3 w-3 text-red-500" />,
       color: "bg-red-500",
-      text: "LLM Gateway: Offline",
-      description: "Could not connect to cloud reasoning services."
+      text: "Application API: Offline",
+      description: "The application API did not respond."
     },
     loading: {
       icon: <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />,
       color: "bg-muted-foreground",
       text: "Checking Status...",
-      description: "Contacting truth vectors..."
+      description: "Checking the application API and primary database."
     },
     processing: {
       icon: <Loader2 className="h-3 w-3 animate-spin text-blue-400" />,

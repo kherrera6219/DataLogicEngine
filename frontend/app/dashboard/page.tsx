@@ -24,11 +24,13 @@ export default function DashboardPage() {
   const [overview, setOverview] = React.useState<AnalyticsOverview | null>(null);
   const [activity, setActivity] = React.useState<ActivityType[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [cloudProviders, setCloudProviders] = React.useState<DashboardProvider[]>([]);
 
   React.useEffect(() => {
     async function fetchData() {
       try {
+        setLoadError(null);
         const [overviewData, activityData] = await Promise.all([
           api.analytics.overview() as Promise<AnalyticsOverview>,
           api.analytics.activity() as Promise<ActivityType[]>
@@ -37,7 +39,7 @@ export default function DashboardPage() {
         setActivity(activityData);
       } catch (err) {
         console.error("Failed to fetch dashboard data:", err);
-        // Fallback to empty states if API fails
+        setLoadError(err instanceof Error ? err.message : 'Dashboard data is unavailable');
       } finally {
         setLoading(false);
       }
@@ -100,10 +102,10 @@ export default function DashboardPage() {
         <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
            <h1 className="text-title font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-gray-400">Command Center</h1>
            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1 bg-green-900/10 border border-green-500/20 rounded-full backdrop-blur-sm">
-                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                 <span className="text-xs font-bold text-green-400 tracking-wide">
-                    {overview ? "SYSTEMS NORMAL" : "INITIALIZING..."}
+              <div className={`flex items-center gap-2 px-3 py-1 border rounded-full backdrop-blur-sm ${loadError ? 'bg-red-900/10 border-red-500/20' : overview ? 'bg-green-900/10 border-green-500/20' : 'bg-amber-900/10 border-amber-500/20'}`}>
+                 <div className={`h-2 w-2 rounded-full ${loadError ? 'bg-red-500' : overview ? 'bg-green-500' : 'bg-amber-500 animate-pulse'}`}></div>
+                 <span className={`text-xs font-bold tracking-wide ${loadError ? 'text-red-400' : overview ? 'text-green-400' : 'text-amber-400'}`}>
+                     {loadError ? "DATA UNAVAILABLE" : overview ? "DATA CONNECTED" : "INITIALIZING..."}
                  </span>
               </div>
               <div className="text-xs text-gray-400 font-mono opacity-60">
@@ -121,7 +123,7 @@ export default function DashboardPage() {
                     Unified Knowledge Gateway
                  </h2>
                  <p className="text-gray-400 text-lg font-light">
-                   {loading ? "Synchronizing core intelligence engines..." : "Your intelligence distribution network is active."}
+                   {loading ? "Loading application metrics..." : loadError ? "Application metrics could not be loaded." : "Application metrics are current."}
                  </p>
               </div>
               <div className="flex gap-3">
@@ -161,7 +163,7 @@ export default function DashboardPage() {
                  },
                  { 
                    label: 'Compliance Status', 
-                   value: overview?.compliance_status || 'Secure', 
+                   value: overview?.compliance_status || 'Unavailable',
                    score: overview?.compliance_score || '--', 
                    icon: Settings, // Changed from ShieldCheck
                    color: 'text-green-400', 

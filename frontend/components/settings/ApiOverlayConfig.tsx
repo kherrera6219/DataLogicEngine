@@ -692,7 +692,7 @@ print(response.json())`}
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400">Gateway Health</span>
-                <Badge variant="outline" className="text-[10px]">{activeProvidersCount > 0 ? 'Operational' : 'No Provider'}</Badge>
+                <Badge variant="outline" className="text-[10px]">{activeProvidersCount > 0 ? 'Provider active' : 'No active provider'}</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400">Compliance Score</span>

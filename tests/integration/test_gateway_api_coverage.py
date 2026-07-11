@@ -21,6 +21,11 @@ def app_client():
     mock_models = MagicMock()
     mock_gateway_cls = MagicMock() # Mock class
 
+    class IdentityLimiter:
+        @staticmethod
+        def exempt(func):
+            return func
+
     # Models
     MockProvider = MagicMock()
     MockAPIKey = MagicMock()
@@ -42,7 +47,7 @@ def app_client():
     mock_fje.JWTManager = MagicMock()
 
     with patch.dict(sys.modules, {
-        'extensions': MagicMock(db=mock_db, cache=mock_cache),
+        'extensions': MagicMock(db=mock_db, cache=mock_cache, limiter=IdentityLimiter()),
         'models': mock_models,
         'jwt': mock_jwt,
         'flask_jwt_extended': mock_fje,
@@ -106,6 +111,10 @@ def test_api_key_auth_header(app_client):
     mock_resp.usage = {}
     mock_resp.coordinate = None
     mock_resp.warnings = []
+    mock_resp.trace = [{"ka_id": "KA-004", "status": "ok", "output": {"valid": True}}]
+    mock_resp.confidence = 0.91
+    mock_resp.claims = []
+    mock_resp.evidence_count = 0
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -121,6 +130,8 @@ def test_api_key_auth_header(app_client):
     assert resp.json['response'] == "Response"
     assert resp.json['audit_trail']['complete_trace_url'] == "/api/v1/trace/runs/run1/bundle"
     assert resp.json['audit_trail']['download_url'] == "/api/v1/trace/runs/run1/export"
+    assert resp.json['confidence_score'] == 0.91
+    assert resp.json['trace_summary']['steps'][0]['status'] == "completed"
     MockAPIKey.verify_key.assert_called_with('ukg_valid')
 
 def test_api_key_invalid(app_client):

@@ -97,9 +97,9 @@ class RAGService:
         """
         Generate embedding using strict 3-Layer Failover Strategy.
         
-        Layer 1: OpenAI (text-embedding-3-small) - Fast, standard.
-        Layer 2: Google Gemini (models/text-embedding-004) - High quality fallback.
-        Layer 3: Local HuggingFace (all-MiniLM-L6-v2) - Startup safe/Total outage safe.
+        Provider order follows LLM_DEFAULT_PROVIDER / AI_PROVIDER. The selected
+        cloud provider is tried first, followed by the alternate cloud provider
+        only when no operator default is configured, then local HuggingFace.
         """
         cache_key = self._embedding_cache_key(text)
         cached_embedding = self._get_cached_embedding(cache_key)
@@ -107,45 +107,54 @@ class RAGService:
             return cached_embedding
 
         errors = []
+        preferred_provider = (
+            os.environ.get("LLM_DEFAULT_PROVIDER")
+            or os.environ.get("AI_PROVIDER")
+            or ""
+        ).strip().lower()
+        if preferred_provider == "gemini":
+            preferred_provider = "google"
         
-        # --- Layer 1: OpenAI ---
-        try:
-            import os
-            # Check env dynamically
-            openai_key = os.environ.get('OPENAI_API_KEY')
-            if openai_key:
-                import openai
-                client = openai.OpenAI(api_key=openai_key)
-                try:
-                    response = client.embeddings.create(
-                        model="text-embedding-3-small",
-                        input=text
-                    )
-                    embedding = response.data[0].embedding
-                    self._set_cached_embedding(cache_key, embedding)
-                    return embedding
-                finally:
-                    close_client = getattr(client, "close", None)
-                    if callable(close_client):
-                        close_client()
-        except Exception as e:
-            errors.append(f"OpenAI Failed: {str(e)}")
-            logger.warning(f"Embedding Layer 1 (OpenAI) failed: {e}")
+        if preferred_provider != "google":
+            try:
+                openai_key = os.environ.get('OPENAI_API_KEY')
+                if openai_key:
+                    import openai
+                    client = openai.OpenAI(api_key=openai_key)
+                    try:
+                        response = client.embeddings.create(
+                            model="text-embedding-3-small",
+                            input=text
+                        )
+                        embedding = response.data[0].embedding
+                        self._set_cached_embedding(cache_key, embedding)
+                        return embedding
+                    finally:
+                        close_client = getattr(client, "close", None)
+                        if callable(close_client):
+                            close_client()
+            except Exception as e:
+                errors.append(f"OpenAI Failed: {str(e)}")
+                logger.warning(f"Embedding OpenAI attempt failed: {e}")
 
         # --- Layer 2: Google Gemini ---
         try:
-            import os
             google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
             if google_key:
                 from google import genai
+                from google.genai import types
                 client = genai.Client(api_key=google_key)
                 try:
-                    # Use models/text-embedding-004 which is standard for genai sdk
-                    result = client.models.embed_content(
-                        model="text-embedding-004",
-                        contents=text,
+                    embedding_model = os.environ.get(
+                        "GOOGLE_EMBEDDING_MODEL",
+                        "gemini-embedding-2",
                     )
-                    embedding = result.embeddings[0].values
+                    result = client.models.embed_content(
+                        model=embedding_model,
+                        contents=text,
+                        config=types.EmbedContentConfig(output_dimensionality=768),
+                    )
+                    embedding = list(result.embeddings[0].values)
                     self._set_cached_embedding(cache_key, embedding)
                     return embedding
                 finally:
@@ -154,7 +163,7 @@ class RAGService:
                         close_client()
         except Exception as e:
             errors.append(f"Google Failed: {str(e)}")
-            logger.warning(f"Embedding Layer 2 (Google) failed: {e}")
+            logger.warning(f"Embedding Google attempt failed: {e}")
 
         # --- Layer 3: Local HuggingFace ---
         try:

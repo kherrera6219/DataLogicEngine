@@ -136,7 +136,9 @@ def run_simulation_step(session_id):
     
     # Real Production Execution
     try:
-        query = simulation.parameters.get('query', 'Standard Analysis')
+        query = str(simulation.parameters.get('query') or '').strip()
+        if not query:
+            return error_response("Simulation query is required", 422)
         context = simulation.parameters.get('context', {})
         
         # Run one step of the production engine

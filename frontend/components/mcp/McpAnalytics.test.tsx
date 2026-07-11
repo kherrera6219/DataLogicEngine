@@ -55,4 +55,10 @@ describe('McpAnalytics', () => {
       expect(screen.getByText('Server 1')).toBeInTheDocument();
     });
   });
+
+  it('shows the API failure instead of empty healthy-looking telemetry', async () => {
+    vi.mocked(api.analytics.mcp).mockRejectedValue(new Error('service offline'));
+    render(<McpAnalytics />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('service offline');
+  });
 });

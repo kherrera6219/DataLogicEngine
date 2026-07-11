@@ -125,7 +125,7 @@ export function DatabaseSettings() {
   const [testing, setTesting] = useState<string | null>(null);
   const [lifecycleAction, setLifecycleAction] = useState<'start' | 'stop' | null>(null);
   const [mode, setMode] = useState<'local' | 'cloud' | 'hybrid'>('local');
-  const [autoStartEnabled, setAutoStartEnabled] = useState(true);
+  const [autoStartEnabled, setAutoStartEnabled] = useState(false);
   const [savingAutoStart, setSavingAutoStart] = useState(false);
   const [activeTab, setActiveTab] = useState('status');
   const [desktopMetrics, setDesktopMetrics] = useState<DesktopStorageMetrics | null>(null);
@@ -173,7 +173,7 @@ export function DatabaseSettings() {
     try {
       const [healthData, autoStartData, metricsData] = await Promise.all([
         request<StorageHealth>('/storage/health'),
-        request<AutoStartResponse>('/storage/databases/autostart').catch(() => ({ enabled: true })),
+        request<AutoStartResponse>('/storage/databases/autostart').catch(() => null),
         window.electronAPI?.getDesktopStorageMetrics
           ? window.electronAPI.getDesktopStorageMetrics().catch(() => null)
           : request<DesktopStorageMetrics>('/storage/desktop-metrics').catch(() => null),
@@ -187,7 +187,7 @@ export function DatabaseSettings() {
         toast('Storage health response format was invalid.', 'warning');
       }
 
-      if (typeof autoStartData.enabled === 'boolean') {
+      if (autoStartData && typeof autoStartData.enabled === 'boolean') {
         setAutoStartEnabled(autoStartData.enabled);
       }
       setDesktopMetrics(metricsData);

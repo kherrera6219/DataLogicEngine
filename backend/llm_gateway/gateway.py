@@ -13,6 +13,7 @@ The gateway provides:
 """
 
 import asyncio
+import json
 import logging
 import os
 import sys
@@ -74,11 +75,14 @@ class GatewayResponse:
     usage: dict[str, Any]
     ok: bool = True
     # UKG enhancements
-    coordinate: Optional[str] = None
+    coordinate: Any = None
     tier: Optional[str] = None
     layers: Optional[list[str]] = None
     trace: Optional[list[dict]] = None
     explainability: Optional[dict] = None
+    confidence: Optional[float] = None
+    claims: list[dict[str, Any]] = field(default_factory=list)
+    evidence_count: int = 0
     warnings: list[str] = field(default_factory=list)
     error: Optional[str] = None
     meta: dict[str, Any] = field(default_factory=dict)
@@ -272,7 +276,10 @@ class LLMGateway:
         """Return True when DMRF should wrap the gateway control plane."""
         if meta.get("use_dmrf") is not None:
             return str(meta.get("use_dmrf")).lower() in {"1", "true", "yes", "on"}
-        return os.environ.get("USE_DMRF", "false").lower() in {"1", "true", "yes", "on"}
+        configured = os.environ.get("USE_DMRF")
+        if configured is not None:
+            return configured.lower() in {"1", "true", "yes", "on"}
+        return LLMGateway._desktop_local_first_enabled()
 
     @staticmethod
     def _has_active_cloud_providers() -> bool:
@@ -351,6 +358,14 @@ class LLMGateway:
             provider_type = "google"
         priority = getattr(provider_record, "priority", 10)
         return (0 if preferred and provider_type == preferred else 1, priority)
+
+    @staticmethod
+    def _runtime_data_root() -> Path:
+        """Return a writable runtime data root for desktop/packaged execution."""
+        settings_path = os.environ.get("DATALOGIC_STORAGE_SETTINGS_PATH")
+        if settings_path:
+            return Path(settings_path).expanduser().resolve().parent
+        return Path.cwd()
 
     def _provider_timeout_seconds(self, provider_record: Any) -> int:
         env_default = self._positive_int(os.environ.get("LLM_PROVIDER_TIMEOUT_SECONDS"), 30, minimum=1, maximum=300)
@@ -579,6 +594,25 @@ class LLMGateway:
                 request,
             )
         
+        # An operator-configured cloud default takes precedence over legacy
+        # desktop preferences. Older installs may still have Ollama persisted
+        # as the preferred provider/model even though cloud routing is enabled.
+        operator_default_provider = self._preferred_env_provider()
+        local_provider_types = {"local_slm", "ollama", "vllm"}
+        requested_provider_type = str(request.provider or "").strip().lower()
+        if operator_default_provider and requested_provider_type in local_provider_types:
+            logger.info(
+                "Ignoring legacy local provider preference '%s'; desktop default is '%s'",
+                requested_provider_type,
+                operator_default_provider,
+            )
+            request.provider = None
+            request.model = None
+
+        if operator_default_provider and not request.provider:
+            request.provider = operator_default_provider
+            request.model = request.model or default_model_for_provider(operator_default_provider)
+
         # Apply user AI preferences (disable check + preferred provider)
         _store_history = True
         if request.user_id:
@@ -804,6 +838,9 @@ class LLMGateway:
                         estimated_cost_usd = self._governance.estimate_cost_usd(model, tokens_in, tokens_out)
                         usage_payload["estimated_cost_usd"] = estimated_cost_usd
                         result["usage"] = usage_payload
+                        result["latency_ms"] = latency_ms
+                        result["provider_used"] = getattr(provider_record, "provider_type", "unknown")
+                        result["model_used"] = model
 
                         moderated_answer, output_classification, governance_warnings = (
                             self._governance.apply_output_controls(result.get("answer", ""))
@@ -1349,6 +1386,8 @@ class LLMGateway:
             if anthropic_key and len(providers_list) < 3:
                 add_provider(providers_list, "anthropic-backup", "anthropic", anthropic_primary_model, 4)
 
+            preferred_env_provider = LLMGateway._preferred_env_provider()
+
             if providers_list:
                 # Sort by configured env preference, then by tier priority.
                 providers_list.sort(key=LLMGateway._env_provider_sort_key)
@@ -1364,7 +1403,21 @@ class LLMGateway:
                     if p.provider_type not in db_types and p.provider_type not in added_types:
                         providers.append(p)
                         added_types.add(p.provider_type)
-                providers.sort(key=lambda x: getattr(x, "priority", 10))
+
+            if preferred_env_provider and not preferred_name:
+                # A desktop env default is explicit operator intent. Do not
+                # silently fall back to saved legacy/local providers such as
+                # Ollama after the configured cloud provider fails.
+                allowed_env_types = {preferred_env_provider}
+                if preferred_env_provider == "google":
+                    allowed_env_types.add("gemini")
+                providers = [
+                    provider
+                    for provider in providers
+                    if str(getattr(provider, "provider_type", "") or "").strip().lower() in allowed_env_types
+                ]
+
+            providers.sort(key=LLMGateway._env_provider_sort_key)
 
         if allowed_provider_types:
             providers = [
@@ -1420,6 +1473,9 @@ class LLMGateway:
             layers=result.get("layers"),
             trace=result.get("trace"),
             explainability=result.get("explainability"),
+            confidence=result.get("confidence"),
+            claims=result.get("claims") if isinstance(result.get("claims"), list) else [],
+            evidence_count=len(result.get("evidence", [])) if isinstance(result.get("evidence"), list) else 0,
             warnings=list(result.get("warnings", [])),
             error=result.get("error"),
             meta=dict(response_meta or {}),
@@ -1427,7 +1483,7 @@ class LLMGateway:
 
     @staticmethod
     def _attach_dmrf_trace_metadata(result: dict[str, Any], request_meta: dict[str, Any]) -> None:
-        """Carry DMRF control-plane decisions into the trace record payload."""
+        """Carry DMRF control-plane decisions into the unified trace payload."""
         if not isinstance(result, dict) or not isinstance(request_meta, dict):
             return
         dmrf_bundle = request_meta.get("dmrf")
@@ -1448,10 +1504,39 @@ class LLMGateway:
         if isinstance(axis_vector, dict):
             if not result.get("coordinate"):
                 result["coordinate"] = axis_vector
+            if result.get("confidence") is None and axis_vector.get("confidence") is not None:
+                result["confidence"] = axis_vector.get("confidence")
             if axis_vector.get("frost_layer_depth") is not None and result.get("frost_depth") is None:
                 result["frost_depth"] = axis_vector.get("frost_layer_depth")
             if axis_vector.get("truth_engine_mode") and not result.get("truth_engine_mode"):
                 result["truth_engine_mode"] = axis_vector.get("truth_engine_mode")
+
+        existing_trace = result.get("trace") if isinstance(result.get("trace"), list) else []
+        existing_ids = {
+            str(item.get("ka_id"))
+            for item in existing_trace
+            if isinstance(item, dict) and item.get("ka_id")
+        }
+        dmrf_trace: list[dict[str, Any]] = []
+        for index, step in enumerate(dmrf_bundle.get("steps") or []):
+            if not isinstance(step, dict):
+                continue
+            name = str(step.get("name") or f"step_{index + 1}")
+            trace_id = f"DMRF:{name}"
+            if trace_id in existing_ids:
+                continue
+            dmrf_trace.append({
+                "ka_id": trace_id,
+                "stage_name": name.replace("_", " ").title(),
+                "stage_type": "control_plane",
+                "status": step.get("status", "ok"),
+                "output": step.get("outputs") if isinstance(step.get("outputs"), dict) else {},
+                "start_time": step.get("started_at"),
+                "end_time": step.get("completed_at"),
+                "metrics": {"snapshot_id": step.get("snapshot_id")},
+            })
+        if dmrf_trace:
+            result["trace"] = dmrf_trace + existing_trace
 
     @staticmethod
     def _audit_footer(result: dict, tier, latency_ms: int) -> str:
@@ -1701,15 +1786,20 @@ class LLMGateway:
             return {"ok": False, "error": "No provider configured"}
         
         # Create overlay instance
+        runtime_data_root = self._runtime_data_root()
+        overlay_data_dir = runtime_data_root / "sdk" / "ukg_sdk" / "data"
         overlay = UKGOverlay(
             provider=sdk_provider,
             model=model,
-            data_dir=SDK_PATH / "ukg_sdk" / "data",
+            data_dir=overlay_data_dir,
         )
         
-        # Get correlation ID from request context
-        from flask import g
-        correlation_id = getattr(g, 'correlation_id', None)
+        # Get correlation ID from request context when one exists.
+        try:
+            from flask import g
+            correlation_id = getattr(g, 'correlation_id', None)
+        except RuntimeError:
+            correlation_id = None
         
         # Run through UKG pipeline
         result = await overlay.run(
@@ -1722,9 +1812,6 @@ class LLMGateway:
             max_tokens=max_tokens,
             tier_override=meta.get("dmrf_tier"),
         )
-        
-        # Connect SDK trace to TraceRun/TraceStage models
-        await self._create_trace_run(result, query, run_id, user_id, session_id, model)
         
         return result
     
@@ -1754,6 +1841,40 @@ class LLMGateway:
         except (TypeError, ValueError):
             return None
 
+    @staticmethod
+    def _normalize_trace_status(value: Any) -> str:
+        status = str(value or "pass").strip().lower()
+        return {
+            "ok": "pass",
+            "completed": "pass",
+            "success": "pass",
+            "failed": "fail",
+            "error": "fail",
+        }.get(status, status)
+
+    @staticmethod
+    def _parse_trace_datetime(value: Any) -> Optional[datetime]:
+        if isinstance(value, datetime):
+            return value
+        if not value:
+            return None
+        try:
+            return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _dsqp_profiles_from_output(output: Any) -> Optional[dict[str, Any]]:
+        if not isinstance(output, dict):
+            return None
+        profiles = output.get("constructed_persona_profiles")
+        if isinstance(profiles, dict):
+            return profiles
+        chain = output.get("dsqp_chain")
+        if isinstance(chain, dict) and isinstance(chain.get("profiles"), dict):
+            return chain["profiles"]
+        return None
+
     async def _create_trace_run(
         self,
         sdk_result: dict[str, Any],
@@ -1765,7 +1886,7 @@ class LLMGateway:
     ) -> None:
         """Create or update TraceRun and TraceStage records from gateway output."""
         try:
-            from models import TraceRun, TraceStage
+            from models import TraceAxisVector, TraceKAInvocation, TracePersona, TraceRun, TraceStage
             try:
                 from extensions import db
             except ImportError:
@@ -1829,6 +1950,7 @@ class LLMGateway:
             run.session_id = session_uuid if session_uuid is not None else run.session_id
             run.user_id = user_pk if user_pk is not None else run.user_id
             run.status = "pass" if sdk_result.get("ok", True) else "fail"
+            run.completed_at = datetime.now(UTC)
             run.model_name = model
             run.model_version = model_version
             run.input_message = query
@@ -1844,6 +1966,8 @@ class LLMGateway:
                 or run.truthgate_decision
             )
             run.token_cost = int(total_tokens or 0) if total_tokens is not None else run.token_cost
+            if sdk_result.get("latency_ms") is not None:
+                run.latency_ms = int(sdk_result["latency_ms"])
 
             if sdk_result.get("frost_depth") is not None:
                 run.frost_depth = int(sdk_result["frost_depth"])
@@ -1861,6 +1985,9 @@ class LLMGateway:
                     "query_digest": dmrf_bundle.get("query_digest"),
                     "tier": dmrf_bundle.get("tier"),
                 }
+            provider_used = sdk_result.get("provider_used") or metadata.get("provider_used")
+            if provider_used:
+                data_snapshot["provider_used"] = str(provider_used)
             gateway_error = metadata.get("gateway_error")
             if isinstance(gateway_error, dict):
                 data_snapshot["gateway_error"] = gateway_error
@@ -1869,28 +1996,136 @@ class LLMGateway:
 
             db.session.flush()
 
+            if axis_vector:
+                trace_axis = TraceAxisVector.query.filter_by(run_id=run.run_id).first()
+                if trace_axis is None:
+                    trace_axis = TraceAxisVector(
+                        vector_id=uuid.uuid5(
+                            uuid.NAMESPACE_URL,
+                            f"datalogicengine:{run.run_id}:axis-vector",
+                        ),
+                        run_id=run.run_id,
+                        axes=axis_vector.get("axes") or axis_vector,
+                    )
+                    db.session.add(trace_axis)
+                else:
+                    trace_axis.axes = axis_vector.get("axes") or axis_vector
+                trace_axis.coordinate_hash = uuid.uuid5(
+                    uuid.NAMESPACE_URL,
+                    json.dumps(trace_axis.axes, sort_keys=True, default=str),
+                ).hex
+                db.session.flush()
+                run.coordinate17_id = trace_axis.vector_id
+
             trace = sdk_result.get("trace", [])
             if not isinstance(trace, list):
                 trace = []
             existing_stage_count = TraceStage.query.filter_by(run_id=run.run_id).count()
+            existing_persona_count = TracePersona.query.filter_by(run_id=run.run_id).count()
+            existing_ka_count = TraceKAInvocation.query.filter_by(run_id=run.run_id).count()
             emitted_stages: list[Any] = []
+            emitted_personas: list[Any] = []
+            emitted_kas: list[Any] = []
             if trace and existing_stage_count == 0:
                 for i, trace_item in enumerate(trace):
                     if not isinstance(trace_item, dict):
                         trace_item = {"output": trace_item}
+                    start_time = self._parse_trace_datetime(trace_item.get("start_time"))
+                    end_time = self._parse_trace_datetime(trace_item.get("end_time"))
+                    duration_ms = trace_item.get("duration_ms")
+                    if duration_ms is None and start_time and end_time:
+                        duration_ms = max(0, int((end_time - start_time).total_seconds() * 1000))
+                    elif duration_ms is not None:
+                        try:
+                            duration_ms = max(0, int(duration_ms))
+                        except (TypeError, ValueError):
+                            duration_ms = None
                     stage = TraceStage(
+                        stage_id=uuid.uuid5(
+                            uuid.NAMESPACE_URL,
+                            f"datalogicengine:{run.run_id}:stage:{i}:{trace_item.get('ka_id', '')}",
+                        ),
                         run_id=run.run_id,
-                        name=trace_item.get("ka_id", f"Stage-{i}"),
-                        stage_type="layer",
+                        name=trace_item.get("stage_name") or trace_item.get("ka_id", f"Stage-{i}"),
+                        stage_type=trace_item.get("stage_type", "layer"),
                         layer_index=i + 1,
-                        status=trace_item.get("status", "pass"),
+                        status=self._normalize_trace_status(trace_item.get("status")),
+                        start_time=start_time,
+                        end_time=end_time,
+                        duration_ms=duration_ms,
                         outputs=trace_item.get("output", {}),
+                        metrics=trace_item.get("metrics") if isinstance(trace_item.get("metrics"), dict) else {},
                     )
                     db.session.add(stage)
                     emitted_stages.append(stage)
 
+                    ka_id = str(trace_item.get("ka_id") or "")
+                    if ka_id.upper().startswith("KA-") and existing_ka_count == 0:
+                        invocation = TraceKAInvocation(
+                            invocation_id=uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"datalogicengine:{run.run_id}:ka:{i}:{ka_id}",
+                            ),
+                            run_id=run.run_id,
+                            stage_id=stage.stage_id,
+                            ka_id=ka_id,
+                            ka_name=trace_item.get("stage_name") or ka_id,
+                            status=stage.status,
+                            duration_ms=duration_ms,
+                            inputs=trace_item.get("input") if isinstance(trace_item.get("input"), dict) else {},
+                            outputs=trace_item.get("output") if isinstance(trace_item.get("output"), dict) else {},
+                        )
+                        db.session.add(invocation)
+                        emitted_kas.append(invocation)
+
+            if trace and existing_persona_count == 0:
+                for trace_item in trace:
+                    if not isinstance(trace_item, dict):
+                        continue
+                    output = trace_item.get("output")
+                    profiles = self._dsqp_profiles_from_output(output)
+                    if not isinstance(profiles, dict):
+                        continue
+                    for axis_number, profile in profiles.items():
+                        if not isinstance(profile, dict):
+                            continue
+                        metadata_payload = profile.get("metadata")
+                        metadata_payload = metadata_payload if isinstance(metadata_payload, dict) else {}
+                        validation = profile.get("validation")
+                        validation = validation if isinstance(validation, dict) else {}
+                        description = str(profile.get("description") or "")
+                        persona = TracePersona(
+                            persona_id=uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"datalogicengine:{run.run_id}:dsqp:{axis_number}",
+                            ),
+                            run_id=run.run_id,
+                            persona_type=str(profile.get("persona_type") or f"axis_{axis_number}"),
+                            persona_name=str(profile.get("name") or f"Axis {axis_number} Persona"),
+                            status="pass" if validation.get("valid", True) else "warn",
+                            evidence_ids=[],
+                            context_scope=str(metadata_payload.get("coordinate_path") or ""),
+                            draft_text=description,
+                            confidence=float(profile.get("coverage_score") or 0.0),
+                            objections=validation.get("errors") or [],
+                            consensus_impact={
+                                "construction_mode": metadata_payload.get("construction_mode"),
+                                "axis_number": profile.get("axis_number", axis_number),
+                                "components": list((profile.get("components") or {}).keys()),
+                                "profile": json.loads(json.dumps(profile, default=str)),
+                            },
+                        )
+                        db.session.add(persona)
+                        emitted_personas.append(persona)
+
             db.session.commit()
-            logger.info("Persisted TraceRun %s with %s new stages", run.run_id, len(emitted_stages))
+            logger.info(
+                "Persisted TraceRun %s with %s new stages, %s personas, and %s KA invocations",
+                run.run_id,
+                len(emitted_stages),
+                len(emitted_personas),
+                len(emitted_kas),
+            )
             for stage in emitted_stages:
                 try:
                     from backend.websocket import emit_trace_stage_update
@@ -2147,4 +2382,3 @@ def get_gateway() -> LLMGateway:
             # Fallback for tests/environments without db
             _gateway_instance = LLMGateway()
     return _gateway_instance
-

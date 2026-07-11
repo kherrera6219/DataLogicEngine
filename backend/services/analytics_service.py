@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta, UTC
 from extensions import db
-from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool
+from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool, TraceRun
 from backend.mcp_server.connector_metrics import connector_metrics_snapshot, infer_connector_id
 
 class AnalyticsService:
@@ -20,38 +20,91 @@ class AnalyticsService:
                 request_count = request_count.filter(KAExecution.tenant_id == tenant_id)
             request_count = request_count.count()
 
-            # 2. Knowledge Graph Size
-            node_count = db.session.query(Node)
-            edge_count = db.session.query(Edge)
-            if tenant_id:
-                node_count = node_count.filter(Node.tenant_id == tenant_id)
-                edge_count = edge_count.filter(Edge.tenant_id == tenant_id)
-            
-            node_count = node_count.count()
-            edge_count = edge_count.count()
+            # 2. Knowledge Graph Size. Prefer the active USKD graph used by the
+            # reasoning engine, then fall back to the legacy SQL visualization tables.
+            from backend.storage import get_uskd_memory_graph
+
+            graph_stats = get_uskd_memory_graph().stats()
+            if graph_stats.node_count:
+                node_count = graph_stats.node_count
+                edge_count = graph_stats.edge_count
+            else:
+                node_query = db.session.query(Node)
+                edge_query = db.session.query(Edge)
+                if tenant_id:
+                    node_query = node_query.filter(Node.tenant_id == tenant_id)
+                    edge_query = edge_query.filter(Edge.tenant_id == tenant_id)
+                node_count = node_query.count()
+                edge_count = edge_query.count()
             
             # Simple heuristic for "size" in MB/GB for display
             # Assume 1KB per node+edge entry
             size_kb = (node_count + edge_count) * 1.0 
             size_display = f"{size_kb / 1024:.2f} MB" if size_kb < 1024*1024 else f"{size_kb / (1024*1024):.2f} GB"
 
-            # 3. Compliance Score
-            # In a real system, this would aggregate recent compliance reports.
-            # For now, we return a high-confidence static or calculated value.
-            compliance_score = "99.9%" # Default for graduation
+            # 3. Trace-derived validation score. Do not report a passing score
+            # when no validation runs exist.
+            trace_query = db.session.query(TraceRun).order_by(TraceRun.created_at.desc()).limit(100)
+            traces = trace_query.all()
+            confidence_values = [float(run.confidence) for run in traces if run.confidence is not None]
+            failed_runs = sum(1 for run in traces if str(run.status or "").lower() in {"fail", "failed"})
+            average_confidence = (
+                sum(confidence_values) / len(confidence_values)
+                if confidence_values else None
+            )
+            compliance_score = f"{average_confidence * 100:.1f}%" if average_confidence is not None else "N/A"
+            if not traces:
+                compliance_status = "No validation data"
+            elif failed_runs:
+                compliance_status = "Review required"
+            elif average_confidence is not None and average_confidence >= 0.8:
+                compliance_status = "Validated"
+            else:
+                compliance_status = "Needs review"
 
             return {
                 "api_requests_24h": request_count,
                 "kg_nodes": node_count,
                 "kg_edges": edge_count,
                 "kg_size_display": size_display,
-                "compliance_status": "Secure",
+                "compliance_status": compliance_status,
                 "compliance_score": compliance_score,
+                "validation_run_count": len(traces),
+                "failed_validation_runs": failed_runs,
                 "timestamp": datetime.now(UTC).isoformat()
             }
         except Exception as e:
             logging.error(f"Analytics: Error getting dashboard overview: {str(e)}")
             return None
+
+    @staticmethod
+    def get_trends(metric="sessions", days=7, tenant_id=None):
+        """Return real daily activity counts for the requested metric."""
+        days = min(max(int(days or 7), 1), 90)
+        start = datetime.now(UTC) - timedelta(days=days - 1)
+        metric_key = str(metric or "sessions").lower()
+        model = KAExecution if metric_key in {"ka", "kas", "algorithms", "executions"} else UkgSession
+        query = db.session.query(model).filter(model.created_at >= start)
+        if tenant_id and hasattr(model, "tenant_id"):
+            query = query.filter(model.tenant_id == tenant_id)
+
+        counts = {}
+        for row in query.all():
+            created_at = row.created_at
+            if created_at is not None:
+                counts[created_at.date().isoformat()] = counts.get(created_at.date().isoformat(), 0) + 1
+
+        return {
+            "metric": metric_key,
+            "days": days,
+            "data_points": [
+                {
+                    "date": (start + timedelta(days=offset)).date().isoformat(),
+                    "value": counts.get((start + timedelta(days=offset)).date().isoformat(), 0),
+                }
+                for offset in range(days)
+            ],
+        }
 
     @staticmethod
     def get_recent_activity(limit=10, tenant_id=None):

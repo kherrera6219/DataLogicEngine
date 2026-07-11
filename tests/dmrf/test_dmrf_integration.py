@@ -9,6 +9,15 @@ from backend.dmrf.mlflow_tracker import DMRFMLflowTracker
 from backend.dmrf.truth_integration.link_adapter import TruthLinkDMRFAdapter
 
 
+class _AsyncDSQP:
+    def __init__(self):
+        self.awaited = False
+
+    async def construct_all(self, *args, **kwargs):
+        self.awaited = True
+        return {"profiles": {}, "failures": {}, "partial": False, "timeout_seconds": 30}
+
+
 def test_dmrf_router_returns_all_17_axes_and_axis17_frost_depth():
     vector = DMRFRouter().route(
         "Assess HIPAA compliance risks for a patient AI workflow",
@@ -80,6 +89,15 @@ async def test_dmrf_orchestrator_runs_desktop_pipeline_with_dsqp_and_frost():
     assert bundle["axis_vector"]["frost_layer_depth"] >= 7
     assert any(step.name == "mlflow_tracking" for step in result.steps)
     assert any(step.name == "truthlink_publish" for step in result.steps)
+
+
+@pytest.mark.asyncio
+async def test_dmrf_orchestrator_awaits_async_dsqp_path():
+    dsqp = _AsyncDSQP()
+    result = await DMRFOrchestrator(desktop_mode=True, dsqp=dsqp).process("Explain a routine control")
+
+    assert result.ok is True
+    assert dsqp.awaited is True
 
 
 class _FakeRedis:

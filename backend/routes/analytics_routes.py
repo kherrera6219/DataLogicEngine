@@ -34,6 +34,18 @@ def get_activity():
         'data': activity
     })
 
+
+@analytics_bp.route('/trends', methods=['GET'])
+@api_session_login_required
+def get_trends():
+    """Get bounded daily activity trends from persisted records."""
+    metric = request.args.get('metric', 'sessions')
+    days = request.args.get('days', 7, type=int)
+    return jsonify({
+        'success': True,
+        'data': AnalyticsService.get_trends(metric=metric, days=days),
+    })
+
 @analytics_bp.route('/mcp', methods=['GET'])
 @api_session_login_required
 def get_mcp_stats():

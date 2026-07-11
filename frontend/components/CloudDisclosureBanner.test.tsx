@@ -19,7 +19,7 @@ describe('CloudDisclosureBanner', () => {
   it('renders correctly when not dismissed', () => {
     render(<CloudDisclosureBanner />);
     
-    expect(screen.getByText(/Cloud AI Features Available/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cloud AI Data Notice/i)).toBeInTheDocument();
     expect(screen.getByText(/Local data stays on this device/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /LEARN MORE/i })).toHaveAttribute('href', '/about/cloud-services');
   });
@@ -38,6 +38,6 @@ describe('CloudDisclosureBanner', () => {
     fireEvent.click(dismissButton);
 
     expect(localStorage.getItem('ukg_cloud_disclosure_dismissed')).toBe('true');
-    expect(screen.queryByText(/Cloud AI Features Available/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Cloud AI Data Notice/i)).not.toBeInTheDocument();
   });
 });

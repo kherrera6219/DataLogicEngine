@@ -20,7 +20,8 @@ export default function Home() {
     refreshInterval: 10000
   });
 
-  const isOperational = systemStatus === 'Operational' || systemStatus === 'ok';
+  const isAvailable = systemStatus === 'ok';
+  const isChecking = systemStatus === undefined;
 
   const features = [
     {
@@ -88,11 +89,11 @@ export default function Home() {
         <header className="space-y-6">
           <Badge variant="outline" className={cn(
             "px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-md",
-            isOperational 
+            isAvailable
               ? "bg-blue-500/10 text-blue-400 border-blue-500/20" 
-              : "bg-red-500/10 text-red-400 border-red-500/20"
+              : isChecking ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"
           )}>
-            <Zap className="h-3 w-3 mr-2 fill-blue-500/20" /> {isOperational ? 'System Operational' : 'System Degraded'}
+            <Zap className="h-3 w-3 mr-2 fill-blue-500/20" /> {isAvailable ? 'Application API Available' : isChecking ? 'Checking Application API' : 'Application API Degraded'}
           </Badge>
           
           <div className="space-y-4">

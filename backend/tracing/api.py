@@ -10,9 +10,10 @@ import uuid
 from datetime import datetime
 from flask import Blueprint, abort, jsonify, request, Response
 from flask_login import current_user
+from werkzeug.exceptions import HTTPException
 from backend.auth.api_decorators import api_session_login_required
 
-from extensions import db
+from extensions import db, limiter
 from backend.security.export_integrity import build_trace_export_document
 from models import (
     TraceRun, TraceStage, TraceEvidence, TraceClaim,
@@ -180,6 +181,66 @@ def _serialize_layer_progress(run: TraceRun) -> dict:
     }
 
 
+def _idle_progress_payload(error: str | None = None) -> dict:
+    payload = {
+        "active_run_id": None,
+        "status": "idle",
+        "current_layer": None,
+        "layer_name": None,
+        "kas_running": [],
+        "confidence_so_far": None,
+        "persona_confidences": [],
+        "frost_snapshot_count": 0,
+        "updated_at": datetime.now().isoformat(),
+    }
+    if error:
+        payload["degraded"] = True
+        payload["error"] = error
+    return payload
+
+
+def _empty_trace_bundle(run_id: str, error: str | None = None) -> dict:
+    payload = {
+        "run": None,
+        "run_id": str(run_id),
+        "status": "unavailable",
+        "frost_layers": [],
+        "stages": [],
+        "evidence_sources": [],
+        "evidence": [],
+        "claims": [],
+        "persona_positions": [],
+        "personas": [],
+        "ka_invocations": [],
+        "kas": [],
+        "coordinate": None,
+        "axes": None,
+        "policy_decisions": [],
+        "memory_events": [],
+        "metrics": {
+            "total_duration_ms": 0,
+            "total_tokens_in": 0,
+            "total_tokens_out": 0,
+            "total_retrievals": 0,
+            "stage_count": 0,
+            "confidence": None,
+            "entropy": None,
+        },
+        "export_url": None,
+    }
+    if error:
+        payload["degraded"] = True
+        payload["error"] = error
+    return payload
+
+
+def _rollback_trace_session() -> None:
+    try:
+        db.session.rollback()
+    except Exception:
+        pass
+
+
 def _build_trace_bundle(run: TraceRun) -> dict:
     stages = TraceStage.query.filter_by(run_id=run.run_id).order_by(
         TraceStage.layer_index, TraceStage.step_index
@@ -192,7 +253,8 @@ def _build_trace_bundle(run: TraceRun) -> dict:
     policy = TracePolicyDecision.query.filter_by(run_id=run.run_id).all()
     memory = TraceMemoryEvent.query.filter_by(run_id=run.run_id).all()
 
-    total_duration = sum(stage.duration_ms or 0 for stage in stages)
+    stage_duration = sum(stage.duration_ms or 0 for stage in stages)
+    total_duration = max(stage_duration, int(run.latency_ms or 0))
     total_tokens_in = sum((stage.metrics or {}).get('tokens_in', 0) for stage in stages)
     total_tokens_out = sum((stage.metrics or {}).get('tokens_out', 0) for stage in stages)
     total_retrievals = sum((stage.metrics or {}).get('retrieval_count', 0) for stage in stages)
@@ -228,25 +290,21 @@ def _build_trace_bundle(run: TraceRun) -> dict:
 
 
 @trace_bp.route('/live-progress', methods=['GET'])
+@limiter.exempt
 @api_session_login_required
 def get_live_progress():
     """Return current reasoning layer progress for desktop IPC."""
-    run = _latest_accessible_run()
-    if not run:
-        return jsonify({
-            "active_run_id": None,
-            "status": "idle",
-            "current_layer": None,
-            "layer_name": None,
-            "kas_running": [],
-            "confidence_so_far": None,
-            "persona_confidences": [],
-            "frost_snapshot_count": 0,
-            "updated_at": datetime.now().isoformat(),
-        })
-    if not _user_can_access_run(run):
-        return jsonify({'error': 'Access denied'}), 403
-    return jsonify(_serialize_layer_progress(run))
+    try:
+        run = _latest_accessible_run()
+        if not run:
+            return jsonify(_idle_progress_payload())
+        if not _user_can_access_run(run):
+            return jsonify({'error': 'Access denied'}), 403
+        return jsonify(_serialize_layer_progress(run))
+    except Exception as exc:
+        logger.warning("live_progress degraded (startup race or schema mismatch): %s", exc)
+        _rollback_trace_session()
+        return jsonify(_idle_progress_payload("Trace progress unavailable"))
 
 
 @trace_bp.route('/ka-execution-feed', methods=['GET'])
@@ -272,6 +330,7 @@ def get_ka_execution_feed():
 # ============== Run Endpoints ==============
 
 @trace_bp.route('/runs', methods=['GET'])
+@limiter.exempt
 @api_session_login_required
 def list_runs():
     """List trace runs with filtering."""
@@ -329,15 +388,29 @@ def get_run(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/bundle', methods=['GET'])
+@limiter.exempt
 @api_session_login_required
 def get_run_bundle(run_id):
     """Get an aggregate trace bundle for frontend trace panels."""
-    run = _get_run_or_404(run_id)
+    try:
+        run = _get_run_or_404(run_id)
+    except HTTPException:
+        _rollback_trace_session()
+        return jsonify(_empty_trace_bundle(run_id, "Trace bundle is not available yet"))
+    except Exception as exc:
+        logger.warning("trace bundle lookup degraded for %s: %s", run_id, exc)
+        _rollback_trace_session()
+        return jsonify(_empty_trace_bundle(run_id, "Trace bundle unavailable"))
 
     if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
 
-    return jsonify(filter_by_permissions(_build_trace_bundle(run)))
+    try:
+        return jsonify(filter_by_permissions(_build_trace_bundle(run)))
+    except Exception as exc:
+        logger.warning("trace bundle build degraded for %s: %s", run_id, exc)
+        _rollback_trace_session()
+        return jsonify(_empty_trace_bundle(run_id, "Trace bundle unavailable"))
 
 
 @trace_bp.route('/runs/<run_id>/stages', methods=['GET'])

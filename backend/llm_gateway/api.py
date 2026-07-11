@@ -115,6 +115,47 @@ def _audit_trail_for_run(run_id: Optional[str]) -> Optional[dict]:
     }
 
 
+def _trace_summary_for_response(response) -> Optional[dict]:
+    """Translate gateway trace records into the renderer's progress contract."""
+    trace = getattr(response, "trace", None)
+    if not isinstance(trace, list) or not trace:
+        return None
+
+    steps = []
+    for index, item in enumerate(trace):
+        if not isinstance(item, dict):
+            continue
+        raw_status = str(item.get("status") or "completed").lower()
+        status = {
+            "ok": "completed",
+            "pass": "completed",
+            "completed": "completed",
+            "running": "processing",
+            "fail": "error",
+            "failed": "error",
+        }.get(raw_status, "pending")
+        steps.append({
+            "id": str(item.get("ka_id") or f"stage-{index + 1}"),
+            "name": str(item.get("stage_name") or item.get("ka_id") or f"Stage {index + 1}"),
+            "status": status,
+            "durationMs": item.get("duration_ms"),
+            "percentage": 100 if status == "completed" else 0,
+            "details": item.get("output") if isinstance(item.get("output"), dict) else {},
+            "timestamp": item.get("end_time") or item.get("start_time") or datetime.now(UTC).isoformat(),
+        })
+
+    if not steps:
+        return None
+    latency_ms = getattr(response, "usage", {}).get("latency_ms", 0)
+    return {
+        "currentStepId": steps[-1]["id"],
+        "steps": steps,
+        "totalDurationMs": latency_ms,
+        "estimatedTotalMs": latency_ms,
+        "overallProgress": 100 if all(step["status"] == "completed" for step in steps) else 0,
+    }
+
+
 def _apply_api_key_request_policy(payload: dict):
     """
     Enforce API key policy controls on gateway requests.
@@ -347,6 +388,15 @@ async def gateway_chat():
     output_classification = None
     if isinstance(response.explainability, dict):
         output_classification = response.explainability.get('output_classification')
+    confidence_score = getattr(response, "confidence", None)
+    if not isinstance(confidence_score, (int, float)):
+        confidence_score = None
+    claims = getattr(response, "claims", None)
+    if not isinstance(claims, list):
+        claims = []
+    evidence_count = getattr(response, "evidence_count", 0)
+    if not isinstance(evidence_count, int):
+        evidence_count = 0
 
     return api_response({
         'response': response.content,
@@ -355,11 +405,11 @@ async def gateway_chat():
         'provider_used': response.provider_used,
         'model_used': response.model_used,
         'usage': response.usage,
-        'trace_summary': None, # Adjust if response object has this
+        'trace_summary': _trace_summary_for_response(response),
         'coordinates': response.coordinate,
-        'confidence_score': 0.85, # Default or from response logic
-        'claims': [],
-        'evidence_count': 0,
+        'confidence_score': confidence_score,
+        'claims': claims,
+        'evidence_count': evidence_count,
         'output_classification': output_classification,
         'warnings': response.warnings,
     })

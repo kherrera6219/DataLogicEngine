@@ -61,6 +61,45 @@ async def test_gateway_failover(gateway, mock_db):
         assert mock_create_sdk.call_count == 4
 
 @pytest.mark.asyncio
+async def test_operator_google_default_replaces_legacy_ollama_request(gateway, monkeypatch):
+    monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
+
+    provider = MagicMock()
+    provider.id = uuid.uuid4()
+    provider.name = "google-default"
+    provider.provider_type = "google"
+    provider.priority = 1
+    provider.model_id = "gemini-3.1-pro-preview"
+    provider.max_retries = 1
+    provider.timeout_seconds = 30
+    eligible = AsyncMock(return_value=[provider])
+
+    with patch.object(gateway, "_get_eligible_providers", eligible), \
+         patch.object(gateway, "_create_sdk_provider") as mock_create_sdk, \
+         patch.object(gateway, "_record_usage", AsyncMock()), \
+         patch.object(gateway, "_save_chat_message", AsyncMock()), \
+         patch.object(gateway, "_create_trace_run", AsyncMock()):
+        mock_sdk = AsyncMock()
+        mock_sdk.complete.return_value = MagicMock(
+            text="Google response",
+            usage={"prompt_tokens": 3, "completion_tokens": 4},
+        )
+        mock_create_sdk.return_value = mock_sdk
+
+        response = await gateway.process(
+            GatewayRequest(
+                messages=[{"role": "user", "content": "Hello"}],
+                provider="ollama",
+                model="gemma4:12b",
+                run_ukg_pipeline=False,
+            )
+        )
+
+    assert eligible.await_args.args[0] == "google"
+    assert response.provider_used == "google"
+    assert response.model_used == "gemini-3.1-pro-preview"
+
+@pytest.mark.asyncio
 async def test_circuit_breaker_logic():
     """Test standalone circuit breaker logic."""
     cb = CircuitBreaker("test_provider", failure_threshold=2, recovery_timeout=1)
@@ -215,9 +254,12 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
 
 
 @pytest.mark.asyncio
-async def test_gateway_persists_trace_run_for_direct_success(app):
+async def test_gateway_persists_trace_run_for_direct_success(app, monkeypatch):
     from extensions import db
     from models import TraceRun
+    monkeypatch.delenv("LLM_DEFAULT_PROVIDER", raising=False)
+    monkeypatch.delenv("AI_PROVIDER", raising=False)
+
 
     with app.app_context():
         gateway = LLMGateway(db_session=db.session)
@@ -273,6 +315,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
                 "answer": "DMRF enriched answer",
                 "trace": [{"ka_id": "dmrf-route", "status": "pass", "output": {"tier": "high_stakes"}}],
                 "metadata": {
+                    "provider_used": "google",
                     "dmrf": {
                         "run_id": "dmrf_test",
                         "tier": "high_stakes",
@@ -283,6 +326,16 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
                             "confidence": 0.92,
                         },
                         "gate_result": {"decision": "allow"},
+                        "steps": [
+                            {
+                                "name": "truth_gate",
+                                "status": "ok",
+                                "outputs": {"gate": {"passed": True}},
+                                "started_at": "2026-07-10T17:00:00+00:00",
+                                "completed_at": "2026-07-10T17:00:00.025000+00:00",
+                                "snapshot_id": "snapshot-1",
+                            }
+                        ],
                     }
                 },
             },
@@ -302,7 +355,65 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
         assert run.truth_engine_mode == "regulatory_strict"
         assert run.truthgate_decision == "allow"
         assert run.data_snapshot["dmrf"]["run_id"] == "dmrf_test"
+        assert run.data_snapshot["provider_used"] == "google"
+        assert run.coordinate17_id is not None
+        assert run.to_dict()["provider_used"] == "google"
+        assert run.to_dict()["model_name"] == "gpt-4"
         assert run.stages.count() == 1
+        assert run.stages.first().status == "pass"
+
+
+@pytest.mark.asyncio
+async def test_create_trace_run_persists_dsqp_personas(app):
+    from extensions import db
+    from models import TracePersona, TraceRun, TraceStage
+
+    with app.app_context():
+        gateway = LLMGateway(db_session=db.session)
+        run_id = uuid.uuid4()
+        await gateway._create_trace_run(
+            {
+                "ok": True,
+                "answer": "Paris",
+                "tier": "T1",
+                "latency_ms": 1234,
+                "trace": [
+                    {
+                        "ka_id": "DSQP",
+                        "status": "ok",
+                        "output": {
+                            "constructed_persona_profiles": {
+                                "8": {
+                                    "axis_number": 8,
+                                    "persona_type": "knowledge",
+                                    "name": "Historical Knowledge Analyst",
+                                    "description": "Checks historical context.",
+                                    "coverage_score": 1.0,
+                                    "components": {"skills": {"items": ["history"]}},
+                                    "metadata": {
+                                        "coordinate_path": "axis_8.history",
+                                        "construction_mode": "llm_assisted",
+                                    },
+                                    "validation": {"valid": True, "errors": []},
+                                }
+                            }
+                        },
+                    }
+                ],
+            },
+            "Historical question",
+            str(run_id),
+            "anonymous",
+            None,
+            "gemini-3.1-pro-preview",
+        )
+
+        run = db.session.get(TraceRun, run_id)
+        persona = TracePersona.query.filter_by(run_id=run_id).one()
+        assert run.latency_ms == 1234
+        assert TraceStage.query.filter_by(run_id=run_id).count() == 1
+        assert persona.persona_type == "knowledge"
+        assert persona.confidence == 1.0
 
 
 

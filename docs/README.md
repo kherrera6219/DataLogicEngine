@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document version | v2.14.2 |
-| Last updated | 2026-07-06 |
+| Last updated | 2026-07-10 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -93,6 +93,8 @@ Current planning belongs in root `TODO.md`.
 | `docs/RELEASE_CHECKLIST.md` | Release evidence and approval checklist. |
 | `docs/PRODUCTION_READINESS.md` | Readiness scorecard, current caveats, release posture. |
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
+| `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` | Packaged enhanced-chat, DMRF/DSQP, provider-routing, persistence, and Trace Explorer QC. |
+| `docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md` | Cross-system frontend/backend/store review, corrections, residual risks, and rebuilt-app acceptance sequence. |
 
 ### Documentation governance
 

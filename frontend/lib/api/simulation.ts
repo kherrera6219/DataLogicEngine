@@ -2,7 +2,7 @@ import { SimulationSession } from './types';
 import { request } from '@/lib/api/client';
 
 export const simulation = {
-    list: () => request<SimulationSession[]>('/simulations').catch(() => []),
+    list: () => request<SimulationSession[]>('/simulations'),
     create: (name: string, parameters: Record<string, unknown> = {}) => 
         request('/simulations', {
             method: 'POST',

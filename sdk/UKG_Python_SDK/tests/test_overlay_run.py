@@ -147,3 +147,21 @@ async def test_run_dsqp_unavailable_does_not_crash():
     dsqp_trace = next((t for t in result["trace"] if t["ka_id"] == "DSQP"), None)
     if dsqp_trace:
         assert "dsqp_chain_unavailable" in dsqp_trace["output"]
+
+
+@pytest.mark.asyncio
+async def test_run_reuses_dmrf_dsqp_profiles_without_reconstructing():
+    overlay = _make_overlay()
+
+    class UnexpectedDSQP:
+        def __init__(self, *args, **kwargs):
+            raise AssertionError("overlay must reuse the DMRF persona chain")
+
+    overlay._dsqp_orchestrator_cls = UnexpectedDSQP
+    result = await overlay.run(
+        query="What is the capital of France?",
+        meta={"dmrf": {"dsqp_chain": {"profiles": {"8": {"persona_type": "knowledge"}}}}},
+    )
+
+    assert result["ok"] is True
+    assert all(item["ka_id"] != "DSQP" for item in result["trace"])

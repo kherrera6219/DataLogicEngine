@@ -18,10 +18,35 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-09 (**live installed-app desktop-auth and Knowledge-route QC repair plus root installer rebuild** - source now fixes the reported API-key save/session-expired failures, Knowledge Base/Knowledge Graph stale route failures, and network-status polling rate-limit issue. The root installer has been rebuilt; install it before validating the binary. GitHub code scanning still has 8 open medium CodeQL `py/stack-trace-exposure` alerts; Dependabot has 0 open alerts.)
+**Last updated:** 2026-07-10 (**cross-system data-path QC and production rebuild checkpoint** - source corrections cover Gemini chat routing/latency, DMRF/DSQP trace completeness, active USKD graph use, Chroma legacy collection migration, truthful health/error states, analytics, simulations, MCP, KA registry, and projects. Focused automated validation and the root installer rebuild are complete; a clean installed-app acceptance run remains required.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+
+## Cross-system data-path QC - 2026-07-10
+
+Completed in source:
+
+1. Corrected enhanced-chat provider selection, duplicate DSQP persona work, asynchronous DMRF execution, final trace persistence, trace serialization, real confidence/evidence summaries, and provider-inclusive duration.
+2. Switched the graph UI/API to the active USKD memory graph with SQL fallback and connected axis, search, pillar, camera, and fullscreen controls.
+3. Added safe Chroma legacy collection-config migration with backup and real vector/object storage health probes.
+4. Replaced hardcoded or misleading health/results across dashboard, home/navigation status, Truth Engine, simulations, MCP, KA registry, and projects.
+5. Added a required simulation scenario and rejected placeholder backend execution.
+6. Recorded findings and acceptance steps in `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` and `docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md`.
+
+Release work still open:
+
+1. Uninstall the prior desktop build, install the new root artifact, and execute the cross-system acceptance sequence in the QC report.
+2. Measure one enhanced Gemini response and verify one four-persona DSQP pass with complete DMRF/KA/axis telemetry and no OpenAI/Ollama attempt.
+3. Verify Chroma migration and all displayed storage states in the installed runtime.
+4. Follow up on Neo4j test-shutdown logging noise and per-server MCP partial-discovery error labeling.
+
+Rebuilt QC artifact:
+
+- `DataLogicEngine Setup Latest.exe`
+- SHA-256: `3296cacbfc3cf288ec3fb651eabc7d02d59ca54957c8b48523bd82e30b2a8856`
+- Integrity verifier: passed with 0 errors and 0 warnings
+- Signature posture: local QC build is `NotSigned`; signing remains required before public/customer release
 
 ## Live desktop auth and Knowledge-route QC repair - 2026-07-09
 

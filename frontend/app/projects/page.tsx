@@ -6,10 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Folder, Plus, Search, Filter, MoreVertical,
-  Clock, FileText, Star, MessageSquare, Layers
-} from "lucide-react";
+import { Folder, Plus, Search, Clock, FileText, MessageSquare, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { api } from '@/lib/api';
 import { type ChatSession } from '@/lib/api/chat';
@@ -28,10 +25,10 @@ function formatRelative(dateString?: string): string {
   return `${days}d ago`;
 }
 
-function statusFromMode(mode?: string): string {
-  if (!mode) return 'Active';
+function labelFromMode(mode?: string): string {
+  if (!mode) return 'Standard';
   if (mode.toLowerCase() === 'quad') return 'Enhanced';
-  return 'Active';
+  return mode;
 }
 
 export default function ProjectsPage() {
@@ -128,17 +125,8 @@ export default function ProjectsPage() {
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 h-8 text-xs px-3">
-              <Clock className="h-3.5 w-3.5 mr-2" /> Recent
-            </Button>
-            <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 h-8 text-xs px-3">
-              <Star className="h-3.5 w-3.5 mr-2" /> Favorites
-            </Button>
-            <div className="w-px h-6 bg-white/10 mx-1 my-auto"></div>
-            <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 h-8 text-xs px-3">
-              <Filter className="h-3.5 w-3.5 mr-2" /> Filter
-            </Button>
+          <div className="flex items-center gap-2 px-3 text-xs text-slate-500 dark:text-gray-400">
+            <Clock className="h-3.5 w-3.5" /> Most recent first
           </div>
         </div>
 
@@ -153,7 +141,7 @@ export default function ProjectsPage() {
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredSessions.map((session, index) => {
-              const status = statusFromMode(session.mode);
+              const modeLabel = labelFromMode(session.mode);
               const icon = session.mode === 'quad' ? Layers : MessageSquare;
               const title = session.title || `Session ${session.id.slice(0, 8)}`;
               const messageCount = messageCounts[session.id] ?? 0;
@@ -171,16 +159,12 @@ export default function ProjectsPage() {
                         <div className={`h-12 w-12 rounded-2xl ${accent} bg-opacity-20 flex items-center justify-center border border-slate-200 dark:border-white/10 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
                           <Icon className={`h-6 w-6 ${accent.replace('bg-', 'text-').replace('-600', '-400')}`} />
                         </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/10 rounded-lg">
-                          <span className="sr-only">More options for {title}</span>
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
                       </div>
 
                       <h3 className="font-bold text-xl mb-1 text-slate-900 dark:text-gray-100 group-hover:text-blue-400 transition-colors tracking-tight">{title}</h3>
                       <div className="flex items-center gap-2 mb-6">
                         <Badge className="bg-white/70 dark:bg-white/5 border-none text-slate-600 dark:text-gray-400 text-[9px] font-bold uppercase tracking-widest px-2 py-0">
-                          {status}
+                          {modeLabel}
                         </Badge>
                         <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">#{session.id.slice(0, 8)}</span>
                       </div>
@@ -195,9 +179,6 @@ export default function ProjectsPage() {
                             <Clock className="h-3.5 w-3.5" />
                             <span>{formatRelative(session.updated_at || session.created_at)}</span>
                           </div>
-                        </div>
-                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className={`h-full ${accent} opacity-60 w-2/3`}></div>
                         </div>
                       </div>
                     </CardContent>
@@ -233,7 +214,7 @@ export default function ProjectsPage() {
           </div>
           <div className="flex items-center gap-2">
             <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
-            HEALTH: {error ? 'DEGRADED' : 'OPTIMAL'}
+            SESSION DATA: {loading ? 'LOADING' : error ? 'UNAVAILABLE' : 'SYNCED'}
           </div>
         </div>
         <div className="flex gap-4">

@@ -14,9 +14,9 @@ describe('system_chat API', () => {
 
   describe('system.health', () => {
     it('returns health status on success', async () => {
-      vi.mocked(apiBase.request).mockResolvedValueOnce('OK');
+      vi.mocked(apiBase.request).mockResolvedValueOnce({ status: 'ok' });
       const result = await system.health();
-      expect(result).toBe('OK');
+      expect(result).toBe('ok');
       expect(apiBase.request).toHaveBeenCalledWith('/health');
     });
 

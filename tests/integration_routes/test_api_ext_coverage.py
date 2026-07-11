@@ -97,3 +97,26 @@ class TestTracingApi:
             mock_session_model.query.filter_by.return_value.order_by.return_value.paginate.return_value = MagicMock(items=[], total=0, pages=1)
             response = client.get('/api/tracing/sessions')
             assert response.status_code == 200
+    @patch('backend.tracing.api.current_user')
+    def test_get_run_bundle_degrades_when_run_missing(self, mock_user_proxy, client, mock_user):
+        from werkzeug.exceptions import NotFound
+
+        mock_user_proxy.id = 1
+        with patch('backend.tracing.api.TraceRun') as mock_run_model:
+            mock_run_model.query.filter_by.return_value.first_or_404.side_effect = NotFound()
+            response = client.get('/api/tracing/runs/00000000-0000-0000-0000-000000000001/bundle')
+
+        assert response.status_code == 200
+        payload = response.get_json()
+        assert payload['status'] == 'unavailable'
+        assert payload['degraded'] is True
+        assert payload['stages'] == []
+
+    def test_live_progress_degrades_on_trace_storage_error(self, client):
+        with patch('backend.tracing.api._latest_accessible_run', side_effect=RuntimeError('schema mismatch')):
+            response = client.get('/api/tracing/live-progress')
+
+        assert response.status_code == 200
+        payload = response.get_json()
+        assert payload['status'] == 'idle'
+        assert payload['degraded'] is True

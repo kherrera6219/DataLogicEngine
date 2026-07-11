@@ -32,8 +32,10 @@ def test_analytics_service_dashboard(mock_edge, mock_node, mock_ka, mock_db, cap
     # 3. edge_count (200)
     mock_query.count.side_effect = [50, 100, 200]
     
-    with caplog.at_level(logging.ERROR):
-        summary = AnalyticsService.get_dashboard_overview(tenant_id="tenant1")
+    with patch("backend.storage.get_uskd_memory_graph") as get_memory_graph:
+        get_memory_graph.return_value.stats.return_value = MagicMock(node_count=0, edge_count=0)
+        with caplog.at_level(logging.ERROR):
+            summary = AnalyticsService.get_dashboard_overview(tenant_id="tenant1")
         
     if summary is None:
         print(f"Analytics Error Logs: {caplog.text}")

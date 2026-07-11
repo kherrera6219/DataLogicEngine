@@ -21,10 +21,12 @@ export const api = {
   mcp,
   compliance,
   system: {
-    health: () => Promise.resolve('Operational'),
+    health: () => request<{ status?: string } | string>('/health')
+      .then((payload) => typeof payload === 'string' ? payload : payload.status || 'degraded')
+      .catch(() => 'Offline'),
   },
   analytics: {
-    summary: () => request('/analytics/summary'),
+    summary: () => request('/analytics/overview'),
     trends: (metric: string, days: number = 7) =>
       request(`/analytics/trends?metric=${metric}&days=${days}`),
     overview: () => request('/analytics/overview'),

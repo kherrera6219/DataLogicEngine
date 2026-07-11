@@ -7,11 +7,10 @@ vi.mock('@/lib/api/client', () => ({
 }));
 
 describe('Simulation API Client', () => {
-    it('list should return empty array on failure', async () => {
+    it('list should propagate service failures', async () => {
         vi.mocked(request).mockRejectedValue(new Error('API Down'));
         
-        const result = await simulation.list();
-        expect(result).toEqual([]);
+        await expect(simulation.list()).rejects.toThrow('API Down');
     });
 
     it('create should call /simulations with POST', async () => {

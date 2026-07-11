@@ -995,6 +995,7 @@ class TraceRun(db.Model):
     memory_events = db.relationship('TraceMemoryEvent', backref='run', lazy='dynamic', cascade='all, delete-orphan')
 
     def to_dict(self):
+        snapshot = self.data_snapshot if isinstance(self.data_snapshot, dict) else {}
         return {
             'run_id': str(self.run_id),
             'session_id': str(self.session_id) if self.session_id else None,
@@ -1003,6 +1004,9 @@ class TraceRun(db.Model):
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'model_name': self.model_name,
+            'model_version': self.model_version,
+            'provider_used': snapshot.get('provider_used'),
             'model': {'name': self.model_name, 'version': self.model_version},
             'policy_pack': {'id': self.policy_pack_id, 'version': self.policy_pack_version},
             'data_snapshot': self.data_snapshot,

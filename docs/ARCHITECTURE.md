@@ -201,7 +201,7 @@ DMRFResult creation
   -> TruthGateDMRFAdapter.evaluate()
   -> DMRFTierClassifier.classify()
   -> DMRFRouter.route()
-  -> DSQPOrchestrator.construct_all_sync()
+  -> await DSQPOrchestrator.construct_all()
   -> TruthCoreDMRFAdapter.workflow_steps()
   -> EvidenceModel.score()
   -> ConvergencePolicy.should_refine()
@@ -212,6 +212,8 @@ DMRFResult creation
 ```
 
 Every DMRF step is recorded as a `DMRFStep` and passed through the FROST snapshot bridge. This creates a step-level trace instead of only retaining input/output pairs.
+
+In the packaged desktop runtime, enhanced chat enables DMRF by default. DMRF constructs axes 8-11 concurrently, and the SDK overlay reuses that persona chain rather than issuing a second DSQP construction pass. The gateway merges DMRF and SDK records into one run ID before persisting the final trace.
 
 Key files:
 

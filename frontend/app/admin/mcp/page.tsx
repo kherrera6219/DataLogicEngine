@@ -23,6 +23,7 @@ export default function MCPDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
+      setError('');
       const data = await mcp.getStats();
       setStats(data);
     } catch (err) {
@@ -158,11 +159,13 @@ export default function MCPDashboard() {
                 <div className="space-y-2">
                     <div className="flex justify-between items-center text-sm">
                         <span>Status</span>
-                        <span className="text-green-500 font-medium">Operational</span>
+                        <span className={stats ? "text-green-500 font-medium" : "text-amber-500 font-medium"}>
+                          {stats ? 'Stats available' : 'Unavailable'}
+                        </span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                        <span>Protocol Version</span>
-                        <span>1.0.0</span>
+                        <span>Health source</span>
+                        <span>MCP statistics API</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                         <span>Environment</span>

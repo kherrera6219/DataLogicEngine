@@ -2,7 +2,9 @@ import { ChatRequest, ChatResponse } from './types';
 import { request } from '@/lib/api/client';
 
 export const system = {
-    health: () => request<string>('/health').catch(() => 'Offline')
+    health: () => request<{ status?: string } | string>('/health')
+      .then((payload) => typeof payload === 'string' ? payload : payload.status || 'degraded')
+      .catch(() => 'Offline')
 };
 
 export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {

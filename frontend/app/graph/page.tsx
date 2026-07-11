@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ForceGraphMethods } from 'react-force-graph-3d';
 import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ type CSSWithCustomProps = React.CSSProperties & Record<string, string>;
 
 export default function GraphPage() {
   const graphRef = useRef<ForceGraphMethods>();
+  const viewportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphEdge[] }>({ nodes: [], links: [] });
   const [activeAxis, setActiveAxis] = useState(1);
@@ -56,6 +57,8 @@ export default function GraphPage() {
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
+  const [graphStatus, setGraphStatus] = useState<'loading' | 'connected' | 'unavailable'>('loading');
 
   const [showLabels, setShowLabels] = useState(true);
   const [enablePhysics, setEnablePhysics] = useState(true);
@@ -63,29 +66,38 @@ export default function GraphPage() {
   useEffect(() => {
     async function fetchGraphData() {
       try {
-        const [nodes, edges] = await Promise.all([
-          api.knowledge.getNodes(),
-          api.knowledge.getEdges()
-        ]);
-
-        const links = edges.map(e => {
-          const raw = e as unknown as Record<string, unknown>;
-          return {
-            ...e,
-            source: (raw.source_node_id as string) || e.source,
-            target: (raw.target_node_id as string) || e.target
-          };
-        });
-
-        setGraphData({ nodes, links });
-        toast("Graph Engine synchronized with production DB.", "success", 3000);
+        setGraphStatus('loading');
+        const graph = await api.knowledge.graph(activeAxis);
+        setGraphData(graph);
+        setGraphStatus('connected');
+        toast("Knowledge Graph synchronized.", "success", 3000);
       } catch (err) {
         console.error("Failed to fetch graph data:", err);
+        setGraphStatus('unavailable');
         toast("Failed to load production graph data.", "error", 3000);
       }
     }
     fetchGraphData();
-  }, [toast]);
+  }, [activeAxis, toast]);
+
+  const availablePillars = useMemo(
+    () => Array.from(new Set(graphData.nodes.map((node) => node.pillar).filter((pillar): pillar is string => Boolean(pillar)))).sort(),
+    [graphData.nodes]
+  );
+
+  const visibleGraphData = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const nodes = graphData.nodes.filter((node) => {
+      const matchesSearch = !normalizedQuery || [node.name, node.label, node.node_type, node.pillar]
+        .some((value) => value?.toLowerCase().includes(normalizedQuery));
+      return matchesSearch && (!selectedPillar || node.pillar === selectedPillar);
+    });
+    const nodeIds = new Set(nodes.map((node) => node.id));
+    return {
+      nodes,
+      links: graphData.links.filter((link) => nodeIds.has(String(link.source)) && nodeIds.has(String(link.target))),
+    };
+  }, [graphData, searchQuery, selectedPillar]);
 
   const handleNodeClick = useCallback((node: ForceGraphNodeObject) => {
     setSelectedNode(node);
@@ -103,6 +115,25 @@ export default function GraphPage() {
       toast("Camera position reset to default.", "info", 2000);
     }
   }, [toast]);
+
+  const zoomCamera = useCallback((factor: number) => {
+    const camera = graphRef.current?.camera();
+    if (!camera) return;
+    graphRef.current?.cameraPosition({
+      x: camera.position.x * factor,
+      y: camera.position.y * factor,
+      z: camera.position.z * factor,
+    }, { x: 0, y: 0, z: 0 }, 250);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!viewportRef.current) return;
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await viewportRef.current.requestFullscreen();
+    }
+  }, []);
 
   return (
     <div className="h-full relative flex flex-col overflow-hidden">
@@ -139,13 +170,16 @@ export default function GraphPage() {
               <div className="space-y-4" role="group" aria-label="Pillar filters">
                  <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pillars</div>
                  <div className="flex flex-col gap-2">
-                    {Object.entries(PILLAR_COLORS).map(([name, color]) => (
-                      <div
+                    {availablePillars.map((name, index) => {
+                      const color = PILLAR_COLORS[name] || Object.values(PILLAR_COLORS)[index % Object.keys(PILLAR_COLORS).length];
+                      const active = selectedPillar === name;
+                      return <button
                         key={name}
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 cursor-pointer group"
-                        role="button"
-                        aria-pressed={false}
+                        type="button"
+                        className={cn("flex items-center justify-between p-2 rounded-lg hover:bg-white/5 cursor-pointer group", active && "bg-white/10")}
+                        aria-pressed={active}
                         aria-label={`Filter by ${name} pillar`}
+                        onClick={() => setSelectedPillar(active ? null : name)}
                       >
                          <div className="flex items-center gap-3">
                            <div
@@ -155,9 +189,12 @@ export default function GraphPage() {
                            />
                            <span className="text-sm font-medium">{name}</span>
                          </div>
-                        <Badge variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-1 h-4">Active</Badge>
-                      </div>
-                    ))}
+                        <Badge variant="outline" className={cn("transition-opacity text-[10px] px-1 h-4", active ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>{active ? 'Active' : 'Filter'}</Badge>
+                      </button>;
+                    })}
+                    {availablePillars.length === 0 && (
+                      <p className="text-xs text-gray-500">No pillar metadata is available for this axis.</p>
+                    )}
                  </div>
               </div>
 
@@ -198,13 +235,14 @@ export default function GraphPage() {
 
         <div
           id="graph-viewport"
+          ref={viewportRef}
           className="flex-1 relative bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black"
           role="application"
           aria-label="3D Knowledge Graph Visualization"
         >
            <ForceGraph3D
              ref={graphRef}
-             graphData={graphData}
+             graphData={visibleGraphData}
              nodeLabel={showLabels ? 'name' : undefined}
              nodeColor={(node) => PILLAR_COLORS[(node as ForceGraphNodeObject).pillar || 'Technology'] || '#666'}
              nodeVal={(node) => (node as ForceGraphNodeObject).val || 1}
@@ -217,9 +255,9 @@ export default function GraphPage() {
            />
 
            <div className="absolute bottom-6 left-6 flex gap-3 p-1 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10" role="group" aria-label="Camera controls">
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Zoom in"><ZoomIn className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Zoom out"><ZoomOut className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Toggle fullscreen"><Maximize2 className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Zoom in" onClick={() => zoomCamera(0.8)}><ZoomIn className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Zoom out" onClick={() => zoomCamera(1.25)}><ZoomOut className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}><Maximize2 className="h-5 w-5" /></Button>
            </div>
 
            <div className="absolute top-6 right-6 p-4 glass-morphism rounded-2xl max-w-[200px] hidden lg:block">
@@ -229,8 +267,8 @@ export default function GraphPage() {
               </div>
               <div className="space-y-1">
                  <p className="text-[11px] text-gray-400">Active Axis: <span className="text-white font-bold">{activeAxis}</span></p>
-                 <p className="text-[11px] text-gray-400">Nodes Visualized: <span className="text-white font-bold">{graphData.nodes.length}</span></p>
-                 <p className="text-[11px] text-gray-400">Calculated Health: <span className="text-emerald-500 font-bold">Optimal</span></p>
+                 <p className="text-[11px] text-gray-400">Nodes Visualized: <span className="text-white font-bold">{visibleGraphData.nodes.length}</span></p>
+                 <p className="text-[11px] text-gray-400">Graph Status: <span className={cn("font-bold", graphStatus === 'connected' ? "text-emerald-500" : graphStatus === 'unavailable' ? "text-red-400" : "text-amber-400")}>{graphStatus === 'connected' ? 'Connected' : graphStatus === 'unavailable' ? 'Unavailable' : 'Loading'}</span></p>
               </div>
            </div>
         </div>

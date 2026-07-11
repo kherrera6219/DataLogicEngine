@@ -32,7 +32,11 @@ class TestRAGService:
             mock_get.assert_called_once()
 
     def test_default_embedding_layer1_openai(self, rag_service):
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "sk-fake"}), \
+        with patch.dict("os.environ", {
+                 "OPENAI_API_KEY": "sk-fake",
+                 "LLM_DEFAULT_PROVIDER": "openai",
+                 "AI_PROVIDER": "openai",
+             }), \
              patch("openai.OpenAI") as MockOpenAI:
             
             mock_client = MockOpenAI.return_value
@@ -44,7 +48,12 @@ class TestRAGService:
 
     def test_default_embedding_layer2_google(self, rag_service):
         # Force OpenAI failure or missing key
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": "google-fake"}), \
+        with patch.dict("os.environ", {
+                 "OPENAI_API_KEY": "",
+                 "GOOGLE_API_KEY": "google-fake",
+                 "LLM_DEFAULT_PROVIDER": "google",
+                 "AI_PROVIDER": "google",
+             }), \
              patch("google.genai.Client") as MockGenAI:
             
             mock_client = MockGenAI.return_value
@@ -54,11 +63,32 @@ class TestRAGService:
             assert result == [0.3, 0.4]
             MockGenAI.assert_called()
 
+    def test_google_default_does_not_attempt_openai_embedding(self, rag_service):
+        with patch.dict("os.environ", {
+                 "OPENAI_API_KEY": "openai-fake",
+                 "GOOGLE_API_KEY": "google-fake",
+                 "LLM_DEFAULT_PROVIDER": "google",
+             }), \
+             patch("openai.OpenAI") as mock_openai, \
+             patch("google.genai.Client") as mock_google:
+            mock_google.return_value.models.embed_content.return_value.embeddings = [
+                MagicMock(values=[0.7, 0.8])
+            ]
+
+            assert rag_service._default_embedding("google preferred") == [0.7, 0.8]
+            mock_openai.assert_not_called()
+
     def test_default_embedding_layer3_local(self, rag_service):
         # Force API keys missing
         fake_sentence_transformers = types.ModuleType("sentence_transformers")
         fake_sentence_transformers.SentenceTransformer = MagicMock()
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": ""}), \
+        with patch.dict("os.environ", {
+                 "OPENAI_API_KEY": "",
+                 "GOOGLE_API_KEY": "",
+                 "GEMINI_API_KEY": "",
+                 "LLM_DEFAULT_PROVIDER": "",
+                 "AI_PROVIDER": "",
+             }), \
              patch.dict(sys.modules, {"sentence_transformers": fake_sentence_transformers}), \
              patch("sentence_transformers.SentenceTransformer") as MockST:
              
@@ -78,8 +108,14 @@ class TestRAGService:
         # enable that flag to exercise the development/testing fallback path.
         fake_sentence_transformers = types.ModuleType("sentence_transformers")
         fake_sentence_transformers.SentenceTransformer = MagicMock(side_effect=ImportError)
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": "",
-                                       "ALLOW_MOCK_EMBEDDINGS": "true"}), \
+        with patch.dict("os.environ", {
+                 "OPENAI_API_KEY": "",
+                 "GOOGLE_API_KEY": "",
+                 "GEMINI_API_KEY": "",
+                 "LLM_DEFAULT_PROVIDER": "",
+                 "AI_PROVIDER": "",
+                 "ALLOW_MOCK_EMBEDDINGS": "true",
+             }), \
              patch.dict(sys.modules, {"sentence_transformers": fake_sentence_transformers}):
 
             result = rag_service._default_embedding("test")

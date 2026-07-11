@@ -19,12 +19,17 @@ interface TraceRunRecord {
     entropy?: number;
     bias_risk?: number;
   };
+  audit_bundle?: {
+    truthgate_decision?: string | null;
+  };
 }
 
-function statusToVerdict(status?: string): 'True' | 'False' | 'Uncertain' {
-  if (status === 'pass' || status === 'completed') return 'True';
-  if (status === 'fail' || status === 'failed') return 'False';
-  return 'Uncertain';
+function gateDecisionLabel(decision?: string | null): 'Allowed' | 'Blocked' | 'Review' | 'Not recorded' {
+  const normalized = (decision || '').toLowerCase();
+  if (normalized === 'allow' || normalized === 'pass') return 'Allowed';
+  if (normalized === 'block' || normalized === 'fail') return 'Blocked';
+  if (normalized === 'escalate' || normalized === 'hitl' || normalized === 'warn') return 'Review';
+  return 'Not recorded';
 }
 
 export default function TruthEnginePage() {
@@ -123,8 +128,8 @@ export default function TruthEnginePage() {
 
           <Card className="fluent-acrylic border-white/10 shadow-xl hover:bg-white/5 transition-all">
             <CardHeader>
-              <CardTitle className="text-gray-100 text-sm font-bold tracking-wider uppercase">Conflict Rate</CardTitle>
-              <CardDescription className="text-gray-500">Runs with failed verdict status.</CardDescription>
+              <CardTitle className="text-gray-100 text-sm font-bold tracking-wider uppercase">Failed Run Rate</CardTitle>
+              <CardDescription className="text-gray-500">Runs that ended with an operational failure status.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold mb-2 text-yellow-500">{loading ? '--' : `${metrics.conflictRate.toFixed(1)}%`}</div>
@@ -153,7 +158,7 @@ export default function TruthEnginePage() {
               </TableHeader>
               <TableBody>
                 {!loading && runs.slice(0, 20).map((entry) => {
-                  const verdict = statusToVerdict(entry.status);
+                  const verdict = gateDecisionLabel(entry.audit_bundle?.truthgate_decision);
                   const confidence = typeof entry.scores?.confidence === 'number' ? `${(entry.scores.confidence * 100).toFixed(1)}%` : '--';
                   return (
                     <TableRow key={entry.run_id} className="border-white/5 hover:bg-white/5 transition-colors group">
@@ -171,8 +176,9 @@ export default function TruthEnginePage() {
                           variant="outline"
                           className={cn(
                             "px-2 py-0 h-5 text-[10px] font-bold border-none",
-                            verdict === 'True' ? 'bg-green-500/20 text-green-400' :
-                            verdict === 'False' ? 'bg-red-500/20 text-red-400' : 'bg-gray-500/20 text-gray-400'
+                             verdict === 'Allowed' ? 'bg-green-500/20 text-green-400' :
+                             verdict === 'Blocked' ? 'bg-red-500/20 text-red-400' :
+                             verdict === 'Review' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'
                           )}
                         >
                           {verdict.toUpperCase()}

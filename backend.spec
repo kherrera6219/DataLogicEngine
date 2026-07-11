@@ -29,7 +29,7 @@ a = Analysis(
         ('models.py', '.'),
         ('core/data', 'core/data'),
         ('backend/dsqp/templates', 'backend/dsqp/templates'),
-    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('onnxruntime') + collect_data_files('tokenizers') + copy_metadata('tiktoken') + copy_metadata('onnxruntime') + copy_metadata('tokenizers'),
+    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb') + collect_data_files('llama_index') + collect_data_files('onnxruntime') + collect_data_files('tokenizers') + copy_metadata('tiktoken') + copy_metadata('onnxruntime') + copy_metadata('tokenizers'),
     hiddenimports=[
         'flask',
         'flask_sqlalchemy',

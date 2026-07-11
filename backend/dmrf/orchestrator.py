@@ -102,7 +102,7 @@ class DMRFOrchestrator:
         result.axis_vector = axis_vector
         self._record_step(result, "axis_router", {"axis_vector": axis_vector.to_dict()})
 
-        dsqp_result = self.dsqp.construct_all_sync(
+        dsqp_result = await self.dsqp.construct_all(
             query,
             axis_vector=axis_vector.to_dict(),
             context={

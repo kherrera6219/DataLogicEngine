@@ -7,7 +7,10 @@ Provides unified interface for vector/embedding storage with support for:
 """
 
 import os
+import json
 import logging
+import sqlite3
+from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
@@ -95,6 +98,8 @@ class ChromaDBBackend(VectorBackend):
             try:
                 import chromadb
                 from chromadb.config import Settings
+
+                self._upgrade_legacy_collection_configs()
                 
                 self._client = chromadb.PersistentClient(
                     path=self.persist_directory,
@@ -108,6 +113,51 @@ class ChromaDBBackend(VectorBackend):
                 logger.warning("ChromaDB not installed. Install with: pip install chromadb")
                 raise
         return self._client
+
+    def _upgrade_legacy_collection_configs(self) -> int:
+        """Repair pre-0.6 Chroma collection configs without touching vector data."""
+        database_path = Path(self.persist_directory) / "chroma.sqlite3"
+        if not database_path.exists():
+            return 0
+
+        from chromadb.api.configuration import CollectionConfigurationInternal
+
+        default_config = CollectionConfigurationInternal().to_json_str()
+        connection = sqlite3.connect(database_path)
+        try:
+            rows = connection.execute("SELECT id, config_json_str FROM collections").fetchall()
+            legacy_ids = []
+            for collection_id, raw_config in rows:
+                try:
+                    parsed = json.loads(raw_config or "{}")
+                except (TypeError, ValueError):
+                    parsed = {}
+                if not isinstance(parsed, dict) or "_type" not in parsed:
+                    legacy_ids.append(collection_id)
+
+            if not legacy_ids:
+                return 0
+
+            backup_path = database_path.with_suffix(".pre-config-upgrade.bak")
+            if not backup_path.exists():
+                backup = sqlite3.connect(backup_path)
+                try:
+                    connection.backup(backup)
+                finally:
+                    backup.close()
+
+            connection.executemany(
+                "UPDATE collections SET config_json_str = ? WHERE id = ?",
+                [(default_config, collection_id) for collection_id in legacy_ids],
+            )
+            connection.commit()
+            logger.info("Upgraded %s legacy Chroma collection configurations", len(legacy_ids))
+            return len(legacy_ids)
+        except sqlite3.OperationalError as exc:
+            logger.debug("Chroma collection configuration upgrade skipped: %s", exc)
+            return 0
+        finally:
+            connection.close()
     
     def _get_collection(self, name: str):
         """Get or create a collection."""

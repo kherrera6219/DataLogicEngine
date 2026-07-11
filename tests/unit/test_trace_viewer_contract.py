@@ -24,6 +24,9 @@ def test_trace_bundle_endpoint_returns_aggregate_contract(app, authenticated_cli
             final_answer="Contract answer",
             confidence=0.91,
             tier="2",
+            latency_ms=125,
+            model_name="gemini-3.1-pro-preview",
+            data_snapshot={"provider_used": "google"},
         )
         db.session.add(run)
         db.session.flush()
@@ -88,6 +91,9 @@ def test_trace_bundle_endpoint_returns_aggregate_contract(app, authenticated_cli
     payload = response.get_json()
     assert payload["run_id"] == str(run_id)
     assert payload["metrics"]["stage_count"] == 1
+    assert payload["metrics"]["total_duration_ms"] == 125
+    assert payload["run"]["provider_used"] == "google"
+    assert payload["run"]["model_name"] == "gemini-3.1-pro-preview"
     assert payload["frost_layers"][0]["name"] == "L1 Context"
     assert payload["evidence_sources"][0]["evidence_tier"] == "GOLD"
     assert payload["evidence_sources"][0]["claims_supported"] == ["claim-1"]

@@ -11,10 +11,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle, Plus, RefreshCw, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export default function SimulationsPage() {
-  const { data: simulations, isLoading, mutate } = useSWR('simulations-list', api.simulation.list);
+  const { data: simulations, isLoading, error, mutate } = useSWR('simulations-list', api.simulation.list);
   const [isCreating, setIsCreating] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [simulationName, setSimulationName] = useState('');
+  const [simulationQuery, setSimulationQuery] = useState('');
+  const [operationError, setOperationError] = useState<string | null>(null);
   const [liveProgress, setLiveProgress] = useState<Record<string, SimulationProgress>>({});
   const [isConnected, setIsConnected] = useState(false);
 
@@ -45,20 +53,37 @@ export default function SimulationsPage() {
   }, [simulations, isConnected, socket]);
 
   const handleCreate = async () => {
+    const query = simulationQuery.trim();
+    if (!query) {
+      setOperationError('Enter a scenario to simulate.');
+      return;
+    }
     setIsCreating(true);
+    setOperationError(null);
     try {
-        await api.simulation.create(`Simulation ${new Date().toLocaleString()}`, { mode: 'standard' });
+        await api.simulation.create(
+          simulationName.trim() || `Simulation ${new Date().toLocaleString()}`,
+          { query }
+        );
+        setSimulationName('');
+        setSimulationQuery('');
+        setIsCreateOpen(false);
         mutate();
-        } catch {
-            console.error("Failed to run simulation");
+        } catch (err) {
+            setOperationError(err instanceof Error ? err.message : 'Failed to create simulation');
         } finally {
         setIsCreating(false);
     }
   };
 
   const handleStep = async (uid: string) => {
-      await api.simulation.step(uid);
-      mutate();
+      setOperationError(null);
+      try {
+        await api.simulation.step(uid);
+        mutate();
+      } catch (err) {
+        setOperationError(err instanceof Error ? err.message : 'Failed to run simulation');
+      }
   };
 
   const totalSimulations = simulations?.length || 0;
@@ -93,16 +118,64 @@ export default function SimulationsPage() {
             </div>
           </div>
           <Button
-            onClick={handleCreate}
+            onClick={() => { setOperationError(null); setIsCreateOpen(true); }}
             disabled={isCreating}
             className="gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
           >
-            {isCreating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            <Plus className="h-4 w-4" />
             New Simulation
           </Button>
         </div>
 
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New Simulation</DialogTitle>
+              <DialogDescription>Define the scenario that the multi-agent engine will evaluate.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <label htmlFor="simulation-name" className="text-sm font-medium">Name</label>
+                <Input
+                  id="simulation-name"
+                  value={simulationName}
+                  onChange={(event) => setSimulationName(event.target.value)}
+                  placeholder="Optional simulation name"
+                  maxLength={255}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="simulation-query" className="text-sm font-medium">Scenario</label>
+                <textarea
+                  id="simulation-query"
+                  value={simulationQuery}
+                  onChange={(event) => setSimulationQuery(event.target.value)}
+                  placeholder="Enter the question or scenario to evaluate"
+                  maxLength={5000}
+                  rows={6}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)} disabled={isCreating}>Cancel</Button>
+              <Button onClick={() => void handleCreate()} disabled={isCreating || !simulationQuery.trim()}>
+                {isCreating ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                Create
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
       <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
+
+        {(error || operationError) && (
+          <Card className="border-red-500/30 bg-red-500/10" role="alert">
+            <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
+              {operationError || (error instanceof Error ? error.message : 'Simulation service is unavailable')}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="fluent-acrylic border-white/10 overflow-hidden shadow-2xl">
           <CardHeader className="border-b border-white/5 bg-white/5">
@@ -142,7 +215,7 @@ export default function SimulationsPage() {
                     </TableRow>
                 ))}
 
-                {!isLoading && simulations?.length === 0 && (
+                {!isLoading && !error && simulations?.length === 0 && (
                     <TableRow className="hover:bg-transparent">
                         <TableCell colSpan={6} className="text-center py-24 text-gray-500">
                             <div className="flex flex-col items-center gap-3">

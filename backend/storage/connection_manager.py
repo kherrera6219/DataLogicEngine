@@ -10,6 +10,7 @@ part of the runtime model.
 import os
 import logging
 from enum import Enum
+from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
@@ -307,21 +308,29 @@ class ConnectionManager:
             return False
     
     def _check_vector_health(self) -> bool:
-        """Check vector database availability."""
-        import os
+        """Check that Chroma can open and query a real collection."""
         try:
-            os.makedirs(self.config.vector.local_path, exist_ok=True)
+            from backend.storage.vector_store import ChromaDBBackend
+
+            backend = ChromaDBBackend(self.config.vector.local_path)
+            collection = backend._get_collection("healthcheck")
+            collection.count()
             return True
-        except Exception:
+        except Exception as exc:
+            logger.warning("Vector health check failed: %s", exc)
             return False
     
     def _check_object_health(self) -> bool:
-        """Check object storage availability."""
-        import os
+        """Check that the local object store is writable."""
         try:
-            os.makedirs(self.config.object_storage.local_path, exist_ok=True)
+            root = Path(self.config.object_storage.local_path)
+            root.mkdir(parents=True, exist_ok=True)
+            probe = root / ".healthcheck"
+            probe.write_bytes(b"ok")
+            probe.unlink()
             return True
-        except Exception:
+        except Exception as exc:
+            logger.warning("Object storage health check failed: %s", exc)
             return False
     
     def get_status_report(self) -> Dict[str, Any]:

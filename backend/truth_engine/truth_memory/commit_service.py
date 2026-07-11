@@ -165,17 +165,14 @@ class TruthMemoryCommitService:
                 "tier": getattr(run, "tier", None),
                 "status": getattr(run, "status", None),
             }
-            return asyncio.run(blockchain_adapter.anchor_to_blockchain(merkle_root, metadata))
-        except RuntimeError:
             try:
-                from backend.truth_engine.truth_link.blockchain_adapter import blockchain_adapter
-
-                return blockchain_adapter._simulated_anchor(  # pylint: disable=protected-access
-                    merkle_root,
-                    {"run_id": str(run.run_id), "tier": getattr(run, "tier", None)},
-                )
-            except Exception as exc:
-                return {"error": str(exc), "merkle_root": merkle_root}
+                asyncio.get_running_loop()
+            except RuntimeError:
+                return asyncio.run(blockchain_adapter.anchor_to_blockchain(merkle_root, metadata))
+            return blockchain_adapter._simulated_anchor(  # pylint: disable=protected-access
+                merkle_root,
+                metadata,
+            )
         except Exception as exc:
             return {"error": str(exc), "merkle_root": merkle_root}
 

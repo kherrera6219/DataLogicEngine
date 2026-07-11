@@ -145,6 +145,103 @@ class TestProviderPreference:
             GOOGLE_PRIMARY_MODEL,
         )
 
+    def test_active_model_db_resolution_honors_google_operator_default(self, monkeypatch):
+        from backend.llm_gateway.active_model import resolve_active_cloud_model
+
+        openai = SimpleNamespace(
+            provider_type="openai",
+            model_id="gpt-5.5",
+            priority=1,
+            get_api_key=lambda: "openai-db-key",
+        )
+        google = SimpleNamespace(
+            provider_type="google",
+            model_id="gemini-3.1-pro-preview",
+            priority=2,
+            get_api_key=lambda: "google-db-key",
+        )
+        query = MagicMock()
+        query.filter_by.return_value.order_by.return_value.all.return_value = [openai, google]
+        monkeypatch.setitem(
+            sys.modules,
+            "models",
+            SimpleNamespace(
+                LLMProvider=SimpleNamespace(query=query, priority=object()),
+            ),
+        )
+        monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
+
+        assert resolve_active_cloud_model() == (
+            "google",
+            "google-db-key",
+            "gemini-3.1-pro-preview",
+        )
+
+    def test_runtime_data_root_uses_desktop_settings_parent(self, monkeypatch, tmp_path):
+        settings_path = tmp_path / "settings.json"
+        monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(settings_path))
+
+        assert LLMGateway._runtime_data_root() == tmp_path.resolve()
+
+    @pytest.mark.asyncio
+    async def test_google_default_filters_saved_ollama_provider(self, monkeypatch):
+        from backend.llm_gateway import gateway as gateway_module
+
+        monkeypatch.setenv("GOOGLE_API_KEY", "google-test-key")
+        monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+        saved_ollama = SimpleNamespace(
+            id="ollama-db",
+            name="ollama",
+            provider_type="ollama",
+            model_id="gemma4:12b",
+            priority=1,
+        )
+        query = MagicMock()
+        query.filter_by.return_value.order_by.return_value.all.return_value = [saved_ollama]
+        monkeypatch.setattr(gateway_module, "LLMProvider", SimpleNamespace(query=query))
+
+        providers = await LLMGateway()._get_eligible_providers(meta={"tier": "fast_chat"})
+
+        assert providers
+        assert {provider.provider_type for provider in providers} == {"google"}
+
+    @pytest.mark.asyncio
+    async def test_ukg_overlay_uses_runtime_data_directory(self, monkeypatch, tmp_path):
+        captured = {}
+
+        class FakeOverlay:
+            def __init__(self, *, provider, model, data_dir):
+                captured["provider"] = provider
+                captured["model"] = model
+                captured["data_dir"] = data_dir
+
+            async def run(self, **kwargs):
+                return {"ok": True, "answer": "ok", "trace": []}
+
+        monkeypatch.setitem(sys.modules, "ukg_sdk.overlay", SimpleNamespace(UKGOverlay=FakeOverlay))
+        monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(tmp_path / "settings.json"))
+        gateway = LLMGateway()
+        monkeypatch.setattr(gateway, "_create_trace_run", AsyncMock())
+
+        result = await gateway._run_ukg_overlay(
+            sdk_provider=SimpleNamespace(),
+            model="gemini-3.1-pro-preview",
+            query="hello",
+            run_id="00000000-0000-0000-0000-000000000001",
+            user_id="1",
+            session_id=None,
+            meta={},
+            temperature=0.7,
+            max_tokens=32,
+        )
+
+        assert result["ok"] is True
+        assert captured["model"] == "gemini-3.1-pro-preview"
+        assert captured["data_dir"] == tmp_path / "sdk" / "ukg_sdk" / "data"
+
 
 class TestModelDefaults:
     def test_provider_defaults_use_current_primary_models(self):
@@ -292,3 +389,37 @@ class TestGatewayStreaming:
         assert len(chunks) == 1
         assert chunks[0]["type"] == "error"
         assert chunks[0]["error"] == "provider timeout"
+
+
+class TestUnifiedDMRFTrace:
+    def test_dmrf_is_enabled_by_default_for_enhanced_requests(self, monkeypatch):
+        monkeypatch.delenv("USE_DMRF", raising=False)
+        monkeypatch.setenv("IS_DESKTOP_APP", "true")
+        assert LLMGateway._dmrf_enabled({}) is True
+        assert LLMGateway._dmrf_enabled({"use_dmrf": False}) is False
+
+    def test_dmrf_steps_are_prepended_to_overlay_trace(self):
+        result = {
+            "trace": [{"ka_id": "KA-004", "status": "ok", "output": {"valid": True}}]
+        }
+        LLMGateway._attach_dmrf_trace_metadata(
+            result,
+            {
+                "dmrf": {
+                    "tier": "moderate",
+                    "axis_vector": {"confidence": 0.93, "frost_layer_depth": 4},
+                    "steps": [
+                        {
+                            "name": "truth_gate",
+                            "status": "ok",
+                            "outputs": {"gate": {"passed": True}},
+                            "snapshot_id": "snapshot-1",
+                        }
+                    ],
+                }
+            },
+        )
+
+        assert [item["ka_id"] for item in result["trace"]] == ["DMRF:truth_gate", "KA-004"]
+        assert result["confidence"] == 0.93
+        assert result["trace"][0]["metrics"]["snapshot_id"] == "snapshot-1"

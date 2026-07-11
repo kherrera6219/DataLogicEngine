@@ -66,7 +66,11 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
         default_model_for_provider,
     )
 
-    # 1. DB-configured providers (best-effort, context-safe).
+    preferred = _preferred_env_provider()
+
+    # 1. DB-configured providers (best-effort, context-safe). An operator
+    # default is authoritative for every internal model call, not only the
+    # final gateway completion.
     try:
         from models import LLMProvider
 
@@ -76,6 +80,16 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
                 .order_by(LLMProvider.priority)
                 .all()
             )
+            if preferred:
+                preferred_types = {preferred}
+                if preferred == "google":
+                    preferred_types.add("gemini")
+                rows = [
+                    row
+                    for row in rows
+                    if str(getattr(row, "provider_type", "") or "").strip().lower()
+                    in preferred_types
+                ]
             for row in rows:
                 ptype = str(getattr(row, "provider_type", "") or "").strip().lower()
                 if ptype not in _CLOUD_TYPES:
@@ -113,7 +127,6 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
         "openai": ("openai", openai_key, OPENAI_LATEST_MODEL),
         "google": ("google", google_key, GOOGLE_LATEST_MODEL),
     }
-    preferred = _preferred_env_provider()
     provider_order = [preferred] if preferred else []
     provider_order.extend(provider for provider in ("openai", "google") if provider != preferred)
     for provider in provider_order:

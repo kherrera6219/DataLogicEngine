@@ -4,6 +4,7 @@ Tests for Analytics API endpoints.
 Tests the following actual endpoints:
 - GET /api/v1/analytics/overview
 - GET /api/v1/analytics/activity
+- GET /api/v1/analytics/trends
 - GET /api/v1/analytics/mcp
 """
 
@@ -64,6 +65,19 @@ class TestAnalyticsEndpoints:
         data = response.get_json()
         assert data['success'] is True
         assert data['data'][0]['event'] == 'trace_completed'
+
+    @patch('backend.routes.analytics_routes.AnalyticsService.get_trends')
+    def test_analytics_trends_authenticated(self, mock_get_trends, session_authenticated_client):
+        mock_get_trends.return_value = {
+            'metric': 'sessions',
+            'days': 14,
+            'data_points': [{'date': '2026-07-10', 'value': 2}],
+        }
+        response = session_authenticated_client.get('/api/v1/analytics/trends?metric=sessions&days=14')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['data']['data_points'][0]['value'] == 2
+        mock_get_trends.assert_called_once_with(metric='sessions', days=14)
 
     @patch('backend.routes.analytics_routes.AnalyticsService.get_mcp_stats')
     def test_analytics_mcp_authenticated(self, mock_get_mcp_stats, session_authenticated_client):
