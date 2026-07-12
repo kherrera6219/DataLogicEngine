@@ -90,11 +90,11 @@ def search_knowledge_nodes(
             'query': query
         }
         
-    except Exception as e:
-        logger.error(f"Search error: {e}")
+    except Exception:
+        logger.exception("Knowledge node search failed")
         return {
             'success': False,
-            'error': str(e),
+            'error': 'Knowledge node search failed',
             'results': [],
             'total': 0
         }
@@ -139,9 +139,9 @@ def search_ukg_nodes(
             'query': query
         }
         
-    except Exception as e:
-        logger.error(f"UKG search error: {e}")
-        return {'success': False, 'error': str(e), 'results': []}
+    except Exception:
+        logger.exception("UKG search failed")
+        return {'success': False, 'error': 'UKG search failed', 'results': []}
 
 
 def search_algorithms(
@@ -179,9 +179,9 @@ def search_algorithms(
             'query': query
         }
         
-    except Exception as e:
-        logger.error(f"Algorithm search error: {e}")
-        return {'success': False, 'error': str(e), 'results': []}
+    except Exception:
+        logger.exception("Algorithm search failed")
+        return {'success': False, 'error': 'Algorithm search failed', 'results': []}
 
 
 def global_search(

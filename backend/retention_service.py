@@ -182,10 +182,10 @@ class DataRetentionService:
                 logger.info(f"Deleted {count} sessions older than {cutoff}")
             
             result["status"] = "success"
-        except Exception as e:
-            logger.error(f"Session cleanup failed: {e}")
+        except Exception:
+            logger.exception("Session cleanup failed")
             result["status"] = "error"
-            result["error"] = str(e)
+            result["error"] = "Session cleanup failed"
         
         return result
     
@@ -221,10 +221,10 @@ class DataRetentionService:
         except ImportError:
             result["status"] = "skipped"
             result["reason"] = "Trace models not available"
-        except Exception as e:
-            logger.error(f"Trace run cleanup failed: {e}")
+        except Exception:
+            logger.exception("Trace run cleanup failed")
             result["status"] = "error"
-            result["error"] = str(e)
+            result["error"] = "Trace run cleanup failed"
         
         return result
     
@@ -256,12 +256,12 @@ class DataRetentionService:
             try:
                 result = method(dry_run=dry_run)
                 results["cleanups"].append(result)
-            except Exception as e:
-                logger.error(f"Cleanup failed for {category.value}: {e}")
+            except Exception:
+                logger.exception("Cleanup failed for category %s", category.value)
                 results["cleanups"].append({
                     "category": category.value,
                     "status": "error",
-                    "error": str(e)
+                    "error": "Category cleanup failed"
                 })
         
         results["completed_at"] = datetime.now(UTC).isoformat()

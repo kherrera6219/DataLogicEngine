@@ -94,11 +94,11 @@ def compliance_events():
             'count': len(events)
         })
         
-    except Exception as e:
-        logger.error(f"Error retrieving compliance events: {str(e)}")
+    except Exception:
+        logger.exception("Error retrieving compliance events")
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Compliance events are unavailable'
         }), 400
 
 # Generate compliance report endpoint
@@ -128,11 +128,11 @@ def generate_compliance_report():
         
         return jsonify(report)
         
-    except Exception as e:
-        logger.error(f"Error generating compliance report: {str(e)}")
+    except Exception:
+        logger.exception("Error generating compliance report")
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Compliance report generation failed'
         }), 400
 
 # Audit log retrieval endpoint
@@ -177,11 +177,11 @@ def audit_events():
             'count': len(events)
         })
         
-    except Exception as e:
-        logger.error(f"Error retrieving audit events: {str(e)}")
+    except Exception:
+        logger.exception("Error retrieving audit events")
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Audit events are unavailable'
         }), 400
 
 # Security scan endpoint
@@ -212,11 +212,11 @@ def run_security_scan():
             'warnings_count': len(results.get('warnings', []))
         })
         
-    except Exception as e:
-        logger.error(f"Error running security scan: {str(e)}")
+    except Exception:
+        logger.exception("Error running security scan")
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Security scan failed'
         }), 500
 
 # Verify audit log integrity endpoint
@@ -235,9 +235,9 @@ def verify_audit_log():
         
         return jsonify(results)
         
-    except Exception as e:
-        logger.error(f"Error verifying audit log: {str(e)}")
+    except Exception:
+        logger.exception("Error verifying audit log")
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Audit log verification failed'
         }), 500

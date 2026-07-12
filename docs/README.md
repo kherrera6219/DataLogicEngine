@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.2 |
-| Last updated | 2026-07-10 |
+| Document version | v2.14.3 |
+| Last updated | 2026-07-11 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -95,6 +95,8 @@ Current planning belongs in root `TODO.md`.
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
 | `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` | Packaged enhanced-chat, DMRF/DSQP, provider-routing, persistence, and Trace Explorer QC. |
 | `docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md` | Cross-system frontend/backend/store review, corrections, residual risks, and rebuilt-app acceptance sequence. |
+| `reports/ci_repair_2026-07-11.md` | Root-cause analysis and validation for the dependency-resolution and Windows packaging CI repair. |
+| `reports/code_scanning_alerts_2026-07-08.md` | CodeQL exception-disclosure source analysis, remediation, and regression evidence. |
 
 ### Documentation governance
 

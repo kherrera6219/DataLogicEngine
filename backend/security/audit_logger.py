@@ -580,10 +580,10 @@ class AuditLogger:
             
             return results
             
-        except Exception as e:
-            logger.error(f"Error verifying audit log: {str(e)}")
+        except Exception:
+            logger.exception("Error verifying audit log")
             results["verified"] = False
-            results["error"] = str(e)
+            results["error"] = "Audit log verification failed"
             return results
 
     def verify_immutable_replica_integrity(self, replica_file: Optional[str] = None) -> Dict[str, Any]:
@@ -645,10 +645,10 @@ class AuditLogger:
 
             results["verified"] = results["invalid_entries"] == 0
             return results
-        except Exception as e:
-            logger.error(f"Error verifying immutable replica log: {str(e)}")
+        except Exception:
+            logger.exception("Error verifying immutable replica log")
             results["verified"] = False
-            results["error"] = str(e)
+            results["error"] = "Immutable audit replica verification failed"
             return results
 
     def enable_syslog_forwarding(self, host: str, port: int = 514, facility: int = logging.handlers.SysLogHandler.LOG_USER) -> bool:

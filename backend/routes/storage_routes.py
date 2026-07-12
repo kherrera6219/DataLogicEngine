@@ -76,9 +76,10 @@ def _sqlite_metrics() -> dict:
                 int(conn.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])  # nosec B608 – names from sqlite_master, not user input
                 for table in table_names
             )
-    except Exception as exc:
+    except Exception:
+        logger.exception("Failed to collect SQLite metrics")
         metrics["available"] = False
-        metrics["error"] = str(exc)
+        metrics["error"] = "SQLite metrics unavailable"
     return metrics
 
 
@@ -198,10 +199,11 @@ def get_storage_health():
             'success': True,
             'data': status
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to get storage health")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Storage health is unavailable'
         }), 500
 
 
@@ -230,10 +232,11 @@ def check_service_health(service: str):
                 'healthy': healthy
             }
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to check storage service health")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Storage service health is unavailable'
         }), 500
 
 
@@ -246,8 +249,8 @@ def get_desktop_metrics():
             'success': True,
             'data': _build_desktop_metrics(),
         })
-    except Exception as e:
-        logger.error("Failed to build desktop metrics: %s", e)
+    except Exception:
+        logger.exception("Failed to build desktop metrics")
         return jsonify({
             'success': False,
             'error': 'Failed to build desktop metrics'
@@ -266,8 +269,8 @@ def run_desktop_backup():
             'success': True,
             'data': backup,
         }), 201
-    except Exception as e:
-        logger.error("Desktop backup failed: %s", e)
+    except Exception:
+        logger.exception("Desktop backup failed")
         return jsonify({
             'success': False,
             'error': 'Desktop backup failed'
@@ -290,8 +293,9 @@ def get_desktop_flags():
                 'offline_queue_enabled': get_offline_queue_enabled(),
             },
         })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Failed to load desktop flags")
+        return jsonify({'success': False, 'error': 'Desktop flags are unavailable'}), 500
 
 
 @storage_api.route('/desktop-flags', methods=['POST'])
@@ -312,8 +316,9 @@ def set_desktop_flags():
         if not response:
             return jsonify({'success': False, 'error': 'No desktop flags provided'}), 400
         return jsonify({'success': True, 'data': response})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Failed to save desktop flags")
+        return jsonify({'success': False, 'error': 'Desktop flag update failed'}), 500
 
 
 @storage_api.route('/test-connection', methods=['POST'])
@@ -356,8 +361,8 @@ def test_connection():
             'success': True,
             'data': result
         })
-    except Exception as e:
-        logger.error(f"Connection test failed: {e}")
+    except Exception:
+        logger.exception("Connection test failed")
         return jsonify({
             'success': False,
             'error': "Internal server error during connection test"
@@ -389,11 +394,12 @@ def _test_postgres(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to PostgreSQL at {host}:{port}'
             }
-    except Exception as e:
+    except Exception:
+        logger.exception("PostgreSQL connection test failed")
         return {
             'service': 'postgres',
             'connected': False,
-            'message': str(e)
+            'message': 'PostgreSQL connection test failed'
         }
 
 
@@ -422,11 +428,12 @@ def _test_redis(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to Redis at {host}:{port}'
             }
-    except Exception as e:
+    except Exception:
+        logger.exception("Redis connection test failed")
         return {
             'service': 'redis',
             'connected': False,
-            'message': str(e)
+            'message': 'Redis connection test failed'
         }
 
 
@@ -455,11 +462,12 @@ def _test_neo4j(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to Neo4j at {host}:{port}'
             }
-    except Exception as e:
+    except Exception:
+        logger.exception("Neo4j connection test failed")
         return {
             'service': 'neo4j',
             'connected': False,
-            'message': str(e)
+            'message': 'Neo4j connection test failed'
         }
 
 
@@ -478,11 +486,12 @@ def _test_vector(data: dict) -> dict:
                 'connected': True,
                 'message': f'ChromaDB path accessible: {safe_local_path}'
             }
-        except Exception as e:
+        except Exception:
+            logger.exception("ChromaDB path check failed")
             return {
                 'service': 'vector',
                 'connected': False,
-                'message': f"Path access refused: {str(e)}"
+                'message': 'ChromaDB path access failed'
             }
     elif provider == 'pinecone':
         api_key = data.get('api_key')
@@ -501,11 +510,12 @@ def _test_vector(data: dict) -> dict:
                 'connected': True,
                 'message': f'Connected to Pinecone. Found {len(indexes)} indexes.'
             }
-        except Exception as e:
+        except Exception:
+            logger.exception("Pinecone connection test failed")
             return {
                 'service': 'vector',
                 'connected': False,
-                'message': str(e)
+                'message': 'Pinecone connection test failed'
             }
     else:
         return {
@@ -529,11 +539,12 @@ def _test_object(data: dict) -> dict:
                 'connected': True,
                 'message': f'Local object storage path accessible: {local_path}'
             }
-        except Exception as e:
+        except Exception:
+            logger.exception("Local object storage path check failed")
             return {
                 'service': 'object',
                 'connected': False,
-                'message': str(e)
+                'message': 'Local object storage path access failed'
             }
     elif provider == 's3':
         endpoint = data.get('endpoint_url')
@@ -561,11 +572,12 @@ def _test_object(data: dict) -> dict:
                 'connected': True,
                 'message': f'Connected to S3-compatible storage at {endpoint or "AWS"}'
             }
-        except Exception as e:
+        except Exception:
+            logger.exception("S3 connection test failed")
             return {
                 'service': 'object',
                 'connected': False,
-                'message': str(e)
+                'message': 'S3 connection test failed'
             }
     else:
         return {
@@ -589,10 +601,11 @@ def start_databases():
             'success': True,
             'message': 'Database startup initiated'
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to start database services")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Database startup failed'
         }), 500
 
 
@@ -607,10 +620,11 @@ def get_database_autostart():
             'success': True,
             'enabled': bool(get_auto_start_databases()),
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to load database auto-start preference")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Database auto-start preference is unavailable'
         }), 500
 
 
@@ -636,10 +650,11 @@ def set_database_autostart():
             'enabled': saved,
             'message': 'Auto-start preference saved',
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to save database auto-start preference")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Database auto-start preference update failed'
         }), 500
 
 
@@ -654,8 +669,9 @@ def get_cloud_config():
         # Return only whether each key is set — never expose raw secrets via GET.
         masked = {k: ('***' if v else '') for k, v in cloud.items()}
         return jsonify({'success': True, 'cloud_config': masked})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Failed to load cloud configuration")
+        return jsonify({'success': False, 'error': 'Cloud configuration is unavailable'}), 500
 
 
 @storage_api.route('/cloud-config', methods=['POST'])
@@ -680,9 +696,9 @@ def save_cloud_config():
         save_storage_settings(settings)
 
         return jsonify({'success': True, 'message': 'Cloud configuration saved'})
-    except Exception as e:
-        logger.error(f"Failed to save cloud config: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception:
+        logger.exception("Failed to save cloud configuration")
+        return jsonify({'success': False, 'error': 'Cloud configuration update failed'}), 500
 
 
 @storage_api.route('/databases/stop', methods=['POST'])
@@ -699,8 +715,9 @@ def stop_databases():
             'success': True,
             'message': 'Database shutdown initiated'
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Failed to stop database services")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Database shutdown failed'
         }), 500

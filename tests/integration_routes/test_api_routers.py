@@ -10,6 +10,8 @@ import sys
 def router_app_client():
     mock_db = MagicMock()
     mock_cache = MagicMock()
+    mock_limiter = MagicMock()
+    mock_limiter.exempt.side_effect = lambda view_func: view_func
     
     # Mock Gateway
     mock_gateway_cls = MagicMock()
@@ -38,7 +40,7 @@ def router_app_client():
 
     # Patches
     with patch.dict(sys.modules, {
-        'extensions': MagicMock(db=mock_db, cache=mock_cache),
+        'extensions': MagicMock(db=mock_db, cache=mock_cache, limiter=mock_limiter),
         'models': mock_models,
         'backend.llm_gateway.gateway': MagicMock(LLMGateway=mock_gateway_cls, GatewayRequest=MagicMock()),
         'backend.utils.responses': MagicMock(api_response=lambda x: (jsonify(x), 200)),

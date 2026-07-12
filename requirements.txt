@@ -58,7 +58,7 @@ requests==2.34.2
 # RAG and orchestration stack
 chromadb==0.6.3
 onnxruntime==1.26.0
-tokenizers==0.23.1
+tokenizers==0.22.2
 starlette>=1.3.1  # transitive via chromadb->fastapi; pinned to patch CVE-2026-48817/48818/54282/54283 (Chroma server path is unused, but keep the dep patched)
 llama-index==0.14.22
 sentence-transformers==5.5.1

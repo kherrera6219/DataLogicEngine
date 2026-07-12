@@ -18,7 +18,7 @@
 
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-10 (**cross-system data-path QC and production rebuild checkpoint** - source corrections cover Gemini chat routing/latency, DMRF/DSQP trace completeness, active USKD graph use, Chroma legacy collection migration, truthful health/error states, analytics, simulations, MCP, KA registry, and projects. Focused automated validation and the root installer rebuild are complete; a clean installed-app acceptance run remains required.)
+**Last updated:** 2026-07-11 (**CI and CodeQL remediation checkpoint** - the shared Python dependency resolver failure is corrected, Windows packaging now fails fast, and all eight open exception-disclosure findings are remediated in source with focused regressions. Installed-app acceptance remains required for final production signoff.)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -87,35 +87,32 @@ Next rebuild/QC sequence:
 3. Validate Knowledge Base, Knowledge Graph, Algorithms, and Settings -> Storage database start/status from the installed app.
 4. Inspect the remaining packaged Chroma/local service warnings if they still appear after the rebuilt install.
 
-## Code scanning alert remediation - 2026-07-08
+## CI and CodeQL remediation - 2026-07-11
 
-Scope checked for the next session:
+Completed in source:
 
-1. Queried GitHub CodeQL code-scanning alerts for `kherrera6219/DataLogicEngine`.
-2. Current live counts: 8 open, 404 fixed, 189 dismissed.
-3. All open alerts are medium `py/stack-trace-exposure` / "Information exposure through an exception".
-4. Evidence is recorded in `reports/code_scanning_alerts_2026-07-08.md`.
+1. Reproduced the common dependency-install failure behind Deploy / Build and Test, CI / backend-test, Security / Dependency Security Scan, Security / Crash Reporting Probe, and CI / windows-packaging-smoke.
+2. Corrected the impossible `tokenizers==0.23.1` and `transformers>=5.0.0` combination by pinning `tokenizers==0.22.2`; Python 3.11 now resolves the full requirements tree with `transformers==5.13.1` and `onnxruntime==1.26.0`.
+3. Added PowerShell native-command fail-fast behavior to the Windows packaging job so a failed dependency install cannot continue into a secondary PyInstaller metadata error.
+4. Remediated all eight open medium CodeQL `py/stack-trace-exposure` alerts: #593-#596, #598, #599, #600, and #601.
+5. Replaced raw service/result exception values and route fallback responses with stable messages while preserving full exception context in server logs.
+6. Added focused service, audit, storage, and security API regressions that assert internal exception sentinels are absent from returned data.
+7. Corrected the gateway-router integration fixture so its mocked `extensions.limiter.exempt` preserves decorated Flask view functions; this removed three full-suite setup errors that the dependency failure had previously masked.
 
-Open alerts to remediate next:
+Validation completed before push:
 
-| Alert | File | Line | Rule | Status |
-| --- | --- | ---: | --- | --- |
-| #593 | `backend/routes/search_routes.py` | 85 | `py/stack-trace-exposure` | Open |
-| #594 | `backend/routes/search_routes.py` | 115 | `py/stack-trace-exposure` | Open |
-| #595 | `backend/routes/search_routes.py` | 143 | `py/stack-trace-exposure` | Open |
-| #596 | `backend/routes/search_routes.py` | 171 | `py/stack-trace-exposure` | Open |
-| #598 | `backend/routes/retention_routes.py` | 178 | `py/stack-trace-exposure` | Open |
-| #599 | `backend/security_api.py` | 236 | `py/stack-trace-exposure` | Open |
-| #600 | `backend/routes/storage_routes.py` | 245 | `py/stack-trace-exposure` | Open |
-| #601 | `backend/routes/storage_routes.py` | 265 | `py/stack-trace-exposure` | Open |
+- Python 3.11 full requirements dry run: passed.
+- `pip-audit` with the two documented accepted-risk exclusions: no known vulnerabilities found.
+- Focused Ruff: passed.
+- Focused exception-disclosure pytest: 64 passed.
+- Full Python 3.11 backend suite: 1,699 passed, 18 skipped.
+- Smoke bootstrap: passed.
+- Strict deterministic startup precheck: passed with 0 blockers and 0 action items.
+- SQLite/Postgres schema parity: passed with 0 errors and 0 warnings.
+- Documentation reference validation: passed with 0 errors; 47 pre-existing style warnings remain advisory.
+- Clean Python 3.11 PyInstaller `backend.spec` build: passed; packaged metadata includes `onnxruntime-1.26.0.dist-info` and `tokenizers-0.22.2.dist-info`.
 
-Fix plan:
-
-1. Replace public exception-message/traceback responses with generic JSON errors.
-2. Keep exception details in server logs only.
-3. Add focused route regressions proving public responses do not expose exception text or stack traces.
-4. Run targeted Ruff and pytest for touched modules.
-5. Update `CHANGELOG.md`, this TODO, `HANDOFF.md`, and the code-scanning report after remediation.
+Evidence is recorded in `reports/ci_repair_2026-07-11.md` and `reports/code_scanning_alerts_2026-07-08.md`. GitHub Actions and CodeQL post-push runs provide the authoritative remote confirmation.
 
 ## Dependabot alert sweep - 2026-07-07
 
@@ -145,7 +142,7 @@ Findings and fixes addressed before rebuild:
 | Signed Electron API-key save/test requests could fail when a stale Flask session cookie was evaluated before desktop HMAC auth and triggered session CSRF enforcement. | `app.py` now accepts valid signed desktop auth at the app-level API CSRF guard, `backend/auth/api_decorators.py` prefers signed desktop auth over cookie session auth for API decorators, and `frontend/lib/api/client.ts` refreshes desktop session/CSRF state before desktop mutations and recovery retries. | Fixed in source and rebuilt; reinstall validation pending |
 | The installed app still failed the Save Model call after rebuild because `/api/v1/gateway/keys` and desktop session recovery did not consistently reach backend desktop auth; Electron added HMAC headers after the renderer had already declared the CORS/preflight header set. | `frontend/lib/api/client.ts` now declares `X-Desktop-Auth-Timestamp`, `X-Desktop-Auth-Request-Signature`, and `X-Desktop-Auth-Signature` placeholders for the raw desktop challenge, desktop auto-login, CSRF-token fetch, and normal Electron desktop requests. Electron main replaces the placeholders with real signed values before the request is sent. Endpoint-specific `/api/v1/gateway/keys` desktop regressions were added. | Fixed in source and rebuilt; reinstall validation pending |
 | The normal `npm --prefix frontend run electron:dist` command could package the previous PyInstaller backend because only the elevated `frontend/build_installer.ps1` wrapper rebuilt `dist/DataLogic_Backend`. | Added `frontend/scripts/build-backend-for-installer.ps1` and wired it into `frontend/package.json` so the standard npm installer build regenerates `DataLogic_Backend.exe` before Electron packaging. | Fixed and validated by rebuild |
-| Installed-backend logs showed Chroma collection-stat failures because the frozen backend did not include `onnxruntime`, then later showed the required `tokenizers` package was also absent. | Added explicit `onnxruntime==1.26.0` and `tokenizers==0.23.1` to `requirements.txt` and updated `backend.spec` to collect ONNX Runtime and tokenizers binaries, data files, metadata, and hidden imports. Verified the packaged backend contains `onnxruntime.dll`, `onnxruntime_pybind11_state.pyd`, `tokenizers.pyd`, and the matching dist-info metadata. | Fixed and validated by rebuild |
+| Installed-backend logs showed Chroma collection-stat failures because the frozen backend did not include `onnxruntime`, then later showed the required `tokenizers` package was also absent. | Added explicit `onnxruntime==1.26.0` and compatible `tokenizers==0.22.2` requirements and updated `backend.spec` to collect their binaries, data files, metadata, and hidden imports. The later `tokenizers==0.23.1` regression was corrected on 2026-07-11 after it blocked clean CI resolution with Transformers 5.x. | Fixed and validated by clean Python 3.11 rebuild |
 | `DesktopStatus` auto-polled DSQP persona profiles every 5 seconds, causing provider-backed DSQP construction and repeated cloud-provider quota errors while idle. | Removed automatic DSQP persona profile polling from the desktop status widget and added a regression proving status polling does not call `dsqpPersonaProfiles`. | Fixed in source and rebuilt; reinstall validation pending |
 | Existing provider-card labels could imply a key was validated when only stored. | The current UI copy already now distinguishes stored keys from tested provider availability; final behavior still needs installed-app validation after rebuild with real provider keys. | Pending reinstall QC |
 

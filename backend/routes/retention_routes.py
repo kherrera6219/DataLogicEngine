@@ -35,11 +35,11 @@ def list_policies():
                 'categories': [c.value for c in RetentionCategory]
             }
         })
-    except Exception as e:
-        logger.error(f"Error listing retention policies: {e}")
+    except Exception:
+        logger.exception("Error listing retention policies")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Retention policies are unavailable'
         }), 500
 
 
@@ -82,11 +82,11 @@ def get_policy(category: str):
             'success': False,
             'error': f'Invalid category: {category}'
         }), 400
-    except Exception as e:
-        logger.error(f"Error getting retention policy: {e}")
+    except Exception:
+        logger.exception("Error getting retention policy")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Retention policy is unavailable'
         }), 500
 
 
@@ -144,16 +144,16 @@ def update_policy(category: str):
                 'archive_before_delete': policy.archive_before_delete
             }
         })
-    except ValueError as e:
+    except ValueError:
         return jsonify({
             'success': False,
-            'error': f'Invalid category or value: {e}'
+            'error': 'Invalid category or retention value'
         }), 400
-    except Exception as e:
-        logger.error(f"Error updating retention policy: {e}")
+    except Exception:
+        logger.exception("Error updating retention policy")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Retention policy update failed'
         }), 500
 
 
@@ -179,11 +179,11 @@ def run_cleanup():
             'success': True,
             'data': results
         })
-    except Exception as e:
-        logger.error(f"Error running retention cleanup: {e}")
+    except Exception:
+        logger.exception("Error running retention cleanup")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Retention cleanup failed'
         }), 500
 
 
@@ -199,8 +199,9 @@ def health_check():
             'success': True,
             'data': health
         })
-    except Exception as e:
+    except Exception:
+        logger.exception("Error checking retention service health")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Retention service health is unavailable'
         }), 500

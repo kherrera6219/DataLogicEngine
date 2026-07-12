@@ -110,10 +110,12 @@ Source/build changes:
 
 - `frontend/scripts/build-backend-for-installer.ps1`: non-interactive backend rebuild helper for installer packaging.
 - `frontend/package.json`: `electron:dist` now rebuilds the PyInstaller backend before Next/Electron packaging.
-- `requirements.txt`: `onnxruntime==1.26.0` and `tokenizers==0.23.1` are now explicit.
+- `requirements.txt`: `onnxruntime==1.26.0` and `tokenizers` are explicit packaging dependencies.
 - `backend.spec`: PyInstaller now collects ONNX Runtime and tokenizers binaries, data files, metadata, and hidden imports.
 
-Validation evidence: the rebuilt `dist\DataLogic_Backend` and `frontend\dist\win-unpacked\resources\backend` payloads contain `onnxruntime.dll`, `onnxruntime_pybind11_state.pyd`, `onnxruntime-1.26.0.dist-info`, `tokenizers.pyd`, and `tokenizers-0.23.1.dist-info`.
+Validation evidence at this checkpoint: the rebuilt `dist\DataLogic_Backend` and `frontend\dist\win-unpacked\resources\backend` payloads contained ONNX Runtime and tokenizers native files and metadata.
+
+Production correction (2026-07-11): the later `tokenizers==0.23.1` pin was incompatible with `transformers>=5.0.0` and blocked all clean dependency installs. The supported pin is now `tokenizers==0.22.2`; a fresh Python 3.11 PyInstaller bundle contains `onnxruntime-1.26.0.dist-info` and `tokenizers-0.22.2.dist-info`.
 
 ## Validation Completed
 

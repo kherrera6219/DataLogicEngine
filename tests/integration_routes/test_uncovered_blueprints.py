@@ -201,31 +201,41 @@ def test_security_api_endpoints(security_client):
 
 def test_security_api_error_paths(security_client):
     mock_security_manager = MagicMock()
-    mock_security_manager._perform_security_scan.side_effect = RuntimeError("scan failed")
+    mock_security_manager._perform_security_scan.side_effect = RuntimeError("secret-security-scan-path")
     mock_security_manager.last_scan_results = None
 
     mock_compliance_manager = MagicMock()
-    mock_compliance_manager.get_compliance_events.side_effect = ValueError("bad filter")
-    mock_compliance_manager.generate_compliance_report.side_effect = ValueError("bad date")
+    mock_compliance_manager.get_compliance_events.side_effect = RuntimeError("secret-compliance-path")
+    mock_compliance_manager.generate_compliance_report.side_effect = RuntimeError("secret-report-path")
 
     mock_audit_logger = MagicMock()
-    mock_audit_logger.get_audit_events.side_effect = RuntimeError("audit failed")
-    mock_audit_logger.verify_audit_log_integrity.side_effect = RuntimeError("integrity failed")
+    mock_audit_logger.get_audit_events.side_effect = RuntimeError("secret-audit-path")
+    mock_audit_logger.verify_audit_log_integrity.side_effect = RuntimeError("secret-integrity-path")
 
     with patch.object(security_api_module, "get_security_manager", return_value=mock_security_manager), patch.object(
         security_api_module, "get_compliance_manager", return_value=mock_compliance_manager
     ), patch.object(security_api_module, "get_audit_logger", return_value=mock_audit_logger):
-        resp = security_client.get("/api/security/compliance/events?start_time=not-a-date")
+        resp = security_client.get("/api/security/compliance/events")
         assert resp.status_code == 400
+        assert resp.json["message"] == "Compliance events are unavailable"
+        assert "secret-compliance-path" not in resp.get_data(as_text=True)
 
-        resp = security_client.post("/api/security/compliance/report", json={"start_date": "not-a-date"})
+        resp = security_client.post("/api/security/compliance/report", json={})
         assert resp.status_code == 400
+        assert resp.json["message"] == "Compliance report generation failed"
+        assert "secret-report-path" not in resp.get_data(as_text=True)
 
         resp = security_client.get("/api/security/audit/events")
         assert resp.status_code == 400
+        assert resp.json["message"] == "Audit events are unavailable"
+        assert "secret-audit-path" not in resp.get_data(as_text=True)
 
         resp = security_client.post("/api/security/scan")
         assert resp.status_code == 500
+        assert resp.json["message"] == "Security scan failed"
+        assert "secret-security-scan-path" not in resp.get_data(as_text=True)
 
         resp = security_client.post("/api/security/audit/verify", json={})
         assert resp.status_code == 500
+        assert resp.json["message"] == "Audit log verification failed"
+        assert "secret-integrity-path" not in resp.get_data(as_text=True)

@@ -3,7 +3,13 @@ from unittest.mock import MagicMock, patch
 import sys
 
 # Explicitly import services
-from backend.search_service import search_knowledge_nodes, global_search
+from backend.routes import storage_routes
+from backend.search_service import (
+    global_search,
+    search_algorithms,
+    search_knowledge_nodes,
+    search_ukg_nodes,
+)
 from backend.retention_service import DataRetentionService, RetentionCategory
 
 # --- Search Service Tests ---
@@ -41,6 +47,26 @@ def test_global_search():
          res = global_search("q")
          assert res['results']['nodes']['results'] == ['n']
          assert res['results']['ukg_nodes']['results'] == ['u']
+
+
+def test_search_failures_hide_exception_details():
+    sentinel = "secret-search-backend-path"
+    cases = (
+        (search_knowledge_nodes, "Knowledge node search failed"),
+        (search_ukg_nodes, "UKG search failed"),
+        (search_algorithms, "Algorithm search failed"),
+    )
+
+    for search_function, expected_error in cases:
+        with patch(
+            'backend.search_service.db.session.execute',
+            side_effect=RuntimeError(sentinel),
+        ):
+            result = search_function("query")
+
+        assert result['success'] is False
+        assert result['error'] == expected_error
+        assert sentinel not in repr(result)
 
 # --- Retention Service Tests ---
 
@@ -86,3 +112,65 @@ def test_run_cleanup_all():
          summary = srv.run_cleanup()
          assert summary['status'] == "success"
          assert len(summary['cleanups']) == 2
+
+
+def test_retention_cleanup_failures_hide_exception_details():
+    srv = DataRetentionService()
+    sentinel = "secret-retention-database-path"
+
+    with patch.object(
+        srv,
+        'cleanup_sessions',
+        side_effect=RuntimeError(sentinel),
+    ), patch.object(
+        srv,
+        'cleanup_trace_runs',
+        side_effect=RuntimeError(sentinel),
+    ):
+        summary = srv.run_cleanup()
+
+    assert [item['error'] for item in summary['cleanups']] == [
+        "Category cleanup failed",
+        "Category cleanup failed",
+    ]
+    assert sentinel not in repr(summary)
+
+
+def test_individual_retention_failures_hide_exception_details():
+    srv = DataRetentionService()
+    sentinel = "secret-retention-query"
+    mock_model = MagicMock()
+    mock_model.query.filter.side_effect = RuntimeError(sentinel)
+    mock_modules = {
+        'extensions': MagicMock(db=MagicMock()),
+        'models': MagicMock(ChatSession=mock_model, TraceRun=mock_model),
+    }
+
+    with patch.dict(sys.modules, mock_modules):
+        session_result = srv.cleanup_sessions()
+        trace_result = srv.cleanup_trace_runs()
+
+    assert session_result['error'] == "Session cleanup failed"
+    assert trace_result['error'] == "Trace run cleanup failed"
+    assert sentinel not in repr((session_result, trace_result))
+
+
+def test_sqlite_metrics_hide_exception_details(tmp_path):
+    sentinel = "secret-sqlite-database-path"
+    database_path = tmp_path / "metrics.db"
+    database_path.write_bytes(b"")
+
+    with patch.object(
+        storage_routes,
+        '_sqlite_path_from_database_url',
+        return_value=database_path,
+    ), patch.object(
+        storage_routes.sqlite3,
+        'connect',
+        side_effect=RuntimeError(sentinel),
+    ):
+        metrics = storage_routes._sqlite_metrics()
+
+    assert metrics['available'] is False
+    assert metrics['error'] == "SQLite metrics unavailable"
+    assert sentinel not in repr(metrics)

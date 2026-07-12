@@ -337,6 +337,20 @@ class TestLogIntegrity:
         assert result['verified'] is False
         assert 'error' in result
 
+    def test_verify_log_integrity_hides_exception_details(self, audit_logger):
+        """Internal file errors are logged without entering API result data."""
+        sentinel = "secret-audit-log-path"
+
+        with patch(
+            "backend.security.audit_logger.os.path.exists",
+            return_value=True,
+        ), patch("builtins.open", side_effect=RuntimeError(sentinel)):
+            result = audit_logger.verify_audit_log_integrity("audit.jsonl")
+
+        assert result['verified'] is False
+        assert result['error'] == "Audit log verification failed"
+        assert sentinel not in repr(result)
+
     def test_verify_log_integrity_handles_entries_without_hash(self, audit_logger):
         """Test integrity verification handles old entries without hash"""
         # Manually write entry without hash
