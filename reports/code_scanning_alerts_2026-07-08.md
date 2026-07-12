@@ -51,4 +51,4 @@ Alert URLs:
 
 ## Remote closure
 
-The source-level remediation is complete. GitHub CodeQL must analyze the pushed commit before the alert state changes from open to fixed; the post-push code-scanning run is the authoritative remote closure evidence.
+Security Scan run [29178879511](https://github.com/kherrera6219/DataLogicEngine/actions/runs/29178879511) completed successfully for commit `05c34bdd`. GitHub now reports alerts #593-#596 and #598-#601 as `fixed`, and the open code-scanning alert query returns zero results. None of the alerts were dismissed.

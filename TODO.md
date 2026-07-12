@@ -99,7 +99,7 @@ Completed in source:
 6. Added focused service, audit, storage, and security API regressions that assert internal exception sentinels are absent from returned data.
 7. Corrected the gateway-router integration fixture so its mocked `extensions.limiter.exempt` preserves decorated Flask view functions; this removed three full-suite setup errors that the dependency failure had previously masked.
 
-Validation completed before push:
+Validation completed:
 
 - Python 3.11 full requirements dry run: passed.
 - `pip-audit` with the two documented accepted-risk exclusions: no known vulnerabilities found.
@@ -112,7 +112,7 @@ Validation completed before push:
 - Documentation reference validation: passed with 0 errors; 47 pre-existing style warnings remain advisory.
 - Clean Python 3.11 PyInstaller `backend.spec` build: passed; packaged metadata includes `onnxruntime-1.26.0.dist-info` and `tokenizers-0.22.2.dist-info`.
 
-Evidence is recorded in `reports/ci_repair_2026-07-11.md` and `reports/code_scanning_alerts_2026-07-08.md`. GitHub Actions and CodeQL post-push runs provide the authoritative remote confirmation.
+Evidence is recorded in `reports/ci_repair_2026-07-11.md` and `reports/code_scanning_alerts_2026-07-08.md`. Remote verification for commit `05c34bdd` passed in Deploy run `29178879540`, CI/CD run `29178879516`, and Security Scan run `29178879511`; CodeQL reports all eight alerts fixed and zero open alerts.
 
 ## Dependabot alert sweep - 2026-07-07
 
