@@ -29,26 +29,27 @@ The pre-existing audit-folder scope contained 6 Markdown files. This report is t
 | Document | Disposition | Update summary |
 |---|---|---|
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Active audit summary | Added metadata/version and folder-review status; keep as the current consolidated findings report. |
-| `docs/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md` | Historical / completed sprint plan | Added metadata and current-status banner pointing to active trackers. |
-| `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` | Historical / completed deprecation plan | Added metadata and explicit supersession note for the old decorator proposal. |
+| `docs/archive/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md` | Historical / completed sprint plan | Added metadata and current-status banner pointing to active trackers. |
+| `docs/archive/audits/DataLogicEngine_Auth_Deprecation_Plan.md` | Historical / completed deprecation plan | Added metadata and explicit supersession note for the old decorator proposal. |
 | `docs/audits/DataLogicEngine_Complete_Audit_Plan.md` | Deleted | Superseded v1.0 snapshot removed after link check at user request. |
-| `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md` | Historical / completed first-pass audit plan | Added metadata, corrected stale A29-era forward-queue wording, and marked Phase 4 complete. |
+| `docs/archive/audits/DataLogicEngine_Complete_Audit_Plan_v2.md` | Historical / completed first-pass audit plan | Added metadata, corrected stale A29-era forward-queue wording, and marked Phase 4 complete. |
 | `docs/audits/DataLogicEngine_Routes_Audit.md` | Historical / closed route audit | Added metadata and a supersession note for old RBAC/ownership-transfer guidance. |
 
-## Cleanup candidates
+## Cleanup dispositions
 
 | Candidate | Recommendation | Reason |
 |---|---|---|
-| `docs/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md` | Keep as historical evidence or move to archive after root audit log coverage is confirmed. | The sprint work is complete; the active value is historical traceability only. |
+| `docs/archive/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md` | Archived 2026-07-12. | Completed historical sprint evidence; superseded by root `PRODUCTION_COMPLETION_PLAN_2026.md`. |
 | `docs/audits/DataLogicEngine_Routes_Audit.md` | Keep as historical evidence or move to archive after current route docs/tests are confirmed. | All RT items are closed, and parts of the original RBAC guidance are superseded. |
-| `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` | Keep as historical evidence until the single-owner auth story is fully stable in active docs. | It records key security decisions, but original proposal sections are not current guidance. |
-| `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md` | Keep for now as historical first-pass audit record. | It is large but still useful as the audit execution map. |
+| `docs/archive/audits/DataLogicEngine_Auth_Deprecation_Plan.md` | Archived 2026-07-12. | Completed security-decision history; not current guidance. |
+| `docs/archive/audits/DataLogicEngine_Complete_Audit_Plan_v2.md` | Archived 2026-07-12. | Completed first-pass audit history; superseded by root `PRODUCTION_COMPLETION_PLAN_2026.md`. |
 
 ## Current source-of-truth mapping
 
 | Need | Use |
 |---|---|
 | Current audit slice findings | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` |
+| Active execution plan | root `PRODUCTION_COMPLETION_PLAN_2026.md` |
 | Current backlog/open work | root `TODO.md` |
 | Running handoff/current state | root `HANDOFF.md` |
 | Full repository audit history | root `REPO_AUDIT_LOG.md` |

@@ -1081,7 +1081,7 @@ web login (`auth_routes.py` + Flask-Login), and `User.role/is_admin/mfa_*`. Two 
 routes + ~29/172 test files.
 
 **Decision (user, 2026-06-13): plan full deprecation before any code changes.**
-Written 6-phase plan delivered: `docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`
+Written 6-phase plan delivered: `docs/archive/audits/DataLogicEngine_Auth_Deprecation_Plan.md`
 (Phase A = delete the 2 already-dead modules, risk-free; B = collapse authz
 decorators; C = desktop-only auth + drop web login/sessions; D = remove MFA/tenancy;
 E = slim User model via migration; F = test migration). **No code changed this
@@ -1091,7 +1091,7 @@ session — plan is awaiting review/approval.**
 
 Per user decision, checked whether single-mode invalidates earlier audit conclusions
 *before* starting deprecation code. **Result: bounded** (full table in
-`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md` §6). ~80% of audit work
+`docs/archive/audits/DataLogicEngine_Auth_Deprecation_Plan.md` §6). ~80% of audit work
 (reasoning core: truth engine, DSQP, DMRF, simulation, KAs, quad, axes, local models)
 is **unaffected** — no user-model surface. Exposure is perimeter-only:
 - A3 desktop status endpoints (`@api_session_login_required`) — ✅ stand; the kept

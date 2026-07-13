@@ -1,0 +1,5452 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-13T08:00:09.494441+00:00",
+  "review_status": "machine inventory with initial classification; manual contract verification required",
+  "summary": {
+    "flask_routes": 314,
+    "graphql_operations": 0,
+    "electron_ipc": 16,
+    "websocket_sse": 11,
+    "preload_exports": 1,
+    "mcp_methods": 8,
+    "local_file_entries": 42,
+    "external_domains": 32
+  },
+  "flask_routes": [
+    {
+      "file": "app.py",
+      "line": 984,
+      "function": "csp_report",
+      "path": "/api/v1/csp-report",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1135,
+      "function": "live",
+      "path": "/live",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1147,
+      "function": "ready",
+      "path": "/ready",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1154,
+      "function": "health",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1180,
+      "function": "health_cache",
+      "path": "/health/cache",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1189,
+      "function": "metrics",
+      "path": "/metrics",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1199,
+      "function": "api_docs",
+      "path": "/api-docs",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1203,
+      "function": "about",
+      "path": "/about",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1207,
+      "function": "contact",
+      "path": "/contact",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1211,
+      "function": "terms",
+      "path": "/terms",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "app.py",
+      "line": 1215,
+      "function": "privacy",
+      "path": "/privacy",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\chat.py",
+      "line": 31,
+      "function": "get_chats",
+      "path": "/chats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\chat.py",
+      "line": 39,
+      "function": "create_chat",
+      "path": "/chats",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\chat.py",
+      "line": 56,
+      "function": "get_chat",
+      "path": "/chats/<int:chat_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\chat.py",
+      "line": 73,
+      "function": "add_message",
+      "path": "/chats/<int:chat_id>/messages",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\chat.py",
+      "line": 227,
+      "function": "search_chat_history",
+      "path": "/chats/<int:chat_id>/search",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\contextual_api.py",
+      "line": 22,
+      "function": "get_all_experts",
+      "path": "/experts",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\contextual_api.py",
+      "line": 38,
+      "function": "get_expert",
+      "path": "/experts/<expert_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\contextual_api.py",
+      "line": 60,
+      "function": "get_expertise_model",
+      "path": "/expertise-model/<expert_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\contextual_api.py",
+      "line": 76,
+      "function": "get_experts_by_sector",
+      "path": "/by-sector/<sector_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\contextual_api.py",
+      "line": 92,
+      "function": "get_branch_structure",
+      "path": "/branch-structure",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\graphql_schema.py",
+      "line": 301,
+      "function": "handle_graphql",
+      "path": "/graphql",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\honeycomb_api.py",
+      "line": 23,
+      "function": "generate_honeycomb",
+      "path": "/api/honeycomb/generate",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\honeycomb_api.py",
+      "line": 60,
+      "function": "generate_sector_crosswalk",
+      "path": "/api/honeycomb/sector-crosswalk",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\honeycomb_api.py",
+      "line": 96,
+      "function": "find_crosswalk_paths",
+      "path": "/api/honeycomb/find-paths",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\honeycomb_api.py",
+      "line": 134,
+      "function": "create_connection",
+      "path": "/api/honeycomb/connect",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 14,
+      "function": "get_methods",
+      "path": "/api/methods",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 56,
+      "function": "get_method",
+      "path": "/api/methods/<node_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 99,
+      "function": "find_cross_sector_methods",
+      "path": "/api/methods/cross-sector",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 141,
+      "function": "find_cross_pillar_methods",
+      "path": "/api/methods/cross-pillar",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 183,
+      "function": "create_method",
+      "path": "/api/methods",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\methods_api.py",
+      "line": 232,
+      "function": "create_hierarchy",
+      "path": "/api/methods/hierarchy",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\persona_api.py",
+      "line": 33,
+      "function": "process_query",
+      "path": "/query",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\persona_api.py",
+      "line": 78,
+      "function": "direct_query",
+      "path": "/direct-query",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\persona_api.py",
+      "line": 123,
+      "function": "get_personas",
+      "path": "/personas",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\persona_api.py",
+      "line": 167,
+      "function": "get_axis_map",
+      "path": "/axis-map",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 19,
+      "function": "get_all_pillars",
+      "path": "/",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 35,
+      "function": "get_pillar",
+      "path": "/<pillar_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 51,
+      "function": "create_pillar",
+      "path": "/",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 68,
+      "function": "get_sublevels",
+      "path": "/<pillar_id>/sublevels",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 85,
+      "function": "add_sublevel",
+      "path": "/<pillar_id>/sublevels",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 116,
+      "function": "get_sublevel",
+      "path": "/<pillar_id>/sublevels/<sublevel_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 132,
+      "function": "get_mappings",
+      "path": "/mappings",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 151,
+      "function": "create_mapping",
+      "path": "/mappings",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 188,
+      "function": "expand_pillar",
+      "path": "/<pillar_id>/expand",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 207,
+      "function": "analyze_text",
+      "path": "/analyze-text",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\pillar_api.py",
+      "line": 229,
+      "function": "export_pillars",
+      "path": "/export",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 14,
+      "function": "get_frameworks",
+      "path": "/frameworks",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 59,
+      "function": "create_framework",
+      "path": "/frameworks",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 118,
+      "function": "create_requirement",
+      "path": "/requirements",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 161,
+      "function": "get_octopus_structure",
+      "path": "/octopus/<framework_uid>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 195,
+      "function": "create_crosswalk",
+      "path": "/crosswalk",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 247,
+      "function": "map_jurisdiction",
+      "path": "/jurisdiction",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 292,
+      "function": "create_compliance_link",
+      "path": "/compliance_link",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\regulatory_api.py",
+      "line": 344,
+      "function": "get_standards",
+      "path": "/standards",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\rest_api.py",
+      "line": 43,
+      "function": "get_graph_stats",
+      "path": "/graph/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\rest_api.py",
+      "line": 66,
+      "function": "process_query",
+      "path": "/query",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 28,
+      "function": "health_check",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 38,
+      "function": "security_status",
+      "path": "/status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 50,
+      "function": "compliance_status",
+      "path": "/compliance/status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 62,
+      "function": "compliance_events",
+      "path": "/compliance/events",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 105,
+      "function": "generate_compliance_report",
+      "path": "/compliance/report",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 139,
+      "function": "audit_events",
+      "path": "/audit/events",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 188,
+      "function": "run_security_scan",
+      "path": "/scan",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\security_api.py",
+      "line": 223,
+      "function": "verify_audit_log",
+      "path": "/audit/verify",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 16,
+      "function": "get_time_contexts",
+      "path": "/api/time",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 79,
+      "function": "get_time_context",
+      "path": "/api/time/<uid>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 119,
+      "function": "create_time_context",
+      "path": "/api/time",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 171,
+      "function": "update_time_context",
+      "path": "/api/time/<uid>",
+      "methods": [
+        "PUT"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 239,
+      "function": "delete_time_context",
+      "path": "/api/time/<uid>",
+      "methods": [
+        "DELETE"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 276,
+      "function": "get_career_timeline",
+      "path": "/api/time/career/<persona_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 309,
+      "function": "get_project_timeline",
+      "path": "/api/time/project/<project_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\time_api.py",
+      "line": 355,
+      "function": "get_historical_periods",
+      "path": "/api/time/historical",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 30,
+      "function": "get_pillars",
+      "path": "/pillars",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 39,
+      "function": "get_pillar",
+      "path": "/pillars/<pillar_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 47,
+      "function": "create_pillar",
+      "path": "/pillars",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 75,
+      "function": "get_sectors",
+      "path": "/sectors",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 84,
+      "function": "get_sector",
+      "path": "/sectors/<sector_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 92,
+      "function": "create_sector",
+      "path": "/sectors",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 120,
+      "function": "get_domains",
+      "path": "/domains",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 129,
+      "function": "get_domain",
+      "path": "/domains/<domain_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 137,
+      "function": "create_domain",
+      "path": "/domains",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 162,
+      "function": "get_knowledge_nodes",
+      "path": "/knowledge",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 170,
+      "function": "get_knowledge_node",
+      "path": "/knowledge/<node_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 178,
+      "function": "create_knowledge_node",
+      "path": "/knowledge",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 205,
+      "function": "get_nodes",
+      "path": "/nodes",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 213,
+      "function": "get_node",
+      "path": "/nodes/<node_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 221,
+      "function": "create_node",
+      "path": "/nodes",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 242,
+      "function": "get_edges",
+      "path": "/edges",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 250,
+      "function": "get_edge",
+      "path": "/edges/<edge_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 258,
+      "function": "create_edge",
+      "path": "/edges",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 290,
+      "function": "seed_pillar_levels",
+      "path": "/seed/pillars",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 386,
+      "function": "seed_sectors",
+      "path": "/seed/sectors",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\ukg_api.py",
+      "line": 447,
+      "function": "seed_domains",
+      "path": "/seed/domains",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 20,
+      "function": "get_status",
+      "path": "/api/unified/status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 35,
+      "function": "register_node",
+      "path": "/api/unified/register_node",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 69,
+      "function": "get_by_nuremberg",
+      "path": "/api/unified/nuremberg/<code>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 100,
+      "function": "get_by_samgov",
+      "path": "/api/unified/samgov/<name>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 131,
+      "function": "find_by_coordinates",
+      "path": "/api/unified/coordinates",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "line": 177,
+      "function": "locate_in_memory",
+      "path": "/api/unified/memory_locate",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 288,
+      "function": "gateway_chat",
+      "path": "/chat",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_key_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 418,
+      "function": "get_offline_queue",
+      "path": "/offline-queue",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 425,
+      "function": "add_offline_queue_item",
+      "path": "/offline-queue",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 441,
+      "function": "replay_offline_queue",
+      "path": "/offline-queue/replay",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 495,
+      "function": "gateway_chat_stream",
+      "path": "/chat/stream",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_key_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 583,
+      "function": "list_active_providers",
+      "path": "/providers",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_key_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 613,
+      "function": "save_provider_key",
+      "path": "/keys",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@gateway_bp.route('/keys', methods=['POST'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 669,
+      "function": "gateway_health",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 682,
+      "function": "network_status",
+      "path": "/network-status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 691,
+      "function": "quad_analysis_status",
+      "path": "/quad-analysis-status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 698,
+      "function": "dmrf_status",
+      "path": "/dmrf-status",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 711,
+      "function": "dsqp_persona_profiles",
+      "path": "/dsqp-persona-profiles",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 754,
+      "function": "get_session_messages",
+      "path": "/sessions/<session_id>/messages",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_key_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 786,
+      "function": "list_user_sessions",
+      "path": "/sessions",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_key_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 811,
+      "function": "list_providers",
+      "path": "/providers",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/providers', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 821,
+      "function": "create_provider",
+      "path": "/providers",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/providers', methods=['POST'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 865,
+      "function": "get_provider",
+      "path": "/providers/<provider_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/providers/<provider_id>', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 876,
+      "function": "update_provider",
+      "path": "/providers/<provider_id>",
+      "methods": [
+        "PATCH"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/providers/<provider_id>', methods=['PATCH'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 925,
+      "function": "delete_provider",
+      "path": "/providers/<provider_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/providers/<provider_id>', methods=['DELETE'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 938,
+      "function": "test_provider",
+      "path": "/providers/<provider_id>/test",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1048,
+      "function": "list_prompt_templates",
+      "path": "/prompt-templates",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1059,
+      "function": "create_prompt_template",
+      "path": "/prompt-templates",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates', methods=['POST'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1090,
+      "function": "update_prompt_template",
+      "path": "/prompt-templates/<string:template_id>",
+      "methods": [
+        "PATCH"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates/<string:template_id>', methods=['PATCH'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1113,
+      "function": "approve_prompt_template",
+      "path": "/prompt-templates/<string:template_id>/approve",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates/<string:template_id>/approve', methods=['POST'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1130,
+      "function": "reject_prompt_template",
+      "path": "/prompt-templates/<string:template_id>/reject",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates/<string:template_id>/reject', methods=['POST'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1146,
+      "function": "delete_prompt_template",
+      "path": "/prompt-templates/<string:template_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/prompt-templates/<string:template_id>', methods=['DELETE'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1159,
+      "function": "list_routing_policies",
+      "path": "/routing-policies",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/routing-policies', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1173,
+      "function": "create_routing_policy",
+      "path": "/routing-policies",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/routing-policies', methods=['POST'])",
+        "@admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1202,
+      "function": "list_ai_audit_events",
+      "path": "/ai-audit",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/ai-audit', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1218,
+      "function": "list_api_keys",
+      "path": "/api-keys",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/api-keys', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1235,
+      "function": "create_api_key",
+      "path": "/api-keys",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/api-keys', methods=['POST'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1277,
+      "function": "revoke_api_key",
+      "path": "/api-keys/<key_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/api-keys/<key_id>', methods=['DELETE'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 1300,
+      "function": "get_usage",
+      "path": "/usage",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/usage', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\middleware\\timeout.py",
+      "line": 98,
+      "function": "slow_endpoint",
+      "path": "/slow-endpoint",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\routes\\admin_routes.py",
+      "line": 57,
+      "function": "clear_cache",
+      "path": "/cache/clear",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/cache/clear', methods=['POST'])",
+        "@api_session_login_required"
+      ],
+      "classification": "administration",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\admin_routes.py",
+      "line": 103,
+      "function": "admin_health_check",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@admin_bp.route('/health', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "administration",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\analytics_routes.py",
+      "line": 7,
+      "function": "get_overview",
+      "path": "/overview",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\analytics_routes.py",
+      "line": 24,
+      "function": "get_activity",
+      "path": "/activity",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\analytics_routes.py",
+      "line": 38,
+      "function": "get_trends",
+      "path": "/trends",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\analytics_routes.py",
+      "line": 49,
+      "function": "get_mcp_stats",
+      "path": "/mcp",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\api_routes.py",
+      "line": 51,
+      "function": "api_health",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\routes\\api_routes.py",
+      "line": 72,
+      "function": "api_graph",
+      "path": "/graph",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\api_routes.py",
+      "line": 221,
+      "function": "api_query",
+      "path": "/query",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\api_routes.py",
+      "line": 317,
+      "function": "api_run_simulation",
+      "path": "/simulation/run",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\auth_routes.py",
+      "line": 69,
+      "function": "check_auth",
+      "path": "/check",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@auth_bp.route('/check', methods=['GET'])"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\auth_routes.py",
+      "line": 85,
+      "function": "csrf_token",
+      "path": "/csrf-token",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@auth_bp.route('/csrf-token', methods=['GET'])"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\auth_routes.py",
+      "line": 103,
+      "function": "desktop_auth_challenge",
+      "path": "/desktop/challenge",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@auth_bp.route('/desktop/challenge', methods=['POST'])"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\auth_routes.py",
+      "line": 117,
+      "function": "desktop_auto_login",
+      "path": "/desktop/auto-login",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@auth_bp.route('/desktop/auto-login', methods=['POST'])"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 40,
+      "function": "get_compliance_standards",
+      "path": "/standards",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 63,
+      "function": "create_compliance_standard",
+      "path": "/standards",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 99,
+      "function": "get_compliance_standard",
+      "path": "/standards/<standard_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 169,
+      "function": "get_sector_compliance",
+      "path": "/sector/<sector_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 192,
+      "function": "map_regulatory_to_compliance",
+      "path": "/map-regulatory",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 232,
+      "function": "export_audit_logs_route",
+      "path": "/audit/export",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\compliance_routes.py",
+      "line": 270,
+      "function": "export_compliance_report",
+      "path": "/report/pdf",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\feature_flag_routes.py",
+      "line": 39,
+      "function": "get_feature_flags",
+      "path": "/api/v1/feature-flags",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "client-gateway",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\feature_flag_routes.py",
+      "line": 62,
+      "function": "update_feature_flag",
+      "path": "/api/v1/admin/feature-flags/<string:flag_key>",
+      "methods": [
+        "PATCH"
+      ],
+      "auth_decorators": [
+        "@feature_flag_bp.route('/api/v1/admin/feature-flags/<string:flag_key>', methods=['PATCH'])",
+        "@api_session_login_required",
+        "@_admin_required"
+      ],
+      "classification": "client-gateway",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\feature_flag_routes.py",
+      "line": 109,
+      "function": "get_feature_flag_audit",
+      "path": "/api/v1/admin/feature-flags/audit",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@feature_flag_bp.route('/api/v1/admin/feature-flags/audit', methods=['GET'])",
+        "@api_session_login_required",
+        "@_admin_required"
+      ],
+      "classification": "client-gateway",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\gdpr_routes.py",
+      "line": 25,
+      "function": "export_user_data",
+      "path": "/export",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\gdpr_routes.py",
+      "line": 107,
+      "function": "request_data_deletion",
+      "path": "/delete",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\gdpr_routes.py",
+      "line": 154,
+      "function": "get_consent_status",
+      "path": "/consent",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\gdpr_routes.py",
+      "line": 184,
+      "function": "update_consent",
+      "path": "/consent",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\gdpr_routes.py",
+      "line": 215,
+      "function": "submit_access_request",
+      "path": "/access-request",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 45,
+      "function": "get_supported_ingestion_types",
+      "path": "/supported",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 63,
+      "function": "list_ingestion_history",
+      "path": "/history",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 85,
+      "function": "ingest_local_path",
+      "path": "/local",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 114,
+      "function": "ingest_local_path_async",
+      "path": "/local/async",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 145,
+      "function": "get_ingestion_status",
+      "path": "/status/<ingestion_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 192,
+      "function": "get_execution_history",
+      "path": "/history",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 272,
+      "function": "list_algorithms",
+      "path": "/algorithms",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 335,
+      "function": "get_algorithm",
+      "path": "/algorithms/<ka_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 354,
+      "function": "execute_algorithm",
+      "path": "/algorithms/<ka_id>/execute",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 389,
+      "function": "list_categories",
+      "path": "/categories",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 424,
+      "function": "execute_high_stakes_workflow",
+      "path": "/workflow/high-stakes",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 464,
+      "function": "get_workflow_trace",
+      "path": "/trace/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 487,
+      "function": "list_layers",
+      "path": "/layers",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 529,
+      "function": "batch_execute",
+      "path": "/batch",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 604,
+      "function": "search_algorithms",
+      "path": "/search",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 632,
+      "function": "get_dependencies",
+      "path": "/dependencies/<ka_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 685,
+      "function": "get_stats",
+      "path": "/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\ka_routes.py",
+      "line": 730,
+      "function": "health_check",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 32,
+      "function": "get_pillar_levels",
+      "path": "/pillar-levels",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 39,
+      "function": "get_pillar_level",
+      "path": "/pillar-levels/<pillar_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 48,
+      "function": "create_pillar_level",
+      "path": "/pillar-levels",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 79,
+      "function": "get_sectors",
+      "path": "/sectors",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 85,
+      "function": "get_sector",
+      "path": "/sectors/<sector_code>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 93,
+      "function": "create_sector",
+      "path": "/sectors",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 123,
+      "function": "get_domains",
+      "path": "/domains",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 129,
+      "function": "get_domain",
+      "path": "/domains/<domain_code>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 137,
+      "function": "create_domain",
+      "path": "/domains",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 168,
+      "function": "get_knowledge_nodes",
+      "path": "/knowledge-nodes",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 174,
+      "function": "get_knowledge_node",
+      "path": "/knowledge-nodes/<uid>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\knowledge_routes.py",
+      "line": 182,
+      "function": "create_knowledge_node",
+      "path": "/knowledge-nodes",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 29,
+      "function": "get_locations",
+      "path": "",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 93,
+      "function": "get_location",
+      "path": "/<uid>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 134,
+      "function": "create_location",
+      "path": "",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 175,
+      "function": "update_location",
+      "path": "/<uid>",
+      "methods": [
+        "PUT"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 226,
+      "function": "get_location_hierarchy",
+      "path": "/hierarchy",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\location_routes.py",
+      "line": 284,
+      "function": "find_nearest_locations",
+      "path": "/nearest",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 141,
+      "function": "mcp_rpc",
+      "path": "/rpc",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 154,
+      "function": "mcp_subscription_stream",
+      "path": "/subscriptions/stream/<client_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 173,
+      "function": "list_servers",
+      "path": "/servers",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 198,
+      "function": "create_server",
+      "path": "/servers",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 253,
+      "function": "get_server",
+      "path": "/servers/<server_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 284,
+      "function": "delete_server",
+      "path": "/servers/<server_id>",
+      "methods": [
+        "DELETE"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 320,
+      "function": "list_resources",
+      "path": "/servers/<server_id>/resources",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 347,
+      "function": "read_resource",
+      "path": "/servers/<server_id>/resources/<int:resource_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 393,
+      "function": "list_tools",
+      "path": "/servers/<server_id>/tools",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 420,
+      "function": "call_tool",
+      "path": "/servers/<server_id>/tools/<int:tool_id>/call",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 520,
+      "function": "list_prompts",
+      "path": "/servers/<server_id>/prompts",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 547,
+      "function": "get_prompt",
+      "path": "/servers/<server_id>/prompts/<int:prompt_id>/get",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 600,
+      "function": "list_clients",
+      "path": "/clients",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 619,
+      "function": "create_client",
+      "path": "/clients",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 642,
+      "function": "connect_client",
+      "path": "/clients/<client_id>/connect/<server_id>",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 662,
+      "function": "get_stats",
+      "path": "/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 694,
+      "function": "setup_default_servers",
+      "path": "/setup-default",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 727,
+      "function": "mcp_console",
+      "path": "/console",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 759,
+      "function": "get_external_config",
+      "path": "/config",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 776,
+      "function": "update_external_config",
+      "path": "/config",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 806,
+      "function": "start_dynamic_server",
+      "path": "/servers/<name>/start",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 839,
+      "function": "stop_dynamic_server",
+      "path": "/servers/<name>/stop",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\multimodal_routes.py",
+      "line": 112,
+      "function": "transcribe_audio",
+      "path": "/audio/transcribe",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\multimodal_routes.py",
+      "line": 126,
+      "function": "synthesize_speech",
+      "path": "/audio/synthesize",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\multimodal_routes.py",
+      "line": 146,
+      "function": "analyze_video",
+      "path": "/video/analyze",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\multimodal_routes.py",
+      "line": 160,
+      "function": "process_document",
+      "path": "/document/process",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\notification_routes.py",
+      "line": 47,
+      "function": "get_notification_prefs",
+      "path": "",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\notification_routes.py",
+      "line": 64,
+      "function": "save_notification_prefs",
+      "path": "",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\privacy_routes.py",
+      "line": 11,
+      "function": "purge_user_data",
+      "path": "/purge-request",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\privacy_routes.py",
+      "line": 57,
+      "function": "cleanup_tenant_data",
+      "path": "/tenant-cleanup",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\retention_routes.py",
+      "line": 18,
+      "function": "list_policies",
+      "path": "/policies",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\retention_routes.py",
+      "line": 46,
+      "function": "get_policy",
+      "path": "/policies/<category>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\retention_routes.py",
+      "line": 93,
+      "function": "update_policy",
+      "path": "/policies/<category>",
+      "methods": [
+        "PUT"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\retention_routes.py",
+      "line": 160,
+      "function": "run_cleanup",
+      "path": "/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\retention_routes.py",
+      "line": 190,
+      "function": "health_check",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_admin_required"
+      ],
+      "classification": "internal-service",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\search_routes.py",
+      "line": 41,
+      "function": "search_nodes",
+      "path": "/nodes",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\search_routes.py",
+      "line": 91,
+      "function": "search_ukg",
+      "path": "/ukg",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\search_routes.py",
+      "line": 121,
+      "function": "search_ka",
+      "path": "/algorithms",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\search_routes.py",
+      "line": 149,
+      "function": "search_global",
+      "path": "/global",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\search_routes.py",
+      "line": 177,
+      "function": "search_suggest",
+      "path": "/suggest",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\settings_routes.py",
+      "line": 30,
+      "function": "get_ai_settings",
+      "path": "/ai",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\settings_routes.py",
+      "line": 42,
+      "function": "update_ai_settings",
+      "path": "/ai",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 72,
+      "function": "get_simulations",
+      "path": "/simulations",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 82,
+      "function": "get_simulation",
+      "path": "/simulations/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 90,
+      "function": "create_simulation",
+      "path": "/simulations",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 127,
+      "function": "run_simulation_step",
+      "path": "/simulations/<session_id>/step",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 128,
+      "function": "run_simulation_step",
+      "path": "/simulations/<session_id>/run",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\simulation_routes.py",
+      "line": 182,
+      "function": "stop_simulation",
+      "path": "/simulations/<session_id>/stop",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 188,
+      "function": "get_storage_health",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "internal-service",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 210,
+      "function": "check_service_health",
+      "path": "/health/<service>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "internal-service",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 243,
+      "function": "get_desktop_metrics",
+      "path": "/desktop-metrics",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@storage_api.route('/desktop-metrics', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 260,
+      "function": "run_desktop_backup",
+      "path": "/backup",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 280,
+      "function": "get_desktop_flags",
+      "path": "/desktop-flags",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@storage_api.route('/desktop-flags', methods=['GET'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 301,
+      "function": "set_desktop_flags",
+      "path": "/desktop-flags",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@storage_api.route('/desktop-flags', methods=['POST'])",
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 324,
+      "function": "test_connection",
+      "path": "/test-connection",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 590,
+      "function": "start_databases",
+      "path": "/databases/start",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 612,
+      "function": "get_database_autostart",
+      "path": "/databases/autostart",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 631,
+      "function": "set_database_autostart",
+      "path": "/databases/autostart",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 661,
+      "function": "get_cloud_config",
+      "path": "/cloud-config",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 677,
+      "function": "save_cloud_config",
+      "path": "/cloud-config",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 704,
+      "function": "stop_databases",
+      "path": "/databases/stop",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\user_data_routes.py",
+      "line": 37,
+      "function": "export_user_data",
+      "path": "/export",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\user_data_routes.py",
+      "line": 118,
+      "function": "delete_user_profile",
+      "path": "/delete",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\routes\\user_data_routes.py",
+      "line": 245,
+      "function": "get_user_data_summary",
+      "path": "/summary",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 292,
+      "function": "get_live_progress",
+      "path": "/live-progress",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "internal-service",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 310,
+      "function": "get_ka_execution_feed",
+      "path": "/ka-execution-feed",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 332,
+      "function": "list_runs",
+      "path": "/runs",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 377,
+      "function": "get_run",
+      "path": "/runs/<run_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 390,
+      "function": "get_run_bundle",
+      "path": "/runs/<run_id>/bundle",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 416,
+      "function": "get_run_stages",
+      "path": "/runs/<run_id>/stages",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 434,
+      "function": "get_run_evidence",
+      "path": "/runs/<run_id>/evidence",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 453,
+      "function": "get_run_claims",
+      "path": "/runs/<run_id>/claims",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 469,
+      "function": "get_run_axes",
+      "path": "/runs/<run_id>/axes",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 485,
+      "function": "get_run_personas",
+      "path": "/runs/<run_id>/personas",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 501,
+      "function": "get_run_kas",
+      "path": "/runs/<run_id>/kas",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 517,
+      "function": "get_run_policy",
+      "path": "/runs/<run_id>/policy",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 536,
+      "function": "get_run_memory",
+      "path": "/runs/<run_id>/memory",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 555,
+      "function": "get_run_metrics",
+      "path": "/runs/<run_id>/metrics",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 587,
+      "function": "export_run",
+      "path": "/runs/<run_id>/export",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 665,
+      "function": "replay_run",
+      "path": "/runs/<run_id>/replay",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 695,
+      "function": "get_artifact",
+      "path": "/runs/<run_id>/artifacts/<artifact_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 716,
+      "function": "list_sessions",
+      "path": "/sessions",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 736,
+      "function": "create_session",
+      "path": "/sessions",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 756,
+      "function": "get_session",
+      "path": "/sessions/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 769,
+      "function": "update_session",
+      "path": "/sessions/<session_id>",
+      "methods": [
+        "PATCH"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 795,
+      "function": "get_run_spans",
+      "path": "/runs/<run_id>/spans",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 814,
+      "function": "get_run_logs",
+      "path": "/runs/<run_id>/logs",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 844,
+      "function": "list_exports",
+      "path": "/exports",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 861,
+      "function": "get_export",
+      "path": "/exports/<export_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 874,
+      "function": "download_export",
+      "path": "/exports/<export_id>/download",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 903,
+      "function": "get_claim_evidence",
+      "path": "/runs/<run_id>/claims/<claim_id>/evidence",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 932,
+      "function": "get_run_compliance",
+      "path": "/runs/<run_id>/compliance",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\tracing\\api.py",
+      "line": 964,
+      "function": "add_compliance_mapping",
+      "path": "/runs/<run_id>/compliance",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [
+        "@api_session_login_required"
+      ],
+      "classification": "desktop-only",
+      "authorization_boundary": "decorator-present"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 188,
+      "function": "health",
+      "path": "/health",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "internal-service",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 203,
+      "function": "create_session",
+      "path": "/core/session",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 245,
+      "function": "process_session",
+      "path": "/core/session/<session_id>/process",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 270,
+      "function": "get_session",
+      "path": "/core/session/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 280,
+      "function": "get_tiers",
+      "path": "/core/tiers",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 288,
+      "function": "evaluate_request",
+      "path": "/gate/evaluate",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 297,
+      "function": "gate_stats",
+      "path": "/gate/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 304,
+      "function": "get_budget",
+      "path": "/gate/budget/<tenant_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 316,
+      "function": "reset_budget",
+      "path": "/gate/budget/<tenant_id>/reset",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 330,
+      "function": "get_memory_session",
+      "path": "/memory/session/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 340,
+      "function": "get_artifacts",
+      "path": "/memory/artifacts/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 349,
+      "function": "store_artifact",
+      "path": "/memory/artifacts/<session_id>",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 366,
+      "function": "explain_session",
+      "path": "/memory/explain/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 374,
+      "function": "memory_stats",
+      "path": "/memory/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 381,
+      "function": "get_metrics",
+      "path": "/memory/metrics/<metric_name>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 396,
+      "function": "publish_message",
+      "path": "/link/publish",
+      "methods": [
+        "POST"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 424,
+      "function": "link_stats",
+      "path": "/link/stats",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 431,
+      "function": "pending_messages",
+      "path": "/link/pending",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 440,
+      "function": "dead_letter_queue",
+      "path": "/link/dead-letter",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 448,
+      "function": "stream_events",
+      "path": "/link/stream/<client_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 473,
+      "function": "compliance_report",
+      "path": "/compliance/report",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "file": "backend\\truth_engine\\api.py",
+      "line": 486,
+      "function": "audit_trail",
+      "path": "/compliance/audit/<session_id>",
+      "methods": [
+        "GET"
+      ],
+      "auth_decorators": [],
+      "classification": "desktop-only",
+      "authorization_boundary": "review-required"
+    }
+  ],
+  "graphql_operations": [],
+  "electron_ipc": [
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 835,
+      "value": "ping",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 840,
+      "value": "get-backend-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 845,
+      "value": "get-db-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 876,
+      "value": "quad-analysis-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 899,
+      "value": "dmrf-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 926,
+      "value": "dsqp-persona-profiles",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 951,
+      "value": "network-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 976,
+      "value": "local-model-status",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 993,
+      "value": "reasoning-layer-progress",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1030,
+      "value": "ka-execution-feed",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1047,
+      "value": "get-desktop-storage-metrics",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1058,
+      "value": "choose-backup-folder",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1070,
+      "value": "run-database-backup",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1091,
+      "value": "get-update-state",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1096,
+      "value": "check-for-updates",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    },
+    {
+      "kind": "electron-ipc",
+      "file": "frontend\\electron\\main.ts",
+      "line": 1112,
+      "value": "download-update",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload-ipc"
+    }
+  ],
+  "websocket_sse": [
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 49,
+      "value": "connect",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 56,
+      "value": "disconnect",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 63,
+      "value": "join",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 73,
+      "value": "leave",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 82,
+      "value": "join_run_room",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 93,
+      "value": "leave_run_room",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 104,
+      "value": "subscribe_simulation",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\websocket.py",
+      "line": 154,
+      "value": "chat_message",
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\llm_gateway\\api.py",
+      "line": 575,
+      "value": null,
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 162,
+      "value": null,
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "websocket-sse",
+      "file": "backend\\truth_engine\\api.py",
+      "line": 464,
+      "value": null,
+      "classification": "client-gateway",
+      "authorization_boundary": "review-required"
+    }
+  ],
+  "preload_exports": [
+    {
+      "kind": "preload-export",
+      "file": "frontend\\electron\\preload.ts",
+      "line": 63,
+      "value": "electronAPI",
+      "classification": "desktop-only",
+      "authorization_boundary": "electron-preload"
+    }
+  ],
+  "mcp_methods": [
+    {
+      "kind": "mcp-method",
+      "file": "backend\\mcp_server\\router.py",
+      "line": 71,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "backend\\mcp_server\\router.py",
+      "line": 78,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 29,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 30,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 35,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 36,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 39,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    },
+    {
+      "kind": "mcp-method",
+      "file": "core\\mcp\\mcp_protocol.py",
+      "line": 40,
+      "value": null,
+      "classification": "administration",
+      "authorization_boundary": "review-required"
+    }
+  ],
+  "local_file_entries": [
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\desktop\\offline_queue.py",
+      "line": 20,
+      "value": "offline_queue.json",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\dmrf\\desktop_config.py",
+      "line": 27,
+      "value": "APPDATA",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\dmrf\\mlflow_tracker.py",
+      "line": 23,
+      "value": "APPDATA",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\dmrf\\mlflow_tracker.py",
+      "line": 60,
+      "value": "dmrf_runs.jsonl",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\dsqp\\dsqp_registry.py",
+      "line": 14,
+      "value": "templates",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\ingestion\\local_ingestion.py",
+      "line": 330,
+      "value": "ingestion",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\knowledge_algorithms\\ka_109_system_health.py",
+      "line": 91,
+      "value": "ka_registry.yaml",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\llm_gateway\\active_model.py",
+      "line": 31,
+      "value": "sdk",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\llm_gateway\\gateway.py",
+      "line": 27,
+      "value": "sdk",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\memory\\unified_memory_service.py",
+      "line": 26,
+      "value": "databases/memory/memory_graph.json",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\routes\\ingestion_routes.py",
+      "line": 28,
+      "value": "DATALOGIC_INGESTION_ROOT",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\routes\\mcp_routes.py",
+      "line": 786,
+      "value": "config",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 41,
+      "value": ":///",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\routes\\storage_routes.py",
+      "line": 140,
+      "value": "backups",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\security\\defense_supervisor.py",
+      "line": 35,
+      "value": "prompts",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\security\\desktop_local_auth.py",
+      "line": 50,
+      "value": "DESKTOP_INSTALL_SECRET_FILE",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\security\\secret_resolver.py",
+      "line": 37,
+      "value": "utf-8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\security\\secret_resolver.py",
+      "line": 49,
+      "value": "utf-8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\storage\\vector_store.py",
+      "line": 119,
+      "value": "chroma.sqlite3",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\truth_engine\\truth_gate\\opa_policy.py",
+      "line": 17,
+      "value": "DLE_TRUTHGATE_POLICY",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\truth_engine\\truth_memory\\mlflow_tracker.py",
+      "line": 23,
+      "value": "APPDATA",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\truth_engine\\truth_memory\\mlflow_tracker.py",
+      "line": 57,
+      "value": "truthmemory_sessions.jsonl",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "backend\\truth_engine\\truth_memory\\retention_router.py",
+      "line": 21,
+      "value": "databases/archive/truth_memory",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 63,
+      "value": "userData",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 67,
+      "value": "userData",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 71,
+      "value": "userData",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 75,
+      "value": "userData",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 124,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 149,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 157,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 167,
+      "value": "hex",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 185,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 688,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 709,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\electron\\main.ts",
+      "line": 722,
+      "value": "utf8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "frontend\\lib\\api\\trace.ts",
+      "line": 43,
+      "value": "POST",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\coordinates17.py",
+      "line": 223,
+      "value": "utf-8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\coordinates17.py",
+      "line": 229,
+      "value": "utf-8",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\dsqp.py",
+      "line": 167,
+      "value": "data",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\dsqp.py",
+      "line": 168,
+      "value": "data",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\overlay.py",
+      "line": 54,
+      "value": "data",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    },
+    {
+      "kind": "local-file-entry",
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\registry.py",
+      "line": 43,
+      "value": "ka_registry_by_id.json",
+      "classification": "desktop-only",
+      "authorization_boundary": "file-capability-review-required"
+    }
+  ],
+  "external_network_domains": [
+    {
+      "domain": "*.openai.azure.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://*.openai.azure.com",
+          "file": "backend\\security\\security_headers.py",
+          "line": 102
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:${visual_port}",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:${VISUAL_PORT}",
+          "file": "frontend\\playwright-visual.config.ts",
+          "line": 4
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:*",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:*",
+          "file": "frontend\\proxy.ts",
+          "line": 37
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:11434",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:11434/api/tags",
+          "file": "frontend\\electron\\main.ts",
+          "line": 979
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:3000",
+      "matches": 6,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:3000",
+          "file": "app.py",
+          "line": 468
+        },
+        {
+          "value": "http://127.0.0.1:3000",
+          "file": "app.py",
+          "line": 490
+        },
+        {
+          "value": "http://127.0.0.1:3000",
+          "file": "backend\\websocket.py",
+          "line": 35
+        },
+        {
+          "value": "http://127.0.0.1:3000",
+          "file": "backend\\utils\\cors_policy.py",
+          "line": 13
+        },
+        {
+          "value": "http://127.0.0.1:3000",
+          "file": "frontend\\electron\\main.ts",
+          "line": 46
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:5000",
+      "matches": 13,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:5000",
+          "file": "app.py",
+          "line": 492
+        },
+        {
+          "value": "http://127.0.0.1:5000/api/:path*",
+          "file": "frontend\\next.config.ts",
+          "line": 45
+        },
+        {
+          "value": "http://127.0.0.1:5000/health",
+          "file": "frontend\\electron\\main.ts",
+          "line": 489
+        },
+        {
+          "value": "http://127.0.0.1:5000",
+          "file": "frontend\\electron\\main.ts",
+          "line": 608
+        },
+        {
+          "value": "http://127.0.0.1:5000/health",
+          "file": "frontend\\electron\\main.ts",
+          "line": 852
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "127.0.0.1:8545",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://127.0.0.1:8545",
+          "file": "backend\\truth_engine\\truth_link\\blockchain_adapter.py",
+          "line": 55
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "<resource>.openai.azure.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://<resource>.openai.azure.com",
+          "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\providers\\azure_openai.py",
+          "line": 21
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "api.anthropic.com",
+      "matches": 3,
+      "samples": [
+        {
+          "value": "https://api.anthropic.com",
+          "file": "frontend\\electron\\main.ts",
+          "line": 643
+        },
+        {
+          "value": "https://api.anthropic.com",
+          "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\providers\\anthropic.py",
+          "line": 21
+        },
+        {
+          "value": "https://api.anthropic.com",
+          "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\providers\\anthropic.py",
+          "line": 29
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "api.openai.com",
+      "matches": 2,
+      "samples": [
+        {
+          "value": "https://api.openai.com",
+          "file": "backend\\security\\security_headers.py",
+          "line": 102
+        },
+        {
+          "value": "https://api.openai.com",
+          "file": "frontend\\electron\\main.ts",
+          "line": 643
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "api.pwnedpasswords.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://api.pwnedpasswords.com/range/{prefix}",
+          "file": "backend\\security\\password_security.py",
+          "line": 100
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "cdn.jsdelivr.net",
+      "matches": 3,
+      "samples": [
+        {
+          "value": "https://cdn.jsdelivr.net",
+          "file": "backend\\security\\security_headers.py",
+          "line": 98
+        },
+        {
+          "value": "https://cdn.jsdelivr.net",
+          "file": "backend\\security\\security_headers.py",
+          "line": 99
+        },
+        {
+          "value": "https://cdn.jsdelivr.net",
+          "file": "backend\\security\\security_headers.py",
+          "line": 101
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "datalogicengine.local",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://datalogicengine.local/prov#",
+          "file": "backend\\truth_engine\\truth_memory\\provenance.py",
+          "line": 70
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "fonts.googleapis.com",
+      "matches": 2,
+      "samples": [
+        {
+          "value": "https://fonts.googleapis.com",
+          "file": "backend\\security\\security_headers.py",
+          "line": 99
+        },
+        {
+          "value": "https://fonts.googleapis.com",
+          "file": "frontend\\proxy.ts",
+          "line": 28
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "fonts.gstatic.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://fonts.gstatic.com",
+          "file": "backend\\security\\security_headers.py",
+          "line": 101
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "fonts.gstatic.com;",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://fonts.gstatic.com;",
+          "file": "frontend\\proxy.ts",
+          "line": 45
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "github.com",
+      "matches": 2,
+      "samples": [
+        {
+          "value": "https://github.com/shadcn.png",
+          "file": "frontend\\components\\ui\\avatar.test.tsx",
+          "line": 19
+        },
+        {
+          "value": "https://github.com/shadcn.png",
+          "file": "frontend\\stories\\Avatar.stories.tsx",
+          "line": 16
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "images.unsplash.com;",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://images.unsplash.com;",
+          "file": "frontend\\proxy.ts",
+          "line": 44
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://localhost/",
+          "file": "frontend\\app\\app-surfaces.test.tsx",
+          "line": 141
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost:*",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://localhost:*",
+          "file": "frontend\\proxy.ts",
+          "line": 37
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost:3000",
+      "matches": 10,
+      "samples": [
+        {
+          "value": "http://localhost:3000",
+          "file": "app.py",
+          "line": 468
+        },
+        {
+          "value": "http://localhost:3000",
+          "file": "app.py",
+          "line": 489
+        },
+        {
+          "value": "http://localhost:3000",
+          "file": "backend\\websocket.py",
+          "line": 35
+        },
+        {
+          "value": "http://localhost:3000",
+          "file": "backend\\utils\\cors_policy.py",
+          "line": 12
+        },
+        {
+          "value": "http://localhost:3000",
+          "file": "frontend\\playwright-electron.config.ts",
+          "line": 30
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost:3000,http:",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-",
+          "file": "frontend\\electron\\main.ts",
+          "line": 745
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost:5000",
+      "matches": 6,
+      "samples": [
+        {
+          "value": "http://localhost:5000",
+          "file": "app.py",
+          "line": 491
+        },
+        {
+          "value": "http://localhost:5000",
+          "file": "frontend\\electron\\main.ts",
+          "line": 607
+        },
+        {
+          "value": "http://localhost:5000",
+          "file": "frontend\\electron\\main.ts",
+          "line": 643
+        },
+        {
+          "value": "http://localhost:5000",
+          "file": "frontend\\lib\\socket.ts",
+          "line": 80
+        },
+        {
+          "value": "http://localhost:5000/api/v1",
+          "file": "frontend\\lib\\api\\client.ts",
+          "line": 42
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "localhost:8000",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://localhost:8000/api/v1/mcp",
+          "file": "frontend\\components\\mcp\\McpIntegrationExamples.tsx",
+          "line": 101
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "nextjs.org",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://nextjs.org/docs/app/api-reference/config/typescript",
+          "file": "frontend\\next-env.d.ts",
+          "line": 6
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "playwright.dev",
+      "matches": 3,
+      "samples": [
+        {
+          "value": "https://playwright.dev/docs/test-configuration",
+          "file": "frontend\\playwright-electron.config.ts",
+          "line": 4
+        },
+        {
+          "value": "https://playwright.dev/docs/api/class-testoptions.",
+          "file": "frontend\\playwright-electron.config.ts",
+          "line": 25
+        },
+        {
+          "value": "https://playwright.dev/docs/trace-viewer",
+          "file": "frontend\\playwright-electron.config.ts",
+          "line": 35
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "s3.amazonaws.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://s3.amazonaws.com",
+          "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+          "line": 685
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "storybook.js.org",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://storybook.js.org/docs/api/portable-stories/portable-stories-vitest#setprojectannotations",
+          "file": "frontend\\.storybook\\vitest.setup.ts",
+          "line": 6
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "unpkg.com",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "https://unpkg.com",
+          "file": "backend\\security\\security_headers.py",
+          "line": 98
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "www.w3.org",
+      "matches": 3,
+      "samples": [
+        {
+          "value": "http://www.w3.org/ns/prov#",
+          "file": "backend\\truth_engine\\truth_memory\\provenance.py",
+          "line": 69
+        },
+        {
+          "value": "http://www.w3.org/2000/svg",
+          "file": "frontend\\components\\Chat\\MessageBubble.tsx",
+          "line": 109
+        },
+        {
+          "value": "http://www.w3.org/2000/svg",
+          "file": "frontend\\components\\Chat\\MessageBubble.tsx",
+          "line": 113
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "{api_host}:5000",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://{api_host}:5000",
+          "file": "backend\\config_manager.py",
+          "line": 66
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    },
+    {
+      "domain": "{host}:{port}",
+      "matches": 1,
+      "samples": [
+        {
+          "value": "http://{host}:{port}",
+          "file": "backend\\config_manager.py",
+          "line": 164
+        }
+      ],
+      "classification": "external-network",
+      "authorization_boundary": "egress-allowlist-review-required"
+    }
+  ]
+}

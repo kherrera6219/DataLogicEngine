@@ -10,6 +10,11 @@
 | Owner | Audit Governance |
 | Review cadence | Reference-only; update only for archive/status clarification |
 
+> **Superseded execution plan:** Archived on 2026-07-12. This completed sprint
+> plan is historical evidence only. The sole active path forward is root
+> `PRODUCTION_COMPLETION_PLAN_2026.md`; current phase status belongs in root
+> `TODO.md` and `HANDOFF.md`.
+
 **Date:** June 7, 2026 | **Branch:** main | **Scope:** Live code scan — no assumptions from notes
 
 > **Sprint 1 COMPLETE** — 2026-06-07. 1830 passed, 21 skipped, 0 failures. ruff clean.

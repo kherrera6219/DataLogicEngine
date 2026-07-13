@@ -24,6 +24,7 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 |---|---|---|
 | `ADR-0001-engineering-governance-baseline.md` | Engineering governance baseline | Accepted / historical source |
 | `ADR-0002-pq-grpc-transport.md` | PQ/gRPC transport decision | Accepted / historical source |
+| `ADR-0003-internal-service-delivery.md` | App-owned pinned OCI containers through rootless Podman Machine/WSL2 | Accepted / Phase 0 CP0-B |
 
 ---
 

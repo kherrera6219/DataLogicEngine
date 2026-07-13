@@ -177,7 +177,8 @@ Install these before building:
 | Windows 11 | Primary desktop build target |
 | Python 3.11 | Backend environment and build scripts |
 | Node.js 24+ with npm | Frontend and Electron packaging |
-| Docker Desktop with Compose v2 | Local database/cache/graph/object services and container validation |
+| WSL2 with Podman Machine (production target) | Approved app-managed five-service container runtime; qualification remains open |
+| Docker Desktop with Compose v2 | Developer-only local integration and container validation |
 | Git | Optional if cloning instead of downloading the ZIP |
 | Internet access | Package restore, container pulls, and cloud model inference |
 
@@ -447,7 +448,8 @@ See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the full data archi
 | --- | --- | --- |
 | Python | 3.11+ | Backend runtime and tests |
 | Node.js | 24+ | Frontend and Electron tooling |
-| Docker | Current stable | Local full-stack development |
+| Podman Machine on WSL2 | Version qualification open | Approved production container runtime |
+| Docker | Current stable | Developer-only full-stack integration |
 | PostgreSQL | 15+ | Production relational store |
 | Redis | 7+ | Cache, rate limiting, async support |
 | Neo4j | 5+ | Knowledge graph storage |
@@ -699,10 +701,11 @@ curl -X POST http://localhost:5000/api/v1/ka/algorithms/KA-001/execute \
 
 ### Docker Compose
 
-Use Docker Compose for local integration testing and evaluation of the app-owned
-service set. Phase 0 must formally select app-managed pinned containers or
-supported native Windows sidecars before this becomes the production delivery
-mechanism:
+Use Docker Compose for developer integration testing and evaluation of the
+app-owned service set. Accepted ADR-0003 selects app-managed immutable OCI
+containers through rootless Podman Machine/WSL2 for production. Docker Desktop
+is not a shipped production dependency. The current Compose profile remains
+non-production because ChromaDB and immutable image digests are not yet present:
 
 ```bash
 cp .env.template .env
@@ -875,7 +878,7 @@ Personal, research, and educational use are permitted under the license terms. C
 | `.github/pull_request_template.md` | Present |
 | `.github/ISSUE_TEMPLATE/*` | Present |
 | `.env.template` | Present |
-| `docker-compose.yml` | Present for local service evaluation; production delivery decision remains Phase 0 |
+| `docker-compose.yml` | Developer evaluation only; approved Podman production profile is not yet complete |
 | `Dockerfile.cloud` | Historical artifact; not part of the approved local-first Windows production target |
 
 ### Recommended Additions

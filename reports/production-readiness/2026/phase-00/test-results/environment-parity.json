@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-07-13T06:57:26.727543+00:00",
+  "strict": true,
+  "findings": [
+    {
+      "level": "ERROR",
+      "message": "Python parity mismatch: expected 3.11, got 3.13"
+    },
+    {
+      "level": "OK",
+      "message": "Node.js version accepted: 24.14.0"
+    },
+    {
+      "level": "OK",
+      "message": "npm detected: 11.9.0"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: requirements.txt"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: uv.lock"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: frontend\\package-lock.json"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: .github\\workflows\\ci.yml"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: .env.template"
+    },
+    {
+      "level": "OK",
+      "message": "CI workflow pins Python 3.11"
+    },
+    {
+      "level": "OK",
+      "message": "CI workflow pins Node 24"
+    }
+  ],
+  "summary": {
+    "ok": 9,
+    "error": 1,
+    "warn": 0
+  }
+}

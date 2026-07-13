@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "status": "Phase 0 owner-approved 2026-07-13; Kevin owns mandatory independent pre-release reviews",
+  "product_owner": "Kevin - DataLogicEngine owner",
+  "responsibilities": [
+    {"discipline": "product", "responsible": "Kevin", "approver": "Kevin", "approval_status": "approved-scope"},
+    {"discipline": "architecture", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "application_security", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "privacy", "responsible": "Kevin", "approver": "Kevin", "approval_status": "pending-evidence"},
+    {"discipline": "data_integrity", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent operations reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "internal_services", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent architecture reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "ai_quality", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent AI-quality reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "api_sdk_compatibility", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent API reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "accessibility_usability", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent usability/accessibility reviewer required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "installer_signing", "responsible": "Kevin", "approver": "Kevin", "approval_status": "pending-signing-authority"},
+    {"discipline": "documentation", "responsible": "Kevin", "approver": "Kevin for Phase 0; independent documentation review required before release", "approval_status": "phase0-approved-release-review-open"},
+    {"discipline": "release", "responsible": "Kevin", "approver": "Kevin", "approval_status": "no-go"},
+    {"discipline": "support", "responsible": "Kevin", "approver": "Kevin", "approval_status": "pending-support-contract"}
+  ]
+}

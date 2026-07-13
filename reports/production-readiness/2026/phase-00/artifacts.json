@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-13T08:03:13.794285+00:00",
+  "artifacts": [
+    {
+      "path": "reports/production-readiness/2026/phase-00/owner-approval-2026-07-13.md",
+      "size": 1093,
+      "sha256": "c64e71b3d4c0c7404aad43b977d6ad70e45c4c70b2ab4786e299a84c07d5c098"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/product-manifest.json",
+      "size": 3354,
+      "sha256": "94b96aedce023479c5110818218f37f52c3e3a6d95dc12ee719276724d3fdbe8"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/runtime-surfaces.json",
+      "size": 149241,
+      "sha256": "7afb6a5387b58a84f4e451b5c8bfd646cac80b5dee46f01ac071bd02ac6dfa3d"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/ui-controls.json",
+      "size": 42343,
+      "sha256": "8bcab5430191293cb5fa5a39442e2e26515dd57c0a89172cc2aebbb49185851a"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/service-consumers.json",
+      "size": 129459,
+      "sha256": "1fdce0814b300fd03ca41678269ff701af0f480f9dbd005bda3083e35cb9d6d4"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/installed-baseline.json",
+      "size": 6941,
+      "sha256": "52be3f4200da6a54b546eb499b45027eef5f53721acb69e2b9498348eb50974a"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/podman-five-service-baseline.json",
+      "size": 3116,
+      "sha256": "f9d64c95cd3cb4b9cee289443cf9e0a3efb80682f43a554e863b9fc4e6b6a71a"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/runtime/baseline-metrics.json",
+      "size": 1493,
+      "sha256": "78bddbce40cd03993bbda52e466ba02fa76c304226f7dc2df3321101717f7841"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/requirements-traceability.json",
+      "size": 14147,
+      "sha256": "bf1c54ac9a4fd50290f8c6c623f8fdb709c6d5e243bf610695da99c7d2226e06"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/feature-disposition.json",
+      "size": 595794,
+      "sha256": "e978a80015120ff59a3775370145fe1df8fe5d713f3f8742aa55b74e0bfd1f99"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/responsibility-approval.json",
+      "size": 2489,
+      "sha256": "107f8cf701958cf84714da784290edd8122f0f998567ef2d6ad357254d9cc300"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/windows-support-matrix.json",
+      "size": 2145,
+      "sha256": "e9caed0c951a42b47a7abb7c85115cd47ef77db0cdb52ab3aedeaa26a07f7551"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/legal-distribution-authority.json",
+      "size": 1820,
+      "sha256": "06b9465b0dd3fdb33f855ebbadbd1386980e93358161f35d8fdaa121fe79c083"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/runtime-precheck.json",
+      "size": 1830,
+      "sha256": "a683181b5653d680f91d4db5d7ff85ce6ce436553638d3bd4a25e65ee1ee7170"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/lockfiles.json",
+      "size": 680,
+      "sha256": "0f26378bbffbfc1aaabe2c3d776174440342109c344e9d407d120f00af81c847"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/environment-parity.json",
+      "size": 1131,
+      "sha256": "80fa484ea0e57ddb08d5af6c87af838ec600f94905d884f6a17e088e72932eeb"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/runtime-precheck-python311.json",
+      "size": 1830,
+      "sha256": "2ba00e5f81ab8ab3175bb7dc12e3ed7cd6a486237ef03d35f40c5f8eb5a92bde"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/lockfiles-python311.json",
+      "size": 680,
+      "sha256": "bce2fde9d62e8670950c9dcba9e9dec3b1b40d205068e257e27fcb7274a89e0d"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/environment-parity-python311.json",
+      "size": 1120,
+      "sha256": "813203f3a20124271f0f54ad2166904a3a3a81152570358ea512f535ccef60f7"
+    },
+    {
+      "path": "reports/production-readiness/2026/phase-00/test-results/secret-scan.json",
+      "size": 549,
+      "sha256": "b4e95f8bb715f28fd08a929a7445dcd924095d38fb1dfb3dcb52cba3411d83c3"
+    }
+  ],
+  "installer_artifact": "See runtime/installed-baseline.json; current installer is captured but not signed or production-qualified.",
+  "note": "Current-host baseline is captured. Full approved-runtime installed acceptance remains open."
+}

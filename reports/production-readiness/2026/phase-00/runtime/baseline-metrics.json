@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-13T00:58:00-07:00",
+  "reference_host": {
+    "model": "Alienware Aurora R16",
+    "os": "Windows 11 Home build 26200 x64",
+    "physical_ram_bytes": 68424007680,
+    "system_drive_size_bytes": 999184920576,
+    "system_drive_free_bytes_before_runtime_install": 78312603648,
+    "contract_tier": "meets approved minimum; free disk is below the 100 GB recommended target"
+  },
+  "podman_machine": {
+    "cpus": 4,
+    "memory_bytes": 8589934592,
+    "disk_bytes": 53687091200,
+    "rootless": true,
+    "provider": "WSL2"
+  },
+  "measured": {
+    "five_service_health": "pass",
+    "installer_registration": "fail",
+    "installed_application_startup": "not measurable because installer registration failed",
+    "installed_application_idle_resources": "not measurable because installer registration failed",
+    "installed_local_api_latency": "not measurable because installer registration failed",
+    "installed_provider_call_count": "not measurable because installer registration failed",
+    "installed_orchestration_overhead": "not measurable because installer registration failed",
+    "installed_application_disk_growth": "not measurable because installer registration failed",
+    "installed_application_shutdown": "not measurable because installer registration failed"
+  },
+  "disposition": "The unavailable application metrics are captured baseline failures assigned to Phases 14 and 15; no passing values were fabricated."
+}

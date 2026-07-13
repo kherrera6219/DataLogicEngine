@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.1.0",
+  "captured_at": "2026-07-13T00:16:00-07:00",
+  "environment": {
+    "working_directory": "C:\\software\\DataLogicEngine",
+    "git_head_at_start": "2330a40d2ca8cced794146714fd5269220359201",
+    "approved_python": "3.11.14",
+    "interactive_shell_python": "3.13.14",
+    "node": "24.14.0",
+    "npm": "11.9.0"
+  },
+  "checks": [
+    {
+      "command": "<isolated-python-3.11> scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report <phase-evidence>",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:15:00-07:00",
+      "ended_at": "2026-07-13T00:15:01-07:00",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "0 blockers, 0 actions, 3 warnings"
+    },
+    {
+      "command": "<isolated-python-3.11> scripts/verify_lockfiles.py --json-report <phase-evidence>",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:12:00-07:00",
+      "ended_at": "2026-07-13T00:12:01-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "5 checks passed"
+    },
+    {
+      "command": "<isolated-python-3.11> scripts/verify_environment_parity.py --strict --json-report <phase-evidence>",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:11:00-07:00",
+      "ended_at": "2026-07-13T00:11:01-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "Python 3.11, Node 24, npm, workflow, and required parity files aligned"
+    },
+    {
+      "command": "python scripts/verify_requirements_traceability.py",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:10:00-07:00",
+      "ended_at": "2026-07-13T00:10:01-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "20 requirements complete and owned"
+    },
+    {
+      "command": "python scripts/verify_feature_disposition.py",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:10:00-07:00",
+      "ended_at": "2026-07-13T00:10:01-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "783 of 783 inventoried items have one valid disposition, owner, rationale, and phase"
+    },
+    {
+      "command": "python scripts/verify_release_ownership.py",
+      "version": "Python 3.11.14",
+      "started_at": "2026-07-13T00:10:00-07:00",
+      "ended_at": "2026-07-13T00:10:01-07:00",
+      "exit_code": 0,
+      "result": "structure_pass_release_no_go",
+      "summary": "Phase 0 ownership structure approved; Kevin owns mandatory independent pre-release reviews and 10 legal actions remain release-blocking"
+    },
+    {
+      "command": "TruffleHog 3.93.1 git file:///repo --only-verified --no-update",
+      "version": "container digest sha256:b069541f708108db2d0ef4d74421aeadc8d73d33ff8759dd3d6bfc9c0e88813a",
+      "started_at": "2026-07-13T00:12:45-07:00",
+      "ended_at": "2026-07-13T00:13:30-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "0 verified secrets found"
+    },
+    {
+      "command": "Podman rootless five-service baseline probes",
+      "version": "Podman client 5.8.3 on WSL2",
+      "started_at": "2026-07-13T00:54:00-07:00",
+      "ended_at": "2026-07-13T00:57:30-07:00",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "PostgreSQL accepting connections, Redis PONG, Neo4j HTTP 200, ChromaDB HTTP 200, MinIO HTTP 200"
+    },
+    {
+      "command": "DataLogicEngine Setup Latest.exe /S",
+      "version": "0.1.1 unsigned baseline",
+      "started_at": "2026-07-13T00:58:00-07:00",
+      "ended_at": "2026-07-13T00:59:00-07:00",
+      "exit_code": null,
+      "result": "captured_failure",
+      "summary": "No installed application directory or uninstall registration was created; assigned to Phases 14 and 15"
+    }
+  ],
+  "overall": "phase_0_pass",
+  "blocking_observation": "Phase 0 passes on truthful baseline evidence. The failed installer, service pinning/delivery, independent reviews, and legal actions remain explicit later-phase release blockers."
+}

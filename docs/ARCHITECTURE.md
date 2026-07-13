@@ -167,11 +167,11 @@ flowchart TD
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
 | Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
 | Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.1-pro-preview), tool execution, connector integration. |
-| Relational store | SQLAlchemy with SQLite/PostgreSQL paths | Users, sessions, traces, artifacts, graph rows, audit records. |
+| Relational store | PostgreSQL production authority; SQLite bootstrap/development/repair only | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
-| Object store | Local filesystem object store | Deliverables, graphs, eval data, audit logs, trace exports. |
-| Cache/queue | Redis where available | Session/cache/rate-limit/streams/queue behavior. |
+| Object store | MinIO production authority; filesystem bootstrap/development/repair only | Deliverables, graphs, eval data, audit logs, trace exports. |
+| Cache/queue | Required Redis production service | Session/cache/rate-limit/streams/queue behavior. |
 | Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |
 
 ## 2026-06-08 architecture baseline
@@ -403,11 +403,12 @@ The platform uses a multi-store architecture with clear separation of responsibi
 | Store | Role |
 |---|---|
 | SQLAlchemy database | Durable application state, users, sessions, traces, graph rows, artifacts, audit records. |
-| Redis | Cache, sessions, rate limits, queues, TruthLink streams where enabled. |
+| Redis | Required production cache, sessions, rate limits, queues, and TruthLink streams. |
 | Neo4j | Durable graph store for knowledge graph relationships. |
 | USKD NetworkX graph | RAM-resident graph for fast reasoning traversal. |
 | ChromaDB | Local vector/embedding storage. |
-| Local object store | Deliverables, graphs, audit logs, simulation artifacts, eval data, trace exports. |
+| MinIO | Required production S3-compatible artifacts, exports, evidence, and backups. |
+| Local object store | Bootstrap/development/repair role only; not the production MinIO substitute. |
 | UnifiedMemoryService | Structured reasoning memory graph persisted to JSON. |
 | TruthMemory | Audit/explainability memory for Truth Engine and DMRF sessions. |
 

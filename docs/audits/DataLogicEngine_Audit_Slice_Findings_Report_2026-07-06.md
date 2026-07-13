@@ -273,4 +273,6 @@ The active trace production lifecycle queue is complete as of slice 12, and the 
 ## Change notes for v1.1.0
 
 1. Added active document metadata and folder-review status during the `docs/audits` Markdown pass.
-2. Confirmed this file remains the active consolidated audit-slice findings report; older audit plans in this folder are historical/reference unless explicitly promoted.
+2. This file remains point-in-time audit evidence. Completed older audit plans
+   were moved to `docs/archive/audits/` on 2026-07-12 and must not be promoted
+   over root `PRODUCTION_COMPLETION_PLAN_2026.md`, the sole active execution plan.

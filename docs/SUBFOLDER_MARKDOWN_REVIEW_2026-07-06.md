@@ -29,7 +29,7 @@ This report covers the Markdown review of each direct `docs/` subfolder:
 | Area | Files reviewed | Updates made |
 |---|---|---|
 | ADRs | `docs/adr/ADR-0001-engineering-governance-baseline.md`, `docs/adr/ADR-0002-pq-grpc-transport.md`, `docs/adr/README.md` | Added current metadata/review status and fixed the ADR template H1 example so docs validation does not treat the template as an extra page title. |
-| Audits | `docs/audits/*.md` | Added/updated audit review metadata and created `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md`. The superseded `docs/audits/DataLogicEngine_Complete_Audit_Plan.md` was deleted after approval; v2 remains active. |
+| Audits | `docs/audits/*.md` | Added/updated audit review metadata and created `docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md`. The superseded v1 plan was deleted; the completed sprint, auth-deprecation, and v2 first-pass audit plans were archived on 2026-07-12 after root `PRODUCTION_COMPLETION_PLAN_2026.md` became the sole active execution plan. |
 | Diagrams | `docs/diagrams/*.md` | Added review metadata to all 11 active architecture diagrams. Removed stale exact inventory count, changed brittle provider/model wording to configured-provider wording, removed obsolete "Future:" diagram labels, and clarified tenant-compatible budget wording. |
 | Folder indexes | `docs/documents/README.md`, `docs/whitepapers/README.md`, `docs/wireframes/README.md` | Replaced three-line move notices with active folder indexes, production-use notes, and cleanup guidance. |
 | IP | `docs/ip/dsqp_technical_disclosure.md` | Updated status to reflect that DSQP implementation now exists under `backend/dsqp/`, added metadata, and clarified that the disclosure is not legal advice. |
@@ -39,7 +39,7 @@ This report covers the Markdown review of each direct `docs/` subfolder:
 
 | Item | Decision |
 |---|---|
-| `docs/audits/DataLogicEngine_Complete_Audit_Plan.md` | Deleted after approval because `docs/audits/DataLogicEngine_Complete_Audit_Plan_v2.md` is the active completed audit plan. |
+| `docs/audits/DataLogicEngine_Complete_Audit_Plan.md` | Deleted after approval; its completed v2 successor is now archived as historical evidence and is not an active plan. |
 | `docs/archive/markdowns/complete_verification_checklist.md` and `docs/archive/markdowns/complete_verification_checklist (1).md` | Keep for now; cataloged as cleanup candidates because they share a title but differ in length and hash. |
 | `docs/archive/research/K8S_OPERATOR_DESIGN.md` | Keep archived only; Kubernetes/operator work is outside current production scope. |
 | `docs/archive/research/REACT_NATIVE_RESEARCH.md` | Keep archived only; mobile scope is outside current production scope. |

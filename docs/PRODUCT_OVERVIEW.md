@@ -148,12 +148,12 @@ Tracked evidence files: `reports/installer_integrity_report.json`, `reports/inst
 
 Current data architecture includes:
 
-1. SQLAlchemy database with SQLite/PostgreSQL paths.
-2. Redis for cache/session/rate-limit/queue/stream behavior where enabled.
-3. Neo4j graph store where configured.
+1. PostgreSQL as the production relational authority; SQLite is limited to approved bootstrap, development, and repair roles.
+2. Redis as the required production cache/session/rate-limit/queue/stream service.
+3. Neo4j as the required durable production graph store.
 4. USKD NetworkX RAM graph for reasoning traversal.
 5. ChromaDB local vector store.
-6. Local object store for deliverables, audit logs, simulations, graphs, eval data, and exports.
+6. MinIO as the required production object store; the local filesystem backend is limited to approved bootstrap, development, and repair roles.
 7. UnifiedMemory structured reasoning memory.
 8. TruthMemory audit/explainability memory.
 

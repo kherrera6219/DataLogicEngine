@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-07-13T08:03:12.570858+00:00",
+  "findings": [
+    {
+      "level": "OK",
+      "message": "uv.lock contains package entries."
+    },
+    {
+      "level": "OK",
+      "message": "uv.lock contains no insecure http:// sources."
+    },
+    {
+      "level": "OK",
+      "message": "uv.lock root package matches pyproject.toml (datalogicengine)."
+    },
+    {
+      "level": "OK",
+      "message": "package-lock.json lockfileVersion is 3."
+    },
+    {
+      "level": "OK",
+      "message": "package-lock.json contains no insecure http:// dependency URLs."
+    }
+  ],
+  "summary": {
+    "ok": 5,
+    "error": 0,
+    "warn": 0
+  }
+}

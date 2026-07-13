@@ -10,6 +10,11 @@
 | Owner | Audit Governance |
 | Review cadence | Reference-only; update only for archive/status clarification |
 
+> **Superseded execution plan:** Archived on 2026-07-12. This completed first-pass
+> audit plan is historical evidence only. The sole active path forward is root
+> `PRODUCTION_COMPLETION_PLAN_2026.md`; current phase status belongs in root
+> `TODO.md` and `HANDOFF.md`.
+
 **Built from:** live MCP scan + full conversation history review | 1,049 commits | June 10, 2026
 **Goal:** Every folder audited, every file in the right place, every feature correctly wired, dead code removed, app complete and to best practices.
 

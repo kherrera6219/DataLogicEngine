@@ -10,6 +10,11 @@
 | Owner | Security Engineering |
 | Review cadence | Reference-only; update only for archive/status clarification |
 
+> **Superseded execution plan:** Archived on 2026-07-12. This completed auth
+> deprecation plan is historical evidence only. The sole active path forward is
+> root `PRODUCTION_COMPLETION_PLAN_2026.md`; current phase status belongs in root
+> `TODO.md` and `HANDOFF.md`.
+
 **STATUS (2026-06-19): ✅ COMPLETE — Phases A–F done.** Single-mode fully realized:
 no MFA, no multi-tenant RLS, no admin user-mgmt UI/routes, no roles/admin columns; all
 authorization gates collapsed to a single-owner check (`current_user_is_owner()`).

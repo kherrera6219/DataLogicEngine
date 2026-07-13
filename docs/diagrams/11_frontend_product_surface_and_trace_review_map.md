@@ -257,7 +257,7 @@ System:          Admin*, Compliance*, Settings
 `NavBar` is global chrome only — logo, cloud-status indicator, theme toggle, and the
 account menu; it no longer duplicates primary page links. Admin and Compliance are
 integrated into single-mode desktop operation (OS-level auth; see
-`docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md`). The
+`docs/archive/audits/DataLogicEngine_Auth_Deprecation_Plan.md`). The
 sidebar collapsed state is persisted in local storage.
 
 ## Trace Review Surface

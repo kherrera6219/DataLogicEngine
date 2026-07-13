@@ -39,13 +39,21 @@ This version reflects the current local-first architecture: Electron/Windows des
 
 ## Supported deployment targets
 
-DataLogicEngine currently supports three deployment targets:
+The approved production program supports two Windows installation profiles:
 
 | Target | Status | Description |
 |---|---|---|
 | Windows desktop / Electron | Primary | Local-first app shell with Flask backend and app-owned internal storage services. |
 | Windows VM | Supported | Same Windows app stack installed inside a VM; not a managed-cloud database mode. |
-| Web/cloud deployment | Controlled / optional | Flask/Next.js deployment path where configured; canonical `/api/v1/*` APIs, stricter host/CORS/HTTPS/session rules. |
+
+Public web/cloud SaaS deployment is excluded from the active completion program.
+Private Windows gateway access remains blocked until its dedicated TLS, identity,
+firewall, upgrade, diagnostics, and recovery qualification passes.
+
+Accepted ADR-0003 selects app-managed immutable OCI containers through rootless
+Podman Machine/WSL2 for the required PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO
+services. Docker Desktop is developer-compatible only and is not a shipped
+production dependency. The production Podman profile is not yet qualified.
 
 Unsupported as primary runtime database sources:
 

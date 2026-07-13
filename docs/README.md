@@ -151,6 +151,11 @@ Use `docs/ARCHITECTURE_MAP.md` as the master map for diagram purpose and reviewe
 `docs/archive/*` contains historical material. This can include early research, whitepapers, old release notes, wireframes, and prior planning documents.
 
 The current archive Markdown catalog is `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md`.
+Completed audit and remediation plans are indexed under
+`docs/archive/audits/README.md`. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the
+sole active execution plan.
+Superseded root handoff and backlog snapshots are indexed under
+`docs/archive/session-history/README.md` and are historical only.
 
 Rules:
 
@@ -212,7 +217,9 @@ The active documentation set has been normalized around:
 
 1. Added the docs subfolder Markdown review report and linked audit/archive review artifacts from the active portal.
 2. Refreshed ADR, diagram, folder-index, IP-disclosure, and archive-index metadata for the 2026-07-06 production documentation pass.
-3. Recorded the approved deletion of the superseded audit v1 plan while preserving the active v2 audit plan.
+3. Recorded the approved deletion of the superseded audit v1 plan. The completed
+   v2 first-pass audit plan was later archived on 2026-07-12 when root
+   `PRODUCTION_COMPLETION_PLAN_2026.md` became the sole active execution plan.
 
 ## Change notes for v2.13.0
 

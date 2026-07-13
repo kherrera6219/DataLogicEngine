@@ -1,0 +1,83 @@
+﻿{
+    "schema_version":  "1.0.0",
+    "captured_at":  "2026-07-13T07:59:08.5530029+00:00",
+    "authority":  "PRODUCTION_COMPLETION_PLAN_2026.md v1.2.0",
+    "host":  {
+                 "os_caption":  "Microsoft Windows 11 Home",
+                 "os_version":  "10.0.26200",
+                 "os_build":  "26200",
+                 "architecture":  "64-bit",
+                 "manufacturer":  "Alienware",
+                 "model":  "Alienware Aurora R16",
+                 "total_memory_bytes":  68424007680,
+                 "system_drive_free_bytes":  72666275840,
+                 "system_drive_size_bytes":  999184920576
+             },
+    "toolchain":  {
+                      "python":  {
+                                     "available":  true,
+                                     "path":  "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+                                     "version":  "Python 3.13.14"
+                                 },
+                      "node":  {
+                                   "available":  true,
+                                   "path":  "C:\\nvm4w\\nodejs\\node.exe",
+                                   "version":  "v24.14.0"
+                               },
+                      "npm":  {
+                                  "available":  true,
+                                  "path":  "C:\\nvm4w\\nodejs\\npm.ps1",
+                                  "version":  "11.9.0"
+                              },
+                      "docker":  {
+                                     "available":  true,
+                                     "path":  "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+                                     "version":  "Docker version 29.5.3, build d1c06ef"
+                                 },
+                      "podman":  {
+                                     "available":  true,
+                                     "path":  "C:\\Program Files\\RedHat\\Podman\\podman.exe",
+                                     "version":  "podman version 5.8.3"
+                                 },
+                      "wsl":  {
+                                  "available":  true,
+                                  "path":  "C:\\Windows\\system32\\wsl.exe",
+                                  "version":  "WSL version: 2.6.3.0"
+                              }
+                  },
+    "container_runtime":  {
+                              "production_reference":  "podman-machine-wsl2",
+                              "reference_available":  true,
+                              "podman_version":  "{\"Client\":{\"APIVersion\":\"5.8.3\",\"Version\":\"5.8.3\",\"GoVersion\":\"go1.26.4\",\"GitCommit\":\"93dbfd0d86ee57f8f91801f61ce57dd880a4725f\",\"BuiltTime\":\"Fri Jun 12 10:52:07 2026\",\"Built\":1781286727,\"OsArch\":\"windows/amd64\",\"Os\":\"windows\"},\"Server\":{\"APIVersion\":\"5.8.5\",\"Version\":\"5.8.5\",\"GoVersion\":\"go1.26.4-X:nodwarf5\",\"GitCommit\":\"6d48b6f12f793176f3f6bc808b5a440984c14eb2\",\"BuiltTime\":\"Tue Jul  7 17:00:00 2026\",\"Built\":1783468800,\"OsArch\":\"linux/amd64\",\"Os\":\"linux\"}}",
+                              "podman_machines":  "[\r\n    {\r\n        \"Name\": \"datalogicengine\",\r\n        \"Default\": true,\r\n        \"Created\": \"2026-07-13T00:53:56.0281126-07:00\",\r\n        \"Running\": true,\r\n        \"Starting\": false,\r\n        \"LastUp\": \"0001-01-01T00:00:00Z\",\r\n        \"Stream\": \"default\",\r\n        \"VMType\": \"wsl\",\r\n        \"CPUs\": 4,\r\n        \"Memory\": \"8589934592\",\r\n        \"Swap\": \"0\",\r\n        \"DiskSize\": \"53687091200\",\r\n        \"Port\": 56282,\r\n        \"RemoteUsername\": \"user\",\r\n        \"IdentityPath\": \"C:\\\\Users\\\\kevin\\\\.local\\\\share\\\\containers\\\\podman\\\\machine\\\\machine\",\r\n        \"UserModeNetworking\": false\r\n    }\r\n]",
+                              "developer_docker_available":  true,
+                              "docker_version":  "{\"Client\":{\"Version\":\"29.5.3\",\"ApiVersion\":\"1.54\",\"DefaultAPIVersion\":\"1.54\",\"GitCommit\":\"d1c06ef\",\"GoVersion\":\"go1.26.4\",\"Os\":\"windows\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Jun  3 18:03:06 2026\",\"Context\":\"desktop-linux\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Desktop 4.79.0 (230596)\"},\"Version\":\"29.5.3\",\"ApiVersion\":\"1.54\",\"MinAPIVersion\":\"1.40\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.5.3\",\"Details\":{\"ApiVersion\":\"1.54\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Jun  3 17:59:56 2026\",\"Experimental\":\"false\",\"GitCommit\":\"285b471\",\"GoVersion\":\"go1.26.4\",\"KernelVersion\":\"6.6.87.2-microsoft-standard-WSL2\",\"MinAPIVersion\":\"1.40\",\"Module\":\"github.com/moby/moby/v2\",\"ModuleVersion\":\"v2.0.0+unknown\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.2.5\",\"Details\":{\"GitCommit\":\"e53c7c1516c3b2bff98eb76f1f4117477e6f4e66\"}},{\"Name\":\"runc\",\"Version\":\"1.3.6\",\"Details\":{\"GitCommit\":\"v1.3.6-0-g491b69ba\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"285b471\",\"GoVersion\":\"go1.26.4\",\"KernelVersion\":\"6.6.87.2-microsoft-standard-WSL2\",\"BuildTime\":\"2026-06-03T17:59:56.000000000+00:00\"}}",
+                              "wsl_status":  "Default Distribution: docker-desktop\r\n\r\nDefault Version: 2",
+                              "compose_services":  [
+                                                       "db",
+                                                       "redis",
+                                                       "minio",
+                                                       "neo4j",
+                                                       "backend",
+                                                       "frontend"
+                                                   ]
+                          },
+    "installer":  {
+                      "exists":  true,
+                      "path":  "DataLogicEngine Setup Latest.exe",
+                      "size":  347030230,
+                      "sha256":  "3296cacbfc3cf288ec3fb651eabc7d02d59ca54957c8b48523bd82e30b2a8856",
+                      "signature":  "NotSigned"
+                  },
+    "git":  {
+                "head":  "2330a40d2ca8cced794146714fd5269220359201",
+                "branch":  "main",
+                "working_tree_change_count":  65
+            },
+    "baseline_status":  "captured-current-host-not-production-qualified",
+    "blockers":  [
+                     "Current Compose profile omits required ChromaDB.",
+                     "Current service image references are not immutable digests.",
+                     "The existing unsigned 0.1.1 installer did not register a silent installed application."
+                 ]
+}

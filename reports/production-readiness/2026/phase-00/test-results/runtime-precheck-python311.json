@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-07-13T08:03:12.466559+00:00",
+  "strict": true,
+  "fail_on_warn": false,
+  "results": [
+    {
+      "level": "OK",
+      "message": "Python version meets minimum requirement (3.11+)."
+    },
+    {
+      "level": "WARN",
+      "message": "Not running inside a virtual environment; recreate per README to avoid dependency conflicts."
+    },
+    {
+      "level": "OK",
+      "message": "node found at C:\\nvm4w\\nodejs\\node.EXE"
+    },
+    {
+      "level": "OK",
+      "message": "npm found at C:\\nvm4w\\nodejs\\npm.CMD"
+    },
+    {
+      "level": "OK",
+      "message": "Frontend dependencies directory detected."
+    },
+    {
+      "level": "OK",
+      "message": "requirements.txt found at C:\\software\\DataLogicEngine\\requirements.txt"
+    },
+    {
+      "level": "INFO",
+      "message": "Install with `pip install -r requirements.txt`."
+    },
+    {
+      "level": "OK",
+      "message": "Python workspace metadata aligned (project.name=datalogicengine)."
+    },
+    {
+      "level": "OK",
+      "message": "Virtual environment directory detected at .venv."
+    },
+    {
+      "level": "WARN",
+      "message": "templates/ directory missing; legacy server-rendered pages may be unavailable."
+    },
+    {
+      "level": "WARN",
+      "message": "static/ directory missing; some assets may not load."
+    },
+    {
+      "level": "OK",
+      "message": "Found .env at C:\\software\\DataLogicEngine\\.env"
+    },
+    {
+      "level": "OK",
+      "message": "SQLite database file present at C:\\software\\DataLogicEngine\\instance\\ukg_database.db"
+    },
+    {
+      "level": "INFO",
+      "message": "Port checks skipped"
+    }
+  ],
+  "summary": {
+    "checks_run": 14,
+    "blockers": 0,
+    "actions": 0,
+    "warnings": 3
+  }
+}

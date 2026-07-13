@@ -107,10 +107,11 @@ Cloud/hybrid database modes are deprecated for the runtime data layer unless a f
 | Store | Implementation | Responsibility |
 |---|---|---|
 | SQLAlchemy DB | `models.py`, `extensions.py`, migrations | durable application state, users, sessions, chat, traces, audit rows, graph rows, Truth sessions, MCP metadata, provider configuration. |
-| Redis | `app.py`, `ConnectionManager`, TruthLink | cache, sessions, rate limiting, queue/broker behavior, TruthLink streams where configured. |
+| Redis | `app.py`, `ConnectionManager`, TruthLink | required production cache, sessions, rate limiting, queue/broker behavior, and TruthLink streams. |
 | Neo4j | `backend/storage/graph_store.py` | graph-oriented knowledge relationships and graph query behavior. |
 | USKD NetworkX graph | `backend/storage/uskd_memory_graph.py` | RAM-resident graph materialization from SQL or Neo4j for reasoning traversal. |
-| ChromaDB | `backend/storage/vector_store.py` | local vector embeddings and semantic retrieval. |
+| ChromaDB | `backend/storage/vector_store.py` | required production local vector embeddings and semantic retrieval. |
+| MinIO | object-storage adapters and artifact services | required production S3-compatible artifacts, evidence, exports, and backup objects. |
 | Local object store | `backend/storage/object_store.py` | deliverables, audit logs, simulation artifacts, graphs, eval data, DSQP personas, trace exports. |
 | UnifiedMemory | `backend/memory/unified_memory_service.py` | structured reasoning memory graph persisted to JSON. |
 | TruthMemory | `backend/truth_engine/truth_memory/manager.py` | audit chain, cache, metrics, artifacts, explainability, MLflow-style tracking. |

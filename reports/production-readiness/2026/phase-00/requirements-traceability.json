@@ -1,0 +1,427 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-13T08:00:10.324995+00:00",
+  "status": "phase targets assigned; acceptance evidence pending",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "product_intent": "Install and operate the signed Windows 11 x64 application",
+      "ui_surface": "Installer and desktop shell",
+      "contract": "Installer lifecycle",
+      "owning_service_or_store": "Desktop application",
+      "implementation": "Phase 14 work package",
+      "automated_tests": [
+        "installer lifecycle suite"
+      ],
+      "manual_tests": [
+        "Phase 14 installed-system acceptance"
+      ],
+      "evidence": "phase-14",
+      "user_documentation": [
+        "docs/DEPLOYMENT.md"
+      ],
+      "target_phase": 14,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-002",
+      "product_intent": "Use the API gateway as the governed integration surface",
+      "ui_surface": "Gateway settings and diagnostics",
+      "contract": "Versioned REST and streaming API",
+      "owning_service_or_store": "Flask gateway",
+      "implementation": "Phase 8 work package",
+      "automated_tests": [
+        "gateway contract suite"
+      ],
+      "manual_tests": [
+        "Phase 8 installed-system acceptance"
+      ],
+      "evidence": "phase-08",
+      "user_documentation": [
+        "docs/API_REFERENCE.md"
+      ],
+      "target_phase": 8,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-003",
+      "product_intent": "Use one causal governed reasoning path for desktop and external clients",
+      "ui_surface": "Built-in chat",
+      "contract": "Canonical governed request lifecycle",
+      "owning_service_or_store": "Reasoning runtime",
+      "implementation": "Phase 5 work package",
+      "automated_tests": [
+        "causal lifecycle suite"
+      ],
+      "manual_tests": [
+        "Phase 5 installed-system acceptance"
+      ],
+      "evidence": "phase-05",
+      "user_documentation": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "target_phase": 5,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-004",
+      "product_intent": "Persist relational application and audit state",
+      "ui_surface": "Administration and audit",
+      "contract": "PostgreSQL data contract",
+      "owning_service_or_store": "PostgreSQL",
+      "implementation": "Phase 4 work package",
+      "automated_tests": [
+        "migration and persistence suite"
+      ],
+      "manual_tests": [
+        "Phase 4 installed-system acceptance"
+      ],
+      "evidence": "phase-04",
+      "user_documentation": [
+        "docs/DATABASE_SCHEMA.md"
+      ],
+      "target_phase": 4,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-005",
+      "product_intent": "Provide durable queue, cache, idempotency, and event behavior",
+      "ui_surface": "Runtime health",
+      "contract": "Redis service contract",
+      "owning_service_or_store": "Redis",
+      "implementation": "Phase 3 work package",
+      "automated_tests": [
+        "service parity suite"
+      ],
+      "manual_tests": [
+        "Phase 3 installed-system acceptance"
+      ],
+      "evidence": "phase-03",
+      "user_documentation": [
+        "docs/DEPLOYMENT.md"
+      ],
+      "target_phase": 3,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-006",
+      "product_intent": "Provide durable graph relationships and provenance traversal",
+      "ui_surface": "Graph workspace",
+      "contract": "Neo4j graph contract",
+      "owning_service_or_store": "Neo4j",
+      "implementation": "Phase 9 work package",
+      "automated_tests": [
+        "graph causality suite"
+      ],
+      "manual_tests": [
+        "Phase 9 installed-system acceptance"
+      ],
+      "evidence": "phase-09",
+      "user_documentation": [
+        "docs/DATABASE_SCHEMA.md"
+      ],
+      "target_phase": 9,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-007",
+      "product_intent": "Provide local semantic retrieval",
+      "ui_surface": "Knowledge workspace",
+      "contract": "Chroma collection contract",
+      "owning_service_or_store": "ChromaDB",
+      "implementation": "Phase 9 work package",
+      "automated_tests": [
+        "retrieval suite"
+      ],
+      "manual_tests": [
+        "Phase 9 installed-system acceptance"
+      ],
+      "evidence": "phase-09",
+      "user_documentation": [
+        "docs/DATABASE_SCHEMA.md"
+      ],
+      "target_phase": 9,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-008",
+      "product_intent": "Store and recover object artifacts with integrity metadata",
+      "ui_surface": "Exports and diagnostics",
+      "contract": "S3-compatible object contract",
+      "owning_service_or_store": "MinIO",
+      "implementation": "Phase 4 work package",
+      "automated_tests": [
+        "backup restore suite"
+      ],
+      "manual_tests": [
+        "Phase 4 installed-system acceptance"
+      ],
+      "evidence": "phase-04",
+      "user_documentation": [
+        "docs/DEPLOYMENT.md"
+      ],
+      "target_phase": 4,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-009",
+      "product_intent": "Protect mutations, IPC, MCP, and file operations",
+      "ui_surface": "All privileged controls",
+      "contract": "Authorization and capability policy",
+      "owning_service_or_store": "Security boundary",
+      "implementation": "Phase 1 work package",
+      "automated_tests": [
+        "authorization matrix suite"
+      ],
+      "manual_tests": [
+        "Phase 1 installed-system acceptance"
+      ],
+      "evidence": "phase-01",
+      "user_documentation": [
+        "docs/SECURITY.md"
+      ],
+      "target_phase": 1,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-010",
+      "product_intent": "Return typed safe public errors",
+      "ui_surface": "All user-facing workflows",
+      "contract": "Public error envelope",
+      "owning_service_or_store": "Gateway and desktop",
+      "implementation": "Phase 1 work package",
+      "automated_tests": [
+        "error contract suite"
+      ],
+      "manual_tests": [
+        "Phase 1 installed-system acceptance"
+      ],
+      "evidence": "phase-01",
+      "user_documentation": [
+        "docs/API_REFERENCE.md"
+      ],
+      "target_phase": 1,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-011",
+      "product_intent": "Report required-service capability truthfully without silent fallback",
+      "ui_surface": "Health and diagnostics",
+      "contract": "Capability-state contract",
+      "owning_service_or_store": "Runtime factory",
+      "implementation": "Phase 2 work package",
+      "automated_tests": [
+        "capability state suite"
+      ],
+      "manual_tests": [
+        "Phase 2 installed-system acceptance"
+      ],
+      "evidence": "phase-02",
+      "user_documentation": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "target_phase": 2,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-012",
+      "product_intent": "Execute only supported OpenAI and Google provider branches",
+      "ui_surface": "Provider settings",
+      "contract": "Provider adapter contract",
+      "owning_service_or_store": "Provider runtime",
+      "implementation": "Phase 7 work package",
+      "automated_tests": [
+        "provider contract suite"
+      ],
+      "manual_tests": [
+        "Phase 7 installed-system acceptance"
+      ],
+      "evidence": "phase-07",
+      "user_documentation": [
+        "docs/PROVIDER_SETUP_GUIDE.md"
+      ],
+      "target_phase": 7,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-013",
+      "product_intent": "Record causal evidence, confidence, convergence, and TruthCore outputs",
+      "ui_surface": "Runs and Truth Engine",
+      "contract": "Evidence and trace schema",
+      "owning_service_or_store": "Truth runtime",
+      "implementation": "Phase 6 work package",
+      "automated_tests": [
+        "evidence validity suite"
+      ],
+      "manual_tests": [
+        "Phase 6 installed-system acceptance"
+      ],
+      "evidence": "phase-06",
+      "user_documentation": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "target_phase": 6,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-014",
+      "product_intent": "Ingest, retrieve, graph, and remember data with source identity",
+      "ui_surface": "Knowledge and graph",
+      "contract": "Ingestion and retrieval contracts",
+      "owning_service_or_store": "Knowledge runtime",
+      "implementation": "Phase 9 work package",
+      "automated_tests": [
+        "knowledge lifecycle suite"
+      ],
+      "manual_tests": [
+        "Phase 9 installed-system acceptance"
+      ],
+      "evidence": "phase-09",
+      "user_documentation": [
+        "docs/USER_GUIDE.md"
+      ],
+      "target_phase": 9,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-015",
+      "product_intent": "Run only completed and truthfully labeled simulations",
+      "ui_surface": "Simulations",
+      "contract": "Simulation contract",
+      "owning_service_or_store": "Simulation runtime",
+      "implementation": "Phase 10 work package",
+      "automated_tests": [
+        "simulation suite"
+      ],
+      "manual_tests": [
+        "Phase 10 installed-system acceptance"
+      ],
+      "evidence": "phase-10",
+      "user_documentation": [
+        "docs/USER_GUIDE.md"
+      ],
+      "target_phase": 10,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-016",
+      "product_intent": "Operate approved MCP servers and connectors within explicit scopes",
+      "ui_surface": "MCP administration",
+      "contract": "MCP protocol and scope contract",
+      "owning_service_or_store": "MCP runtime",
+      "implementation": "Phase 11 work package",
+      "automated_tests": [
+        "MCP conformance suite"
+      ],
+      "manual_tests": [
+        "Phase 11 installed-system acceptance"
+      ],
+      "evidence": "phase-11",
+      "user_documentation": [
+        "docs/MCP_USER_GUIDE.md"
+      ],
+      "target_phase": 11,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-017",
+      "product_intent": "Make every enabled desktop control perform its stated real-backend action",
+      "ui_surface": "All desktop pages",
+      "contract": "Preload and backend contracts",
+      "owning_service_or_store": "Electron and frontend",
+      "implementation": "Phase 12 work package",
+      "automated_tests": [
+        "UI workflow suite"
+      ],
+      "manual_tests": [
+        "Phase 12 installed-system acceptance"
+      ],
+      "evidence": "phase-12",
+      "user_documentation": [
+        "docs/USER_GUIDE.md"
+      ],
+      "target_phase": 12,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-018",
+      "product_intent": "Provide redacted diagnostics, audit, and support evidence",
+      "ui_surface": "Diagnostics and audit",
+      "contract": "Observability and support bundle",
+      "owning_service_or_store": "Observability runtime",
+      "implementation": "Phase 13 work package",
+      "automated_tests": [
+        "diagnostic redaction suite"
+      ],
+      "manual_tests": [
+        "Phase 13 installed-system acceptance"
+      ],
+      "evidence": "phase-13",
+      "user_documentation": [
+        "docs/OPERATIONS.md"
+      ],
+      "target_phase": 13,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-019",
+      "product_intent": "Build reproducible, signed, update-verifiable artifacts",
+      "ui_surface": "Installer and updater",
+      "contract": "Release and update contract",
+      "owning_service_or_store": "Release pipeline",
+      "implementation": "Phase 14 work package",
+      "automated_tests": [
+        "supply-chain suite"
+      ],
+      "manual_tests": [
+        "Phase 14 installed-system acceptance"
+      ],
+      "evidence": "phase-14",
+      "user_documentation": [
+        "docs/RELEASE_CHECKLIST.md"
+      ],
+      "target_phase": 14,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    },
+    {
+      "id": "REQ-020",
+      "product_intent": "Prove clean-install, upgrade, recovery, performance, security, and human acceptance",
+      "ui_surface": "Complete product",
+      "contract": "System acceptance contract",
+      "owning_service_or_store": "Installed system",
+      "implementation": "Phase 15 work package",
+      "automated_tests": [
+        "release-candidate qualification"
+      ],
+      "manual_tests": [
+        "Phase 15 installed-system acceptance"
+      ],
+      "evidence": "phase-15",
+      "user_documentation": [
+        "docs/PRODUCTION_READINESS.md"
+      ],
+      "target_phase": 15,
+      "status": "finish",
+      "acceptance_authority": "Kevin - DataLogicEngine owner"
+    }
+  ]
+}

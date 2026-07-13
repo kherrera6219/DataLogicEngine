@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "status": "release-blocked pending documented authority and review",
+  "owner": "Kevin - DataLogicEngine owner",
+  "register": [
+    {"area": "product_name_and_branding", "authority": "Kevin", "status": "owner-attestation-required", "release_blocking": true},
+    {"area": "eula_and_terms", "authority": "Kevin", "status": "production-terms-required", "release_blocking": true},
+    {"area": "privacy_notice_and_consent", "authority": "Kevin", "status": "notice-and-consent-review-required", "release_blocking": true},
+    {"area": "openai_provider_terms", "authority": "Kevin", "status": "distribution-and-use-review-required", "release_blocking": true},
+    {"area": "google_provider_terms", "authority": "Kevin", "status": "distribution-and-use-review-required", "release_blocking": true},
+    {"area": "podman_and_bundled_services", "authority": "Kevin", "status": "license-redistribution-and-support-review-required", "release_blocking": true},
+    {"area": "open_source_notices", "authority": "Kevin", "status": "complete-notice-bundle-required", "release_blocking": true},
+    {"area": "export_and_commercial_distribution", "authority": "Kevin", "status": "owner-directed-legal-review-required", "release_blocking": true},
+    {"area": "microsoft_store_declarations", "authority": "Kevin", "status": "not-applicable-unless-store-channel-approved", "release_blocking": false},
+    {"area": "code_signing_identity", "authority": "Kevin", "status": "certificate-identity-and-custody-required", "release_blocking": true},
+    {"area": "distribution_authority", "authority": "Kevin", "status": "final-owner-approval-required", "release_blocking": true}
+  ],
+  "note": "This engineering register records required decisions and evidence; it is not legal advice or a legal conclusion."
+}

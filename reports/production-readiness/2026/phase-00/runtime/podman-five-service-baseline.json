@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-13T00:57:30-07:00",
+  "status": "five-service candidate baseline healthy; not a production-qualified installer profile",
+  "runtime": {
+    "client": "Podman 5.8.3 Windows amd64",
+    "machine": "datalogicengine",
+    "provider": "WSL2 rootless",
+    "cpus": 4,
+    "memory_gib": 8,
+    "disk_gib": 50
+  },
+  "services": [
+    {
+      "service": "postgresql",
+      "source_reference": "postgres:15-alpine",
+      "image_id": "sha256:9b4593c6de443299b46098151fc1ec154c882339b77a56334c7ce612c8a7be6a",
+      "retrieved_digest": "docker.io/library/postgres@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f",
+      "probe": "pg_isready",
+      "result": "accepting connections"
+    },
+    {
+      "service": "redis",
+      "source_reference": "redis:7-alpine",
+      "image_id": "sha256:487efc0616382465781b8fdc3d6d1db449e6fd80ae23bf48432a2da6b6929908",
+      "retrieved_digest": "docker.io/library/redis@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "probe": "redis-cli ping",
+      "result": "PONG"
+    },
+    {
+      "service": "neo4j",
+      "source_reference": "neo4j:5-community",
+      "image_id": "sha256:c3d64255909dc5a406cd3a0c880d68a7c85ec39b123bfaa95d90bcaa14dedb65",
+      "retrieved_digest": "docker.io/library/neo4j@sha256:32e6325c6f2160747d68601b6e1a38e556deca66524cf95cf0e6c1ee29b1596b",
+      "probe": "HTTP readiness",
+      "result": "HTTP 200"
+    },
+    {
+      "service": "chromadb",
+      "source_reference": "chromadb/chroma:0.6.3",
+      "image_id": "sha256:0b5fb8a31a55b51acdbbdc83d6ec4c54309f6c90381f4dc2483601cc76d453d7",
+      "retrieved_digest": "docker.io/chromadb/chroma@sha256:e0e78dc7609a599b63c99753442c7d01b1d3d369ce0e3bf3e0540536fec4fa7a",
+      "probe": "GET /api/v2/heartbeat",
+      "result": "HTTP 200"
+    },
+    {
+      "service": "minio",
+      "source_reference": "minio/minio:latest",
+      "image_id": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+      "retrieved_digest": "docker.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "probe": "GET /minio/health/live",
+      "result": "HTTP 200"
+    }
+  ],
+  "installer_baseline": {
+    "artifact": "DataLogicEngine Setup Latest.exe",
+    "product_version": "0.1.1",
+    "signature": "NotSigned",
+    "silent_install_result": "No DataLogicEngine uninstall registration or installed application directory was created",
+    "disposition": "Captured failure; packaging/signing/install lifecycle remains Phase 14 release-blocking work"
+  },
+  "limitations": [
+    "Images were retrieved by candidate tags and their observed digests recorded; final production versions and digest pins remain Phase 3 and Phase 14 work.",
+    "The current application installer does not provision or supervise this service profile.",
+    "Application-level built-in-chat and external-gateway causality are assigned to Phases 5, 8, and 15 and were not represented as passing here.",
+    "Ephemeral baseline credentials are not stored in this evidence."
+  ]
+}

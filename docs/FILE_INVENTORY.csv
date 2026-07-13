@@ -662,16 +662,21 @@ docker-compose.yml,2647,.yml,2026-05-24 23:05:53 UTC
 Dockerfile.cloud,2262,.cloud,2026-05-31 01:22:24 UTC
 docs\adr\ADR-0001-engineering-governance-baseline.md,1789,.md,2026-07-06 18:55:43 UTC
 docs\adr\ADR-0002-pq-grpc-transport.md,1503,.md,2026-07-06 18:55:43 UTC
-docs\adr\README.md,2707,.md,2026-07-06 18:55:43 UTC
+docs\adr\ADR-0003-internal-service-delivery.md,3948,.md,2026-07-13 07:03:59 UTC
+docs\adr\README.md,2847,.md,2026-07-13 07:03:59 UTC
 docs\AI_MANAGEMENT_SYSTEM_42001.md,13334,.md,2026-07-06 07:36:05 UTC
 docs\AI_PRODUCTION_DOCUMENTATION_BASELINE.md,11121,.md,2026-07-06 07:19:40 UTC
 docs\API.md,30503,.md,2026-07-06 07:38:50 UTC
 docs\API_VERSIONING.md,5924,.md,2026-07-06 07:34:50 UTC
-docs\ARCHITECTURE.md,26288,.md,2026-07-11 05:18:11 UTC
+docs\ARCHITECTURE.md,26466,.md,2026-07-13 07:17:14 UTC
 docs\ARCHITECTURE_MAP.md,12811,.md,2026-07-06 07:33:02 UTC
 docs\archive\api\openapi-trace-legacy-2026-01.yaml,28316,.yaml,2026-01-08 22:32:39 UTC
 docs\archive\api\postman-legacy-2026-05-22.json,7078,.json,2026-05-22 22:22:34 UTC
 docs\archive\ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md,5975,.md,2026-07-07 00:16:11 UTC
+docs\archive\audits\DataLogicEngine_Audit_Sprint_Plan_v2.md,28956,.md,2026-07-13 06:40:52 UTC
+docs\archive\audits\DataLogicEngine_Auth_Deprecation_Plan.md,19506,.md,2026-07-13 06:40:52 UTC
+docs\archive\audits\DataLogicEngine_Complete_Audit_Plan_v2.md,40607,.md,2026-07-13 06:40:52 UTC
+docs\archive\audits\README.md,1014,.md,2026-07-13 06:40:52 UTC
 docs\archive\historical-documents\Advanced_4D_Acquisition_Knowledge_Framework_A_Comprehensive_Model_for_Federal_State_City_and_Local_Acquisition_Regulations.pdf,206022,.pdf,2026-06-27 06:50:36 UTC
 docs\archive\historical-documents\UKG_DataLogicEngine_Master_Completion_Plan_v1.txt,107970,.txt,2026-05-29 21:49:43 UTC
 docs\archive\markdowns\# Local-First Error Handling Standa.txt,9794,.txt,2026-05-29 05:51:42 UTC
@@ -696,6 +701,9 @@ docs\archive\research\CROSS_USER_TESTING.md,8875,.md,2026-01-16 12:17:47 UTC
 docs\archive\research\K8S_OPERATOR_DESIGN.md,3094,.md,2026-01-29 22:51:49 UTC
 docs\archive\research\REACT_NATIVE_RESEARCH.md,4342,.md,2026-01-29 22:51:25 UTC
 docs\archive\research\RELEASE_NOTES_v2.5.0.md,8101,.md,2026-01-16 12:17:09 UTC
+docs\archive\session-history\HANDOFF_through_2026-07-12.md,113580,.md,2026-07-13 06:45:01 UTC
+docs\archive\session-history\README.md,691,.md,2026-07-13 06:44:31 UTC
+docs\archive\session-history\TODO_through_2026-07-12.md,166844,.md,2026-07-13 06:45:01 UTC
 docs\archive\whitepapers\4D_Database_Solution Metadata acquation knowleagde graph.pdf,293190,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf,404266,.pdf,2026-01-06 01:00:29 UTC
 docs\archive\whitepapers\analysis of layered nested simulated database - Monica AI Chat.pdf,3556446,.pdf,2026-01-06 01:00:29 UTC
@@ -735,12 +743,9 @@ docs\archive\wireframes\landing-page-2025.md,26256,.md,2026-01-06 01:00:29 UTC
 docs\archive\wireframes\login-auth-2025.md,43654,.md,2026-01-06 01:00:29 UTC
 docs\archive\wireframes\README.md,14791,.md,2026-07-06 19:01:42 UTC
 docs\assets\readme\architecture-overview.svg,4192,.svg,2026-07-04 03:12:47 UTC
-docs\audits\AUDITS_MARKDOWN_REVIEW_2026-07-06.md,3811,.md,2026-07-06 18:54:22 UTC
-docs\audits\DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md,16818,.md,2026-07-06 18:47:26 UTC
-docs\audits\DataLogicEngine_Audit_Sprint_Plan_v2.md,28696,.md,2026-07-06 18:47:39 UTC
-docs\audits\DataLogicEngine_Auth_Deprecation_Plan.md,19236,.md,2026-07-06 18:49:26 UTC
+docs\audits\AUDITS_MARKDOWN_REVIEW_2026-07-06.md,3776,.md,2026-07-13 06:40:52 UTC
+docs\audits\DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md,16889,.md,2026-07-13 06:41:32 UTC
 docs\audits\DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md,3723,.md,2026-07-11 05:18:11 UTC
-docs\audits\DataLogicEngine_Complete_Audit_Plan_v2.md,40337,.md,2026-07-06 18:54:22 UTC
 docs\audits\DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md,8201,.md,2026-07-11 06:03:22 UTC
 docs\audits\DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md,41477,.md,2026-07-13 04:33:26 UTC
 docs\audits\DataLogicEngine_Routes_Audit.md,26040,.md,2026-07-06 18:49:49 UTC
@@ -750,9 +755,9 @@ docs\CIS_BENCHMARKS.md,7144,.md,2026-07-06 07:20:21 UTC
 docs\COMPONENT_MAP.md,7888,.md,2026-07-06 07:36:28 UTC
 docs\CONTRIBUTING.md,2901,.md,2026-07-06 07:35:06 UTC
 docs\DATA_FLOW_DIAGRAMS.md,10771,.md,2026-07-11 05:18:11 UTC
-docs\DATABASE_SCHEMA.md,22248,.md,2026-07-06 07:31:48 UTC
+docs\DATABASE_SCHEMA.md,22417,.md,2026-07-13 07:17:19 UTC
 docs\DECISION_LOGIC.md,13234,.md,2026-07-06 07:34:34 UTC
-docs\DEPLOYMENT.md,16505,.md,2026-07-06 07:37:03 UTC
+docs\DEPLOYMENT.md,16898,.md,2026-07-13 07:17:14 UTC
 docs\DEVELOPER_GUIDE.md,12628,.md,2026-07-09 23:35:53 UTC
 docs\diagrams\02_research_to_code_traceability.md,13084,.md,2026-07-06 18:59:28 UTC
 docs\diagrams\03_ai_reasoning_sequence.md,12574,.md,2026-07-06 18:59:28 UTC
@@ -763,7 +768,7 @@ docs\diagrams\07_data_storage_and_memory_architecture.md,13229,.md,2026-07-06 18
 docs\diagrams\08_testing_validation_and_release_governance.md,11681,.md,2026-07-06 18:59:28 UTC
 docs\diagrams\09_dmrf_control_plane_deep_dive.md,10771,.md,2026-07-06 18:59:28 UTC
 docs\diagrams\10_dsqp_persona_construction_architecture.md,9792,.md,2026-07-06 18:59:28 UTC
-docs\diagrams\11_frontend_product_surface_and_trace_review_map.md,13773,.md,2026-07-06 18:59:28 UTC
+docs\diagrams\11_frontend_product_surface_and_trace_review_map.md,13781,.md,2026-07-13 06:40:05 UTC
 docs\diagrams\12_end_to_end_request_lifecycle.md,12120,.md,2026-07-06 18:59:28 UTC
 docs\DOCS_VERSION.json,331,.json,2026-07-07 00:16:25 UTC
 docs\DOCUMENTATION_COVERAGE_MATRIX.md,7030,.md,2026-07-06 19:20:39 UTC
@@ -771,9 +776,9 @@ docs\DOCUMENTATION_STANDARDS.md,7381,.md,2026-07-06 07:34:43 UTC
 docs\DOCUMENTATION_VERSIONING.md,4241,.md,2026-07-06 07:35:15 UTC
 docs\documents\README.md,872,.md,2026-07-06 19:00:04 UTC
 docs\ENGINEER_ONBOARDING.md,14982,.md,2026-07-09 23:35:53 UTC
-docs\FILE_INVENTORY.csv,126693,.csv,2026-07-13 05:48:40 UTC
+docs\FILE_INVENTORY.csv,130754,.csv,2026-07-13 07:18:18 UTC
 docs\FILE_STRUCTURE.md,4638,.md,2026-07-06 07:35:29 UTC
-docs\GENERATED_STRUCTURE.md,72606,.md,2026-07-13 05:48:40 UTC
+docs\GENERATED_STRUCTURE.md,72892,.md,2026-07-13 07:18:18 UTC
 docs\ip\dsqp_technical_disclosure.md,4476,.md,2026-07-06 19:00:04 UTC
 docs\MCP_INTEGRATION.md,13816,.md,2026-07-06 07:39:23 UTC
 docs\openapi.yaml,17303,.yaml,2026-07-04 05:38:16 UTC
@@ -781,18 +786,18 @@ docs\OPERATIONAL_RUNBOOKS.md,20150,.md,2026-07-06 07:32:48 UTC
 docs\PRIVACY_POLICY.md,11005,.md,2026-07-06 07:32:13 UTC
 docs\PROCESS_MAP.md,8171,.md,2026-07-06 07:33:10 UTC
 docs\PRODUCT_DESIGN.md,11551,.md,2026-07-06 07:36:13 UTC
-docs\PRODUCT_OVERVIEW.md,12126,.md,2026-07-06 07:01:31 UTC
+docs\PRODUCT_OVERVIEW.md,12272,.md,2026-07-13 07:17:14 UTC
 docs\PRODUCTION_READINESS.md,20331,.md,2026-07-07 01:43:20 UTC
-docs\README.md,14863,.md,2026-07-13 06:27:45 UTC
+docs\README.md,15281,.md,2026-07-13 06:44:43 UTC
 docs\RELEASE_CHECKLIST.md,10663,.md,2026-07-06 07:18:18 UTC
 docs\REPO_AUDIT_LOG.md,370,.md,2026-06-25 04:14:47 UTC
-docs\ROOT_CLEANUP_REVIEW_2026-07-06.md,4169,.md,2026-07-06 19:19:36 UTC
+docs\ROOT_CLEANUP_REVIEW_2026-07-06.md,4165,.md,2026-07-13 06:44:43 UTC
 docs\SDLC_SSDF_MAPPING.md,12700,.md,2026-07-06 07:35:54 UTC
 docs\SECURITY.md,16371,.md,2026-07-06 07:32:01 UTC
 docs\SEQUENCE_DIAGRAMS.md,11785,.md,2026-07-06 07:33:26 UTC
 docs\SLSA_LEVEL_3_ATTESTATION.md,6099,.md,2026-07-06 07:37:41 UTC
 docs\SSL_CONFIGURATION.md,6698,.md,2026-07-06 07:32:08 UTC
-docs\SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md,4109,.md,2026-07-07 00:16:11 UTC
+docs\SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md,4209,.md,2026-07-13 06:40:52 UTC
 docs\TESTING.md,17297,.md,2026-07-06 07:33:42 UTC
 docs\TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md,8510,.md,2026-07-06 07:40:24 UTC
 docs\USER_GUIDE.md,10359,.md,2026-07-06 07:19:40 UTC
@@ -811,7 +816,6 @@ docs\whitepapers\Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Know
 docs\whitepapers\Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf,325678,.pdf,2026-01-06 01:00:29 UTC
 docs\whitepapers\Modular Design for UKG’s 12-Step Workflow and 17-Axis System.pdf,54351,.pdf,2026-01-11 06:01:47 UTC
 docs\whitepapers\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm,156606,.docm,2026-01-06 01:00:29 UTC
-docs\whitepapers\MVP Plan_ Universal Knowledge Graph (UKG) System.pdf,125625,.pdf,2026-01-06 01:00:29 UTC
 docs\whitepapers\Nested Simulated Memory Architecture ofUSKD 10-Layer Technical Documentation.pdf,231504,.pdf,2026-01-06 01:00:29 UTC
 docs\whitepapers\README.md,1360,.md,2026-07-07 00:16:11 UTC
 docs\whitepapers\The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf,3839801,.pdf,2026-01-06 01:00:29 UTC
@@ -1182,7 +1186,7 @@ frontend\types\electron.d.ts,3745,.ts,2026-07-04 05:10:01 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,112037,.md,2026-07-13 06:27:45 UTC
+HANDOFF.md,5199,.md,2026-07-13 08:01:25 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1569,.py,2026-04-01 01:25:41 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1208,8 +1212,8 @@ playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 PRODUCTION_COMPLETION_PLAN_2026.md,194542,.md,2026-07-13 06:24:26 UTC
 pyproject.toml,1842,.toml,2026-06-05 03:31:56 UTC
-README.md,39328,.md,2026-07-13 06:31:19 UTC
-REPO_AUDIT_LOG.md,175052,.md,2026-06-25 02:19:57 UTC
+README.md,39694,.md,2026-07-13 07:17:14 UTC
+REPO_AUDIT_LOG.md,175068,.md,2026-07-13 06:40:05 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,2383,.json,2026-05-22 22:58:30 UTC
 reports\app-readiness\keyboard-navigation-report.json,601,.json,2026-06-21 22:41:20 UTC
@@ -1235,6 +1239,36 @@ reports\performance_benchmark_report.json,2788,.json,2026-05-31 03:59:45 UTC
 reports\phase1_provider_staging_report.json,1671,.json,2026-05-24 23:28:59 UTC
 reports\phase_h_desktop_evidence.json,1152,.json,2026-07-02 06:47:46 UTC
 reports\production-code-review-2026-05-23.md,9367,.md,2026-05-23 05:11:16 UTC
+reports\production-readiness\2026\phase-00\artifacts.json,4634,.json,2026-07-13 08:03:13 UTC
+reports\production-readiness\2026\phase-00\checks.json,4009,.json,2026-07-13 08:02:14 UTC
+reports\production-readiness\2026\phase-00\docs-reviewed.md,1742,.md,2026-07-13 08:01:53 UTC
+reports\production-readiness\2026\phase-00\feature-disposition.json,595794,.json,2026-07-13 08:00:10 UTC
+reports\production-readiness\2026\phase-00\legal-distribution-authority.json,1820,.json,2026-07-13 07:11:20 UTC
+reports\production-readiness\2026\phase-00\owner-approval-2026-07-13.md,1093,.md,2026-07-13 07:53:05 UTC
+reports\production-readiness\2026\phase-00\product-acceptance-charter.md,2602,.md,2026-07-13 07:53:05 UTC
+reports\production-readiness\2026\phase-00\requirements-traceability.json,14147,.json,2026-07-13 08:00:10 UTC
+reports\production-readiness\2026\phase-00\responsibility-approval.json,2489,.json,2026-07-13 07:53:05 UTC
+reports\production-readiness\2026\phase-00\risk-register.md,1964,.md,2026-07-13 08:01:47 UTC
+reports\production-readiness\2026\phase-00\rollback.md,793,.md,2026-07-13 08:02:30 UTC
+reports\production-readiness\2026\phase-00\runtime\baseline-metrics.json,1493,.json,2026-07-13 08:00:03 UTC
+reports\production-readiness\2026\phase-00\runtime\installed-baseline.json,6941,.json,2026-07-13 07:59:09 UTC
+reports\production-readiness\2026\phase-00\runtime\podman-five-service-baseline.json,3116,.json,2026-07-13 07:58:57 UTC
+reports\production-readiness\2026\phase-00\runtime\product-manifest.json,3354,.json,2026-07-13 07:15:03 UTC
+reports\production-readiness\2026\phase-00\runtime\README.md,396,.md,2026-07-13 07:17:36 UTC
+reports\production-readiness\2026\phase-00\runtime\runtime-surfaces.json,149241,.json,2026-07-13 08:00:09 UTC
+reports\production-readiness\2026\phase-00\runtime\service-consumers.json,129459,.json,2026-07-13 08:00:10 UTC
+reports\production-readiness\2026\phase-00\runtime\ui-controls.json,42343,.json,2026-07-13 08:00:09 UTC
+reports\production-readiness\2026\phase-00\scope-approval.md,686,.md,2026-07-13 07:16:10 UTC
+reports\production-readiness\2026\phase-00\summary.md,3044,.md,2026-07-13 08:02:14 UTC
+reports\production-readiness\2026\phase-00\test-results\environment-parity-python311.json,1120,.json,2026-07-13 08:03:12 UTC
+reports\production-readiness\2026\phase-00\test-results\environment-parity.json,1131,.json,2026-07-13 06:57:26 UTC
+reports\production-readiness\2026\phase-00\test-results\lockfiles-python311.json,680,.json,2026-07-13 08:03:12 UTC
+reports\production-readiness\2026\phase-00\test-results\lockfiles.json,680,.json,2026-07-13 06:57:26 UTC
+reports\production-readiness\2026\phase-00\test-results\README.md,284,.md,2026-07-13 07:17:36 UTC
+reports\production-readiness\2026\phase-00\test-results\runtime-precheck-python311.json,1830,.json,2026-07-13 08:03:12 UTC
+reports\production-readiness\2026\phase-00\test-results\runtime-precheck.json,1830,.json,2026-07-13 06:57:26 UTC
+reports\production-readiness\2026\phase-00\test-results\secret-scan.json,549,.json,2026-07-13 07:15:15 UTC
+reports\production-readiness\2026\phase-00\windows-support-matrix.json,2145,.json,2026-07-13 07:53:05 UTC
 reports\release-readiness\local-first-phase1-completion-2026-05-25.md,2381,.md,2026-05-25 04:33:33 UTC
 reports\release-readiness\local-release-evidence-2026-05-23.md,16514,.md,2026-05-28 07:49:02 UTC
 reports\release_governance_report.json,4154,.json,2026-05-30 06:17:55 UTC
@@ -1260,6 +1294,8 @@ scripts\archive\verify_workflow_wiring.py,1896,.py,2026-01-11 20:16:16 UTC
 scripts\audit_ka_files.py,2042,.py,2026-02-16 22:21:52 UTC
 scripts\backup_database.sh,5419,.sh,2026-01-15 04:08:49 UTC
 scripts\build_backend.py,1471,.py,2026-01-28 07:21:02 UTC
+scripts\capture_installed_baseline.ps1,5741,.ps1,2026-07-13 07:58:57 UTC
+scripts\capture_phase0_artifacts.py,2351,.py,2026-07-13 08:01:59 UTC
 scripts\check_circular_deps.py,873,.py,2026-02-16 22:18:46 UTC
 scripts\create_admin_user.py,8127,.py,2026-06-20 06:10:14 UTC
 scripts\create_missing_kas.py,2935,.py,2026-01-16 10:18:27 UTC
@@ -1300,6 +1336,8 @@ scripts\find_frontend_duplicates.py,2373,.py,2026-02-17 02:44:19 UTC
 scripts\find_orphaned_modules.py,8488,.py,2026-06-22 17:09:20 UTC
 scripts\generate_docs.py,7928,.py,2026-02-16 21:34:42 UTC
 scripts\generate_keys.py,1372,.py,2026-01-06 20:14:00 UTC
+scripts\generate_phase0_contracts.py,9822,.py,2026-07-13 07:10:35 UTC
+scripts\generate_product_manifest.py,6075,.py,2026-07-13 06:56:17 UTC
 scripts\generate_registry_yaml.py,1369,.py,2026-02-17 02:44:19 UTC
 scripts\generate_secrets.py,3269,.py,2026-02-16 22:18:46 UTC
 scripts\generate_soc2_report.py,11456,.py,2026-01-06 01:00:29 UTC
@@ -1307,7 +1345,10 @@ scripts\generate_support_bundle.py,9995,.py,2026-02-16 22:18:46 UTC
 scripts\import_reference_data.py,10127,.py,2026-01-06 01:00:29 UTC
 scripts\index_knowledge_nodes.py,2769,.py,2026-05-25 04:49:40 UTC
 scripts\ingest_local_corpus.py,1598,.py,2026-05-29 06:09:18 UTC
+scripts\inventory_runtime_surfaces.py,8873,.py,2026-07-13 07:59:49 UTC
 scripts\inventory_scan.py,3855,.py,2026-02-16 22:18:46 UTC
+scripts\inventory_service_consumers.py,4626,.py,2026-07-13 07:59:49 UTC
+scripts\inventory_ui_controls.py,3280,.py,2026-07-13 07:59:49 UTC
 scripts\migrate_legacy_kas.py,692,.py,2026-01-16 10:18:23 UTC
 scripts\persona_manager.py,7560,.py,2026-06-05 02:40:15 UTC
 scripts\profile_simulation.py,1410,.py,2026-06-04 08:00:02 UTC
@@ -1341,6 +1382,7 @@ scripts\verify_backup_cron.sh,1522,.sh,2026-01-15 04:08:49 UTC
 scripts\verify_chat_persistence.py,3257,.py,2026-02-16 22:18:46 UTC
 scripts\verify_docs_references.py,9104,.py,2026-05-31 01:08:54 UTC
 scripts\verify_environment_parity.py,6681,.py,2026-05-22 06:33:58 UTC
+scripts\verify_feature_disposition.py,2934,.py,2026-07-13 07:12:06 UTC
 scripts\verify_gemini_integration.py,4343,.py,2026-05-22 21:37:25 UTC
 scripts\verify_installer_integrity.py,5528,.py,2026-02-16 12:34:36 UTC
 scripts\verify_ka_upgrades.py,3417,.py,2026-02-16 22:18:46 UTC
@@ -1351,6 +1393,8 @@ scripts\verify_lockfiles.py,5120,.py,2026-04-01 01:30:46 UTC
 scripts\verify_mcp_system.py,1060,.py,2026-01-28 07:16:19 UTC
 scripts\verify_phase_h_desktop.py,3889,.py,2026-07-02 06:47:46 UTC
 scripts\verify_release_governance.py,4331,.py,2026-04-01 02:38:20 UTC
+scripts\verify_release_ownership.py,2973,.py,2026-07-13 07:12:06 UTC
+scripts\verify_requirements_traceability.py,1997,.py,2026-07-13 07:12:06 UTC
 scripts\verify_services.py,5115,.py,2026-02-16 22:22:18 UTC
 scripts\verify_sqlite.py,990,.py,2026-01-30 18:36:43 UTC
 scripts\verify_trace_viewer_wiring.py,4384,.py,2026-05-29 07:03:20 UTC
@@ -1632,6 +1676,6 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,164941,.md,2026-07-13 06:27:45 UTC
+TODO.md,7240,.md,2026-07-13 08:01:07 UTC
 uv.lock,212883,.lock,2026-07-07 22:49:01 UTC
 wsgi.py,565,.py,2026-04-01 01:25:51 UTC

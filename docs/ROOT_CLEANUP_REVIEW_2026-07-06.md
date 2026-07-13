@@ -17,7 +17,7 @@ This pass reviewed direct root files and root-level documentation after the prod
 |---|---|---|
 | `README.md` | Active source of truth | Keep. Public/root entry point. |
 | `TODO.md` | Active source of truth | Keep. Canonical backlog and release-readiness queue. |
-| `HANDOFF.md` | Active continuity record | Keep for now. Candidate for future compaction after production release because it overlaps heavily with `TODO.md` and older session history. |
+| `HANDOFF.md` | Active continuity record | Compacted on 2026-07-12 to the current checkpoint and exact next action; prior session history moved to `docs/archive/session-history/`. |
 | `CHANGELOG.md` | Active release history | Keep. Historical model/Kubernetes/Azure references are acceptable as changelog history. |
 | `REPO_AUDIT_LOG.md` | Active audit history | Keep. Large by design; root audit references point here. |
 | `CONTRIBUTING.md` | Active contributor policy | Keep. |

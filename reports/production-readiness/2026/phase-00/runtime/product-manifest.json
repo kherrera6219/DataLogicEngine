@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-13T07:15:02.956011+00:00",
+  "authority": "PRODUCTION_COMPLETION_PLAN_2026.md v1.2.0",
+  "git": {
+    "head": "2330a40d2ca8cced794146714fd5269220359201",
+    "branch": "main",
+    "working_tree_changes": 57
+  },
+  "product": {
+    "name": "DataLogicEngine Desktop",
+    "target": "local-first Windows 11 x64 governed LLM middleware",
+    "backend_version": "0.1.0",
+    "frontend_version": "0.1.1",
+    "sdk_version": "0.5.0",
+    "installer_channel": "latest-local-qc"
+  },
+  "runtime": {
+    "python_required": ">=3.11",
+    "python_detected": "3.11.14",
+    "node_required": ">=24",
+    "node_detected": "v24.14.0",
+    "npm_required": ">=11",
+    "npm_detected": "11.9.0",
+    "electron_constraint": "^40.0.0",
+    "next_constraint": "^16.2.6"
+  },
+  "api": {
+    "public_prefix": "/api/v1",
+    "public_contract_version": "unified-version-pending-phase-0",
+    "schema_version": "cross-store-contract-pending-phase-4",
+    "gateway_profiles": [
+      "loopback-default",
+      "private-windows-pending-qualification"
+    ]
+  },
+  "providers": {
+    "supported": [
+      "openai",
+      "google"
+    ],
+    "default_models": {
+      "openai": "gpt-5.5",
+      "google": "gemini-3.1-pro-preview"
+    }
+  },
+  "internal_services": {
+    "required": [
+      "postgresql",
+      "redis",
+      "neo4j",
+      "chromadb",
+      "minio"
+    ],
+    "compose": {
+      "backend": {
+        "image": null,
+        "container_name": "ukg-backend",
+        "ports": [
+          "5000:5000"
+        ],
+        "depends_on": [
+          "db",
+          "redis",
+          "neo4j",
+          "minio"
+        ]
+      },
+      "frontend": {
+        "image": null,
+        "container_name": "ukg-frontend",
+        "ports": [
+          "3000:3000"
+        ],
+        "depends_on": [
+          "backend"
+        ]
+      },
+      "db": {
+        "image": "postgres:15-alpine",
+        "container_name": "ukg-db",
+        "ports": [
+          "5432:5432"
+        ],
+        "depends_on": []
+      },
+      "redis": {
+        "image": "redis:7-alpine",
+        "container_name": "ukg-redis",
+        "ports": [
+          "6379:6379"
+        ],
+        "depends_on": []
+      },
+      "neo4j": {
+        "image": "neo4j:5-community",
+        "container_name": "ukg-neo4j",
+        "ports": [
+          "${NEO4J_HTTP_PORT:-7474}:7474",
+          "${NEO4J_LOCAL_PORT:-7687}:7687"
+        ],
+        "depends_on": []
+      },
+      "minio": {
+        "image": "minio/minio:latest",
+        "container_name": "ukg-minio",
+        "ports": [
+          "9000:9000",
+          "9001:9001"
+        ],
+        "depends_on": []
+      }
+    },
+    "missing_from_compose": [
+      "chromadb"
+    ],
+    "non_immutable_image_references": {
+      "db": "postgres:15-alpine",
+      "redis": "redis:7-alpine",
+      "neo4j": "neo4j:5-community",
+      "minio": "minio/minio:latest"
+    }
+  },
+  "known_manifest_gaps": [
+    "Product, frontend, and SDK versions are not unified.",
+    "Public API and cross-store schema versions are not yet authoritative.",
+    "Required ChromaDB service is absent from docker-compose.yml.",
+    "One or more service images are not pinned by immutable digest."
+  ]
+}

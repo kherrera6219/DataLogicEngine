@@ -1,0 +1,4473 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-13T08:00:10.187013+00:00",
+  "review_status": "text inventory; caller and fallback classification required",
+  "summary": {
+    "postgresql_matching_files": 24,
+    "redis_matching_files": 34,
+    "neo4j_matching_files": 22,
+    "chromadb_matching_files": 13,
+    "minio_matching_files": 22,
+    "fallback_matching_files": 95
+  },
+  "service_consumers": {
+    "postgresql": [
+      {
+        "file": "app.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 173,
+            "text": "# PostgreSQL and other databases support full pooling"
+          },
+          {
+            "line": 674,
+            "text": "# Multi-tenant Postgres RLS removed (single-mode / single-tenant deployment) \u2014 see"
+          },
+          {
+            "line": 955,
+            "text": "\"\"\"Auto-start bundled PostgreSQL, Redis, and Neo4j when running in local/desktop mode."
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\config_manager.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 100,
+            "text": "# Desktop Build Default: Local PostgreSQL with ukg_app"
+          },
+          {
+            "line": 109,
+            "text": "return f\"postgresql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_name}\""
+          },
+          {
+            "line": 111,
+            "text": "return \"postgresql://localhost/ukg\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\storage_routes.py",
+        "matches": 13,
+        "samples": [
+          {
+            "line": 219,
+            "text": "valid_services = ['postgres', 'redis', 'neo4j', 'vector', 'object']"
+          },
+          {
+            "line": 349,
+            "text": "if service == 'postgres':"
+          },
+          {
+            "line": 350,
+            "text": "result = _test_postgres(data)"
+          },
+          {
+            "line": 372,
+            "text": "def _test_postgres(data: dict) -> dict:"
+          },
+          {
+            "line": 373,
+            "text": "\"\"\"Test PostgreSQL connection.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\schemas\\request_schemas.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 5,
+            "text": "service: str = Field(..., pattern=\"^(postgres|redis|neo4j|vector|object)$\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\search_service.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 4,
+            "text": "Provides full-text search functionality using PostgreSQL FTS."
+          },
+          {
+            "line": 23,
+            "text": "Search knowledge graph nodes using PostgreSQL full-text search."
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\connection_manager.py",
+        "matches": 26,
+        "samples": [
+          {
+            "line": 29,
+            "text": "class PostgresConfig:"
+          },
+          {
+            "line": 30,
+            "text": "\"\"\"PostgreSQL connection configuration.\"\"\""
+          },
+          {
+            "line": 34,
+            "text": "user: str = \"postgres\""
+          },
+          {
+            "line": 42,
+            "text": "return f\"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}\""
+          },
+          {
+            "line": 136,
+            "text": "postgres: PostgresConfig = field(default_factory=PostgresConfig)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\database_manager.py",
+        "matches": 24,
+        "samples": [
+          {
+            "line": 13,
+            "text": "Manages the lifecycle of portable database instances (PostgreSQL, Redis, Neo4j)."
+          },
+          {
+            "line": 31,
+            "text": "# Postgres Config"
+          },
+          {
+            "line": 32,
+            "text": "self.pg_bin = os.path.join(self.base_dir, 'postgresql', 'bin')"
+          },
+          {
+            "line": 33,
+            "text": "self.pg_data = os.path.join(self.base_dir, 'postgresql', 'data')"
+          },
+          {
+            "line": 34,
+            "text": "self.pg_port = int(os.environ.get(\"POSTGRES_LOCAL_PORT\", \"5432\"))"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\uskd_memory_graph.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 3,
+            "text": "The persistent knowledge graph lives in SQLite/PostgreSQL and Neo4j. This module"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_core\\historical_embeddings.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 31,
+            "text": "\"\"\"Serialize a local embedding as JSON text for SQLite/PostgreSQL TEXT storage.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\ukg_db.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 18,
+            "text": "PostgreSQL database. It handles operations for nodes, edges, algorithms,"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "deploy\\validate_production.py",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 72,
+            "text": "if 'postgresql' in db_url:"
+          },
+          {
+            "line": 73,
+            "text": "ok(\"DATABASE_URL is PostgreSQL\")"
+          },
+          {
+            "line": 78,
+            "text": "fail(\"DATABASE_URL is SQLite (use PostgreSQL for production)\")"
+          },
+          {
+            "line": 79,
+            "text": "errors.append(\"Use PostgreSQL in production\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "docker-compose.yml",
+        "matches": 8,
+        "samples": [
+          {
+            "line": 12,
+            "text": "- DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/ukg_db"
+          },
+          {
+            "line": 48,
+            "text": "# Database Service (PostgreSQL)"
+          },
+          {
+            "line": 50,
+            "text": "image: postgres:15-alpine"
+          },
+          {
+            "line": 53,
+            "text": "- POSTGRES_USER=postgres"
+          },
+          {
+            "line": 54,
+            "text": "- POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+        "matches": 12,
+        "samples": [
+          {
+            "line": 20,
+            "text": "postgres: { healthy: true, is_cloud: false, url: 'postgres://localhost:5432' },"
+          },
+          {
+            "line": 68,
+            "text": "case '/storage/health/postgres':"
+          },
+          {
+            "line": 80,
+            "text": "postgres_url: '***',"
+          },
+          {
+            "line": 115,
+            "text": "expect(screen.getByText('PostgreSQL')).toBeInTheDocument();"
+          },
+          {
+            "line": 158,
+            "text": "expect(request).toHaveBeenCalledWith('/storage/health/postgres');"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+        "matches": 16,
+        "samples": [
+          {
+            "line": 30,
+            "text": "postgres: ServiceStatus;"
+          },
+          {
+            "line": 66,
+            "text": "postgres: Database,"
+          },
+          {
+            "line": 74,
+            "text": "postgres: 'PostgreSQL',"
+          },
+          {
+            "line": 100,
+            "text": "const requiredKeys: Array<keyof StorageHealth['services']> = ['postgres', 'redis', 'neo4j', 'vector', 'object'];"
+          },
+          {
+            "line": 105,
+            "text": "postgres_url: string;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "pyproject.toml",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 16,
+            "text": "\"psycopg2-binary>=2.9.12\","
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\api.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 41,
+            "text": "include ``postgres`` or ``redis``.  If omitted or unknown, the system will"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\audit\\__init__.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 13,
+            "text": "from .postgres import PostgresAuditStore  # type: ignore"
+          },
+          {
+            "line": 14,
+            "text": "__all__.append(\"PostgresAuditStore\")"
+          },
+          {
+            "line": 16,
+            "text": "PostgresAuditStore = None  # type: ignore"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\audit\\postgres.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 28,
+            "text": "class PostgresAuditStore(AuditStore):"
+          },
+          {
+            "line": 31,
+            "text": "raise ImportError(\"asyncpg is required for PostgresAuditStore. Install with: pip install ukg-sdk[postgres]\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\builtins.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 45,
+            "text": "elif any(k in ql for k in [\"postgres\", \"redis\", \"kubernetes\", \"python\", \"api\"]):"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\__init__.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 12,
+            "text": "from .postgres import PostgresMemoryAdapter  # type: ignore"
+          },
+          {
+            "line": 13,
+            "text": "__all__.append(\"PostgresMemoryAdapter\")"
+          },
+          {
+            "line": 15,
+            "text": "PostgresMemoryAdapter = None  # type: ignore"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\postgres.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 25,
+            "text": "class PostgresMemoryAdapter(MemoryAdapter):"
+          },
+          {
+            "line": 26,
+            "text": "\"\"\"Postgres-backed memory adapter (asyncpg)."
+          },
+          {
+            "line": 33,
+            "text": "raise ImportError(\"asyncpg is required for PostgresMemoryAdapter. Install with: pip install ukg-sdk[postgres]\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\overlay.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 32,
+            "text": "- Postgres/Redis memory adapters"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\core.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 41,
+            "text": "- Persistence adapters (Postgres/Redis) live in ukg_sdk.memory_adapters and may"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\truthmemory.py",
+        "matches": 6,
+        "samples": [
+          {
+            "line": 27,
+            "text": "class PostgresMemoryAdapter(InMemoryMemoryAdapter):"
+          },
+          {
+            "line": 29,
+            "text": "Stub for a Postgres memory adapter."
+          },
+          {
+            "line": 31,
+            "text": "In a full implementation, this would connect to a Postgres instance and"
+          },
+          {
+            "line": 32,
+            "text": "persist entries using SQLAlchemy or psycopg2.  It inherits from"
+          },
+          {
+            "line": 63,
+            "text": "if adapter.lower() == \"postgres\":"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      }
+    ],
+    "redis": [
+      {
+        "file": "app.py",
+        "matches": 26,
+        "samples": [
+          {
+            "line": 400,
+            "text": "redis_url = os.environ.get(\"REDIS_URL\", \"redis://localhost:6379/0\")"
+          },
+          {
+            "line": 401,
+            "text": "# Check if Redis is likely available (naive check, real check happens on connect)"
+          },
+          {
+            "line": 402,
+            "text": "use_redis = \"localhost\" not in redis_url or os.environ.get(\"USE_REDIS\", \"False\").lower() == \"true\""
+          },
+          {
+            "line": 404,
+            "text": "if use_redis:"
+          },
+          {
+            "line": 405,
+            "text": "app.config[\"CACHE_TYPE\"] = \"RedisCache\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\api\\specs\\ukg_api_v3_2.yaml",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 2076,
+            "text": "- Federated Redis Streams status"
+          },
+          {
+            "line": 2108,
+            "text": "redis_streams_available:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\celery_app.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 9,
+            "text": "backend=app.config.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0'),"
+          },
+          {
+            "line": 10,
+            "text": "broker=app.config.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\dmrf\\truth_integration\\link_adapter.py",
+        "matches": 6,
+        "samples": [
+          {
+            "line": 25,
+            "text": "def __init__(self, bus: Any | None = None, *, redis_url: str | None = None, desktop_mode: bool | None = None):"
+          },
+          {
+            "line": 27,
+            "text": "self.redis_url = redis_url or os.environ.get(\"REDIS_URL\")"
+          },
+          {
+            "line": 35,
+            "text": "return {\"published\": True, \"topic\": topic, \"message_id\": message_id, \"backend\": \"redis_stream\"}"
+          },
+          {
+            "line": 45,
+            "text": "if self.redis_url and not self.desktop_mode:"
+          },
+          {
+            "line": 47,
+            "text": "import redis"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_102_dependency_injection.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 44,
+            "text": "dep_map = self.config.get(\"dependency_map\", {\"storage\": \"S3Provider\", \"cache\": \"RedisCache\"})"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_110_integration_bus.py",
+        "matches": 6,
+        "samples": [
+          {
+            "line": 48,
+            "text": "use_redis = os.environ.get(\"USE_REDIS\", \"False\").lower() == \"true\""
+          },
+          {
+            "line": 53,
+            "text": "if use_redis:"
+          },
+          {
+            "line": 55,
+            "text": "# If Redis is active, mock publishing to stream"
+          },
+          {
+            "line": 56,
+            "text": "bus_type = \"redis_streams\""
+          },
+          {
+            "line": 57,
+            "text": "published_status = \"redis_published\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_master_controller.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 25,
+            "text": "celery_app = Celery('ka_tasks', broker=os.getenv('REDIS_URL', 'redis://localhost:6379/0'))"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\llm_gateway\\api.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 240,
+            "text": "# Rate Limiting (Redis-backed)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\storage_routes.py",
+        "matches": 13,
+        "samples": [
+          {
+            "line": 219,
+            "text": "valid_services = ['postgres', 'redis', 'neo4j', 'vector', 'object']"
+          },
+          {
+            "line": 351,
+            "text": "elif service == 'redis':"
+          },
+          {
+            "line": 352,
+            "text": "result = _test_redis(data)"
+          },
+          {
+            "line": 406,
+            "text": "def _test_redis(data: dict) -> dict:"
+          },
+          {
+            "line": 407,
+            "text": "\"\"\"Test Redis connection.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\schemas\\request_schemas.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 5,
+            "text": "service: str = Field(..., pattern=\"^(postgres|redis|neo4j|vector|object)$\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\security\\session_manager.py",
+        "matches": 31,
+        "samples": [
+          {
+            "line": 5,
+            "text": "- Redis-based session storage"
+          },
+          {
+            "line": 12,
+            "text": "import redis"
+          },
+          {
+            "line": 23,
+            "text": "\"\"\"Enhanced session management with Redis backend\"\"\""
+          },
+          {
+            "line": 29,
+            "text": "def __init__(self, app=None, redis_client=None):"
+          },
+          {
+            "line": 35,
+            "text": "redis_client: Optional Redis client (will create one if not provided)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\services\\rag_service.py",
+        "matches": 9,
+        "samples": [
+          {
+            "line": 197,
+            "text": "def _redis_embedding_client():"
+          },
+          {
+            "line": 198,
+            "text": "if os.environ.get(\"USE_REDIS\", \"false\").lower() not in {\"1\", \"true\", \"yes\", \"on\"}:"
+          },
+          {
+            "line": 201,
+            "text": "import redis"
+          },
+          {
+            "line": 203,
+            "text": "client = redis.Redis.from_url(os.environ.get(\"REDIS_URL\", \"redis://127.0.0.1:6379/0\"), decode_responses=True)"
+          },
+          {
+            "line": 207,
+            "text": "logger.debug(\"Embedding Redis cache unavailable: %s\", exc)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\connection_manager.py",
+        "matches": 24,
+        "samples": [
+          {
+            "line": 50,
+            "text": "class RedisConfig:"
+          },
+          {
+            "line": 51,
+            "text": "\"\"\"Redis connection configuration.\"\"\""
+          },
+          {
+            "line": 63,
+            "text": "return f\"redis://{auth}{self.host}:{self.port}/{self.db}\""
+          },
+          {
+            "line": 137,
+            "text": "redis: RedisConfig = field(default_factory=RedisConfig)"
+          },
+          {
+            "line": 203,
+            "text": "# Redis"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\database_manager.py",
+        "matches": 29,
+        "samples": [
+          {
+            "line": 13,
+            "text": "Manages the lifecycle of portable database instances (PostgreSQL, Redis, Neo4j)."
+          },
+          {
+            "line": 37,
+            "text": "# Redis Config"
+          },
+          {
+            "line": 38,
+            "text": "self.redis_bin = os.path.join(self.base_dir, 'redis')"
+          },
+          {
+            "line": 39,
+            "text": "self.redis_data = os.path.join(self.base_dir, 'redis', 'data')"
+          },
+          {
+            "line": 40,
+            "text": "self.redis_port = int(os.environ.get(\"REDIS_LOCAL_PORT\", \"6379\"))"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\graph_store.py",
+        "matches": 19,
+        "samples": [
+          {
+            "line": 121,
+            "text": "\"\"\"Run a Cypher query with optional Flask cache/Redis caching.\"\"\""
+          },
+          {
+            "line": 124,
+            "text": "redis_result = self._redis_cache_get(cache_key)"
+          },
+          {
+            "line": 125,
+            "text": "if redis_result is not None:"
+          },
+          {
+            "line": 126,
+            "text": "return redis_result"
+          },
+          {
+            "line": 135,
+            "text": "self._redis_cache_set(cache_key, result, timeout)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_link\\bus.py",
+        "matches": 27,
+        "samples": [
+          {
+            "line": 42,
+            "text": "def __init__(self, db_session=None, redis_client=None, enable_redis_streams: bool | None = None):"
+          },
+          {
+            "line": 50,
+            "text": "self.redis_client = ("
+          },
+          {
+            "line": 51,
+            "text": "redis_client"
+          },
+          {
+            "line": 52,
+            "text": "if redis_client is not None"
+          },
+          {
+            "line": 53,
+            "text": "else self._create_redis_client(enable_redis_streams=enable_redis_streams)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_memory\\cache.py",
+        "matches": 37,
+        "samples": [
+          {
+            "line": 35,
+            "text": "def __init__(self, backend: str = 'memory', max_size: int = None, redis_client=None):"
+          },
+          {
+            "line": 43,
+            "text": "self.redis_client = redis_client"
+          },
+          {
+            "line": 44,
+            "text": "if backend == \"redis\" and self.redis_client is None:"
+          },
+          {
+            "line": 45,
+            "text": "self.redis_client = self._build_redis_client()"
+          },
+          {
+            "line": 46,
+            "text": "if backend == \"redis\" and self.redis_client is None:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_memory\\manager.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 36,
+            "text": "cache_backend = 'redis' if os.environ.get(\"USE_REDIS\", \"false\").lower() in {\"1\", \"true\", \"yes\", \"on\"} else 'memory'"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "docker-compose.yml",
+        "matches": 7,
+        "samples": [
+          {
+            "line": 13,
+            "text": "- REDIS_URL=redis://redis:6379/0"
+          },
+          {
+            "line": 14,
+            "text": "- USE_REDIS=true"
+          },
+          {
+            "line": 25,
+            "text": "- redis"
+          },
+          {
+            "line": 64,
+            "text": "# Cache Service (Redis)"
+          },
+          {
+            "line": 65,
+            "text": "redis:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\DesktopStatus.test.tsx",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 25,
+            "text": "getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 21,
+            "text": "redis: { healthy: false, is_cloud: false },"
+          },
+          {
+            "line": 81,
+            "text": "redis_url: '',"
+          },
+          {
+            "line": 116,
+            "text": "expect(screen.getByText('Redis')).toBeInTheDocument();"
+          },
+          {
+            "line": 249,
+            "text": "redis_url: '',"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+        "matches": 16,
+        "samples": [
+          {
+            "line": 31,
+            "text": "redis: ServiceStatus;"
+          },
+          {
+            "line": 67,
+            "text": "redis: Zap,"
+          },
+          {
+            "line": 75,
+            "text": "redis: 'Redis',"
+          },
+          {
+            "line": 100,
+            "text": "const requiredKeys: Array<keyof StorageHealth['services']> = ['postgres', 'redis', 'neo4j', 'vector', 'object'];"
+          },
+          {
+            "line": 106,
+            "text": "redis_url: string;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\electron\\main.ts",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 848,
+            "text": "return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          },
+          {
+            "line": 857,
+            "text": "redis?: { ping_ms?: number | null };"
+          },
+          {
+            "line": 865,
+            "text": "redis_ping_ms: payload?.database?.redis?.ping_ms ?? null,"
+          },
+          {
+            "line": 872,
+            "text": "return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\types\\electron.d.ts",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 22,
+            "text": "redis_ping_ms: number | null;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\api.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 41,
+            "text": "include ``postgres`` or ``redis``.  If omitted or unknown, the system will"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\openapi.yaml",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 2076,
+            "text": "- Federated Redis Streams status"
+          },
+          {
+            "line": 2108,
+            "text": "redis_streams_available:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\truth_engine_master.yaml",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 145,
+            "text": "redis_streams: \"Multi-region federated\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\builtins.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 45,
+            "text": "elif any(k in ql for k in [\"postgres\", \"redis\", \"kubernetes\", \"python\", \"api\"]):"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\__init__.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 18,
+            "text": "from .redis import RedisMemoryAdapter  # type: ignore"
+          },
+          {
+            "line": 19,
+            "text": "__all__.append(\"RedisMemoryAdapter\")"
+          },
+          {
+            "line": 21,
+            "text": "RedisMemoryAdapter = None  # type: ignore"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\redis.py",
+        "matches": 8,
+        "samples": [
+          {
+            "line": 9,
+            "text": "import redis.asyncio as redis  # type: ignore"
+          },
+          {
+            "line": 11,
+            "text": "redis = None"
+          },
+          {
+            "line": 14,
+            "text": "class RedisMemoryAdapter(MemoryAdapter):"
+          },
+          {
+            "line": 15,
+            "text": "\"\"\"Redis-backed memory adapter."
+          },
+          {
+            "line": 19,
+            "text": "- optional search is not supported by default (use RediSearch or secondary index)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\overlay.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 32,
+            "text": "- Postgres/Redis memory adapters"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\core.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 41,
+            "text": "- Persistence adapters (Postgres/Redis) live in ukg_sdk.memory_adapters and may"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\truthlink.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 21,
+            "text": "broker (Redis Streams, Kafka) or record events for telemetry."
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\truthmemory.py",
+        "matches": 6,
+        "samples": [
+          {
+            "line": 43,
+            "text": "class RedisMemoryAdapter(InMemoryMemoryAdapter):"
+          },
+          {
+            "line": 45,
+            "text": "Stub for a Redis memory adapter."
+          },
+          {
+            "line": 47,
+            "text": "In a full implementation, this would persist history to a Redis database"
+          },
+          {
+            "line": 56,
+            "text": "# Additional Redis logic would go here."
+          },
+          {
+            "line": 65,
+            "text": "elif adapter.lower() == \"redis\":"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      }
+    ],
+    "neo4j": [
+      {
+        "file": "app.py",
+        "matches": 9,
+        "samples": [
+          {
+            "line": 925,
+            "text": "\"\"\"Load the RAM-resident USKD graph from SQL rows, then Neo4j if available.\"\"\""
+          },
+          {
+            "line": 935,
+            "text": "if os.environ.get(\"USKD_SYNC_NEO4J_ON_STARTUP\", \"false\").lower() in {\"1\", \"true\", \"yes\", \"on\"}:"
+          },
+          {
+            "line": 937,
+            "text": "from scripts.sync_nodes_to_neo4j import sync"
+          },
+          {
+            "line": 940,
+            "text": "logger.info(\"USKD SQL\u2192Neo4j startup sync complete: %s\", sync_result)"
+          },
+          {
+            "line": 942,
+            "text": "logger.warning(\"USKD SQL\u2192Neo4j startup sync skipped: %s\", sync_exc)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\api\\specs\\ukg_api_v3_2.yaml",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 2136,
+            "text": "description: Retrieves specific knowledge node from Neo4j graph"
+          },
+          {
+            "line": 2214,
+            "text": "description: 'Execute Cypher query against Neo4j knowledge graph."
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\ingestion\\local_ingestion.py",
+        "matches": 11,
+        "samples": [
+          {
+            "line": 341,
+            "text": "# KI-7: Async ingestion with background threading + Neo4j sync"
+          },
+          {
+            "line": 352,
+            "text": "sync_neo4j: bool = False,"
+          },
+          {
+            "line": 364,
+            "text": "\"neo4j_sync\": None,"
+          },
+          {
+            "line": 384,
+            "text": "neo4j_result = None"
+          },
+          {
+            "line": 385,
+            "text": "if sync_neo4j and result.chunks_created > 0:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\ingestion_routes.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 135,
+            "text": "sync_neo4j=bool(data.get(\"sync_neo4j\", False)),"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\storage_routes.py",
+        "matches": 16,
+        "samples": [
+          {
+            "line": 109,
+            "text": "def _neo4j_metrics() -> dict:"
+          },
+          {
+            "line": 110,
+            "text": "data_path = (_runtime_root() / \"databases\" / \"neo4j\" / \"data\").resolve()"
+          },
+          {
+            "line": 127,
+            "text": "\"neo4j\": _neo4j_metrics(),"
+          },
+          {
+            "line": 219,
+            "text": "valid_services = ['postgres', 'redis', 'neo4j', 'vector', 'object']"
+          },
+          {
+            "line": 353,
+            "text": "elif service == 'neo4j':"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\schemas\\request_schemas.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 5,
+            "text": "service: str = Field(..., pattern=\"^(postgres|redis|neo4j|vector|object)$\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\__init__.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 8,
+            "text": "- GraphStore: Graph database (Neo4j)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\connection_manager.py",
+        "matches": 26,
+        "samples": [
+          {
+            "line": 71,
+            "text": "class Neo4jConfig:"
+          },
+          {
+            "line": 72,
+            "text": "\"\"\"Neo4j connection configuration.\"\"\""
+          },
+          {
+            "line": 75,
+            "text": "user: str = \"neo4j\""
+          },
+          {
+            "line": 85,
+            "text": "return f\"bolt://{self.host}:{self.port}\""
+          },
+          {
+            "line": 138,
+            "text": "neo4j: Neo4jConfig = field(default_factory=Neo4jConfig)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\database_manager.py",
+        "matches": 31,
+        "samples": [
+          {
+            "line": 13,
+            "text": "Manages the lifecycle of portable database instances (PostgreSQL, Redis, Neo4j)."
+          },
+          {
+            "line": 43,
+            "text": "# Neo4j Config"
+          },
+          {
+            "line": 44,
+            "text": "self.neo4j_bin = os.path.join(self.base_dir, 'neo4j', 'bin')"
+          },
+          {
+            "line": 45,
+            "text": "self.neo4j_data = os.path.join(self.base_dir, 'neo4j', 'data')"
+          },
+          {
+            "line": 46,
+            "text": "self.neo4j_port = int(os.environ.get(\"NEO4J_LOCAL_PORT\", \"7687\"))"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\graph_store.py",
+        "matches": 18,
+        "samples": [
+          {
+            "line": 8,
+            "text": "from neo4j import GraphDatabase, Driver"
+          },
+          {
+            "line": 14,
+            "text": "_DISALLOWED_DEFAULT_PASSWORDS = {\"password\", \"neo4j\", \"changeme\", \"default\"}"
+          },
+          {
+            "line": 18,
+            "text": "Interface for interacting with the Neo4j Graph Database."
+          },
+          {
+            "line": 24,
+            "text": "self.uri = os.getenv(\"NEO4J_URI\") or getattr(config, 'NEO4J_URI', 'bolt://localhost:7687')"
+          },
+          {
+            "line": 25,
+            "text": "self.user = os.getenv(\"NEO4J_USER\") or getattr(config, 'NEO4J_USER', 'neo4j')"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\uskd_memory_graph.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 3,
+            "text": "The persistent knowledge graph lives in SQLite/PostgreSQL and Neo4j. This module"
+          },
+          {
+            "line": 109,
+            "text": "def load_from_neo4j(self, graph_store: Any) -> UskdGraphStats:"
+          },
+          {
+            "line": 119,
+            "text": "logger.info(\"Neo4j returned no USKD records; retaining existing memory graph\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_core\\emergence_controller.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 332,
+            "text": "commit_report[\"neo4j_node_merged\"] = store.merge_knowledge_node(properties)"
+          },
+          {
+            "line": 334,
+            "text": "commit_report[\"neo4j_relationship_merged\"] = store.merge_relationship_by_uid("
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_core\\engine.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 364,
+            "text": "neo4j_nodes = graph_store.find_coordinate_nodes(text=query, limit=10)"
+          },
+          {
+            "line": 367,
+            "text": "neo4j_nodes.extend(graph_store.find_coordinate_nodes(axis_number=axis_number, text=axis_text, limit=5))"
+          },
+          {
+            "line": 370,
+            "text": "working_context['neo4j_nodes'] = self._dedupe_graph_nodes(neo4j_nodes)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\coordinate_system.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 821,
+            "text": "\"\"\"Get octopus hub connections from Neo4j with static fallback.\"\"\""
+          },
+          {
+            "line": 823,
+            "text": "from backend.storage import get_graph_store  # inversion:ok \u2014 optional Neo4j octopus traversal with static fallback"
+          },
+          {
+            "line": 846,
+            "text": "logger.debug(\"Neo4j octopus traversal unavailable: %s\", exc)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\simulation\\agentic\\simulation_graph.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 14,
+            "text": "from backend.storage.graph_store import get_graph_store  # inversion:ok \u2014 optional Neo4j opt-in"
+          },
+          {
+            "line": 18,
+            "text": "# In a real implementation, we would query Neo4j here"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "docker-compose.yml",
+        "matches": 13,
+        "samples": [
+          {
+            "line": 15,
+            "text": "- NEO4J_URI=bolt://neo4j:7687"
+          },
+          {
+            "line": 16,
+            "text": "- NEO4J_USER=neo4j"
+          },
+          {
+            "line": 17,
+            "text": "- NEO4J_PASSWORD=${NEO4J_PASSWORD}"
+          },
+          {
+            "line": 26,
+            "text": "- neo4j"
+          },
+          {
+            "line": 74,
+            "text": "# Graph Database (Neo4j)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 22,
+            "text": "neo4j: { healthy: true, is_cloud: false, provider: 'Aura' },"
+          },
+          {
+            "line": 32,
+            "text": "neo4j: { size_bytes: 2048, exists: true },"
+          },
+          {
+            "line": 82,
+            "text": "neo4j_uri: '***',"
+          },
+          {
+            "line": 250,
+            "text": "neo4j_uri: '',"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+        "matches": 18,
+        "samples": [
+          {
+            "line": 32,
+            "text": "neo4j: ServiceStatus;"
+          },
+          {
+            "line": 52,
+            "text": "neo4j: Record<string, unknown>;"
+          },
+          {
+            "line": 68,
+            "text": "neo4j: Network,"
+          },
+          {
+            "line": 76,
+            "text": "neo4j: 'Neo4j',"
+          },
+          {
+            "line": 100,
+            "text": "const requiredKeys: Array<keyof StorageHealth['services']> = ['postgres', 'redis', 'neo4j', 'vector', 'object'];"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 42,
+            "text": "const [syncNeo4j, setSyncNeo4j] = useState(false);"
+          },
+          {
+            "line": 101,
+            "text": "const response = await api.ingestion.startLocalAsync({ ...payload, sync_neo4j: syncNeo4j });"
+          },
+          {
+            "line": 247,
+            "text": "<div className=\"text-sm font-medium text-slate-900 dark:text-gray-100\">Sync to Neo4j</div>"
+          },
+          {
+            "line": 251,
+            "text": "<Switch checked={syncNeo4j} onCheckedChange={setSyncNeo4j} disabled={running} aria-label=\"Sync to Neo4j\" />"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\lib\\api\\ingestion.ts",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 14,
+            "text": "sync_neo4j?: boolean;"
+          },
+          {
+            "line": 24,
+            "text": "neo4j_sync?: Record<string, unknown> | null;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\types\\electron.d.ts",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 100,
+            "text": "neo4j: Record<string, unknown>;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\openapi.yaml",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 2136,
+            "text": "description: Retrieves specific knowledge node from Neo4j graph"
+          },
+          {
+            "line": 2214,
+            "text": "description: 'Execute Cypher query against Neo4j knowledge graph."
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      }
+    ],
+    "chromadb": [
+      {
+        "file": "app.py",
+        "matches": 10,
+        "samples": [
+          {
+            "line": 804,
+            "text": "\"\"\"Ensure ChromaDB named collections and object-storage buckets exist at startup.\"\"\""
+          },
+          {
+            "line": 808,
+            "text": "logger.info(\"ChromaDB collections initialized\")"
+          },
+          {
+            "line": 811,
+            "text": "logger.warning(\"ChromaDB collection init skipped: %s\", exc)"
+          },
+          {
+            "line": 822,
+            "text": "def _chroma_collection_counts() -> dict:"
+          },
+          {
+            "line": 823,
+            "text": "\"\"\"Return ChromaDB collection counts for health and desktop IPC.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\ingestion\\local_ingestion.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 1,
+            "text": "\"\"\"Local-first raw document ingestion into SQL knowledge nodes and Chroma.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_06_deep_planning.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 76,
+            "text": "steps.append({\"id\": \"s3_db\", \"action\": \"Vector Database Scan\", \"target\": \"chromadb_adapter\", \"depends_on\": [\"s1\"]})"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\storage_routes.py",
+        "matches": 10,
+        "samples": [
+          {
+            "line": 120,
+            "text": "chroma_metrics = _local_path_metrics(\"chroma\", \"databases/chroma\")"
+          },
+          {
+            "line": 128,
+            "text": "\"chroma\": chroma_metrics,"
+          },
+          {
+            "line": 133,
+            "text": "for item in [sqlite_metrics, chroma_metrics, object_metrics, memory_metrics]"
+          },
+          {
+            "line": 163,
+            "text": "\"chroma\": \"databases/chroma\","
+          },
+          {
+            "line": 476,
+            "text": "provider = data.get('provider', 'chromadb')"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\services\\rag_service.py",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 534,
+            "text": "def _metadata_for_chroma(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:"
+          },
+          {
+            "line": 535,
+            "text": "\"\"\"Normalize metadata to Chroma-compatible scalar values.\"\"\""
+          },
+          {
+            "line": 608,
+            "text": "**self._metadata_for_chroma(metadata),"
+          },
+          {
+            "line": 649,
+            "text": "metadata=[self._metadata_for_chroma(metadata)],"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\__init__.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 6,
+            "text": "- VectorStore: Embedding storage (app-owned ChromaDB)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\connection_manager.py",
+        "matches": 7,
+        "samples": [
+          {
+            "line": 99,
+            "text": "# Local/app-owned ChromaDB."
+          },
+          {
+            "line": 100,
+            "text": "local_path: str = \"./databases/chroma\""
+          },
+          {
+            "line": 239,
+            "text": "config.vector.local_path = os.environ.get('VECTOR_LOCAL_PATH', os.environ.get('CHROMA_PERSIST_DIR', './databases/chroma'))"
+          },
+          {
+            "line": 311,
+            "text": "\"\"\"Check that Chroma can open and query a real collection.\"\"\""
+          },
+          {
+            "line": 313,
+            "text": "from backend.storage.vector_store import ChromaDBBackend"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\vector_store.py",
+        "matches": 26,
+        "samples": [
+          {
+            "line": 5,
+            "text": "- Local: ChromaDB (embedded, no server required)"
+          },
+          {
+            "line": 83,
+            "text": "class ChromaDBBackend(VectorBackend):"
+          },
+          {
+            "line": 84,
+            "text": "\"\"\"ChromaDB backend for local vector storage.\"\"\""
+          },
+          {
+            "line": 86,
+            "text": "def __init__(self, persist_directory: str = \"./databases/chroma\"):"
+          },
+          {
+            "line": 96,
+            "text": "\"\"\"Lazy initialization of ChromaDB client.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\DesktopStatus.test.tsx",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 25,
+            "text": "getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 33,
+            "text": "chroma: { size_bytes: 512, exists: true },"
+          },
+          {
+            "line": 294,
+            "text": "expect(screen.getByLabelText('ChromaDB Path')).toBeInTheDocument();"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 53,
+            "text": "chroma: Record<string, unknown>;"
+          },
+          {
+            "line": 492,
+            "text": "['Chroma', desktopMetrics.chroma],"
+          },
+          {
+            "line": 586,
+            "text": "<Label htmlFor=\"db-chroma-path\">ChromaDB Path</Label>"
+          },
+          {
+            "line": 587,
+            "text": "<Input id=\"db-chroma-path\" defaultValue=\"./databases/chroma\" />"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\electron\\main.ts",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 848,
+            "text": "return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          },
+          {
+            "line": 856,
+            "text": "chromadb?: { collections?: Record<string, number> };"
+          },
+          {
+            "line": 864,
+            "text": "chroma_collections: payload?.database?.chromadb?.collections ?? {},"
+          },
+          {
+            "line": 872,
+            "text": "return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\types\\electron.d.ts",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 21,
+            "text": "chroma_collections: Record<string, number>;"
+          },
+          {
+            "line": 101,
+            "text": "chroma: Record<string, unknown>;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      }
+    ],
+    "minio": [
+      {
+        "file": "app.py",
+        "matches": 8,
+        "samples": [
+          {
+            "line": 814,
+            "text": "from backend.storage.object_store import get_object_store"
+          },
+          {
+            "line": 815,
+            "text": "store = get_object_store()"
+          },
+          {
+            "line": 818,
+            "text": "logger.info(\"Object storage buckets initialized\")"
+          },
+          {
+            "line": 820,
+            "text": "logger.warning(\"Object storage bucket init skipped: %s\", exc)"
+          },
+          {
+            "line": 848,
+            "text": "def _object_store_bucket_stats() -> dict:"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\dsqp\\dsqp_chain.py",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 208,
+            "text": "from backend.storage import get_object_store"
+          },
+          {
+            "line": 211,
+            "text": "persona.metadata[\"object_store\"] = {"
+          },
+          {
+            "line": 216,
+            "text": "store = get_object_store()"
+          },
+          {
+            "line": 228,
+            "text": "persona.metadata[\"object_store\"][\"size_bytes\"] = len(payload)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_06_deep_planning.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 76,
+            "text": "steps.append({\"id\": \"s3_db\", \"action\": \"Vector Database Scan\", \"target\": \"chromadb_adapter\", \"depends_on\": [\"s1\"]})"
+          },
+          {
+            "line": 77,
+            "text": "steps.append({\"id\": \"s3_filter\", \"action\": \"Entity Proximity Filtering\", \"target\": \"proximity_calculator\", \"depends_on\": [\"s3_db\"]})"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\knowledge_algorithms\\ka_102_dependency_injection.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 44,
+            "text": "dep_map = self.config.get(\"dependency_map\", {\"storage\": \"S3Provider\", \"cache\": \"RedisCache\"})"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\routes\\storage_routes.py",
+        "matches": 16,
+        "samples": [
+          {
+            "line": 96,
+            "text": "def _object_store_metrics() -> dict:"
+          },
+          {
+            "line": 122,
+            "text": "object_metrics = _object_store_metrics()"
+          },
+          {
+            "line": 129,
+            "text": "\"object_store\": object_metrics,"
+          },
+          {
+            "line": 529,
+            "text": "\"\"\"Test object storage connection.\"\"\""
+          },
+          {
+            "line": 540,
+            "text": "'message': f'Local object storage path accessible: {local_path}'"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\security\\compliance_manager.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 74,
+            "text": "\"admin\", \"1234\", \"letmein\", \"qwerty\", \"s3cr3t\", \"hunter2\","
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\__init__.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 25,
+            "text": "from backend.storage.object_store import ("
+          },
+          {
+            "line": 28,
+            "text": "get_object_store"
+          },
+          {
+            "line": 62,
+            "text": "'get_object_store',"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\connection_manager.py",
+        "matches": 3,
+        "samples": [
+          {
+            "line": 120,
+            "text": "# ConnectionManager. Internal MinIO/S3-compatible work uses local app storage."
+          },
+          {
+            "line": 241,
+            "text": "# Object Storage"
+          },
+          {
+            "line": 333,
+            "text": "logger.warning(\"Object storage health check failed: %s\", exc)"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\storage\\object_store.py",
+        "matches": 27,
+        "samples": [
+          {
+            "line": 6,
+            "text": "- Cloud: S3-compatible (AWS S3, MinIO, etc.)"
+          },
+          {
+            "line": 38,
+            "text": "\"\"\"Abstract base class for object storage backends.\"\"\""
+          },
+          {
+            "line": 89,
+            "text": "\"\"\"Local filesystem backend for object storage.\"\"\""
+          },
+          {
+            "line": 297,
+            "text": "class S3Backend(ObjectBackend):"
+          },
+          {
+            "line": 298,
+            "text": "\"\"\"S3-compatible backend for cloud object storage.\"\"\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_memory\\commit_service.py",
+        "matches": 5,
+        "samples": [
+          {
+            "line": 114,
+            "text": "from backend.storage import get_object_store"
+          },
+          {
+            "line": 117,
+            "text": "store = get_object_store()"
+          },
+          {
+            "line": 202,
+            "text": "event_data[\"object_store\"] = object_ref"
+          },
+          {
+            "line": 269,
+            "text": "event.object_store_bucket = object_ref.get(\"bucket\")"
+          },
+          {
+            "line": 270,
+            "text": "event.object_store_key = object_ref.get(\"key\")"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "backend\\truth_engine\\truth_memory\\provenance.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 34,
+            "text": "\"dle:object_store\": object_ref or {},"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\axes\\axis_system.py",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 35,
+            "text": "#   axis3_domain.py    -> Axis 4 (Branch System)"
+          },
+          {
+            "line": 39,
+            "text": "from core.axes.axis3_domain import DomainManager as BranchManager  # Axis 4"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\simulation\\refinement_orchestrator.py",
+        "matches": 7,
+        "samples": [
+          {
+            "line": 376,
+            "text": "logging.info(f\"[{datetime.now()}] RO_S3: Identifying gaps\")"
+          },
+          {
+            "line": 378,
+            "text": "step_name = \"S3_Gap_Identification\""
+          },
+          {
+            "line": 482,
+            "text": "logging.info(f\"[{datetime.now()}] RO_S3: Gap identification complete. Gaps: {gap_severity}, Confidence: {step_confidence:.3f}\")"
+          },
+          {
+            "line": 488,
+            "text": "logging.error(f\"[{datetime.now()}] RO_S3: {error_msg}\", exc_info=True)"
+          },
+          {
+            "line": 1507,
+            "text": "gaps_identified = state['refinement_steps_log'].get(\"S3_Gap_Identification\", {}).get(\"gaps_identified_details\", {})"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\system\\frost_service.py",
+        "matches": 7,
+        "samples": [
+          {
+            "line": 48,
+            "text": "object_store_getter: Optional[Any] = None,"
+          },
+          {
+            "line": 52,
+            "text": "self._object_store_getter = object_store_getter"
+          },
+          {
+            "line": 110,
+            "text": "if self._object_store_getter is not None:"
+          },
+          {
+            "line": 111,
+            "text": "get_object_store = self._object_store_getter"
+          },
+          {
+            "line": 113,
+            "text": "from backend.storage import get_object_store  # inversion:ok \u2014 injected or lazy optional storage"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "core\\system\\refinement_orchestrator.py",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 35,
+            "text": "\"S3: Lateral Gap Analysis\","
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "docker-compose.yml",
+        "matches": 9,
+        "samples": [
+          {
+            "line": 27,
+            "text": "- minio"
+          },
+          {
+            "line": 89,
+            "text": "# Object Storage (MinIO, S3-compatible)"
+          },
+          {
+            "line": 90,
+            "text": "minio:"
+          },
+          {
+            "line": 91,
+            "text": "image: minio/minio:latest"
+          },
+          {
+            "line": 92,
+            "text": "container_name: ukg-minio"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\DesktopStatus.test.tsx",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 25,
+            "text": "getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+        "matches": 7,
+        "samples": [
+          {
+            "line": 34,
+            "text": "object_store: { size_bytes: 256, exists: false },"
+          },
+          {
+            "line": 84,
+            "text": "s3_access_key: '***',"
+          },
+          {
+            "line": 85,
+            "text": "s3_secret_key: '',"
+          },
+          {
+            "line": 252,
+            "text": "s3_access_key: '',"
+          },
+          {
+            "line": 253,
+            "text": "s3_secret_key: '',"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+        "matches": 32,
+        "samples": [
+          {
+            "line": 54,
+            "text": "object_store: Record<string, unknown>;"
+          },
+          {
+            "line": 78,
+            "text": "object: 'Object Storage',"
+          },
+          {
+            "line": 109,
+            "text": "s3_endpoint: string;"
+          },
+          {
+            "line": 110,
+            "text": "s3_bucket: string;"
+          },
+          {
+            "line": 111,
+            "text": "s3_access_key: string;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\electron\\main.ts",
+        "matches": 4,
+        "samples": [
+          {
+            "line": 848,
+            "text": "return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          },
+          {
+            "line": 858,
+            "text": "object_store?: { buckets?: ObjectStoreBucketStats };"
+          },
+          {
+            "line": 866,
+            "text": "object_store_buckets: payload?.database?.object_store?.buckets ?? {},"
+          },
+          {
+            "line": 872,
+            "text": "return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "frontend\\types\\electron.d.ts",
+        "matches": 2,
+        "samples": [
+          {
+            "line": 23,
+            "text": "object_store_buckets: Record<string, { object_count: number; total_bytes: number }>;"
+          },
+          {
+            "line": 102,
+            "text": "object_store: Record<string, unknown>;"
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      },
+      {
+        "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\truth_engine_master.yaml",
+        "matches": 1,
+        "samples": [
+          {
+            "line": 118,
+            "text": "provider: \"MinIO Multi-Cloud\""
+          }
+        ],
+        "classification": "required-service-consumer",
+        "disposition": "finish",
+        "target_phase": 3
+      }
+    ]
+  },
+  "fallback_references": [
+    {
+      "file": "app.py",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 162,
+          "text": "database_url = os.environ.get(\"DATABASE_URL\", \"sqlite:///ukg_database.db\")"
+        },
+        {
+          "line": 167,
+          "text": "# SQLite doesn't support connection pooling options"
+        },
+        {
+          "line": 168,
+          "text": "if database_url.startswith(\"sqlite\"):"
+        },
+        {
+          "line": 413,
+          "text": "app.config[\"CELERY_RESULT_BACKEND\"] = \"db+sqlite:///results.db\""
+        },
+        {
+          "line": 657,
+          "text": "if IS_DESKTOP_MODE and database_url.startswith(\"sqlite\"):"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\__init__.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 24,
+          "text": "app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chatbot.db')"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\config.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 16,
+          "text": "# Defaults to a local sqlite in memory or local file if not provided"
+        },
+        {
+          "line": 17,
+          "text": "self.db_url = os.environ.get('DATABASE_URL', 'sqlite:///ukg_production.db')"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\desktop\\schema_upgrade.py",
+      "matches": 3,
+      "samples": [
+        {
+          "line": 1,
+          "text": "\"\"\"Small additive schema upgrades for the app-owned desktop SQLite database.\"\"\""
+        },
+        {
+          "line": 24,
+          "text": "def apply_desktop_sqlite_upgrades(engine) -> list[str]:"
+        },
+        {
+          "line": 26,
+          "text": "if engine.dialect.name != \"sqlite\":"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\dmrf\\orchestrator.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 9,
+          "text": "in-memory simulation layers (FROST, graph, memory). The two handle completely"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\dmrf\\router.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 13,
+          "text": "\"\"\"Resolve a compact, SQLite-safe 17-axis vector for a query.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\dmrf\\truth_integration\\link_adapter.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 12,
+          "text": "\"\"\"Minimal in-memory event bus for desktop DMRF events.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\ingestion\\local_ingestion.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 80,
+          "text": "\"\"\"Ingest local files into the app-owned knowledge corpus.\"\"\""
+        },
+        {
+          "line": 109,
+          "text": "\"\"\"Ingest one local file or directory into SQL and vector search.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\knowledge_algorithms\\ka_108_backup_strategy.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 17,
+          "text": "target: str = Field(\"all\", description=\"The backup target (e.g., all, database, filesystem)\")"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\knowledge_algorithms\\ka_109_system_health.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 49,
+          "text": "\"filesystem\": self._check_filesystem(),"
+        },
+        {
+          "line": 80,
+          "text": "def _check_filesystem() -> Dict[str, Any]:"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\knowledge_algorithms\\ka_110_integration_bus.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 55,
+          "text": "# If Redis is active, mock publishing to stream"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\llm_gateway\\latency_metrics.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 70,
+          "text": "\"\"\"Reset in-memory AI latency metrics (used by deterministic tests).\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\routes\\ingestion_routes.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 88,
+          "text": "\"\"\"Ingest a local file or folder into the knowledge corpus.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\routes\\storage_routes.py",
+      "matches": 18,
+      "samples": [
+        {
+          "line": 14,
+          "text": "import sqlite3"
+        },
+        {
+          "line": 33,
+          "text": "def _sqlite_path_from_database_url() -> Path | None:"
+        },
+        {
+          "line": 35,
+          "text": "if not url.startswith(\"sqlite\"):"
+        },
+        {
+          "line": 60,
+          "text": "def _sqlite_metrics() -> dict:"
+        },
+        {
+          "line": 61,
+          "text": "db_path = _sqlite_path_from_database_url()"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\services\\audio_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 30,
+          "text": "Layer 3: Error/Mock"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\services\\document_processor.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 15,
+          "text": "Processes documents using real libraries (not mocks)."
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\services\\rag_service.py",
+      "matches": 6,
+      "samples": [
+        {
+          "line": 69,
+          "text": "embedding_provider: Function to generate embeddings (uses mock if None)"
+        },
+        {
+          "line": 184,
+          "text": "allow_mock_embeddings = os.environ.get(\"ALLOW_MOCK_EMBEDDINGS\", \"false\").lower() == \"true\""
+        },
+        {
+          "line": 185,
+          "text": "if allow_mock_embeddings or env in {\"development\", \"testing\"}:"
+        },
+        {
+          "line": 187,
+          "text": "embedding = self._mock_embedding(text)"
+        },
+        {
+          "line": 240,
+          "text": "def _mock_embedding(self, text: str) -> List[float]:"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\services\\video_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 134,
+          "text": "logger.warning(\"LLM Gateway not provided to VideoService, returning mock summary.\")"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\storage\\__init__.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 7,
+          "text": "- ObjectStore: Blob storage (app-owned local filesystem)"
+        },
+        {
+          "line": 68,
+          "text": "# In-memory USKD graph"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\storage\\connection_manager.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 116,
+          "text": "# Local/app-owned filesystem object store."
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\storage\\object_store.py",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 5,
+          "text": "- Local: Filesystem-based storage"
+        },
+        {
+          "line": 89,
+          "text": "\"\"\"Local filesystem backend for object storage.\"\"\""
+        },
+        {
+          "line": 122,
+          "text": "\"\"\"Get full filesystem path for an object.\"\"\""
+        },
+        {
+          "line": 152,
+          "text": "\"\"\"Store an object in local filesystem.\"\"\""
+        },
+        {
+          "line": 183,
+          "text": "\"\"\"Retrieve an object from local filesystem.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\storage\\uskd_memory_graph.py",
+      "matches": 3,
+      "samples": [
+        {
+          "line": 1,
+          "text": "\"\"\"In-memory USKD graph backed by NetworkX."
+        },
+        {
+          "line": 3,
+          "text": "The persistent knowledge graph lives in SQLite/PostgreSQL and Neo4j. This module"
+        },
+        {
+          "line": 42,
+          "text": "\"\"\"NetworkX-backed in-memory representation of the active USKD graph.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\storage\\vector_store.py",
+      "matches": 5,
+      "samples": [
+        {
+          "line": 12,
+          "text": "import sqlite3"
+        },
+        {
+          "line": 119,
+          "text": "database_path = Path(self.persist_directory) / \"chroma.sqlite3\""
+        },
+        {
+          "line": 126,
+          "text": "connection = sqlite3.connect(database_path)"
+        },
+        {
+          "line": 143,
+          "text": "backup = sqlite3.connect(backup_path)"
+        },
+        {
+          "line": 156,
+          "text": "except sqlite3.OperationalError as exc:"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_core\\agi_planner.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 191,
+          "text": "# Fallback: Mock Intelligence for stability"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_core\\historical_embeddings.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 31,
+          "text": "\"\"\"Serialize a local embedding as JSON text for SQLite/PostgreSQL TEXT storage.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_gate\\budget.py",
+      "matches": 11,
+      "samples": [
+        {
+          "line": 39,
+          "text": "self.in_memory_budgets = {}"
+        },
+        {
+          "line": 70,
+          "text": "if tenant_id in self.in_memory_budgets:"
+        },
+        {
+          "line": 71,
+          "text": "return self.in_memory_budgets[tenant_id]"
+        },
+        {
+          "line": 88,
+          "text": "self.in_memory_budgets[tenant_id] = budget"
+        },
+        {
+          "line": 138,
+          "text": "if tenant_id in self.in_memory_budgets:"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_link\\bus.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 175,
+          "text": "logger.debug(\"TruthLink Redis unavailable, using in-memory bus: %s\", exc)"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_memory\\audit.py",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 35,
+          "text": "self.in_memory_chain = {}"
+        },
+        {
+          "line": 100,
+          "text": "if session_id not in self.in_memory_chain:"
+        },
+        {
+          "line": 101,
+          "text": "self.in_memory_chain[session_id] = []"
+        },
+        {
+          "line": 102,
+          "text": "self.in_memory_chain[session_id].append(event_record)"
+        },
+        {
+          "line": 122,
+          "text": "if session_id in self.in_memory_chain and self.in_memory_chain[session_id]:"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_memory\\metrics.py",
+      "matches": 6,
+      "samples": [
+        {
+          "line": 43,
+          "text": "self.in_memory_metrics = defaultdict(list)"
+        },
+        {
+          "line": 75,
+          "text": "self.in_memory_metrics[metric_name].append(metric_record)"
+        },
+        {
+          "line": 77,
+          "text": "if len(self.in_memory_metrics[metric_name]) > 1000:"
+        },
+        {
+          "line": 78,
+          "text": "self.in_memory_metrics[metric_name] = self.in_memory_metrics[metric_name][-500:]"
+        },
+        {
+          "line": 108,
+          "text": "metrics = self.in_memory_metrics.get(metric_name, [])"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\truth_engine\\truth_memory\\provenance.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 13,
+          "text": "\"\"\"SQLite-serialisable W3C PROV-JSON record.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\unified_mapping_api.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 178,
+          "text": "def locate_in_memory():"
+        },
+        {
+          "line": 203,
+          "text": "result = unified_mapping_system.locate_data_in_memory_space("
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\utils\\db_migration.py",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 1,
+          "text": "\"\"\"Database migration helpers with sqlite-friendly defaults for testing.\"\"\""
+        },
+        {
+          "line": 31,
+          "text": "if engine_name == \"sqlite\":"
+        },
+        {
+          "line": 93,
+          "text": "if engine_name == \"sqlite\":"
+        },
+        {
+          "line": 97,
+          "text": "SELECT count(name) FROM sqlite_master"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "backend\\utils\\pagination.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 97,
+          "text": "Paginate an in-memory list."
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\engine\\ka_engine.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 443,
+          "text": "# Otherwise, use in-memory history"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\mcp\\mcp_client.py",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 6,
+          "text": "Supports both in-memory servers and dynamic stdio subprocesses."
+        },
+        {
+          "line": 29,
+          "text": "Supports in-memory and subprocess stdio transport topologies."
+        },
+        {
+          "line": 205,
+          "text": "\"\"\"Initialize connection with an in-memory MCP server\"\"\""
+        },
+        {
+          "line": 236,
+          "text": "logger.info(f\"Connected to in-memory MCP server: {self.server_info.get('name')}\")"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\mcp\\servers\\system.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 121,
+          "text": "# Mock implementation calling a placeholder or public API"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\persona\\quad\\mathematical_framework\\weights.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 90,
+          "text": "\"\"\"Return weight history guaranteed to survive JSON/SQLite storage.\"\"\""
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\simulation\\layer2_knowledge.py",
+      "matches": 3,
+      "samples": [
+        {
+          "line": 161,
+          "text": "axis_expansion['nodes'] = self._generate_mock_nodes(axis_num, score)"
+        },
+        {
+          "line": 186,
+          "text": "def _generate_mock_nodes(self, axis_num: int, relevance: float) -> List[Dict[str, Any]]:"
+        },
+        {
+          "line": 195,
+          "text": "List of mock nodes"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\simulation\\memory_simulation.py",
+      "matches": 3,
+      "samples": [
+        {
+          "line": 4,
+          "text": "This module implements an in-memory nested layered simulation engine for the"
+        },
+        {
+          "line": 16,
+          "text": "In-memory simulation engine for UKG layers 1-3"
+        },
+        {
+          "line": 20,
+          "text": "It creates an in-memory graph representation that can be queried and"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\simulation\\query_persona_engine.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 188,
+          "text": "# For now, we'll use a mock analysis"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\simulation\\refinement_orchestrator.py",
+      "matches": 3,
+      "samples": [
+        {
+          "line": 539,
+          "text": "# Mock validation - in a real system, this would query the UKG"
+        },
+        {
+          "line": 541,
+          "text": "validation_confidence = 0.7  # Mock confidence"
+        },
+        {
+          "line": 889,
+          "text": "# For simplicity, add some mock citations and examples"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\simulation\\viewpoint_registry.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 195,
+          "text": "# In-memory registry"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\system\\code_crosswalk_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 27,
+          "text": "# In-memory mapping tables"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\system\\frost_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 55,
+          "text": "# In-memory store of snapshots: snapshot_id -> state_dict"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\system\\trace_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 29,
+          "text": "# In-memory log (should be backed by durable storage/Elasticsearch in production)"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\system\\unified_identity_service.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 29,
+          "text": "# In-memory registry (should be backed by durable storage in production)"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "core\\system\\unified_mapping_system.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 186,
+          "text": "# 2. Mock context logic (in production, this would hit the Knowledge Graph)"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "deploy\\validate_production.py",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 77,
+          "text": "elif 'sqlite' in db_url:"
+        },
+        {
+          "line": 78,
+          "text": "fail(\"DATABASE_URL is SQLite (use PostgreSQL for production)\")"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\app\\algorithms\\page.test.tsx",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 8,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 13,
+          "text": "const mockedRequest = vi.mocked(request);"
+        },
+        {
+          "line": 16,
+          "text": "mockedRequest.mockReset();"
+        },
+        {
+          "line": 20,
+          "text": "mockedRequest.mockResolvedValue({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\app\\app-surfaces.test.tsx",
+      "matches": 15,
+      "samples": [
+        {
+          "line": 25,
+          "text": "const mockPush = vi.fn();"
+        },
+        {
+          "line": 26,
+          "text": "const mockReportClientError = vi.fn();"
+        },
+        {
+          "line": 27,
+          "text": "const mockRemoveLocalStorageItem = vi.fn();"
+        },
+        {
+          "line": 29,
+          "text": "vi.mock('next/navigation', () => ({"
+        },
+        {
+          "line": 31,
+          "text": "push: mockPush,"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\app\\runs\\page.test.tsx",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const { traceListMock } = vi.hoisted(() => ({"
+        },
+        {
+          "line": 7,
+          "text": "traceListMock: vi.fn(),"
+        },
+        {
+          "line": 10,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 13,
+          "text": "list: traceListMock,"
+        },
+        {
+          "line": 18,
+          "text": "vi.mock('next/link', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\app\\runs\\view\\page.test.tsx",
+      "matches": 17,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const { getBundleMock, exportMock, searchParamGetMock } = vi.hoisted(() => ({"
+        },
+        {
+          "line": 7,
+          "text": "getBundleMock: vi.fn(),"
+        },
+        {
+          "line": 8,
+          "text": "exportMock: vi.fn(),"
+        },
+        {
+          "line": 9,
+          "text": "searchParamGetMock: vi.fn(),"
+        },
+        {
+          "line": 12,
+          "text": "vi.mock('@/lib/api', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\app\\tools\\history\\page.test.tsx",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const { requestMock } = vi.hoisted(() => ({"
+        },
+        {
+          "line": 7,
+          "text": "requestMock: vi.fn(),"
+        },
+        {
+          "line": 10,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 11,
+          "text": "request: requestMock,"
+        },
+        {
+          "line": 14,
+          "text": "vi.mock('next/link', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\AppInitializer.test.tsx",
+      "matches": 6,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock the AuthContext"
+        },
+        {
+          "line": 8,
+          "text": "const mockUseAuth = vi.fn();"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/contexts/AuthContext', () => ({"
+        },
+        {
+          "line": 10,
+          "text": "useAuth: () => mockUseAuth(),"
+        },
+        {
+          "line": 15,
+          "text": "mockUseAuth.mockReturnValue({ isLoading: true });"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\AdvancedControls.test.tsx",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock UI components"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/components/ui/sheet', () => ({"
+        },
+        {
+          "line": 16,
+          "text": "vi.mock('@/components/ui/slider', () => ({"
+        },
+        {
+          "line": 27,
+          "text": "vi.mock('@/components/ui/switch', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.test.tsx",
+      "matches": 26,
+      "samples": [
+        {
+          "line": 10,
+          "text": "// Mock dependencies"
+        },
+        {
+          "line": 11,
+          "text": "vi.mock('uuid', () => ({"
+        },
+        {
+          "line": 15,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 26,
+          "text": "// is undefined at test runtime, causing a Vitest mocker error."
+        },
+        {
+          "line": 35,
+          "text": "vi.mock('@/lib/socket', () => {"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatTracePanel.test.tsx",
+      "matches": 20,
+      "samples": [
+        {
+          "line": 8,
+          "text": "// Mock the API module"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 18,
+          "text": "// Mock the useTraceStream hook"
+        },
+        {
+          "line": 19,
+          "text": "vi.mock('@/hooks/useTraceStream', () => ({"
+        },
+        {
+          "line": 23,
+          "text": "const mockTraceBundle: TraceBundle = {"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\DetailedResponseView.test.tsx",
+      "matches": 6,
+      "samples": [
+        {
+          "line": 8,
+          "text": "const mockMessage: ChatMessage = {"
+        },
+        {
+          "line": 22,
+          "text": "render(<DetailedResponseView message={mockMessage} />);"
+        },
+        {
+          "line": 31,
+          "text": "render(<DetailedResponseView message={mockMessage} />);"
+        },
+        {
+          "line": 54,
+          "text": "render(<DetailedResponseView message={mockMessage} />);"
+        },
+        {
+          "line": 63,
+          "text": "...mockMessage,"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\LiveTracePanel.test.tsx",
+      "matches": 20,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const { listMock, getStagesMock, requestMock } = vi.hoisted(() => ({"
+        },
+        {
+          "line": 7,
+          "text": "listMock: vi.fn(),"
+        },
+        {
+          "line": 8,
+          "text": "getStagesMock: vi.fn(),"
+        },
+        {
+          "line": 9,
+          "text": "requestMock: vi.fn(),"
+        },
+        {
+          "line": 12,
+          "text": "vi.mock('@/lib/api', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Chat\\MessageBubble.test.tsx",
+      "matches": 7,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock copy button since it might have browser deps"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('@/components/ui/copy-button', () => ({"
+        },
+        {
+          "line": 12,
+          "text": "vi.mock('@/hooks/useTraceStream', () => ({"
+        },
+        {
+          "line": 16,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 19,
+          "text": "getBundle: vi.fn().mockResolvedValue({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ClientErrorBootstrap.test.tsx",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 5,
+          "text": "// Mock the telemetry module"
+        },
+        {
+          "line": 6,
+          "text": "vi.mock('@/lib/telemetry/client-errors', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "vi.clearAllMocks();"
+        },
+        {
+          "line": 15,
+          "text": "vi.mocked(installGlobalClientErrorHandlers).mockReturnValue(undefined);"
+        },
+        {
+          "line": 39,
+          "text": "const mockCleanup = vi.fn();"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\CloudDisclosureBanner.test.tsx",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock next/link"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('next/link', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ConfirmationDialog.test.tsx",
+      "matches": 7,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock Dialog component with minimal props"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/components/ui/dialog', () => ({"
+        },
+        {
+          "line": 20,
+          "text": "vi.mock('@/components/ui/badge', () => ({"
+        },
+        {
+          "line": 24,
+          "text": "vi.mock('@/components/ui/button', () => ({"
+        },
+        {
+          "line": 32,
+          "text": "vi.mock('lucide-react', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\CommandBar.test.tsx",
+      "matches": 20,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const mockPush = vi.fn();"
+        },
+        {
+          "line": 7,
+          "text": "let mockPathname = '/dashboard';"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('next/navigation', () => ({"
+        },
+        {
+          "line": 10,
+          "text": "usePathname: vi.fn(() => mockPathname),"
+        },
+        {
+          "line": 11,
+          "text": "useRouter: vi.fn(() => ({ push: mockPush }))"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\ComplianceTrendChart.test.tsx",
+      "matches": 9,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock SWR"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('swr');"
+        },
+        {
+          "line": 10,
+          "text": "// Mock API"
+        },
+        {
+          "line": 11,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 19,
+          "text": "vi.mock('recharts', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\DesktopStatus.test.tsx",
+      "matches": 24,
+      "samples": [
+        {
+          "line": 21,
+          "text": "// Default mock implementation"
+        },
+        {
+          "line": 23,
+          "text": "ping: vi.fn().mockResolvedValue('pong'),"
+        },
+        {
+          "line": 24,
+          "text": "getBackendStatus: vi.fn().mockResolvedValue('checking'),"
+        },
+        {
+          "line": 25,
+          "text": "getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),"
+        },
+        {
+          "line": 26,
+          "text": "quadAnalysisStatus: vi.fn().mockResolvedValue({ pod_count: 0, collective_confidence: 0, mode: 'idle' }),"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\NavBar.test.tsx",
+      "matches": 19,
+      "samples": [
+        {
+          "line": 9,
+          "text": "// Mock dependencies"
+        },
+        {
+          "line": 10,
+          "text": "vi.mock('next/link', () => ({"
+        },
+        {
+          "line": 16,
+          "text": "vi.mock('next/navigation', () => ({"
+        },
+        {
+          "line": 20,
+          "text": "vi.mock('@/contexts/AuthContext', () => ({"
+        },
+        {
+          "line": 24,
+          "text": "vi.mock('@/components/ThemeToggle', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ThemeToggle.test.tsx",
+      "matches": 18,
+      "samples": [
+        {
+          "line": 8,
+          "text": "// Mock ThemeContext"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/contexts/ThemeContext', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "const mockSetTheme = vi.fn();"
+        },
+        {
+          "line": 17,
+          "text": "(useTheme as any).mockReturnValue({ theme: 'system', setTheme: mockSetTheme, resolvedTheme: 'dark' });"
+        },
+        {
+          "line": 25,
+          "text": "(useTheme as any).mockReturnValue({ theme: 'dark', setTheme: mockSetTheme, resolvedTheme: 'dark' });"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\feature-flags\\FeatureFlagGate.test.tsx",
+      "matches": 14,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock the feature flags context"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('@/contexts/FeatureFlagContext', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "vi.clearAllMocks();"
+        },
+        {
+          "line": 18,
+          "text": "vi.mocked(useFeatureFlags).mockReturnValue({"
+        },
+        {
+          "line": 32,
+          "text": "vi.mocked(useFeatureFlags).mockReturnValue({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\layout\\AppSidebar.test.tsx",
+      "matches": 11,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock routing"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('next/navigation', () => ({"
+        },
+        {
+          "line": 12,
+          "text": "vi.mock('next/link', () => ({"
+        },
+        {
+          "line": 16,
+          "text": "vi.mock('@/contexts/AuthContext', () => ({"
+        },
+        {
+          "line": 20,
+          "text": "// Mock icons"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpAnalytics.test.tsx",
+      "matches": 8,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock API"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 16,
+          "text": "// Mock Recharts"
+        },
+        {
+          "line": 17,
+          "text": "vi.mock('recharts', () => ({"
+        },
+        {
+          "line": 32,
+          "text": "vi.mocked(api.analytics.mcp).mockReturnValue(new Promise(() => {})); // Never resolves"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpClientConfig.test.tsx",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock UI components"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/components/ui/card', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "vi.mock('@/components/ui/dialog', () => ({"
+        },
+        {
+          "line": 22,
+          "text": "vi.mock('@/components/ui/select', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpHub.test.tsx",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 7,
+          "text": "// Mock useRouter"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('next/navigation', () => ({"
+        },
+        {
+          "line": 25,
+          "text": "(useRouter as any).mockReturnValue({ push: vi.fn() });"
+        },
+        {
+          "line": 34,
+          "text": "(useRouter as any).mockReturnValue({ push });"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpIntegrationExamples.test.tsx",
+      "matches": 10,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock UI components"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/components/ui/tabs', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "vi.mock('@/components/ui/card', () => ({"
+        },
+        {
+          "line": 21,
+          "text": "// Mock clipboard"
+        },
+        {
+          "line": 22,
+          "text": "const mockWriteText = vi.fn();"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpServerConfig.test.tsx",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock Lucide icons"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('lucide-react', async (importOriginal) => {"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\projects\\ProjectDetail.test.tsx",
+      "matches": 7,
+      "samples": [
+        {
+          "line": 8,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 18,
+          "text": "const mockBack = vi.fn();"
+        },
+        {
+          "line": 21,
+          "text": "vi.clearAllMocks();"
+        },
+        {
+          "line": 24,
+          "text": "value: { back: mockBack },"
+        },
+        {
+          "line": 28,
+          "text": "(api.chat.listSessions as any).mockResolvedValue({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.test.tsx",
+      "matches": 24,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock API and UI components"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 11,
+          "text": "vi.mock('@/components/ui/use-toast', () => ({"
+        },
+        {
+          "line": 17,
+          "text": "vi.mock('@/components/ui/card', () => ({"
+        },
+        {
+          "line": 25,
+          "text": "vi.mock('@/components/ui/badge', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\settings\\ApiOverlayConfig.test.tsx",
+      "matches": 9,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const toastMock = vi.fn();"
+        },
+        {
+          "line": 8,
+          "text": "// Mock UI components"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/components/ui/use-toast', () => ({"
+        },
+        {
+          "line": 10,
+          "text": "useToast: () => ({ toast: toastMock })"
+        },
+        {
+          "line": 13,
+          "text": "vi.mock('@/components/ui/card', () => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.test.tsx",
+      "matches": 27,
+      "samples": [
+        {
+          "line": 7,
+          "text": "const toastMock = vi.fn();"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 13,
+          "text": "vi.mock('@/components/ui/use-toast', () => ({"
+        },
+        {
+          "line": 14,
+          "text": "useToast: () => ({ toast: toastMock }),"
+        },
+        {
+          "line": 31,
+          "text": "sqlite: { size_bytes: 1024, tables: 12, rows: 34 },"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 51,
+          "text": "sqlite: Record<string, unknown>;"
+        },
+        {
+          "line": 490,
+          "text": "['SQLite', desktopMetrics.sqlite],"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.test.tsx",
+      "matches": 10,
+      "samples": [
+        {
+          "line": 7,
+          "text": "const toastMock = vi.fn();"
+        },
+        {
+          "line": 9,
+          "text": "vi.mock('@/components/ui/use-toast', () => ({"
+        },
+        {
+          "line": 10,
+          "text": "useToast: () => ({ toast: toastMock }),"
+        },
+        {
+          "line": 13,
+          "text": "vi.mock('@/lib/api', () => ({"
+        },
+        {
+          "line": 25,
+          "text": "vi.clearAllMocks();"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\cloud-status-indicator.test.tsx",
+      "matches": 7,
+      "samples": [
+        {
+          "line": 6,
+          "text": "const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }));"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('@/lib/api/client', () => ({ request: requestMock }));"
+        },
+        {
+          "line": 12,
+          "text": "requestMock.mockReset();"
+        },
+        {
+          "line": 13,
+          "text": "requestMock.mockResolvedValue({ status: 'ok' });"
+        },
+        {
+          "line": 29,
+          "text": "expect(requestMock).toHaveBeenCalledWith('/health');"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\copy-button.test.tsx",
+      "matches": 10,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock useToast"
+        },
+        {
+          "line": 7,
+          "text": "const mockToast = vi.fn();"
+        },
+        {
+          "line": 8,
+          "text": "vi.mock('./use-toast', () => ({"
+        },
+        {
+          "line": 9,
+          "text": "useToast: () => ({ toast: mockToast })"
+        },
+        {
+          "line": 16,
+          "text": "vi.clearAllMocks();"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\dialog.test.tsx",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock ResizeObserver"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\dropdown-menu.test.tsx",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock ResizeObserver"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\route-error-fallback.test.tsx",
+      "matches": 21,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock the telemetry module"
+        },
+        {
+          "line": 7,
+          "text": "vi.mock('@/lib/telemetry/client-errors', () => ({"
+        },
+        {
+          "line": 11,
+          "text": "// Mock lucide-react icons"
+        },
+        {
+          "line": 12,
+          "text": "vi.mock('lucide-react', () => ({"
+        },
+        {
+          "line": 17,
+          "text": "// Mock Button component"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\scroll-area.test.tsx",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock ResizeObserver which is used by Radix ScrollArea"
+        },
+        {
+          "line": 7,
+          "text": "global.ResizeObserver = vi.fn().mockImplementation(() => ({"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\sheet.test.tsx",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock ResizeObserver"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\slider.test.tsx",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 6,
+          "text": "// Mock ResizeObserver"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\components\\ui\\use-toast.test.tsx",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 65,
+          "text": "vi.spyOn(console, 'error').mockImplementation(() => {});"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\electron\\main.ts",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 749,
+          "text": "DATABASE_URL: `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\\\/g, '/')}`,"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\stories\\NavBar.stories.tsx",
+      "matches": 2,
+      "samples": [
+        {
+          "line": 4,
+          "text": "// Mock useRouter/usePathname"
+        },
+        {
+          "line": 5,
+          "text": "// Note: In Next.js App Router, components often need decorators or mocks for navigation."
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\types\\electron.d.ts",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 99,
+          "text": "sqlite: Record<string, unknown>;"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "frontend\\vitest.setup.ts",
+      "matches": 4,
+      "samples": [
+        {
+          "line": 11,
+          "text": "const localStorageMock = (() => {"
+        },
+        {
+          "line": 29,
+          "text": "value: localStorageMock,"
+        },
+        {
+          "line": 33,
+          "text": "value: localStorageMock,"
+        },
+        {
+          "line": 37,
+          "text": "// Global Mocks for Radix UI"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    },
+    {
+      "file": "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\__init__.py",
+      "matches": 1,
+      "samples": [
+        {
+          "line": 2,
+          "text": "from .in_memory import InMemoryMemoryAdapter"
+        }
+      ],
+      "classification": "fallback-reference",
+      "disposition": "finish",
+      "target_phase": 3
+    }
+  ]
+}

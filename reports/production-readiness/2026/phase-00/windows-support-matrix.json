@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "status": "owner-approved 2026-07-13; enterprise-policy scenarios remain qualification work",
+  "supported": {
+    "operating_system": ["Windows 11 x64 on a Microsoft-supported build"],
+    "editions": ["Home", "Pro", "Enterprise"],
+    "architecture": ["x64"],
+    "filesystem": ["local NTFS application and data paths"],
+    "container_runtime": "App-managed rootless Podman Machine using WSL2",
+    "user_model": "One Windows owner per application data profile",
+    "gateway_profiles": ["loopback desktop and same-host clients", "qualified private Windows gateway after Phase 8"],
+    "security_baseline": ["UAC enabled", "Windows Firewall enabled", "supported certificate store", "BitLocker compatible"]
+    ,"minimum_hardware": {"cpu_cores": 4, "ram_gb": 16, "free_local_ntfs_disk_gb": 50}
+    ,"recommended_hardware": {"cpu_cores": 8, "ram_gb": 32, "free_local_ntfs_disk_gb": 100}
+    ,"elevation": "Installation and runtime provisioning only; routine operation is standard-user"
+    ,"offline_install": "Installer contains pinned runtime and service artifacts required for an offline application install"
+    ,"update_policy": "Signed owner-initiated updates with compatibility checks and tested rollback"
+  },
+  "unsupported": {
+    "operating_system": ["Windows 10", "Windows Server", "macOS", "Linux desktop"],
+    "architecture": ["ARM64", "x86"],
+    "profiles": ["roaming application data", "OneDrive-hosted live databases", "simultaneous multi-user sharing", "public-internet gateway"],
+    "filesystems": ["FAT", "exFAT", "network shares for live databases"],
+    "runtime": ["Kubernetes", "Docker Desktop as a shipped or required production dependency"]
+  },
+  "qualification_required": [
+    "AppLocker and WDAC policy behavior",
+    "Antivirus and EDR exclusions or compatibility",
+    "Corporate proxy and TLS inspection",
+    "Non-English locale and timezone or clock changes",
+    "Display scaling and accessibility settings",
+    "Sleep, hibernate, logoff, shutdown, concurrent launch, and multiple users",
+    "Private gateway TLS, listener, client identity, and firewall profiles"
+  ]
+}
