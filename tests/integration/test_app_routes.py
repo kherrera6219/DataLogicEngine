@@ -5,8 +5,7 @@ def test_index_route_renders(monkeypatch):
     """Test the index route renders properly or returns expected response."""
     monkeypatch.setenv("FLASK_ENV", "testing")
     app_module = importlib.import_module("app")
-    importlib.reload(app_module)
-    app = app_module.app
+    app = app_module.create_app("testing", start_runtime=False)
 
     client = app.test_client()
     response = client.get("/")

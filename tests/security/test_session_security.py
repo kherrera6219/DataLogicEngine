@@ -17,10 +17,11 @@ def test_session_cookie_security_defaults(monkeypatch):
         "production",
         {
             "SQLALCHEMY_DATABASE_URI": "postgresql://test:test@127.0.0.1:5432/test",
-            "DLE_INITIALIZE_STORES": False,
-            "DLE_START_MANAGED_SERVICES": False,
-            "DLE_REQUIRED_SERVICES": "",
-        },
+                "DLE_INITIALIZE_STORES": False,
+                "DLE_START_MANAGED_SERVICES": False,
+                "DLE_REQUIRED_SERVICES": "",
+                "DLE_DATA_PLANE_PROFILE": "qualification",
+            },
         start_runtime=False,
     )
 

@@ -11,9 +11,13 @@ def app_module(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
     app_module = importlib.import_module("app")
-    app_module = importlib.reload(app_module)
+    flask_app = app_module.create_app(
+        "testing",
+        {"SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"},
+        start_runtime=False,
+    )
 
-    ctx = app_module.app.app_context()
+    ctx = flask_app.app_context()
     ctx.push()
 
     try:

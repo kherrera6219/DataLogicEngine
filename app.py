@@ -6,6 +6,7 @@ import logging
 import secrets
 import sys
 import time
+from pathlib import Path
 from threading import Lock, Thread
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
@@ -20,8 +21,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
 from extensions import limiter
 from backend.runtime import (
+    APP_SERVICE_KEYS,
     ApplicationRuntime,
+    InstallationIdentity,
     LifecycleResult,
+    PodmanDataPlaneManager,
     RuntimePhase,
     ServiceState,
     get_application_runtime,
@@ -681,12 +685,25 @@ def _initialize_storage_collections(app: Flask) -> dict[str, bool]:
         try:
             from backend.storage.object_store import get_object_store
             store = get_object_store()
-            for bucket in ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]:
-                store.create_bucket(bucket)
+            for bucket in [
+                "audit-logs",
+                "simulation-artifacts",
+                "deliverables",
+                "graphs",
+                "evaluation-data",
+                "trace-exports",
+            ]:
+                if not store.create_bucket(bucket):
+                    raise RuntimeError(f"required_object_bucket_unavailable:{bucket}")
             result["object_store"] = True
             logger.info("Object storage buckets initialized")
         except Exception as exc:  # pylint: disable=broad-except
             logger.warning("Object storage bucket init skipped: %s", exc)
+    if (
+        app.config.get("DLE_PRODUCTION_MODE")
+        or app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
+    ) and not all(result.values()):
+        raise RuntimeError("required_storage_initialization_failed")
     return result
 
 def _chroma_collection_counts() -> dict:
@@ -710,7 +727,9 @@ def _redis_ping_ms() -> float | None:
     try:
         import redis
 
-        redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
+        redis_url = current_app.config.get("DLE_REDIS_URL") or os.environ.get(
+            "REDIS_URL", "redis://127.0.0.1:6379/0"
+        )
         client = redis.Redis.from_url(redis_url, socket_connect_timeout=0.5, socket_timeout=0.5)
         start = time.perf_counter()
         client.ping()
@@ -722,7 +741,14 @@ def _redis_ping_ms() -> float | None:
 
 def _object_store_bucket_stats() -> dict:
     """Return object-store bucket counts and byte totals for health and desktop IPC."""
-    buckets = ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]
+    buckets = [
+        "audit-logs",
+        "simulation-artifacts",
+        "deliverables",
+        "graphs",
+        "evaluation-data",
+        "trace-exports",
+    ]
     stats: dict[str, dict[str, int | str]] = {}
     try:
         store = current_app.extensions.get("dle_object_store")
@@ -1241,6 +1267,14 @@ def _configure_application(
     desktop = _env_bool("IS_DESKTOP_APP")
     database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
     required_default = "postgresql,redis,neo4j,minio,chroma" if production else ""
+    data_plane_driver = os.environ.get(
+        "DLE_DATA_PLANE_DRIVER",
+        "podman" if production else "legacy",
+    ).strip().lower()
+    data_plane_profile = os.environ.get(
+        "DLE_DATA_PLANE_PROFILE",
+        "production" if production else "qualification",
+    ).strip().lower()
 
     app.config.from_mapping(
         ENV=environment,
@@ -1255,6 +1289,12 @@ def _configure_application(
         DLE_INITIALIZE_STORES=not testing,
         DLE_START_BACKGROUND_WORKERS=not testing,
         DLE_REQUIRED_SERVICES=os.environ.get("DLE_REQUIRED_SERVICES", required_default),
+        DLE_DATA_PLANE_DRIVER=data_plane_driver,
+        DLE_DATA_PLANE_PROFILE=data_plane_profile,
+        DLE_DATA_PLANE_LOCK_PATH=os.environ.get(
+            "DLE_DATA_PLANE_LOCK_PATH",
+            str(Path(__file__).resolve().parent / "deploy" / "internal-data-plane.candidate-lock.json"),
+        ),
         DLE_RUNTIME_ROOT=os.environ.get("DLE_RUNTIME_ROOT"),
         DLE_CONFIGURE_LOGGING=not testing,
         DLE_SERVICE_START_TIMEOUT_SECONDS=float(
@@ -1305,7 +1345,11 @@ def _configure_application(
         )
 
     database_url = str(app.config["SQLALCHEMY_DATABASE_URI"])
-    if app.config.get("DLE_PRODUCTION_MODE") and database_url.startswith("sqlite"):
+    if (
+        app.config.get("DLE_PRODUCTION_MODE")
+        and database_url.startswith("sqlite")
+        and app.config.get("DLE_DATA_PLANE_DRIVER") != "podman"
+    ):
         raise RuntimeError(
             "Production requires the supervised PostgreSQL data plane; SQLite fallback is disabled"
         )
@@ -1348,7 +1392,9 @@ def _configure_application(
 
 def _configure_caching_and_extensions(app: Flask) -> None:
     """Initialize Flask extensions with per-application state."""
-    redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    redis_url = app.config.get("DLE_REDIS_URL") or os.environ.get(
+        "REDIS_URL", "redis://localhost:6379/0"
+    )
     use_redis = bool(app.config.get("DLE_PRODUCTION_MODE")) or (
         "localhost" not in redis_url or _env_bool("USE_REDIS")
     )
@@ -1447,9 +1493,94 @@ def _configure_owned_security_services(app: Flask, runtime: ApplicationRuntime) 
 
 def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None:
     """Register every process-life service with the one runtime supervisor."""
+    driver = str(app.config.get("DLE_DATA_PLANE_DRIVER", "legacy")).strip().lower()
+    if driver == "podman":
+        from backend.storage.connection_manager import ConnectionManager
+
+        identity = InstallationIdentity.load_or_create(
+            runtime.ownership.identity_path,
+            version=str(app.config.get("APP_VERSION", "0.1.1")),
+        )
+        manager = PodmanDataPlaneManager(
+            runtime_root=runtime.runtime_root,
+            installation_id=identity.installation_id,
+            profile=str(app.config.get("DLE_DATA_PLANE_PROFILE", "production")),
+            lock_path=str(app.config["DLE_DATA_PLANE_LOCK_PATH"]),
+            require_dpapi=not bool(app.config.get("TESTING")),
+            command_timeout_seconds=float(
+                app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0)
+            ),
+        )
+        settings = manager.connection_settings()
+        app.extensions["dle_data_plane_manager"] = manager
+        app.extensions["dle_connection_manager"] = ConnectionManager(
+            runtime_root=runtime.runtime_root,
+            data_plane=settings,
+        )
+        app.config["SQLALCHEMY_DATABASE_URI"] = settings["database_url"]
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_pre_ping": True,
+            "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),
+            "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),
+            "max_overflow": int(os.environ.get("DB_POOL_MAX_OVERFLOW", 30)),
+            "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),
+        }
+        app.config["DLE_REDIS_URL"] = settings["redis_url"]
+        app.config["DLE_NEO4J_URI"] = settings["neo4j_uri"]
+        app.config["DLE_NEO4J_USER"] = settings["neo4j_user"]
+        app.config["DLE_NEO4J_PASSWORD"] = settings["neo4j_password"]
+        app.config["DLE_MANAGED_DATA_SERVICES"] = APP_SERVICE_KEYS
+
+        required_services = set(_service_names(app.config.get("DLE_REQUIRED_SERVICES")))
+        start_timeout = float(app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0))
+        stop_timeout = float(app.config.get("DLE_SERVICE_STOP_TIMEOUT_SECONDS", 15.0))
+        for service in APP_SERVICE_KEYS:
+            def supervised_podman_start(manager=manager, service=service):
+                if manager.start_service(service):
+                    return True
+                reason = manager.last_failure_reasons.get(service, "start_failed")
+                state = (
+                    ServiceState.BLOCKED
+                    if reason.startswith(("foreign_", "service_artifact_"))
+                    else ServiceState.FAILED
+                )
+                return LifecycleResult(service, "start", False, state, reason)
+
+            runtime.supervisor.register(
+                service,
+                required=service in required_services,
+                start=supervised_podman_start,
+                stop=lambda manager=manager, service=service: manager.stop_service(service),
+                probe=lambda manager=manager, service=service: manager.probe_service(service),
+                endpoint=manager.endpoint(service),
+                expected_identity=manager.expected_identity(service),
+                installed=True,
+                start_timeout_seconds=start_timeout,
+                stop_timeout_seconds=stop_timeout,
+            )
+        runtime.supervisor.register(
+            "workers",
+            installed=True,
+            depends_on=tuple(sorted(required_services)),
+            start_timeout_seconds=start_timeout,
+            stop_timeout_seconds=stop_timeout,
+        )
+        runtime.supervisor.register(
+            "api_gateway",
+            installed=True,
+            depends_on=("workers",),
+            start_timeout_seconds=start_timeout,
+            stop_timeout_seconds=stop_timeout,
+        )
+        return
+
+    if app.config.get("DLE_PRODUCTION_MODE"):
+        raise RuntimeError("production_requires_podman_data_plane")
+
     from backend.storage.database_manager import DatabaseLifecycleManager
 
     required_services = set(_service_names(app.config.get("DLE_REQUIRED_SERVICES")))
+    app.config["DLE_MANAGED_DATA_SERVICES"] = ("postgresql", "redis", "neo4j")
     database_root = runtime.runtime_root / "databases"
     start_timeout = float(app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0))
     stop_timeout = float(app.config.get("DLE_SERVICE_STOP_TIMEOUT_SECONDS", 15.0))
@@ -1563,11 +1694,11 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
             if not get_auto_start_databases():
                 logger.info("Managed service auto-start is disabled by desktop settings")
                 return
-        for service in ("postgresql", "redis", "neo4j"):
+        for service in app.config.get("DLE_MANAGED_DATA_SERVICES", APP_SERVICE_KEYS):
             active_runtime.supervisor.start(service)
 
     def verification_phase(active_runtime: ApplicationRuntime) -> None:
-        for service in ("postgresql", "redis", "neo4j"):
+        for service in app.config.get("DLE_MANAGED_DATA_SERVICES", APP_SERVICE_KEYS):
             state = active_runtime.supervisor.snapshot().get(service, {}).get("state")
             if state not in {"not_installed", "blocked"}:
                 active_runtime.supervisor.probe(service)
@@ -1575,12 +1706,16 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
     def stores_phase(_runtime: ApplicationRuntime) -> None:
         if app.config.get("DLE_INITIALIZE_STORES"):
             store_results = _initialize_storage_collections(app)
-            _runtime.supervisor.update_status(
-                "chroma",
-                ServiceState.READY if store_results["chroma"] else ServiceState.FAILED,
-                safe_reason=None if store_results["chroma"] else "store_initialization_failed",
-                observed_identity=f"datalogicengine:chroma:{_runtime.instance_id}",
-            )
+            if app.config.get("DLE_DATA_PLANE_DRIVER") == "podman":
+                for service in ("chroma", "minio"):
+                    _runtime.supervisor.probe(service)
+            else:
+                _runtime.supervisor.update_status(
+                    "chroma",
+                    ServiceState.READY if store_results["chroma"] else ServiceState.FAILED,
+                    safe_reason=None if store_results["chroma"] else "store_initialization_failed",
+                    observed_identity=f"datalogicengine:chroma:{_runtime.instance_id}",
+                )
             _initialize_uskd_memory_graph(app)
 
     def workers_phase(_runtime: ApplicationRuntime) -> None:

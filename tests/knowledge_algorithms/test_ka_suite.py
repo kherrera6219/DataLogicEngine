@@ -4,6 +4,7 @@ import yaml
 import importlib
 import os
 import sys
+from contextlib import nullcontext
 from unittest.mock import MagicMock, patch
 
 # Ensure backend can be imported
@@ -60,7 +61,12 @@ def test_ka_instantiation_and_run(ka_id, impl_path):
     }
 
     # Execute with patching to prevent side effects (network, IO)
-    with patch('builtins.open', new_callable=MagicMock):
+    io_guard = (
+        nullcontext()
+        if ka_id == "KA-Master"
+        else patch('builtins.open', new_callable=MagicMock)
+    )
+    with io_guard:
         # Mock generic IO just in case
         try:
             result = run_func(context)

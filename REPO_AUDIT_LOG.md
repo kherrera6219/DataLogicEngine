@@ -2325,3 +2325,26 @@ skip it. No test depended on the old string.
 `tests/truth_engine/` — **75 passed** (`--no-cov`); `tests/persona/quad/` 41
 passed. ruff clean on all touched files. werkzeug hash verified `scrypt:32768:8:1`,
 round-trips.
+
+---
+
+## Production plan Phase 3 engineering checkpoint (2026-07-13)
+
+Reconciled the July 12 production audit and active completion plan against the
+live storage/runtime/UI code. Implemented the app-owned five-service Podman
+delivery profile, per-install protected credentials, immutable image identity,
+loopback/resource/security controls, supervisor-owned adapters, fail-closed
+required artifact writes, and truthful internal Storage UI.
+
+The live qualification passed PostgreSQL transaction/rollback, Redis key and
+stream operations, Neo4j graph operations, Chroma vector operations, all six
+required S3 bucket contracts, five-service restart durability, identity/status,
+and complete cleanup. Cumulative validation passed 1,814 backend tests with 18
+skipped, 402 frontend tests, frontend lint/typecheck/build, and Ruff.
+
+Disposition: Phase 3 engineering checkpoint is complete and Phase 4 may begin.
+Production/public release remains **NO-GO**. Clean signed-installer proof, exact
+Podman artifact qualification, coordinated backup/recovery and extended failure
+testing, independent security/license review, and final object-store selection
+remain open. SeaweedFS is a candidate only; ADR-0004 is Proposed and MinIO
+remains the product-specific architecture.

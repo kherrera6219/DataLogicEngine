@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -92,6 +92,28 @@ flowchart TD
 ```
 
 Security is implemented as a defense-in-depth model, not a single perimeter.
+
+### Phase 3 internal data-plane controls
+
+The engineering profile generates unique service credentials per installation,
+stores the credential vault through DPAPI with restrictive Windows ACLs, and
+passes credentials to rootless containers through app-owned secrets rather than
+a plaintext production `.env`. Service endpoints bind to installation-specific
+loopback ports. Containers use immutable digest verification, app/installation
+identity labels, read-only root filesystems where supported, dropped
+capabilities, no-new-privileges, bounded memory/CPU/process resources, and a
+private app network. Foreign listeners or resources are rejected, not adopted.
+
+Required production storage clients fail closed on missing service health or
+required audit/simulation/deliverable object writes. The Storage UI receives
+safe supervisor status and does not expose editable cloud credentials or
+internal ports.
+
+These are engineering controls, not an independent security approval. TLS
+policy, data-at-rest limitations, exact image/runtime vulnerability review,
+redistribution review, clean signed-installer behavior, supported-host failure
+testing, and coordinated recovery remain release blockers. SeaweedFS remains a
+production-disabled candidate under Proposed ADR-0004.
 
 ---
 
@@ -473,6 +495,13 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Change notes for v2.9.0
+
+1. Added the Phase 3 credential, loopback, rootless-container, immutable-
+   identity, fail-closed adapter, and safe-status controls.
+2. Kept independent security, TLS/data-at-rest, vulnerability, installer, and
+   object-store selection gates explicitly open.
 
 ## Change notes for v2.8.0
 

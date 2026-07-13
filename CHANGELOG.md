@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Phase 3 internal data-plane engineering checkpoint**: added a per-install, digest-pinned rootless Podman profile for PostgreSQL, Redis, Neo4j, ChromaDB, and a candidate-only S3 service; protected service credentials; verified container identity; loopback-only endpoints; resource/security limits; supervisor lifecycle integration; and a live qualification gate covering real operations, restart durability, truthful status, and cleanup.
+- **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
+
+### Changed
+- **Storage authority and UI**: production storage adapters now use supervisor-owned PostgreSQL, Redis, Neo4j, Chroma, and S3 endpoints and fail closed when required services or artifact writes are unavailable. The Storage settings page now truthfully presents the internal app-owned data plane instead of editable cloud/external database configuration.
+- **Production completion ledger**: advanced the active engineering work to Phase 4 while retaining clean-installer, exact-runtime, coordinated-recovery, independent-review, and final object-store decisions as explicit release blockers.
+
 ### Fixed
 - **Five GitHub Actions jobs blocked by an incompatible Python dependency pin**: corrected `tokenizers` from `0.23.1` to `0.22.2`, which satisfies the `transformers>=5.0.0` requirement (`tokenizers<=0.23.0`) and restores dependency installation for Deploy, backend tests, dependency audit, crash-reporting probe, and Windows packaging. The Windows PyInstaller step now fails immediately when any native command exits nonzero instead of continuing into a misleading missing-metadata error. Updated the gateway-router test fixture to model the real limiter exemption decorator, fixing three setup errors that were masked by the earlier dependency failure.
 - **CodeQL exception-detail exposure alerts #593-#596 and #598-#601**: search, retention, audit verification, security, and storage paths now keep detailed exceptions in server logs and return stable client-safe messages. Added regressions proving internal exception sentinels cannot enter service result objects or API JSON.

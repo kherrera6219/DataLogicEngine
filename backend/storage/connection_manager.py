@@ -9,11 +9,13 @@ part of the runtime model.
 
 import os
 import logging
+import json
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
+import urllib.request
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +100,8 @@ class VectorDBConfig:
     """Vector database configuration."""
     # Local/app-owned ChromaDB.
     local_path: str = "./databases/chroma"
+    host: str = "127.0.0.1"
+    port: Optional[int] = None
     
     # Deprecated compatibility fields; external vector database sources are ignored.
     provider: Optional[str] = None  # "pinecone", "qdrant", "weaviate"
@@ -123,6 +127,7 @@ class ObjectStorageConfig:
     secret_key: Optional[str] = None
     bucket: str = "datalogic"
     region: str = "us-east-1"
+    buckets: tuple[str, ...] = ()
     
     @property
     def is_cloud(self) -> bool:
@@ -151,16 +156,52 @@ class ConnectionManager:
     
     _instance: Optional['ConnectionManager'] = None
 
-    def __init__(self, *, runtime_root: str | Path | None = None):
+    def __init__(
+        self,
+        *,
+        runtime_root: str | Path | None = None,
+        data_plane: Optional[Dict[str, Any]] = None,
+    ):
         self.config = self._load_config()
         if runtime_root is not None:
             database_root = Path(runtime_root).resolve() / "databases"
             self.config.vector.local_path = str(database_root / "chroma")
             self.config.object_storage.local_path = str(database_root / "objects")
+        if data_plane:
+            self._apply_data_plane(data_plane)
         self._connections: Dict[str, Any] = {}
         self._health_status: Dict[str, bool] = {}
         
         logger.info(f"ConnectionManager initialized in {self.config.mode.value} mode")
+
+    def _apply_data_plane(self, data_plane: Dict[str, Any]) -> None:
+        """Apply supervisor-owned endpoints and credentials without cloud settings."""
+        postgres_url = urlparse(str(data_plane["database_url"]))
+        self.config.postgres.host = postgres_url.hostname or "127.0.0.1"
+        self.config.postgres.port = postgres_url.port or 5432
+        self.config.postgres.database = postgres_url.path.lstrip("/") or "datalogic"
+        self.config.postgres.user = unquote(postgres_url.username or "dle_app")
+        self.config.postgres.password = unquote(postgres_url.password or "")
+
+        redis_url = urlparse(str(data_plane["redis_url"]))
+        self.config.redis.host = redis_url.hostname or "127.0.0.1"
+        self.config.redis.port = redis_url.port or 6379
+        self.config.redis.password = unquote(redis_url.password or "") or None
+        self.config.redis.db = int(redis_url.path.strip("/") or 0)
+
+        self.config.neo4j.host = "127.0.0.1"
+        self.config.neo4j.port = int(urlparse(str(data_plane["neo4j_uri"])).port or 7687)
+        self.config.neo4j.user = str(data_plane["neo4j_user"])
+        self.config.neo4j.password = str(data_plane["neo4j_password"])
+
+        self.config.vector.host = str(data_plane["chroma_host"])
+        self.config.vector.port = int(data_plane["chroma_port"])
+
+        self.config.object_storage.endpoint_url = str(data_plane["object_endpoint"])
+        self.config.object_storage.access_key = str(data_plane["object_access_key"])
+        self.config.object_storage.secret_key = str(data_plane["object_secret_key"])
+        self.config.object_storage.region = str(data_plane["object_region"])
+        self.config.object_storage.buckets = tuple(data_plane["object_buckets"])
     
     def _load_config(self) -> StorageConfig:
         """Load configuration from environment variables."""
@@ -266,44 +307,67 @@ class ConnectionManager:
         return self._health_status
     
     def _check_postgres_health(self) -> bool:
-        """Check PostgreSQL connectivity."""
-        import socket
+        """Check authenticated PostgreSQL identity and query execution."""
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            result = sock.connect_ex((self.config.postgres.host, self.config.postgres.port))
-            sock.close()
-            return result == 0
-        except Exception:
+            import psycopg2
+
+            with psycopg2.connect(
+                self.config.postgres.connection_url,
+                connect_timeout=3,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT current_database(), current_user")
+                    database, user = cursor.fetchone()
+            return database == self.config.postgres.database and user == self.config.postgres.user
+        except Exception as exc:
+            logger.warning("PostgreSQL health check failed: %s", exc)
             return False
     
     def _check_redis_health(self) -> bool:
-        """Check Redis connectivity."""
-        import socket
+        """Check authenticated Redis command execution."""
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            result = sock.connect_ex((self.config.redis.host, self.config.redis.port))
-            sock.close()
-            return result == 0
-        except Exception:
+            import redis
+
+            client = redis.Redis.from_url(
+                self.config.redis.connection_url,
+                socket_connect_timeout=3,
+                socket_timeout=3,
+            )
+            return client.ping() is True
+        except Exception as exc:
+            logger.warning("Redis health check failed: %s", exc)
             return False
     
     def _check_neo4j_health(self) -> bool:
-        """Check Neo4j connectivity."""
-        import socket
+        """Check authenticated Neo4j connectivity."""
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            result = sock.connect_ex((self.config.neo4j.host, self.config.neo4j.port))
-            sock.close()
-            return result == 0
-        except Exception:
+            from neo4j import GraphDatabase
+
+            driver = GraphDatabase.driver(
+                self.config.neo4j.connection_url,
+                auth=self.config.neo4j.credentials,
+                connection_timeout=3,
+            )
+            try:
+                driver.verify_connectivity()
+            finally:
+                driver.close()
+            return True
+        except Exception as exc:
+            logger.warning("Neo4j health check failed: %s", exc)
             return False
     
     def _check_vector_health(self) -> bool:
         """Check that Chroma can open and query a real collection."""
         try:
+            if self.config.vector.port is not None:
+                url = (
+                    f"http://{self.config.vector.host}:"
+                    f"{self.config.vector.port}/api/v2/heartbeat"
+                )
+                with urllib.request.urlopen(url, timeout=3) as response:  # noqa: S310 - loopback only
+                    payload = json.loads(response.read().decode("utf-8"))
+                return "nanosecond heartbeat" in payload
             from backend.storage.vector_store import ChromaDBBackend
 
             backend = ChromaDBBackend(self.config.vector.local_path)
@@ -315,8 +379,29 @@ class ConnectionManager:
             return False
     
     def _check_object_health(self) -> bool:
-        """Check that the local object store is writable."""
+        """Check the app-owned S3 contract or the bounded development backend."""
         try:
+            if self.config.object_storage.endpoint_url:
+                import boto3
+                from botocore.config import Config
+
+                client = boto3.client(
+                    "s3",
+                    endpoint_url=self.config.object_storage.endpoint_url,
+                    aws_access_key_id=self.config.object_storage.access_key,
+                    aws_secret_access_key=self.config.object_storage.secret_key,
+                    region_name=self.config.object_storage.region,
+                    config=Config(
+                        signature_version="s3v4",
+                        s3={"addressing_style": "path"},
+                        connect_timeout=3,
+                        read_timeout=3,
+                        retries={"max_attempts": 1},
+                    ),
+                )
+                for bucket in self.config.object_storage.buckets:
+                    client.list_objects_v2(Bucket=bucket, MaxKeys=1)
+                return bool(self.config.object_storage.buckets)
             root = Path(self.config.object_storage.local_path)
             root.mkdir(parents=True, exist_ok=True)
             probe = root / ".healthcheck"

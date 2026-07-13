@@ -78,12 +78,12 @@ def test_commit_writes_audit_bundle_object_and_anchor_metadata(app, monkeypatch)
         event = TruthAuditEvent.query.filter_by(event_type="audit_bundle_commit").first()
         assert receipt
         assert event is not None
-        assert event.object_store_bucket == "audit_logs"
+        assert event.object_store_bucket == "audit-logs"
         assert event.object_store_key == f"{run.run_id}.json"
         assert event.merkle_root
         assert event.blockchain_anchor_tx == "0xabc123"
         assert event.blockchain_anchor_status == "anchored"
-        assert ("audit_logs", f"{run.run_id}.json") in fake_store.objects
+        assert ("audit-logs", f"{run.run_id}.json") in fake_store.objects
         assert event.event_data["object_store"]["key"] == f"{run.run_id}.json"
         assert event.event_data["blockchain_anchor"]["transaction_hash"] == "0xabc123"
 
@@ -99,10 +99,10 @@ def test_frost_snapshot_writes_simulation_artifact(monkeypatch):
 
     key = f"{snapshot_id}.json"
     assert service.verify_snapshot(snapshot_id)
-    assert ("simulation_artifacts", key) in fake_store.objects
-    assert service.snapshot_metadata[snapshot_id]["object_store"]["bucket"] == "simulation_artifacts"
+    assert ("simulation-artifacts", key) in fake_store.objects
+    assert service.snapshot_metadata[snapshot_id]["object_store"]["bucket"] == "simulation-artifacts"
 
-    payload = json.loads(fake_store.objects[("simulation_artifacts", key)]["data"])
+    payload = json.loads(fake_store.objects[("simulation-artifacts", key)]["data"])
     assert payload["snapshot_id"] == snapshot_id
     assert payload["state"]["step"] == "l4"
     assert payload["integrity"]["content_sha256"]
@@ -133,12 +133,12 @@ def test_dsqp_chain_writes_deliverable_artifact(monkeypatch):
 
 def test_health_bucket_stats_reports_object_counts(app, monkeypatch):
     fake_store = FakeObjectStore()
-    fake_store.put("audit_logs", "run-1.json", b"abc")
+    fake_store.put("audit-logs", "run-1.json", b"abc")
     fake_store.put("deliverables", "dsqp/persona.json", b"12345")
     with app.app_context():
         monkeypatch.setitem(app.extensions, "dle_object_store", fake_store)
         stats = app_module._object_store_bucket_stats()
 
     assert stats["status"] == "ok"
-    assert stats["buckets"]["audit_logs"] == {"object_count": 1, "total_bytes": 3}
+    assert stats["buckets"]["audit-logs"] == {"object_count": 1, "total_bytes": 3}
     assert stats["buckets"]["deliverables"] == {"object_count": 1, "total_bytes": 5}

@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.0 |
-| Completed phase | Phase 2 - Runtime factory, startup, and capability state |
-| Current phase | Phase 3 - Full internal service delivery and supervision |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.1 |
+| Completed phase | Phase 3 engineering checkpoint - Full internal service delivery and supervision |
+| Current phase | Phase 4 - Data contracts, migrations, backup, and recovery |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -103,32 +103,66 @@ Key results:
   A full-data start safely refused DevOnz-owned standard ports instead of
   reusing foreign services.
 
-Phase 2 does not claim that the production data plane is delivered. MinIO and
-Chroma production adapters are explicitly not installed, and full pinned OCI
-provisioning, unique protected service credentials, installation-specific
-ports, and actual five-service workflow use remain Phase 3 release blockers.
+Phase 2 did not claim production data-plane delivery; Phase 3 supplied the
+engineering implementation and qualification described below.
+
+## Phase 3 engineering checkpoint
+
+Phase 3 reached its engineering checkpoint on 2026-07-13. Evidence is under
+`reports/production-readiness/2026/phase-03/`.
+
+Key results:
+
+- One app-owned Podman manager provisions and supervises the five-service
+  profile with installation-specific identity, names, loopback ports, volumes,
+  secrets, immutable image digests, resource limits, and foreign-state refusal.
+- Unique credentials are generated per installation and protected with
+  DPAPI/restrictive ACLs; production refuses plaintext/default credential paths.
+- PostgreSQL, Redis, Neo4j, Chroma, and S3 adapters are supervisor-owned and
+  production fails closed instead of substituting SQLite, memory, or filesystem
+  storage.
+- Storage settings are now a read-only internal-data-plane status/action surface
+  rather than editable external/cloud database configuration.
+- Live qualification passed PostgreSQL transaction/rollback, Redis key/stream,
+  Neo4j graph, Chroma vector, all six required S3 bucket contracts, restart
+  durability, truthful identity/status, and full resource cleanup.
+- Final validation passed 1,814 backend tests with 18 skipped, 402 frontend
+  tests, frontend lint/typecheck/build, and Ruff.
+
+This is not the clean installed-production exit gate. Exact Podman 5.8.2
+artifact qualification, clean signed-installer proof, coordinated backup and
+restore, extended failure testing, independent security/license review, and
+final object-store selection remain explicit blockers for the rebuilt release
+candidate. No deferred item is counted as passed.
+
+SeaweedFS 4.29 is a qualification candidate only. ADR-0004 remains Proposed,
+`production_authorized` is false, and MinIO remains the product-specific target
+architecture until Replacement Control passes fully and Kevin gives final
+production approval.
 
 ## Current checkpoint
 
-Phase 3 is authorized to begin. CP3-A is the version/support/license lock for the
-approved rootless Podman/OCI delivery path. Current development Compose inputs
-still contain floating/unqualified service images, known/default credential
-patterns, host-wide default ports, and incomplete MinIO/Chroma supervision.
+Phase 4 is authorized to begin from the committed Phase 3 engineering
+checkpoint. It owns cross-store authority, identifiers, schema/version
+contracts, migrations, coordinated backup/restore, repair, retention/deletion,
+and failure recovery for every required service.
 
-Phase 3 must preserve all Phase 1 trust boundaries and the Phase 2 factory,
-runtime ownership, identity verification, readiness, drain, and lifecycle
-contracts. Do not reintroduce external/cloud database authority or production
-SQLite/filesystem fallback.
+Phase 4 must preserve the Phase 1 trust boundary, Phase 2 runtime ownership, and
+Phase 3 production locks. Managed backup is intentionally refused until a
+complete cross-store recovery set exists. Do not turn a candidate-only object
+profile into production selection or rename the architecture during this phase.
 
 ## Exact next action
 
-1. Inventory every live service image, tag, digest, binary/JRE version, Python/
-   Node driver, license, redistribution obligation, and current data volume.
-2. Replace `minio/minio:latest` and every floating or unsupported production
-   input with a reviewed immutable version/digest.
-3. Produce the CP3-A support/license evidence before changing provisioning or
-   any persistent data contract.
-4. Keep the external API gateway listener disabled/loopback-only until Phase 8.
+1. Publish the Phase 4 cross-store ownership and stable-identifier matrix.
+2. Inventory current SQL, Redis, Neo4j, Chroma, object, and JSON data versions
+   and define ordered forward/rollback migrations.
+3. Implement the coordinated backup manifest and clean-root restore contract;
+   keep partial managed backup/restore fail-closed.
+4. Add corruption, disk-full, interrupted migration, partial backup, failed
+   restore, reconciliation, retention, and uninstall-data tests.
+5. Carry the exact-runtime, independent review, installed-app, and final
+   object-store decisions as release blockers, not Phase 4 assumptions.
 
 ## Phase rules
 

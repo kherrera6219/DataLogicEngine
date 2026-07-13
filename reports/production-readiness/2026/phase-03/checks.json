@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-13",
+  "phase": 3,
+  "status": "engineering_checkpoint_passed_release_no_go",
+  "checks": {
+    "internal_data_plane_qualification": {
+      "status": "pass",
+      "evidence": "internal-data-plane-qualification.json",
+      "services": ["postgresql", "redis", "neo4j", "chroma", "object_store_candidate"],
+      "production_authorized": false
+    },
+    "seaweedfs_replacement_qualification": {
+      "status": "partial",
+      "evidence": "seaweedfs-replacement-qualification-windows.json",
+      "candidate_contract_passed": true,
+      "production_selected": false
+    },
+    "backend_pytest": {
+      "status": "pass",
+      "passed": 1814,
+      "skipped": 18,
+      "warnings": 21
+    },
+    "frontend_vitest": {
+      "status": "pass",
+      "files": 81,
+      "tests": 402
+    },
+    "ruff": {"status": "pass"},
+    "frontend_lint": {"status": "pass"},
+    "frontend_typecheck": {"status": "pass"},
+    "frontend_production_build": {"status": "pass"},
+    "documentation_references": {
+      "status": "pass",
+      "active_markdown_files": 86,
+      "errors": 0,
+      "pre_existing_style_warnings": 46
+    },
+    "clean_signed_installer": {
+      "status": "deferred",
+      "reason": "requires final rebuilt signed candidate and clean supported Windows machine"
+    },
+    "independent_license_security_review": {
+      "status": "blocked",
+      "reason": "external authority not yet completed"
+    },
+    "final_object_store_replacement_decision": {
+      "status": "blocked",
+      "reason": "ADR-0004 remains Proposed and explicit production approval is absent"
+    }
+  },
+  "release_verdict": "NO-GO"
+}

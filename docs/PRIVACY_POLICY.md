@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-13 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -28,6 +28,21 @@ Data handling depends on deployment mode.
 | Controlled web/cloud | Hosted deployment where explicitly configured. | Data residency depends on the deployment architecture, configured database/storage services, provider settings, and organizational policy. |
 
 The default local-first architecture does not require externally hosted PostgreSQL, Redis, Neo4j, ChromaDB, vector database, or object-store services as runtime database sources.
+
+### Phase 3 local data-plane status
+
+The current engineering profile keeps PostgreSQL, Redis, Neo4j, ChromaDB, and
+object-store traffic on installation-specific loopback endpoints inside an
+app-owned rootless Podman network. Service credentials are generated per
+installation and protected locally. The profile does not authorize a cloud
+database or hosted object store as the production data authority.
+
+The qualification object service is SeaweedFS, but it is not approved for
+production and does not change this policy's MinIO-specific production
+architecture. Its telemetry behavior, logs, TLS, data-at-rest limitations,
+retention, deletion, vulnerability posture, installer delivery, and independent
+legal/security review must be resolved before final selection. Phase 4 owns the
+cross-store retention, deletion, migration, backup, and restore contracts.
 
 ## 3. Information we collect or store
 
@@ -211,6 +226,13 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.9.0
+
+1. Recorded the local loopback/rootless five-service engineering profile and
+   per-install protected credentials.
+2. Preserved the candidate-only SeaweedFS boundary and identified the privacy,
+   retention, deletion, and recovery reviews that remain open.
 
 ## Change notes for v2.8.0
 

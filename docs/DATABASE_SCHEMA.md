@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 60 days |
@@ -61,6 +61,26 @@ This document replaces the older PostgreSQL-only framing with the current multi-
 ---
 
 ## Current data architecture
+
+### Phase 3 runtime mapping and Phase 4 boundary
+
+The production profile now injects supervisor-owned connection contracts for
+PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object operations. It
+refuses SQLite, embedded Chroma, filesystem object storage, or in-memory service
+substitution when the managed profile is selected. Development mode retains
+those bounded fallbacks explicitly.
+
+The required object buckets are `audit-logs`, `simulation-artifacts`,
+`deliverables`, `graphs`, `evaluation-data`, and `trace-exports`. Phase 3 proved
+their put/get/head/list/hash behavior and restart durability, but it does not
+declare cross-store ownership, schema migration ordering, retention, or
+coordinated backup/restore complete.
+
+Phase 4 owns the authoritative entity-to-store matrix, stable identifiers,
+schema and collection versions, migration/rollback order, coordinated recovery
+manifest, deletion/tombstone rules, and reconciliation semantics. Until those
+contracts pass, managed backup/restore remains fail-closed rather than producing
+an incomplete recovery set.
 
 DataLogicEngine is not a single-database application. It uses a multi-store data architecture where each store has a distinct role.
 
@@ -668,6 +688,13 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.2.0
+
+1. Added the Phase 3 supervisor-owned production connection mapping and six
+   required object buckets.
+2. Defined the Phase 4 ownership, migration, coordinated recovery, retention,
+   and reconciliation boundary without claiming those contracts are complete.
 
 ## Change notes for v3.1.0
 

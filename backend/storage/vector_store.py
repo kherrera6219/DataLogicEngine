@@ -81,15 +81,24 @@ class VectorBackend(ABC):
 
 
 class ChromaDBBackend(VectorBackend):
-    """ChromaDB backend for local vector storage."""
+    """ChromaDB backend for embedded development or supervised HTTP service."""
     
-    def __init__(self, persist_directory: str = "./databases/chroma"):
+    def __init__(
+        self,
+        persist_directory: str = "./databases/chroma",
+        *,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+    ):
         self.persist_directory = persist_directory
+        self.host = host
+        self.port = port
         self._client = None
         self._collections: Dict[str, Any] = {}
         
         # Ensure directory exists
-        os.makedirs(persist_directory, exist_ok=True)
+        if self.port is None:
+            os.makedirs(persist_directory, exist_ok=True)
     
     @property
     def client(self):
@@ -99,16 +108,28 @@ class ChromaDBBackend(VectorBackend):
                 import chromadb
                 from chromadb.config import Settings
 
-                self._upgrade_legacy_collection_configs()
-                
-                self._client = chromadb.PersistentClient(
-                    path=self.persist_directory,
-                    settings=Settings(
-                        anonymized_telemetry=False,
-                        allow_reset=True
+                if self.port is not None:
+                    self._client = chromadb.HttpClient(
+                        host=self.host or "127.0.0.1",
+                        port=self.port,
+                        ssl=False,
+                        settings=Settings(
+                            anonymized_telemetry=False,
+                            allow_reset=False,
+                        ),
                     )
-                )
-                logger.info(f"ChromaDB initialized at {self.persist_directory}")
+                    self._client.heartbeat()
+                    logger.info("Connected to supervisor-owned ChromaDB service")
+                else:
+                    self._upgrade_legacy_collection_configs()
+                    self._client = chromadb.PersistentClient(
+                        path=self.persist_directory,
+                        settings=Settings(
+                            anonymized_telemetry=False,
+                            allow_reset=True
+                        )
+                    )
+                    logger.info(f"ChromaDB initialized at {self.persist_directory}")
             except ImportError:
                 logger.warning("ChromaDB not installed. Install with: pip install chromadb")
                 raise
@@ -415,7 +436,12 @@ class VectorStore:
         config = get_connection_manager().config.vector
         
         logger.info("Using app-owned ChromaDB backend")
-        return ChromaDBBackend(persist_directory=config.local_path)
+        port = getattr(config, "port", None)
+        return ChromaDBBackend(
+            persist_directory=config.local_path,
+            host=getattr(config, "host", None) if port is not None else None,
+            port=port,
+        )
     
     def add_embeddings(
         self,
@@ -497,7 +523,16 @@ def initialize_collections() -> None:
         try:
             store.create_collection(name)
         except Exception:
-            pass  # collection already exists or backend unavailable — non-fatal
+            try:
+                from flask import current_app, has_app_context
+
+                if has_app_context() and (
+                    current_app.config.get("DLE_PRODUCTION_MODE")
+                    or current_app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
+                ):
+                    raise
+            except ImportError:
+                pass
 
 
 def get_collection_counts() -> Dict[str, int]:

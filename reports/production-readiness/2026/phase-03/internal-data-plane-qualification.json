@@ -1,0 +1,298 @@
+{
+  "captured_at": "2026-07-13T22:53:10.693583+00:00",
+  "checks": [
+    {
+      "evidence": {
+        "arch": "amd64",
+        "client_version": "5.8.3",
+        "expected_distributable_version": "5.8.2",
+        "rootless": true,
+        "seccomp": true,
+        "server_version": "5.8.5"
+      },
+      "finished_at": "2026-07-13T22:51:17.501354+00:00",
+      "name": "runtime_identity",
+      "started_at": "2026-07-13T22:51:16.904782+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "chroma": {
+          "image": "docker.io/chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
+          "license": "Apache-2.0",
+          "linux_amd64_digest": "sha256:abcce7c335e2dab9f11ef629296f7309b09cb19ae4b34da32ac7e34ff5773140",
+          "version": "1.5.9"
+        },
+        "minio": {
+          "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
+          "license": "Apache-2.0",
+          "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+          "version": "4.29"
+        },
+        "neo4j": {
+          "image": "docker.io/library/neo4j@sha256:4bae36aff76271e27fd6a6ed0835413f86a284cd179cfb1cb7d188f5f7533aca",
+          "license": "GPL-3.0",
+          "linux_amd64_digest": "sha256:32e6325c6f2160747d68601b6e1a38e556deca66524cf95cf0e6c1ee29b1596b",
+          "version": "5.26.28"
+        },
+        "postgresql": {
+          "image": "docker.io/library/postgres@sha256:774521500f4c22761b25a6bdb772a0a3c2e8dd32468210bdad9231c5752ea398",
+          "license": "PostgreSQL",
+          "linux_amd64_digest": "sha256:56ba71bf54060de15a6b2df1a18081b8f6c5bf61255b7ed6f1ef10ee868eaff0",
+          "version": "18.4"
+        },
+        "redis": {
+          "image": "docker.io/library/redis@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32",
+          "license": "AGPL-3.0-selected-from-tri-license",
+          "linux_amd64_digest": "sha256:c904002d182255b6db3cbe3a1e8ce6c187d15390c39500b59fc07181aabff7bf",
+          "version": "8.8.0"
+        }
+      },
+      "finished_at": "2026-07-13T22:51:18.730648+00:00",
+      "name": "immutable_artifacts",
+      "started_at": "2026-07-13T22:51:17.501359+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "chroma": true,
+        "minio": true,
+        "neo4j": true,
+        "postgresql": true,
+        "redis": true
+      },
+      "finished_at": "2026-07-13T22:51:47.529431+00:00",
+      "name": "start_all_services",
+      "started_at": "2026-07-13T22:51:18.730654+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "run_id": "8bb0ac145db0405eb42a43773ced0ecf",
+        "table": "dle_phase3_qualification",
+        "transaction_rollback": true
+      },
+      "finished_at": "2026-07-13T22:51:47.560245+00:00",
+      "name": "postgresql_contract",
+      "started_at": "2026-07-13T22:51:47.529437+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "key": "dle:qualification:8bb0ac145db0405eb42a43773ced0ecf",
+        "message_id": "1783983107565-0",
+        "stream": "dle:qualification:stream:8bb0ac145db0405eb42a43773ced0ecf"
+      },
+      "finished_at": "2026-07-13T22:51:47.566734+00:00",
+      "name": "redis_contract",
+      "started_at": "2026-07-13T22:51:47.560252+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "label": "DLEQualification",
+        "run_id": "8bb0ac145db0405eb42a43773ced0ecf"
+      },
+      "finished_at": "2026-07-13T22:51:48.862163+00:00",
+      "name": "neo4j_contract",
+      "started_at": "2026-07-13T22:51:47.566739+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "collection": "dle_phase3_qualification",
+        "dimension": 4,
+        "run_id": "8bb0ac145db0405eb42a43773ced0ecf"
+      },
+      "finished_at": "2026-07-13T22:51:50.938724+00:00",
+      "name": "chroma_contract",
+      "started_at": "2026-07-13T22:51:48.862169+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "buckets": [
+          "audit-logs",
+          "simulation-artifacts",
+          "deliverables",
+          "graphs",
+          "evaluation-data",
+          "trace-exports"
+        ],
+        "object_sha256": {
+          "audit-logs": "6aa91cf1fb922f66ec689e900b7d88f45c78cd3a0938458d744aaf5c25383638",
+          "deliverables": "1ec03f8027b72716f64be2b2910bf077d6293ce84b2c88449b87907f1406b7fe",
+          "evaluation-data": "84fe1b1e76ec9999c807cdf716d0eb2ecd9a0de4f8538f7b73d25f7bd490b539",
+          "graphs": "08424c4cdf12b00482e2d7d1e923bcde1d172a07237cd71ddd25d6414453a149",
+          "simulation-artifacts": "75cda8e65f8e215e9d7f3025d8416d582ce04b24fd27a779ab0bec2608dde16f",
+          "trace-exports": "52b3b65494eaf4cb466fb3c1358dd334f6f9b2d0764418c3b1335d6b2a634f94"
+        }
+      },
+      "finished_at": "2026-07-13T22:51:52.234568+00:00",
+      "name": "object_store_contract",
+      "started_at": "2026-07-13T22:51:50.938729+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "chroma": {
+          "collection": "dle_phase3_qualification",
+          "dimension": 4,
+          "run_id": "8bb0ac145db0405eb42a43773ced0ecf"
+        },
+        "neo4j": {
+          "label": "DLEQualification",
+          "run_id": "8bb0ac145db0405eb42a43773ced0ecf"
+        },
+        "object_store": {
+          "buckets": [
+            "audit-logs",
+            "simulation-artifacts",
+            "deliverables",
+            "graphs",
+            "evaluation-data",
+            "trace-exports"
+          ],
+          "object_sha256": {
+            "audit-logs": "6aa91cf1fb922f66ec689e900b7d88f45c78cd3a0938458d744aaf5c25383638",
+            "deliverables": "1ec03f8027b72716f64be2b2910bf077d6293ce84b2c88449b87907f1406b7fe",
+            "evaluation-data": "84fe1b1e76ec9999c807cdf716d0eb2ecd9a0de4f8538f7b73d25f7bd490b539",
+            "graphs": "08424c4cdf12b00482e2d7d1e923bcde1d172a07237cd71ddd25d6414453a149",
+            "simulation-artifacts": "75cda8e65f8e215e9d7f3025d8416d582ce04b24fd27a779ab0bec2608dde16f",
+            "trace-exports": "52b3b65494eaf4cb466fb3c1358dd334f6f9b2d0764418c3b1335d6b2a634f94"
+          }
+        },
+        "postgresql": {
+          "run_id": "8bb0ac145db0405eb42a43773ced0ecf",
+          "table": "dle_phase3_qualification",
+          "transaction_rollback": true
+        },
+        "redis": {
+          "key": "dle:qualification:8bb0ac145db0405eb42a43773ced0ecf",
+          "message_id": "1783983148265-0",
+          "stream": "dle:qualification:stream:8bb0ac145db0405eb42a43773ced0ecf"
+        }
+      },
+      "finished_at": "2026-07-13T22:52:30.094471+00:00",
+      "name": "restart_durability",
+      "started_at": "2026-07-13T22:51:52.234572+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "chroma": {
+          "endpoint": "127.0.0.1:24964",
+          "expected_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:chroma:chromadb:1.5.9",
+          "expected_version": "1.5.9",
+          "healthy": true,
+          "image": "docker.io/chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
+          "observed_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:chroma:chromadb:1.5.9:container=cb72ab1a3a7d",
+          "production_authorized": false,
+          "profile": "qualification",
+          "safe_reason": null,
+          "state": "ready",
+          "version": "1.5.9"
+        },
+        "minio": {
+          "endpoint": "127.0.0.1:24965",
+          "expected_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:minio:seaweedfs:4.29",
+          "expected_version": "4.29",
+          "healthy": true,
+          "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
+          "observed_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:minio:seaweedfs:4.29:container=de3f0745fe3e",
+          "production_authorized": false,
+          "profile": "qualification",
+          "safe_reason": null,
+          "state": "ready",
+          "version": "4.29"
+        },
+        "neo4j": {
+          "endpoint": "127.0.0.1:24962",
+          "expected_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:neo4j:neo4j:5.26.28",
+          "expected_version": "5.26.28",
+          "healthy": true,
+          "image": "docker.io/library/neo4j@sha256:4bae36aff76271e27fd6a6ed0835413f86a284cd179cfb1cb7d188f5f7533aca",
+          "observed_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:neo4j:neo4j:5.26.28:container=2795a377d1ea",
+          "production_authorized": false,
+          "profile": "qualification",
+          "safe_reason": null,
+          "state": "ready",
+          "version": "5.26.28"
+        },
+        "postgresql": {
+          "endpoint": "127.0.0.1:24960",
+          "expected_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:postgresql:postgresql:18.4",
+          "expected_version": "18.4",
+          "healthy": true,
+          "image": "docker.io/library/postgres@sha256:774521500f4c22761b25a6bdb772a0a3c2e8dd32468210bdad9231c5752ea398",
+          "observed_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:postgresql:postgresql:18.4:container=9fbef45a4591",
+          "production_authorized": false,
+          "profile": "qualification",
+          "safe_reason": null,
+          "state": "ready",
+          "version": "18.4"
+        },
+        "redis": {
+          "endpoint": "127.0.0.1:24961",
+          "expected_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:redis:redis:8.8.0",
+          "expected_version": "8.8.0",
+          "healthy": true,
+          "image": "docker.io/library/redis@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32",
+          "observed_identity": "datalogicengine:e567dea474faa1d9bdf22acfa52df7ffbb5874afb127504efb93ad820a354414:redis:redis:8.8.0:container=5db9597e7bc7",
+          "production_authorized": false,
+          "profile": "qualification",
+          "safe_reason": null,
+          "state": "ready",
+          "version": "8.8.0"
+        }
+      },
+      "finished_at": "2026-07-13T22:52:32.501187+00:00",
+      "name": "truthful_status",
+      "started_at": "2026-07-13T22:52:30.094476+00:00",
+      "status": "pass"
+    },
+    {
+      "evidence": {
+        "container:chroma": true,
+        "container:minio": true,
+        "container:neo4j": true,
+        "container:postgresql": true,
+        "container:redis": true,
+        "network:dle-e567dea474fa-internal": true,
+        "secret:dle-e567dea474fa-neo4j-auth": true,
+        "secret:dle-e567dea474fa-object-s3-config": true,
+        "secret:dle-e567dea474fa-postgresql-init": true,
+        "secret:dle-e567dea474fa-postgresql-password": true,
+        "secret:dle-e567dea474fa-redis-config": true,
+        "volume:dle-e567dea474fa-chroma-data": true,
+        "volume:dle-e567dea474fa-neo4j-conf": true,
+        "volume:dle-e567dea474fa-neo4j-data": true,
+        "volume:dle-e567dea474fa-neo4j-logs": true,
+        "volume:dle-e567dea474fa-object-data": true,
+        "volume:dle-e567dea474fa-postgresql-data": true,
+        "volume:dle-e567dea474fa-redis-data": true
+      },
+      "finished_at": "2026-07-13T22:53:10.693568+00:00",
+      "name": "qualification_resource_cleanup",
+      "status": "pass"
+    }
+  ],
+  "duration_seconds": 113.792,
+  "failed_checks": [],
+  "installation_id_hash": "008105c496d99cf2ef929a83faedd4080066781661efc4513fd9c94dc9e52fba",
+  "known_deferred_gates": [
+    "signed_installer_clean_machine",
+    "supported_prior_version_upgrade",
+    "coordinated_phase4_backup_restore",
+    "independent_redistribution_review",
+    "independent_security_review",
+    "final_object_store_replacement_decision"
+  ],
+  "production_authorized": false,
+  "profile": "qualification",
+  "release_gate": "engineering_qualification_only",
+  "run_id": "8bb0ac145db0405eb42a43773ced0ecf",
+  "schema_version": "1.0.0",
+  "started_at": "2026-07-13T22:51:16.901384+00:00",
+  "status": "passed"
+}

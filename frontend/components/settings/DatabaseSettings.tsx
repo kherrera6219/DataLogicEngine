@@ -4,12 +4,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Database, Server, HardDrive, Network, Zap, 
   CheckCircle, XCircle, RefreshCw, Play, Square,
-  Cloud, Laptop, Settings2, AlertCircle, Archive
+  Laptop, Settings2, AlertCircle, Archive
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +21,12 @@ interface ServiceStatus {
   is_cloud: boolean;
   provider?: string;
   endpoint?: string;
+  state?: string;
+  safe_reason?: string | null;
+  version?: string;
+  expected_version?: string;
+  expected_identity?: string;
+  observed_identity?: string;
 }
 
 interface StorageHealth {
@@ -101,22 +106,6 @@ function isStorageHealth(value: unknown): value is StorageHealth {
   return requiredKeys.every((key) => Boolean(candidate.services && key in candidate.services));
 }
 
-interface CloudConfig {
-  postgres_url: string;
-  redis_url: string;
-  neo4j_uri: string;
-  pinecone_api_key: string;
-  s3_endpoint: string;
-  s3_bucket: string;
-  s3_access_key: string;
-  s3_secret_key: string;
-}
-
-const EMPTY_CLOUD: CloudConfig = {
-  postgres_url: '', redis_url: '', neo4j_uri: '', pinecone_api_key: '',
-  s3_endpoint: '', s3_bucket: '', s3_access_key: '', s3_secret_key: '',
-};
-
 export function DatabaseSettings() {
   const { toast } = useToast();
   const [health, setHealth] = useState<StorageHealth | null>(null);
@@ -124,7 +113,7 @@ export function DatabaseSettings() {
   const [refreshing, setRefreshing] = useState(false);
   const [testing, setTesting] = useState<string | null>(null);
   const [lifecycleAction, setLifecycleAction] = useState<'start' | 'stop' | null>(null);
-  const [mode, setMode] = useState<'local' | 'cloud' | 'hybrid'>('local');
+  const [mode, setMode] = useState('internal');
   const [autoStartEnabled, setAutoStartEnabled] = useState(false);
   const [savingAutoStart, setSavingAutoStart] = useState(false);
   const [activeTab, setActiveTab] = useState('status');
@@ -132,44 +121,6 @@ export function DatabaseSettings() {
   const [backupRunning, setBackupRunning] = useState(false);
   const [backupOperationId, setBackupOperationId] = useState<string | null>(null);
   const [lastBackup, setLastBackup] = useState<DesktopBackupResult | null>(null);
-  // Cloud config state
-  const [cloudConfig, setCloudConfig] = useState<CloudConfig>(EMPTY_CLOUD);
-  const [savedCloudKeys, setSavedCloudKeys] = useState<Record<string, boolean>>({});
-  const [savingCloud, setSavingCloud] = useState(false);
-
-  const fetchCloudConfig = useCallback(async () => {
-    try {
-      const result = await request<{ cloud_config: Record<string, string> }>('/storage/cloud-config');
-      // Mask response just tells us which keys are set ('***' = set, '' = not set).
-      const setKeys: Record<string, boolean> = {};
-      for (const [k, v] of Object.entries(result.cloud_config || {})) {
-        setKeys[k] = v === '***';
-      }
-      setSavedCloudKeys(setKeys);
-    } catch {
-      // non-fatal
-    }
-  }, []);
-
-  const handleSaveCloudConfig = async () => {
-    setSavingCloud(true);
-    try {
-      // Only send non-empty fields so we don't clobber saved secrets with blanks.
-      const payload: Partial<CloudConfig> = {};
-      for (const [k, v] of Object.entries(cloudConfig)) {
-        if (v.trim()) (payload as Record<string, string>)[k] = v.trim();
-      }
-      await request('/storage/cloud-config', { method: 'POST', body: JSON.stringify(payload) });
-      toast('Cloud configuration saved.', 'success', 2000);
-      setCloudConfig(EMPTY_CLOUD);
-      void fetchCloudConfig();
-    } catch (error) {
-      toast(`Failed to save: ${formatErrorMessage(error)}`, 'error');
-    } finally {
-      setSavingCloud(false);
-    }
-  };
-
   const fetchHealth = useCallback(async () => {
     try {
       const [healthData, autoStartData, metricsData] = await Promise.all([
@@ -182,7 +133,7 @@ export function DatabaseSettings() {
 
       if (isStorageHealth(healthData)) {
         setHealth(healthData);
-        setMode((healthData.mode || 'local') as 'local' | 'cloud' | 'hybrid');
+        setMode(healthData.mode || 'internal');
       } else {
         setHealth(null);
         toast('Storage health response format was invalid.', 'warning');
@@ -210,17 +161,6 @@ export function DatabaseSettings() {
     void init();
     return () => { cancelled = true; };
   }, [fetchHealth]);
-
-  useEffect(() => {
-    if (activeTab !== 'cloud') return;
-    let cancelled = false;
-    async function load() {
-      await fetchCloudConfig();
-      if (cancelled) return;
-    }
-    void load();
-    return () => { cancelled = true; };
-  }, [activeTab, fetchCloudConfig]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -355,11 +295,7 @@ export function DatabaseSettings() {
         <CardContent>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              {status.is_cloud ? (
-                <><Cloud className="h-4 w-4" /> Cloud</>
-              ) : (
-                <><Laptop className="h-4 w-4" /> Local</>
-              )}
+              <><Laptop className="h-4 w-4" /> App-owned internal service</>
             </div>
             {status.url && (
               <p className="text-xs text-muted-foreground truncate" title={status.url}>
@@ -369,6 +305,14 @@ export function DatabaseSettings() {
             {status.provider && (
               <p className="text-xs text-muted-foreground">
                 Provider: {status.provider}
+              </p>
+            )}
+            {status.version && (
+              <p className="text-xs text-muted-foreground">Version: {status.version}</p>
+            )}
+            {status.safe_reason && (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                Reason: {status.safe_reason}
               </p>
             )}
             <Button 
@@ -404,13 +348,13 @@ export function DatabaseSettings() {
   const totalCount = health ? Object.keys(health.services).length : 5;
 
   return (
-    <div className="space-y-6" aria-busy={refreshing || lifecycleAction !== null || backupRunning || savingCloud}>
+    <div className="space-y-6" aria-busy={refreshing || lifecycleAction !== null || backupRunning}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Database Connections</h2>
+          <h2 className="text-2xl font-bold">Internal Data Plane</h2>
           <p className="text-muted-foreground">
-            Manage local and cloud storage backends
+            Operate the app-owned internal data plane
           </p>
         </div>
         <div className="flex gap-2">
@@ -469,8 +413,7 @@ export function DatabaseSettings() {
         <TabsList>
           <TabsTrigger value="status">Status</TabsTrigger>
           <TabsTrigger value="metrics">Metrics & Backup</TabsTrigger>
-          <TabsTrigger value="local">Local Config</TabsTrigger>
-          <TabsTrigger value="cloud">Cloud Config</TabsTrigger>
+          <TabsTrigger value="local">Runtime Policy</TabsTrigger>
         </TabsList>
 
         <TabsContent value="status" className="space-y-4">
@@ -577,30 +520,27 @@ export function DatabaseSettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Laptop className="h-5 w-5" />
-                Local Database Configuration
+                Internal Data-Plane Policy
               </CardTitle>
               <CardDescription>
-                Configure portable databases for desktop mode
+                Ports, paths, credentials, and immutable versions are installation-owned and read-only.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="db-postgres-port">PostgreSQL Port</Label>
-                  <Input id="db-postgres-port" type="number" defaultValue="5432" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="db-redis-port">Redis Port</Label>
-                  <Input id="db-redis-port" type="number" defaultValue="6379" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="db-neo4j-port">Neo4j Bolt Port</Label>
-                  <Input id="db-neo4j-port" type="number" defaultValue="7687" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="db-chroma-path">ChromaDB Path</Label>
-                  <Input id="db-chroma-path" defaultValue="./databases/chroma" />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {health && Object.entries(health.services).map(([key, status]) => (
+                  <div key={key} className="rounded-md border p-3 text-sm">
+                    <div className="font-medium">{SERVICE_LABELS[key] || key}</div>
+                    <div className="text-xs text-muted-foreground break-all">
+                      {status.endpoint || status.url || 'Endpoint unavailable'}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {status.expected_version
+                        ? `Locked version ${status.expected_version}`
+                        : 'Version pending'}
+                    </div>
+                  </div>
+                ))}
               </div>
               <div className="flex items-center space-x-2 pt-4">
                 <Switch
@@ -619,140 +559,6 @@ export function DatabaseSettings() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="cloud" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Cloud className="h-5 w-5" />
-                Cloud Database Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure cloud-hosted database connections. Leave a field blank to keep the existing saved value.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* PostgreSQL Cloud */}
-              <div className="space-y-2">
-                <Label htmlFor="cloud-postgres-url">
-                  PostgreSQL Cloud URL
-                  {savedCloudKeys.postgres_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                </Label>
-                <Input
-                  id="cloud-postgres-url"
-                  type="password"
-                  placeholder={savedCloudKeys.postgres_url ? '••••••••  (update to change)' : 'postgresql://user:pass@host:5432/db'}
-                  value={cloudConfig.postgres_url}
-                  onChange={(e) => setCloudConfig((p) => ({ ...p, postgres_url: e.target.value }))}
-                />
-              </div>
-
-              {/* Redis Cloud */}
-              <div className="space-y-2">
-                <Label htmlFor="cloud-redis-url">
-                  Redis Cloud URL
-                  {savedCloudKeys.redis_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                </Label>
-                <Input
-                  id="cloud-redis-url"
-                  type="password"
-                  placeholder={savedCloudKeys.redis_url ? '••••••••  (update to change)' : 'redis://user:pass@host:6379'}
-                  value={cloudConfig.redis_url}
-                  onChange={(e) => setCloudConfig((p) => ({ ...p, redis_url: e.target.value }))}
-                />
-              </div>
-
-              {/* Neo4j Aura */}
-              <div className="space-y-2">
-                <Label htmlFor="cloud-neo4j-uri">
-                  Neo4j Aura Connection URI
-                  {savedCloudKeys.neo4j_uri && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                </Label>
-                <Input
-                  id="cloud-neo4j-uri"
-                  type="password"
-                  placeholder={savedCloudKeys.neo4j_uri ? '••••••••  (update to change)' : 'neo4j+s://xxxx.databases.neo4j.io'}
-                  value={cloudConfig.neo4j_uri}
-                  onChange={(e) => setCloudConfig((p) => ({ ...p, neo4j_uri: e.target.value }))}
-                />
-              </div>
-
-              {/* Pinecone */}
-              <div className="space-y-2">
-                <Label htmlFor="cloud-pinecone-key">
-                  Pinecone API Key
-                  {savedCloudKeys.pinecone_api_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                </Label>
-                <Input
-                  id="cloud-pinecone-key"
-                  type="password"
-                  placeholder={savedCloudKeys.pinecone_api_key ? '••••••••  (update to change)' : 'Enter Pinecone API key'}
-                  value={cloudConfig.pinecone_api_key}
-                  onChange={(e) => setCloudConfig((p) => ({ ...p, pinecone_api_key: e.target.value }))}
-                />
-              </div>
-
-              {/* S3 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cloud-s3-endpoint">S3 Endpoint URL</Label>
-                  <Input
-                    id="cloud-s3-endpoint"
-                    placeholder="https://s3.amazonaws.com"
-                    value={cloudConfig.s3_endpoint}
-                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_endpoint: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cloud-s3-bucket">S3 Bucket</Label>
-                  <Input
-                    id="cloud-s3-bucket"
-                    placeholder="datalogic"
-                    value={cloudConfig.s3_bucket}
-                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_bucket: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cloud-s3-access-key">
-                    S3 Access Key
-                    {savedCloudKeys.s3_access_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                  </Label>
-                  <Input
-                    id="cloud-s3-access-key"
-                    type="password"
-                    placeholder={savedCloudKeys.s3_access_key ? '••••••••  (update to change)' : 'Access Key ID'}
-                    value={cloudConfig.s3_access_key}
-                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_access_key: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cloud-s3-secret-key">
-                    S3 Secret Key
-                    {savedCloudKeys.s3_secret_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
-                  </Label>
-                  <Input
-                    id="cloud-s3-secret-key"
-                    type="password"
-                    placeholder={savedCloudKeys.s3_secret_key ? '••••••••  (update to change)' : 'Secret Access Key'}
-                    value={cloudConfig.s3_secret_key}
-                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_secret_key: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <Button
-                className="w-full"
-                onClick={handleSaveCloudConfig}
-                disabled={savingCloud}
-              >
-                {savingCloud ? (
-                  <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
-                ) : (
-                  'Save Cloud Configuration'
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

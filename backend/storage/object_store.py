@@ -19,6 +19,28 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
+def object_store_is_required() -> bool:
+    """Return whether the active runtime forbids filesystem/fail-soft storage."""
+    try:
+        from flask import current_app, has_app_context
+
+        return bool(
+            has_app_context()
+            and (
+                current_app.config.get("DLE_PRODUCTION_MODE")
+                or current_app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
+            )
+        )
+    except ImportError:
+        return False
+
+
+def raise_if_object_store_required(exc: Exception, operation: str) -> None:
+    """Fail a required artifact operation without exposing the provider error."""
+    if object_store_is_required():
+        raise RuntimeError(f"required_object_store_{operation}_failed") from exc
+
+
 @dataclass
 class ObjectInfo:
     """Metadata about a stored object."""
@@ -316,13 +338,21 @@ class S3Backend(ObjectBackend):
         if self._client is None:
             try:
                 import boto3
+                from botocore.config import Config
                 
                 self._client = boto3.client(
                     's3',
                     endpoint_url=self.endpoint_url,
                     aws_access_key_id=self._access_key,
                     aws_secret_access_key=self._secret_key,
-                    region_name=self.region
+                    region_name=self.region,
+                    config=Config(
+                        signature_version="s3v4",
+                        s3={"addressing_style": "path"},
+                        connect_timeout=3,
+                        read_timeout=15,
+                        retries={"max_attempts": 3, "mode": "standard"},
+                    ),
                 )
                 logger.info(f"S3 client initialized for {self.endpoint_url or 'AWS S3'}")
             except ImportError:
@@ -416,7 +446,7 @@ class S3Backend(ObjectBackend):
             return results
         except Exception as e:
             logger.error(f"S3 list failed for {bucket}: {e}")
-            return []
+            raise
     
     def get_info(self, bucket: str, key: str) -> Optional[ObjectInfo]:
         """Get object metadata from S3."""
@@ -449,6 +479,11 @@ class S3Backend(ObjectBackend):
     def create_bucket(self, bucket: str) -> bool:
         """Create S3 bucket."""
         try:
+            self.client.head_bucket(Bucket=bucket)
+            return True
+        except Exception:
+            pass
+        try:
             if self.region == 'us-east-1':
                 self.client.create_bucket(Bucket=bucket)
             else:
@@ -466,10 +501,9 @@ class ObjectStore:
     """
     Unified object store interface.
 
-    Runtime selection is intentionally fixed to the app-owned local filesystem
-    backend. A Windows VM deployment uses the same internal storage model as
-    desktop; externally hosted object stores are not application database
-    sources.
+    The production backend is the supervisor-owned internal S3 endpoint.  The
+    local filesystem remains available only for development, bounded staging,
+    migration, and recovery tooling.
     """
     
     def __init__(self, backend: Optional[ObjectBackend] = None):
@@ -484,7 +518,30 @@ class ObjectStore:
         
         config = get_connection_manager().config.object_storage
         
-        logger.info("Using app-owned local filesystem backend")
+        if config.endpoint_url and config.access_key and config.secret_key:
+            logger.info("Using supervisor-owned internal S3-compatible backend")
+            return S3Backend(
+                config.endpoint_url,
+                config.access_key,
+                config.secret_key,
+                config.region,
+            )
+
+        production_required = False
+        try:
+            from flask import current_app, has_app_context
+
+            if has_app_context():
+                production_required = bool(
+                    current_app.config.get("DLE_PRODUCTION_MODE")
+                    or current_app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
+                )
+        except ImportError:
+            pass
+        if production_required:
+            raise RuntimeError("required_internal_object_store_unavailable")
+
+        logger.info("Using bounded development filesystem object backend")
         return LocalFileBackend(base_path=config.local_path)
     
     def put(

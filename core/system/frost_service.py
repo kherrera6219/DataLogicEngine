@@ -122,7 +122,7 @@ class FROSTService:
             payload = json.dumps(bundle, sort_keys=True, cls=DateTimeEncoder).encode("utf-8")
             store = get_object_store()
             store.put(
-                "simulation_artifacts",
+                "simulation-artifacts",
                 key,
                 payload,
                 content_type="application/json",
@@ -132,11 +132,14 @@ class FROSTService:
                 },
             )
             self.snapshot_metadata[snapshot_id]["object_store"] = {
-                "bucket": "simulation_artifacts",
+                "bucket": "simulation-artifacts",
                 "key": key,
                 "size_bytes": len(payload),
             }
         except Exception as exc:  # pylint: disable=broad-except
+            from backend.storage.object_store import raise_if_object_store_required
+
+            raise_if_object_store_required(exc, "simulation_write")
             self.logger.debug("FROST snapshot object persistence skipped: %s", exc)
 
     def verify_snapshot(self, snapshot_id: str) -> bool:

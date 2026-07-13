@@ -14,10 +14,9 @@ class TestGraphQLQueries:
     """Tests for GraphQL query operations."""
 
     def test_graphql_endpoint_exists(self, client):
-        """Test that GraphQL endpoint is accessible."""
+        """Test that the GraphQL endpoint enforces authentication."""
         response = client.get('/graphql')
-        # Should return GraphiQL page or require query
-        assert response.status_code in [200, 400]
+        assert response.status_code == 401
 
     def test_graphql_introspection(self, authenticated_client):
         """Test GraphQL introspection query."""
@@ -166,7 +165,7 @@ class TestGraphQLErrorHandling:
             data=json.dumps({'query': query}),
             content_type='application/json'
         )
-        assert response.status_code == 200  # GraphQL returns 200 with errors
+        assert response.status_code == 400
         data = response.get_json()
         assert 'errors' in data
 

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Accepted - implementation qualification open |
+| Status | Accepted OCI direction - engineering qualification complete; production artifact gates open |
 | Date | 2026-07-13 |
 | Decision owner | Product owner |
 | Plan checkpoint | CP0-B |
@@ -17,6 +17,16 @@ up, restore, diagnose, and uninstall the profile without silent fallbacks.
 
 Current Compose is incomplete: ChromaDB is absent, MinIO uses `latest`, other
 services use broad tags, and the installer does not deliver the stack.
+
+CP3-A research on 2026-07-13 found that the MinIO Community repository was
+archived on 2026-04-25, community distribution is now source-only, legacy
+precompiled releases are unmaintained, and the AGPL community edition provides
+no production support. The accepted OCI delivery direction remains valid, but
+the MinIO product selection cannot pass the version/support/license lock without
+either a MinIO AIStor commercial agreement or a fully qualified and owner-
+approved S3-compatible replacement. Kevin authorized SeaweedFS candidate
+qualification, but not production selection. See
+`reports/production-readiness/2026/phase-03/cp3-a-version-license-audit.md`.
 
 ## Option A - App-managed pinned Linux containers
 
@@ -79,6 +89,18 @@ CP0-B approves the architecture and reference runtime. Qualification remains
 open under CP0-C, CP0-F, CP0-G, and Phases 3/14/15 for exact runtime/package
 versions, redistribution review, immutable images, supervision, volume security,
 backup/restore, resource budgets, and prohibited-runtime environments.
+
+The application must not pull or ship `minio/minio:latest`. The Phase 3 manager
+may provision SeaweedFS only under a qualification profile whose lock records
+`production_authorized: false`; it must reject construction of a production
+plan. Production provisioning and distribution remain blocked pending the exact
+artifact reviews, clean-installer evidence, ADR-0004 acceptance, and final owner
+approval.
+
+The Phase 3 engineering qualification passed the five-service lifecycle,
+identity, real-operation, restart-durability, and cleanup contract. That evidence
+validates this delivery direction but does not close the installed-production,
+redistribution, security, backup/recovery, or object-selection gates.
 
 Additional runtime evidence:
 

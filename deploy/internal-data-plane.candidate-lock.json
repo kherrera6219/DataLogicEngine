@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "status": "engineering_candidates_not_production_approved",
+  "captured_at": "2026-07-13",
+  "target": {
+    "host": "windows_11_x64",
+    "runtime": "rootless_podman_machine_wsl2",
+    "container_platform": "linux_amd64",
+    "minimum_cpu_cores": 4,
+    "minimum_memory_bytes": 8589934592,
+    "minimum_free_disk_bytes": 53687091200
+  },
+  "runtime": {
+    "name": "podman",
+    "version": "5.8.2",
+    "windows_x64_msi_sha256": "eda54f26f9695d198d9a679fa45ae24ba35b78444f432b5fe0c122c5a3624c57",
+    "license": "Apache-2.0",
+    "production_redistribution_review": "pending"
+  },
+  "services": {
+    "postgresql": {
+      "version": "18.4",
+      "image": "docker.io/library/postgres@sha256:774521500f4c22761b25a6bdb772a0a3c2e8dd32468210bdad9231c5752ea398",
+      "linux_amd64_digest": "sha256:56ba71bf54060de15a6b2df1a18081b8f6c5bf61255b7ed6f1ef10ee868eaff0",
+      "license": "PostgreSQL",
+      "production_approved": false
+    },
+    "redis": {
+      "version": "8.8.0",
+      "image": "docker.io/library/redis@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32",
+      "linux_amd64_digest": "sha256:c904002d182255b6db3cbe3a1e8ce6c187d15390c39500b59fc07181aabff7bf",
+      "license": "AGPL-3.0-selected-from-tri-license",
+      "production_redistribution_review": "pending",
+      "production_approved": false
+    },
+    "neo4j": {
+      "version": "5.26.28",
+      "image": "docker.io/library/neo4j@sha256:4bae36aff76271e27fd6a6ed0835413f86a284cd179cfb1cb7d188f5f7533aca",
+      "linux_amd64_digest": "sha256:32e6325c6f2160747d68601b6e1a38e556deca66524cf95cf0e6c1ee29b1596b",
+      "license": "GPL-3.0",
+      "production_redistribution_review": "pending",
+      "production_approved": false
+    },
+    "chromadb": {
+      "version": "1.5.9",
+      "image": "docker.io/chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
+      "linux_amd64_digest": "sha256:abcce7c335e2dab9f11ef629296f7309b09cb19ae4b34da32ac7e34ff5773140",
+      "license": "Apache-2.0",
+      "client_compatibility": "pending",
+      "production_approved": false
+    },
+    "object_store_candidate": {
+      "product": "seaweedfs",
+      "version": "4.29",
+      "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
+      "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+      "license": "Apache-2.0",
+      "qualification_authorized_by": "Kevin",
+      "qualification_authorized_at": "2026-07-13",
+      "production_license_review": "pending",
+      "replacement_control": "pending",
+      "production_approved": false
+    }
+  },
+  "production_provisioning_authorized": false,
+  "architecture_change_authorized": false
+}

@@ -2,6 +2,7 @@ import json
 import os
 
 import pytest
+from flask import Flask
 
 import app as app_module
 from backend.memory.unified_memory_service import UnifiedMemoryService
@@ -127,12 +128,14 @@ def test_frost_branch_checkpoint_restores_memory(tmp_path, monkeypatch):
     assert service.stats()["memory_vertices"] == before_count
 
 
-def test_health_memory_stats_uses_unified_memory_service(tmp_path, monkeypatch):
+def test_health_memory_stats_uses_unified_memory_service(tmp_path):
     service = UnifiedMemoryService(storage_path=tmp_path / "memory_graph.json", auto_load=False)
     service.consolidate("health memory", layer="L1", persona="global")
-    monkeypatch.setattr("backend.memory.get_unified_memory_service", lambda: service)
+    test_app = Flask("memory-health-test")
+    test_app.extensions["dle_unified_memory_service"] = service
 
-    stats = app_module._structured_memory_stats()
+    with test_app.app_context():
+        stats = app_module._structured_memory_stats()
 
     assert stats["status"] == "ok"
     assert stats["memory_vertices"] == 1

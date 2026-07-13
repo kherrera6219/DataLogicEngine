@@ -9,6 +9,7 @@ initialized". Also covers the auth decorators added in the same fix.
 import pytest
 from unittest.mock import MagicMock, patch
 from flask import Flask
+from flask_login import LoginManager
 
 from backend.honeycomb_api import honeycomb_api
 
@@ -18,6 +19,12 @@ def app():
     app = Flask(__name__)
     app.config['TESTING'] = True
     app.config['AXIS_SYSTEM'] = MagicMock()
+    login_manager = LoginManager(app)
+
+    @login_manager.user_loader
+    def _load_user(_user_id):
+        return None
+
     app.register_blueprint(honeycomb_api)
     return app
 

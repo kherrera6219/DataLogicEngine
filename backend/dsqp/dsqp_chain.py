@@ -227,6 +227,9 @@ class DSQPChain:
             )
             persona.metadata["object_store"]["size_bytes"] = len(payload)
         except Exception as exc:  # pylint: disable=broad-except
+            from backend.storage.object_store import raise_if_object_store_required
+
+            raise_if_object_store_required(exc, "deliverable_write")
             logger.debug("DSQP deliverable object persistence skipped: %s", exc)
 
     @staticmethod

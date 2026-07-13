@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
+| Document version | v3.3.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -40,6 +40,28 @@ multi-store memory, frontend trace review, and release-governed validation.
 8. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 
 ## Architecture overview
+
+### Phase 3 internal data-plane checkpoint
+
+The application now has one app-owned rootless Podman delivery profile for the
+five required data-plane capabilities. `PodmanDataPlaneManager` derives
+installation-specific container/network/volume/secret names and loopback ports,
+verifies immutable image identity and app labels, applies rootless/read-only/
+capability/resource controls, and exposes lifecycle/probe state through the
+Phase 2 supervisor. Production construction fails closed when its candidate lock
+is not authorized or when PostgreSQL, Redis, Neo4j, ChromaDB, or the object
+contract is unavailable.
+
+The 2026-07-13 live engineering run passed real operations, restart durability,
+truthful identity/status, and cleanup for the complete profile. This is not a
+clean installed-production qualification. Exact runtime packaging, independent
+review, coordinated recovery, and final installed-system gates remain open.
+
+MinIO remains the product-specific object-store architecture. SeaweedFS is used
+only by a production-disabled qualification profile under Proposed ADR-0004; the
+architecture may change to the capability requirement "app-owned S3-compatible
+object store" only after every Replacement Control gate and final owner approval
+pass.
 
 DataLogicEngine is a local-first AI governance and knowledge-reasoning platform. It is not centered on a single LLM call. The architecture is built around a governed request lifecycle:
 
@@ -660,6 +682,13 @@ Then inspect these implementation files:
 13. `frontend/app/layout.tsx`
 14. `frontend/components/layout/AppSidebar.tsx`
 15. `.github/workflows/ci.yml`
+
+## Change notes for v3.3.0
+
+1. Recorded the qualified five-service Podman engineering profile, supervisor-
+   owned fail-closed adapters, and retained installed-production gates.
+2. Preserved MinIO as the target architecture while SeaweedFS remains a
+   qualification-only candidate under Proposed ADR-0004.
 
 ## Change notes for v3.2.0
 

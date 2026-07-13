@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.0 |
-| Completed phase | Phase 2 - Runtime factory, startup, and capability state |
-| Next phase | Phase 3 - Full internal service delivery and supervision |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.1 |
+| Completed phase | Phase 3 engineering checkpoint - Full internal service delivery and supervision |
+| Next phase | Phase 4 - Data contracts, migrations, backup, and recovery |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -37,55 +37,52 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Final Phase 2 validation reports 590 backend unit/route checks, 398 security/
   route checks, and 403 frontend checks passed. The 426-route manifest and all
   startup, public-error, secret, packaged Electron, and precheck gates pass.
+- Phase 3 reached its engineering checkpoint on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-03/`; installed-production gates are
+  retained rather than misreported as passed.
+- One protected, per-install, digest-pinned Podman profile supervises
+  PostgreSQL, Redis, Neo4j, ChromaDB, and a qualification-only S3 candidate with
+  loopback ports, verified identity, resource/security limits, and cleanup.
+- Live qualification passed real operations and restart durability for all five
+  services, six required object buckets, truthful status, and resource cleanup.
+- Full validation passed 1,814 backend tests (18 skipped), 402 frontend tests,
+  frontend lint/typecheck/build, and Ruff.
+- SeaweedFS is not production-selected: ADR-0004 remains Proposed, production
+  authorization is false, and the architecture remains MinIO-specific.
 
-## Phase 3 objective
+## Phase 4 objective
 
-Make PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO a supported, app-owned
-production data plane installed and controlled through the Phase 2 supervisor.
+Protect user data across schema changes, service upgrades, backup, restore,
+repair, uninstall, and rollback for every required store.
 
-## Phase 3 work packages
+## Phase 4 work packages
 
-- [ ] Pin immutable PostgreSQL, Redis, Neo4j/JRE, ChromaDB, and MinIO versions/
-      digests and complete the redistribution/license matrix.
-- [ ] Provision the OCI data plane through the app supervisor with per-install
-      names, loopback-only ports, resource limits, and verified image identity.
-- [ ] Generate unique service credentials, protect them with DPAPI/ACLs, and
-      remove known/default secrets and plaintext production `.env` dependency.
-- [ ] Make PostgreSQL the production SQLAlchemy authority with explicit roles,
-      SCRAM, migrations, connection budgets, and PostgreSQL-specific tests.
-- [ ] Make Redis the production cache/session/rate-limit/queue/stream service with
-      auth, persistence, eviction, replay, retry, and dead-letter contracts.
-- [ ] Make Neo4j the durable graph authority with schema/version, conflict,
-      reconciliation, reconstruction, restart, and traversal tests.
-- [ ] Define and qualify the Chroma collection registry, embedding compatibility,
-      rebuild/migration, source reconciliation, health, backup, and restore.
-- [ ] Restore MinIO as the production object backend with least privilege,
-      required buckets, metadata/integrity, lifecycle, and real operation tests.
-- [ ] Route start/stop/restart/repair/verify/backup/restore through the singleton
-      supervisor and show installed version, identity, status, size, migration,
-      backup, and safe reason in the Storage UI.
+- [ ] Publish one ownership matrix for every relational row, Redis key/stream,
+      graph node/edge, vector collection/chunk, object, and materialized cache.
+- [ ] Define globally stable identifiers and cross-store reference/integrity
+      rules; prohibit silent conflict resolution between stores.
+- [ ] Inventory all existing schemas and data formats, establish migration
+      ordering, and implement versioned forward/rollback migrations.
+- [ ] Implement a coordinated backup manifest with store versions, checkpoints,
+      hashes, object counts, encryption state, and completion status.
+- [ ] Implement clean-root restore, partial-failure recovery, point-in-time
+      policy where supported, repair, and rollback without mixed-version state.
+- [ ] Define retention, deletion, tombstone, rebuild, and uninstall data-keep/
+      data-remove behavior for every store.
+- [ ] Prove corruption, disk-full, interrupted migration, backup failure, restore
+      failure, and cross-store reconciliation behavior.
+- [ ] Keep managed backup/restore actions fail-closed until the complete
+      coordinated recovery contract is implemented and verified.
 
-## Phase 3 checkpoints
+## Phase 3 deferred release gates
 
 | Checkpoint | Required result | Status |
 |---|---|---|
-| CP3-A | Versions, digests, licenses, hardware, and delivery mechanism locked | Next |
-| CP3-B | Clean install provisions unique protected credentials and loopback-only services | Open |
-| CP3-C | Instrumented workflows prove real read/write use of every required service | Open |
-| CP3-D | Supervisor survives start/stop/restart/crash/port conflict/app relaunch | Open |
-| CP3-E | Installed Storage UI truthfully reports/actions the five-service data plane | Open |
-
-## Phase 3 mandatory validation
-
-```powershell
-python scripts/setup_local_databases.py --verify
-python scripts/verify_local_data_stack.py
-python scripts/validate_schema_parity.py --report reports/schema_parity_report_local.json
-python -m pytest tests/integration tests/integration_routes -q
-```
-
-Create `scripts/verify_internal_data_plane.py --profile production --require-all
---json <report>`. A skipped required service is a production failure.
+| CP3-A | Exact artifacts plus redistribution/security/support approval | Engineering candidates locked; independent reviews and final object selection open |
+| CP3-B | Clean install provisions protected loopback-only services | Lab provisioning passed; clean signed-installer proof deferred |
+| CP3-C | Instrumented workflows prove real read/write use of every service | Engineering qualification passed; final installed workflow proof deferred |
+| CP3-D | Supervisor survives lifecycle/failure/relaunch cases | Start/restart/identity/cleanup passed; full failure matrix continues in Phases 4/15 |
+| CP3-E | Installed Storage UI truthfully reports/actions the data plane | UI/backend contract implemented; installed-app proof deferred |
 
 ## Phase ledger
 
@@ -94,8 +91,8 @@ Create `scripts/verify_internal_data_plane.py --profile production --require-all
 | 0 | Scope, baseline, and authority lock | **Complete 2026-07-13** |
 | 1 | Trust boundary and public error closure | **Complete 2026-07-13** |
 | 2 | Runtime factory, startup, and capability state | **Complete 2026-07-13** |
-| 3 | Full internal service delivery and supervision | **Next** |
-| 4 | Data contracts, migrations, backup, and recovery | Blocked by prior phases |
+| 3 | Full internal service delivery and supervision | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
+| 4 | Data contracts, migrations, backup, and recovery | **Next** |
 | 5 | Canonical governed reasoning path | Blocked by prior phases |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | Blocked by prior phases |
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | Blocked by prior phases |
@@ -124,7 +121,8 @@ Create `scripts/verify_internal_data_plane.py --profile production --require-all
 
 ## Exact next action
 
-Start CP3-A by inventorying the live container/image/binary/JRE versions,
-digests, floating tags, licenses, and redistribution obligations. Replace
-`minio/minio:latest` and every other floating/unqualified production service
-input before provisioning or changing data contracts.
+Begin Phase 4 by creating the cross-store ownership/identifier matrix and
+migration inventory, then implement the coordinated backup manifest and
+clean-root restore contract. Keep the managed backup endpoint fail-closed until
+all required stores participate in one verified recovery set. Preserve the
+SeaweedFS candidate-only boundary and all deferred Phase 3 release gates.

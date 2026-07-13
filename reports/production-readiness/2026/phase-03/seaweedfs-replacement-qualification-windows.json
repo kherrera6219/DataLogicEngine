@@ -1,0 +1,306 @@
+{
+  "architecture_change_authorized": false,
+  "candidate": {
+    "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
+    "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+    "product": "seaweedfs",
+    "version": "4.29"
+  },
+  "candidate_s3_became_ready": true,
+  "captured_at": "2026-07-13T19:50:26.087597+00:00",
+  "checks": [
+    {
+      "check": "candidate_only_lock",
+      "evidence": {
+        "architecture_change_authorized": false,
+        "production_approved": false,
+        "qualification_authorized_by": "Kevin"
+      },
+      "gate": "authority",
+      "status": "pass"
+    },
+    {
+      "check": "qualification_port_available",
+      "evidence": {
+        "available": true,
+        "host": "127.0.0.1",
+        "port": 18333
+      },
+      "gate": "windows_deployment",
+      "status": "pass"
+    },
+    {
+      "check": "windows_host",
+      "evidence": {
+        "machine": "AMD64",
+        "release": "11",
+        "system": "Windows",
+        "version": "10.0.26200"
+      },
+      "gate": "windows_deployment",
+      "status": "pass"
+    },
+    {
+      "check": "rootless_podman_runtime",
+      "evidence": {
+        "arch": "amd64",
+        "cgroup_version": "v2",
+        "client_version": "5.8.3",
+        "exact_runtime_match": false,
+        "expected_distributable_version": "5.8.2",
+        "kernel": "6.6.87.2-microsoft-standard-WSL2",
+        "rootless": true,
+        "seccomp": true,
+        "server_version": "5.8.5"
+      },
+      "gate": "windows_deployment",
+      "status": "pass"
+    },
+    {
+      "check": "exact_locked_runtime",
+      "evidence": {
+        "client": "5.8.3",
+        "expected": "5.8.2",
+        "reason": "installed_client_or_machine_server_does_not_match_candidate_lock",
+        "server": "5.8.5"
+      },
+      "gate": "windows_deployment",
+      "status": "fail"
+    },
+    {
+      "check": "immutable_candidate_identity_and_declared_license",
+      "evidence": {
+        "binary_version": "version 30GB 4.29 1355c7a10 linux amd64",
+        "image_id": "10b004ca7cc8ee13615dbe670e1be047270ab30a742a5944e82330017d64d8fd",
+        "license_label": "Apache-2.0",
+        "repo_digests": [
+          "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
+          "docker.io/chrislusf/seaweedfs@sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e"
+        ],
+        "source_revision": "1355c7a102194d6c461baf090eff50367b575afb",
+        "version_label": "4.29"
+      },
+      "gate": "licensing",
+      "status": "pass"
+    },
+    {
+      "check": "container_and_loopback_hardening",
+      "evidence": {
+        "effective_capabilities": "CapEff:\t0000000000000000",
+        "memory_bytes": 1073741824,
+        "pids_limit": 256,
+        "published_ports": {
+          "8333/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "18333"
+            }
+          ]
+        },
+        "read_only_rootfs": true,
+        "secret_values_absent_from_inspect": true,
+        "security_options": [
+          "no-new-privileges"
+        ],
+        "user": "1000:1000"
+      },
+      "gate": "security",
+      "status": "pass"
+    },
+    {
+      "check": "anonymous_access_denied",
+      "evidence": {
+        "code": "AccessDenied",
+        "denied": "true",
+        "http_status": "403"
+      },
+      "gate": "security",
+      "status": "pass"
+    },
+    {
+      "check": "invalid_credentials_denied",
+      "evidence": {
+        "code": "InvalidAccessKeyId",
+        "denied": "true",
+        "http_status": "403"
+      },
+      "gate": "security",
+      "status": "pass"
+    },
+    {
+      "check": "least_privilege_bucket_creation_denied",
+      "evidence": {
+        "code": "AccessDenied",
+        "denied": "true",
+        "http_status": "403"
+      },
+      "gate": "security",
+      "status": "pass"
+    },
+    {
+      "check": "s3_object_contract",
+      "evidence": {
+        "access_key_persisted_in_report": false,
+        "credential_transport": "podman_secret_static_s3_config",
+        "durability_key": "durability/d7bd749fee86.bin",
+        "durability_sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f",
+        "endpoint": "http://127.0.0.1:18333",
+        "multipart_bytes": 10485777,
+        "operations": [
+          "put",
+          "get",
+          "head",
+          "list_prefix",
+          "delete",
+          "multipart_upload",
+          "presigned_get"
+        ],
+        "secret_key_persisted_in_report": false,
+        "small_object_sha256": "ee076ef291f47d68bf7c7e061b9e94ba6d68d32803f26ddffdb5ac6e167a347a"
+      },
+      "gate": "contract_parity",
+      "status": "pass"
+    },
+    {
+      "check": "bounded_concurrent_read_write_smoke",
+      "evidence": {
+        "elapsed_seconds": 0.276,
+        "objects": 32,
+        "workers": 8
+      },
+      "gate": "concurrency_performance",
+      "status": "pass"
+    },
+    {
+      "check": "portable_snapshot_export",
+      "evidence": {
+        "bucket": "dle-qualification",
+        "manifest_sha256": "b37b655cbe40d3b76603335e11a69906e8d819f19f3141d4b1852842766e31ce",
+        "object_count": 34,
+        "total_bytes": 2359345
+      },
+      "gate": "backup_restore",
+      "status": "pass"
+    },
+    {
+      "check": "graceful_container_restart",
+      "evidence": {
+        "bytes": 262144,
+        "key": "durability/d7bd749fee86.bin",
+        "sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f"
+      },
+      "gate": "durability",
+      "status": "pass"
+    },
+    {
+      "check": "forced_termination_restart",
+      "evidence": {
+        "bytes": 262144,
+        "key": "durability/d7bd749fee86.bin",
+        "sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f"
+      },
+      "gate": "durability",
+      "status": "pass"
+    },
+    {
+      "check": "health_and_redacted_logs",
+      "evidence": {
+        "credentials_absent": true,
+        "version_observed": false
+      },
+      "gate": "observability",
+      "status": "fail"
+    },
+    {
+      "check": "clean_data_root_restore",
+      "evidence": {
+        "bucket": "dle-qualification",
+        "manifest_sha256": "b37b655cbe40d3b76603335e11a69906e8d819f19f3141d4b1852842766e31ce",
+        "object_count": 34,
+        "total_bytes": 2359345
+      },
+      "gate": "backup_restore",
+      "status": "pass"
+    },
+    {
+      "check": "local_to_candidate_migration",
+      "evidence": {
+        "bucket": "dle-qualification-migration",
+        "manifest_sha256": "aa96586e751a90a88f0b6b351feabdfa22783c54418b36ce67af8219d2070db0",
+        "object_count": 1,
+        "total_bytes": 30
+      },
+      "gate": "migration_rollback",
+      "status": "pass"
+    },
+    {
+      "check": "candidate_to_local_rollback",
+      "evidence": {
+        "bucket": "dle-qualification-migration",
+        "manifest_sha256": "4ae4c44942f2a9fd2f38c4e4b9dcd57fee3f9a5ed933b903a221ff8526b16701",
+        "object_count": 1,
+        "total_bytes": 30
+      },
+      "gate": "migration_rollback",
+      "status": "pass"
+    },
+    {
+      "check": "qualification_resource_cleanup",
+      "evidence": {
+        "cleanup_failures": [],
+        "resources_retained_by_request": false
+      },
+      "gate": "windows_deployment",
+      "status": "pass"
+    },
+    {
+      "check": "independent_license_redistribution_review",
+      "evidence": "Required by Phase 0; engineering metadata is not legal approval.",
+      "gate": "licensing",
+      "status": "pending"
+    },
+    {
+      "check": "independent_security_and_data_at_rest_review",
+      "evidence": "TLS policy, BitLocker/store encryption, vulnerability scan, and threat review remain open.",
+      "gate": "security",
+      "status": "pending"
+    },
+    {
+      "check": "comparative_corruption_disk_full_and_restore_failure_matrix",
+      "evidence": "Required on supported Windows hardware before production selection.",
+      "gate": "failure_recovery",
+      "status": "pending"
+    },
+    {
+      "check": "clean_machine_installer_and_relaunch_qualification",
+      "evidence": "This lab run is not clean-machine installer evidence.",
+      "gate": "windows_deployment",
+      "status": "pending"
+    },
+    {
+      "check": "final_production_selection",
+      "evidence": "Candidate qualification authority is not final production approval.",
+      "gate": "owner_approval",
+      "status": "pending"
+    }
+  ],
+  "decision_rule": "MinIO remains the product-specific target until every gate passes, ADR-0004 is accepted, and Kevin grants final production approval.",
+  "production_approved": false,
+  "replacement_control": {
+    "authority": "pass",
+    "backup_restore": "pass",
+    "concurrency_performance": "pass",
+    "contract_parity": "pass",
+    "durability": "pass",
+    "failure_recovery": "pending",
+    "licensing": "pending",
+    "migration_rollback": "pass",
+    "observability": "fail",
+    "owner_approval": "pending",
+    "security": "pending",
+    "windows_deployment": "fail"
+  },
+  "run_id": "d7bd749fee86",
+  "schema_version": "1.0.0",
+  "status": "blocked"
+}

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -57,7 +57,19 @@ firewall, upgrade, diagnostics, and recovery qualification passes.
 Accepted ADR-0003 selects app-managed immutable OCI containers through rootless
 Podman Machine/WSL2 for the required PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO
 services. Docker Desktop is developer-compatible only and is not a shipped
-production dependency. The production Podman profile is not yet qualified.
+production dependency.
+
+The Phase 3 engineering profile is implemented and passed a live five-service
+qualification on Windows. It is not an installer payload or production release
+authorization. The exact locked Podman artifact, offline/runtime delivery,
+clean signed install/upgrade/uninstall, independent redistribution/security
+reviews, and final object-store selection remain open. The candidate lock keeps
+production provisioning false, so an ordinary release build must not claim to
+install the production data plane yet.
+
+SeaweedFS 4.29 may be used only by the qualification workflow. MinIO remains the
+deployment architecture until Proposed ADR-0004 is accepted after full
+Replacement Control and final owner approval.
 
 Unsupported as primary runtime database sources:
 
@@ -476,6 +488,13 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.10.0
+
+1. Recorded the Phase 3 five-service engineering qualification and the explicit
+   separation between a lab profile and the later clean signed installer gate.
+2. Documented the production-disabled SeaweedFS candidate boundary and retained
+   MinIO deployment authority.
 
 ## Change notes for v2.9.0
 

@@ -108,14 +108,15 @@ class TruthMemoryCommitService:
     @staticmethod
     def _write_audit_bundle_object(run, bundle: dict) -> dict:
         """Persist canonical audit bundle JSON to the app-owned object store."""
-        bucket = "audit_logs"
+        bucket = "audit-logs"
         key = f"{run.run_id}.json"
         try:
             from backend.storage import get_object_store
 
             payload = json.dumps(bundle, sort_keys=True, default=str, indent=2).encode("utf-8")
             store = get_object_store()
-            store.create_bucket(bucket)
+            if not store.create_bucket(bucket):
+                raise RuntimeError("required_audit_bucket_unavailable")
             store.put(
                 bucket,
                 key,
@@ -129,6 +130,9 @@ class TruthMemoryCommitService:
             )
             return {"bucket": bucket, "key": key}
         except Exception as exc:
+            from backend.storage.object_store import raise_if_object_store_required
+
+            raise_if_object_store_required(exc, "audit_write")
             logger.warning("Audit bundle object-store write skipped for run %s: %s", run.run_id, exc)
             return {}
 

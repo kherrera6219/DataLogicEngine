@@ -57,7 +57,7 @@ def test_provenance_record_exports_w3c_prov_json():
     prov = ProvenanceRecord.from_trace_run(
         Run(),
         evidence_pack_hash="abc123",
-        object_ref={"bucket": "audit_logs", "key": "run-1.json"},
+        object_ref={"bucket": "audit-logs", "key": "run-1.json"},
     ).to_w3c_prov()
 
     assert "entity" in prov

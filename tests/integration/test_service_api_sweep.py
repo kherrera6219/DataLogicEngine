@@ -188,4 +188,4 @@ class TestGraphQLAPI:
         assert response.status_code == 200
         data = response.get_json()
         assert 'errors' in data
-        assert "GraphQL Error" in data['errors'][0]['message']
+        assert data['errors'][0]['message'] == "GraphQL execution failed"

@@ -84,13 +84,9 @@ class TestConnectionManager:
 
     def test_health_checks(self):
         cm = ConnectionManager()
-        with patch("socket.socket") as mock_sock:
-            # Mock successful connection
-            mock_sock.return_value.connect_ex.return_value = 0
+        with patch.object(cm, "_check_postgres_health", return_value=True):
             assert cm.check_health('postgres') is True
-            
-            # Mock failed connection
-            mock_sock.return_value.connect_ex.return_value = 1
+        with patch.object(cm, "_check_redis_health", return_value=False):
             assert cm.check_health('redis') is False
 
 class TestObjectStore:
@@ -126,10 +122,28 @@ class TestObjectStore:
         # Verify ObjectStore remains internal even if stale external config is present.
         with patch("backend.storage.connection_manager.get_connection_manager") as mock_cm:
             mock_cm.return_value.config.object_storage.is_cloud = True
+            mock_cm.return_value.config.object_storage.endpoint_url = None
             mock_cm.return_value.config.object_storage.access_key = "key"
+            mock_cm.return_value.config.object_storage.secret_key = None
             mock_cm.return_value.config.object_storage.local_path = "databases/objects"
             
             with patch("backend.storage.object_store.S3Backend") as mock_s3:
                 store = ObjectStore()
                 assert not mock_s3.called
                 assert isinstance(store._backend, LocalFileBackend)
+
+    def test_supervisor_owned_s3_endpoint_is_selected(self):
+        with patch("backend.storage.connection_manager.get_connection_manager") as mock_cm:
+            config = mock_cm.return_value.config.object_storage
+            config.endpoint_url = "http://127.0.0.1:22005"
+            config.access_key = "DLEAPP12345678901234567890123456789012"
+            config.secret_key = "secret-value"
+            config.region = "us-east-1"
+            with patch("backend.storage.object_store.S3Backend") as backend:
+                ObjectStore()
+                backend.assert_called_once_with(
+                    config.endpoint_url,
+                    config.access_key,
+                    config.secret_key,
+                    config.region,
+                )

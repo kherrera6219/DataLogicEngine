@@ -2,39 +2,8 @@
 import os
 import unittest
 from unittest import mock
-from app import app, db, User
 
 class TestCriticalFixes(unittest.TestCase):
-    def setUp(self):
-        # Configure app for testing
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF for easier testing
-        app.config['SECRET_KEY'] = 'test-secret-key'
-        
-        self.app = app.test_client()
-        self.ctx = app.app_context()
-        self.ctx.push()
-        
-        db.create_all()
-        
-        # Create a test user
-        self.user = User(username='testuser', email='test@example.com')
-        self.user.set_password('Secure!Token789')
-        db.session.add(self.user)
-        
-        # Create an admin user
-        self.admin = User(username='admin', email='admin@example.com')
-        self.admin.set_password('Admin!Access789')
-        db.session.add(self.admin)
-        
-        db.session.commit()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.ctx.pop()
-
     def test_production_config_hardening(self):
         """Test that secure cookies are enforced when FLASK_ENV is production"""
         # Mock environment variables

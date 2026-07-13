@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. A July 12, 2026 repository-wide review found that substantial components exist but the complete governed lifecycle, full internal data plane, external gateway, security boundary, installed-system qualification, accessibility, signing, and release evidence are not yet production-complete. Work begins at Phase 0 of [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md). Current actions are tracked in [`TODO.md`](TODO.md), and the evidence baseline is [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3 internal-data-plane engineering checkpoint are complete; Phase 4 data contracts, migrations, backup, and recovery is active. Clean signed-install qualification, independent reviews, final object-store selection, the complete governed lifecycle, external gateway, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 3 evidence`](reports/production-readiness/2026/phase-03/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,9 +64,9 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 0 scope, authority, service-delivery, requirements, and baseline approval
-- P0/P1 trust-boundary and canonical governed-path closure
-- Full app-owned internal data-plane delivery, migration, backup, and recovery
+- Phase 4 cross-store ownership, identifiers, migrations, backup, and recovery
+- Deferred clean-installed Phase 3 data-plane and independent review gates
+- Final Replacement Control decision for the object-store implementation
 - External API Gateway and LLM middleware productization
 - Complete frontend control-plane and reference-client behavior
 - Installed-system, accessibility, security, signing, and release qualification
@@ -177,7 +177,7 @@ Install these before building:
 | Windows 11 | Primary desktop build target |
 | Python 3.11 | Backend environment and build scripts |
 | Node.js 24+ with npm | Frontend and Electron packaging |
-| WSL2 with Podman Machine (production target) | Approved app-managed five-service container runtime; qualification remains open |
+| WSL2 with Podman Machine (production target) | Phase 3 engineering profile qualified; exact packaged runtime and clean-installer qualification remain open |
 | Docker Desktop with Compose v2 | Developer-only local integration and container validation |
 | Git | Optional if cloning instead of downloading the ZIP |
 | Internet access | Package restore, container pulls, and cloud model inference |

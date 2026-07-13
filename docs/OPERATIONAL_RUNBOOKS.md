@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -49,6 +49,23 @@ Provide incident-response procedures for common DataLogicEngine security, runtim
 ---
 
 ## Global incident workflow
+
+### Phase 3 data-plane operating boundary
+
+The authenticated Storage surface and backend actions use the singleton runtime
+supervisor for service status, start, stop, restart, and verification. Operators
+must treat supervisor identity, expected/observed image digest, state, endpoint,
+uptime, and safe reason as authoritative; an open port alone is never health.
+Foreign identity or an unhealthy required protocol operation keeps production
+not ready.
+
+Managed Podman backup/restore is deliberately refused with
+`coordinated_data_plane_backup_requires_phase_4` until Phase 4 implements one
+manifest and recovery transaction across PostgreSQL, Redis, Neo4j, ChromaDB,
+and object storage. Do not bypass this refusal with per-store copies and call the
+result a production backup. Qualification resources use a separate identity and
+may be removed only by the qualification cleanup command after verifying they
+are not installed-production resources.
 
 1. Acknowledge incident and assign severity.
 2. Capture correlation IDs, run IDs, trace IDs, session IDs, user scope, and timestamps.
@@ -554,6 +571,13 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.10.0
+
+1. Added the supervisor-authoritative five-service operating boundary and
+   foreign-resource refusal rule.
+2. Documented the intentional managed-backup refusal pending Phase 4 coordinated
+   recovery, preventing partial backups from being treated as safe.
 
 ## Change notes for v2.9.0
 

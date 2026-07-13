@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.15.0 |
-| Last updated | 2026-07-12 |
+| Document version | v2.16.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -20,6 +20,12 @@ Active documents listed here are the operational source of truth. Historical whi
 
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
+
+The current execution checkpoint is Phase 3 engineering complete with its clean
+installed-production gates deferred; Phase 4 data contracts, migrations,
+backup, and recovery is active. Production/public release remains **NO-GO**.
+SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
+replaced MinIO in the production architecture.
 
 That program now contains 19 phases (0-18). Phase 8 productizes the external API
 gateway and governed LLM middleware contract. Phase 16 replaces the accumulated

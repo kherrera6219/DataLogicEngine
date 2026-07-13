@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -15,6 +15,23 @@
 | Execution ledger | Root `TODO.md` |
 | Session continuity | Root `HANDOFF.md` |
 | Release authority | `docs/RELEASE_CHECKLIST.md` and `docs/PRODUCTION_READINESS.md` |
+
+### Current execution checkpoint
+
+Phase 3 reached its engineering checkpoint on 2026-07-13. The app-owned
+five-service Podman profile, protected per-install credentials, supervisor,
+fail-closed production adapters, truthful Storage UI contract, and live
+read/write/restart/cleanup qualification are implemented. Phase 4 is now the
+active engineering phase.
+
+This checkpoint is not the Phase 3 installed-production exit gate and does not
+change the overall release verdict from **NO-GO**. Exact Podman artifact
+qualification, clean signed-installer verification, coordinated recovery,
+independent security/license review, and the final object-store decision remain
+open gates that can only close against the later rebuilt release candidate.
+SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
+selection is false, and MinIO remains the product-specific architecture until
+Replacement Control passes in full and the owner gives final approval.
 
 ## 1. Purpose
 
@@ -842,6 +859,22 @@ across every supported Windows session and lifecycle event.
 
 ## 11. Phase 3 - Full internal service delivery and supervision
 
+### Execution status - engineering checkpoint complete, installed gate deferred
+
+The 2026-07-13 engineering checkpoint proved the complete five-service profile
+on the supported Windows/Podman direction and recorded the result under
+`reports/production-readiness/2026/phase-03/`. The live run passed real
+PostgreSQL transactions, Redis key/stream behavior, Neo4j graph operations,
+Chroma vector operations, all six required S3 bucket contracts, restart
+durability, truthful identity/status, and full resource cleanup.
+
+The clean signed-installer and exact locked-runtime portions of CP3-B/CP3-E are
+explicitly deferred to the rebuilt installed release candidate. Independent
+legal/security review, coordinated backup/recovery failure qualification, and
+final object-store selection also remain open. These deferrals do not count as
+passes and keep production/public release at **NO-GO**; they do not block Phase 4
+engineering from defining and proving the data contracts those final gates need.
+
 ### Objective
 
 Make PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO a real, supported, app-owned
@@ -1016,7 +1049,7 @@ python -m pytest tests/integration tests/integration_routes -q
 New production gate:
 
 ```text
-scripts/verify_internal_data_plane.py --profile production --require-all --json <report>
+scripts/verify_internal_data_plane.py --profile production --require-all --report <report>
 ```
 
 The gate must verify versions, identity, authentication, loopback binding,
@@ -1030,6 +1063,11 @@ services through one supervisor. Each service performs its approved role, uses
 protected unique credentials, persists across app restart, and reports truthful
 status. No production workflow silently substitutes SQLite, memory, or local
 filesystem storage.
+
+**Checkpoint interpretation:** the engineering implementation and lab
+qualification are complete. The exit gate above remains open until the final
+rebuilt application is installed on a clean supported Windows machine and all
+deferred independent and failure/recovery gates pass.
 
 ### Documents updated
 
@@ -3656,17 +3694,14 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 0**. Do not begin Phase 1 implementation until CP0-A through CP0-G
-are recorded. The first concrete deliverables are:
+Start **Phase 4** from the committed Phase 3 engineering checkpoint. First
+publish the cross-store ownership and identifier contracts, then implement
+versioned migrations plus coordinated backup, restore, repair, and rollback for
+PostgreSQL, Redis, Neo4j, ChromaDB, and the object-store contract. Preserve the
+Phase 3 production locks and keep managed backup fail-closed until a complete,
+verified cross-store recovery set exists.
 
-1. owner approval of this local-first/full-internal-data scope;
-2. ADR selecting app-managed pinned containers or supported native sidecars;
-3. machine-readable product and service version manifest;
-4. runtime-surface, UI-control, and service-consumer inventories;
-5. clean installed-app baseline and performance/resource measurements;
-6. product acceptance, requirements traceability, feature-disposition, Windows
-   support, responsibility/approval, and legal/distribution matrices;
-7. normalized open-only TODO and risk register.
-
-Once those are approved, Phase 1 closes the trust boundary before the rest of the
-product is expanded.
+Do not treat SeaweedFS as the production object store during Phase 4. Its
+qualification data may be used to exercise the S3-compatible contract, but the
+architecture remains MinIO-specific and ADR-0004 remains Proposed until every
+Replacement Control gate and final owner approval pass.

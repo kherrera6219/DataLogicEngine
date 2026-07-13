@@ -24,6 +24,53 @@ from backend.security.desktop_ipc import require_desktop_ipc_capability
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
 
+DATA_PLANE_API_KEYS = {
+    "postgres": "postgresql",
+    "redis": "redis",
+    "neo4j": "neo4j",
+    "vector": "chroma",
+    "object": "minio",
+}
+
+
+def _supervised_storage_health() -> dict:
+    runtime = get_application_runtime()
+    snapshot = runtime.supervisor.snapshot()
+    services = {}
+    for api_name, runtime_name in DATA_PLANE_API_KEYS.items():
+        status = snapshot.get(runtime_name, {})
+        services[api_name] = {
+            "healthy": status.get("state") == "ready",
+            "state": status.get("state", "not_installed"),
+            "safe_reason": status.get("safe_reason"),
+            "endpoint": status.get("endpoint"),
+            "expected_identity": status.get("expected_identity"),
+            "observed_identity": status.get("observed_identity"),
+            "updated_at": status.get("updated_at"),
+            "is_cloud": False,
+            "source": "internal_supervisor",
+        }
+    manager = current_app.extensions.get("dle_data_plane_manager")
+    if manager is not None:
+        details = manager.service_metadata()
+        for api_name, runtime_name in DATA_PLANE_API_KEYS.items():
+            service_details = details.get(runtime_name, {})
+            services[api_name].update(
+                {
+                    "version": service_details.get("version"),
+                    "expected_version": service_details.get("expected_version"),
+                    "profile": service_details.get("profile"),
+                    "production_authorized": service_details.get("production_authorized", False),
+                }
+            )
+    return {
+        "mode": "internal",
+        "services": services,
+        "production_authorized": bool(
+            manager is not None and manager.plan.production_authorized
+        ),
+    }
+
 
 def _runtime_root() -> Path:
     runtime = current_app.extensions.get("dle_runtime")
@@ -125,7 +172,7 @@ def _build_desktop_metrics() -> dict:
     chroma_metrics = _local_path_metrics("chroma", "databases/chroma")
     memory_metrics = _local_path_metrics("structured_memory", "databases/memory")
     object_metrics = _object_store_metrics()
-    return {
+    result = {
         "generated_at": datetime.now(UTC).isoformat(),
         "runtime_root": str(_runtime_root()),
         "sqlite": sqlite_metrics,
@@ -138,9 +185,16 @@ def _build_desktop_metrics() -> dict:
             for item in [sqlite_metrics, chroma_metrics, object_metrics, memory_metrics]
         ),
     }
+    manager = current_app.extensions.get("dle_data_plane_manager")
+    if manager is not None:
+        result["data_plane"] = manager.status_snapshot()
+        result["storage_authority"] = "supervisor_owned_internal_services"
+    return result
 
 
 def _create_backup(target_dir: str | None = None) -> dict:
+    if current_app.config.get("DLE_DATA_PLANE_DRIVER") == "podman":
+        raise RuntimeError("coordinated_data_plane_backup_requires_phase_4")
     root = _runtime_root()
     backup_root = Path(target_dir).expanduser().resolve() if target_dir else root / "backups"
     backup_root.mkdir(parents=True, exist_ok=True)
@@ -195,10 +249,12 @@ def _create_backup(target_dir: str | None = None) -> dict:
 def get_storage_health():
     """Get health status of all storage services."""
     try:
-        from backend.storage import get_connection_manager
-        
-        manager = get_connection_manager()
-        status = manager.get_status_report()
+        if current_app.extensions.get("dle_data_plane_manager") is not None:
+            status = _supervised_storage_health()
+        else:
+            from backend.storage import get_connection_manager
+
+            status = get_connection_manager().get_status_report()
         
         return jsonify({
             'success': True,
@@ -217,26 +273,46 @@ def get_storage_health():
 def check_service_health(service: str):
     """Check health of a specific storage service."""
     try:
-        from backend.storage import get_connection_manager
-        
-        manager = get_connection_manager()
-        
-        valid_services = ['postgres', 'redis', 'neo4j', 'vector', 'object']
+        valid_services = list(DATA_PLANE_API_KEYS)
         if service not in valid_services:
             return jsonify({
                 'success': False,
                 'error': f'Invalid service. Must be one of: {valid_services}'
             }), 400
         
-        healthy = manager.check_health(service)
-        
+        manager = current_app.extensions.get("dle_data_plane_manager")
+        if manager is None:
+            from backend.storage import get_connection_manager
+
+            healthy = bool(get_connection_manager().check_health(service))
+            data = {
+                "service": service,
+                "healthy": healthy,
+                "state": "ready" if healthy else "failed",
+                "safe_reason": None if healthy else "legacy_development_probe_failed",
+                "endpoint": None,
+                "expected_identity": None,
+                "observed_identity": None,
+            }
+        else:
+            runtime_name = DATA_PLANE_API_KEYS[service]
+            runtime = get_application_runtime()
+            status = runtime.supervisor.probe(runtime_name)
+            healthy = status.state.value == "ready"
+            data = {
+                "service": service,
+                "healthy": healthy,
+                "state": status.state.value,
+                "safe_reason": status.safe_reason,
+                "endpoint": status.endpoint,
+                "expected_identity": status.expected_identity,
+                "observed_identity": status.observed_identity,
+            }
+
         return jsonify({
             'success': True,
-            'data': {
-                'service': service,
-                'healthy': healthy
-            }
-        })
+            'data': data,
+        }), 200 if healthy else 503
     except Exception:
         logger.exception("Failed to check storage service health")
         return jsonify({
@@ -333,7 +409,12 @@ def set_desktop_flags():
 @storage_api.route('/test-connection', methods=['POST'])
 @api_session_login_required
 def test_connection():
-    """Test a storage connection with provided credentials."""
+    """Reject obsolete arbitrary storage targets; test supervised services instead."""
+    if current_app.extensions.get("dle_data_plane_manager") is not None:
+        return jsonify({
+            'success': False,
+            'error': 'Arbitrary storage targets are disabled; use /health/<service>',
+        }), 410
     try:
         from backend.schemas.request_schemas import StorageTestRequest
         from pydantic import ValidationError
@@ -604,7 +685,7 @@ def start_databases():
         supervisor = get_application_runtime().supervisor
         results = {
             service: supervisor.start(service).to_dict()
-            for service in ("postgresql", "redis", "neo4j")
+            for service in DATA_PLANE_API_KEYS.values()
         }
         success = all(result["success"] for result in results.values())
         return jsonify({
@@ -672,44 +753,21 @@ def set_database_autostart():
 @storage_api.route('/cloud-config', methods=['GET'])
 @api_session_login_required
 def get_cloud_config():
-    """Return saved cloud connection strings (secrets masked)."""
-    try:
-        from backend.storage.runtime_settings import load_storage_settings
-        settings = load_storage_settings()
-        cloud = settings.get('cloud_config', {})
-        # Return only whether each key is set — never expose raw secrets via GET.
-        masked = {k: ('***' if v else '') for k, v in cloud.items()}
-        return jsonify({'success': True, 'cloud_config': masked})
-    except Exception:
-        logger.exception("Failed to load cloud configuration")
-        return jsonify({'success': False, 'error': 'Cloud configuration is unavailable'}), 500
+    """Report the retired externally hosted storage configuration surface."""
+    return jsonify({
+        'success': False,
+        'error': 'Cloud database configuration is not part of the supported product',
+    }), 410
 
 
 @storage_api.route('/cloud-config', methods=['POST'])
 @api_session_login_required
 def save_cloud_config():
-    """Persist cloud connection strings to runtime settings."""
-    try:
-        from backend.storage.runtime_settings import load_storage_settings, save_storage_settings
-        data = request.get_json() or {}
-
-        allowed_keys = {
-            'postgres_url', 'redis_url', 'neo4j_uri',
-            'pinecone_api_key', 's3_endpoint', 's3_bucket',
-            's3_access_key', 's3_secret_key',
-        }
-        cloud_patch = {k: str(v) for k, v in data.items() if k in allowed_keys}
-
-        settings = load_storage_settings()
-        existing = settings.get('cloud_config', {})
-        existing.update(cloud_patch)
-        settings['cloud_config'] = existing
-        save_storage_settings(settings)
-
-        return jsonify({'success': True, 'message': 'Cloud configuration saved'})
-    except Exception:
-        logger.exception("Failed to save cloud configuration")
-        return jsonify({'success': False, 'error': 'Cloud configuration update failed'}), 500
+    """Reject the retired externally hosted storage configuration surface."""
+    return jsonify({
+        'success': False,
+        'error': 'Cloud database configuration is not part of the supported product',
+    }), 410
 
 
 @storage_api.route('/databases/stop', methods=['POST'])
@@ -720,7 +778,7 @@ def stop_databases():
         supervisor = get_application_runtime().supervisor
         results = {
             service: supervisor.stop(service).to_dict()
-            for service in reversed(("postgresql", "redis", "neo4j"))
+            for service in reversed(tuple(DATA_PLANE_API_KEYS.values()))
         }
         success = all(result["success"] for result in results.values())
         return jsonify({

@@ -205,6 +205,7 @@ def test_production_profile_refuses_sqlite_fallback(tmp_path, monkeypatch):
     monkeypatch.setenv("FLASK_ENV", "production")
     monkeypatch.setenv("SESSION_SECRET", "phase2-production-session-secret")
     monkeypatch.setenv("CORS_ORIGINS", "app://-")
+    monkeypatch.setenv("ALLOW_PLAINTEXT_PROD_SECRETS", "true")
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{(tmp_path / 'fallback.sqlite').as_posix()}")
 
     with pytest.raises(RuntimeError, match="SQLite fallback is disabled"):
@@ -212,6 +213,7 @@ def test_production_profile_refuses_sqlite_fallback(tmp_path, monkeypatch):
             config_overrides={
                 "DLE_RUNTIME_ROOT": str(tmp_path / "production"),
                 "DLE_CONFIGURE_LOGGING": False,
+                "DLE_DATA_PLANE_DRIVER": "legacy",
             }
         )
 

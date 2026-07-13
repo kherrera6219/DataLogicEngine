@@ -15,13 +15,13 @@ vi.mock('@/components/ui/use-toast', () => ({
 }));
 
 const baseHealth = {
-  mode: 'local',
+  mode: 'internal',
   services: {
-    postgres: { healthy: true, is_cloud: false, url: 'postgres://localhost:5432' },
-    redis: { healthy: false, is_cloud: false },
-    neo4j: { healthy: true, is_cloud: false, provider: 'Aura' },
-    vector: { healthy: true, is_cloud: true, provider: 'Pinecone' },
-    object: { healthy: true, is_cloud: false },
+    postgres: { healthy: true, is_cloud: false, endpoint: '127.0.0.1:22000', expected_version: '18.4' },
+    redis: { healthy: false, is_cloud: false, endpoint: '127.0.0.1:22001', safe_reason: 'health_probe_failed', expected_version: '8.8.0' },
+    neo4j: { healthy: true, is_cloud: false, endpoint: '127.0.0.1:22002', expected_version: '5.26.28' },
+    vector: { healthy: true, is_cloud: false, endpoint: '127.0.0.1:22004', expected_version: '1.5.9' },
+    object: { healthy: true, is_cloud: false, endpoint: '127.0.0.1:22005', expected_version: '4.29' },
   },
 };
 
@@ -71,20 +71,6 @@ function mockRequestRoutes(overrides: Record<string, unknown> = {}) {
         return (overrides[endpoint] ?? { message: 'Database startup initiated.' }) as never;
       case '/storage/databases/stop':
         return (overrides[endpoint] ?? { message: 'Database shutdown initiated.' }) as never;
-      case '/storage/cloud-config':
-        if (options?.method === 'POST') {
-          return (overrides['/storage/cloud-config:POST'] ?? { ok: true }) as never;
-        }
-        return (overrides[endpoint] ?? {
-          cloud_config: {
-            postgres_url: '***',
-            redis_url: '',
-            neo4j_uri: '***',
-            pinecone_api_key: '',
-            s3_access_key: '***',
-            s3_secret_key: '',
-          },
-        }) as never;
       case '/storage/backup':
         return (overrides[endpoint] ?? {
           artifact_path: 'C:\\Backups\\backup.zip',
@@ -110,7 +96,7 @@ describe('DatabaseSettings', () => {
   it('renders service health, mode, and metrics on load', async () => {
     render(<DatabaseSettings />);
 
-    expect(await screen.findByText('Database Connections')).toBeInTheDocument();
+    expect(await screen.findByText('Internal Data Plane')).toBeInTheDocument();
     expect(screen.getByText('4/5 Services Online')).toBeInTheDocument();
     expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
     expect(screen.getByText('Redis')).toBeInTheDocument();
@@ -121,7 +107,7 @@ describe('DatabaseSettings', () => {
 
   it('warns when the storage health shape is invalid', async () => {
     mockRequestRoutes({
-      '/storage/health': { mode: 'local' },
+      '/storage/health': { mode: 'internal' },
     });
 
     render(<DatabaseSettings />);
@@ -149,7 +135,7 @@ describe('DatabaseSettings', () => {
 
   it('refreshes and tests a service connection', async () => {
     render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
+    await screen.findByText('Internal Data Plane');
 
     fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
     fireEvent.click(screen.getAllByRole('button', { name: /test connection/i })[0]);
@@ -162,7 +148,7 @@ describe('DatabaseSettings', () => {
 
   it('starts and stops databases, then refreshes health', async () => {
     render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
+    await screen.findByText('Internal Data Plane');
     const timeoutSpy = vi.spyOn(global, 'setTimeout');
 
     fireEvent.click(screen.getByRole('button', { name: /start all/i }));
@@ -180,7 +166,7 @@ describe('DatabaseSettings', () => {
 
   it('persists auto-start changes and reverts on failure', async () => {
     render(<DatabaseSettings />);
-    fireEvent.click(await screen.findByText('Local Config'));
+    fireEvent.click(await screen.findByText('Runtime Policy'));
     const autoStartSwitch = await screen.findByRole('switch');
 
     fireEvent.click(autoStartSwitch);
@@ -220,7 +206,7 @@ describe('DatabaseSettings', () => {
     installElectronApi({ chooseBackupFolder, runDatabaseBackup });
 
     render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
+    await screen.findByText('Internal Data Plane');
 
     fireEvent.click(screen.getByText('Metrics & Backup'));
     fireEvent.click(screen.getByRole('button', { name: /run backup/i }));
@@ -243,62 +229,15 @@ describe('DatabaseSettings', () => {
     });
   });
 
-  it('loads cloud config indicators and saves non-empty cloud fields', async () => {
-    mockRequestRoutes({
-      '/storage/cloud-config': {
-        cloud_config: {
-          postgres_url: '',
-          redis_url: '',
-          neo4j_uri: '',
-          pinecone_api_key: '',
-          s3_access_key: '',
-          s3_secret_key: '',
-        },
-      },
-    });
-
+  it('shows read-only runtime policy and the auto-start control', async () => {
     render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
+    await screen.findByText('Internal Data Plane');
 
-    fireEvent.click(screen.getByText('Cloud Config'));
-
-    fireEvent.change(await screen.findByPlaceholderText('postgresql://user:pass@host:5432/db'), {
-      target: { value: 'postgresql://cloud-host/db' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('datalogic'), {
-      target: { value: 'archive-bucket' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: /save cloud configuration/i }));
-
-    await waitFor(() => {
-      expect(request).toHaveBeenCalledWith('/storage/cloud-config', {
-        method: 'POST',
-        body: JSON.stringify({
-          postgres_url: 'postgresql://cloud-host/db',
-          s3_bucket: 'archive-bucket',
-        }),
-      });
-      expect(toastMock).toHaveBeenCalledWith('Cloud configuration saved.', 'success', 2000);
-    });
-  });
-
-  it('associates config inputs with their labels for accessibility', async () => {
-    mockRequestRoutes({
-      '/storage/cloud-config': { cloud_config: {} },
-    });
-
-    render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
-
-    // Local config tab — inputs reachable by accessible name.
-    fireEvent.click(await screen.findByText('Local Config'));
-    expect(screen.getByLabelText('PostgreSQL Port')).toBeInTheDocument();
-    expect(screen.getByLabelText('ChromaDB Path')).toBeInTheDocument();
-
-    // Cloud config tab — secret inputs reachable by accessible name.
-    fireEvent.click(screen.getByText('Cloud Config'));
-    expect(await screen.findByLabelText(/PostgreSQL Cloud URL/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/S3 Secret Key/)).toBeInTheDocument();
+    fireEvent.click(await screen.findByText('Runtime Policy'));
+    expect(screen.getByText('Locked version 18.4')).toBeInTheDocument();
+    expect(screen.getByText('127.0.0.1:22000')).toBeInTheDocument();
+    expect(screen.getByRole('switch')).toBeInTheDocument();
+    expect(screen.queryByText('Cloud Config')).not.toBeInTheDocument();
   });
 
   it('shows a backup error toast when the backup call fails', async () => {
@@ -307,7 +246,7 @@ describe('DatabaseSettings', () => {
     });
 
     render(<DatabaseSettings />);
-    await screen.findByText('Database Connections');
+    await screen.findByText('Internal Data Plane');
     fireEvent.click(screen.getByText('Metrics & Backup'));
     fireEvent.click(screen.getByRole('button', { name: /run backup/i }));
 

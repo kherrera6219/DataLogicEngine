@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -61,7 +61,7 @@ ChromaDB, and MinIO and refuses fallback when any required service is absent.
 
 ## Current state
 
-As of Phase 2 closure (2026-07-13):
+As of the Phase 3 engineering checkpoint (2026-07-13):
 
 1. `create_app()` produces isolated application instances; importing `app.py`
    performs no application construction or resource startup.
@@ -73,16 +73,29 @@ As of Phase 2 closure (2026-07-13):
    lifecycle events have distinct contracts with correlation IDs.
 5. Electron waits for `/ready`, shows actual service/runtime degradation, and
    uses bounded graceful shutdown.
-6. Production refuses SQLite fallback and automatic schema creation. Missing
-   MinIO/Chroma or any other required service keeps production not ready.
+6. Production refuses SQLite, embedded Chroma, filesystem object-store fallback,
+   and automatic schema creation. Any missing required service keeps production
+   not ready.
 7. The development launcher passes a real start/probe/stop cycle and leaves no
    backend/frontend listener after shutdown.
-8. Full production container delivery, immutable service versions, unique
-   protected service credentials, installation-specific ports, and real use of
-   all five services remain Phase 3 release blockers.
-9. Existing installer/signing evidence predates this runtime refactor and is not
-   Phase 2 installed-production evidence; packaging qualification resumes in
-   Phases 14-15.
+8. The app-owned manager now derives installation-specific ports/names, protects
+   unique credentials with DPAPI/ACLs, verifies immutable identities, and
+   supervises the complete five-service engineering profile.
+9. The live qualification report passed real operations, restart durability,
+   truthful state, and cleanup for all five services and six object buckets.
+10. This is not clean installed-production evidence. Exact Podman packaging,
+    signed installer/upgrade/uninstall, coordinated recovery, independent
+    review, and final object-store selection remain release blockers.
+
+To repeat the engineering qualification from a prepared Podman lab environment:
+
+```powershell
+python scripts/verify_internal_data_plane.py --profile qualification --require-all --report reports/production-readiness/2026/phase-03/internal-data-plane-qualification.json
+```
+
+This command is destructive to its qualification-specific containers, network,
+volumes, and secrets. It must never target an installed production identity or
+be cited as signed-installer evidence.
 
 ---
 
@@ -508,10 +521,20 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
 3. Release builds require trusted production certificate provisioned in GitHub secrets and signed release workflow run before public distribution.
 4. Provider-backed flows require valid provider credentials and network access.
 5. Unsigned local builds are suitable for developer validation but not public/customer release.
-6. The Phase 3 five-service OCI data plane is not yet delivered or qualified by
-   the installer, so production/public release remains NO-GO.
+6. The Phase 3 five-service engineering profile is qualified, but it is not yet
+   delivered or qualified by the clean signed installer; production/public
+   release remains NO-GO.
+7. SeaweedFS is qualification-only and is not the approved production object
+   store. MinIO remains the documented target pending ADR-0004 acceptance.
 
 ---
+
+## Change notes for v2.9.0
+
+1. Added the repeatable five-service engineering qualification path and its
+   destructive qualification-only warning.
+2. Replaced Phase 2-era delivery gaps with the current installed-production,
+   recovery, review, and object-selection blockers.
 
 ## Change notes for v2.8.0
 
