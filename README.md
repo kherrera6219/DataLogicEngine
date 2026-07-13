@@ -1,9 +1,10 @@
 # DataLogicEngine
 
-Local-first Windows desktop AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform.
+Local-first Windows governed LLM middleware with a production desktop control,
+administration, audit, observability, and validation application.
 
-> ⚠️ **Current Status — Local Desktop Release Candidate, Not Signed Production Release**
-> DataLogicEngine is usable for local-first desktop evaluation, architecture review, and engineering validation. The Windows desktop build, backend package, Electron/NSIS installer, packaging smoke, install smoke, uninstall smoke, CI/CD pipeline, deploy workflow, and security scan have been validated on the current main line. A public/signed production release still requires trusted Windows code-signing credentials, signed artifact verification, manual NVDA or equivalent screen-reader evidence, and final release checklist approval. Release status is tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
+> **Current Status - Production completion program active; not a production release**
+> DataLogicEngine is available for local engineering evaluation and architecture validation. A July 12, 2026 repository-wide review found that substantial components exist but the complete governed lifecycle, full internal data plane, external gateway, security boundary, installed-system qualification, accessibility, signing, and release evidence are not yet production-complete. Work begins at Phase 0 of [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md). Current actions are tracked in [`TODO.md`](TODO.md), and the evidence baseline is [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -12,18 +13,41 @@ Local-first Windows desktop AI orchestration, governed LLM routing, and knowledg
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine (DLE) is a local-first Enterprise AI Platform built around the Universal Knowledge Graph (UKG).
+DataLogicEngine (DLE) is a local-first governed LLM middleware platform built
+around the Universal Knowledge Graph (UKG).
 
-Unlike traditional AI applications that operate as black boxes, DLE provides explainable reasoning, multi-agent orchestration, GraphRAG retrieval, governance controls, and complete audit traceability.
+Its production purpose is to accept requests from approved applications, agents,
+and chatbots through the DataLogicEngine API Gateway; apply retrieval, reasoning,
+policy, validation, evidence, and audit controls; call an owner-configured model;
+and return a governed response.
 
-Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation checkpoints, and immutable audit records designed to align with EU AI Act Article 53 transparency expectations. (Compliance mappings are evidence-guided design references, not a formal certification.)
+The Windows/Electron frontend is the production control, configuration,
+administration, audit, observability, support, and validation application. Its
+built-in chat is the human-visible reference client for the same canonical
+governed request lifecycle external clients use. Calling a page a validation or
+administration surface does not lower its production quality requirements.
 
-Current Status: Local-first desktop release candidate with signed-release caveats
+Designed for enterprise, government, compliance, cybersecurity, acquisition, and
+research environments, the production contract requires every governed response
+to be reconstructable from real evidence, executed stages, policy decisions,
+provider/tool calls, validation results, and audit records. Compliance mappings
+are evidence-guided design references, not formal certification claims.
 
-**How it's built:** DataLogicEngine runs as a single-owner, local-first Windows desktop application: an Electron + Next.js front end over a Flask + SQLAlchemy backend, with app-owned SQL, graph, vector, object, cache, and memory stores local to the machine or user-controlled Windows VM. The OS user is the sole owner via desktop auto-login; there are no multi-user accounts. AI reasoning is served by one user-selected cloud model — OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` (bring your own key) — so an API key and internet connection are required for inference while the data plane stays local. The Windows desktop installer is produced end-to-end from source: PyInstaller backend, Next.js static export, Electron shell, and NSIS installer. Release gates still open before a formal signed release — trusted production code-signing, NVDA accessibility evidence, provider-backed staging validation, and final release checklist approval — are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`TODO.md`](TODO.md).
+**Production architecture:** DataLogicEngine is an owner-operated, local-first
+Windows application. The Electron + Next.js desktop runs over a Flask + SQLAlchemy
+backend. PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are intentional app-owned
+internal production services with separate responsibilities. The gateway is
+loopback-only by default and may later be explicitly enabled for qualified
+private Windows clients; it is not a public or multi-tenant SaaS service. Model
+inference uses an owner-supplied OpenAI `gpt-5.5` or Google
+`gemini-3.1-pro-preview` key. External clients receive DataLogicEngine client
+credentials, never the provider credential.
 
 Major subsystems in the current local-first desktop build:
 
+- External API Gateway foundation and client-key model
+- Desktop control, administration, audit, and validation console
+- Built-in governed-chat reference client
 - Universal Knowledge Graph (UKG)
 - 17-Axis Knowledge Framework
 - 10-Layer Truth Engine
@@ -34,25 +58,25 @@ Major subsystems in the current local-first desktop build:
 - Knowledge Ingestion Pipeline
 - Trace Viewer
 - MCP Integration Framework
-- Local Database Lifecycle Management
+- PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO lifecycle foundations
 - Enterprise Audit & Governance Framework
 - Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.1-pro-preview (BYOK)
 
-Current Focus:
+Current production-completion focus:
 
-- Accessibility validation (NVDA)
-- Production code signing
-- Reinstall validation of the 2026-07-07 desktop API-key save/test and idle DSQP polling fixes
-- Release evidence package
-- Public architecture assets
-- Expanded integration benchmarks
-- Public release readiness
+- Phase 0 scope, authority, service-delivery, requirements, and baseline approval
+- P0/P1 trust-boundary and canonical governed-path closure
+- Full app-owned internal data-plane delivery, migration, backup, and recovery
+- External API Gateway and LLM middleware productization
+- Complete frontend control-plane and reference-client behavior
+- Installed-system, accessibility, security, signing, and release qualification
 
 What Makes DataLogicEngine Different?
 
-Most AI applications answer questions.
+Most AI applications primarily answer questions.
 
-DataLogicEngine explains how answers were produced.
+DataLogicEngine's production goal is to govern the request and prove how the
+result was produced.
 
 Core Differentiators
 
@@ -76,9 +100,9 @@ A structured reasoning improvement pipeline that continuously validates, refines
 
 More than 100 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance policy enforcement, and audit trace generation.
 
-**Explainable AI**
+**Explainable AI production contract**
 
-Every response can be traced through:
+Every production-governed response must be traceable through:
 
 - Evidence sources
 - Personas
@@ -88,46 +112,35 @@ Every response can be traced through:
 - Governance policies
 - Audit records
 
-**Local-First Data, Cloud AI Model (BYOK)**
+**Local-first data, cloud AI model (BYOK)**
 
-All data stores, retrieval, memory, and reasoning state run locally on the user's machine. The LLM itself is a user-selected cloud model — bring your own key for **OpenAI `gpt-5.5`** or **Google `gemini-3.1-pro-preview`**. An API key and internet connection are therefore required for reasoning; the data plane stays local and only the model inference call leaves the machine.
+The production data plane, retrieval, memory, evidence, and reasoning state remain
+inside the owner-operated Windows system. The LLM is an owner-selected cloud
+model using BYOK for **OpenAI `gpt-5.5`** or **Google
+`gemini-3.1-pro-preview`**. Provider inference and explicitly approved connectors
+are the only intended external processing paths, and every disclosure must be
+governed and recorded locally.
 
 **Model Context Protocol (MCP)**
 
 Native MCP support enables integration with tools, resources, external agent systems, subscriptions, and dynamic plugin architectures.
 
 
-Roadmap
-
-**Release Readiness:**
-
-- Complete NVDA accessibility validation
-- Production code-signing pipeline
-- Final release evidence package
-- Public architecture diagrams and assets
-- Expanded integration and performance benchmarking
-
-**Enterprise Enhancements:**
-
-- Advanced policy-as-code governance
-- Enhanced cost and usage analytics
-- Human feedback and review workflows
-- Advanced persona orchestration strategies
-
-**Platform Evolution:**
-
-- Expanded GraphRAG retrieval capabilities
-- Enterprise deployment automation
-- Additional knowledge ingestion connectors
-- Advanced knowledge graph learning and adaptation
-
-See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
+The canonical completion roadmap is the 19-phase
+[`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md). It
+progresses from Phase 0 scope/baseline approval through trust-boundary repair,
+full internal-service delivery, one canonical governed path, API Gateway
+productization, subsystem and frontend completion, qualification, professional
+documentation replacement, release lock, and controlled launch. See
+[`TODO.md`](TODO.md) for the current executable work queue.
 
 > Recommended architecture asset path: `docs/assets/readme/architecture-overview.svg`. Keep this dark-mode-safe visual synchronized with the README architecture diagram.
 
 ## Quick Links
 
 - 🚀 **Quick Start**: [Build the Windows installer from source](#quickstart)
+- **Production Completion Plan**: [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md)
+- **Design vs. Implementation Audit**: [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md)
 - 🔒 **Report Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
 - ❓ **Ask Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
 - 📚 **Need Help?**: See [Getting Help](#getting-help)
@@ -343,72 +356,86 @@ curl http://localhost:5000/health
 
 DataLogicEngine is designed for teams that need AI workflows to be explainable, inspectable, and operable in regulated environments.
 
-| Capability | What it provides |
+| Capability | Production responsibility |
 | --- | --- |
-| LLM gateway | Routes requests to the user's selected cloud model (OpenAI gpt-5.5 or Google gemini-3.1-pro-preview) with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
+| External API Gateway | Primary integration surface for approved applications, agents, and chatbots. It authenticates the DataLogicEngine client, applies policy and budgets, invokes the canonical governed path, and returns the governed result without exposing provider credentials. Phase 8 completes and qualifies this currently partial surface. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
-| Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
-| Governance | Single-owner desktop auth, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
-| Local-first distribution | Browser deployment plus Electron/NSIS Windows packaging for workstation and constrained-network scenarios. |
-| Production operations | Docker Compose, cloud Dockerfile, health/readiness probes, metrics endpoint, Sentry integration, and CI/security workflows. |
+| Canonical governed reasoning | One approved request lifecycle spanning policy, retrieval, KAs, TruthCore/DMRF, provider/tool execution, evidence, validation, persistence, and trace. Completion is governed by Phases 5-7. |
+| Desktop control plane | Production configuration, administration, audit, observability, support, and validation application. Built-in chat is the reference client for the canonical gateway behavior. |
+| Governance | Owner and client identity, scoped authorization, prompt/content defenses, request budgets, provider disclosure, evidence, trace, and durable audit contracts. |
+| Local-first distribution | Signed Windows desktop package for the owner-operated machine or user-controlled Windows VM; loopback by default with separately qualified private gateway access. |
+| Production operations | Supervised PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO; truthful health/readiness; backup/restore; diagnostics; CI/security; signed packaging and release evidence. |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  Client["Desktop shell / Web console / API client"] --> Frontend["Electron + Next.js frontend"]
-  Frontend --> API["Flask API on loopback or configured host"]
-  API --> Auth["Auth (desktop session), CSRF, rate limits"]
-  API --> Gateway["LLM Gateway"]
-  API --> Graph["Knowledge Graph APIs"]
-  API --> Truth["Truth Engine and tracing"]
-  Gateway --> Providers["OpenAI (gpt-5.5) / Google (gemini-3.1-pro-preview)"]
-  API --> Stores["App-owned local data plane"]
-  Stores --> SQL["SQLite / PostgreSQL"]
-  Stores --> Neo4j["Neo4j + USKD RAM graph"]
-  Stores --> Vector["ChromaDB"]
-  Stores --> Redis["Redis cache and streams"]
-  Stores --> ObjectStore["Local object store"]
-  API --> Metrics["/health /ready /metrics"]
+  Owner["Windows owner"] --> Frontend["Electron + Next.js control, admin, audit, and validation app"]
+  Frontend --> DesktopAPI["Authenticated loopback desktop API"]
+  SameHost["Approved same-host app / agent / chatbot"] --> Gateway["Versioned DataLogicEngine API Gateway"]
+  PrivateClient["Approved private Windows client"] --> PrivateListener["Explicit TLS or mTLS gateway profile"]
+  PrivateListener --> Gateway
+  Gateway --> ClientPolicy["Client key, scope, routing, quotas, and idempotency"]
+  DesktopAPI --> Governed["Canonical governed request orchestrator"]
+  ClientPolicy --> Governed
+  Governed --> Graph["Retrieval, knowledge graph, KAs, DMRF, and TruthCore"]
+  Governed --> Providers["OpenAI gpt-5.5 / Google gemini-3.1-pro-preview"]
+  Governed --> Stores["App-owned local data plane"]
+  Stores --> PostgreSQL["PostgreSQL"]
+  Stores --> Redis["Redis"]
+  Stores --> Neo4j["Neo4j"]
+  Stores --> Chroma["ChromaDB"]
+  Stores --> MinIO["MinIO"]
 ```
 
 ### Runtime Components
 
 | Layer | Components | Notes |
 | --- | --- | --- |
-| Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
-| Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
-| Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
+| Frontend | Next.js 16, React 18, Electron 40 | Desktop control, configuration, administration, audit, observability, support, graph visualization, and built-in reference client. |
+| Backend | Flask 3.1, SQLAlchemy, Socket.IO | Desktop API, external gateway, identity/policy, canonical orchestration, audit, tracing, and service supervision. |
+| Data | PostgreSQL 15+, Redis 7+, Neo4j 5+, ChromaDB, MinIO | Relational authority, queues/limits/events, graph provenance, vector retrieval, and artifact/evidence storage. |
 | AI | OpenAI (gpt-5.5), Google/Gemini (gemini-3.1-pro-preview) | One user-selected cloud model handles every request. Provider key resolved at runtime from the app DB (Settings) or environment. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
 ## Data store design philosophy
 
-DataLogicEngine uses eight purpose-built local stores — not because of complexity for its own sake, but because of three founding principles:
+DataLogicEngine's production architecture uses five required app-owned services
+plus bounded materialized working state. They are intentional because each
+provides a distinct contract that must remain testable:
 
 **1. Data security by architecture**
-Every store is app-owned and local. There are no external database endpoints, no cloud-managed storage, no third-party data custodians. Field-level AES-256-GCM encryption with Windows DPAPI-bound keys means sensitive data is protected at the OS level — not by a vendor service agreement.
+Every production store is app-owned and local. There are no required cloud-managed
+databases or third-party data custodians. Production release still requires the
+plan's complete at-rest classification, DPAPI/key handling, ACL, backup,
+recovery, and copied-data-root qualification; the current source must not be
+interpreted as proof that every retained field is already encrypted.
 
 **2. Zero external API calls for data**
-All retrieval — graph traversal, vector search, relational queries, memory recall — operates entirely on local hardware. The only external traffic is the LLM inference call to the user's selected cloud provider. The data plane itself has no network dependency.
+All retrieval, graph traversal, vector search, relational queries, memory recall,
+and artifact access operate inside the owner-controlled data plane. External
+traffic is limited to the configured model provider and explicitly approved MCP
+connectors or update checks, with policy and local audit requirements.
 
 **3. Internal access speed**
 The USKD NetworkX RAM graph exists specifically so reasoning traversal never touches disk or a network socket during the hot path of a multi-step reasoning chain. At the scale of dozens of retrieval operations per request, local hardware latency vs. network latency compounds significantly across every step.
 
 ### These are working databases, not end-client databases
 
-The LLM reasoning engine is the sole client of the data layer. There is no user-facing query interface, no raw export surface, and no direct store access exposed to users. Each store serves a specific cognitive role in the reasoning pipeline — memory, retrieval, traversal, artifact storage — not as a system of record for user data.
+The application backend is the client of the internal data layer. Desktop and
+external gateway clients receive governed application APIs, not raw database
+credentials or unrestricted store access. Approved export, backup, diagnostics,
+and deletion workflows remain mediated and audited by DataLogicEngine.
 
 | Store | Role |
 |---|---|
-| SQLAlchemy DB (SQLite / PostgreSQL) | Durable application state, traces, audit records, Truth Engine sessions |
-| Redis | Cache, sessions, rate limiting, TruthLink event streams |
-| Neo4j | Graph-native knowledge relationships and durable traversal |
-| USKD NetworkX graph | RAM-resident reasoning graph — fast traversal, no DB round trips on hot path |
-| ChromaDB | Local vector embeddings and semantic retrieval |
-| Local object store | Deliverables, audit logs, trace exports, simulation artifacts |
-| UnifiedMemoryService | Structured reasoning memory with embeddings and JSON persistence |
-| TruthMemory | Audit chain, metrics, explainability, MLflow-style run tracking |
+| PostgreSQL | Durable relational authority for application state, clients, sessions, chats, runs, traces, audits, Truth Engine state, policies, and provider configuration |
+| Redis | Atomic limits, cache, idempotency, queues/jobs, cancellation, and TruthLink/event streams |
+| Neo4j | Durable graph-native relationships, traversal, and provenance paths |
+| ChromaDB | Versioned local vector collections, embeddings, and semantic retrieval |
+| MinIO | Internal S3-compatible source, evidence, trace, simulation, export, backup, and support artifacts |
+| USKD NetworkX and other working state | Bounded materialized runtime state loaded from a durable revision; never a silent replacement for a required service |
+| SQLite, JSON, or filesystem fallbacks | Bootstrap, development, staging, or repair only unless a separately approved parity decision changes the contract |
 
 See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the full data architecture reference.
 
@@ -457,9 +484,13 @@ npm ci
 npm run dev
 ```
 
-### Local Mode (no Docker, no cloud databases)
+### Native-Sidecar Development Path (Not Yet Production-Qualified)
 
-For workstation development without Docker, the setup script downloads and installs portable PostgreSQL, Redis, and Neo4j binaries locally and the app manages their lifecycle automatically:
+For workstation development without Docker, the setup script can install portable
+database components locally. Phase 0 must choose and qualify the supported
+container or native-sidecar production mechanism; these commands are development
+helpers and do not prove supported service versions, licensing, security,
+supervision, migration, backup, or recovery:
 
 ```bash
 # Install portable database binaries (one-time)
@@ -535,7 +566,7 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `SECRET_KEY` | Yes | Flask session secret. Generate a unique 64+ character value. |
 | `JWT_SECRET_KEY` | Vestigial | Legacy JWT signing secret (a dev default is provided). Single-mode auth uses Flask-Login sessions + desktop auto-login, not JWT flows; set a unique value only if you wire a token-based integration. |
 | `SESSION_SECRET` | Yes | Session signing secret used by runtime checks. |
-| `DATABASE_URL` | Yes | SQLAlchemy database URL. PostgreSQL is recommended for production. |
+| `DATABASE_URL` | Yes | SQLAlchemy database URL. PostgreSQL is the required production relational authority; SQLite is limited to approved bootstrap/development/repair roles. |
 | `CORS_ORIGINS` | Yes | Comma-separated allowed browser origins. Do not use `*` in production. |
 
 > **Single-owner note:** DataLogicEngine uses the OS user as the sole owner (desktop auto-login). There is no admin account to provision and no admin-account setup variables; authorization is a single-owner ownership check.
@@ -568,13 +599,19 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 
 ## API Examples
 
+The gateway examples below describe the current developer-preview route. Backend
+API-key and chat foundations exist, but the complete client administration UI,
+strict public contract, streaming/async behavior, virtual models, private TLS
+profile, SDKs, and installed interoperability qualification remain Phase 8 work.
+Do not expose the current development listener to the public internet.
+
 Base URLs:
 
 | Environment | Base URL |
 | --- | --- |
 | Local backend | `http://localhost:5000` |
 | Versioned API | `http://localhost:5000/api/v1` |
-| Production | `https://your-domain.example/api/v1` |
+| Qualified private Windows gateway | `https://<private-windows-host>:<approved-port>/api/v1` (Phase 8; explicitly enabled only) |
 
 ### Health and Readiness
 
@@ -588,8 +625,10 @@ curl http://localhost:5000/ready
 
 DataLogicEngine is single-owner / local-first: the desktop app auto-logs in the
 OS user as the owner (`POST /api/v1/auth/desktop/auto-login`), so there is no
-public username/password login endpoint. For programmatic access, use an API
-key — generate one in the app and include it as `X-API-Key`:
+public username/password login endpoint. Programmatic clients use a separate
+DataLogicEngine `ukg_...` client key in `X-API-Key`; they never receive the
+stored Google/OpenAI key. The backend key routes exist today, while the complete
+desktop create/copy-once/rotate/revoke experience is part of Phase 8.
 
 ```bash
 export UKG_KEY="ukg_<prefix>_<secret>"
@@ -609,26 +648,20 @@ curl -X POST http://localhost:5000/api/v1/gateway/chat \
         "content": "Summarize the compliance impact of this control change."
       }
     ],
-    "model": "gpt-5.5",
-    "tier": "2"
+    "provider": "google",
+    "model": "gemini-3.1-pro-preview",
+    "mode": "chat",
+    "run_ukg_pipeline": true
   }'
 ```
 
-Tier 2+ responses include a verifiable audit footer:
-
-```
-[UKG Audit Trace]
-Tier: 2
-Active Axes: ...
-Personas Invoked: ...
-Confidence: 0.395
-Refinement Steps Executed: ...
-Compliance Flags: ...
-Key Assumption to Verify: ...
-What Changes if Wrong: ...
-```
-
-Every Tier 2+ run also writes a `TruthAuditEvent` row with a SHA-256 hash-chain receipt for EU AI Act Article 53 compliance.
+Current responses can include a run/trace reference, provider/model identity, and
+available audit metadata. Production acceptance requires those fields to reflect
+only work that actually executed; missing evidence or confidence must be reported
+as unavailable/not measured rather than replaced with a plausible default. See
+[`docs/API.md`](docs/API.md) for the current route documentation and
+[`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) Phase 8
+for the required production contract.
 
 ### Knowledge Graph Query
 
@@ -666,7 +699,10 @@ curl -X POST http://localhost:5000/api/v1/ka/algorithms/KA-001/execute \
 
 ### Docker Compose
 
-Use Docker Compose for local integration testing or single-host evaluation:
+Use Docker Compose for local integration testing and evaluation of the app-owned
+service set. Phase 0 must formally select app-managed pinned containers or
+supported native Windows sidecars before this becomes the production delivery
+mechanism:
 
 ```bash
 cp .env.template .env
@@ -674,32 +710,34 @@ docker compose up --build -d
 docker compose ps
 ```
 
-### Cloud Container
+### Unsupported Cloud Artifacts
 
-`Dockerfile.cloud` builds the frontend and backend into a single runtime image:
+`Dockerfile.cloud` and other historical cloud deployment material are not part of
+the approved local-first Windows production target. They remain repository
+cleanup/disposition inputs and must not be used to represent a supported release.
 
-```bash
-docker build -f Dockerfile.cloud -t datalogicengine:latest .
-docker run --env-file .env -p 5000:5000 -p 3000:3000 datalogicengine:latest
-```
+### Production Direction
 
-### Production Checklist
-
-- Set `FLASK_ENV=production`.
-- Use PostgreSQL, Redis, Neo4j, and S3-compatible object storage outside the app container.
-- Set unique secrets for `SECRET_KEY`, `JWT_SECRET_KEY`, and `SESSION_SECRET`.
-- Configure exact `CORS_ORIGINS`.
-- Run database migrations instead of enabling `AUTO_CREATE_SCHEMA`.
-- Terminate TLS at a trusted reverse proxy or platform load balancer.
-- Enable Sentry or equivalent crash reporting.
-- Confirm `/health`, `/ready`, and `/metrics` are monitored.
+- Build and qualify one signed Windows installer from a clean pinned source tree.
+- Provision app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO with unique
+  protected credentials, migrations, supervision, backup, and restore.
+- Keep the desktop API and internal services loopback/private.
+- Keep external gateway access loopback-only by default. Enable a private Windows
+  listener only after Phase 8 TLS/firewall/client-policy qualification.
+- Keep external telemetry and crash reporting disabled by default unless the
+  owner explicitly opts in after privacy/redaction review.
+- Confirm truthful liveness, readiness, capabilities, diagnostics, trace, and
+  release evidence against the installed package.
 - Review [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md), and [`deploy/DEPLOYMENT_CHECKLIST.md`](deploy/DEPLOYMENT_CHECKLIST.md).
 
 ## Security and Compliance
 
-DataLogicEngine includes security controls intended for enterprise deployments, but each deployment must still be threat-modeled and configured for its environment.
+DataLogicEngine contains security-control foundations intended for the approved
+owner-operated Windows profiles. They are not a certification or proof of
+production readiness. Every release must pass the threat model and qualification
+gates in the production completion plan.
 
-| Area | Built-in Support |
+| Area | Current foundation and production requirement |
 | --- | --- |
 | Authentication | Single-owner desktop auto-login (OS identity), Flask-Login session auth, and API-key auth for programmatic access. Single-user by design — no multi-user login, MFA, or SSO/OIDC. |
 | Authorization | Single-owner ownership checks (`current_user_is_owner()`) with owner-gated admin routes. |
@@ -731,15 +769,16 @@ Do not report vulnerabilities in public issues. Follow the private reporting pro
 | Runtime metrics | `GET /metrics` |
 | API docs | `GET /api/docs` |
 | Gateway provider usage | LLM gateway usage models and admin routes |
-| Crash reporting | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE`, `SENTRY_PROFILES_SAMPLE_RATE` |
+| Crash reporting | Local redacted diagnostics by default; any external Sentry-compatible reporting requires explicit owner opt-in and separate privacy qualification |
 | Run tracing | `/api/v1/trace/*` and run-oriented UI routes |
 
-Recommended production integrations:
+Production observability direction:
 
-- Prometheus-compatible scraping for `/metrics`.
-- Sentry or an equivalent error and performance backend.
-- Centralized JSON logs via `python-json-logger` and platform log shipping.
-- Alerting on readiness failures, provider error spikes, token cost anomalies, and authentication failures.
+- Local structured, rotated, redacted JSON logs.
+- Local metrics and authenticated diagnostics covering services, gateway clients,
+  governed runs, provider usage, failures, and recovery.
+- Explicitly generated support bundles that can be previewed before export.
+- No external metrics, log, trace, or crash destination by default.
 
 ## Testing
 
@@ -771,18 +810,19 @@ npm --prefix frontend audit --audit-level=high
 
 | Horizon | Focus |
 | --- | --- |
-| Near term | Complete app-readiness evidence: authenticated accessibility coverage, keyboard/NVDA checks, failure-mode tests, and export/delete end-to-end validation. |
-| Near term | Tighten public API contracts, reduce legacy route aliases, and improve generated OpenAPI coverage. |
-| Near term | Keep public architecture assets under `docs/assets/readme/` synchronized with current architecture changes. |
-| Mid term | Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j. |
-| Mid term | Publish signed release artifacts with checksums and provenance metadata. |
-| Long term | Cost controls, recursive persona evaluation, human feedback loops, and policy-as-code governance for larger deployments. |
+| Immediate | Phase 0: approve scope, service delivery, requirements, ownership, supported Windows profiles, legal/distribution authority, and reproducible baseline. |
+| Foundation | Phases 1-7: close trust boundaries, deliver the full internal data plane, establish one canonical governed path, and qualify provider/evidence behavior. |
+| Product interface | Phase 8: complete the external API Gateway, client identity/policy, virtual models, streaming/async behavior, SDKs, desktop administration, and same-host/private interoperability. |
+| Subsystems and UX | Phases 9-13: complete knowledge, simulation, MCP, every frontend workflow, accessibility, observability, diagnostics, and support. |
+| Release | Phases 14-18: deterministic signed packaging, installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 
 ## Getting Help
 
 ### Documentation
 
 - **Setup & Configuration**: [`DEVELOPMENT.md`](DEVELOPMENT.md), [`.env.template`](.env.template)
+- **Production Completion**: [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md)
+- **Design/Implementation Baseline**: [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md)
 - **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md)
 - **Testing**: [`TESTING.md`](TESTING.md)
 - **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
@@ -835,7 +875,8 @@ Personal, research, and educational use are permitted under the license terms. C
 | `.github/pull_request_template.md` | Present |
 | `.github/ISSUE_TEMPLATE/*` | Present |
 | `.env.template` | Present |
-| `Dockerfile.cloud` and `docker-compose.yml` | Present |
+| `docker-compose.yml` | Present for local service evaluation; production delivery decision remains Phase 0 |
+| `Dockerfile.cloud` | Historical artifact; not part of the approved local-first Windows production target |
 
 ### Recommended Additions
 

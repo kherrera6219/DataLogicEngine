@@ -1,27 +1,61 @@
-## Session Update: July 2, 2026 (Part 2 - LlamaIndex Cache Fix)
-
-### Completed Work
-- **Fixed `[WinError 5] Access is denied` on Knowledge Base Page**: Discovered that LlamaIndex and HuggingFace models were attempting to write their caches directly into the read-only `C:\Program Files` directory where the backend was bundled (`_internal`). 
-- **Electron Cache Variable Injection**: Updated `main.ts` in Electron to inject `LLAMA_INDEX_CACHE_DIR`, `HF_HOME`, and `TRANSFORMERS_CACHE` environment variables into the backend. These now explicitly point to `%APPDATA%\DataLogicEngine Desktop\runtime\cache`, preventing permission errors and restoring functionality to the `/api/v1/gateway/chat` and RAG Knowledge Base endpoints.
-- **Installer Rebuilt**: Successfully packaged these cache directory fixes into `DataLogicEngine Setup Latest.exe`.
-
-## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
-
-### Completed Work
-- **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
-- **Model Configured**: Updated Google model string in DB to `gemini-3.1-pro-preview`.
-- **API Key Fallback fixed**: The installed app now properly reads environment variables from the `.env` file since encrypted keys generated in dev could not be decrypted in production.
-- **.env Propagation**: Modified the Electron app (`main.ts`) to read the `.env` file from the runtime directory (`%APPDATA%\DataLogicEngine Desktop\runtime`).
-- **Template Generation**: Added logic to create a template `.env` file in the runtime directory on first launch so users know where to put their keys.
-- **Immediate Testing Fix**: Copied the existing `.env` file into the local runtime directory for immediate testing.
-- **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
-
 # DataLogicEngine TODO
 
-**Last updated:** 2026-07-11 (**CI and CodeQL remediation checkpoint** - the shared Python dependency resolver failure is corrected, Windows packaging now fails fast, and all eight open exception-disclosure findings are remediated in source with focused regressions. Installed-app acceptance remains required for final production signoff.)
+**Last updated:** 2026-07-12 (**2026 production completion program expanded to v1.2** - the gated local-first Windows plan now contains 19 phases, explicitly defines the API gateway as the primary integration surface and the desktop as its production control/administration/audit/validation application, adds a complete LLM middleware productization phase, and retains the production-documentation replacement and professional-review phase. Phase 0 approval is the next work.)
 **Status:** Canonical planning source
 
-This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
+This is the canonical active TODO list for repository release readiness and
+operational work. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the active phased
+execution program. The archived `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt`
+is historical context only.
+
+## 2026 production completion program - 2026-07-12
+
+Current program state: **Phase 0 not started; scope and service-delivery approval
+required before implementation.**
+
+Owner-approved architecture boundary:
+
+1. DataLogicEngine remains a local-first owner-operated Windows application, not
+   cloud SaaS. Its API gateway is the primary application/agent/chatbot
+   integration surface; its desktop frontend is the complete production control,
+   configuration, administration, audit, observability, support, and validation
+   application, and its built-in chat is the canonical reference client.
+2. PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are app-owned internal production
+   data services with distinct required responsibilities.
+3. PostgreSQL, Redis, Neo4j, or MinIO must not be removed, downgraded to optional
+   cleanup, or replaced without complete functional parity, migration, recovery,
+   performance, security, license/support evidence, an ADR, and explicit owner
+   approval.
+4. SQLite, in-memory graph/queues, and local filesystem storage may support
+   bootstrap, repair, development, or staging but may not silently replace the
+   required production services.
+5. The gateway remains loopback-only by default. Same-host and explicitly enabled
+   private Windows clients must use DataLogicEngine client credentials and the
+   canonical governed path; they never receive provider keys or direct internal-
+   service access.
+
+Next Phase 0 deliverables:
+
+1. Approve the production scope and the internal-service delivery mechanism.
+2. Record an ADR selecting app-managed pinned local containers or supported
+   native Windows sidecars while preserving all service responsibilities.
+3. Create one machine-readable product/service/version manifest.
+4. Inventory runtime surfaces, UI controls, and service consumers.
+5. Capture clean installed built-in-chat and external-gateway baselines on the
+   full internal data plane.
+6. Create the production risk register and map every July 12 finding to its owning
+   phase/evidence gate.
+7. Create the product acceptance, requirements traceability, release feature-
+   disposition, Windows support, responsibility/approval, and legal/distribution
+   matrices required by plan checkpoints CP0-E through CP0-G.
+8. Record the Phase 16 target: replace the accumulated active documentation with
+   a 30-or-fewer controlled hand-maintained production set, generated evidence,
+   and a Microsoft/professional external-review dossier.
+9. Approve the gateway/control-plane product model, supported same-host/private
+   client profiles, principal boundary, and first-of-kind evidence rule required
+   before Phase 8 implementation.
+
+Do not advance to Phase 1 until Phase 0 checkpoints CP0-A through CP0-G pass.
 
 ## Cross-system data-path QC - 2026-07-10
 

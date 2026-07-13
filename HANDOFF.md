@@ -1,11 +1,78 @@
-## Session Update: July 2, 2026 (Part 2 - LlamaIndex Cache Fix)
+# DataLogicEngine - Session Handoff
+
+## REQUIRED FIRST READ (next session) - updated 2026-07-12
+
+Before changing code, rebuilding the installer, or making a production-readiness
+claim, read both active documents in this order:
+
+1. **`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`**
+2. **`PRODUCTION_COMPLETION_PLAN_2026.md`**
+
+Use this startup sequence:
+
+1. Read the audit from the executive verdict through its definition of finished.
+   Do not rely only on summary tables.
+2. Read the production completion plan in full, including all phase checkpoints,
+   self-checks, stop conditions, product acceptance controls, API Gateway/LLM
+   middleware productization phase, frontend control-plane/reference-client
+   contract, production-documentation replacement/professional-review phase,
+   consolidation actions, and final go/no-go checklist.
+3. Read `TODO.md` and `docs/README.md` to confirm the current work queue and
+   documentation authority rules.
+4. Inspect the current branch, working tree, and recent commits before making
+   changes.
+5. Verify each audit finding against the current code and tests. The audit is a
+   point-in-time baseline; live code and reproducible runtime evidence take
+   precedence if the repository has changed.
+6. Unless the user redirects the work, begin with **Phase 0: Scope, baseline, and
+   authority lock**. Do not begin Phase 1 implementation until checkpoints CP0-A
+   through CP0-G are approved.
+
+Do not treat the older dated session logs below as current instructions. They
+are retained only as implementation history.
+
+## Current checkpoint (2026-07-12)
+
+- The repository-wide design-versus-implementation review is saved in the audit
+  named above and indexed in `docs/README.md`.
+- The audit has been converted into the canonical 2026 production completion
+  program at root `PRODUCTION_COMPLETION_PLAN_2026.md`. Plan v1.2 contains 19
+  phases (0-18), including Phase 8 external API Gateway/LLM middleware
+  productization and Phase 16 production-documentation replacement plus the
+  Microsoft/professional external-review dossier.
+- **Owner product-surface clarification:** the API gateway is the primary
+  integration surface for approved applications, agents, and chatbots. The
+  desktop frontend is the complete production control, configuration,
+  administration, audit, observability, support, and validation application. Its
+  built-in chat is the reference client for the same canonical governed request
+  path external clients use. Every frontend page still must work completely and
+  truthfully against live backend/internal-service behavior.
+- **Owner architecture clarification:** PostgreSQL, Redis, Neo4j, ChromaDB, and
+  MinIO are intentional app-owned internal production services. Do not remove or
+  optionalize them. A replacement requires complete parity/migration/recovery/
+  security/license evidence, an ADR, and explicit owner approval.
+- The release verdict is **no-go for production/public release**. Developer
+  evaluation remains a conditional go; an internal non-sensitive pilot requires
+  the P0 security work first.
+- The audit identifies three P0 findings: the normal chat path does not execute
+  the documented governed reasoning lifecycle, active mutation routes bypass
+  the intended authentication boundary, and GraphQL/compliance responses expose
+  internal exception text.
+- Remediation is organized into Phases 0-18 in the production completion plan.
+  Phase 0 owner approval and baseline evidence are next. Complete and validate
+  every checkpoint before advancing, and update this handoff plus `TODO.md` at
+  each checkpoint.
+
+---
+
+## Historical Session Update: July 2, 2026 (Part 2 - LlamaIndex Cache Fix)
 
 ### Completed Work
 - **Fixed `[WinError 5] Access is denied` on Knowledge Base Page**: Discovered that LlamaIndex and HuggingFace models were attempting to write their caches directly into the read-only `C:\Program Files` directory where the backend was bundled (`_internal`). 
 - **Electron Cache Variable Injection**: Updated `main.ts` in Electron to inject `LLAMA_INDEX_CACHE_DIR`, `HF_HOME`, and `TRANSFORMERS_CACHE` environment variables into the backend. These now explicitly point to `%APPDATA%\DataLogicEngine Desktop\runtime\cache`, preventing permission errors and restoring functionality to the `/api/v1/gateway/chat` and RAG Knowledge Base endpoints.
 - **Installer Rebuilt**: Successfully packaged these cache directory fixes into `DataLogicEngine Setup Latest.exe`.
 
-## Session Update: July 2, 2026 (LLM Failover & API Key Fix)
+## Historical Session Update: July 2, 2026 (LLM Failover & API Key Fix)
 
 ### Completed Work
 - **Database Priorities Adjusted**: Fixed the production SQLite DB (`ukg_database.db`) so OpenAI and Google are priorities 1 and 2, while Ollama is pushed to priority 10 and no longer set as default.
@@ -16,10 +83,8 @@
 - **Immediate Testing Fix**: Copied the existing `.env` file into the local runtime directory for immediate testing.
 - **Installer Rebuilt**: Successfully packaged these fixes into `DataLogicEngine Setup Latest.exe`.
 
-# DataLogicEngine — Session Handoff
-
-## START HERE (next session) - updated 2026-07-11
-**Current next session priority: complete the clean installed-app acceptance sequence for the root installer. The five failing GitHub Actions jobs share a corrected Python dependency constraint, all eight open exception-disclosure findings are remediated in source, and Dependabot remains clean with 0 open alerts.**
+## Previous checkpoint - updated 2026-07-11
+**Priority recorded at this checkpoint: complete the clean installed-app acceptance sequence for the root installer. The five failing GitHub Actions jobs shared a corrected Python dependency constraint, all eight open exception-disclosure findings were remediated in source, and Dependabot was clean with 0 open alerts.**
 
 - **CI resolver repair:** corrected `tokenizers==0.23.1` to `tokenizers==0.22.2`, restoring compatibility with `transformers>=5.0.0`. Python 3.11 resolves the full requirements tree, and the dependency audit reports no known vulnerabilities after the two documented accepted-risk exclusions.
 - **Windows packaging repair:** the PowerShell build step now stops on the first failed native command. A clean Python 3.11 PyInstaller build passed and includes ONNX Runtime 1.26.0 plus tokenizers 0.22.2 metadata.
@@ -86,7 +151,7 @@
 
 ---
 
-## ▶ START HERE (next session) — updated 2026-07-01
+## Previous checkpoint - updated 2026-07-01
 **LLM API, DB Initialization, and Packaging: ✅ COMPLETE (2026-07-01).** 
 - **Database Initialization Fix:** Bootstrapped the local SQLite database schema using `backend/init_db.py` with compliant passwords (enforcing the hardened validation rule), and then successfully played all migrations forward via `flask db upgrade` (d1e2f3a4b5c6 through d6e7f8a9b0c1). This resolved the local desktop auto-login handshake (`/auth/desktop/auto-login` 500 error on missing `users` table) and unblocked the `/chat` 401 Unauthorized API blocker.
 - **API Key Consolidation:** Extracted the correct Google and OpenAI API keys from `API KEY/key.txt` (git-ignored) and updated `.env`.

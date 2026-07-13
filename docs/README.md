@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.3 |
-| Last updated | 2026-07-11 |
+| Document version | v2.15.0 |
+| Last updated | 2026-07-12 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -14,11 +14,20 @@
 
 This portal is the authoritative entry point for active DataLogicEngine documentation.
 
-DataLogicEngine is documented as a local-first governed AI platform with a Windows/Electron desktop runtime, Flask API/security envelope, DMRF control plane, Truth Engine, 17-axis routing, DSQP persona construction, trace/export review surfaces, MCP governance, and multi-store data/memory architecture.
+DataLogicEngine is documented as local-first governed LLM middleware whose primary integration surface is a versioned same-host/private API gateway. Its Windows/Electron frontend is the production control, configuration, administration, audit, observability, support, and validation application, with a built-in reference chat client. The platform also includes a Flask API/security envelope, DMRF control plane, Truth Engine, 17-axis routing, DSQP persona construction, trace/export review surfaces, MCP governance, and multi-store data/memory architecture.
 
 Active documents listed here are the operational source of truth. Historical whitepapers, old release notes, wireframes, research spikes, and exploratory documents under `docs/archive/` are reference-only and should not be treated as implementation authority unless promoted into active documentation.
 
-Current planning belongs in root `TODO.md`.
+Current implementation status belongs in root `TODO.md`. The active phased
+production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
+
+That program now contains 19 phases (0-18). Phase 8 productizes the external API
+gateway and governed LLM middleware contract. Phase 16 replaces the accumulated
+documentation with a 30-or-fewer controlled hand-maintained production set plus
+generated contracts/evidence and a professional/Microsoft review dossier; Phase
+17 performs final authority consolidation and release lock. Documents listed
+below remain transitional authorities only until the Phase 16 old-to-new
+crosswalk records their merge, generated replacement, archive, or deletion.
 
 ---
 
@@ -28,6 +37,7 @@ Current planning belongs in root `TODO.md`.
 |---|---|
 | New user / evaluator | root `README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md` |
 | New engineer | `docs/ENGINEER_ONBOARDING.md`, `docs/DEVELOPER_GUIDE.md` |
+| Production completion owner | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`, root `PRODUCTION_COMPLETION_PLAN_2026.md`, root `TODO.md`, root `HANDOFF.md` |
 | Architect | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/DATA_FLOW_DIAGRAMS.md`, `docs/DECISION_LOGIC.md` |
 | API integrator | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
 | Security reviewer | `docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, `docs/CIS_BENCHMARKS.md` |
@@ -92,9 +102,11 @@ Current planning belongs in root `TODO.md`.
 | `docs/OPERATIONAL_RUNBOOKS.md` | Operational and incident runbooks. |
 | `docs/RELEASE_CHECKLIST.md` | Release evidence and approval checklist. |
 | `docs/PRODUCTION_READINESS.md` | Readiness scorecard, current caveats, release posture. |
+| `PRODUCTION_COMPLETION_PLAN_2026.md` (repository root) | Canonical 19-phase program for completing the local-first Windows governed LLM middleware/API gateway, production desktop control/administration/audit/validation application, full app-owned PostgreSQL/Redis/Neo4j/ChromaDB/MinIO data plane, qualification, production-documentation replacement, professional/Microsoft review dossier, consolidation, and signed release. |
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
 | `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` | Packaged enhanced-chat, DMRF/DSQP, provider-routing, persistence, and Trace Explorer QC. |
 | `docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md` | Cross-system frontend/backend/store review, corrections, residual risks, and rebuilt-app acceptance sequence. |
+| `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | Repository-wide production audit comparing the active product/architecture design with the implemented backend, governed chat path, desktop runtime, storage, frontend, packaging, and test evidence. |
 | `reports/ci_repair_2026-07-11.md` | Root-cause analysis and validation for the dependency-resolution and Windows packaging CI repair. |
 | `reports/code_scanning_alerts_2026-07-08.md` | CodeQL exception-disclosure source analysis, remediation, and regression evidence. |
 
