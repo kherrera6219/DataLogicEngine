@@ -10,6 +10,7 @@ apply_runtime_compatibility_patches()
 from app import app, DEFAULT_PORT
 from backend.storage.database_manager import get_db_manager
 from backend.storage.runtime_settings import get_auto_start_databases
+from backend.security.listener_policy import resolve_loopback_listener_host
 
 def signal_handler(sig, frame):
     """Ensure databases are stopped on exit."""
@@ -33,10 +34,11 @@ if __name__ == "__main__":
             print("Desktop Mode Detected: Database auto-start disabled by settings.")
     
     port = int(os.environ.get('PORT', DEFAULT_PORT))
+    listener_host = resolve_loopback_listener_host(os.environ.get('FLASK_RUN_HOST'))
     debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     
     try:
-        app.run(host="127.0.0.1", port=port, debug=debug_mode, use_reloader=False)
+        app.run(host=listener_host, port=port, debug=debug_mode, use_reloader=False)
     finally:
         if os.environ.get('IS_DESKTOP_APP', 'False').lower() == 'true':
             get_db_manager().stop_all()

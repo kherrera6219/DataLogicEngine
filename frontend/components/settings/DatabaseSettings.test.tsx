@@ -41,7 +41,7 @@ function installElectronApi(overrides: Record<string, unknown> = {}) {
     configurable: true,
     value: {
       getDesktopStorageMetrics: vi.fn().mockResolvedValue(baseMetrics),
-      chooseBackupFolder: vi.fn().mockResolvedValue('C:\\Backups'),
+      chooseBackupFolder: vi.fn().mockResolvedValue({ token: 'backup-token', display_name: 'Backups', expires_at: '2026-07-13T01:00:00Z' }),
       runDatabaseBackup: vi.fn().mockResolvedValue({
         artifact_path: 'C:\\Backups\\backup.zip',
         size_bytes: 8192,
@@ -211,7 +211,7 @@ describe('DatabaseSettings', () => {
   });
 
   it('runs desktop backups and handles cancellation', async () => {
-    const chooseBackupFolder = vi.fn().mockResolvedValue('C:\\Backups');
+    const chooseBackupFolder = vi.fn().mockResolvedValue({ token: 'backup-token', display_name: 'Backups', expires_at: '2026-07-13T01:00:00Z' });
     const runDatabaseBackup = vi.fn().mockResolvedValue({
       artifact_path: 'C:\\Backups\\desktop-backup.zip',
       size_bytes: 16384,
@@ -226,7 +226,9 @@ describe('DatabaseSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: /run backup/i }));
 
     await waitFor(() => {
-      expect(runDatabaseBackup).toHaveBeenCalledWith({ target_dir: 'C:\\Backups' });
+      expect(runDatabaseBackup).toHaveBeenCalledWith(
+        expect.objectContaining({ target_capability: 'backup-token', operation_id: expect.any(String) }),
+      );
       expect(screen.getByText('C:\\Backups\\desktop-backup.zip')).toBeInTheDocument();
     });
 

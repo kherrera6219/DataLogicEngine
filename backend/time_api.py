@@ -8,6 +8,7 @@ from models import TimeContext, db
 import logging
 import uuid
 from datetime import datetime, UTC
+from backend.utils.error_normalization import normalize_public_error_message
 
 # Create blueprint
 time_api = Blueprint('time_api', __name__)
@@ -73,7 +74,7 @@ def get_time_contexts():
         logger.error(f"Error getting time contexts: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting time contexts")
         }), 500
 
 @time_api.route('/api/time/<uid>', methods=['GET'])
@@ -113,7 +114,7 @@ def get_time_context(uid):
         logger.error(f"Error getting time context {uid}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting time context")
         }), 500
 
 @time_api.route('/api/time', methods=['POST'])
@@ -165,7 +166,7 @@ def create_time_context():
         logger.error(f"Error creating time context: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error creating time context")
         }), 500
 
 @time_api.route('/api/time/<uid>', methods=['PUT'])
@@ -233,7 +234,7 @@ def update_time_context(uid):
         logger.error(f"Error updating time context {uid}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error updating time context")
         }), 500
 
 @time_api.route('/api/time/<uid>', methods=['DELETE'])
@@ -270,7 +271,7 @@ def delete_time_context(uid):
         logger.error(f"Error deleting time context {uid}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error deleting time context")
         }), 500
 
 @time_api.route('/api/time/career/<persona_id>', methods=['GET'])
@@ -303,7 +304,7 @@ def get_career_timeline(persona_id):
         logger.error(f"Error getting career timeline for {persona_id}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting career timeline")
         }), 500
 
 @time_api.route('/api/time/project/<project_id>', methods=['GET'])
@@ -349,7 +350,7 @@ def get_project_timeline(project_id):
         logger.error(f"Error getting project timeline for {project_id}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting project timeline")
         }), 500
 
 @time_api.route('/api/time/historical', methods=['GET'])
@@ -385,5 +386,5 @@ def get_historical_periods():
         logger.error(f"Error getting historical periods: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting historical periods")
         }), 500

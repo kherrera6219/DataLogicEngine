@@ -147,6 +147,7 @@ def check_desktop_request_auth():
         return False, None
 
     timestamp = (request.headers.get("X-Desktop-Auth-Timestamp") or "").strip()
+    request_nonce = (request.headers.get("X-Desktop-Auth-Request-Nonce") or "").strip()
     signature = (request.headers.get("X-Desktop-Auth-Request-Signature") or "").strip()
     install_secret = get_or_create_install_secret()
     is_valid, _ = verify_desktop_request_signature(
@@ -155,6 +156,7 @@ def check_desktop_request_auth():
         timestamp=timestamp,
         signature=signature,
         install_secret=install_secret,
+        request_nonce=request_nonce,
     )
     if not is_valid:
         return False, None
@@ -244,6 +246,7 @@ def api_login_required(f):
     except (AttributeError, TypeError):
         pass
 
+    api_login_required_wrapper.__dle_auth_guard__ = "authenticated-session-desktop-or-api-key"
     return api_login_required_wrapper
 
 
@@ -280,14 +283,19 @@ def api_session_login_required(f):
     except (AttributeError, TypeError):
         pass
 
+    api_session_login_required_wrapper.__dle_auth_guard__ = "owner-session-or-desktop"
     return api_session_login_required_wrapper
 
 
-# Single-mode / OS-level auth (auth deprecation Phase B, 2026-06-13): there is no
-# admin vs. non-admin distinction — the one OS user is the owner with full access.
-# `api_admin_required` is retained as an alias of `api_login_required` so existing
-# call sites keep working without churn. Remove the alias + call sites in a later pass.
-api_admin_required = api_login_required
+# Owner/admin control-plane operations require the local desktop principal or an
+# authenticated owner session. External gateway keys are intentionally excluded:
+# they can execute approved client capabilities but can never become the desktop
+# owner merely because their backing user record exists.
+def api_admin_required(f):
+    """Require the local owner session/desktop principal for control-plane actions."""
+    decorated = api_session_login_required(f)
+    decorated.__dle_auth_guard__ = "owner-admin-session-or-desktop"
+    return decorated
 
 
 def current_user_is_owner() -> bool:

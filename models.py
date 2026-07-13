@@ -11,6 +11,7 @@ This module defines the core SQLAlchemy models with:
 from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any
 import logging
+import os
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Index, JSON, UUID, LargeBinary
@@ -539,11 +540,25 @@ class LLMProvider(db.Model):
     usage_records = db.relationship('LLMProviderUsage', backref='provider', lazy='dynamic', cascade='all, delete-orphan')
     
     def set_api_key(self, api_key: str) -> None:
+        from backend.security.dpapi_store import encrypt_data, is_available
+
+        if is_available():
+            protected = encrypt_data(api_key)
+            if protected:
+                self.api_key_encrypted = f"dpapi:v1:{protected}".encode("utf-8")
+                return
+        if (
+            os.environ.get("FLASK_ENV", "").lower() == "production"
+            and os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+        ):
+            raise RuntimeError("DPAPI is required for provider credentials in desktop production")
         key = current_app.config.get('ENCRYPTION_KEY')
         if not key:
             import hashlib
             import base64
-            secret = current_app.config.get('SECRET_KEY', 'default-secret')
+            secret = current_app.config.get('SECRET_KEY')
+            if not secret:
+                raise RuntimeError("SECRET_KEY is required for provider credential fallback encryption")
             key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
         f = Fernet(key)
         self.api_key_encrypted = f.encrypt(api_key.encode())
@@ -552,11 +567,25 @@ class LLMProvider(db.Model):
         if not self.api_key_encrypted:
             return None
         try:
+            encoded = (
+                self.api_key_encrypted.decode("utf-8")
+                if isinstance(self.api_key_encrypted, bytes)
+                else str(self.api_key_encrypted)
+            )
+            if encoded.startswith("dpapi:v1:"):
+                from backend.security.dpapi_store import decrypt_data
+
+                decrypted = decrypt_data(encoded.removeprefix("dpapi:v1:"))
+                if not decrypted:
+                    raise ValueError("DPAPI provider credential could not be decrypted")
+                return decrypted
             key = current_app.config.get('ENCRYPTION_KEY')
             if not key:
                 import hashlib
                 import base64
-                secret = current_app.config.get('SECRET_KEY', 'default-secret')
+                secret = current_app.config.get('SECRET_KEY')
+                if not secret:
+                    raise RuntimeError("SECRET_KEY is required for provider credential fallback decryption")
                 key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
             f = Fernet(key)
             return f.decrypt(self.api_key_encrypted).decode()

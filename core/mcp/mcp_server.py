@@ -241,7 +241,7 @@ class MCPServer(MCPRequestHandler):
             tool_name=tool_name,
             required_scopes=required_scopes,
             context=execution_context,
-            permissive_on_missing_context=True,
+            permissive_on_missing_context=False,
         )
         try:
             validate_tool_arguments(tool_name, tool_definition.input_schema, arguments)

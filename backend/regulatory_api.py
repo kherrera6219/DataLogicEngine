@@ -8,6 +8,7 @@ This module provides API endpoints for working with the Regulatory Framework axi
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.utils.error_normalization import normalize_public_error_message
 
 regulatory_api = Blueprint('regulatory_api', __name__)
 
@@ -52,7 +53,7 @@ def get_frameworks():
         current_app.logger.error(f"Error getting regulatory frameworks: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting regulatory frameworks: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting regulatory frameworks"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -111,7 +112,7 @@ def create_framework():
         current_app.logger.error(f"Error creating regulatory framework: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating regulatory framework: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating regulatory framework"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -154,7 +155,7 @@ def create_requirement():
         current_app.logger.error(f"Error creating requirement: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating requirement: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating requirement"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -188,7 +189,7 @@ def get_octopus_structure(framework_uid):
         current_app.logger.error(f"Error getting octopus structure: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting octopus structure: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting octopus structure"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -240,7 +241,7 @@ def create_crosswalk():
         current_app.logger.error(f"Error creating crosswalk: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating crosswalk: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating crosswalk"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -285,7 +286,7 @@ def map_jurisdiction():
         current_app.logger.error(f"Error mapping jurisdiction: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error mapping jurisdiction: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error mapping jurisdiction"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -337,7 +338,7 @@ def create_compliance_link():
         current_app.logger.error(f"Error creating compliance link: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating compliance link: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating compliance link"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -383,6 +384,6 @@ def get_standards():
         current_app.logger.error(f"Error getting standards: {str(e)}")
         return jsonify({
             'success': False,
-            'error': str(e),
+            'error': normalize_public_error_message(str(e), "Error getting standards"),
             'timestamp': datetime.now().isoformat()
         }), 500

@@ -34,8 +34,8 @@ def test_legacy_simulation_alias_emits_deprecation_headers(authenticated_client)
     assert "/api/v1/simulations" in response.headers.get("Link", "")
 
 
-def test_legacy_truth_alias_emits_deprecation_headers(client):
-    response = client.get("/api/truth/health")
+def test_legacy_truth_alias_emits_deprecation_headers(authenticated_client):
+    response = authenticated_client.get("/api/truth/health")
 
     assert response.status_code == 200
     assert response.headers["Deprecation"] == "true"

@@ -130,6 +130,7 @@ export function DatabaseSettings() {
   const [activeTab, setActiveTab] = useState('status');
   const [desktopMetrics, setDesktopMetrics] = useState<DesktopStorageMetrics | null>(null);
   const [backupRunning, setBackupRunning] = useState(false);
+  const [backupOperationId, setBackupOperationId] = useState<string | null>(null);
   const [lastBackup, setLastBackup] = useState<DesktopBackupResult | null>(null);
   // Cloud config state
   const [cloudConfig, setCloudConfig] = useState<CloudConfig>(EMPTY_CLOUD);
@@ -294,29 +295,38 @@ export function DatabaseSettings() {
   const handleBackup = async () => {
     setBackupRunning(true);
     try {
-      let target_dir: string | undefined;
+      let target_capability: string | undefined;
       if (window.electronAPI?.chooseBackupFolder) {
         const selected = await window.electronAPI.chooseBackupFolder();
         if (!selected) {
           setBackupRunning(false);
           return;
         }
-        target_dir = selected;
+        target_capability = selected.token;
       }
 
-      const result = window.electronAPI?.runDatabaseBackup
-        ? await window.electronAPI.runDatabaseBackup({ target_dir })
-        : await request<DesktopBackupResult>('/storage/backup', {
-            method: 'POST',
-            body: JSON.stringify({ target_dir }),
-          });
+      if (!window.electronAPI?.runDatabaseBackup) {
+        throw new Error('Database backup is available only in the desktop application.');
+      }
+      const operation_id = crypto.randomUUID();
+      setBackupOperationId(operation_id);
+      const result = await window.electronAPI.runDatabaseBackup({ target_capability, operation_id });
       setLastBackup(result);
       toast('Database backup completed.', 'success', 3000);
       void fetchHealth();
     } catch (error) {
       toast(`Backup failed: ${formatErrorMessage(error)}`, 'error');
     } finally {
+      setBackupOperationId(null);
       setBackupRunning(false);
+    }
+  };
+
+  const cancelBackup = async () => {
+    if (!backupOperationId || !window.electronAPI?.cancelDesktopOperation) return;
+    const result = await window.electronAPI.cancelDesktopOperation(backupOperationId);
+    if (result.cancelled) {
+      toast('Backup cancellation requested.', 'success', 3000);
     }
   };
 
@@ -546,6 +556,11 @@ export function DatabaseSettings() {
                 )}
                 {backupRunning ? 'Backing Up...' : 'Run Backup'}
               </Button>
+              {backupOperationId && (
+                <Button variant="outline" onClick={() => void cancelBackup()} aria-label="Cancel database backup">
+                  Cancel backup
+                </Button>
+              )}
               {lastBackup && (
                 <div className="rounded-md border p-3 text-sm">
                   <div className="font-medium">Last backup</div>

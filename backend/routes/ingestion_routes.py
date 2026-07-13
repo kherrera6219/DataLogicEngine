@@ -11,6 +11,8 @@ from flask_login import current_user
 
 from backend.auth.api_decorators import api_session_login_required
 from backend.ingestion import LocalKnowledgeIngestionService
+from backend.security.desktop_ipc import require_desktop_ipc_capability
+from backend.utils.error_normalization import normalize_public_error_message
 
 
 ingestion_api = Blueprint("ingestion_api", __name__, url_prefix="/api/v1/ingestion")
@@ -86,6 +88,9 @@ def list_ingestion_history():
 @api_session_login_required
 def ingest_local_path():
     """Ingest a local file or folder into the knowledge corpus."""
+    capability_error = require_desktop_ipc_capability("ingestion")
+    if capability_error:
+        return capability_error
     data = request.get_json(silent=True) or {}
     raw_path = str(data.get("path") or "").strip()
     if not raw_path:
@@ -106,7 +111,10 @@ def ingest_local_path():
         )
         return jsonify({"success": True, "data": result.to_dict()}), 201
     except ValueError as exc:
-        return jsonify({"success": False, "error": str(exc)}), 400
+        return jsonify({
+            "success": False,
+            "error": normalize_public_error_message(str(exc), "Invalid ingestion path"),
+        }), 400
     except Exception:
         return jsonify({"success": False, "error": "Local ingestion failed"}), 500
 
@@ -115,6 +123,9 @@ def ingest_local_path():
 @api_session_login_required
 def ingest_local_path_async():
     """Start ingestion in the background and return the ingestion_id immediately."""
+    capability_error = require_desktop_ipc_capability("ingestion")
+    if capability_error:
+        return capability_error
     data = request.get_json(silent=True) or {}
     raw_path = str(data.get("path") or "").strip()
     if not raw_path:
@@ -137,7 +148,10 @@ def ingest_local_path_async():
         )
         return jsonify({"success": True, "data": {"ingestion_id": ingestion_id, "status": "running"}}), 202
     except ValueError as exc:
-        return jsonify({"success": False, "error": str(exc)}), 400
+        return jsonify({
+            "success": False,
+            "error": normalize_public_error_message(str(exc), "Invalid ingestion path"),
+        }), 400
     except Exception:
         return jsonify({"success": False, "error": "Failed to start async ingestion"}), 500
 

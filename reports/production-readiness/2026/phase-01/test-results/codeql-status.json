@@ -1,0 +1,9 @@
+{
+  "captured_at": "2026-07-13T10:42:00-07:00",
+  "repository": "kherrera6219/DataLogicEngine",
+  "source": "GitHub code-scanning alerts API",
+  "state": "open",
+  "open_alerts": 0,
+  "local_exception_disclosure_gate_findings": 0,
+  "passed": true
+}

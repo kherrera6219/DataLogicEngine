@@ -114,7 +114,7 @@ class ToolRegistry:
             tool_name=name,
             required_scopes=tool_definition.required_scopes,
             context=execution_context,
-            permissive_on_missing_context=True,
+            permissive_on_missing_context=False,
         )
         raw_arguments = arguments if isinstance(arguments, dict) else {}
         validate_tool_arguments(name, tool_definition.input_schema, raw_arguments)

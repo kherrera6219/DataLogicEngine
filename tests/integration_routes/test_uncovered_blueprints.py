@@ -13,6 +13,9 @@ def methods_app():
     app = Flask(__name__)
     app.config["TESTING"] = True
     app.register_blueprint(methods_api_module.methods_api)
+    # Handler-coverage fixture: authentication behavior is exercised against the
+    # real app in the Phase 1 auth-boundary suites.
+    app.before_request_funcs["methods_api"] = []
     return app
 
 

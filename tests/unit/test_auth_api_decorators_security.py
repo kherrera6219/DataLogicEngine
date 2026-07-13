@@ -62,8 +62,8 @@ def test_check_api_auth_accepts_hashed_external_key_header(app, monkeypatch):
         assert g.auth_user is principal_user
 
 
-def test_api_admin_required_allows_admin_api_key_principal(app, monkeypatch):
-    """Admin-only decorators should honor an admin principal resolved via API key."""
+def test_api_admin_required_rejects_external_api_key_principal(app, monkeypatch):
+    """Gateway keys must never cross into owner/admin control-plane operations."""
     api_key_record = SimpleNamespace(user_id=12)
     admin_user = SimpleNamespace(
         id=12,
@@ -103,9 +103,9 @@ def test_api_admin_required_allows_admin_api_key_principal(app, monkeypatch):
         )
         monkeypatch.setattr(api_decorators, "User", _UserModel)
 
-        body, status_code = _protected()
-        assert status_code == 200
-        assert body["ok"] is True
+        response, status_code = _protected()
+        assert status_code == 401
+        assert response.get_json()["code"] == "UNAUTHORIZED"
 
 
 def test_get_authenticated_principal_prefers_resolved_auth_user(app, monkeypatch):
@@ -141,5 +141,5 @@ def test_mcp_tool_context_uses_external_api_key_principal(app):
 
         assert context["user_id"] == "42"
         assert context["tenant_id"] == "tenant-from-user"
-        assert "mcp:execute" in context["scopes"]
+        assert "mcp:execute" not in context["scopes"]
         assert "connector:github:read" in context["scopes"]

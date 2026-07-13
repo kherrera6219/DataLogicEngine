@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.3.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -124,7 +124,9 @@ Most application endpoints require authentication via one of the following metho
 
 Single-mode / OS-level auth: one owner per machine; the former SSO/OIDC (Azure AD/Entra) and MFA surfaces were removed in the auth deprecation.
 
-Unauthenticated operational probes are explicitly limited to `/health`, `/live`, `/ready`, and `/metrics`.
+Unauthenticated operational probes are explicitly limited to `/health`, `/live`,
+`/ready`, and `/api/v1/gateway/health`. `/metrics`, `/health/cache`, and
+`/api/v1/system/diagnostics/health` require the desktop/session principal.
 
 Security and runtime context:
 
@@ -324,7 +326,7 @@ Primary prefix: `/api/v1/gateway`.
       "model": "gpt-5.5"
     }
     ```
-  - The key is stored Fernet-encrypted using a key derived from `SESSION_SECRET`. The session secret is stable across restarts in the packaged app.
+  - On supported Windows desktop builds the key is stored as a DPAPI-protected value. Legacy Fernet values remain readable for migration but all new provider-key writes prefer DPAPI.
   - **200 OK** — key saved.
   - **400 Bad Request** — missing provider or key.
 
@@ -637,6 +639,11 @@ Primary prefix: `/api/v1/ingestion`.
 
 ### Local file or folder ingestion
 
+In the Electron desktop, the renderer cannot submit a filesystem path. The OS
+picker returns a single-use expiring capability token; Electron main retains
+the canonical path and submits it with a purpose-bound IPC signature. Direct
+renderer requests to the path-bearing desktop operation fail closed.
+
 - **POST** `/local`
   - Ingest supported local files into chunk-level SQL `KnowledgeGraphNode` records and Chroma `knowledge_nodes` vectors where configured.
   - Body:
@@ -822,7 +829,9 @@ Representative route:
 ### Health check
 
 - **GET** `/health`
-  - System status such as database connectivity and session secret configuration.
+  - Public-safe status, service name, and timestamp only.
+  - Detailed database/configuration state is available only at authenticated
+    `GET /api/v1/system/diagnostics/health`.
 
 ### Liveness
 
@@ -837,7 +846,15 @@ Representative route:
 ### Metrics
 
 - **GET** `/metrics`
-  - Prometheus-format metrics including uptime, request counters, database state, LLM latency, and DMRF observability where available.
+  - Requires desktop/session authentication.
+  - Returns Prometheus text for local diagnostics; it is not a public probe.
+
+## Phase 1 public error contract
+
+Public REST, GraphQL, SSE, and IPC-facing failures must use stable messages and
+codes. Raw exception strings, provider bodies, credentials, filesystem paths,
+and stack traces are not response contracts. The mandatory static and sentinel
+gates are recorded in the Phase 1 evidence folder.
 
 ---
 
@@ -884,6 +901,11 @@ A technical reviewer should validate this document against these files:
 11. `frontend/lib/api/` — frontend API clients and CSRF handling.
 12. `tests/contract/` — canonical API contract tests.
 13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v3.3.0
+
+1. Added DPAPI provider storage, capability-token ingestion/backup, authenticated diagnostics, and stable public-error rules.
+2. Clarified that gateway keys cannot reach owner/admin or secret-management surfaces.
 
 ## Change notes for v3.2.0
 

@@ -40,7 +40,12 @@ class MCPRouter:
     def __init__(self):
         self.registry = registry
 
-    async def handle_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_message(
+        self,
+        message: Dict[str, Any],
+        *,
+        execution_context: Dict[str, Any] | None = None,
+    ) -> Dict[str, Any]:
         """Process an incoming JSON-RPC message."""
         if not isinstance(message, dict):
             return self._error(None, -32600, "Invalid Request")
@@ -78,9 +83,12 @@ class MCPRouter:
         if method == "tools/call":
             name = params.get("name")
             args = params.get("arguments", {})
-            context = params.get("context", {})
             try:
-                result = await self.registry.execute_tool(name, args, context=context)
+                result = await self.registry.execute_tool(
+                    name,
+                    args,
+                    context=execution_context or {},
+                )
                 return self._response(request_id, {
                     "content": [
                         {

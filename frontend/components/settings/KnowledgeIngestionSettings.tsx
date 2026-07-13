@@ -5,6 +5,7 @@ import { DatabaseZap, FileText, FolderOpen, History, Loader2, RefreshCw, UploadC
 import { api } from '@/lib/api';
 import type { IngestionResult, IngestionSupportedTypes } from '@/lib/api/types';
 import type { AsyncIngestionStatus } from '@/lib/api/ingestion';
+import type { DesktopPathCapability } from '@/types/electron';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ export function KnowledgeIngestionSettings() {
   const { toast } = useToast();
   const [supported, setSupported] = useState<IngestionSupportedTypes | null>(null);
   const [history, setHistory] = useState<IngestionResult[]>([]);
-  const [path, setPath] = useState('');
+  const [sourceCapability, setSourceCapability] = useState<DesktopPathCapability | null>(null);
   const [sourceLabel, setSourceLabel] = useState('');
   const [recursive, setRecursive] = useState(true);
   const [chunkSize, setChunkSize] = useState(1200);
@@ -42,6 +43,7 @@ export function KnowledgeIngestionSettings() {
   const [syncNeo4j, setSyncNeo4j] = useState(false);
   const [asyncId, setAsyncId] = useState<string | null>(null);
   const [asyncStatus, setAsyncStatus] = useState<AsyncIngestionStatus | null>(null);
+  const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const extensionLabel = useMemo(
@@ -79,9 +81,8 @@ export function KnowledgeIngestionSettings() {
   }, [loadHistory]);
 
   const startIngestion = async () => {
-    const trimmedPath = path.trim();
-    if (!trimmedPath) {
-      setError('Local path is required.');
+    if (!sourceCapability) {
+      setError('Select a local file or folder first.');
       return;
     }
 
@@ -89,22 +90,38 @@ export function KnowledgeIngestionSettings() {
     setError(null);
 
     const payload = {
-      path: trimmedPath,
+      source_capability: sourceCapability.token,
       recursive,
       chunk_size: Math.max(100, chunkSize || 1200),
       max_file_bytes: Math.max(1, maxFileMb || 10) * 1024 * 1024,
       source_label: sourceLabel.trim() || undefined,
+      async_mode: asyncMode,
+      sync_neo4j: syncNeo4j,
+      operation_id: crypto.randomUUID(),
     };
 
     try {
+      if (!window.electronAPI?.runLocalIngestion) {
+        throw new Error('Local ingestion is available only in the desktop application.');
+      }
+      const selectedDisplayName = sourceCapability.display_name;
+      setSourceCapability(null);
+      setActiveOperationId(payload.operation_id);
+      const response = await window.electronAPI.runLocalIngestion(payload);
+      setActiveOperationId(null);
       if (asyncMode) {
-        const response = await api.ingestion.startLocalAsync({ ...payload, sync_neo4j: syncNeo4j });
+        if (!('status' in response)) {
+          throw new Error('Desktop ingestion returned an invalid async response.');
+        }
         setAsyncId(response.ingestion_id);
-        setAsyncStatus({ status: 'running', source: trimmedPath, started_at: new Date().toISOString() });
+        setAsyncStatus({ status: 'running', source: selectedDisplayName, started_at: new Date().toISOString() });
         toast('Async ingestion started — polling for completion.', 'success');
         // Don't setRunning(false) — the polling effect will handle it.
       } else {
-        const result = await api.ingestion.startLocal(payload);
+        if ('status' in response) {
+          throw new Error('Desktop ingestion returned an invalid synchronous response.');
+        }
+        const result = response;
         setLastResult(result);
         setHistory((items) => [result, ...items.filter((item) => item.ingestion_id !== result.ingestion_id)].slice(0, 10));
         toast(`Ingestion complete: ${formatResultSummary(result)}`, 'success');
@@ -114,7 +131,33 @@ export function KnowledgeIngestionSettings() {
       const message = err instanceof Error ? err.message : 'Local ingestion failed.';
       setError(message);
       toast(message, 'error');
+      setActiveOperationId(null);
       setRunning(false);
+    }
+  };
+
+  const cancelIngestion = async () => {
+    if (!activeOperationId || !window.electronAPI?.cancelDesktopOperation) return;
+    const result = await window.electronAPI.cancelDesktopOperation(activeOperationId);
+    if (result.cancelled) {
+      setActiveOperationId(null);
+      toast('Ingestion cancellation requested.', 'success');
+    }
+  };
+
+  const chooseIngestionSource = async () => {
+    setError(null);
+    if (!window.electronAPI?.chooseIngestionSource) {
+      setError('Local ingestion is available only in the desktop application.');
+      return;
+    }
+    try {
+      const selected = await window.electronAPI.chooseIngestionSource();
+      if (selected) {
+        setSourceCapability(selected);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to select an ingestion source.');
     }
   };
 
@@ -170,12 +213,15 @@ export function KnowledgeIngestionSettings() {
               <div className="flex gap-2">
                 <Input
                   id="ingestion-path"
-                  value={path}
-                  onChange={(event) => setPath(event.target.value)}
-                  placeholder="C:/software/DataLogicEngine/corpus"
+                  value={sourceCapability?.display_name || ''}
+                  readOnly
+                  placeholder="No file or folder selected"
                   disabled={running}
                 />
-                <Button type="button" variant="outline" onClick={() => setPath('')} disabled={running || !path} aria-label="Clear local path">
+                <Button type="button" variant="outline" onClick={() => void chooseIngestionSource()} disabled={running} aria-label="Choose local ingestion source">
+                  Browse
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setSourceCapability(null)} disabled={running || !sourceCapability} aria-label="Clear local path">
                   Clear
                 </Button>
               </div>
@@ -276,10 +322,15 @@ export function KnowledgeIngestionSettings() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void startIngestion()} disabled={running || !path.trim()} className="bg-blue-600 hover:bg-blue-700" aria-label="Start local knowledge ingestion">
+              <Button onClick={() => void startIngestion()} disabled={running || !sourceCapability} className="bg-blue-600 hover:bg-blue-700" aria-label="Start local knowledge ingestion">
                 {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                 Start ingestion
               </Button>
+              {activeOperationId && (
+                <Button variant="outline" onClick={() => void cancelIngestion()} aria-label="Cancel local knowledge ingestion">
+                  Cancel ingestion
+                </Button>
+              )}
               <Button variant="outline" onClick={() => void loadHistory()} disabled={loadingHistory || running} aria-label="Refresh ingestion history">
                 <RefreshCw className={`mr-2 h-4 w-4 ${loadingHistory ? 'animate-spin' : ''}`} />
                 Refresh history

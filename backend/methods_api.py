@@ -8,8 +8,17 @@ of the Universal Knowledge Graph (UKG) system.
 
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
+from backend.auth.api_decorators import api_login_required
+from backend.utils.error_normalization import normalize_public_error_message
 
 methods_api = Blueprint('methods_api', __name__)
+
+
+@methods_api.before_request
+@api_login_required
+def require_methods_api_authentication():
+    """Require the canonical principal before any methods operation."""
+    return None
 
 @methods_api.route('/api/methods', methods=['GET'])
 def get_methods():
@@ -49,7 +58,7 @@ def get_methods():
         current_app.logger.error(f"Error getting methods: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting methods: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting methods"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -92,7 +101,7 @@ def get_method(node_id):
         current_app.logger.error(f"Error getting method: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting method: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting method"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -134,7 +143,7 @@ def find_cross_sector_methods():
         current_app.logger.error(f"Error finding cross-sector methods: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding cross-sector methods: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding cross-sector methods"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -176,7 +185,7 @@ def find_cross_pillar_methods():
         current_app.logger.error(f"Error finding cross-pillar methods: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding cross-pillar methods: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding cross-pillar methods"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -225,7 +234,7 @@ def create_method():
         current_app.logger.error(f"Error creating method: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating method: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating method"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -267,6 +276,6 @@ def create_hierarchy():
         current_app.logger.error(f"Error creating hierarchy: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating hierarchy: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating hierarchy"),
             'timestamp': datetime.now().isoformat()
         }), 500

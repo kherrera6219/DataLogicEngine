@@ -16,7 +16,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 apply_runtime_compatibility_patches()
 
 from app import app
+from backend.security.listener_policy import resolve_loopback_listener_host
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    listener_host = resolve_loopback_listener_host(os.environ.get("FLASK_RUN_HOST"))
+    app.run(host=listener_host, port=port)

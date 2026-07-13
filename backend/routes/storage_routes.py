@@ -18,6 +18,7 @@ from urllib.parse import unquote, urlparse
 
 from flask import Blueprint, jsonify, request
 from backend.auth.api_decorators import api_session_login_required
+from backend.security.desktop_ipc import require_desktop_ipc_capability
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
@@ -261,6 +262,9 @@ def get_desktop_metrics():
 @api_session_login_required
 def run_desktop_backup():
     """Create a one-click local backup archive in the selected folder."""
+    capability_error = require_desktop_ipc_capability("backup")
+    if capability_error:
+        return capability_error
     try:
         data = request.get_json(silent=True) or {}
         target_dir = data.get("target_dir") if isinstance(data.get("target_dir"), str) else None

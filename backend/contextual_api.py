@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from core.axes.axis_system import AxisSystem
+from backend.utils.error_normalization import normalize_public_error_message
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ def get_all_experts():
         logger.error(f"[{datetime.now()}] Error retrieving context experts: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Failed to retrieve context experts")
         }), 500
 
 @contextual_bp.route('/experts/<expert_id>', methods=['GET'])
@@ -54,7 +55,7 @@ def get_expert(expert_id):
         logger.error(f"[{datetime.now()}] Error retrieving context expert {expert_id}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Failed to retrieve context expert")
         }), 500
 
 @contextual_bp.route('/expertise-model/<expert_id>', methods=['GET'])
@@ -70,7 +71,7 @@ def get_expertise_model(expert_id):
         logger.error(f"[{datetime.now()}] Error retrieving expertise model for {expert_id}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Failed to retrieve expertise model")
         }), 500
 
 @contextual_bp.route('/by-sector/<sector_id>', methods=['GET'])
@@ -86,7 +87,7 @@ def get_experts_by_sector(sector_id):
         logger.error(f"[{datetime.now()}] Error retrieving context experts for sector {sector_id}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Failed to retrieve sector experts")
         }), 500
 
 @contextual_bp.route('/branch-structure', methods=['GET'])
@@ -103,5 +104,5 @@ def get_branch_structure():
         logger.error(f"[{datetime.now()}] Error retrieving branch structure: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Failed to retrieve branch structure")
         }), 500

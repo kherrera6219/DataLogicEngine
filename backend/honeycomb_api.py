@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 
 from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.utils.error_normalization import normalize_public_error_message
 
 honeycomb_api = Blueprint('honeycomb_api', __name__)
 
@@ -53,7 +54,7 @@ def generate_honeycomb():
         current_app.logger.error(f"Error generating honeycomb: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error generating honeycomb: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error generating honeycomb"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -89,7 +90,7 @@ def generate_sector_crosswalk():
         current_app.logger.error(f"Error generating sector crosswalk: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error generating sector crosswalk: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error generating sector crosswalk"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -127,7 +128,7 @@ def find_crosswalk_paths():
         current_app.logger.error(f"Error finding crosswalk paths: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding crosswalk paths: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding crosswalk paths"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -167,6 +168,6 @@ def create_connection():
         current_app.logger.error(f"Error creating honeycomb connection: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating honeycomb connection: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating honeycomb connection"),
             'timestamp': datetime.now().isoformat()
         }), 500

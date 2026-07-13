@@ -10,6 +10,7 @@ from flask import Blueprint, request, jsonify
 import logging
 import numpy as np
 from datetime import datetime
+from backend.utils.error_normalization import normalize_public_error_message
 
 # Create blueprint
 unified_mapping_api = Blueprint('unified_mapping_api', __name__)
@@ -62,7 +63,7 @@ def register_node():
         logger.error(f"[{datetime.now()}] Error registering node: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error registering node: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error registering node"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -93,7 +94,7 @@ def get_by_nuremberg(code):
         logger.error(f"[{datetime.now()}] Error finding nodes by Nuremberg code: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding nodes: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding nodes"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -124,7 +125,7 @@ def get_by_samgov(name):
         logger.error(f"[{datetime.now()}] Error finding nodes by SAM.gov name: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding nodes: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding nodes"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -170,7 +171,7 @@ def find_by_coordinates():
         logger.error(f"[{datetime.now()}] Error finding nodes by coordinates: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error finding nodes: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error finding nodes"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -209,6 +210,6 @@ def locate_in_memory():
         logger.error(f"[{datetime.now()}] Error locating data in memory: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error locating data: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error locating data"),
             'timestamp': datetime.now().isoformat()
         }), 500

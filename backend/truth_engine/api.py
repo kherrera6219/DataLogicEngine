@@ -9,6 +9,7 @@ import logging
 from typing import Optional, TYPE_CHECKING
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from functools import wraps
+from backend.auth.api_decorators import api_login_required
 
 if TYPE_CHECKING:
     from backend.truth_engine.truth_core.engine import TruthCoreEngine
@@ -19,6 +20,13 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 truth_api = Blueprint('truth_api', __name__)
+
+
+@truth_api.before_request
+@api_login_required
+def require_truth_api_authentication():
+    """Require the canonical principal before Truth Engine access."""
+    return None
 
 _truth_core: Optional['TruthCoreEngine'] = None  # type: ignore
 _truth_gate: Optional['TruthGateGateway'] = None  # type: ignore
@@ -260,8 +268,8 @@ async def process_session(session_id):
 
         return jsonify(result)
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 404
+    except ValueError:
+        return jsonify({'error': 'Truth session not found'}), 404
     except Exception as e:
         logger.error("Processing failed: %s", e)
         return jsonify({'error': 'Processing failed'}), 500

@@ -9,6 +9,7 @@ import logging
 import uuid
 from datetime import datetime, UTC
 from backend.auth.api_decorators import api_session_login_required
+from backend.utils.error_normalization import normalize_public_error_message
 try:
     from geopy.distance import geodesic
 except ImportError:
@@ -87,7 +88,7 @@ def get_locations():
         logger.error(f"Error getting locations: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting locations")
         }), 500
 
 @location_api.route('/<uid>', methods=['GET'])
@@ -128,7 +129,7 @@ def get_location(uid):
         logger.error(f"Error getting location {uid}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting location")
         }), 500
 
 @location_api.route('', methods=['POST'])
@@ -169,7 +170,7 @@ def create_location():
         logger.error(f"Error creating location: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error creating location")
         }), 500
 
 @location_api.route('/<uid>', methods=['PUT'])
@@ -220,7 +221,7 @@ def update_location(uid):
         logger.error(f"Error updating location {uid}: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error updating location")
         }), 500
 
 @location_api.route('/hierarchy', methods=['GET'])
@@ -263,7 +264,7 @@ def get_location_hierarchy():
         logger.error(f"Error getting location hierarchy: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error getting location hierarchy")
         }), 500
 
 def _build_location_hierarchy(location):
@@ -341,5 +342,5 @@ def find_nearest_locations():
         logger.error(f"Error finding nearest locations: {str(e)}")
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": normalize_public_error_message(str(e), "Error finding nearest locations")
         }), 500

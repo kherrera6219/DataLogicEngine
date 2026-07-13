@@ -277,6 +277,7 @@ def api_key_required(f):
         
         return jsonify({'error': 'Authentication required'}), 401
     
+    decorated.__dle_auth_guard__ = "gateway-api-key-or-session"
     return decorated
 
 
@@ -814,7 +815,7 @@ def list_providers():
     """List all providers (admin view)."""
     providers = LLMProvider.query.order_by(LLMProvider.priority).all()
     return jsonify({
-        'providers': [p.to_dict(include_key=True) for p in providers]
+        'providers': [p.to_dict(include_key=False) for p in providers]
     })
 
 
@@ -870,7 +871,7 @@ def get_provider(provider_id):
     if isinstance(parsed, tuple):
         return parsed
     provider = LLMProvider.query.get_or_404(parsed)
-    return jsonify(provider.to_dict(include_key=True))
+    return jsonify(provider.to_dict(include_key=False))
 
 
 @admin_bp.route('/providers/<provider_id>', methods=['PATCH'])

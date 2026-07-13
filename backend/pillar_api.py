@@ -9,12 +9,20 @@ and the dynamic mapping between pillar sublevels.
 import logging
 from flask import Blueprint, request, current_app
 from backend.middleware import api_response
+from backend.auth.api_decorators import api_login_required
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Create Blueprint for Pillar API
 pillar_api = Blueprint('pillar_api', __name__)
+
+
+@pillar_api.before_request
+@api_login_required
+def require_pillar_api_authentication():
+    """Require the canonical principal before pillar reads or mutations."""
+    return None
 
 @pillar_api.route('/', methods=['GET'])
 @api_response

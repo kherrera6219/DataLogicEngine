@@ -12,6 +12,9 @@ import os
 import tempfile
 from typing import Any
 
+from backend.security.dpapi_store import decrypt_data, encrypt_data
+from backend.security.windows_acl import ensure_restricted_user_acl
+
 
 DEFAULT_STORAGE_SETTINGS: dict[str, Any] = {
     "auto_start_databases": True,
@@ -27,6 +30,58 @@ DEFAULT_STORAGE_SETTINGS: dict[str, Any] = {
     "local_model_cache_ttl_days": 30,
     "local_model_cache_max_prompt_chars": 24000,
 }
+
+PROTECTED_CLOUD_SETTING_KEYS = frozenset(
+    {
+        "postgres_url",
+        "redis_url",
+        "neo4j_uri",
+        "pinecone_api_key",
+        "s3_access_key",
+        "s3_secret_key",
+    }
+)
+DPAPI_SETTING_PREFIX = "dpapi:v1:"
+
+
+def _production_desktop_mode() -> bool:
+    return (
+        os.environ.get("FLASK_ENV", "").lower() == "production"
+        and os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+    )
+
+
+def _protect_cloud_settings(cloud: Any) -> dict[str, Any]:
+    if not isinstance(cloud, dict):
+        return {}
+    protected = dict(cloud)
+    for key in PROTECTED_CLOUD_SETTING_KEYS:
+        value = protected.get(key)
+        if value is None or value == "":
+            continue
+        text = str(value)
+        if text.startswith(DPAPI_SETTING_PREFIX):
+            continue
+        encrypted = encrypt_data(text)
+        if not encrypted:
+            raise RuntimeError(f"DPAPI is required to persist protected storage setting {key}")
+        protected[key] = f"{DPAPI_SETTING_PREFIX}{encrypted}"
+    return protected
+
+
+def _unprotect_cloud_settings(cloud: Any) -> dict[str, Any]:
+    if not isinstance(cloud, dict):
+        return {}
+    unprotected = dict(cloud)
+    for key in PROTECTED_CLOUD_SETTING_KEYS:
+        value = unprotected.get(key)
+        if not isinstance(value, str) or not value.startswith(DPAPI_SETTING_PREFIX):
+            continue
+        decrypted = decrypt_data(value.removeprefix(DPAPI_SETTING_PREFIX))
+        if not decrypted:
+            raise RuntimeError(f"Protected storage setting {key} could not be decrypted")
+        unprotected[key] = decrypted
+    return unprotected
 
 
 def _settings_file_path() -> str:
@@ -63,6 +118,7 @@ def load_storage_settings() -> dict[str, Any]:
         # Keep defaults on malformed or unreadable files.
         return settings
 
+    settings["cloud_config"] = _unprotect_cloud_settings(settings.get("cloud_config"))
     settings["auto_start_databases"] = bool(settings.get("auto_start_databases", True))
     settings["local_slm_audit_mode"] = bool(settings.get("local_slm_audit_mode", True))
     settings["offline_queue_enabled"] = bool(settings.get("offline_queue_enabled", True))
@@ -82,6 +138,7 @@ def save_storage_settings(settings: dict[str, Any]) -> dict[str, Any]:
     """Persist runtime settings to disk and return normalized settings."""
     normalized = dict(DEFAULT_STORAGE_SETTINGS)
     normalized.update(settings)
+    normalized["cloud_config"] = _protect_cloud_settings(normalized.get("cloud_config"))
     normalized["auto_start_databases"] = bool(normalized.get("auto_start_databases", True))
     normalized["local_slm_audit_mode"] = bool(normalized.get("local_slm_audit_mode", True))
     normalized["offline_queue_enabled"] = bool(normalized.get("offline_queue_enabled", True))
@@ -107,6 +164,11 @@ def save_storage_settings(settings: dict[str, Any]) -> dict[str, Any]:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(normalized, handle, indent=2)
         os.replace(tmp_path, path)
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
+        ensure_restricted_user_acl(path, required=_production_desktop_mode())
     except Exception:
         try:
             os.unlink(tmp_path)

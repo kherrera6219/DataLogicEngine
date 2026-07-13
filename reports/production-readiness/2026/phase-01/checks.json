@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.1.0",
+  "captured_at": "2026-07-13T10:42:00-07:00",
+  "checkpoints": {
+    "CP1-A": "pass",
+    "CP1-B": "pass",
+    "CP1-C": "pass",
+    "CP1-D": "pass",
+    "CP1-E": "pass",
+    "CP1-F": "pass"
+  },
+  "checks": [
+    {
+      "command": "python scripts/verify_route_manifest.py --fail-unclassified",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "424 Flask routes plus GraphQL, IPC, MCP, file, and network inventories; 0 unclassified; 0 mutations without authentication evidence"
+    },
+    {
+      "command": "python scripts/verify_public_error_contracts.py",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "353 Python files scanned; 0 public exception-disclosure findings"
+    },
+    {
+      "command": "python scripts/verify_electron_security.py --require-packaged-renderer",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "2 windows and 19 typed IPC channels; fresh packaged renderer/main/preload; 0 findings"
+    },
+    {
+      "command": "python scripts/verify_secret_storage.py",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "DPAPI/safeStorage, ACL, rotation, packaged dotenv migration, provider response, and KEK log controls pass"
+    },
+    {
+      "command": "python -m pytest tests/security tests/integration_routes -q",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "398 passed; 17 existing SQLAlchemy Query.get legacy warnings"
+    },
+    {
+      "command": "python -m pytest tests/unit/test_phase3_api_surface_governance.py -q",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "6 passed"
+    },
+    {
+      "command": "npm frontend typecheck, lint, API unit tests, production build, and Electron build",
+      "exit_code": 0,
+      "result": "pass_with_warning",
+      "summary": "TypeScript/builds pass; 81 API tests and 13 focused settings tests pass; lint has 1 pre-existing warning"
+    },
+    {
+      "command": "gh api repos/kherrera6219/DataLogicEngine/code-scanning/alerts?state=open",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "0 open GitHub code-scanning alerts"
+    },
+    {
+      "command": "python scripts/verify_docs_references.py",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "0 errors; 46 pre-existing style warnings"
+    }
+  ],
+  "overall": "phase_complete"
+}

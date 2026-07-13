@@ -9,6 +9,7 @@ All endpoints follow RESTful conventions and return consistent JSON responses.
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime, UTC
 import logging
+from backend.utils.error_normalization import normalize_public_error_message
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -52,7 +53,11 @@ def get_graph_stats():
         return success_response(stats)
     except Exception as e:
         logger.error(f"Error getting graph stats: {str(e)}")
-        return error_response(f"Error getting graph stats: {str(e)}", "INTERNAL_ERROR", 500)
+        return error_response(
+            normalize_public_error_message(str(e), "Error getting graph stats"),
+            "INTERNAL_ERROR",
+            500,
+        )
 
 # Pillar Level endpoints - DEPRECATED: Handled by pillar_api.py
 
@@ -91,7 +96,11 @@ def process_query():
         return success_response(result)
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
-        return error_response(f"Error processing query: {str(e)}", "QUERY_ERROR", 500)
+        return error_response(
+            normalize_public_error_message(str(e), "Error processing query"),
+            "QUERY_ERROR",
+            500,
+        )
 
 # Simulation endpoints - DEPRECATED: Handled by routes/simulation_routes.py
 

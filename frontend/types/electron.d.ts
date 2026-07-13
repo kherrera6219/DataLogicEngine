@@ -1,4 +1,4 @@
-import type { KAExecutionFeed } from '../lib/api/types';
+import type { IngestionResult, KAExecutionFeed } from '../lib/api/types';
 
 export interface DesktopUpdateState {
   enabled: boolean;
@@ -110,6 +110,27 @@ export interface DesktopBackupResult {
   manifest: Record<string, unknown>;
 }
 
+export interface DesktopPathCapability {
+  token: string;
+  display_name: string;
+  expires_at: string;
+}
+
+export interface DesktopIngestionRequest {
+  source_capability: string;
+  recursive: boolean;
+  chunk_size: number;
+  max_file_bytes: number;
+  source_label?: string;
+  async_mode: boolean;
+  sync_neo4j: boolean;
+  operation_id: string;
+}
+
+export type DesktopIngestionResult =
+  | IngestionResult
+  | { ingestion_id: string; status: string };
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
@@ -122,8 +143,11 @@ export interface ElectronAPI {
   getReasoningLayerProgress: () => Promise<ReasoningLayerProgress>;
   getKAExecutionFeed: () => Promise<KAExecutionFeed>;
   getDesktopStorageMetrics: () => Promise<DesktopStorageMetrics | null>;
-  chooseBackupFolder: () => Promise<string | null>;
-  runDatabaseBackup: (payload?: { target_dir?: string }) => Promise<DesktopBackupResult>;
+  chooseBackupFolder: () => Promise<DesktopPathCapability | null>;
+  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string }) => Promise<DesktopBackupResult>;
+  chooseIngestionSource: () => Promise<DesktopPathCapability | null>;
+  runLocalIngestion: (payload: DesktopIngestionRequest) => Promise<DesktopIngestionResult>;
+  cancelDesktopOperation: (operationId: string) => Promise<{ cancelled: boolean }>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

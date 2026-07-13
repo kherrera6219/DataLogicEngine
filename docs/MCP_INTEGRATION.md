@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.2.0 |
-| Last updated | 2026-07-06 |
+| Document version | v1.3.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering + Connector Governance |
 | Review cadence | Every 30 days |
@@ -413,12 +413,16 @@ MCP_PROTOCOL_VERSION = os.environ.get('MCP_PROTOCOL_VERSION', '2024-11-05')
 
 ## Security Considerations
 
-1. **Authentication**: MCP routes use the current API decorator policy (`@api_session_login_required`, `@api_login_required`, and `@api_admin_required` compatibility alias depending on endpoint behavior).
-2. **Authorization and scopes**: connector execution enforces MCP/connector scopes such as `mcp:execute` and connector-specific read/write scopes.
+1. **Authentication**: MCP inventory/configuration and owner operations use the desktop/session boundary; external keys are accepted only where explicitly designed.
+2. **Authorization and scopes**: REST and JSON-RPC execution context is server-owned. Caller-supplied user, tenant, role, admin, or scope fields are rejected. Missing scope context fails closed; external keys receive only scopes present in their permissions.
 3. **Owner operations**: setup-default, dynamic server start/stop, config writes, and delete operations are owner/admin-style actions under the current single-owner desktop model.
 4. **Input Validation**: JSON schema validation is required for tool arguments.
 5. **Error Handling**: error responses must avoid sensitive exception disclosure.
 6. **Rate Limiting**: production web/cloud deployments should keep MCP endpoints behind the same rate/resource controls as other API routes.
+
+The current JSON-RPC method inventory is generated into the Phase 1 route
+manifest. `initialize`, list operations, and tool calls all execute with the
+authenticated server principal rather than request-body identity claims.
 
 ## Performance
 
@@ -491,6 +495,11 @@ For issues or questions:
 2. Review this documentation
 3. Consult ARCHITECTURE.md for system overview
 4. Follow the escalation path in `docs/OPERATIONAL_RUNBOOKS.md`
+
+## Change notes for v1.3.0
+
+1. Documented server-owned MCP identity/scope context and fail-closed missing-scope behavior.
+2. Corrected owner/admin authentication language after external API keys were excluded from the admin decorator.
 
 ## Change notes for v1.2.0
 

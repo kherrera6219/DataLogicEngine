@@ -94,10 +94,11 @@ class EncryptionManager:
         kek_secret = os.environ.get('ENCRYPTION_KEK_SECRET')
 
         if not kek_secret:
+            if os.environ.get("FLASK_ENV", "").lower() == "production":
+                raise RuntimeError("ENCRYPTION_KEK_SECRET is required in production")
             # Generate a strong random secret (for development only)
             kek_secret = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
             logger.warning("Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!")
-            logger.warning(f"Add to .env: ENCRYPTION_KEK_SECRET={kek_secret}")
 
         # Derive KEK from secret using PBKDF2
         salt = self._get_or_create_salt()
@@ -169,22 +170,11 @@ class EncryptionManager:
             encrypted_dek = base64.b64decode(current_key_entry["encrypted_key"])
             dek = self._kek.decrypt(encrypted_dek)
             return dek
-        except Exception as e:
-            # KEK changed or DEK corrupted - need to regenerate
-            logger.warning(f"Failed to decrypt DEK (KEK may have changed): {e}")
-            logger.warning("Regenerating encryption keys. Old encrypted data may be unrecoverable.")
-            
-            # Clear old keys and create new one
-            self.dek_registry["keys"] = []
-            self.dek_registry["current_version"] = 1
-            self._save_dek_registry()
-            
-            self._log_audit("key_regeneration", {
-                "reason": "dek_decryption_failed",
-                "error": str(e)
-            })
-            
-            return self._rotate_dek()
+        except Exception as exc:
+            logger.error("Failed to decrypt the existing DEK registry; refusing destructive key regeneration")
+            raise RuntimeError(
+                "Unable to decrypt the existing DEK registry; restore the correct ENCRYPTION_KEK_SECRET"
+            ) from exc
 
     def _rotate_dek(self) -> bytes:
         """

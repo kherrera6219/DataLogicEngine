@@ -22,7 +22,7 @@ from backend.security.dpapi_store import decrypt_data, is_available as dpapi_ava
 
 logger = logging.getLogger(__name__)
 
-SECURE_SECRET_SOURCES = {"file", "json_store", "dpapi", "keyring"}
+SECURE_SECRET_SOURCES = {"file", "json_store", "dpapi", "keyring", "desktop_handoff"}
 
 
 def _env_truthy(name: str, default: bool) -> bool:
@@ -113,7 +113,11 @@ def resolve_secret_with_source(
     if allow_plaintext_env:
         plain = os.environ.get(secret_name)
         if plain is not None and str(plain).strip():
-            return str(plain).strip(), "env"
+            desktop_handoff = (
+                os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+                and _env_truthy("DLE_DESKTOP_SECRET_HANDOFF", False)
+            )
+            return str(plain).strip(), "desktop_handoff" if desktop_handoff else "env"
 
     if default is not None and str(default).strip():
         return str(default).strip(), "default"

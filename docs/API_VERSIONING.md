@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture + API Governance |
 | Review cadence | Every 60 days |
@@ -187,6 +187,25 @@ Required checks for canonical `/api/v1/*` changes:
 ---
 
 ## Release governance
+
+### Phase 1 security-baseline rule
+
+The 2026 production-completion baseline intentionally removes unsafe behavior
+without preserving it as compatibility: anonymous mutations, external-key
+owner/admin access, public diagnostic detail, caller-owned MCP identity/scope,
+raw exception strings, and renderer-supplied filesystem paths are not supported
+contracts. Clients must use the versioned gateway and documented principal
+tier. These trust-boundary corrections require contract tests and release notes
+but do not justify a compatibility alias for the insecure behavior.
+
+The generated route/surface manifest is versioned evidence. Any new route,
+GraphQL operation, IPC channel, MCP method, file capability, or listener must be
+classified before merge.
+
+## Change notes for v2.8.0
+
+1. Defined Phase 1 security corrections as non-compatible unsafe behavior rather than supported legacy contracts.
+2. Added non-HTTP surface classification to API governance.
 
 API versioning changes must be reflected in:
 

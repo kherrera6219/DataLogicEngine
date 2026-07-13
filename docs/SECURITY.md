@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Security Engineering |
 | Review cadence | Every 30 days |
@@ -133,9 +133,11 @@ Current controls:
 4. nonce TTL;
 5. HMAC-SHA256 challenge response;
 6. per-request HMAC signature;
-7. timestamp skew validation;
-8. constant-time signature comparison;
-9. desktop auto-login tests.
+7. unique per-request nonce with replay rejection;
+8. timestamp skew validation;
+9. constant-time signature comparison;
+10. main-process-only purpose signature for path-bearing backup/ingestion calls;
+11. desktop auto-login tests.
 
 Security rules:
 
@@ -173,7 +175,10 @@ Operational probes intentionally exposed without authentication:
 1. `/health`
 2. `/live`
 3. `/ready`
-4. `/metrics`
+
+`/metrics`, `/health/cache`, and `/api/v1/system/diagnostics/health` are
+authenticated diagnostic surfaces. Public `/health` does not include
+configuration, database, credential-source, or storage-detail fields.
 
 Canonical route policy:
 
@@ -235,7 +240,10 @@ Current data protection layers:
 2. Windows DPAPI helper for local protected data.
 3. local filesystem permissions/ACLs for app-owned databases and object stores.
 4. trace export hashing/signing/encryption options.
-5. provider/MCP credential storage through encrypted or secure-source paths where configured.
+5. provider and internal-service credential storage through DPAPI-protected values;
+6. Electron `safeStorage` for desktop-managed runtime secrets;
+7. restrictive current-user/System ACLs on secret and settings files;
+8. backup exclusion for `.env`, settings, logs, and secret/key material.
 
 Implementation notes:
 
@@ -248,6 +256,20 @@ Relevant implementation:
 - `backend/security/encryption_manager.py`
 - `backend/security/dpapi_store.py`
 - `backend/security/export_integrity.py`
+- `backend/security/windows_acl.py`
+- `docs/THREAT_MODEL.md`
+
+## Phase 1 trust-boundary closure
+
+The live surface inventory classifies Flask, GraphQL, Electron IPC, MCP, file,
+and listener surfaces. The desktop listener is loopback-only before Phase 8;
+untrusted Host/Origin values and proxy Host overrides fail closed. Electron uses
+typed preload capabilities, exact origin parsing, bounded schemas, timeouts,
+cancellation, and single-use path tokens. Provider egress is backend-only.
+
+Public errors use stable messages/codes and correlation metadata; raw exception
+details remain in redacted local logs. The authoritative threat analysis and
+residual risks are in `docs/THREAT_MODEL.md`.
 
 ---
 
@@ -451,6 +473,11 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Change notes for v2.8.0
+
+1. Documented Phase 1 listener, Electron, replay, DPAPI/ACL, backup, and public-error controls.
+2. Separated public-safe health from authenticated diagnostics and metrics.
 
 ## Change notes for v2.7.0
 

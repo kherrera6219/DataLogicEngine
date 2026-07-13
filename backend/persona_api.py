@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
 from backend.auth.api_decorators import api_session_login_required
+from backend.utils.error_normalization import normalize_public_error_message
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ def process_query():
         logger.error(f"Error processing query: {str(e)}")
         return jsonify({
             'error': 'Failed to process query',
-            'details': str(e)
+            'details': normalize_public_error_message(str(e), "Internal persona processing error")
         }), 500
 
 @persona_api.route('/direct-query', methods=['POST'])
@@ -117,7 +118,7 @@ def direct_query():
         logger.error(f"Error processing direct query: {str(e)}")
         return jsonify({
             'error': 'Failed to process query',
-            'details': str(e)
+            'details': normalize_public_error_message(str(e), "Internal direct-query error")
         }), 500
 
 @persona_api.route('/personas', methods=['GET'])
@@ -161,7 +162,7 @@ def get_personas():
         logger.error(f"Error getting personas: {str(e)}")
         return jsonify({
             'error': 'Failed to get personas',
-            'details': str(e)
+            'details': normalize_public_error_message(str(e), "Internal persona lookup error")
         }), 500
 
 @persona_api.route('/axis-map', methods=['GET'])
@@ -198,5 +199,5 @@ def get_axis_map():
         logger.error(f"Error getting axis map: {str(e)}")
         return jsonify({
             'error': 'Failed to get axis map',
-            'details': str(e)
+            'details': normalize_public_error_message(str(e), "Internal axis-map error")
         }), 500

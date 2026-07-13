@@ -54,7 +54,7 @@ def test_openapi_spec_has_required_core_contracts() -> None:
         # /static/swagger.json removed � canonical spec is backend/api/specs/ukg_api_v3_2.yaml
         ("GET", "/live", None, {200}),
         ("GET", "/ready", None, {200, 503}),
-        ("GET", "/metrics", None, {200}),
+        ("GET", "/metrics", None, {401}),
         ("POST", "/api/v1/gateway/chat", {"messages": [{"role": "user", "content": "hi"}]}, {400, 401, 403}),
         ("POST", "/api/v1/gateway/chat/stream", {"messages": [{"role": "user", "content": "hi"}]}, {400, 401, 403}),
     ],

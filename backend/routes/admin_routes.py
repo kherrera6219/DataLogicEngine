@@ -140,6 +140,6 @@ def admin_health_check() -> Tuple[Response, int]:
         logger.error(f"Health check failed: {e}", exc_info=True)
         return success_response({
             "status": "unhealthy",
-            "error": str(e),
+            "error": "Administrative health check failed",
             "timestamp": datetime.now(UTC).isoformat()
         }, status_code=503)

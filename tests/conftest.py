@@ -20,6 +20,11 @@ os.environ['SESSION_TYPE'] = 'null' # Disable flask-session for tests if possibl
 # listening but a slow/unloadable model would otherwise add a 20s timeout per
 # persona axis.) Tests that exercise the LLM path set this flag themselves.
 os.environ['DSQP_LLM_ASSISTED'] = 'false'
+os.environ.setdefault('ENCRYPTION_KEK_SECRET', 'pytest-only-encryption-kek-secret-32-bytes')
+os.environ.setdefault(
+    'UKG_KEY_DIR',
+    str(Path(__file__).resolve().parent.parent / '.pytest_cache' / 'security_keys'),
+)
 
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent

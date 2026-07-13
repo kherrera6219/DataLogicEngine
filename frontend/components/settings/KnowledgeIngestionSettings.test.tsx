@@ -15,10 +15,25 @@ vi.mock('@/lib/api', () => ({
     ingestion: {
       supported: vi.fn(),
       history: vi.fn(),
-      startLocal: vi.fn(),
+      status: vi.fn(),
     },
   },
 }));
+
+function installElectronApi(overrides: Record<string, unknown> = {}) {
+  Object.defineProperty(window, 'electronAPI', {
+    configurable: true,
+    value: {
+      chooseIngestionSource: vi.fn().mockResolvedValue({
+        token: 'ingestion-token',
+        display_name: 'corpus',
+        expires_at: '2026-07-13T01:00:00Z',
+      }),
+      runLocalIngestion: vi.fn(),
+      ...overrides,
+    },
+  });
+}
 
 describe('KnowledgeIngestionSettings', () => {
   beforeEach(() => {
@@ -30,6 +45,7 @@ describe('KnowledgeIngestionSettings', () => {
       default_max_file_bytes: 10 * 1024 * 1024,
     });
     vi.mocked(api.ingestion.history).mockResolvedValue([]);
+    installElectronApi();
   });
 
   it('loads supported types and empty history', async () => {
@@ -43,7 +59,7 @@ describe('KnowledgeIngestionSettings', () => {
   });
 
   it('starts ingestion and records the latest result', async () => {
-    vi.mocked(api.ingestion.startLocal).mockResolvedValue({
+    const runLocalIngestion = vi.fn().mockResolvedValue({
       ingestion_id: 'run-1',
       source: 'C:/corpus',
       files_scanned: 1,
@@ -55,16 +71,18 @@ describe('KnowledgeIngestionSettings', () => {
       chunks: [],
       manifest_path: 'reports/ingestion/run-1.json',
     });
+    installElectronApi({ runLocalIngestion });
 
     render(<KnowledgeIngestionSettings />);
     await waitFor(() => expect(api.ingestion.supported).toHaveBeenCalled());
 
-    fireEvent.change(screen.getByLabelText('Local path'), { target: { value: 'C:/corpus' } });
+    fireEvent.click(screen.getByRole('button', { name: /choose local ingestion source/i }));
+    await waitFor(() => expect(screen.getByLabelText('Local path')).toHaveValue('corpus'));
     fireEvent.click(screen.getByRole('button', { name: /start local knowledge ingestion/i }));
 
     await waitFor(() => {
-      expect(api.ingestion.startLocal).toHaveBeenCalledWith(
-        expect.objectContaining({ path: 'C:/corpus', recursive: true })
+      expect(runLocalIngestion).toHaveBeenCalledWith(
+        expect.objectContaining({ source_capability: 'ingestion-token', recursive: true, operation_id: expect.any(String) })
       );
       expect(screen.getByText('Last ingestion')).toBeInTheDocument();
       expect(screen.getAllByText('1 files').length).toBeGreaterThan(0);
@@ -77,6 +95,7 @@ describe('KnowledgeIngestionSettings', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /start local knowledge ingestion/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /choose local ingestion source/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /refresh ingestion history/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /clear local path/i })).toBeInTheDocument();
       expect(screen.getByRole('switch', { name: /recursive folder scan/i })).toBeInTheDocument();

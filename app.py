@@ -33,6 +33,7 @@ from backend.security.secret_resolver import (
     is_secure_secret_source,
     resolve_runtime_secret,
 )
+from backend.auth.api_decorators import api_login_required, api_session_login_required
 
 # Initialize crash reporting provider (Sentry if configured) with fallback mode.
 initialize_crash_reporting(
@@ -123,6 +124,8 @@ if not RESOLVED_SESSION_SECRET:
         "Sessions will be invalidated on restart. Set SESSION_SECRET in .env for persistent sessions."
     )
 app.secret_key = RESOLVED_SESSION_SECRET
+if IS_DESKTOP_MODE and os.environ.get("TRUST_PROXY_HEADERS", "false").lower() == "true":
+    raise RuntimeError("Proxy-provided Host/protocol headers are disabled for the desktop listener")
 if os.environ.get("TRUST_PROXY_HEADERS", "false").lower() == "true":
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -316,6 +319,14 @@ def _request_hostname() -> str:
 def validate_trusted_host():
     """Reject untrusted Host values when a host policy is configured."""
     if IS_DESKTOP_MODE:
+        if _request_hostname() not in {"localhost", "127.0.0.1", "::1"}:
+            return jsonify(
+                {
+                    "error": "Untrusted desktop host",
+                    "success": False,
+                    "code": "UNTRUSTED_DESKTOP_HOST",
+                }
+            ), 400
         return None
 
     trusted_hosts = _trusted_hosts()
@@ -338,6 +349,33 @@ def validate_trusted_host():
                 "code": "UNTRUSTED_HOST",
             }
         ), 400
+    return None
+
+
+@app.before_request
+def validate_desktop_origin():
+    """Reject browser origins that cannot belong to the packaged/local renderer."""
+    if not IS_DESKTOP_MODE:
+        return None
+
+    origin = (request.headers.get("Origin") or "").strip().rstrip("/").lower()
+    if not origin:
+        return None
+
+    allowed_origins = {
+        "app://-",
+        "app://dashboard",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    }
+    if origin not in allowed_origins:
+        return jsonify(
+            {
+                "error": "Untrusted desktop origin",
+                "success": False,
+                "code": "UNTRUSTED_DESKTOP_ORIGIN",
+            }
+        ), 403
     return None
 
 
@@ -982,6 +1020,7 @@ _start_local_databases()
 
 
 @app.route('/api/v1/csp-report', methods=['POST'])
+@api_login_required
 def csp_report():
     """Receive and log Content-Security-Policy violation reports."""
     try:
@@ -1153,7 +1192,7 @@ def ready() -> tuple:
 
 @app.route("/health", methods=["GET"])
 def health() -> tuple:
-    """Lightweight health endpoint for runtime monitoring."""
+    """Public-safe health endpoint without configuration or data-store details."""
 
     config_state = _config_health()
     database_state = _database_health()
@@ -1169,15 +1208,29 @@ def health() -> tuple:
 
     payload = {
         "status": overall_status,
-        "config": config_state,
-        "database": database_state,
+        "service": "datalogicengine",
         "timestamp": datetime.now(UTC).isoformat(),
     }
 
     return jsonify(payload), http_status
 
 
+@app.route("/api/v1/system/diagnostics/health", methods=["GET"])
+@api_session_login_required
+def health_diagnostics() -> tuple:
+    """Authenticated desktop diagnostics separated from public health."""
+    return jsonify(
+        {
+            "status": "ok",
+            "config": _config_health(),
+            "database": _database_health(),
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    ), 200
+
+
 @app.route("/health/cache", methods=["GET"])
+@api_session_login_required
 def health_cache() -> tuple:
     """Redis liveness check for QC validation."""
     from backend.storage.connection_manager import get_connection_manager
@@ -1187,6 +1240,7 @@ def health_cache() -> tuple:
 
 
 @app.route("/metrics", methods=["GET"])
+@api_session_login_required
 def metrics() -> Response:
     """Canonical metrics endpoint for infrastructure scraping."""
     return Response(
@@ -1331,5 +1385,7 @@ if __name__ == '__main__':
         debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
     # Local `python app.py` defaults to loopback-only; production should use a WSGI server.
-    run_host = os.environ.get('FLASK_RUN_HOST', '127.0.0.1')
+    from backend.security.listener_policy import resolve_loopback_listener_host
+
+    run_host = resolve_loopback_listener_host(os.environ.get('FLASK_RUN_HOST'))
     app.run(host=run_host, port=DEFAULT_PORT, debug=debug_mode)

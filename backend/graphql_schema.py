@@ -1,8 +1,19 @@
 import graphene
 from graphene import ObjectType, String, Int, Float, List, Field, Boolean
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 from flask_login import current_user
 import logging
+import os
+from graphql import GraphQLError, parse
+from graphql.language.ast import (
+    FieldNode,
+    FragmentDefinitionNode,
+    FragmentSpreadNode,
+    InlineFragmentNode,
+    OperationDefinitionNode,
+    SelectionSetNode,
+)
+from backend.auth.api_decorators import api_login_required
 
 logger = logging.getLogger(__name__)
 
@@ -270,6 +281,113 @@ schema = graphene.Schema(query=Query, mutation=Mutation)
 
 # ============ Custom GraphQL View ============
 
+def _graphql_error(code: str, message: str, status: int = 400):
+    return jsonify({'errors': [{'code': code, 'message': message}]}), status
+
+
+def _bounded_graphql_limit(name: str, default: int, maximum: int) -> int:
+    raw = current_app.config.get(name, os.environ.get(name, default))
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        value = default
+    return max(1, min(value, maximum))
+
+
+def _selection_metrics(
+    selection_set: SelectionSetNode | None,
+    fragments: dict[str, FragmentDefinitionNode],
+    depth: int = 0,
+    visited_fragments: frozenset[str] = frozenset(),
+) -> tuple[int, int, bool]:
+    if selection_set is None:
+        return 0, depth, False
+    field_count = 0
+    max_depth = depth
+    has_introspection = False
+    for selection in selection_set.selections:
+        if isinstance(selection, FieldNode):
+            field_count += 1
+            field_depth = depth + 1
+            max_depth = max(max_depth, field_depth)
+            has_introspection = has_introspection or selection.name.value.startswith('__')
+            child_count, child_depth, child_introspection = _selection_metrics(
+                selection.selection_set,
+                fragments,
+                field_depth,
+                visited_fragments,
+            )
+            field_count += child_count
+            max_depth = max(max_depth, child_depth)
+            has_introspection = has_introspection or child_introspection
+        elif isinstance(selection, InlineFragmentNode):
+            child_count, child_depth, child_introspection = _selection_metrics(
+                selection.selection_set,
+                fragments,
+                depth,
+                visited_fragments,
+            )
+            field_count += child_count
+            max_depth = max(max_depth, child_depth)
+            has_introspection = has_introspection or child_introspection
+        elif isinstance(selection, FragmentSpreadNode):
+            name = selection.name.value
+            if name in visited_fragments or name not in fragments:
+                continue
+            child_count, child_depth, child_introspection = _selection_metrics(
+                fragments[name].selection_set,
+                fragments,
+                depth,
+                visited_fragments | {name},
+            )
+            field_count += child_count
+            max_depth = max(max_depth, child_depth)
+            has_introspection = has_introspection or child_introspection
+    return field_count, max_depth, has_introspection
+
+
+def _validate_graphql_query(query: str):
+    try:
+        document = parse(query)
+    except GraphQLError:
+        return _graphql_error('GRAPHQL_INVALID_QUERY', 'GraphQL query is invalid')
+
+    fragments = {
+        definition.name.value: definition
+        for definition in document.definitions
+        if isinstance(definition, FragmentDefinitionNode)
+    }
+    field_count = 0
+    max_depth = 0
+    has_introspection = False
+    for definition in document.definitions:
+        if not isinstance(definition, OperationDefinitionNode):
+            continue
+        count, depth, introspection = _selection_metrics(
+            definition.selection_set,
+            fragments,
+        )
+        field_count += count
+        max_depth = max(max_depth, depth)
+        has_introspection = has_introspection or introspection
+
+    allow_introspection = current_app.config.get('GRAPHQL_ALLOW_INTROSPECTION')
+    if allow_introspection is None:
+        allow_introspection = os.environ.get('FLASK_ENV', 'production') != 'production'
+    if has_introspection and not bool(allow_introspection):
+        return _graphql_error(
+            'GRAPHQL_INTROSPECTION_DISABLED',
+            'GraphQL introspection is disabled',
+        )
+    if max_depth > _bounded_graphql_limit('GRAPHQL_MAX_DEPTH', 8, 32):
+        return _graphql_error('GRAPHQL_DEPTH_EXCEEDED', 'GraphQL query depth exceeds the limit')
+    if field_count > _bounded_graphql_limit('GRAPHQL_MAX_FIELDS', 100, 1000):
+        return _graphql_error(
+            'GRAPHQL_COMPLEXITY_EXCEEDED',
+            'GraphQL query complexity exceeds the limit',
+        )
+    return None
+
 def graphql_view():
     """Custom GraphQL view to handle requests without flask-graphql."""
     if request.method == 'GET':
@@ -282,6 +400,9 @@ def graphql_view():
     
     query = data.get('query')
     variables = data.get('variables')
+    validation_error = _validate_graphql_query(query)
+    if validation_error:
+        return validation_error
     
     result = schema.execute(query, variable_values=variables)
     
@@ -289,7 +410,12 @@ def graphql_view():
     if result.data:
         response_data['data'] = result.data
     if result.errors:
-        response_data['errors'] = [{'message': str(error)} for error in result.errors]
+        for error in result.errors:
+            logger.warning("GraphQL execution error", exc_info=error)
+        response_data['errors'] = [{
+            'code': 'GRAPHQL_EXECUTION_FAILED',
+            'message': 'GraphQL execution failed',
+        }]
         
     return jsonify(response_data)
 
@@ -297,6 +423,13 @@ def graphql_view():
 # ============ Blueprint Registration ============
 
 graphql_bp = Blueprint('graphql', __name__)
+
+
+@graphql_bp.before_request
+@api_login_required
+def require_graphql_authentication():
+    """Require a server-authenticated principal for GraphQL operations."""
+    return None
 
 @graphql_bp.route('/graphql', methods=['GET', 'POST'])
 def handle_graphql():

@@ -85,4 +85,4 @@ def cleanup_tenant_data():
         
     except Exception as e:
         logger.error(f"Error cleaning up tenant {target_tenant_id}: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({"success": False, "error": "Tenant cleanup failed"}), 500

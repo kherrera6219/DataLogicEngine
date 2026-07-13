@@ -2,17 +2,25 @@ import importlib
 
 import pytest
 
+from tests.conftest import seed_login_session
+
 
 @pytest.fixture
 def client(monkeypatch):
     monkeypatch.setenv("FLASK_ENV", "testing")
     monkeypatch.setenv("SECRET_KEY", "test-secret-key")
     monkeypatch.setenv("SESSION_SECRET", "test-session-secret")
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
     app_module = importlib.import_module("app")
     importlib.reload(app_module)
     app = app_module.app
     app.testing = True
+    from extensions import db
+
+    with app.app_context():
+        db.create_all()
     with app.test_client() as test_client:
+        seed_login_session(test_client, app, username="health_metrics_owner")
         yield test_client
 
 
@@ -22,6 +30,15 @@ def test_health_endpoint_reports_ok_status(client):
 
     payload = response.get_json()
     assert payload["status"] in {"ok", "degraded"}
+    assert payload["service"] == "datalogicengine"
+    assert "config" not in payload
+    assert "database" not in payload
+
+
+def test_authenticated_health_diagnostics_include_runtime_details(client):
+    response = client.get("/api/v1/system/diagnostics/health")
+    assert response.status_code == 200
+    payload = response.get_json()
     assert payload["config"]["environment"] == "testing"
     assert payload["database"]["status"] == "ok"
 

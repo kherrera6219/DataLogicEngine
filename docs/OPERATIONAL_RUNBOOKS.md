@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | SRE + Security Operations |
 | Review cadence | Every 30 days |
@@ -234,12 +234,12 @@ Relevant test areas:
 **Default severity:** `SEV-2`; upgrade to `SEV-1` if cloud mode accepts desktop trust.
 
 1. Confirm runtime mode: local, hybrid, or cloud.
-2. Confirm request origin is loopback/Electron as expected.
-3. Check desktop install secret exists and is readable by the app user.
-4. Validate nonce challenge, nonce TTL, timestamp skew, and HMAC signature.
-5. Confirm constant-time comparison path is used.
-6. Check frontend runtime policy and AuthContext behavior.
-7. Re-run desktop auto-login security tests.
+2. Confirm the listener is bound to loopback and Host/Origin are approved.
+3. Check the protected desktop install secret exists and its ACL grants only the current user and LocalSystem.
+4. Validate challenge nonce TTL, per-request nonce replay state, timestamp skew, and HMAC signatures.
+5. If the secret is unreadable or expired, close the app, retain the encrypted file for incident evidence, and let the desktop rotate/recover it on the next controlled start. Existing sessions will be invalidated.
+6. Confirm constant-time comparison and main-process IPC capability signatures are used.
+7. Re-run desktop auto-login, listener, Electron, and secret-storage security tests.
 
 Relevant files:
 
@@ -468,6 +468,26 @@ Relevant files:
 
 ---
 
+## Incident 17: Electron file capability, secret, or listener boundary failure
+
+**Trigger:** expired/invalid picker token, renderer path submission, failed ACL,
+secret value in a log/backup, untrusted Host/Origin, or attempted non-loopback bind.
+
+**Default severity:** `SEV-1` for secret disclosure or listener exposure;
+otherwise `SEV-2`.
+
+1. Stop the desktop backend and preserve redacted evidence.
+2. Do not work around the failure with `0.0.0.0`, wildcard CORS, disabled web
+   security, plaintext `.env`, or relaxed ACLs.
+3. Run the four Phase 1 mandatory gates and the focused network/secret suites.
+4. Verify picker tokens are single-use/expiring and path operations carry the
+   main-process purpose signature.
+5. Verify provider/internal credentials remain DPAPI-protected and the backup
+   contains none of `.env`, settings, logs, secret, or key files.
+6. Private listener requests remain blocked until Phase 8 qualification.
+
+---
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.
@@ -482,6 +502,10 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.8.0
+
+1. Added replay/rotation recovery steps and the Electron file/secret/listener incident runbook.
 
 ## Change notes for v2.7.0
 

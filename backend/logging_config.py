@@ -45,6 +45,18 @@ def _redact_text_for_logging(text: str) -> str:
         except re.error:
             # Ignore malformed patterns in logging path; preserve availability.
             continue
+    secret_patterns = (
+        (r"(?i)\b(bearer\s+)[A-Za-z0-9._~+/=-]{8,}", r"\1[REDACTED_SECRET]"),
+        (
+            r"(?i)\b((?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*)[^\s,;]+",
+            r"\1[REDACTED_SECRET]",
+        ),
+        (r"\bsk-[A-Za-z0-9_-]{16,}\b", "[REDACTED_SECRET]"),
+        (r"\bAIza[A-Za-z0-9_-]{20,}\b", "[REDACTED_SECRET]"),
+        (r"\bukg_[A-Za-z0-9_-]{16,}\b", "[REDACTED_SECRET]"),
+    )
+    for pattern, replacement in secret_patterns:
+        redacted = re.sub(pattern, replacement, redacted)
     return redacted
 
 
@@ -52,7 +64,14 @@ def _redact_value_for_logging(value):
     if isinstance(value, str):
         return _redact_text_for_logging(value)
     if isinstance(value, dict):
-        return {key: _redact_value_for_logging(item) for key, item in value.items()}
+        return {
+            key: (
+                "[REDACTED_SECRET]"
+                if re.search(r"(?i)(password|secret|token|api[_-]?key|authorization)", str(key))
+                else _redact_value_for_logging(item)
+            )
+            for key, item in value.items()
+        }
     if isinstance(value, list):
         return [_redact_value_for_logging(item) for item in value]
     return value

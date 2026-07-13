@@ -56,7 +56,7 @@ def get_compliance_standards():
         current_app.logger.error(f"Error getting compliance standards: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting compliance standards: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting compliance standards"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -162,7 +162,7 @@ def get_compliance_standard(standard_id):
         current_app.logger.error(f"Error getting compliance standard: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting compliance standard: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting compliance standard"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -185,7 +185,7 @@ def get_sector_compliance(sector_id):
         current_app.logger.error(f"Error getting sector compliance: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error getting sector compliance: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error getting sector compliance"),
             'timestamp': datetime.now().isoformat()
         }), 500
 

@@ -110,24 +110,24 @@ def _required_tool_scopes(tool: MCPTool) -> list[str]:
 
 def _build_tool_execution_context() -> dict:
     user = get_authenticated_principal()
-    tenant_id = getattr(user, "tenant_id", None) or request.headers.get("X-Tenant-ID")
-    # Single-mode / OS-level auth: the one OS user is the owner.
-    role = "owner"
-    roles = {role}
-
-    # Single-mode / OS-level auth (auth deprecation Phase B, 2026-06-13): the one OS
-    # user is the owner with full access — grant all MCP connector scopes
-    # unconditionally rather than deriving them from the removed RBAC layer.
-    scopes: set[str] = {"mcp:execute", "connector:*:read", "connector:*:write", "*"}
-    is_admin = True
+    tenant_id = getattr(user, "tenant_id", None)
 
     api_key = getattr(g, "external_api_key", None)
     if api_key is not None:
         permissions = api_key.permissions if isinstance(api_key.permissions, dict) else {}
-        scopes.update(normalize_scopes(permissions.get("connector_scopes")))
-
-    if is_admin:
-        scopes.add("*")
+        scopes = normalize_scopes(permissions.get("connector_scopes"))
+        if permissions.get("mcp_execute"):
+            scopes.add("mcp:execute")
+        is_admin = bool(permissions.get("admin"))
+        roles = {"external-client"}
+        if is_admin:
+            scopes.add("*")
+            roles.add("admin")
+    else:
+        # The authenticated Windows owner receives the local desktop authority.
+        roles = {"owner"}
+        scopes = {"mcp:execute", "connector:*:read", "connector:*:write", "*"}
+        is_admin = True
 
     return {
         "user_id": str(getattr(user, "id", "")),
@@ -138,13 +138,46 @@ def _build_tool_execution_context() -> dict:
     }
 
 
+_CALLER_IDENTITY_CONTEXT_FIELDS = {
+    "user_id", "tenant_id", "role", "roles", "scope", "scopes", "is_admin"
+}
+
+
+def _caller_supplied_identity_context(payload: dict) -> bool:
+    params = payload.get("params") if isinstance(payload, dict) else None
+    context = params.get("context") if isinstance(params, dict) else None
+    return isinstance(context, dict) and bool(_CALLER_IDENTITY_CONTEXT_FIELDS & context.keys())
+
+
+def _without_caller_context(payload: dict) -> dict:
+    sanitized = dict(payload)
+    params = payload.get("params")
+    if isinstance(params, dict):
+        sanitized_params = dict(params)
+        sanitized_params.pop("context", None)
+        sanitized["params"] = sanitized_params
+    return sanitized
+
+
 @mcp_bp.route('/rpc', methods=['POST'])
 @api_session_login_required
 def mcp_rpc():
     """Handle active MCP JSON-RPC requests, including sampling and subscriptions."""
     try:
         payload = request.get_json() or {}
-        response = run_async(MCPRouter().handle_message(payload))
+        if _caller_supplied_identity_context(payload):
+            return jsonify({
+                "jsonrpc": "2.0",
+                "id": payload.get("id"),
+                "error": {
+                    "code": "MCP_CALLER_CONTEXT_REJECTED",
+                    "message": "Caller-supplied identity context is not allowed",
+                },
+            }), 400
+        response = run_async(MCPRouter().handle_message(
+            _without_caller_context(payload),
+            execution_context=_build_tool_execution_context(),
+        ))
         return jsonify(response), 200
     except Exception as exc:
         logger.error("MCP RPC failed: %s", exc)
@@ -431,6 +464,14 @@ def call_tool(server_id, tool_id):
             }), 404
 
         data = request.get_json(silent=True) or {}
+        if isinstance(data.get('context'), dict) and (
+            _CALLER_IDENTITY_CONTEXT_FIELDS & data['context'].keys()
+        ):
+            return jsonify({
+                'success': False,
+                'error': 'Caller-supplied identity context is not allowed',
+                'code': 'MCP_CALLER_CONTEXT_REJECTED',
+            }), 400
         arguments = data.get('arguments', {})
         connector_id = infer_connector_id(tool.name)
 
@@ -448,7 +489,7 @@ def call_tool(server_id, tool_id):
             logger.warning("MCP scope enforcement denied tool call for %s: %s", tool.name, scope_error)
             return jsonify({
                 'success': False,
-                'error': str(scope_error),
+                'error': 'MCP scope denied',
                 'code': 'MCP_SCOPE_DENIED',
                 'required_scopes': sorted(required_scopes),
             }), 403

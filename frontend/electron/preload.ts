@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 const IPC_TIMEOUT = 5000; // 5 second timeout for most IPC calls
+const IPC_CHANNEL_TIMEOUTS = new Map<string, number>([
+  ['run-database-backup', 10 * 60 * 1000],
+  ['run-local-ingestion', 30 * 60 * 1000],
+]);
 const ALLOWED_INVOKE_CHANNELS = new Set([
   'ping',
   'get-backend-status',
@@ -15,6 +19,9 @@ const ALLOWED_INVOKE_CHANNELS = new Set([
   'get-desktop-storage-metrics',
   'choose-backup-folder',
   'run-database-backup',
+  'choose-ingestion-source',
+  'run-local-ingestion',
+  'cancel-desktop-operation',
   'get-update-state',
   'check-for-updates',
   'download-update',
@@ -39,8 +46,21 @@ async function invokeWithTimeout(channel: string, ...args: unknown[]) {
   }
 
   let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  const timeoutMs = IPC_CHANNEL_TIMEOUTS.get(channel) ?? IPC_TIMEOUT;
   const timeoutPromise = new Promise((_, reject) => {
-    timeoutHandle = setTimeout(() => reject(new Error(`IPC_TIMEOUT: ${channel} failed to respond within ${IPC_TIMEOUT}ms`)), IPC_TIMEOUT);
+    timeoutHandle = setTimeout(() => {
+      const payload = args[0];
+      if (
+        payload &&
+        typeof payload === 'object' &&
+        typeof (payload as { operation_id?: unknown }).operation_id === 'string'
+      ) {
+        void ipcRenderer.invoke('cancel-desktop-operation', {
+          operation_id: (payload as { operation_id: string }).operation_id,
+        });
+      }
+      reject(new Error(`IPC_TIMEOUT: ${channel} failed to respond within ${timeoutMs}ms`));
+    }, timeoutMs);
   });
 
   try {
@@ -73,7 +93,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getKAExecutionFeed: () => invokeWithTimeout('ka-execution-feed'),
   getDesktopStorageMetrics: () => invokeWithTimeout('get-desktop-storage-metrics'),
   chooseBackupFolder: () => invokeWithTimeout('choose-backup-folder'),
-  runDatabaseBackup: (payload: { target_dir?: string }) => invokeWithTimeout('run-database-backup', payload),
+  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string }) => invokeWithTimeout('run-database-backup', payload),
+  chooseIngestionSource: () => invokeWithTimeout('choose-ingestion-source'),
+  runLocalIngestion: (payload: {
+    source_capability: string;
+    recursive: boolean;
+    chunk_size: number;
+    max_file_bytes: number;
+    source_label?: string;
+    async_mode: boolean;
+    sync_neo4j: boolean;
+    operation_id: string;
+  }) => invokeWithTimeout('run-local-ingestion', payload),
+  cancelDesktopOperation: (operationId: string) => invokeWithTimeout('cancel-desktop-operation', { operation_id: operationId }),
   getUpdateState: () => invokeWithTimeout('get-update-state'),
   checkForUpdates: () => invokeWithTimeout('check-for-updates'),
   downloadUpdate: () => invokeWithTimeout('download-update'),

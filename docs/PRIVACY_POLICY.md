@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Effective date | 2026-05-30 |
 | Status | Active |
 | Owner | Privacy + Security Engineering |
@@ -134,14 +134,20 @@ Current protection measures include:
 1. local-first storage by default for desktop/VM mode;
 2. local filesystem permissions and ACLs where applicable;
 3. desktop local-auth controls for loopback/Electron runtime;
-4. Windows DPAPI helper for local protected data where available;
+4. Windows DPAPI protection for desktop install, provider, and saved internal-service credentials;
 5. field-level encryption where implemented by the application model/service layer;
 6. CSRF, CORS, trusted-host, rate-limit, and session controls for API routes;
 7. TruthGate and DMRF injection defense for governed AI flows;
 8. export integrity hashing/signing/encryption options;
-9. signed release workflow for public Windows distribution.
+9. signed release workflow for public Windows distribution;
+10. opaque Electron picker tokens so selected ingestion/backup paths are not exposed to the renderer;
+11. exclusion of `.env`, secret/settings files, logs, and key material from desktop backups.
 
 Implementation note: field-level encryption writes new payloads with AES-256-GCM; legacy Fernet-encrypted values remain decryptable for backward compatibility, and a Windows DPAPI helper protects local data.
+
+Provider content leaves the machine only through the backend when the user has
+configured a provider and initiates a governed request. The packaged renderer's
+content policy does not allow direct provider-network access.
 
 ## 10. Data retention
 
@@ -205,6 +211,10 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.8.0
+
+1. Added the Phase 1 DPAPI, renderer path-minimization, backup-exclusion, and backend-only provider-egress controls.
 
 ## Change notes for v2.7.0
 

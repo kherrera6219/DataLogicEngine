@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, session } f
 import type { IpcMainInvokeEvent, OpenDialogOptions } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, spawnSync, ChildProcess } from 'child_process';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
@@ -43,12 +43,25 @@ type StructuredMemoryStats = {
   last_recall_timestamp: string | null;
 };
 
-const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
+type PathCapability = {
+  path: string;
+  purpose: 'backup' | 'ingestion';
+  expiresAt: number;
+};
+
+type JsonRecord = Record<string, unknown>;
+
+const ALLOWED_IPC_WEB_ORIGINS = new Set(['http://localhost:3000', 'http://127.0.0.1:3000']);
+const ALLOWED_IPC_APP_HOSTS = new Set(['-', 'dashboard']);
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
 const AUTO_UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const BACKEND_HEALTH_TIMEOUT_MS = 60 * 1000;
 const MAX_BACKEND_RESTART_ATTEMPTS = 3;
+const DESKTOP_SECRET_ROTATION_DAYS = 180;
+const PATH_CAPABILITY_TTL_MS = 5 * 60 * 1000;
+const pathCapabilities = new Map<string, PathCapability>();
+const activeDesktopOperations = new Map<string, AbortController>();
 
 const updateState: UpdateState = {
   enabled: false,
@@ -83,6 +96,22 @@ function normalizeLogLine(raw: string): string {
   return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
 }
 
+function redactSecretsForLog(raw: string): string {
+  return raw
+    .replace(/\b(bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, '$1[REDACTED_SECRET]')
+    .replace(
+      /\b((?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*)[^\s,;]+/gi,
+      '$1[REDACTED_SECRET]',
+    )
+    .replace(/\bsk-[A-Za-z0-9_-]{16,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bAIza[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bukg_[A-Za-z0-9_-]{16,}\b/g, '[REDACTED_SECRET]');
+}
+
+function safeDesktopLogMessage(raw: string): string {
+  return redactSecretsForLog(normalizeLogLine(raw));
+}
+
 function secureDirectoryBestEffort(targetPath: string): void {
   try {
     fs.mkdirSync(targetPath, { recursive: true });
@@ -93,7 +122,7 @@ function secureDirectoryBestEffort(targetPath: string): void {
 }
 
 function appendDesktopLog(level: 'INFO' | 'WARN' | 'ERROR', rawMessage: string): void {
-  const message = normalizeLogLine(rawMessage);
+  const message = safeDesktopLogMessage(rawMessage);
   if (!message) {
     return;
   }
@@ -141,34 +170,94 @@ function readStoredDesktopSecret(secretPath: string): string | null {
 
 function persistDesktopSecret(secretPath: string, secret: string): void {
   const useSafeStorage = safeStorage.isEncryptionAvailable();
+  if (!useSafeStorage && app.isPackaged) {
+    throw new Error('Windows protected storage is required for packaged desktop secrets');
+  }
   const payload = useSafeStorage
     ? `${DESKTOP_SECRET_PREFIX}${safeStorage.encryptString(secret).toString('base64')}`
     : secret;
 
   secureDirectoryBestEffort(path.dirname(secretPath));
   fs.writeFileSync(secretPath, payload, { encoding: 'utf8', mode: 0o600 });
+  secureWindowsAclBestEffort(secretPath);
 }
 
-function loadOrCreatePlainSecretFile(secretName: string): string {
-  const secretPath = path.join(desktopSecretVaultDir(), `${secretName.toLowerCase()}.secret`);
+function loadOrCreateProtectedSecret(secretName: string): string {
+  const normalizedName = secretName.toLowerCase();
+  const secretPath = path.join(desktopSecretVaultDir(), `${normalizedName}.safe-storage`);
+  const legacyPlaintextPath = path.join(desktopSecretVaultDir(), `${normalizedName}.secret`);
 
   try {
-    const existing = fs.existsSync(secretPath)
-      ? fs.readFileSync(secretPath, 'utf8').trim()
-      : '';
+    const existing = readStoredDesktopSecret(secretPath);
     if (existing) {
-      return secretPath;
+      secureWindowsAclBestEffort(secretPath);
+      return existing;
+    }
+    if (fs.existsSync(legacyPlaintextPath)) {
+      const legacySecret = fs.readFileSync(legacyPlaintextPath, 'utf8').trim();
+      if (legacySecret) {
+        persistDesktopSecret(secretPath, legacySecret);
+        fs.rmSync(legacyPlaintextPath, { force: true });
+        return legacySecret;
+      }
     }
   } catch {
     appendDesktopLog('WARN', `Failed to read ${secretName} secret file; rotating desktop-managed secret.`);
   }
 
-  secureDirectoryBestEffort(path.dirname(secretPath));
-  fs.writeFileSync(secretPath, crypto.randomBytes(32).toString('hex'), {
-    encoding: 'utf8',
-    mode: 0o600,
-  });
-  return secretPath;
+  const generated = crypto.randomBytes(32).toString('hex');
+  persistDesktopSecret(secretPath, generated);
+  return generated;
+}
+
+function migrateAndLoadPackagedDotenvSecrets(runtimeDir: string): Record<string, string> {
+  const dotenvPath = path.join(runtimeDir, '.env');
+  const result: Record<string, string> = {};
+  const vaultDir = desktopSecretVaultDir();
+  secureDirectoryBestEffort(vaultDir);
+
+  if (fs.existsSync(dotenvPath)) {
+    const rewritten: string[] = [];
+    let migratedCount = 0;
+    for (const line of fs.readFileSync(dotenvPath, 'utf8').split(/\r?\n/)) {
+      const trimmed = line.trim();
+      const eqIdx = trimmed.indexOf('=');
+      if (!trimmed || trimmed.startsWith('#') || eqIdx <= 0) {
+        rewritten.push(line);
+        continue;
+      }
+      const key = trimmed.slice(0, eqIdx).trim();
+      const value = trimmed.slice(eqIdx + 1).trim();
+      const secretLike = /^[A-Z][A-Z0-9_]*$/.test(key) && /(KEY|SECRET|TOKEN|PASSWORD)/.test(key);
+      if (secretLike && value) {
+        persistDesktopSecret(path.join(vaultDir, `dotenv-${key}.safe-storage`), value);
+        result[key] = value;
+        rewritten.push(`${key}=`);
+        migratedCount += 1;
+      } else {
+        rewritten.push(line);
+      }
+    }
+    if (migratedCount > 0) {
+      fs.writeFileSync(dotenvPath, rewritten.join('\n'), { encoding: 'utf8', mode: 0o600 });
+      secureWindowsAclBestEffort(dotenvPath);
+      appendDesktopLog('INFO', `Migrated ${migratedCount} plaintext runtime secret value(s) into Windows protected storage.`);
+    }
+  }
+
+  if (fs.existsSync(vaultDir)) {
+    for (const filename of fs.readdirSync(vaultDir)) {
+      const match = /^dotenv-([A-Z][A-Z0-9_]*)\.safe-storage$/.exec(filename);
+      if (!match) {
+        continue;
+      }
+      const value = readStoredDesktopSecret(path.join(vaultDir, filename));
+      if (value) {
+        result[match[1]] = value;
+      }
+    }
+  }
+  return result;
 }
 
 function loadOrCreateDesktopInstallSecret(): string {
@@ -181,6 +270,13 @@ function loadOrCreateDesktopInstallSecret(): string {
   try {
     const existing = readStoredDesktopSecret(secretPath);
     if (existing) {
+      const ageMs = Math.max(0, Date.now() - fs.statSync(secretPath).mtimeMs);
+      if (ageMs >= DESKTOP_SECRET_ROTATION_DAYS * 24 * 60 * 60 * 1000) {
+        const rotated = crypto.randomBytes(32).toString('hex');
+        persistDesktopSecret(secretPath, rotated);
+        appendDesktopLog('INFO', 'Rotated the desktop install secret after its configured lifetime.');
+        return rotated;
+      }
       // Migrate plaintext to safeStorage-protected payload when available.
       const existingRaw = fs.readFileSync(secretPath, 'utf8').trim();
       if (
@@ -190,6 +286,7 @@ function loadOrCreateDesktopInstallSecret(): string {
       ) {
         persistDesktopSecret(secretPath, existing);
       }
+      secureWindowsAclBestEffort(secretPath);
       return existing;
     }
   } catch (error) {
@@ -324,6 +421,145 @@ function readHeaderValue(
   return null;
 }
 
+function secureWindowsAclBestEffort(targetPath: string): void {
+  if (os.platform() !== 'win32' || !fs.existsSync(targetPath)) {
+    return;
+  }
+  try {
+    const account = os.userInfo().username;
+    const inheritance = fs.statSync(targetPath).isDirectory() ? '(OI)(CI)' : '';
+    const result = spawnSync(
+      'icacls',
+      [
+        targetPath,
+        '/inheritance:r',
+        '/grant:r',
+        `${account}:${inheritance}F`,
+        '/grant:r',
+        `*S-1-5-18:${inheritance}F`,
+      ],
+      { encoding: 'utf8', windowsHide: true },
+    );
+    if (result.status !== 0) {
+      throw new Error('icacls returned a non-zero status');
+    }
+  } catch {
+    if (app.isPackaged) {
+      throw new Error('Unable to apply the required per-user ACL');
+    }
+  }
+}
+
+function issuePathCapability(selectedPath: string, purpose: PathCapability['purpose']) {
+  const canonicalPath = fs.realpathSync(selectedPath);
+  const token = crypto.randomBytes(32).toString('base64url');
+  const expiresAt = Date.now() + PATH_CAPABILITY_TTL_MS;
+  pathCapabilities.set(token, { path: canonicalPath, purpose, expiresAt });
+  return {
+    token,
+    display_name: path.basename(canonicalPath),
+    expires_at: new Date(expiresAt).toISOString(),
+  };
+}
+
+function consumePathCapability(token: string, purpose: PathCapability['purpose']): string {
+  const capability = pathCapabilities.get(token);
+  pathCapabilities.delete(token);
+  if (!capability || capability.purpose !== purpose || capability.expiresAt <= Date.now()) {
+    throw new Error('Selected path capability is invalid or expired');
+  }
+  return capability.path;
+}
+
+function requireJsonRecord(value: unknown, channel: string): JsonRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Blocked invalid IPC payload for channel "${channel}"`);
+  }
+  return value as JsonRecord;
+}
+
+function rejectUnknownKeys(payload: JsonRecord, allowedKeys: readonly string[], channel: string): void {
+  const unknownKeys = Object.keys(payload).filter((key) => !allowedKeys.includes(key));
+  if (unknownKeys.length > 0) {
+    throw new Error(`Blocked unknown IPC fields for channel "${channel}"`);
+  }
+}
+
+function optionalBoundedString(
+  payload: JsonRecord,
+  key: string,
+  channel: string,
+  maxLength: number,
+): string | undefined {
+  const value = payload[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'string' || value.length === 0 || value.length > maxLength) {
+    throw new Error(`Blocked invalid ${key} for channel "${channel}"`);
+  }
+  return value;
+}
+
+function optionalBoolean(payload: JsonRecord, key: string, channel: string, fallback: boolean): boolean {
+  const value = payload[key];
+  if (value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== 'boolean') {
+    throw new Error(`Blocked invalid ${key} for channel "${channel}"`);
+  }
+  return value;
+}
+
+function optionalBoundedInteger(
+  payload: JsonRecord,
+  key: string,
+  channel: string,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  const value = payload[key];
+  if (value === undefined) {
+    return fallback;
+  }
+  if (!Number.isInteger(value) || (value as number) < minimum || (value as number) > maximum) {
+    throw new Error(`Blocked invalid ${key} for channel "${channel}"`);
+  }
+  return value as number;
+}
+
+function requiredOperationId(payload: JsonRecord, channel: string): string {
+  const operationId = optionalBoundedString(payload, 'operation_id', channel, 80);
+  if (!operationId || !/^[A-Za-z0-9_-]{16,80}$/.test(operationId)) {
+    throw new Error(`Blocked invalid operation_id for channel "${channel}"`);
+  }
+  return operationId;
+}
+
+async function withCancellableDesktopOperation<T>(
+  operationId: string,
+  operation: (signal: AbortSignal) => Promise<T>,
+): Promise<T> {
+  if (activeDesktopOperations.has(operationId)) {
+    throw new Error('Desktop operation identifier is already active');
+  }
+  const controller = new AbortController();
+  activeDesktopOperations.set(operationId, controller);
+  try {
+    return await operation(controller.signal);
+  } finally {
+    activeDesktopOperations.delete(operationId);
+  }
+}
+
+function responseDataRecord(payload: unknown, channel: string): JsonRecord {
+  const envelope = requireJsonRecord(payload, channel);
+  const value = envelope.data ?? envelope;
+  return requireJsonRecord(value, channel);
+}
+
 function setHeaderValue(
   headers: Record<string, string | string[] | undefined>,
   canonicalName: string,
@@ -349,14 +585,28 @@ function signDesktopAuthNonce(nonce: string): string {
   return signDesktopAuthPayload(nonce);
 }
 
-function signedDesktopRequestPayload(method: string, requestUrl: string, timestamp: string): string {
+function signedDesktopRequestPayload(
+  method: string,
+  requestUrl: string,
+  timestamp: string,
+  requestNonce = '',
+): string {
   const parsedUrl = new URL(requestUrl);
-  return `${method.toUpperCase()}\n${parsedUrl.pathname}${parsedUrl.search}\n${timestamp}`;
+  const base = `${method.toUpperCase()}\n${parsedUrl.pathname}${parsedUrl.search}\n${timestamp}`;
+  return requestNonce ? `${base}\n${requestNonce}` : base;
 }
 
 function isTrustedIpcSender(event: IpcMainInvokeEvent): boolean {
   const senderUrl = event.senderFrame?.url || event.sender.getURL();
-  return ALLOWED_IPC_ORIGINS.some((origin) => senderUrl.startsWith(origin));
+  try {
+    const parsed = new URL(senderUrl);
+    if (parsed.protocol === 'app:') {
+      return ALLOWED_IPC_APP_HOSTS.has(parsed.hostname);
+    }
+    return ALLOWED_IPC_WEB_ORIGINS.has(parsed.origin);
+  } catch {
+    return false;
+  }
 }
 
 function assertTrustedIpcInvoke(event: IpcMainInvokeEvent, channel: string, args: unknown[]) {
@@ -385,6 +635,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      webSecurity: true,
       webviewTag: false,
       devTools: isDev,
       spellcheck: false,
@@ -427,12 +678,14 @@ function assertTrustedIpcSender(event: IpcMainInvokeEvent, channel: string): voi
 
 function desktopRequestHeaders(method: string, requestUrl: string): Record<string, string> {
   const timestamp = Math.floor(Date.now() / 1000).toString();
+  const requestNonce = crypto.randomBytes(24).toString('base64url');
   return {
     'Content-Type': 'application/json',
     'X-DataLogic-Desktop': 'true',
     'X-Desktop-Auth-Timestamp': timestamp,
+    'X-Desktop-Auth-Request-Nonce': requestNonce,
     'X-Desktop-Auth-Request-Signature': signDesktopAuthPayload(
-      signedDesktopRequestPayload(method, requestUrl, timestamp),
+      signedDesktopRequestPayload(method, requestUrl, timestamp, requestNonce),
     ),
   };
 }
@@ -449,6 +702,29 @@ function desktopFetch(requestUrl: string, init: RequestInit = {}): Promise<Respo
   });
 }
 
+function desktopIpcFetch(
+  requestUrl: string,
+  capability: 'backup' | 'ingestion',
+  init: RequestInit = {},
+): Promise<Response> {
+  const method = (init.method || 'GET').toString().toUpperCase();
+  const headers = desktopRequestHeaders(method, requestUrl);
+  const timestamp = headers['X-Desktop-Auth-Timestamp'];
+  const requestNonce = headers['X-Desktop-Auth-Request-Nonce'];
+  headers['X-Desktop-IPC-Capability'] = capability;
+  headers['X-Desktop-IPC-Signature'] = signDesktopAuthPayload(
+    `${signedDesktopRequestPayload(method, requestUrl, timestamp, requestNonce)}\nipc:${capability}`,
+  );
+  return fetch(requestUrl, {
+    ...init,
+    method,
+    headers: {
+      ...(init.headers as Record<string, string> | undefined),
+      ...headers,
+    },
+  });
+}
+
 function createSplashWindow() {
   splashWindow = new BrowserWindow({
     width: 420,
@@ -458,8 +734,10 @@ function createSplashWindow() {
     show: true,
     title: 'Starting DataLogicEngine',
     webPreferences: {
+      nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      webSecurity: true,
     },
   });
 
@@ -609,12 +887,14 @@ app.on('ready', async () => {
     ) {
       setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
       const timestamp = Math.floor(Date.now() / 1000).toString();
+      const requestNonce = crypto.randomBytes(24).toString('base64url');
       setHeaderValue(requestHeaders, 'X-Desktop-Auth-Timestamp', timestamp);
+      setHeaderValue(requestHeaders, 'X-Desktop-Auth-Request-Nonce', requestNonce);
       setHeaderValue(
         requestHeaders,
         'X-Desktop-Auth-Request-Signature',
         signDesktopAuthPayload(
-          signedDesktopRequestPayload(details.method || 'GET', details.url, timestamp),
+          signedDesktopRequestPayload(details.method || 'GET', details.url, timestamp, requestNonce),
         ),
       );
 
@@ -640,7 +920,7 @@ app.on('ready', async () => {
           `script-src ${scriptSrc}; ` +
           `style-src ${styleSrc}; ` +
           "img-src 'self' data: https: app:; " +
-          "connect-src 'self' http://localhost:5000 https://api.openai.com https://api.anthropic.com app:; " +
+          "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 app:; " +
           "font-src 'self' data: app:;"
         ]
       }
@@ -665,34 +945,6 @@ function startBackend() {
   secureDirectoryBestEffort(path.join(runtimeDir, 'logs'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'instance'));
 
-  // In production, create a template .env in the runtime directory if none exists.
-  // This gives the user a clear, documented location to add API keys.
-  if (!isDev) {
-    const runtimeEnv = path.join(runtimeDir, '.env');
-    if (!fs.existsSync(runtimeEnv)) {
-      const template = [
-        '# DataLogicEngine Desktop — API Keys',
-        '# Place your API keys below. The app will read this file on startup.',
-        '#',
-        '# OpenAI (GPT-5.5):',
-        'OPENAI_API_KEY=',
-        '#',
-        '# Google Gemini (gemini-3.1-pro-preview):',
-        'GOOGLE_API_KEY=',
-        '#',
-        '# Anthropic (optional):',
-        '# ANTHROPIC_API_KEY=',
-        '',
-      ].join('\n');
-      try {
-        fs.writeFileSync(runtimeEnv, template, 'utf8');
-        appendDesktopLog('INFO', `Created template .env at: ${runtimeEnv}`);
-      } catch (err) {
-        appendDesktopLog('WARN', `Failed to create template .env: ${String(err)}`);
-      }
-    }
-  }
-  
   let pythonPath = 'python'; // Default to system python
   let scriptPath = path.join(rootDir, 'main.py');
   
@@ -704,18 +956,12 @@ function startBackend() {
   }
 
   const args = scriptPath ? [scriptPath] : [];
-  const sessionSecretFile = loadOrCreatePlainSecretFile('SESSION_SECRET');
-  const encryptionKekSecretFile = loadOrCreatePlainSecretFile('ENCRYPTION_KEK_SECRET');
-  const encryptionKekSecret = fs.readFileSync(encryptionKekSecretFile, 'utf8').trim();
-  // Read API keys from .env so they reach the backend even when Electron's
-  // process.env doesn't carry them (avoids "No active providers found").
-  // In production, rootDir points to the packaged resources/ dir (no .env),
-  // so we also check runtimeDir (%APPDATA%/DataLogicEngine Desktop/runtime/).
-  const dotenvKeys: Record<string, string> = {};
-  const dotenvCandidates = [
-    path.join(runtimeDir, '.env'),   // User-writable location (preferred in production)
-    path.join(rootDir, '.env'),      // Dev location / repo root
-  ];
+  const sessionSecret = loadOrCreateProtectedSecret('SESSION_SECRET');
+  const encryptionKekSecret = loadOrCreateProtectedSecret('ENCRYPTION_KEK_SECRET');
+  const dotenvKeys: Record<string, string> = isDev
+    ? {}
+    : migrateAndLoadPackagedDotenvSecrets(runtimeDir);
+  const dotenvCandidates = isDev ? [path.join(rootDir, '.env')] : [];
   for (const dotenvPath of dotenvCandidates) {
     if (fs.existsSync(dotenvPath)) {
       appendDesktopLog('INFO', `Loading .env from: ${dotenvPath}`);
@@ -744,7 +990,8 @@ function startBackend() {
     SESSION_COOKIE_SAMESITE: 'Lax',
     CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-',
     DESKTOP_INSTALL_SECRET: desktopInstallSecret,
-    SESSION_SECRET_FILE: sessionSecretFile,
+    DLE_DESKTOP_SECRET_HANDOFF: 'true',
+    SESSION_SECRET: sessionSecret,
     ENCRYPTION_KEK_SECRET: encryptionKekSecret,
     DATABASE_URL: `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\/g, '/')}`,
     LOG_FILE: path.join(runtimeDir, 'logs', 'app.log'),
@@ -767,14 +1014,14 @@ function startBackend() {
   backendProcess = spawn(pythonPath, args, { env, cwd: runtimeDir });
 
   backendProcess.stdout?.on('data', (data) => {
-    const log = data.toString();
+    const log = safeDesktopLogMessage(data.toString());
     console.log(`[Backend] ${log}`);
     mainWindow?.webContents.send('backend-log', log);
     appendDesktopLog('INFO', `[Backend] ${log}`);
   });
 
   backendProcess.stderr?.on('data', (data) => {
-    const log = data.toString();
+    const log = safeDesktopLogMessage(data.toString());
     console.error(`[Backend Error] ${log}`);
     mainWindow?.webContents.send('backend-error', log);
     appendDesktopLog('ERROR', `[Backend Error] ${log}`);
@@ -849,7 +1096,7 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/health');
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/system/diagnostics/health');
     const payload = await responseJson<{
       database?: {
         status?: string;
@@ -1064,7 +1311,25 @@ ipcMain.handle('choose-backup-folder', async (event, ...args: unknown[]) => {
   const result = mainWindow
     ? await dialog.showOpenDialog(mainWindow, options)
     : await dialog.showOpenDialog(options);
-  return result.canceled ? null : result.filePaths[0] ?? null;
+  const selectedPath = result.filePaths[0];
+  return result.canceled || !selectedPath
+    ? null
+    : issuePathCapability(selectedPath, 'backup');
+});
+
+ipcMain.handle('choose-ingestion-source', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'choose-ingestion-source', args);
+  const options: OpenDialogOptions = {
+    properties: ['openFile', 'openDirectory'],
+    title: 'Choose a knowledge file or folder',
+  };
+  const result = mainWindow
+    ? await dialog.showOpenDialog(mainWindow, options)
+    : await dialog.showOpenDialog(options);
+  const selectedPath = result.filePaths[0];
+  return result.canceled || !selectedPath
+    ? null
+    : issuePathCapability(selectedPath, 'ingestion');
 });
 
 ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: unknown[]) => {
@@ -1072,20 +1337,138 @@ ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: 
   if (args.length > 0) {
     throw new Error('Blocked unexpected IPC payload for channel "run-database-backup"');
   }
-  const targetDir =
-    payload && typeof payload === 'object' && typeof (payload as { target_dir?: unknown }).target_dir === 'string'
-      ? (payload as { target_dir: string }).target_dir
-      : undefined;
+  const parsedPayload = payload === undefined ? {} : requireJsonRecord(payload, 'run-database-backup');
+  rejectUnknownKeys(parsedPayload, ['target_capability', 'operation_id'], 'run-database-backup');
+  const operationId = requiredOperationId(parsedPayload, 'run-database-backup');
+  const targetCapability = optionalBoundedString(
+    parsedPayload,
+    'target_capability',
+    'run-database-backup',
+    128,
+  );
+  const targetDir = targetCapability
+    ? consumePathCapability(targetCapability, 'backup')
+    : undefined;
 
-  const response = await desktopFetch('http://127.0.0.1:5000/api/v1/storage/backup', {
-    method: 'POST',
-    body: JSON.stringify({ target_dir: targetDir }),
-  });
-  const result = await responseJson<{ data?: unknown; error?: string }>(response);
+  const response = await withCancellableDesktopOperation(operationId, (signal) =>
+    desktopIpcFetch('http://127.0.0.1:5000/api/v1/storage/backup', 'backup', {
+      method: 'POST',
+      body: JSON.stringify({ target_dir: targetDir }),
+      signal,
+    }),
+  );
+  const result = await responseJson<unknown>(response);
   if (!response.ok) {
-    throw new Error(result?.error || `Backup failed with status ${response.status}`);
+    throw new Error(`Backup failed with status ${response.status}`);
   }
-  return result?.data ?? result;
+  const data = responseDataRecord(result, 'run-database-backup');
+  if (
+    typeof data.artifact_path !== 'string' ||
+    typeof data.size_bytes !== 'number' ||
+    !data.manifest ||
+    typeof data.manifest !== 'object' ||
+    Array.isArray(data.manifest)
+  ) {
+    throw new Error('Backup returned an invalid response contract');
+  }
+  return data;
+});
+
+ipcMain.handle('run-local-ingestion', async (event, payload?: unknown, ...args: unknown[]) => {
+  assertTrustedIpcSender(event, 'run-local-ingestion');
+  if (args.length > 0) {
+    throw new Error('Blocked unexpected IPC payload for channel "run-local-ingestion"');
+  }
+  const parsedPayload = requireJsonRecord(payload, 'run-local-ingestion');
+  rejectUnknownKeys(
+    parsedPayload,
+    [
+      'source_capability',
+      'recursive',
+      'chunk_size',
+      'max_file_bytes',
+      'source_label',
+      'async_mode',
+      'sync_neo4j',
+      'operation_id',
+    ],
+    'run-local-ingestion',
+  );
+  const operationId = requiredOperationId(parsedPayload, 'run-local-ingestion');
+  const sourceCapability = optionalBoundedString(
+    parsedPayload,
+    'source_capability',
+    'run-local-ingestion',
+    128,
+  );
+  if (!sourceCapability) {
+    throw new Error('A selected ingestion source capability is required');
+  }
+  const sourcePath = consumePathCapability(sourceCapability, 'ingestion');
+  const asyncMode = optionalBoolean(parsedPayload, 'async_mode', 'run-local-ingestion', false);
+  const requestPayload = {
+    path: sourcePath,
+    recursive: optionalBoolean(parsedPayload, 'recursive', 'run-local-ingestion', true),
+    chunk_size: optionalBoundedInteger(parsedPayload, 'chunk_size', 'run-local-ingestion', 1200, 100, 100_000),
+    max_file_bytes: optionalBoundedInteger(
+      parsedPayload,
+      'max_file_bytes',
+      'run-local-ingestion',
+      10 * 1024 * 1024,
+      1,
+      500 * 1024 * 1024,
+    ),
+    source_label: optionalBoundedString(parsedPayload, 'source_label', 'run-local-ingestion', 200),
+    ...(asyncMode
+      ? { sync_neo4j: optionalBoolean(parsedPayload, 'sync_neo4j', 'run-local-ingestion', false) }
+      : {}),
+  };
+  const endpoint = asyncMode
+    ? 'http://127.0.0.1:5000/api/v1/ingestion/local/async'
+    : 'http://127.0.0.1:5000/api/v1/ingestion/local';
+  const response = await withCancellableDesktopOperation(operationId, (signal) =>
+    desktopIpcFetch(endpoint, 'ingestion', {
+      method: 'POST',
+      body: JSON.stringify(requestPayload),
+      signal,
+    }),
+  );
+  const result = await responseJson<unknown>(response);
+  if (!response.ok) {
+    throw new Error(`Local ingestion failed with status ${response.status}`);
+  }
+  const data = responseDataRecord(result, 'run-local-ingestion');
+  if (typeof data.ingestion_id !== 'string') {
+    throw new Error('Local ingestion returned an invalid response contract');
+  }
+  if (asyncMode) {
+    if (typeof data.status !== 'string') {
+      throw new Error('Async ingestion returned an invalid response contract');
+    }
+  } else {
+    for (const key of ['files_ingested', 'files_rejected', 'chunks_created', 'chunks_indexed']) {
+      if (typeof data[key] !== 'number') {
+        throw new Error('Local ingestion returned an invalid response contract');
+      }
+    }
+  }
+  return data;
+});
+
+ipcMain.handle('cancel-desktop-operation', (event, payload?: unknown, ...args: unknown[]) => {
+  assertTrustedIpcSender(event, 'cancel-desktop-operation');
+  if (args.length > 0) {
+    throw new Error('Blocked unexpected IPC payload for channel "cancel-desktop-operation"');
+  }
+  const parsedPayload = requireJsonRecord(payload, 'cancel-desktop-operation');
+  rejectUnknownKeys(parsedPayload, ['operation_id'], 'cancel-desktop-operation');
+  const operationId = requiredOperationId(parsedPayload, 'cancel-desktop-operation');
+  const controller = activeDesktopOperations.get(operationId);
+  if (!controller) {
+    return { cancelled: false };
+  }
+  controller.abort();
+  return { cancelled: true };
 });
 
 ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {
