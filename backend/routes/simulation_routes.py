@@ -9,7 +9,8 @@ import uuid
 import datetime
 from datetime import UTC
 import logging
-from flask import Blueprint, jsonify, g, request
+from flask import Blueprint, current_app, has_app_context, jsonify, g, request
+from werkzeug.local import LocalProxy
 from extensions import db
 from models import SimulationSession
 from backend.auth.api_decorators import api_login_required
@@ -21,11 +22,26 @@ from backend.utils.error_normalization import normalize_public_error_message
 simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
 
-# Engine is initialized at import time. Tests patch `engine.process_query`
-# directly on this module-level object, so the name must remain public.
 from backend.simulation.multi_agent_engine import create_multi_agent_simulation_engine
 
-engine = create_multi_agent_simulation_engine()
+_fallback_engine = None
+
+
+def get_simulation_engine():
+    """Return a simulation engine owned by the active application."""
+    if has_app_context():
+        engine_instance = current_app.extensions.get("dle_simulation_engine")
+        if engine_instance is None:
+            engine_instance = create_multi_agent_simulation_engine()
+            current_app.extensions["dle_simulation_engine"] = engine_instance
+        return engine_instance
+    global _fallback_engine
+    if _fallback_engine is None:
+        _fallback_engine = create_multi_agent_simulation_engine()
+    return _fallback_engine
+
+
+engine = LocalProxy(get_simulation_engine)
 
 from backend.utils.responses import error_response
 

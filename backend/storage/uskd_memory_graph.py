@@ -408,6 +408,19 @@ _uskd_memory_graph: Optional[UskdMemoryGraph] = None
 
 
 def get_uskd_memory_graph() -> UskdMemoryGraph:
+    """Return the USKD materialization owned by the active application."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            graph = current_app.extensions.get("dle_uskd_memory_graph")
+            if graph is None:
+                graph = UskdMemoryGraph()
+                current_app.extensions["dle_uskd_memory_graph"] = graph
+            return graph
+    except ImportError:
+        pass
+
     global _uskd_memory_graph
     if _uskd_memory_graph is None:
         _uskd_memory_graph = UskdMemoryGraph()

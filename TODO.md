@@ -7,8 +7,8 @@
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.0 |
-| Completed phase | Phase 1 - Trust boundary and public error closure |
-| Next phase | Phase 2 - Runtime factory, startup, and capability state |
+| Completed phase | Phase 2 - Runtime factory, startup, and capability state |
+| Next phase | Phase 3 - Full internal service delivery and supervision |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -27,66 +27,65 @@ conditions, and exit gates remain authoritative in the active root plan.
   surfaces with zero unclassified entries.
 - The Phase 1 mandatory security, public-error, packaged Electron, secret,
   backend, frontend, documentation, ACL, and CodeQL-status checks pass.
+- Phase 2 CP2-A through CP2-E passed on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-02/`; the phase commit is the commit
+  containing this ledger update.
+- Phase 2 provides an import-safe application factory, per-app runtime and
+  service supervisor, deterministic startup phases, installation/runtime lock,
+  truthful readiness/capabilities, mutation drain, Windows lifecycle handling,
+  and bounded Electron shutdown.
+- Final Phase 2 validation reports 590 backend unit/route checks, 398 security/
+  route checks, and 403 frontend checks passed. The 426-route manifest and all
+  startup, public-error, secret, packaged Electron, and precheck gates pass.
 
-## Phase 2 objective
+## Phase 3 objective
 
-Make startup, shutdown, health, service ownership, concurrent launch, and
-optional-feature behavior deterministic and testable without weakening Phase 1.
+Make PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO a supported, app-owned
+production data plane installed and controlled through the Phase 2 supervisor.
 
-## Phase 2 work packages
+## Phase 3 work packages
 
-- [ ] Replace import-time global application construction with one real app factory.
-- [ ] Divide startup into explicit configuration, paths/ACL, lock, supervisor,
-      version/credential, migration, store initialization, route/worker, and
-      readiness phases.
-- [ ] Prohibit route/optional-integration imports from starting stores, threads,
-      event loops, network clients, or destructive key initialization.
-- [ ] Replace per-call database lifecycle managers with one process-life service supervisor.
-- [ ] Model every required service as `not_installed`, `stopped`, `starting`,
-      `migrating`, `ready`, `degraded`, `failed`, `stopping`, or `blocked` with a safe reason.
-- [ ] Return truthful per-service start/stop results and verify service/process identity, not just ports.
-- [ ] Detect foreign port owners and fail or select an approved configured port with a repair action.
-- [ ] Define dependency order and bounded budgets for PostgreSQL, Redis, Neo4j,
-      MinIO, Chroma, workers, backend readiness, and shutdown.
-- [ ] Implement graceful drain/checkpoint/cancellation plus bounded forced cleanup.
-- [ ] Recover stale locks and orphaned child processes after crashes.
-- [ ] Publish public-safe `/live` and `/ready` plus authenticated capability state with correlation IDs.
-- [ ] Make Electron wait for core readiness and render capability-level degradation truthfully.
-- [ ] Treat required-service failure as not ready; prohibit production fallback to SQLite, memory, or local files.
-- [ ] Add deterministic failure injection for every startup phase.
-- [ ] Add installation identity, exclusive lifecycle/runtime lock, stale-owner recovery, and verified supervisor ownership.
-- [ ] Coordinate install, update, repair, backup, restore, and uninstall through the same exclusive lock.
-- [ ] Handle sleep, hibernate, resume, logoff, shutdown, time adjustment, and forced termination.
-- [ ] Enforce supported concurrent-launch and multi-Windows-user isolation behavior.
-- [ ] Verify backend/child product version and Windows session before trusting health or lifecycle commands.
-- [ ] Keep the API gateway listener supervised and loopback-only/disabled until Phase 8.
-- [ ] Drain or reject new work during shutdown, migration, backup, restore,
-      update, certificate failure, or policy-store failure and durably finalize admitted work.
+- [ ] Pin immutable PostgreSQL, Redis, Neo4j/JRE, ChromaDB, and MinIO versions/
+      digests and complete the redistribution/license matrix.
+- [ ] Provision the OCI data plane through the app supervisor with per-install
+      names, loopback-only ports, resource limits, and verified image identity.
+- [ ] Generate unique service credentials, protect them with DPAPI/ACLs, and
+      remove known/default secrets and plaintext production `.env` dependency.
+- [ ] Make PostgreSQL the production SQLAlchemy authority with explicit roles,
+      SCRAM, migrations, connection budgets, and PostgreSQL-specific tests.
+- [ ] Make Redis the production cache/session/rate-limit/queue/stream service with
+      auth, persistence, eviction, replay, retry, and dead-letter contracts.
+- [ ] Make Neo4j the durable graph authority with schema/version, conflict,
+      reconciliation, reconstruction, restart, and traversal tests.
+- [ ] Define and qualify the Chroma collection registry, embedding compatibility,
+      rebuild/migration, source reconciliation, health, backup, and restore.
+- [ ] Restore MinIO as the production object backend with least privilege,
+      required buckets, metadata/integrity, lifecycle, and real operation tests.
+- [ ] Route start/stop/restart/repair/verify/backup/restore through the singleton
+      supervisor and show installed version, identity, status, size, migration,
+      backup, and safe reason in the Storage UI.
 
-## Phase 2 checkpoints
+## Phase 3 checkpoints
 
 | Checkpoint | Required result | Status |
 |---|---|---|
-| CP2-A | Multiple isolated app instances have no shared state, ports, threads, or DB collisions | Next |
-| CP2-B | One process-life supervisor owns every required service | Open |
-| CP2-C | Liveness, readiness, and capabilities are truthful | Open |
-| CP2-D | Graceful/forced shutdown and crash recovery leave no data loss or orphan processes | Open |
-| CP2-E | Concurrent launch, lifecycle collision, Windows event, and cross-user cases follow the approved contract | Open |
+| CP3-A | Versions, digests, licenses, hardware, and delivery mechanism locked | Next |
+| CP3-B | Clean install provisions unique protected credentials and loopback-only services | Open |
+| CP3-C | Instrumented workflows prove real read/write use of every required service | Open |
+| CP3-D | Supervisor survives start/stop/restart/crash/port conflict/app relaunch | Open |
+| CP3-E | Installed Storage UI truthfully reports/actions the five-service data plane | Open |
 
-## Phase 2 mandatory validation
+## Phase 3 mandatory validation
 
 ```powershell
-python -m pytest tests/unit tests/integration_routes -q
-python scripts/runtime_precheck.py --strict --allow-env-from-process
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/start_local_stack.ps1 -WithDataServices
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/stop_local_stack.ps1 -WithDataServices
+python scripts/setup_local_databases.py --verify
+python scripts/verify_local_data_stack.py
+python scripts/validate_schema_parity.py --report reports/schema_parity_report_local.json
+python -m pytest tests/integration tests/integration_routes -q
 ```
 
-New evidence must cover startup-phase failure injection, repeated lifecycle
-cycles, foreign-port ownership, backend crash cleanup, Electron close during
-active work, concurrent installer/updater/backend/renderers, second-user
-isolation, Windows power/session/time events, low/read-only disk, corrupt config,
-and stale lock recovery.
+Create `scripts/verify_internal_data_plane.py --profile production --require-all
+--json <report>`. A skipped required service is a production failure.
 
 ## Phase ledger
 
@@ -94,8 +93,8 @@ and stale lock recovery.
 |---:|---|---|
 | 0 | Scope, baseline, and authority lock | **Complete 2026-07-13** |
 | 1 | Trust boundary and public error closure | **Complete 2026-07-13** |
-| 2 | Runtime factory, startup, and capability state | **Next** |
-| 3 | Full internal service delivery and supervision | Blocked by Phase 2 |
+| 2 | Runtime factory, startup, and capability state | **Complete 2026-07-13** |
+| 3 | Full internal service delivery and supervision | **Next** |
 | 4 | Data contracts, migrations, backup, and recovery | Blocked by prior phases |
 | 5 | Canonical governed reasoning path | Blocked by prior phases |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | Blocked by prior phases |
@@ -125,7 +124,7 @@ and stale lock recovery.
 
 ## Exact next action
 
-Start CP2-A with a live import/startup side-effect inventory. Add a failing test
-that creates two application instances and proves the current global app cannot
-isolate configuration, extensions, stores, workers, or lifecycle state. Design
-the app-factory/runtime-ownership boundary before moving initialization code.
+Start CP3-A by inventorying the live container/image/binary/JRE versions,
+digests, floating tags, licenses, and redistribution obligations. Replace
+`minio/minio:latest` and every other floating/unqualified production service
+input before provisioning or changing data contracts.

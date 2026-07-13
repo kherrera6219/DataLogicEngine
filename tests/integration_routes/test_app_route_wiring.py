@@ -1,7 +1,4 @@
-from app import app
-
-
-def test_service_routes_are_registered_in_main_app():
+def test_service_routes_are_registered_in_main_app(app):
     """Guard against unwired blueprints in the primary Flask app path."""
     rules = {str(rule.rule) for rule in app.url_map.iter_rules()}
 
@@ -17,7 +14,7 @@ def test_service_routes_are_registered_in_main_app():
     assert not missing, f"Expected wired service routes were missing: {missing}"
 
 
-def test_removed_server_rendered_page_routes_are_not_registered():
+def test_removed_server_rendered_page_routes_are_not_registered(app):
     """Chat and knowledge graph UI are owned by Electron/Next, not Flask templates."""
     rules = {str(rule.rule) for rule in app.url_map.iter_rules()}
 

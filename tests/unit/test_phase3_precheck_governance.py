@@ -18,6 +18,21 @@ def test_runtime_precheck_blocks_production_auto_create_schema(tmp_path, monkeyp
     )
 
 
+def test_runtime_precheck_blocks_production_sqlite_fallback(tmp_path, monkeypatch):
+    monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
+    monkeypatch.setenv("FLASK_ENV", "production")
+    monkeypatch.setenv("AUTO_CREATE_SCHEMA", "false")
+    monkeypatch.setenv("SESSION_SECRET", "prod-session-secret")
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///production.sqlite")
+
+    results = runtime_precheck.check_env_files(allow_env_from_process=True)
+
+    assert any(
+        item.level == "BLOCKER" and "Supervised PostgreSQL is required" in item.message
+        for item in results
+    )
+
+
 def test_runtime_precheck_resolves_flask_sqlite_instance_path(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
     monkeypatch.delenv("DATABASE_URL", raising=False)

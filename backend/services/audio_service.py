@@ -7,6 +7,8 @@ import logging
 import os
 from typing import Optional
 from openai import OpenAI
+from flask import current_app, has_app_context
+from werkzeug.local import LocalProxy
 
 logger = logging.getLogger(__name__)
 
@@ -114,5 +116,21 @@ class AudioService:
             logger.error(f"AudioService synthesis failed: {e}")
             return b""
 
-# Global Instance
-audio_service = AudioService()
+_fallback_audio_service: AudioService | None = None
+
+
+def get_audio_service() -> AudioService:
+    """Return an audio service owned by the active application."""
+    if has_app_context():
+        service = current_app.extensions.get("dle_audio_service")
+        if service is None:
+            service = AudioService()
+            current_app.extensions["dle_audio_service"] = service
+        return service
+    global _fallback_audio_service
+    if _fallback_audio_service is None:
+        _fallback_audio_service = AudioService()
+    return _fallback_audio_service
+
+
+audio_service = LocalProxy(get_audio_service)

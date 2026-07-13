@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.9.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -14,7 +14,11 @@
 
 Define supported deployment modes, packaging procedures, release gates, runtime guardrails, and required CI/CD configuration for DataLogicEngine.
 
-This version reflects the current local-first architecture: Electron/Windows desktop, Windows VM using the same internal stack, canonical web/cloud deployment where configured, app-owned internal storage services, deterministic preflight validation, packaging smoke tests, and release-governed promotion.
+This version reflects the current local-first architecture: Electron/Windows
+desktop, an explicit Flask application factory and owned runtime, Windows VM
+using the same internal stack, app-owned internal storage services,
+deterministic readiness/shutdown, packaging smoke tests, and release-governed
+promotion.
 
 ## Audience
 
@@ -143,12 +147,21 @@ Typical desktop outputs include:
 The desktop target uses:
 
 1. Electron renderer.
-2. Flask backend on loopback.
-3. Runtime policy for desktop session flow.
-4. Desktop local auth with per-install secret, nonce challenge, HMAC signatures, timestamp skew validation, and loopback/Electron policy checks.
-5. App-owned storage services and local filesystem paths.
-6. Windows DPAPI helper for protected local data where available.
-7. Object-store trace/export artifacts under app-owned local directories.
+2. One explicitly constructed Flask backend on loopback; importing `app.py`
+   does not start the backend or any resource.
+3. Per-user installation identity, application version, runtime-root ACL, and an
+   exclusive OS lock before keys, stores, or services initialize.
+4. Deterministic configuration, paths/ACL, lock, supervisor, verification,
+   migration, stores, routes/workers, and readiness phases.
+5. Electron waits for `/ready`; a failed required service keeps the main shell
+   closed and presents a safe blocker.
+6. Runtime policy for desktop session flow and signed suspend/resume/time-change/
+   logoff/shutdown notifications.
+7. Desktop local auth with per-install secret, nonce challenge, HMAC signatures, timestamp skew validation, and loopback/Electron policy checks.
+8. One app-owned service supervisor and app-owned storage/local filesystem paths.
+9. Windows DPAPI helper for protected local data where available.
+10. Bounded graceful backend shutdown followed by forced process cleanup when
+    the acknowledgement budget expires.
 
 Relevant implementation:
 
@@ -158,6 +171,14 @@ Relevant implementation:
 - `frontend/contexts/AuthContext.tsx`
 - `backend/security/desktop_local_auth.py`
 - `backend/security/dpapi_store.py`
+- `backend/runtime/`
+- `app.py` (`create_app`)
+
+Production construction refuses SQLite, `AUTO_CREATE_SCHEMA=true`, a runtime
+root owned by another Windows user, an incompatible installation version, and
+any required service that is missing, unhealthy, or has an unverified identity.
+Development/testing fallbacks are explicit non-production profiles and are not
+release evidence.
 
 ### Desktop PostgreSQL authentication
 
@@ -193,7 +214,10 @@ eval_data
 
 The Windows VM target installs and runs the same app package used by the desktop target. It is not a switch to managed cloud databases.
 
-PostgreSQL/SQLite, Redis, Neo4j, ChromaDB, object storage, and memory graph files remain app-owned/internal services on the VM filesystem and loopback network.
+PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, and memory graph files remain
+app-owned/internal services on the VM filesystem and loopback network. SQLite
+and filesystem object storage are development/bootstrap/repair mechanisms only,
+not production substitutes.
 
 ### VM setup
 
@@ -216,9 +240,11 @@ Unsupported by default:
 - hosted vector databases as primary vector store;
 - S3/Azure/GCS as primary object store.
 
-## 3. Controlled web/cloud deployment
+## 3. Excluded web/cloud profile
 
-A web/cloud deployment is possible where configured, but it has a different trust boundary than desktop/local mode.
+Public web/cloud SaaS is not a supported target in the active production
+completion program. The controls below are retained only as historical/future
+architecture reference and are not release instructions.
 
 Web/cloud requirements:
 
@@ -233,7 +259,8 @@ Web/cloud requirements:
 9. Explicit database/storage architecture approval.
 10. Contract, parity, security, and readiness checks passing in CI.
 
-Cloud deployments should use canonical `/api/v1/*` routes and avoid relying on desktop-only auth shortcuts.
+No current release may promote this profile. A future approval would require a
+new product boundary and trust-model decision in addition to these controls.
 
 ## 4. CI/CD deployment workflow
 
@@ -280,9 +307,11 @@ The workflow may publish tags through `docker/metadata-action`:
 - semver tags when pushing version tags;
 - commit SHA tags.
 
-## 6. Production deploy variables
+## 6. Inactive cloud deploy variables
 
-`deploy-production` uses a hard gate and fails if required configuration is missing.
+The legacy `deploy-production` workflow inputs are inactive for the approved
+Windows-only release scope. They may be used for CI experimentation only and do
+not authorize a public/cloud production deployment.
 
 Required:
 
@@ -422,6 +451,9 @@ Check:
 5. firewall/Defender blocking;
 6. `SESSION_SECRET` and runtime env values;
 7. `reports/runtime_precheck_report_*.json` where generated.
+8. `/ready` blocker details and authenticated system capabilities;
+9. installation owner/version and `runtime.lock` stale-owner state;
+10. whether a configured service port belongs to a foreign process/container.
 
 ### Desktop auth fails
 
@@ -444,6 +476,14 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.9.0
+
+1. Documented the explicit app factory, runtime owner/lock, startup phases,
+   service identity checks, Electron readiness wait, lifecycle notifications,
+   and bounded shutdown.
+2. Made production SQLite/automatic-schema/foreign-service refusal explicit and
+   separated the Phase 3 five-service delivery boundary from development mode.
 
 ## Change notes for v2.8.0
 

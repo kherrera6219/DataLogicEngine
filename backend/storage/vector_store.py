@@ -471,7 +471,19 @@ _vector_store: Optional[VectorStore] = None
 
 
 def get_vector_store() -> VectorStore:
-    """Get the singleton VectorStore instance."""
+    """Return a vector store owned by the active application instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            store = current_app.extensions.get("dle_vector_store")
+            if store is None:
+                store = VectorStore()
+                current_app.extensions["dle_vector_store"] = store
+            return store
+    except ImportError:
+        pass
+
     global _vector_store
     if _vector_store is None:
         _vector_store = VectorStore()

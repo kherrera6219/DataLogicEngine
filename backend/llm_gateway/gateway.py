@@ -2372,7 +2372,23 @@ class LLMGateway:
 _gateway_instance = None
 
 def get_gateway() -> LLMGateway:
-    """Get or create global LLMGateway instance."""
+    """Return the gateway owned by the active application instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            gateway = current_app.extensions.get("dle_llm_gateway")
+            if gateway is None:
+                try:
+                    from extensions import db
+                    gateway = LLMGateway(db_session=db.session)
+                except (ImportError, RuntimeError):
+                    gateway = LLMGateway()
+                current_app.extensions["dle_llm_gateway"] = gateway
+            return gateway
+    except ImportError:
+        pass
+
     global _gateway_instance
     if _gateway_instance is None:
         try:

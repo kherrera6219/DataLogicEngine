@@ -1,20 +1,27 @@
-import importlib
-
 import pytest
 
+from app import create_app
 from tests.conftest import seed_login_session
 
 
 @pytest.fixture
-def client(monkeypatch):
+def client(monkeypatch, tmp_path):
     monkeypatch.setenv("FLASK_ENV", "testing")
     monkeypatch.setenv("SECRET_KEY", "test-secret-key")
     monkeypatch.setenv("SESSION_SECRET", "test-session-secret")
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-    app_module = importlib.import_module("app")
-    importlib.reload(app_module)
-    app = app_module.app
-    app.testing = True
+    app = create_app(
+        "testing",
+        {
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "DLE_RUNTIME_ROOT": str(tmp_path / "health-runtime"),
+            "DLE_INITIALIZE_SCHEMA": False,
+            "DLE_INITIALIZE_STORES": False,
+            "DLE_START_MANAGED_SERVICES": False,
+            "DLE_START_BACKGROUND_WORKERS": False,
+        },
+        start_runtime=True,
+    )
     from extensions import db
 
     with app.app_context():
@@ -22,6 +29,7 @@ def client(monkeypatch):
     with app.test_client() as test_client:
         seed_login_session(test_client, app, username="health_metrics_owner")
         yield test_client
+    app.extensions["dle_runtime"].shutdown()
 
 
 def test_health_endpoint_reports_ok_status(client):

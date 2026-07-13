@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Engineers, product managers, QA, technical reviewers |
@@ -24,22 +24,30 @@ This version aligns process flows with local-first desktop operation, Flask/API 
 
 ```mermaid
 flowchart TD
-    START([Start application]) --> MODE{Runtime mode?}
-    MODE -- Desktop --> ELECTRON[Launch Electron shell]
-    ELECTRON --> LOOPBACK[Start/connect to local Flask API]
-    LOOPBACK --> DAUTH[Desktop local-auth challenge]
+    START([Start application]) --> FACTORY[Create isolated Flask application]
+    FACTORY --> CONFIG[Validate configuration]
+    CONFIG --> PATHS[Resolve runtime root and ACL]
+    PATHS --> LOCK{Installation identity and runtime lock valid?}
+    LOCK -- No --> REFUSE[Safe refusal or repair action]
+    LOCK -- Yes --> SUP[Start one service supervisor]
+    SUP --> VERIFY[Verify service identity/version/credentials]
+    VERIFY --> MIGRATE[Migrations and store compatibility]
+    MIGRATE --> STORES[Initialize app-owned stores and workers]
+    STORES --> READY{Core ready?}
+    READY -- No --> DEGRADED[Keep shell closed; show safe blocker]
+    READY -- Yes --> MODE{Runtime mode?}
+
+    MODE -- Desktop --> ELECTRON[Electron receives /ready]
+    ELECTRON --> DAUTH[Desktop local-auth challenge]
     DAUTH --> DOK{Nonce/HMAC/timestamp valid?}
     DOK -- No --> DENY[Reject local auth]
     DOK -- Yes --> DASH[Open dashboard]
 
-    MODE -- Web/cloud --> WEB[Open browser UI]
+    MODE -- Web/internal --> WEB[Open browser UI]
     WEB --> LOGIN[Login/session flow]
     LOGIN --> AUTHOK{Authenticated?}
     AUTHOK -- No --> DENYWEB[401/403 or login challenge]
     AUTHOK -- Yes --> DASH
-
-    MODE -- VM/internal --> VM[Start internal stack]
-    VM --> WEB
 ```
 
 ---
@@ -162,13 +170,17 @@ flowchart TD
 ```mermaid
 flowchart TD
     START[Start local stack] --> PRECHECK[Runtime precheck]
-    PRECHECK --> SERVICES[Start/check SQL, Redis, Neo4j, Chroma, object store]
-    SERVICES --> HEALTH[Health checks]
-    HEALTH --> OK{Healthy?}
-    OK -- No --> TROUBLE[Troubleshoot service/log/path/port]
-    OK -- Yes --> APP[Application ready]
-    APP --> STOP[Stop local stack]
-    STOP --> CLEAN[Controlled shutdown]
+    PRECHECK --> OWNER{Configured port and identity app-owned?}
+    OWNER -- Foreign --> REFUSE[Refuse reuse and return repair action]
+    OWNER -- Owned/free --> SERVICES[Supervisor starts services in dependency order]
+    SERVICES --> HEALTH[Identity and service-specific probes]
+    HEALTH --> OK{Every required service ready?}
+    OK -- No --> BLOCK[Publish not-ready and safe per-service reason]
+    OK -- Yes --> APP[Publish /ready and capabilities]
+    APP --> EVENT{Stop, backup, update, sleep, or logoff?}
+    EVENT --> DRAIN[Reject new mutations and drain admitted work]
+    DRAIN --> CLEAN[Checkpoint/stop with bounded cleanup]
+    CLEAN --> RELEASE[Release runtime lock and reconcile on resume/restart]
 ```
 
 ---
@@ -228,6 +240,12 @@ flowchart TD
     VERIFY --> RELEASE[Release or document fix]
     RELEASE --> DISCLOSE[Coordinate disclosure where applicable]
 ```
+
+## Change notes for v2.8.0
+
+1. Replaced the legacy runtime maps with the implemented factory, installation
+   lock, phased startup, truthful readiness, identity-aware supervision,
+   admission drain, and Windows lifecycle flow.
 
 ## Change notes for v2.7.0
 

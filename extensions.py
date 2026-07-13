@@ -14,8 +14,8 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_caching import Cache
 from flask_compress import Compress
 from flask_cors import CORS
-from backend.security.audit_logger import AuditLogger
-from backend.security.encryption_manager import EncryptionManager
+from flask import current_app
+from werkzeug.local import LocalProxy
 
 
 class Base(DeclarativeBase):
@@ -44,11 +44,25 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()
-audit_logger = AuditLogger()
 cache = Cache()
 compress = Compress()
 cors = CORS()
-encryption_manager = EncryptionManager(audit_logger=audit_logger)
+
+
+def _current_audit_logger():
+    """Resolve the audit logger owned by the active application instance."""
+    return current_app.extensions["dle_audit_logger"]
+
+
+def _current_encryption_manager():
+    """Resolve the encryption manager owned by the active application instance."""
+    return current_app.extensions["dle_encryption_manager"]
+
+
+# Compatibility proxies keep model/route imports side-effect free. The concrete
+# services are created by app.create_app under an application-owned runtime path.
+audit_logger = LocalProxy(_current_audit_logger)
+encryption_manager = LocalProxy(_current_encryption_manager)
 
 login_manager.login_message = 'Please log in to access this page'
 login_manager.login_message_category = 'info'

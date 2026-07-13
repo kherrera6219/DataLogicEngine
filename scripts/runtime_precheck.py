@@ -149,7 +149,7 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
         results.append(
             CheckResult(
                 level,
-                "DATABASE_URL is not set. Local SQLite fallback is supported, but set DATABASE_URL explicitly for parity.",
+                "DATABASE_URL is not set. SQLite is development/test-only; production requires supervised PostgreSQL.",
             )
         )
 
@@ -189,8 +189,8 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
         if database_url.startswith("sqlite"):
             results.append(
                 CheckResult(
-                    "WARN",
-                    f"Production environment is configured with SQLite ({database_url}). Use managed Postgres for shared deployments.",
+                    "BLOCKER",
+                    f"Production environment is configured with SQLite ({database_url}). Supervised PostgreSQL is required.",
                 )
             )
     elif auto_create_schema:

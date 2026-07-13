@@ -18,6 +18,8 @@ export interface DesktopUpdateState {
 
 export interface DesktopDatabaseStatus {
   status: string;
+  phase: string;
+  services: Record<string, { state?: string; safe_reason?: string | null }>;
   chroma_collections: Record<string, number>;
   redis_ping_ms: number | null;
   object_store_buckets: Record<string, { object_count: number; total_bytes: number }>;

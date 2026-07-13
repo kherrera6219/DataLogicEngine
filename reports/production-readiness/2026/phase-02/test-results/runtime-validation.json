@@ -1,0 +1,33 @@
+{
+  "captured_at": "2026-07-13T11:55:00-07:00",
+  "backend_unit_and_routes": {
+    "passed": 590,
+    "skipped": 17,
+    "warnings": 17,
+    "result": "pass"
+  },
+  "security_and_routes": {
+    "passed": 398,
+    "warnings": 18,
+    "result": "pass"
+  },
+  "frontend": {
+    "files_passed": 81,
+    "tests_passed": 403,
+    "result": "pass"
+  },
+  "electron_focused": {
+    "files_passed": 2,
+    "tests_passed": 10,
+    "result": "pass"
+  },
+  "operational_cycle": {
+    "development_start": "pass",
+    "live": "http_200",
+    "ready": "http_200",
+    "health": "http_200",
+    "shutdown": "pass",
+    "remaining_app_listeners": 0,
+    "foreign_data_port_policy": "expected_fail_closed"
+  }
+}

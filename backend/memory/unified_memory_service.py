@@ -295,7 +295,25 @@ _unified_memory_service: UnifiedMemoryService | None = None
 
 
 def get_unified_memory_service() -> UnifiedMemoryService:
-    """Return the process-wide local memory service."""
+    """Return the memory service owned by the active application."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            service = current_app.extensions.get("dle_unified_memory_service")
+            if service is None:
+                runtime = current_app.extensions.get("dle_runtime")
+                storage_path = (
+                    runtime.runtime_root / "databases" / "memory" / "memory_graph.json"
+                    if runtime is not None
+                    else None
+                )
+                service = UnifiedMemoryService(storage_path=storage_path)
+                current_app.extensions["dle_unified_memory_service"] = service
+            return service
+    except ImportError:
+        pass
+
     global _unified_memory_service
     if _unified_memory_service is None:
         _unified_memory_service = UnifiedMemoryService()

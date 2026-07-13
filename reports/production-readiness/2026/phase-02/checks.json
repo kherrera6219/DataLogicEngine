@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.1.0",
+  "captured_at": "2026-07-13T11:55:00-07:00",
+  "checkpoints": {
+    "CP2-A": "pass",
+    "CP2-B": "pass",
+    "CP2-C": "pass",
+    "CP2-D": "pass",
+    "CP2-E": "pass"
+  },
+  "checks": [
+    {
+      "command": "python scripts/verify_startup_side_effects.py",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "59 startup-sensitive modules scanned; 0 import-time resource-start findings"
+    },
+    {
+      "command": "python -m pytest tests/unit tests/integration_routes -q",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "590 passed, 17 skipped; 17 existing SQLAlchemy Query.get legacy warnings"
+    },
+    {
+      "command": "python -m pytest tests/security tests/integration_routes -q",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "398 passed; 18 non-blocking dependency/legacy warnings"
+    },
+    {
+      "command": "npm --prefix frontend test",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "81 test files and 403 tests passed"
+    },
+    {
+      "command": "npm --prefix frontend run lint && npm --prefix frontend run typecheck",
+      "exit_code": 0,
+      "result": "pass_with_warning",
+      "summary": "TypeScript passed; lint reported 0 errors and 1 pre-existing unused-variable warning"
+    },
+    {
+      "command": "BUILD_MODE=electron npm --prefix frontend run build && npm --prefix frontend run electron:build && python scripts/verify_electron_security.py --require-packaged-renderer",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "Fresh static renderer, Electron main/preload, readiness wait, bounded shutdown, and 19-channel IPC contract passed"
+    },
+    {
+      "command": "python scripts/runtime_precheck.py --strict --allow-env-from-process",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "0 blockers and 0 actions; existing virtual-environment/template/static warnings only"
+    },
+    {
+      "command": "python scripts/verify_route_manifest.py --output reports/production-readiness/2026/phase-02/runtime/route-manifest.json",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "426 Flask routes plus non-HTTP inventories; 0 unclassified and 0 mutations without authentication evidence"
+    },
+    {
+      "command": "python scripts/verify_public_error_contracts.py && python scripts/verify_secret_storage.py",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "359 Python files scanned with 0 public-error findings; secret-storage gate has 0 findings"
+    },
+    {
+      "command": "powershell scripts/windows/start_local_stack.ps1 -NoFrontend; probe /live,/ready,/health; powershell scripts/windows/stop_local_stack.ps1",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "All probes returned HTTP 200 with correlation IDs; runtime phase was ready; ports 3000/5000 were closed after stop"
+    },
+    {
+      "command": "powershell scripts/windows/start_local_stack.ps1 -WithDataServices -NoFrontend",
+      "exit_code": 1,
+      "result": "expected_fail_closed",
+      "summary": "Foreign DevOnz listeners owned standard data ports; launcher refused reuse with an actionable repair message and did not start the backend"
+    },
+    {
+      "command": "powershell scripts/windows/stop_local_stack.ps1 -WithDataServices",
+      "exit_code": 0,
+      "result": "pass",
+      "summary": "Application cleanup remains effective without a PID file; no DataLogicEngine application listener remained"
+    },
+    {
+      "command": "python scripts/generate_docs.py && python scripts/verify_docs_references.py",
+      "exit_code": 0,
+      "result": "pass_with_warnings",
+      "summary": "Active inventory/structure regenerated; documentation validation passed with 0 errors and 46 pre-existing style warnings"
+    }
+  ],
+  "overall": "phase_complete"
+}

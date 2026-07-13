@@ -41,6 +41,16 @@ def get_audit_logger(config=None):
     Returns:
         AuditLogger instance
     """
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            owned_logger = current_app.extensions.get("dle_audit_logger")
+            if owned_logger is not None:
+                return owned_logger
+    except ImportError:
+        pass
+
     global _audit_logger
     
     if _audit_logger is None:

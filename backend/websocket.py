@@ -9,16 +9,32 @@ Provides real-time communication for:
 
 import os
 import logging
-from flask import Flask, request
+from flask import Flask, current_app, has_app_context, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from werkzeug.local import LocalProxy
 
 logger = logging.getLogger(__name__)
 
-# Initialize Flask-SocketIO
-socketio = SocketIO()
+_fallback_socketio: SocketIO | None = None
 
 
-def init_socketio(app: Flask) -> None:
+def get_socketio() -> SocketIO:
+    """Return the Socket.IO extension owned by the active application."""
+    if has_app_context():
+        extension = current_app.extensions.get("dle_socketio")
+        if extension is None:
+            raise RuntimeError("Socket.IO is not initialized for this application")
+        return extension
+    global _fallback_socketio
+    if _fallback_socketio is None:
+        _fallback_socketio = SocketIO()
+    return _fallback_socketio
+
+
+socketio = LocalProxy(get_socketio)
+
+
+def init_socketio(app: Flask) -> SocketIO:
     """Initialize WebSocket support with Flask app."""
     # Configure SocketIO CORS — no wildcard allowed in production.
     raw_origins = os.environ.get('CORS_ORIGINS', '')
@@ -34,33 +50,40 @@ def init_socketio(app: Flask) -> None:
         # Development / test fallback — never reaches production due to guard above.
         cors_origins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'app://-']
 
-    socketio.init_app(
+    extension = SocketIO()
+    extension.init_app(
         app,
         cors_allowed_origins=cors_origins,
         async_mode='threading',  # Use 'eventlet' or 'gevent' in production
         logger=True,
         engineio_logger=True if os.environ.get('FLASK_ENV') == 'development' else False
     )
-    
+    extension.on_event('connect', handle_connect)
+    extension.on_event('disconnect', handle_disconnect)
+    extension.on_event('join', handle_join)
+    extension.on_event('leave', handle_leave)
+    extension.on_event('join_run_room', handle_join_run_room)
+    extension.on_event('leave_run_room', handle_leave_run_room)
+    extension.on_event('subscribe_simulation', handle_subscribe_simulation)
+    extension.on_event('chat_message', handle_chat_message)
+    app.extensions["dle_socketio"] = extension
     logger.info("WebSocket support initialized")
+    return extension
 
 
 # Connection events
-@socketio.on('connect')
 def handle_connect():
     """Handle client connection."""
     logger.info(f"Client connected: {request.sid}")
     emit('connected', {'status': 'connected', 'sid': request.sid})
 
 
-@socketio.on('disconnect')
 def handle_disconnect():
     """Handle client disconnection."""
     logger.info(f"Client disconnected: {request.sid}")
 
 
 # Room management
-@socketio.on('join')
 def handle_join(data):
     """Join a room for receiving targeted updates."""
     room = data.get('room')
@@ -70,7 +93,6 @@ def handle_join(data):
         emit('joined', {'room': room}, room=room)
 
 
-@socketio.on('leave')
 def handle_leave(data):
     """Leave a room."""
     room = data.get('room')
@@ -79,7 +101,6 @@ def handle_leave(data):
         logger.info(f"Client {request.sid} left room: {room}")
 
 
-@socketio.on('join_run_room')
 def handle_join_run_room(data):
     """Join a trace-run room for live stage updates."""
     run_id = data.get('run_id') if isinstance(data, dict) else None
@@ -90,7 +111,6 @@ def handle_join_run_room(data):
         emit('joined', {'run_id': str(run_id), 'room': room})
 
 
-@socketio.on('leave_run_room')
 def handle_leave_run_room(data):
     """Leave a trace-run room."""
     run_id = data.get('run_id') if isinstance(data, dict) else None
@@ -101,7 +121,6 @@ def handle_leave_run_room(data):
 
 
 # Simulation events
-@socketio.on('subscribe_simulation')
 def handle_subscribe_simulation(data):
     """Subscribe to simulation updates."""
     simulation_id = data.get('simulation_id')
@@ -114,7 +133,7 @@ def handle_subscribe_simulation(data):
 def emit_simulation_progress(simulation_id: str, progress: dict):
     """Emit simulation progress update to subscribers."""
     room = f"simulation_{simulation_id}"
-    socketio.emit('simulation_progress', {
+    get_socketio().emit('simulation_progress', {
         'simulation_id': simulation_id,
         **progress
     }, room=room)
@@ -123,7 +142,7 @@ def emit_simulation_progress(simulation_id: str, progress: dict):
 def emit_simulation_complete(simulation_id: str, results: dict):
     """Emit simulation completion to subscribers."""
     room = f"simulation_{simulation_id}"
-    socketio.emit('simulation_complete', {
+    get_socketio().emit('simulation_complete', {
         'simulation_id': simulation_id,
         'results': results
     }, room=room)
@@ -132,7 +151,7 @@ def emit_simulation_complete(simulation_id: str, results: dict):
 def emit_trace_stage_update(run_id: str, stage: dict):
     """Emit a run-scoped trace stage update."""
     room = f"run_{run_id}"
-    socketio.emit('trace_stage_update', {
+    get_socketio().emit('trace_stage_update', {
         'run_id': str(run_id),
         **stage,
     }, room=room)
@@ -142,16 +161,15 @@ def emit_trace_stage_update(run_id: str, stage: dict):
 def emit_notification(user_id: str, notification: dict):
     """Emit notification to a specific user."""
     room = f"user_{user_id}"
-    socketio.emit('notification', notification, room=room)
+    get_socketio().emit('notification', notification, room=room)
 
 
 def emit_broadcast(event: str, data: dict):
     """Broadcast event to all connected clients."""
-    socketio.emit(event, data)
+    get_socketio().emit(event, data)
 
 
 # Chat events
-@socketio.on('chat_message')
 def handle_chat_message(data):
     """Handle incoming chat message."""
     message = data.get('message')
@@ -173,7 +191,7 @@ def handle_chat_message(data):
 def emit_chat_response(session_id: str, response: str, personas: list = None):
     """Emit chat response to session."""
     room = f"chat_{session_id}"
-    socketio.emit('chat_response', {
+    get_socketio().emit('chat_response', {
         'session_id': session_id,
         'response': response,
         'personas': personas or []

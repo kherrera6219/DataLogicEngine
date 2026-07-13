@@ -8,7 +8,8 @@ enabling access to the context expert personas and their expertise models.
 
 import logging
 from datetime import datetime
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, has_app_context, jsonify, request
+from werkzeug.local import LocalProxy
 from core.axes.axis_system import AxisSystem
 from backend.utils.error_normalization import normalize_public_error_message
 
@@ -17,8 +18,24 @@ logger = logging.getLogger(__name__)
 # Create Blueprint for Context Experts API
 contextual_bp = Blueprint('contextual', __name__, url_prefix='/api/contextual')
 
-# Initialize axis system
-axis_system = AxisSystem()
+_fallback_axis_system = None
+
+
+def get_axis_system() -> AxisSystem:
+    """Return the contextual axis system owned by the active application."""
+    if has_app_context():
+        system = current_app.extensions.get("dle_axis_system")
+        if system is None:
+            system = AxisSystem()
+            current_app.extensions["dle_axis_system"] = system
+        return system
+    global _fallback_axis_system
+    if _fallback_axis_system is None:
+        _fallback_axis_system = AxisSystem()
+    return _fallback_axis_system
+
+
+axis_system = LocalProxy(get_axis_system)
 
 @contextual_bp.route('/experts', methods=['GET'])
 def get_all_experts():

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -282,22 +282,37 @@ Relevant files:
 
 **Default severity:** `SEV-2`; upgrade to `SEV-1` for production boot blocker.
 
-1. Review generated runtime precheck JSON report.
-2. Address blocker/action findings.
-3. Confirm `AUTO_CREATE_SCHEMA=true` is not set in production.
-4. Confirm `SESSION_SECRET` and required secrets are configured.
-5. Confirm dependency and lockfile metadata are aligned.
-6. Re-run precheck with matching flags:
+1. Compare `/live` and `/ready`. A live process that reports not ready is an
+   expected fail-closed state, not permission to bypass startup.
+2. Review readiness blockers and authenticated
+   `/api/v1/system/capabilities`; record phase, service state, safe reason,
+   expected/observed identity, and active lifecycle operation.
+3. Review generated runtime precheck JSON report and address blocker/action findings.
+4. Confirm production uses PostgreSQL, `AUTO_CREATE_SCHEMA=true` is absent, and
+   every required service is configured.
+5. Confirm `SESSION_SECRET` and required secrets are configured through an
+   approved protected source.
+6. If `runtime_already_owned` is reported, identify the owning DataLogicEngine
+   process/session. Do not delete the lock while that owner is alive.
+7. If the installation owner/version differs, stop and use repair/update; never
+   attach one Windows user or version to another runtime root.
+8. If a configured port is foreign, stop/configure the named product or select
+   an approved DataLogicEngine port. Never reuse the listener as healthy.
+9. Confirm dependency and lockfile metadata are aligned.
+10. Re-run precheck with matching flags:
    ```powershell
    python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
    ```
-7. Re-run CI/deploy workflow after remediation.
+11. Re-run the startup-side-effect and deterministic failure matrix before the
+    CI/deploy workflow after remediation.
 
 Relevant files:
 
 - `scripts/runtime_precheck.py`
 - `scripts/verify_lockfiles.py`
 - `scripts/verify_environment_parity.py`
+- `scripts/verify_startup_side_effects.py`
+- `backend/runtime/`
 
 ---
 
@@ -488,12 +503,49 @@ otherwise `SEV-2`.
 
 ---
 
+## Incident 18: Runtime ownership, readiness, or shutdown failure
+
+**Trigger:** second launch is refused unexpectedly, the shell opens before
+readiness, a service is reported ready under foreign identity, mutation traffic
+continues during drain, Windows lifecycle events are not reconciled, or an app
+listener remains after shutdown.
+
+**Default severity:** `SEV-1` for cross-user/foreign-service attachment, data
+corruption, or continued writes during shutdown; otherwise `SEV-2`.
+
+1. Stop new user activity and preserve redacted `/ready`, capabilities, runtime
+   logs, `installation.json`, and lock metadata.
+2. Do not delete installation/lock files or kill an unrelated port owner until
+   process, user, session, version, and product identity are verified.
+3. Confirm Electron waited on `/ready` and did not substitute `/health`.
+4. Verify the event was one of suspend, hibernate, resume, logoff, shutdown,
+   time change, or forced termination and that signed desktop auth was present.
+5. During drain, confirm new mutations receive `RUNTIME_NOT_ACCEPTING_WORK`.
+6. Run bounded stop, then verify ports 3000/5000 and app-owned child processes
+   are closed. Use forced cleanup only after the graceful budget expires.
+7. Run the repeated start/status/stop, crash/stale-lock, cross-user, lifecycle,
+   foreign-identity, low/read-only disk, and Electron active-request tests.
+8. Do not claim production recovery until every required service returns the
+   expected identity and `ready` state.
+
+Relevant files:
+
+- `backend/runtime/application.py`
+- `backend/runtime/ownership.py`
+- `backend/runtime/supervisor.py`
+- `frontend/electron/main.ts`
+- `frontend/electron/lifecycle.ts`
+- `scripts/windows/start_local_stack.ps1`
+- `scripts/windows/stop_local_stack.ps1`
+
+---
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.
 2. `GET /live` is healthy.
 3. `GET /ready` is healthy.
-4. `GET /metrics` returns expected metrics.
+4. Authenticated `GET /metrics` returns expected metrics.
 5. Core auth flow works for the expected owner/principal path.
 6. Gateway/DMRF request path returns expected policy behavior.
 7. Truth Engine health/status is normal where enabled.
@@ -502,6 +554,12 @@ otherwise `SEV-2`.
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.9.0
+
+1. Added runtime ownership/readiness/shutdown incident response and expanded
+   startup triage for phase failure, lock/version/user conflicts, foreign service
+   identity, mutation drain, and stale-owner recovery.
 
 ## Change notes for v2.8.0
 

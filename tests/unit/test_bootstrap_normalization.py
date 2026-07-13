@@ -26,6 +26,6 @@ def test_production_startup_rejects_auto_create_schema(monkeypatch):
     monkeypatch.setenv("ALLOW_PLAINTEXT_PROD_SECRETS", "true")
     monkeypatch.setenv("CORS_ORIGINS", "https://example.com")
 
+    app_module = importlib.import_module("app")
     with pytest.raises(RuntimeError, match="AUTO_CREATE_SCHEMA=true is not allowed in production"):
-        app_module = importlib.import_module("app")
-        importlib.reload(app_module)
+        app_module.create_app()

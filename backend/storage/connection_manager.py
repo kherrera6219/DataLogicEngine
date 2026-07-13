@@ -150,21 +150,15 @@ class ConnectionManager:
     """
     
     _instance: Optional['ConnectionManager'] = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
-    def __init__(self):
-        if self._initialized:
-            return
-        
+
+    def __init__(self, *, runtime_root: str | Path | None = None):
         self.config = self._load_config()
+        if runtime_root is not None:
+            database_root = Path(runtime_root).resolve() / "databases"
+            self.config.vector.local_path = str(database_root / "chroma")
+            self.config.object_storage.local_path = str(database_root / "objects")
         self._connections: Dict[str, Any] = {}
         self._health_status: Dict[str, bool] = {}
-        self._initialized = True
         
         logger.info(f"ConnectionManager initialized in {self.config.mode.value} mode")
     
@@ -376,5 +370,22 @@ class ConnectionManager:
 
 # Singleton accessor
 def get_connection_manager() -> ConnectionManager:
-    """Get the singleton ConnectionManager instance."""
-    return ConnectionManager()
+    """Return the manager owned by the active application instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            manager = current_app.extensions.get("dle_connection_manager")
+            if manager is None:
+                runtime = current_app.extensions.get("dle_runtime")
+                manager = ConnectionManager(
+                    runtime_root=runtime.runtime_root if runtime is not None else None
+                )
+                current_app.extensions["dle_connection_manager"] = manager
+            return manager
+    except ImportError:
+        pass
+
+    if ConnectionManager._instance is None:
+        ConnectionManager._instance = ConnectionManager()
+    return ConnectionManager._instance

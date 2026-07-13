@@ -532,7 +532,19 @@ _object_store: Optional[ObjectStore] = None
 
 
 def get_object_store() -> ObjectStore:
-    """Get the singleton ObjectStore instance."""
+    """Return an object store owned by the active application instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            store = current_app.extensions.get("dle_object_store")
+            if store is None:
+                store = ObjectStore()
+                current_app.extensions["dle_object_store"] = store
+            return store
+    except ImportError:
+        pass
+
     global _object_store
     if _object_store is None:
         _object_store = ObjectStore()

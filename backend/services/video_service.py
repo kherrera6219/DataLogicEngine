@@ -10,6 +10,8 @@ import sys
 import tempfile
 from typing import Dict, Any, List
 import base64
+from flask import current_app, has_app_context
+from werkzeug.local import LocalProxy
 
 logger = logging.getLogger(__name__)
 
@@ -170,5 +172,21 @@ class VideoService:
             logger.error(f"Exception during gateway video analysis: {e}")
             return f"Vision analysis exception: {str(e)}"
 
-# Global Instance
-video_service = VideoService()
+_fallback_video_service: VideoService | None = None
+
+
+def get_video_service() -> VideoService:
+    """Return a video service owned by the active application."""
+    if has_app_context():
+        service = current_app.extensions.get("dle_video_service")
+        if service is None:
+            service = VideoService()
+            current_app.extensions["dle_video_service"] = service
+        return service
+    global _fallback_video_service
+    if _fallback_video_service is None:
+        _fallback_video_service = VideoService()
+    return _fallback_video_service
+
+
+video_service = LocalProxy(get_video_service)

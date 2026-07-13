@@ -67,6 +67,12 @@ def main() -> int:
         ("responseDataRecord", "ipc-return-schema"),
         ("safeStorage.encryptString", "electron-secret-protection"),
         ("secureWindowsAclBestEffort", "electron-secret-acl"),
+        ("waitForBackendReady", "electron-core-readiness-wait"),
+        ("http://127.0.0.1:5000/ready", "electron-ready-probe"),
+        ("notifyBackendLifecycleEvent('shutdown')", "electron-graceful-backend-shutdown"),
+        ("app.on('before-quit'", "electron-bounded-before-quit"),
+        ("DLE_RUNTIME_ROOT", "electron-runtime-root-handoff"),
+        ("AUTO_CREATE_SCHEMA: 'False'", "electron-no-production-auto-schema"),
     ):
         present = token in main_source + preload_source
         if rule == "prefix-based-ipc-origin-check":

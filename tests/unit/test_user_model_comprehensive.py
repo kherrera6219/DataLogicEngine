@@ -13,7 +13,7 @@ Tests for User model methods and properties including:
 
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest.mock import MagicMock
 
 from models import User, db
 
@@ -174,10 +174,11 @@ class TestPasswordExpiration:
 class TestEmailEncryption:
     """Test email encryption/decryption"""
 
-    @patch('extensions.encryption_manager')
-    def test_email_getter_decrypts(self, mock_encryption, app, client):
+    def test_email_getter_decrypts(self, app, client, monkeypatch):
         """Test email property decrypts stored email"""
         with app.app_context():
+            mock_encryption = MagicMock()
+            monkeypatch.setitem(app.extensions, "dle_encryption_manager", mock_encryption)
             mock_encryption.decrypt.return_value = "test@example.com"
 
             user = User(username="testuser")
@@ -188,10 +189,11 @@ class TestEmailEncryption:
             assert result == "test@example.com"
             mock_encryption.decrypt.assert_called_once_with("encrypted_email_data", field_name='email')
 
-    @patch('extensions.encryption_manager')
-    def test_email_setter_encrypts(self, mock_encryption, app, client):
+    def test_email_setter_encrypts(self, app, client, monkeypatch):
         """Test email property encrypts email"""
         with app.app_context():
+            mock_encryption = MagicMock()
+            monkeypatch.setitem(app.extensions, "dle_encryption_manager", mock_encryption)
             mock_encryption.encrypt.return_value = "encrypted_email_data"
 
             user = User(username="testuser")
@@ -216,10 +218,11 @@ class TestEmailEncryption:
 
             assert user.email is None
 
-    @patch('extensions.encryption_manager')
-    def test_email_decryption_fallback(self, mock_encryption, app, client):
+    def test_email_decryption_fallback(self, app, client, monkeypatch):
         """Test email decryption falls back to plaintext"""
         with app.app_context():
+            mock_encryption = MagicMock()
+            monkeypatch.setitem(app.extensions, "dle_encryption_manager", mock_encryption)
             mock_encryption.decrypt.side_effect = ValueError("Decryption failed")
 
             user = User(username="testuser")

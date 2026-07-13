@@ -14,7 +14,13 @@ class DatabaseLifecycleManager:
     Designed for desktop deployment where external services are unavailable.
     """
     
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(
+        self,
+        base_dir: Optional[str] = None,
+        *,
+        stop_timeout_seconds: float = 10.0,
+        product_version: str = "0.1.1",
+    ):
         if base_dir:
             self.base_dir = base_dir
         else:
@@ -27,6 +33,9 @@ class DatabaseLifecycleManager:
                 application_path = os.getcwd()
             
             self.base_dir = os.path.join(application_path, 'databases')
+        self.stop_timeout_seconds = max(0.1, float(stop_timeout_seconds))
+        self.product_version = str(product_version)
+        self.last_failure_reasons: dict[str, str] = {}
         
         # Postgres Config
         self.pg_bin = os.path.join(self.base_dir, 'postgresql', 'bin')
@@ -49,6 +58,29 @@ class DatabaseLifecycleManager:
     def is_port_in_use(self, port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(('127.0.0.1', port)) == 0
+
+    def expected_identity(self, service: str) -> str:
+        return f"datalogicengine:{self.product_version}:{service}:{id(self)}"
+
+    def probe_service(self, service: str) -> tuple[bool, str | None]:
+        """Report health only when the owned child process is still alive."""
+        process_by_service = {
+            "postgresql": self.pg_process,
+            "redis": self.redis_process,
+            "neo4j": self.neo4j_process,
+        }
+        port_by_service = {
+            "postgresql": self.pg_port,
+            "redis": self.redis_port,
+            "neo4j": self.neo4j_port,
+        }
+        process = process_by_service[service]
+        if process is not None and process.poll() is None:
+            return True, f"{self.expected_identity(service)}:pid={process.pid}"
+        port = port_by_service[service]
+        if self.is_port_in_use(port):
+            return True, f"foreign-listener:127.0.0.1:{port}"
+        return False, None
 
     def _get_or_create_pg_password(self) -> str:
         """
@@ -85,8 +117,9 @@ class DatabaseLifecycleManager:
     def start_postgres(self):
         """Start portable PostgreSQL instance."""
         if self.is_port_in_use(self.pg_port):
-            logger.info(f"PostgreSQL port {self.pg_port} already in use. Assuming it is running.")
-            return
+            logger.error("PostgreSQL port %s is owned by an unverified listener", self.pg_port)
+            self.last_failure_reasons["postgresql"] = "foreign_listener_on_configured_port"
+            return False
 
         # Ensure data directory is initialized
         if not os.path.exists(os.path.join(self.pg_data, 'PG_VERSION')):
@@ -107,7 +140,8 @@ class DatabaseLifecycleManager:
                 )
             except Exception as e:
                 logger.error(f"Failed to initialize PostgreSQL: {e}")
-                return
+                self.last_failure_reasons["postgresql"] = "initialization_failed"
+                return False
 
         logger.info(f"Starting PostgreSQL on port {self.pg_port}...")
         try:
@@ -120,14 +154,19 @@ class DatabaseLifecycleManager:
                 '-h', '127.0.0.1'
             ], shell=False)  # nosec B603
             logger.info("PostgreSQL started successfully.")
+            self.last_failure_reasons.pop("postgresql", None)
+            return True
         except Exception as e:
             logger.error(f"Failed to start PostgreSQL: {e}")
+            self.last_failure_reasons["postgresql"] = "start_failed"
+            return False
 
     def start_redis(self):
         """Start portable Redis instance."""
         if self.is_port_in_use(self.redis_port):
-            logger.info(f"Redis port {self.redis_port} already in use. Assuming it is running.")
-            return
+            logger.error("Redis port %s is owned by an unverified listener", self.redis_port)
+            self.last_failure_reasons["redis"] = "foreign_listener_on_configured_port"
+            return False
 
         if not os.path.exists(self.redis_data):
             os.makedirs(self.redis_data)
@@ -148,8 +187,12 @@ class DatabaseLifecycleManager:
                 '--loglevel', 'warning'
             ], shell=False)  # nosec B603
             logger.info("Redis started successfully.")
+            self.last_failure_reasons.pop("redis", None)
+            return True
         except Exception as e:
             logger.error(f"Failed to start Redis: {e}")
+            self.last_failure_reasons["redis"] = "start_failed"
+            return False
 
     def _find_java_home(self) -> str:
         """Return a JAVA_HOME path, searching common locations when not set."""
@@ -207,8 +250,9 @@ class DatabaseLifecycleManager:
     def start_neo4j(self):
         """Start portable Neo4j instance."""
         if self.is_port_in_use(self.neo4j_port):
-            logger.info(f"Neo4j port {self.neo4j_port} already in use. Assuming it is running.")
-            return
+            logger.error("Neo4j port %s is owned by an unverified listener", self.neo4j_port)
+            self.last_failure_reasons["neo4j"] = "foreign_listener_on_configured_port"
+            return False
 
         logger.info(f"Starting Neo4j on port {self.neo4j_port}...")
         try:
@@ -225,28 +269,40 @@ class DatabaseLifecycleManager:
                 [safe_neo4j, 'console'], env=env, shell=False  # nosec B603
             )
             logger.info("Neo4j started successfully.")
+            self.last_failure_reasons.pop("neo4j", None)
+            return True
         except Exception as e:
             logger.error(f"Failed to start Neo4j: {e}")
+            self.last_failure_reasons["neo4j"] = "start_failed"
+            return False
 
     def start_all(self):
         """Start all managed database services."""
+        results = {}
         # Ensure base directories exist
         for db_name in ['postgresql', 'redis', 'neo4j']:
             path = os.path.join(self.base_dir, db_name)
             if not os.path.exists(path):
                 logger.warning(f"Database directory {path} does not exist. Skipping {db_name} startup.")
+                results[db_name] = False
                 continue
             
             if db_name == 'postgresql':
-                self.start_postgres()
+                results[db_name] = self.start_postgres()
             elif db_name == 'redis':
-                self.start_redis()
+                results[db_name] = self.start_redis()
             elif db_name == 'neo4j':
-                self.start_neo4j()
+                results[db_name] = self.start_neo4j()
+        return results
 
     def stop_all(self):
         """Gracefully shutdown all managed database services."""
         processes = []
+        results = {
+            "postgresql": self.pg_process is None,
+            "redis": self.redis_process is None,
+            "neo4j": self.neo4j_process is None,
+        }
         if self.pg_process:
             logger.info("Stopping PostgreSQL...")
             self.pg_process.terminate()
@@ -265,13 +321,35 @@ class DatabaseLifecycleManager:
         # Wait for all processes to exit
         for name, proc in processes:
             try:
-                proc.wait(timeout=10)
+                proc.wait(timeout=self.stop_timeout_seconds)
                 logger.info(f"{name} stopped.")
+                results[name.lower()] = True
             except subprocess.TimeoutExpired:
                 logger.warning(f"{name} did not stop gracefully. Killing...")
                 proc.kill()
                 proc.wait()
+                results[name.lower()] = True
+        self.pg_process = None
+        self.redis_process = None
+        self.neo4j_process = None
+        return results
+
+_process_db_manager: DatabaseLifecycleManager | None = None
+
 
 def get_db_manager() -> DatabaseLifecycleManager:
-    """Factory for DatabaseLifecycleManager."""
-    return DatabaseLifecycleManager()
+    """Return the application-owned manager or one process fallback instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            manager = current_app.extensions.get("dle_database_manager")
+            if manager is not None:
+                return manager
+    except ImportError:
+        pass
+
+    global _process_db_manager
+    if _process_db_manager is None:
+        _process_db_manager = DatabaseLifecycleManager()
+    return _process_db_manager

@@ -6,11 +6,10 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from flask import Blueprint, Response, current_app, jsonify, g, request, stream_with_context
+from flask import Blueprint, Response, current_app, has_app_context, jsonify, g, request, stream_with_context
 from datetime import datetime, UTC
 import asyncio
 import logging
-import threading
 import time
 
 from extensions import db
@@ -27,18 +26,9 @@ from backend.mcp_server.scope_enforcement import (
 
 logger = logging.getLogger(__name__)
 
-# Thread-local event loop for async operations (avoids blocking Flask routes)
-_async_loop = None
-_async_loop_lock = threading.Lock()
-
-
 def get_async_loop():
-    """Get or create a shared event loop for async operations."""
-    global _async_loop
-    with _async_loop_lock:
-        if _async_loop is None or _async_loop.is_closed():
-            _async_loop = asyncio.new_event_loop()
-        return _async_loop
+    """Create an operation-local event loop; callers must close it."""
+    return asyncio.new_event_loop()
 
 
 def run_async(coro):
@@ -46,13 +36,17 @@ def run_async(coro):
     loop = get_async_loop()
     try:
         return loop.run_until_complete(coro)
-    except RuntimeError:
-        # Fallback if loop is already running (shouldn't happen with thread-local)
-        new_loop = asyncio.new_event_loop()
-        try:
-            return new_loop.run_until_complete(coro)
-        finally:
-            new_loop.close()
+    finally:
+        loop.close()
+
+
+def get_mcp_router() -> MCPRouter:
+    """Return the JSON-RPC router owned by the active application."""
+    router = current_app.extensions.get("dle_mcp_router")
+    if router is None:
+        router = MCPRouter()
+        current_app.extensions["dle_mcp_router"] = router
+    return router
 
 
 from backend.auth.api_decorators import (
@@ -71,6 +65,11 @@ mcp_manager = None
 
 def init_mcp_manager(app_orchestrator=None):
     """Initialize the MCP manager"""
+    if has_app_context():
+        manager = MCPManager(app_orchestrator=app_orchestrator)
+        current_app.extensions["dle_mcp_manager"] = manager
+        logger.info("MCP Manager initialized")
+        return manager
     global mcp_manager
     mcp_manager = MCPManager(app_orchestrator=app_orchestrator)
     logger.info("MCP Manager initialized")
@@ -78,7 +77,18 @@ def init_mcp_manager(app_orchestrator=None):
 
 
 def get_mcp_manager():
-    """Get the global MCP manager instance"""
+    """Return the MCP manager owned by the active application."""
+    if has_app_context():
+        manager = current_app.extensions.get("dle_mcp_manager")
+        if manager is None:
+            manager = MCPManager()
+            current_app.extensions["dle_mcp_manager"] = manager
+        return manager
+    return get_fallback_mcp_manager()
+
+
+def get_fallback_mcp_manager():
+    """Compatibility accessor for explicit non-Flask tooling."""
     global mcp_manager
     if mcp_manager is None:
         mcp_manager = MCPManager()
@@ -174,7 +184,7 @@ def mcp_rpc():
                     "message": "Caller-supplied identity context is not allowed",
                 },
             }), 400
-        response = run_async(MCPRouter().handle_message(
+        response = run_async(get_mcp_router().handle_message(
             _without_caller_context(payload),
             execution_context=_build_tool_execution_context(),
         ))
@@ -188,10 +198,10 @@ def mcp_rpc():
 @api_session_login_required
 def mcp_subscription_stream(client_id):
     """SSE stream for MCP resource subscription notifications."""
-    from backend.mcp_server.subscriptions import subscription_manager
+    from backend.mcp_server.subscriptions import get_subscription_manager
 
     return Response(
-        stream_with_context(subscription_manager.stream(client_id)),
+        stream_with_context(get_subscription_manager().stream(client_id)),
         mimetype='text/event-stream',
         headers={
             'Cache-Control': 'no-cache',

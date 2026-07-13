@@ -96,7 +96,7 @@ function Resolve-DataServiceContainer([string]$PreferredName, [int]$Port) {
     # Prefer DataLogicEngine's OWN named container (ukg-*) so we never adopt a
     # *different* application's container that merely happens to publish the same
     # standard port (e.g. an unrelated Postgres squatting 5432). Only when our
-    # named container is absent do we fall back to the port-based lookup — and
+    # named container is absent do we fall back to the port-based lookup, and
     # then we warn loudly if the port owner is a foreign (non-ukg-) container,
     # because reusing its credentials silently couples us to another app's data.
     $byName = Get-DockerContainerByName -Name $PreferredName
@@ -111,7 +111,7 @@ function Resolve-DataServiceContainer([string]$PreferredName, [int]$Port) {
             $foreignName = $foreignName.TrimStart("/")
         }
         if ($foreignName -and -not $foreignName.StartsWith("ukg-")) {
-            Write-Step "WARNING: port $Port is owned by container '$foreignName', not DataLogicEngine's '$PreferredName'. Reusing its credentials — start DataLogicEngine's own stack (or free the port) to avoid coupling to another app." "Yellow"
+            Write-Step "WARNING: port $Port is owned by container '$foreignName', not DataLogicEngine's '$PreferredName'. Reusing its credentials; start DataLogicEngine's own stack (or free the port) to avoid coupling to another app." "Yellow"
         }
         return $byPort
     }
@@ -256,7 +256,7 @@ if ($FrontendPort -eq $BackendPort) {
 
 if ($WithDataServices) {
     # Key the reuse-vs-start decision on whether DataLogicEngine's OWN containers
-    # (ukg-*) are running — NOT on bare port-busy checks. A different app squatting
+    # (ukg-*) are running, NOT on bare port-busy checks. A different app squatting
     # the standard ports (e.g. an unrelated Postgres on 5432) must not be mistaken
     # for our stack and silently reused.
     $ownContainers = [ordered]@{
@@ -284,7 +284,7 @@ if ($WithDataServices) {
     }
     else {
         if ($foreignBusy.Count -gt 0) {
-            Write-Step "WARNING: standard data-service ports are held by other apps' containers ($($foreignBusy -join ', ')). DataLogicEngine's own containers cannot bind those ports — stop the other stack or free the ports." "Yellow"
+            throw "Data-service port ownership check failed: $($foreignBusy -join ', '). Stop the named foreign stack or configure/free DataLogicEngine's service ports before retrying. No foreign listener will be reused."
         }
         Write-Step "Starting DataLogicEngine data services (ukg-db / ukg-redis / ukg-neo4j / ukg-minio) via docker compose..."
         $dockerPath = Get-Command docker -ErrorAction SilentlyContinue
@@ -443,7 +443,7 @@ if (-not $env:USE_REDIS) {
 $env:SESSION_COOKIE_SECURE = "false"
 
 Write-Step "Starting backend on http://127.0.0.1:$BackendPort ..."
-$backendProcess = Start-Process -FilePath $PythonPath -ArgumentList "app.py" -WorkingDirectory $RepoRoot -PassThru
+$backendProcess = Start-Process -FilePath $PythonPath -ArgumentList "app.py" -WorkingDirectory $RepoRoot -WindowStyle Hidden -PassThru
 
 if (-not (Wait-HttpEndpoint -Url "http://127.0.0.1:$BackendPort/health")) {
     Stop-Process -Id $backendProcess.Id -Force -ErrorAction SilentlyContinue
@@ -455,7 +455,7 @@ $frontendProcess = $null
 if (-not $NoFrontend) {
     Assert-Path (Join-Path $FrontendDir "node_modules") "Frontend dependencies missing. Run: cd frontend; npm install"
     Write-Step "Starting frontend on http://127.0.0.1:$FrontendPort ..."
-    $frontendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev -- --hostname 127.0.0.1 --port $FrontendPort" -WorkingDirectory $FrontendDir -PassThru
+    $frontendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev -- --hostname 127.0.0.1 --port $FrontendPort" -WorkingDirectory $FrontendDir -WindowStyle Hidden -PassThru
 
     $frontendReady = $false
     for ($i = 1; $i -le 180; $i++) {

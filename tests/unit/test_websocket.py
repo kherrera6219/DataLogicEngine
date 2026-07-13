@@ -7,7 +7,7 @@ Tests the following:
 - Room subscription
 """
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 class TestWebSocketClient:
@@ -17,7 +17,8 @@ class TestWebSocketClient:
         """Test simulation progress emission."""
         from backend.websocket import emit_simulation_progress
         
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_simulation_progress('sim-123', {
                 'step': 5,
                 'total_steps': 10,
@@ -34,7 +35,8 @@ class TestWebSocketClient:
         """Test simulation completion emission."""
         from backend.websocket import emit_simulation_complete
         
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_simulation_complete('sim-456', {'result': 'success'})
             
             mock_socketio.emit.assert_called_once()
@@ -46,7 +48,8 @@ class TestWebSocketClient:
         """Test notification emission to user."""
         from backend.websocket import emit_notification
         
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_notification('user-789', {
                 'type': 'info',
                 'title': 'Test',
@@ -62,7 +65,8 @@ class TestWebSocketClient:
         """Test broadcast to all clients."""
         from backend.websocket import emit_broadcast
         
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_broadcast('system_event', {'message': 'Hello all'})
             
             mock_socketio.emit.assert_called_once_with(
@@ -74,7 +78,8 @@ class TestWebSocketClient:
         """Test chat response emission."""
         from backend.websocket import emit_chat_response
         
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_chat_response('session-abc', 'AI response here', ['Expert1'])
             
             mock_socketio.emit.assert_called_once()
@@ -87,7 +92,8 @@ class TestWebSocketClient:
         """Test trace stage updates are emitted to run-scoped rooms."""
         from backend.websocket import emit_trace_stage_update
 
-        with patch('backend.websocket.socketio') as mock_socketio:
+        mock_socketio = MagicMock()
+        with patch('backend.websocket.get_socketio', return_value=mock_socketio):
             emit_trace_stage_update('run-123', {'stage_id': 'stage-1', 'status': 'running'})
 
             mock_socketio.emit.assert_called_once()

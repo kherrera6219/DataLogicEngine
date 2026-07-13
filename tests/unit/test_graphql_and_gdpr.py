@@ -1,8 +1,8 @@
 import json
 
 
-def test_graphql_node_and_edge_counts(client):
-    response = client.post("/graphql", json={"query": "{ nodeCount edgeCount }"})
+def test_graphql_node_and_edge_counts(authenticated_client):
+    response = authenticated_client.post("/graphql", json={"query": "{ nodeCount edgeCount }"})
     assert response.status_code == 200
 
     payload = response.get_json()

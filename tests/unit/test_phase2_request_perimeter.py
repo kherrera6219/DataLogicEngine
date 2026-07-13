@@ -21,8 +21,10 @@ def test_trusted_host_policy_rejects_unknown_host(app, client):
 def test_https_redirect_does_not_trust_forwarded_proto_without_proxy_trust(app, monkeypatch):
     previous_testing = app.config.get("TESTING")
     previous_hosts = app.config.get("TRUSTED_HOSTS")
+    previous_production = app.config.get("DLE_PRODUCTION_MODE")
     app.config["TESTING"] = False
     app.config["TRUSTED_HOSTS"] = "trusted.example"
+    app.config["DLE_PRODUCTION_MODE"] = True
     monkeypatch.setenv("FLASK_ENV", "production")
 
     try:
@@ -35,6 +37,7 @@ def test_https_redirect_does_not_trust_forwarded_proto_without_proxy_trust(app, 
     finally:
         app.config["TESTING"] = previous_testing
         app.config["TRUSTED_HOSTS"] = previous_hosts
+        app.config["DLE_PRODUCTION_MODE"] = previous_production
 
     assert response.status_code == 301
     assert response.headers["Location"] == "https://trusted.example/health?x=1"

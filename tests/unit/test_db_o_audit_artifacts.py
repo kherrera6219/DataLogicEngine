@@ -131,15 +131,13 @@ def test_dsqp_chain_writes_deliverable_artifact(monkeypatch):
     assert payload["components"]["job_role"]["title"]
 
 
-def test_health_bucket_stats_reports_object_counts(monkeypatch):
-    import backend.storage.object_store as object_store_module
-
+def test_health_bucket_stats_reports_object_counts(app, monkeypatch):
     fake_store = FakeObjectStore()
     fake_store.put("audit_logs", "run-1.json", b"abc")
     fake_store.put("deliverables", "dsqp/persona.json", b"12345")
-    monkeypatch.setattr(object_store_module, "get_object_store", lambda: fake_store)
-
-    stats = app_module._object_store_bucket_stats()
+    with app.app_context():
+        monkeypatch.setitem(app.extensions, "dle_object_store", fake_store)
+        stats = app_module._object_store_bucket_stats()
 
     assert stats["status"] == "ok"
     assert stats["buckets"]["audit_logs"] == {"object_count": 1, "total_bytes": 3}

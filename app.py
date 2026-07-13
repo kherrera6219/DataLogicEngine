@@ -3,6 +3,8 @@ import os
 import re
 import json
 import logging
+import secrets
+import sys
 import time
 from threading import Lock, Thread
 from datetime import UTC, datetime, timedelta
@@ -11,15 +13,20 @@ from dotenv import load_dotenv
 
 from backend.bootstrap_compat import apply_runtime_compatibility_patches
 
-# Load environment variables from .env file BEFORE any other imports
-load_dotenv(override=False)  # override=False: Electron env vars take priority; .env fills only missing vars
-apply_runtime_compatibility_patches()
-
-from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response, g
+from flask import Blueprint, Flask, has_request_context, render_template, request, redirect, flash, jsonify, current_app, Response, g
 from flask_login import current_user
+from werkzeug.local import LocalProxy
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
 from extensions import limiter
+from backend.runtime import (
+    ApplicationRuntime,
+    LifecycleResult,
+    RuntimePhase,
+    ServiceState,
+    get_application_runtime,
+)
+from backend.runtime.application import default_runtime_root
 from backend.llm_gateway.latency_metrics import ai_latency_metrics_prometheus_lines
 from backend.logging_config import configure_structured_logging
 from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
@@ -35,27 +42,13 @@ from backend.security.secret_resolver import (
 )
 from backend.auth.api_decorators import api_login_required, api_session_login_required
 
-# Initialize crash reporting provider (Sentry if configured) with fallback mode.
-initialize_crash_reporting(
-    dsn=os.environ.get("SENTRY_DSN"),
-    environment=os.environ.get("FLASK_ENV", "production"),
-    release=os.environ.get("APP_VERSION", "1.2.0"),
-    traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
-    profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
-)
-
-# Configure logging - use INFO in production, DEBUG in development
-log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
 logger = logging.getLogger(__name__)
-IS_PRODUCTION_MODE = os.environ.get("FLASK_ENV") == "production"
-IS_DESKTOP_MODE = os.environ.get("IS_DESKTOP_APP", "False").lower() == "true"
-RESOLVED_SESSION_SECRET = None
-SESSION_SECRET_SOURCE = "missing"
+core_bp = Blueprint("dle_core", __name__)
 
 # Security: Warn about default credentials in production
-def validate_production_security():
+def validate_production_security(app: Flask) -> None:
     """Validate that no default/insecure credentials are in use in production."""
-    is_production = IS_PRODUCTION_MODE
+    is_production = bool(app.config.get("DLE_PRODUCTION_MODE"))
     
     # Check for default admin credentials
     admin_user = os.environ.get("ADMIN_USERNAME", "")
@@ -70,10 +63,13 @@ def validate_production_security():
             issues.append("Default admin username detected")
         if admin_pass and (admin_pass in insecure_passwords or len(admin_pass) < 12):
             issues.append("Insecure admin password (use min 12 chars)")
-        if not RESOLVED_SESSION_SECRET:
+        if not app.secret_key:
             issues.append("SESSION_SECRET not set")
-        elif not is_secure_secret_source(SESSION_SECRET_SOURCE):
-            issues.append(f"SESSION_SECRET is not vault-backed (source={SESSION_SECRET_SOURCE})")
+        elif not is_secure_secret_source(app.config.get("DLE_SESSION_SECRET_SOURCE", "missing")):
+            issues.append(
+                "SESSION_SECRET is not vault-backed "
+                f"(source={app.config.get('DLE_SESSION_SECRET_SOURCE', 'missing')})"
+            )
         
         if issues:
             logger.error(f"SECURITY: Production security issues: {', '.join(issues)}")
@@ -85,59 +81,9 @@ def validate_production_security():
         if admin_pass and admin_pass in insecure_passwords:
             logger.warning("SECURITY WARNING: Using default admin password. Change before deployment!")
 
-# Server configuration - bind to 5000 for Replit
+# Server configuration remains a constant default; each entry point resolves its
+# final port from the application configuration.
 DEFAULT_PORT = int(os.environ.get("PORT", 5000))
-
-# Create Flask app
-app = Flask(__name__)
-
-# Resolve SESSION_SECRET through vault-aware resolution pipeline.
-RESOLVED_SESSION_SECRET, SESSION_SECRET_SOURCE = resolve_runtime_secret(
-    "SESSION_SECRET",
-    required=False,
-    production_mode=IS_PRODUCTION_MODE and not app.config.get("TESTING", False),
-)
-
-try:
-    configure_structured_logging(app)
-except Exception as exc:
-    logging.basicConfig(level=log_level)
-    logger.warning("Structured logging setup failed, using basic logging fallback", exc_info=exc)
-
-# Run security validation (non-blocking)
-if __name__ != "__main__":  # Only run when starting as server
-    validate_production_security()
-
-# Security: Session secret from vault-aware resolver.
-# Fail fast if no secret is available in production; generate an ephemeral one for development.
-if not RESOLVED_SESSION_SECRET:
-    if IS_PRODUCTION_MODE:
-        raise RuntimeError(
-            "SESSION_SECRET must be configured before starting in production. "
-            "Run: python scripts/generate_secrets.py"
-        )
-    import secrets as _secrets  # noqa: PLC0415
-    RESOLVED_SESSION_SECRET = _secrets.token_hex(32)
-    SESSION_SECRET_SOURCE = "ephemeral"
-    logger.warning(
-        "SESSION_SECRET not set — using an ephemeral secret for this process. "
-        "Sessions will be invalidated on restart. Set SESSION_SECRET in .env for persistent sessions."
-    )
-app.secret_key = RESOLVED_SESSION_SECRET
-if IS_DESKTOP_MODE and os.environ.get("TRUST_PROXY_HEADERS", "false").lower() == "true":
-    raise RuntimeError("Proxy-provided Host/protocol headers are disabled for the desktop listener")
-if os.environ.get("TRUST_PROXY_HEADERS", "false").lower() == "true":
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-
-# Process-level observability counters for /metrics endpoint.
-APP_START_TIME = time.time()
-REQUEST_METRICS = {
-    "total": 0,
-    "inflight": 0,
-    "route_status_totals": {},
-    "route_latency_ms": {},
-}
-REQUEST_METRICS_LOCK = Lock()
 LEGACY_API_PREFIXES = {
     "/api/compliance": "/api/v1/compliance",
     "/api/ka": "/api/v1/ka",
@@ -150,43 +96,6 @@ LEGACY_API_PREFIXES = {
     "/api/v1/ukg": "/api/v1",
 }
 LEGACY_API_SUNSET = "Wed, 30 Sep 2026 00:00:00 GMT"
-
-# Session hardening
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-# In production, enforce Strict SameSite and Secure cookies
-is_production = os.environ.get("FLASK_ENV") == "production"
-app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Strict" if is_production else "Lax")
-app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "True" if is_production else "False").lower() == "true"
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
-    minutes=int(os.environ.get("SESSION_LIFETIME_MINUTES", 30))
-)
-
-# Configure database with production-ready connection pooling
-database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Configure engine options based on database type
-# SQLite doesn't support connection pooling options
-if database_url.startswith("sqlite"):
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,  # Verify connections before use
-    }
-else:
-    # PostgreSQL and other databases support full pooling
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,  # Verify connections before use
-        "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),  # Recycle every 5 min
-        "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),  # Production pool size
-        "max_overflow": int(os.environ.get("DB_POOL_MAX_OVERFLOW", 30)),  # Extra connections for peak load
-        "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),  # Connection timeout
-    }
-
-# Rate limiting
-# Rate limiting
-# Rate limiting configuration
-app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")
-app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 
 
 def _metric_route_label() -> str:
@@ -201,41 +110,49 @@ def _prometheus_label_value(value: str) -> str:
     return str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
 
 
-@app.before_request
+def _current_correlation_id() -> str | None:
+    return getattr(g, "correlation_id", None) if has_request_context() else None
+
+
+@core_bp.before_app_request
 def track_request_metrics_start():
     """Track aggregate request counts for lightweight operational metrics."""
     g.request_started_at = time.perf_counter()
-    with REQUEST_METRICS_LOCK:
-        REQUEST_METRICS["total"] += 1
-        REQUEST_METRICS["inflight"] += 1
+    get_application_runtime().metrics.begin_request()
 
 
-@app.after_request
+@core_bp.before_app_request
+def enforce_runtime_admission():
+    """Reject new mutations while startup, shutdown, or lifecycle work drains."""
+    runtime = get_application_runtime()
+    if runtime.admits_request(request.method, request.path):
+        return None
+    return jsonify(
+        {
+            "success": False,
+            "error": "Application runtime is not accepting new work",
+            "code": "RUNTIME_NOT_ACCEPTING_WORK",
+            "phase": runtime.phase.value,
+        }
+    ), 503
+
+
+@core_bp.after_app_request
 def track_request_metrics_end(response):
     """Ensure in-flight counter is decremented for all completed responses."""
     route_label = _metric_route_label()
-    status_family = f"{response.status_code // 100}xx"
     method = request.method.upper()
     duration_ms = max(
         0.0,
         (time.perf_counter() - getattr(g, "request_started_at", time.perf_counter())) * 1000.0,
     )
 
-    with REQUEST_METRICS_LOCK:
-        REQUEST_METRICS["inflight"] = max(0, REQUEST_METRICS["inflight"] - 1)
-        route_status_key = (method, route_label, status_family)
-        route_status_totals = REQUEST_METRICS["route_status_totals"]
-        route_status_totals[route_status_key] = route_status_totals.get(route_status_key, 0) + 1
-
-        latency_key = (method, route_label)
-        route_latency = REQUEST_METRICS["route_latency_ms"]
-        latency_stats = route_latency.setdefault(
-            latency_key,
-            {"count": 0, "sum_ms": 0.0, "max_ms": 0.0},
-        )
-        latency_stats["count"] += 1
-        latency_stats["sum_ms"] += duration_ms
-        latency_stats["max_ms"] = max(latency_stats["max_ms"], duration_ms)
+    get_application_runtime().metrics.record_request(
+        method,
+        route_label,
+        response.status_code,
+        duration_ms,
+    )
     return response
 
 
@@ -315,10 +232,10 @@ def _request_hostname() -> str:
     return _hostname_from_value(raw_host)
 
 
-@app.before_request
+@core_bp.before_app_request
 def validate_trusted_host():
     """Reject untrusted Host values when a host policy is configured."""
-    if IS_DESKTOP_MODE:
+    if current_app.config.get("DLE_DESKTOP_MODE"):
         if _request_hostname() not in {"localhost", "127.0.0.1", "::1"}:
             return jsonify(
                 {
@@ -331,7 +248,7 @@ def validate_trusted_host():
 
     trusted_hosts = _trusted_hosts()
     if not trusted_hosts:
-        if os.environ.get("FLASK_ENV") == "production" and not current_app.config.get("TESTING"):
+        if current_app.config.get("DLE_PRODUCTION_MODE") and not current_app.config.get("TESTING"):
             return jsonify(
                 {
                     "error": "Trusted host policy is not configured",
@@ -352,10 +269,10 @@ def validate_trusted_host():
     return None
 
 
-@app.before_request
+@core_bp.before_app_request
 def validate_desktop_origin():
     """Reject browser origins that cannot belong to the packaged/local renderer."""
-    if not IS_DESKTOP_MODE:
+    if not current_app.config.get("DLE_DESKTOP_MODE"):
         return None
 
     origin = (request.headers.get("Origin") or "").strip().rstrip("/").lower()
@@ -387,7 +304,7 @@ def _redirect_target_url() -> str:
     return request.url.replace("http://", "https://", 1)
 
 
-@app.after_request
+@core_bp.after_app_request
 def normalize_server_error_payload(response):
     """Sanitize 5xx JSON payloads to block raw exception/provider leaks."""
     if response.status_code < 500 or not response.is_json:
@@ -406,7 +323,7 @@ def normalize_server_error_payload(response):
     return response
 
 
-@app.after_request
+@core_bp.after_app_request
 def add_legacy_api_deprecation_headers(response):
     successor_path = _legacy_api_successor_path(request.path)
     if successor_path is None:
@@ -420,61 +337,22 @@ def add_legacy_api_deprecation_headers(response):
 
 
 # Strict TLS Redirection in Production
-@app.before_request
+@core_bp.before_app_request
 def force_https():
     """Force HTTPS redirection in production environments."""
-    is_prod = os.environ.get('FLASK_ENV') == 'production'
-    if IS_DESKTOP_MODE:
+    is_prod = current_app.config.get("DLE_PRODUCTION_MODE")
+    if current_app.config.get("DLE_DESKTOP_MODE"):
         return None
     if is_prod and not current_app.config.get("TESTING") and not request.is_secure:
         return redirect(_redirect_target_url(), code=301)
 
 # SSO Configuration
 from backend.auth.sso import configure_sso
-configure_sso(app)
-
-
-# Configure Caching and Celery
-redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-# Check if Redis is likely available (naive check, real check happens on connect)
-use_redis = "localhost" not in redis_url or os.environ.get("USE_REDIS", "False").lower() == "true"
-
-if use_redis:
-    app.config["CACHE_TYPE"] = "RedisCache"
-    app.config["CACHE_REDIS_URL"] = redis_url
-    app.config["CELERY_BROKER_URL"] = redis_url
-    app.config["CELERY_RESULT_BACKEND"] = redis_url
-else:
-    # Fallback for development/tests without Redis
-    app.config["CACHE_TYPE"] = "SimpleCache"
-    app.config["CELERY_BROKER_URL"] = "memory://"
-    app.config["CELERY_RESULT_BACKEND"] = "db+sqlite:///results.db" 
-    app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
-
-# Initialize extensions with app
 from extensions import db, login_manager, csrf, migrate, cache, compress, cors
 from models import User
-db.init_app(app)
-login_manager.init_app(app)
-csrf.init_app(app)
-migrate.init_app(app, db)
-
-# Configure limiter storage — auto-wire to Redis when available so rate limit
-# counters are shared across all Gunicorn workers (prevents bypass via multi-process).
-_explicit_rate_storage = os.environ.get("RATELIMIT_STORAGE_URI")
-if _explicit_rate_storage:
-    app.config["RATELIMIT_STORAGE_URI"] = _explicit_rate_storage
-elif use_redis:
-    app.config["RATELIMIT_STORAGE_URI"] = redis_url
-else:
-    app.config["RATELIMIT_STORAGE_URI"] = "memory://"
-limiter.init_app(app)
-cache.init_app(app)
-compress.init_app(app)
 
 # Initialize WebSockets
 from backend.websocket import init_socketio
-init_socketio(app)
 
 
 def _normalize_origin(raw_origin: str) -> str:
@@ -497,43 +375,8 @@ def _parse_cors_origins(raw_origins):
     return []
 
 
-# Configure CORS with explicit allowlist defaults.
-cors_origins = _parse_cors_origins(app.config.get("CORS_ORIGINS") or os.environ.get("CORS_ORIGINS"))
-if is_production and not app.config.get("TESTING") and (not cors_origins or "*" in cors_origins):
-    raise RuntimeError("CORS_ORIGINS must be explicitly configured in production (wildcard is disallowed)")
-
-if not cors_origins:
-    cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]
-
-cors_allow_credentials = "*" not in cors_origins
-cors.init_app(
-    app,
-    resources={r"/api/*": {"origins": cors_origins}},
-    supports_credentials=cors_allow_credentials,
-)
-
-# Trusted origins used for same-origin CSRF checks on session-authenticated API requests.
-TRUSTED_CSRF_ORIGINS = {
-    normalized
-    for normalized in (_normalize_origin(origin) for origin in cors_origins)
-    if normalized
-}
-# Electron app:// origins are always allowed — the scheme is not reachable from web browsers.
-TRUSTED_CSRF_ORIGINS.update({"app://-", "app://dashboard"})
-# Loopback origins are only trusted in non-production to avoid CSRF bypass in deployed environments.
-if not IS_PRODUCTION_MODE:
-    TRUSTED_CSRF_ORIGINS.update(
-        {
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:5000",
-            "http://127.0.0.1:5000",
-        }
-    )
-
 # Initialize Celery
 from backend.celery_app import make_celery
-celery = make_celery(app)
 
 # Exempt JSON API endpoints from CSRF (they use session auth or API keys)
 # CSRF is still enforced on all HTML form submissions
@@ -541,10 +384,6 @@ from flask_wtf.csrf import CSRFError
 from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
 from backend.auth import api_decorators as auth_api_decorators
 from backend.utils.error_normalization import normalize_public_error_message
-
-# Keep CSRF protection for forms and enforce strict same-origin checks on
-# session-authenticated API/GraphQL requests.
-app.config["WTF_CSRF_CHECK_DEFAULT"] = False
 
 # Single-mode / OS-level auth (auth deprecation Phase C, 2026-06-13): only the
 # desktop Windows-identity endpoints remain. The former web-app auth routes
@@ -574,18 +413,19 @@ def _request_uses_signed_desktop_auth() -> bool:
 
 
 def _is_trusted_origin_request() -> bool:
+    trusted_origins = current_app.config.get("DLE_TRUSTED_CSRF_ORIGINS", set())
     origin_header = request.headers.get("Origin", "")
     if origin_header:
-        return _normalize_origin(origin_header) in TRUSTED_CSRF_ORIGINS
+        return _normalize_origin(origin_header) in trusted_origins
 
     referer_header = request.headers.get("Referer", "")
     if referer_header:
-        return _normalize_origin(referer_header) in TRUSTED_CSRF_ORIGINS
+        return _normalize_origin(referer_header) in trusted_origins
 
     return False
 
 
-@app.before_request
+@core_bp.before_app_request
 def csrf_for_forms_only():
     if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
         return None
@@ -623,7 +463,7 @@ def csrf_for_forms_only():
     return None
 
 # Handle CSRF errors
-@app.errorhandler(CSRFError)
+@core_bp.app_errorhandler(CSRFError)
 def handle_csrf_error(e):
     from flask import request
     if request.is_json or request.headers.get('Content-Type', '').startswith('application/json'):
@@ -633,14 +473,6 @@ def handle_csrf_error(e):
 
 # Initialize Unified Middleware Stack (Hardened)
 from backend.middleware import setup_middleware
-setup_middleware(app)
-
-# Initialize Session Management
-if use_redis:
-    from backend.security.session_manager import configure_session_manager
-    configure_session_manager(app)
-else:
-    app.logger.info("[startup] - Using default cookie-based session storage (Redis disabled)")
 
 
 # Import models (after extensions initialization)
@@ -673,18 +505,20 @@ def password_meets_policy(password: str) -> bool:
     has_symbol = re.search(r"[^A-Za-z0-9]", password)
     return all([has_upper, has_lower, has_digit, has_symbol])
 
-def _should_auto_create_schema() -> bool:
+def _should_auto_create_schema(app: Flask | None = None) -> bool:
     """Require explicit opt-in before mutating schema at process startup."""
-    return os.environ.get("AUTO_CREATE_SCHEMA", "False").lower() == "true"
+    if app is None:
+        return _env_bool("AUTO_CREATE_SCHEMA")
+    return bool(app.config.get("DLE_INITIALIZE_SCHEMA"))
 
 
-def _initialize_database_schema() -> None:
+def _initialize_database_schema(app: Flask) -> None:
     """Initialize schema only when explicitly requested for disposable environments."""
-    if not _should_auto_create_schema():
+    if not _should_auto_create_schema(app):
         logger.info("Startup schema auto-creation disabled; use 'flask db upgrade' or backend/init_db.py.")
         return
 
-    if IS_PRODUCTION_MODE and not IS_DESKTOP_MODE:
+    if app.config.get("DLE_PRODUCTION_MODE"):
         raise RuntimeError(
             "AUTO_CREATE_SCHEMA=true is not allowed in production. "
             "Apply migrations explicitly with 'flask db upgrade' before startup."
@@ -692,7 +526,7 @@ def _initialize_database_schema() -> None:
 
     with app.app_context():
         db.create_all()
-        if IS_DESKTOP_MODE and database_url.startswith("sqlite"):
+        if app.config.get("DLE_DESKTOP_MODE") and app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
             from backend.desktop.schema_upgrade import apply_desktop_sqlite_upgrades
 
             upgraded_columns = apply_desktop_sqlite_upgrades(db.engine)
@@ -706,9 +540,6 @@ def _initialize_database_schema() -> None:
             "Do not enable this in managed or production environments."
         )
 
-
-_initialize_database_schema()
-
 # Multi-tenant Postgres RLS removed (single-mode / single-tenant deployment) — see
 # docs/audits/DataLogicEngine_Auth_Deprecation_Plan.md (Phase D).
 
@@ -718,7 +549,7 @@ _initialize_database_schema()
 
 # KA Routes moved to routes/ka_routes.py (registered via routes package)
 
-def _register_application_routes() -> None:
+def _register_application_routes(app: Flask) -> None:
     """Register canonical application blueprints in one startup location."""
     from backend.truth_engine.api import truth_api
 
@@ -834,35 +665,41 @@ def _register_application_routes() -> None:
 
     register_routes(app)
 
-
-_register_application_routes()
-
-
-def _initialize_storage_collections() -> None:
+def _initialize_storage_collections(app: Flask) -> dict[str, bool]:
     """Ensure ChromaDB named collections and object-storage buckets exist at startup."""
-    try:
-        from backend.storage.vector_store import initialize_collections
-        initialize_collections()
-        logger.info("ChromaDB collections initialized")
-        _maybe_start_db_c_indexing()
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.warning("ChromaDB collection init skipped: %s", exc)
+    result = {"chroma": False, "object_store": False}
+    with app.app_context():
+        try:
+            from backend.storage.vector_store import initialize_collections
+            initialize_collections()
+            result["chroma"] = True
+            logger.info("ChromaDB collections initialized")
+            _maybe_start_db_c_indexing(app)
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.warning("ChromaDB collection init skipped: %s", exc)
 
-    try:
-        from backend.storage.object_store import get_object_store
-        store = get_object_store()
-        for bucket in ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]:
-            store.create_bucket(bucket)
-        logger.info("Object storage buckets initialized")
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.warning("Object storage bucket init skipped: %s", exc)
+        try:
+            from backend.storage.object_store import get_object_store
+            store = get_object_store()
+            for bucket in ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]:
+                store.create_bucket(bucket)
+            result["object_store"] = True
+            logger.info("Object storage buckets initialized")
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.warning("Object storage bucket init skipped: %s", exc)
+    return result
 
 def _chroma_collection_counts() -> dict:
     """Return ChromaDB collection counts for health and desktop IPC."""
     try:
-        from backend.storage.vector_store import get_collection_counts
-
-        return get_collection_counts()
+        store = current_app.extensions.get("dle_vector_store")
+        if store is None:
+            return {}
+        stats = store.list_collection_stats()
+        return {
+            name: int((data or {}).get("count", (data or {}).get("total_count", 0)) or 0)
+            for name, data in stats.items()
+        }
     except Exception as exc:  # pylint: disable=broad-except
         logger.debug("ChromaDB collection counts unavailable: %s", exc)
         return {}
@@ -888,9 +725,9 @@ def _object_store_bucket_stats() -> dict:
     buckets = ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]
     stats: dict[str, dict[str, int | str]] = {}
     try:
-        from backend.storage.object_store import get_object_store
-
-        store = get_object_store()
+        store = current_app.extensions.get("dle_object_store")
+        if store is None:
+            raise RuntimeError("object_store_not_initialized")
         for bucket in buckets:
             objects = store.list(bucket)
             stats[bucket] = {
@@ -912,9 +749,10 @@ def _object_store_bucket_stats() -> dict:
 def _structured_memory_stats() -> dict:
     """Return StructuredMemoryGraph stats for health and desktop IPC."""
     try:
-        from backend.memory import get_unified_memory_service
-
-        return get_unified_memory_service().stats()
+        service = current_app.extensions.get("dle_unified_memory_service")
+        if service is None:
+            raise RuntimeError("memory_service_not_initialized")
+        return service.stats()
     except Exception as exc:  # pylint: disable=broad-except
         logger.debug("Structured memory stats unavailable: %s", exc)
         return {
@@ -925,16 +763,16 @@ def _structured_memory_stats() -> dict:
         }
 
 
-def _db_c_auto_index_enabled() -> bool:
-    configured = os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP")
+def _db_c_auto_index_enabled(app: Flask) -> bool:
+    configured = app.config.get("DB_C_AUTO_INDEX_ON_STARTUP")
     if configured is not None:
         return configured.lower() in {"1", "true", "yes", "on"}
-    if os.environ.get("FLASK_ENV", "").lower() == "testing":
+    if app.config.get("TESTING"):
         return False
-    return os.environ.get("IS_DESKTOP_APP", "").lower() in {"1", "true", "yes", "on"}
+    return bool(app.config.get("DLE_DESKTOP_MODE"))
 
 
-def _run_db_c_indexing_background() -> None:
+def _run_db_c_indexing_background(app: Flask) -> None:
     """Run DB-C knowledge-node indexing inside an app context."""
     try:
         from scripts.index_knowledge_nodes import index_from_database
@@ -946,80 +784,50 @@ def _run_db_c_indexing_background() -> None:
         logger.warning("DB-C knowledge_nodes background index failed: %s", exc)
 
 
-def _maybe_start_db_c_indexing() -> None:
+def _maybe_start_db_c_indexing(app: Flask) -> None:
     """Trigger DB-C indexing when local desktop Chroma starts empty."""
-    if not _db_c_auto_index_enabled():
+    if not _db_c_auto_index_enabled(app):
         return
     counts = _chroma_collection_counts()
     if counts.get("knowledge_nodes", 0) > 0:
         return
-    Thread(target=_run_db_c_indexing_background, name="db-c-index-knowledge-nodes", daemon=True).start()
+    thread = Thread(
+        target=_run_db_c_indexing_background,
+        args=(app,),
+        name="db-c-index-knowledge-nodes",
+        daemon=True,
+    )
+    get_application_runtime(app).track_thread(thread)
+    thread.start()
 
 
-_initialize_storage_collections()
-
-
-def _initialize_uskd_memory_graph() -> None:
+def _initialize_uskd_memory_graph(app: Flask) -> None:
     """Load the RAM-resident USKD graph from SQL rows, then Neo4j if available."""
     try:
         from backend.storage import get_graph_store, get_uskd_memory_graph
 
-        memory_graph = get_uskd_memory_graph()
         with app.app_context():
+            memory_graph = get_uskd_memory_graph()
             sql_stats = memory_graph.load_from_database(db.session)
-        logger.info("USKD memory graph loaded from SQL: %s", sql_stats.to_dict())
+            logger.info("USKD memory graph loaded from SQL: %s", sql_stats.to_dict())
 
-        graph_store = get_graph_store()
-        if os.environ.get("USKD_SYNC_NEO4J_ON_STARTUP", "false").lower() in {"1", "true", "yes", "on"}:
-            try:
-                from scripts.sync_nodes_to_neo4j import sync
+            graph_store = get_graph_store()
+            if os.environ.get("USKD_SYNC_NEO4J_ON_STARTUP", "false").lower() in {"1", "true", "yes", "on"}:
+                try:
+                    from scripts.sync_nodes_to_neo4j import sync
 
-                sync_result = sync()
-                logger.info("USKD SQL→Neo4j startup sync complete: %s", sync_result)
-            except Exception as sync_exc:  # pylint: disable=broad-except
-                logger.warning("USKD SQL→Neo4j startup sync skipped: %s", sync_exc)
+                    sync_result = sync()
+                    logger.info("USKD SQL→Neo4j startup sync complete: %s", sync_result)
+                except Exception as sync_exc:  # pylint: disable=broad-except
+                    logger.warning("USKD SQL→Neo4j startup sync skipped: %s", sync_exc)
 
-        neo4j_stats = memory_graph.load_from_neo4j(graph_store)
-        if neo4j_stats.node_count:
-            logger.info("USKD memory graph refreshed from Neo4j: %s", neo4j_stats.to_dict())
+            neo4j_stats = memory_graph.load_from_neo4j(graph_store)
+            if neo4j_stats.node_count:
+                logger.info("USKD memory graph refreshed from Neo4j: %s", neo4j_stats.to_dict())
     except Exception as exc:  # pylint: disable=broad-except
         logger.warning("USKD memory graph init skipped: %s", exc)
 
-
-_initialize_uskd_memory_graph()
-
-
-def _start_local_databases() -> None:
-    """Auto-start bundled PostgreSQL, Redis, and Neo4j when running in local/desktop mode.
-
-    Mirrors the main.py Electron startup pattern so plain `python app.py` behaves
-    identically to the packaged desktop app.  Non-fatal — a missing binary directory
-    or an already-running service is silently skipped.
-    """
-    import atexit
-
-    try:
-        from backend.storage.runtime_settings import get_auto_start_databases
-        if not get_auto_start_databases():
-            logger.info("Local database auto-start disabled by user setting")
-            return
-    except Exception as exc:
-        logger.debug("Could not read auto-start setting, defaulting to enabled: %s", exc)
-
-    try:
-        from backend.storage.database_manager import get_db_manager
-        db_manager = get_db_manager()
-        db_manager.start_all()
-        atexit.register(db_manager.stop_all)
-        logger.info("Local database auto-start complete")
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.warning("Local database auto-start skipped: %s", exc)
-
-
-_start_local_databases()
-
-
-@app.route('/api/v1/csp-report', methods=['POST'])
+@core_bp.route('/api/v1/csp-report', methods=['POST'])
 @api_login_required
 def csp_report():
     """Receive and log Content-Security-Policy violation reports."""
@@ -1038,12 +846,12 @@ def csp_report():
 def _config_health() -> dict:
     """Summarize configuration readiness for lightweight health checks."""
 
-    secret_key_status = "set" if app.secret_key else "missing"
-    environment = os.environ.get("FLASK_ENV", "production")
+    secret_key_status = "set" if current_app.secret_key else "missing"
+    environment = current_app.config.get("DLE_ENVIRONMENT", "production")
     return {
         "environment": environment,
         "secret_key": secret_key_status,
-        "secret_source": SESSION_SECRET_SOURCE,
+        "secret_source": current_app.config.get("DLE_SESSION_SECRET_SOURCE", "missing"),
     }
 
 
@@ -1073,24 +881,31 @@ def _database_health() -> dict:
 
 def _readiness_payload() -> tuple[dict, int]:
     """Build canonical readiness payload and HTTP status."""
+    runtime_payload, _ = get_application_runtime().readiness()
     config_state = _config_health()
     database_state = _database_health()
 
-    blockers = []
+    blockers = list(runtime_payload["blockers"])
+    blocker_details = dict(runtime_payload.get("blocker_details", {}))
     if database_state.get("status") != "ok":
         blockers.append("database")
+        blocker_details["database"] = "unavailable"
     if config_state.get("secret_key") == "missing":
         blockers.append("secret_key")
+        blocker_details["secret_key"] = "missing"
 
     is_ready = not blockers
     status_code = 200 if is_ready else 503
     payload = {
         "status": "ready" if is_ready else "not_ready",
         "checks": {
+            "runtime": runtime_payload["phase"],
             "database": database_state.get("status", "error"),
             "secret_key": config_state.get("secret_key", "missing"),
         },
         "blockers": blockers,
+        "blocker_details": blocker_details,
+        "correlation_id": _current_correlation_id(),
         "timestamp": datetime.now(UTC).isoformat(),
     }
     return payload, status_code
@@ -1098,15 +913,12 @@ def _readiness_payload() -> tuple[dict, int]:
 
 def _prometheus_metrics_payload() -> str:
     """Render low-cardinality Prometheus metrics in text exposition format."""
-    uptime_seconds = max(0.0, time.time() - APP_START_TIME)
-    with REQUEST_METRICS_LOCK:
-        total_requests = REQUEST_METRICS["total"]
-        inflight_requests = REQUEST_METRICS["inflight"]
-        route_status_totals = dict(REQUEST_METRICS["route_status_totals"])
-        route_latency_ms = {
-            key: value.copy()
-            for key, value in REQUEST_METRICS["route_latency_ms"].items()
-        }
+    metrics_snapshot = get_application_runtime().metrics.snapshot()
+    uptime_seconds = max(0.0, time.time() - metrics_snapshot["started_at"])
+    total_requests = metrics_snapshot["total"]
+    inflight_requests = metrics_snapshot["inflight"]
+    route_status_totals = metrics_snapshot["route_status_totals"]
+    route_latency_ms = metrics_snapshot["route_latency_ms"]
 
     readiness_payload, readiness_code = _readiness_payload()
     readiness_ok = 1 if readiness_code == 200 else 0
@@ -1171,26 +983,27 @@ def _prometheus_metrics_payload() -> str:
     return "\n".join(lines) + "\n"
 
 
-@app.route("/live", methods=["GET"])
+@core_bp.route("/live", methods=["GET"])
 def live() -> tuple:
     """Liveness endpoint: process is running."""
     return jsonify(
         {
             "status": "live",
             "service": "datalogicengine",
+            "correlation_id": _current_correlation_id(),
             "timestamp": datetime.now(UTC).isoformat(),
         }
     ), 200
 
 
-@app.route("/ready", methods=["GET"])
+@core_bp.route("/ready", methods=["GET"])
 def ready() -> tuple:
     """Readiness endpoint: app dependencies are operational."""
     payload, status_code = _readiness_payload()
     return jsonify(payload), status_code
 
 
-@app.route("/health", methods=["GET"])
+@core_bp.route("/health", methods=["GET"])
 def health() -> tuple:
     """Public-safe health endpoint without configuration or data-store details."""
 
@@ -1209,19 +1022,21 @@ def health() -> tuple:
     payload = {
         "status": overall_status,
         "service": "datalogicengine",
+        "correlation_id": _current_correlation_id(),
         "timestamp": datetime.now(UTC).isoformat(),
     }
 
     return jsonify(payload), http_status
 
 
-@app.route("/api/v1/system/diagnostics/health", methods=["GET"])
+@core_bp.route("/api/v1/system/diagnostics/health", methods=["GET"])
 @api_session_login_required
 def health_diagnostics() -> tuple:
     """Authenticated desktop diagnostics separated from public health."""
     return jsonify(
         {
             "status": "ok",
+            "runtime": get_application_runtime().capabilities(),
             "config": _config_health(),
             "database": _database_health(),
             "timestamp": datetime.now(UTC).isoformat(),
@@ -1229,7 +1044,51 @@ def health_diagnostics() -> tuple:
     ), 200
 
 
-@app.route("/health/cache", methods=["GET"])
+@core_bp.route("/api/v1/system/capabilities", methods=["GET"])
+@api_session_login_required
+def system_capabilities() -> tuple:
+    """Return authenticated, machine-readable runtime capability state."""
+    return jsonify(
+        {
+            "status": "ok",
+            "capabilities": get_application_runtime().capabilities(),
+            "correlation_id": _current_correlation_id(),
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    ), 200
+
+
+@core_bp.route("/api/v1/system/lifecycle/event", methods=["POST"])
+@api_session_login_required
+def system_lifecycle_event() -> tuple:
+    """Accept signed main-process Windows lifecycle notifications."""
+    from backend.auth.api_decorators import check_desktop_request_auth
+
+    is_desktop_request, _user = check_desktop_request_auth()
+    if not is_desktop_request:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Desktop lifecycle authorization required",
+                "code": "DESKTOP_LIFECYCLE_AUTH_REQUIRED",
+            }
+        ), 403
+    payload = request.get_json(silent=True) or {}
+    event = payload.get("event")
+    try:
+        get_application_runtime().handle_system_event(str(event or ""))
+    except ValueError:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Unsupported lifecycle event",
+                "code": "UNSUPPORTED_LIFECYCLE_EVENT",
+            }
+        ), 400
+    return jsonify({"success": True, "event": event}), 202
+
+
+@core_bp.route("/health/cache", methods=["GET"])
 @api_session_login_required
 def health_cache() -> tuple:
     """Redis liveness check for QC validation."""
@@ -1239,7 +1098,7 @@ def health_cache() -> tuple:
     return jsonify({"redis": status, "timestamp": datetime.now(UTC).isoformat()}), 200 if ok else 503
 
 
-@app.route("/metrics", methods=["GET"])
+@core_bp.route("/metrics", methods=["GET"])
 @api_session_login_required
 def metrics() -> Response:
     """Canonical metrics endpoint for infrastructure scraping."""
@@ -1250,30 +1109,30 @@ def metrics() -> Response:
 
 # Simulation API routes are registered via routes.register_routes()
 
-@app.route('/api-docs')
+@core_bp.route('/api-docs')
 def api_docs():
     return render_template('api_docs.html')
 
-@app.route('/about')
+@core_bp.route('/about')
 def about():
     return render_template('about.html')
 
-@app.route('/contact')
+@core_bp.route('/contact')
 def contact():
     return render_template('contact.html')
 
-@app.route('/terms')
+@core_bp.route('/terms')
 def terms():
     return render_template('terms.html')
 
-@app.route('/privacy')
+@core_bp.route('/privacy')
 def privacy():
     return render_template('privacy.html')
 
 # Note: /profile and /settings are defined in routes.py with more complete implementations
 
 # Error handlers
-@app.errorhandler(404)
+@core_bp.app_errorhandler(404)
 def not_found(e):
     """Handle 404 Not Found errors."""
     # Log the error internally
@@ -1287,7 +1146,7 @@ def not_found(e):
         }
     }), 404
 
-@app.errorhandler(500)
+@core_bp.app_errorhandler(500)
 def server_error(e):
     """Handle 500 Internal Server errors without exposing stack traces."""
     crash_id = capture_exception_with_fallback(
@@ -1314,14 +1173,14 @@ def server_error(e):
     return response, 500
 
 
-@app.errorhandler(Exception)
+@core_bp.app_errorhandler(Exception)
 def unhandled_exception(e):
     """Fallback handler for non-HTTP uncaught exceptions."""
     if isinstance(e, HTTPException):
         return e
     return server_error(e)
 
-@app.errorhandler(403)
+@core_bp.app_errorhandler(403)
 def forbidden(e):
     """Handle 403 Forbidden errors."""
     logger.warning(f"403 Forbidden: {request.url} - User: {current_user.username if current_user and current_user.is_authenticated else 'Anonymous'}")
@@ -1334,7 +1193,7 @@ def forbidden(e):
         }
     }), 403
 
-@app.errorhandler(429)
+@core_bp.app_errorhandler(429)
 def ratelimit_handler(e):
     """Handle rate limit exceeded errors."""
     logger.warning(f"429 Rate Limit Exceeded: {request.url} - IP: {request.remote_addr}")
@@ -1348,44 +1207,504 @@ def ratelimit_handler(e):
         }
     }), 429
 
-# Wrap initialization in create_app factory for testing and proper context
-def create_app(config_name=None, config_overrides=None):
-    """Return the configured application, with lightweight test overrides.
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw_value = os.environ.get(name)
+    if raw_value is None:
+        return default
+    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
-    The application still uses the legacy global app for compatibility with
-    existing scripts and tests, but callers can request common runtime profiles
-    without mutating config piecemeal at every call site.
-    """
-    if isinstance(config_name, dict):
-        app.config.update(config_name)
-    elif config_name in {"test", "testing"}:
+
+def _service_names(value) -> tuple[str, ...]:
+    if not value:
+        return ()
+    if isinstance(value, str):
+        values = value.split(",")
+    else:
+        values = value
+    return tuple(sorted({str(item).strip() for item in values if str(item).strip()}))
+
+
+def _configure_application(
+    app: Flask,
+    config_name=None,
+    config_overrides: dict | None = None,
+) -> None:
+    """Load and validate configuration without starting process resources."""
+    load_dotenv(override=False)
+    apply_runtime_compatibility_patches()
+
+    named_overrides = config_name if isinstance(config_name, dict) else {}
+    profile = str(config_name or os.environ.get("FLASK_ENV", "production")).lower()
+    testing = profile in {"test", "testing"}
+    environment = "testing" if testing else str(os.environ.get("FLASK_ENV", profile)).lower()
+    production = environment == "production" and not testing
+    desktop = _env_bool("IS_DESKTOP_APP")
+    database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
+    required_default = "postgresql,redis,neo4j,minio,chroma" if production else ""
+
+    app.config.from_mapping(
+        ENV=environment,
+        TESTING=testing,
+        DLE_ENVIRONMENT=environment,
+        APP_VERSION=os.environ.get("APP_VERSION", "0.1.1"),
+        DLE_PRODUCTION_MODE=production,
+        DLE_DESKTOP_MODE=desktop,
+        DLE_START_RUNTIME=False,
+        DLE_START_MANAGED_SERVICES=production or desktop,
+        DLE_INITIALIZE_SCHEMA=_env_bool("AUTO_CREATE_SCHEMA"),
+        DLE_INITIALIZE_STORES=not testing,
+        DLE_START_BACKGROUND_WORKERS=not testing,
+        DLE_REQUIRED_SERVICES=os.environ.get("DLE_REQUIRED_SERVICES", required_default),
+        DLE_RUNTIME_ROOT=os.environ.get("DLE_RUNTIME_ROOT"),
+        DLE_CONFIGURE_LOGGING=not testing,
+        DLE_SERVICE_START_TIMEOUT_SECONDS=float(
+            os.environ.get("DLE_SERVICE_START_TIMEOUT_SECONDS", "30")
+        ),
+        DLE_SERVICE_STOP_TIMEOUT_SECONDS=float(
+            os.environ.get("DLE_SERVICE_STOP_TIMEOUT_SECONDS", "15")
+        ),
+        DLE_DRAIN_TIMEOUT_SECONDS=float(
+            os.environ.get("DLE_DRAIN_TIMEOUT_SECONDS", "5")
+        ),
+        DLE_FAIL_STARTUP_PHASE=os.environ.get("DLE_FAIL_STARTUP_PHASE", ""),
+        DB_C_AUTO_INDEX_ON_STARTUP=os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP"),
+        PORT=int(os.environ.get("PORT", DEFAULT_PORT)),
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE=os.environ.get(
+            "SESSION_COOKIE_SAMESITE",
+            "Strict" if production else "Lax",
+        ),
+        SESSION_COOKIE_SECURE=_env_bool("SESSION_COOKIE_SECURE", production),
+        PERMANENT_SESSION_LIFETIME=timedelta(
+            minutes=int(os.environ.get("SESSION_LIFETIME_MINUTES", 30))
+        ),
+        SQLALCHEMY_DATABASE_URI=database_url,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        RATELIMIT_DEFAULT=os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour"),
+        RATELIMIT_STORAGE_URI=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
+        CORS_ORIGINS=os.environ.get("CORS_ORIGINS"),
+        WTF_CSRF_CHECK_DEFAULT=False,
+    )
+    app.config.update(named_overrides)
+    if config_overrides:
+        app.config.update(config_overrides)
+
+    # Overrides may select a test profile without using config_name.
+    if app.config.get("TESTING"):
         app.config.update(
-            TESTING=True,
+            DLE_ENVIRONMENT="testing",
+            DLE_PRODUCTION_MODE=False,
             WTF_CSRF_ENABLED=False,
             RATELIMIT_ENABLED=False,
         )
 
-    if config_overrides:
-        app.config.update(config_overrides)
+    if app.config.get("DLE_PRODUCTION_MODE") and app.config.get("DLE_INITIALIZE_SCHEMA"):
+        raise RuntimeError(
+            "AUTO_CREATE_SCHEMA=true is not allowed in production. "
+            "Apply versioned migrations before readiness."
+        )
 
-    return app
-
-# Configure logging - use INFO in production, DEBUG in development
-if not app.debug:
-    # Set up production logging if needed
-    pass
-
-# Run the application
-if __name__ == '__main__':
-    # CRITICAL: Force debug=False in production, regardless of environment variable leaks
-    is_prod = os.environ.get('FLASK_ENV') == 'production'
-    if is_prod:
-        debug_mode = False
+    database_url = str(app.config["SQLALCHEMY_DATABASE_URI"])
+    if app.config.get("DLE_PRODUCTION_MODE") and database_url.startswith("sqlite"):
+        raise RuntimeError(
+            "Production requires the supervised PostgreSQL data plane; SQLite fallback is disabled"
+        )
+    if database_url.startswith("sqlite"):
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
     else:
-        debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_pre_ping": True,
+            "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),
+            "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),
+            "max_overflow": int(os.environ.get("DB_POOL_MAX_OVERFLOW", 30)),
+            "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),
+        }
 
-    # Local `python app.py` defaults to loopback-only; production should use a WSGI server.
+    resolved_secret = app.config.get("SECRET_KEY")
+    secret_source = "config" if resolved_secret else "missing"
+    if not resolved_secret:
+        resolved_secret, secret_source = resolve_runtime_secret(
+            "SESSION_SECRET",
+            required=False,
+            production_mode=bool(app.config.get("DLE_PRODUCTION_MODE")),
+        )
+    if not resolved_secret:
+        if app.config.get("DLE_PRODUCTION_MODE"):
+            raise RuntimeError(
+                "SESSION_SECRET must be configured before starting in production. "
+                "Run: python scripts/generate_secrets.py"
+            )
+        resolved_secret = secrets.token_hex(32)
+        secret_source = "ephemeral"
+    app.secret_key = resolved_secret
+    app.config["DLE_SESSION_SECRET_SOURCE"] = secret_source
+
+    trust_proxy_headers = _env_bool("TRUST_PROXY_HEADERS")
+    if app.config.get("DLE_DESKTOP_MODE") and trust_proxy_headers:
+        raise RuntimeError("Proxy-provided Host/protocol headers are disabled for the desktop listener")
+    if trust_proxy_headers:
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+
+def _configure_caching_and_extensions(app: Flask) -> None:
+    """Initialize Flask extensions with per-application state."""
+    redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    use_redis = bool(app.config.get("DLE_PRODUCTION_MODE")) or (
+        "localhost" not in redis_url or _env_bool("USE_REDIS")
+    )
+    app.config["DLE_USE_REDIS"] = use_redis
+    if use_redis:
+        app.config.update(
+            CACHE_TYPE="RedisCache",
+            CACHE_REDIS_URL=redis_url,
+            CELERY_BROKER_URL=redis_url,
+            CELERY_RESULT_BACKEND=redis_url,
+        )
+    else:
+        app.config.update(
+            CACHE_TYPE=app.config.get("CACHE_TYPE", "SimpleCache"),
+            CELERY_BROKER_URL="memory://",
+            CELERY_RESULT_BACKEND="db+sqlite:///results.db",
+            CELERY_TASK_ALWAYS_EAGER=True,
+        )
+
+    explicit_rate_storage = os.environ.get("RATELIMIT_STORAGE_URI")
+    if explicit_rate_storage:
+        app.config["RATELIMIT_STORAGE_URI"] = explicit_rate_storage
+    elif use_redis:
+        app.config["RATELIMIT_STORAGE_URI"] = redis_url
+    else:
+        app.config["RATELIMIT_STORAGE_URI"] = "memory://"
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    csrf.init_app(app)
+    migrate.init_app(app, db)
+    limiter.init_app(app)
+    cache.init_app(app)
+    compress.init_app(app)
+    init_socketio(app)
+    configure_sso(app)
+
+    cors_origins = _parse_cors_origins(app.config.get("CORS_ORIGINS"))
+    if app.config.get("DLE_PRODUCTION_MODE") and not app.config.get("TESTING") and (
+        not cors_origins or "*" in cors_origins
+    ):
+        raise RuntimeError("CORS_ORIGINS must be explicitly configured in production (wildcard is disallowed)")
+    if not cors_origins:
+        cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]
+    cors.init_app(
+        app,
+        resources={r"/api/*": {"origins": cors_origins}},
+        supports_credentials="*" not in cors_origins,
+    )
+    trusted_origins = {
+        normalized
+        for normalized in (_normalize_origin(origin) for origin in cors_origins)
+        if normalized
+    }
+    trusted_origins.update({"app://-", "app://dashboard"})
+    if not app.config.get("DLE_PRODUCTION_MODE"):
+        trusted_origins.update(
+            {
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:5000",
+                "http://127.0.0.1:5000",
+            }
+        )
+    app.config["DLE_TRUSTED_CSRF_ORIGINS"] = trusted_origins
+    app.extensions["dle_celery"] = make_celery(app)
+    setup_middleware(app)
+    if use_redis:
+        from backend.security.session_manager import configure_session_manager
+
+        configure_session_manager(app)
+
+
+def _configure_owned_security_services(app: Flask, runtime: ApplicationRuntime) -> None:
+    """Create key and audit services under this application's runtime root."""
+    from backend.security.audit_logger import AuditLogger
+    from backend.security.encryption_manager import EncryptionManager
+
+    audit_root = runtime.runtime_root / "logs" / "audit"
+    immutable_root = runtime.runtime_root / "logs" / "audit_immutable"
+    key_root = runtime.runtime_root / "security" / "keys"
+    audit_logger = AuditLogger(
+        {
+            "log_dir": str(audit_root),
+            "immutable_replica_dir": str(immutable_root),
+        },
+        auto_start=False,
+    )
+    encryption_manager = EncryptionManager(
+        key_dir=str(key_root),
+        audit_logger=audit_logger,
+    )
+    app.extensions["dle_audit_logger"] = audit_logger
+    app.extensions["dle_encryption_manager"] = encryption_manager
+
+
+def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None:
+    """Register every process-life service with the one runtime supervisor."""
+    from backend.storage.database_manager import DatabaseLifecycleManager
+
+    required_services = set(_service_names(app.config.get("DLE_REQUIRED_SERVICES")))
+    database_root = runtime.runtime_root / "databases"
+    start_timeout = float(app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0))
+    stop_timeout = float(app.config.get("DLE_SERVICE_STOP_TIMEOUT_SECONDS", 15.0))
+    manager = DatabaseLifecycleManager(
+        base_dir=str(database_root),
+        stop_timeout_seconds=stop_timeout,
+        product_version=str(app.config.get("APP_VERSION", "0.1.1")),
+    )
+    app.extensions["dle_database_manager"] = manager
+
+    start_callbacks = {
+        "postgresql": manager.start_postgres,
+        "redis": manager.start_redis,
+        "neo4j": manager.start_neo4j,
+    }
+    for service, start_callback in start_callbacks.items():
+        def supervised_start(service=service, start_callback=start_callback):
+            success = start_callback()
+            if success:
+                return True
+            reason = manager.last_failure_reasons.get(service, "start_failed")
+            state = (
+                ServiceState.BLOCKED
+                if reason == "foreign_listener_on_configured_port"
+                else ServiceState.FAILED
+            )
+            return LifecycleResult(service, "start", False, state, reason)
+
+        service_dir = database_root / service
+        runtime.supervisor.register(
+            service,
+            required=service in required_services,
+            start=supervised_start,
+            stop=lambda manager=manager, service=service: manager.stop_all().get(service, False),
+            probe=lambda service=service: manager.probe_service(service),
+            endpoint={
+                "postgresql": f"127.0.0.1:{manager.pg_port}",
+                "redis": f"127.0.0.1:{manager.redis_port}",
+                "neo4j": f"127.0.0.1:{manager.neo4j_port}",
+            }[service],
+            expected_identity=manager.expected_identity(service),
+            installed=service_dir.exists(),
+            start_timeout_seconds=start_timeout,
+            stop_timeout_seconds=stop_timeout,
+        )
+
+    # Phase 3 supplies the concrete MinIO/Chroma service adapters. Until then,
+    # they are explicitly not installed and therefore block production readiness.
+    for service in ("minio", "chroma"):
+        runtime.supervisor.register(
+            service,
+            required=service in required_services,
+            installed=False,
+            start_timeout_seconds=start_timeout,
+            stop_timeout_seconds=stop_timeout,
+        )
+    runtime.supervisor.register(
+        "workers",
+        installed=True,
+        depends_on=tuple(sorted(required_services)),
+        start_timeout_seconds=start_timeout,
+        stop_timeout_seconds=stop_timeout,
+    )
+    runtime.supervisor.register(
+        "api_gateway",
+        installed=True,
+        depends_on=("workers",),
+        start_timeout_seconds=start_timeout,
+        stop_timeout_seconds=stop_timeout,
+    )
+
+
+def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None:
+    def configure_phase(_runtime: ApplicationRuntime) -> None:
+        validate_production_security(app)
+
+    def paths_phase(active_runtime: ApplicationRuntime) -> None:
+        active_runtime.runtime_root.mkdir(parents=True, exist_ok=True)
+        if not app.config.get("TESTING"):
+            from backend.security.windows_acl import ensure_restricted_user_acl
+
+            ensure_restricted_user_acl(
+                active_runtime.runtime_root,
+                required=bool(app.config.get("DLE_PRODUCTION_MODE")),
+            )
+
+    def migration_phase(_runtime: ApplicationRuntime) -> None:
+        _initialize_database_schema(app)
+
+    def runtime_lock_phase(active_runtime: ApplicationRuntime) -> None:
+        active_runtime.ownership.acquire()
+        if (
+            active_runtime.ownership.identity is not None
+            and active_runtime.ownership.identity.version
+            != str(app.config.get("APP_VERSION", "0.1.1"))
+        ):
+            raise RuntimeError("installation_version_mismatch")
+        _configure_owned_security_services(app, active_runtime)
+        if app.config.get("DLE_CONFIGURE_LOGGING"):
+            app.config.setdefault("LOG_FILE", str(active_runtime.runtime_root / "logs" / "app.log"))
+            app.config.setdefault("SECURITY_LOG_FILE", str(active_runtime.runtime_root / "logs" / "security.log"))
+            app.config.setdefault("AUDIT_LOG_FILE", str(active_runtime.runtime_root / "logs" / "audit.log"))
+            configure_structured_logging(app)
+
+    def supervisor_phase(active_runtime: ApplicationRuntime) -> None:
+        if not app.config.get("DLE_START_MANAGED_SERVICES"):
+            return
+        if app.config.get("DLE_DESKTOP_MODE"):
+            from backend.storage.runtime_settings import get_auto_start_databases
+
+            if not get_auto_start_databases():
+                logger.info("Managed service auto-start is disabled by desktop settings")
+                return
+        for service in ("postgresql", "redis", "neo4j"):
+            active_runtime.supervisor.start(service)
+
+    def verification_phase(active_runtime: ApplicationRuntime) -> None:
+        for service in ("postgresql", "redis", "neo4j"):
+            state = active_runtime.supervisor.snapshot().get(service, {}).get("state")
+            if state not in {"not_installed", "blocked"}:
+                active_runtime.supervisor.probe(service)
+
+    def stores_phase(_runtime: ApplicationRuntime) -> None:
+        if app.config.get("DLE_INITIALIZE_STORES"):
+            store_results = _initialize_storage_collections(app)
+            _runtime.supervisor.update_status(
+                "chroma",
+                ServiceState.READY if store_results["chroma"] else ServiceState.FAILED,
+                safe_reason=None if store_results["chroma"] else "store_initialization_failed",
+                observed_identity=f"datalogicengine:chroma:{_runtime.instance_id}",
+            )
+            _initialize_uskd_memory_graph(app)
+
+    def workers_phase(_runtime: ApplicationRuntime) -> None:
+        initialize_crash_reporting(
+            dsn=os.environ.get("SENTRY_DSN"),
+            environment=str(app.config.get("DLE_ENVIRONMENT", "production")),
+            release=os.environ.get("APP_VERSION", "1.2.0"),
+            traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+            profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
+        )
+        if app.config.get("DLE_START_BACKGROUND_WORKERS"):
+            app.extensions["dle_audit_logger"].start_log_rotation()
+
+    def readiness_phase(active_runtime: ApplicationRuntime) -> None:
+        if app.config.get("DLE_PRODUCTION_MODE") and active_runtime.supervisor.required_blockers():
+            raise RuntimeError("required_services_not_ready")
+
+    def shutdown_phase(_runtime: ApplicationRuntime) -> None:
+        audit_logger = app.extensions.get("dle_audit_logger")
+        if audit_logger is not None:
+            try:
+                audit_logger.stop_log_rotation()
+            except Exception:
+                logger.exception("Audit logger shutdown failed")
+        memory_service = app.extensions.get("dle_unified_memory_service")
+        if memory_service is not None:
+            try:
+                memory_service.save()
+            except Exception:
+                logger.exception("Memory checkpoint during shutdown failed")
+        graph_store = app.extensions.get("dle_graph_store")
+        if graph_store is not None:
+            try:
+                graph_store.close()
+            except Exception:
+                logger.exception("Graph client shutdown failed")
+        try:
+            with app.app_context():
+                db.session.remove()
+                for engine in db.engines.values():
+                    engine.dispose()
+        finally:
+            _runtime.ownership.release()
+
+    runtime.on_phase(RuntimePhase.CONFIGURATION, configure_phase)
+    runtime.on_phase(RuntimePhase.PATHS_AND_ACL, paths_phase)
+    runtime.on_phase(RuntimePhase.RUNTIME_LOCK, runtime_lock_phase)
+    runtime.on_phase(RuntimePhase.SERVICE_SUPERVISOR, supervisor_phase)
+    runtime.on_phase(RuntimePhase.SERVICE_VERIFICATION, verification_phase)
+    runtime.on_phase(RuntimePhase.MIGRATIONS, migration_phase)
+    runtime.on_phase(RuntimePhase.STORES, stores_phase)
+    runtime.on_phase(RuntimePhase.ROUTES_AND_WORKERS, workers_phase)
+    runtime.on_phase(RuntimePhase.READINESS, readiness_phase)
+    runtime.on_shutdown(shutdown_phase)
+
+
+def create_app(
+    config_name=None,
+    config_overrides: dict | None = None,
+    *,
+    start_runtime: bool | None = None,
+) -> Flask:
+    """Build one isolated Flask application and its owned runtime state."""
+    application = Flask(__name__)
+    _configure_application(application, config_name, config_overrides)
+    runtime = ApplicationRuntime(
+        application,
+        runtime_root=default_runtime_root(application),
+        required_services=_service_names(application.config.get("DLE_REQUIRED_SERVICES")),
+    )
+    application.extensions["dle_runtime"] = runtime
+    _configure_runtime_services(application, runtime)
+    _configure_caching_and_extensions(application)
+    application.register_blueprint(core_bp)
+    _register_application_routes(application)
+    _register_runtime_callbacks(application, runtime)
+
+    should_start = application.config.get("DLE_START_RUNTIME") if start_runtime is None else start_runtime
+    if should_start:
+        runtime.start()
+    return application
+
+
+_default_app = None
+_default_app_lock = Lock()
+
+
+def _get_default_app() -> Flask:
+    """Return the deprecated compatibility app without import-time construction."""
+    global _default_app
+    if _default_app is None:
+        with _default_app_lock:
+            if _default_app is None:
+                testing = "pytest" in sys.modules
+                _default_app = create_app(
+                    "testing" if testing else None,
+                    {
+                        "DLE_INITIALIZE_SCHEMA": False,
+                        "DLE_INITIALIZE_STORES": False if testing else not _env_bool("DLE_SKIP_STORE_INIT"),
+                        "DLE_START_BACKGROUND_WORKERS": False if testing else True,
+                    },
+                    start_runtime=True,
+                )
+    return _default_app
+
+
+# Compatibility only. Importing app.py no longer constructs an application; new
+# code and every process entry point must call create_app explicitly.
+app = LocalProxy(_get_default_app)
+celery = LocalProxy(lambda: _get_default_app().extensions["dle_celery"])
+
+
+if __name__ == '__main__':
     from backend.security.listener_policy import resolve_loopback_listener_host
 
+    application = create_app(start_runtime=True)
+    is_prod = bool(application.config.get("DLE_PRODUCTION_MODE"))
+    debug_mode = False if is_prod else (
+        application.config.get("DLE_ENVIRONMENT") == "development" or _env_bool("FLASK_DEBUG")
+    )
     run_host = resolve_loopback_listener_host(os.environ.get('FLASK_RUN_HOST'))
-    app.run(host=run_host, port=DEFAULT_PORT, debug=debug_mode)
+    application.run(
+        host=run_host,
+        port=int(application.config.get("PORT", DEFAULT_PORT)),
+        debug=debug_mode,
+        use_reloader=False,
+    )

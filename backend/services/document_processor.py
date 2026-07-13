@@ -7,6 +7,8 @@ import logging
 import io
 from typing import Dict, Any
 from datetime import datetime
+from flask import current_app, has_app_context
+from werkzeug.local import LocalProxy
 
 logger = logging.getLogger(__name__)
 
@@ -186,5 +188,21 @@ class DocumentProcessor:
                     continue
             raise ValueError("Unable to decode text file with any common encoding")
 
-# Global instance
-document_processor = DocumentProcessor()
+_fallback_document_processor: DocumentProcessor | None = None
+
+
+def get_document_processor() -> DocumentProcessor:
+    """Return a document processor owned by the active application."""
+    if has_app_context():
+        processor = current_app.extensions.get("dle_document_processor")
+        if processor is None:
+            processor = DocumentProcessor()
+            current_app.extensions["dle_document_processor"] = processor
+        return processor
+    global _fallback_document_processor
+    if _fallback_document_processor is None:
+        _fallback_document_processor = DocumentProcessor()
+    return _fallback_document_processor
+
+
+document_processor = LocalProxy(get_document_processor)

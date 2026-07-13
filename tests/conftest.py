@@ -33,7 +33,7 @@ if str(ROOT_DIR) not in sys.path:
 
 import pytest
 from flask import has_app_context
-from app import app as flask_app, db
+from app import create_app, db
 from extensions import limiter, login_manager
 from sqlalchemy.engine import Engine
 
@@ -46,6 +46,22 @@ from tests._helpers import (
     authenticate_client_session,
     drop_all_test_tables,
     is_sqlite_test_db,  # noqa: F401  (re-exported for tests)
+)
+
+
+flask_app = create_app(
+    "testing",
+    {
+        "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URL,
+        "DLE_RUNTIME_ROOT": str(
+            ROOT_DIR / ".pytest_cache" / f"runtime-{os.getpid()}-{__name__.replace('.', '-')}"
+        ),
+        "DLE_INITIALIZE_SCHEMA": False,
+        "DLE_INITIALIZE_STORES": False,
+        "DLE_START_MANAGED_SERVICES": False,
+        "DLE_START_BACKGROUND_WORKERS": False,
+    },
+    start_runtime=True,
 )
 
 
@@ -129,6 +145,7 @@ def _final_engine_cleanup():
         db.session.remove()
         _dispose_sqlalchemy_engines()
         _dispose_stray_sqlalchemy_engines()
+    flask_app.extensions["dle_runtime"].shutdown()
 
 @pytest.fixture
 def client(app):

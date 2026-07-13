@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -14,7 +14,10 @@
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
-This version reflects the current code-backed architecture: local-first runtime modes, DMRF control plane, 17-axis routing, DSQP persona construction, Truth Engine v7.3, multi-store memory, frontend trace review, and release-governed validation.
+This version reflects the current code-backed architecture: an isolated
+application factory and owned runtime, local-first runtime modes, DMRF control
+plane, 17-axis routing, DSQP persona construction, Truth Engine v7.3,
+multi-store memory, frontend trace review, and release-governed validation.
 
 ## Audience
 
@@ -58,11 +61,14 @@ User prompt
 The major architecture planes are:
 
 1. **Experience plane** — Next.js/Electron frontend, dashboard, chat, graph, runs/trace explorer, Truth Engine monitor, MCP hub, admin, privacy/disclosures.
-2. **API/security plane** — Flask API, sessions, CSRF, CORS, trusted hosts, rate limits, desktop local auth, middleware, operational health.
-3. **AI control plane** — DMRF orchestration, injection defense, tiering, 17-axis routing, DSQP, Truth Engine integration, convergence policy, observability.
-4. **Truth Engine plane** — TruthGate, TruthCore, TruthMemory, TruthLink.
-5. **Data and memory plane** — SQL, Redis, Neo4j, ChromaDB, local object store, USKD NetworkX graph, UnifiedMemory, TruthMemory.
-6. **Governance plane** — tests, CI, release gates, trace export integrity, docs/versioning, compliance and audit controls.
+2. **Runtime ownership plane** — app factory, installation identity, runtime lock,
+   startup phases, service supervisor, readiness/capabilities, admission drain,
+   and Windows lifecycle coordination.
+3. **API/security plane** — Flask API, sessions, CSRF, CORS, trusted hosts, rate limits, desktop local auth, middleware, operational health.
+4. **AI control plane** — DMRF orchestration, injection defense, tiering, 17-axis routing, DSQP, Truth Engine integration, convergence policy, observability.
+5. **Truth Engine plane** — TruthGate, TruthCore, TruthMemory, TruthLink.
+6. **Data and memory plane** — SQL, Redis, Neo4j, ChromaDB, local object store, USKD NetworkX graph, UnifiedMemory, TruthMemory.
+7. **Governance plane** — tests, CI, release gates, trace export integrity, docs/versioning, compliance and audit controls.
 
 ## High-level component map
 
@@ -162,6 +168,7 @@ flowchart TD
 |---|---|---|
 | Frontend | Next.js App Router, React, TypeScript, Tailwind, Shadcn/Radix, Electron optional shell | Product UI, trace review, graph views, chat, admin, MCP, disclosures. |
 | Backend | Flask 3.x, Python 3.11+, blueprints, SQLAlchemy | API gateway, security envelope, route registry, service orchestration. |
+| Runtime ownership | `backend/runtime/` plus `create_app()` | Per-application state, startup phases, installation/runtime lock, service supervision, readiness, drain, and shutdown. |
 | Control plane | `backend/dmrf/` | Governed AI lifecycle orchestration. |
 | Truth Engine | `backend/truth_engine/` | Security gate, workflow engine, memory/audit, event bus. |
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
@@ -173,6 +180,55 @@ flowchart TD
 | Object store | MinIO production authority; filesystem bootstrap/development/repair only | Deliverables, graphs, eval data, audit logs, trace exports. |
 | Cache/queue | Required Redis production service | Session/cache/rate-limit/streams/queue behavior. |
 | Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |
+
+## Application factory and runtime ownership
+
+`app.py` exports `create_app()` as the authoritative construction path. Importing
+the module does not construct a Flask application or start stores, threads,
+event loops, network clients, managed services, logging handlers, or key
+initialization. A deprecated lazy `app` proxy remains only for compatibility;
+`main.py`, `wsgi.py`, `scripts/run_ukg_server.py`, and Electron-launched backend
+execution construct and shut down an explicit application.
+
+Every application instance owns these objects through `app.extensions`:
+
+1. `ApplicationRuntime` and per-app request metrics;
+2. one `ServiceSupervisor` and one `DatabaseLifecycleManager` adapter;
+3. Socket.IO, SQLAlchemy engines, audit/encryption services, MCP state, and
+   optional audio/video/document/simulation integrations;
+4. connection, graph, vector, object, USKD, and unified-memory stores.
+
+Startup order is deterministic:
+
+```text
+configuration
+  -> paths and ACL
+  -> installation identity and runtime lock
+  -> service supervisor
+  -> service identity/version verification
+  -> migrations
+  -> stores
+  -> routes and workers
+  -> readiness
+```
+
+Production startup fails closed when SQLite is selected, automatic schema
+creation is requested, the runtime root belongs to another Windows user, an
+incompatible installation version is found, a required service is absent or
+unhealthy, or a listener has an unverified identity. Development/testing may use
+explicit local fallbacks, but those modes do not satisfy production readiness.
+
+Service state is one of `not_installed`, `stopped`, `starting`, `migrating`,
+`ready`, `degraded`, `failed`, `stopping`, or `blocked`. `/live` answers process
+liveness, `/ready` answers core readiness with safe blockers, and authenticated
+`/api/v1/system/capabilities` publishes per-service state. Mutations are rejected
+while the runtime is starting, draining, migrating, backing up, restoring,
+updating, or stopping.
+
+Electron waits for `/ready` before opening the main shell. It sends signed
+suspend, resume, time-change, logoff, and shutdown events and uses bounded
+graceful cleanup. The API gateway listener is a distinct supervised capability
+and remains disabled/loopback-only until Phase 8.
 
 ## 2026-06-08 architecture baseline
 
@@ -482,8 +538,10 @@ The local-first architecture supports:
 Supported deployment patterns:
 
 - desktop deployment;
-- Windows VM deployment using the same app-owned stack;
-- controlled web/cloud deployment where configured.
+- Windows VM deployment using the same app-owned stack.
+
+Public web/cloud SaaS is excluded from the active completion program. A private
+Windows gateway profile remains disabled until Phase 8 qualification.
 
 Key files:
 
@@ -602,6 +660,14 @@ Then inspect these implementation files:
 13. `frontend/app/layout.tsx`
 14. `frontend/components/layout/AppSidebar.tsx`
 15. `.github/workflows/ci.yml`
+
+## Change notes for v3.2.0
+
+1. Replaced the implicit global-startup description with the implemented
+   application factory, app-owned runtime, nine startup phases, service-state
+   model, installation lock, readiness, drain, and Windows lifecycle contract.
+2. Clarified that production refuses SQLite/automatic schema fallback and that
+   concrete five-service delivery remains the Phase 3 boundary.
 
 ## Change notes for v3.1.0
 

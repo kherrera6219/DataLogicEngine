@@ -167,8 +167,8 @@ def _build_formatter(log_format: str):
 
 
 def _configure_root_handlers(*, log_level: int, log_format: str, log_file: str) -> None:
-    # Create logs directory
-    os.makedirs("logs", exist_ok=True)
+    log_parent = os.path.dirname(os.path.abspath(log_file))
+    os.makedirs(log_parent, exist_ok=True)
 
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
@@ -216,28 +216,42 @@ def configure_structured_logging(app: Flask) -> None:
     - JSON format for log aggregation
     """
     log_level = _resolve_log_level()
-    log_format = os.environ.get("LOG_FORMAT", "json")
-    log_file = os.environ.get("LOG_FILE", "logs/app.log")
+    log_format = app.config.get("LOG_FORMAT") or os.environ.get("LOG_FORMAT", "json")
+    log_file = app.config.get("LOG_FILE") or os.environ.get("LOG_FILE", "logs/app.log")
     _configure_root_handlers(log_level=log_level, log_format=log_format, log_file=log_file)
     formatter = _build_formatter(log_format)
+    security_log_file = app.config.get("SECURITY_LOG_FILE", "logs/security.log")
+    audit_log_file = app.config.get("AUDIT_LOG_FILE", "logs/audit.log")
+    os.makedirs(os.path.dirname(os.path.abspath(security_log_file)), exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(audit_log_file)), exist_ok=True)
     
     # Security log (separate file)
     security_logger = logging.getLogger('security')
+    for existing_handler in list(security_logger.handlers):
+        if getattr(existing_handler, "_dle_managed_handler", False):
+            security_logger.removeHandler(existing_handler)
+            existing_handler.close()
     security_handler = logging.handlers.RotatingFileHandler(
-        'logs/security.log',
+        security_log_file,
         maxBytes=10 * 1024 * 1024,
         backupCount=10
     )
+    security_handler._dle_managed_handler = True
     security_handler.setFormatter(formatter)
     security_logger.addHandler(security_handler)
     
     # Audit log (separate file)
     audit_logger = logging.getLogger('audit')
+    for existing_handler in list(audit_logger.handlers):
+        if getattr(existing_handler, "_dle_managed_handler", False):
+            audit_logger.removeHandler(existing_handler)
+            existing_handler.close()
     audit_handler = logging.handlers.RotatingFileHandler(
-        'logs/audit.log',
+        audit_log_file,
         maxBytes=10 * 1024 * 1024,
         backupCount=30  # Keep more audit logs
     )
+    audit_handler._dle_managed_handler = True
     audit_handler.setFormatter(formatter)
     audit_logger.addHandler(audit_handler)
     

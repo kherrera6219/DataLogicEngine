@@ -16,14 +16,19 @@ logger = logging.getLogger(__name__)
 # Print startup message
 print("Starting Universal Knowledge Graph (UKG) System on port 8080")
 
-# Import the Flask app
-from app import app
+from app import create_app
+from backend.security.listener_policy import resolve_loopback_listener_host
 
 # Set port to 8080
 port = int(os.environ.get("PORT", 8080))
 
 # Run the application
 if __name__ == "__main__":
-    print(f"UKG System starting on http://0.0.0.0:{port}")
+    app = create_app(start_runtime=True)
+    host = resolve_loopback_listener_host(os.environ.get("FLASK_RUN_HOST"))
+    print(f"UKG System starting on http://{host}:{port}")
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
-    app.run(host="0.0.0.0", port=port, debug=debug_mode)
+    try:
+        app.run(host=host, port=port, debug=debug_mode, use_reloader=False)
+    finally:
+        app.extensions["dle_runtime"].shutdown()

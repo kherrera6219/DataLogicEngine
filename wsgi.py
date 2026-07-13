@@ -15,8 +15,10 @@ from backend.bootstrap_compat import apply_runtime_compatibility_patches
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 apply_runtime_compatibility_patches()
 
-from app import app
+from app import create_app
 from backend.security.listener_policy import resolve_loopback_listener_host
+
+app = create_app(start_runtime=True)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

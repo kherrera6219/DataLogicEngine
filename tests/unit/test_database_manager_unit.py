@@ -59,9 +59,11 @@ def test_start_postgres_skips_when_port_in_use(tmp_path):
 
     with patch.object(manager, "is_port_in_use", return_value=True):
         with patch("backend.storage.database_manager.subprocess.Popen") as mock_popen:
-            manager.start_postgres()
+            result = manager.start_postgres()
 
     mock_popen.assert_not_called()
+    assert result is False
+    assert manager.last_failure_reasons["postgresql"] == "foreign_listener_on_configured_port"
 
 
 def test_start_redis_creates_data_dir_and_starts(tmp_path):

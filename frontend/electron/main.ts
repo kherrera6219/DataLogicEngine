@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, session } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, powerMonitor, protocol, safeStorage, session } from 'electron';
 import type { IpcMainInvokeEvent, OpenDialogOptions } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -6,6 +6,7 @@ import { spawn, spawnSync, ChildProcess } from 'child_process';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
+import { runBoundedShutdown } from './lifecycle';
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
@@ -14,6 +15,8 @@ let desktopInstallSecret = '';
 let updateCheckTimer: NodeJS.Timeout | null = null;
 let intentionalBackendShutdown = false;
 let backendRestartAttempts = 0;
+let gracefulQuitStarted = false;
+let clockDriftTimer: NodeJS.Timeout | null = null;
 
 app.setName('DataLogicEngine Desktop');
 
@@ -668,6 +671,10 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+  mainWindow.on('query-session-end', (event) => {
+    const lifecycleEvent = event.reasons.includes('logoff') ? 'logoff' : 'shutdown';
+    void notifyBackendLifecycleEvent(lifecycleEvent);
+  });
 }
 
 function assertTrustedIpcSender(event: IpcMainInvokeEvent, channel: string): void {
@@ -700,6 +707,34 @@ function desktopFetch(requestUrl: string, init: RequestInit = {}): Promise<Respo
       ...(init.headers as Record<string, string> | undefined),
     },
   });
+}
+
+async function notifyBackendLifecycleEvent(
+  event: 'suspend' | 'hibernate' | 'resume' | 'logoff' | 'shutdown' | 'time_changed' | 'forced_termination',
+  timeoutMs = 3000,
+): Promise<boolean> {
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return false;
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await desktopFetch(
+      'http://127.0.0.1:5000/api/v1/system/lifecycle/event',
+      {
+        method: 'POST',
+        body: JSON.stringify({ event }),
+        signal: controller.signal,
+      },
+    );
+    appendDesktopLog(response.ok ? 'INFO' : 'WARN', `Backend lifecycle event ${event}: ${response.status}`);
+    return response.ok;
+  } catch {
+    appendDesktopLog('WARN', `Backend lifecycle event ${event} could not be delivered.`);
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function desktopIpcFetch(
@@ -757,17 +792,17 @@ function createSplashWindow() {
   });
 }
 
-async function waitForBackendHealth(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Promise<boolean> {
+async function waitForBackendReady(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (!backendProcess || backendProcess.exitCode !== null) {
       return false;
     }
     try {
-      const response = await fetch('http://127.0.0.1:5000/health');
+      const response = await fetch('http://127.0.0.1:5000/ready');
       if (response.ok) {
         backendRestartAttempts = 0;
-        appendDesktopLog('INFO', 'Backend health check passed.');
+        appendDesktopLog('INFO', 'Backend core readiness check passed.');
         return true;
       }
     } catch {
@@ -775,7 +810,7 @@ async function waitForBackendHealth(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Prom
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  appendDesktopLog('WARN', 'Backend health check timed out after 60 seconds.');
+  appendDesktopLog('WARN', 'Backend core readiness check timed out after 60 seconds.');
   return false;
 }
 
@@ -928,7 +963,35 @@ app.on('ready', async () => {
   });
 
   startBackend();
-  await waitForBackendHealth();
+  const backendReady = await waitForBackendReady();
+  if (!backendReady) {
+    splashWindow?.close();
+    dialog.showErrorBox(
+      'DataLogicEngine could not start',
+      'Core services did not become ready. Open the desktop runtime log for the safe failure reason.',
+    );
+    app.quit();
+    return;
+  }
+
+  powerMonitor.on('suspend', () => {
+    void notifyBackendLifecycleEvent('suspend');
+  });
+  powerMonitor.on('resume', () => {
+    void notifyBackendLifecycleEvent('resume');
+  });
+  let lastWallClock = Date.now();
+  let lastUptime = process.uptime() * 1000;
+  clockDriftTimer = setInterval(() => {
+    const wallClock = Date.now();
+    const uptime = process.uptime() * 1000;
+    const drift = Math.abs((wallClock - lastWallClock) - (uptime - lastUptime));
+    lastWallClock = wallClock;
+    lastUptime = uptime;
+    if (drift > 5000) {
+      void notifyBackendLifecycleEvent('time_changed');
+    }
+  }, 30000);
   createWindow();
   splashWindow?.close();
 });
@@ -980,7 +1043,7 @@ function startBackend() {
     }
   }
 
-  const env = {
+  const env: NodeJS.ProcessEnv = {
     ...dotenvKeys,       // .env values first (lowest priority)
     ...process.env,      // Electron inherited env overrides .env
     PORT: '5000', 
@@ -993,15 +1056,18 @@ function startBackend() {
     DLE_DESKTOP_SECRET_HANDOFF: 'true',
     SESSION_SECRET: sessionSecret,
     ENCRYPTION_KEK_SECRET: encryptionKekSecret,
-    DATABASE_URL: `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\/g, '/')}`,
+    DLE_RUNTIME_ROOT: runtimeDir,
     LOG_FILE: path.join(runtimeDir, 'logs', 'app.log'),
     DATALOGIC_STORAGE_SETTINGS_PATH: path.join(runtimeDir, 'settings.json'),
-    AUTO_CREATE_SCHEMA: isDev ? 'False' : 'true',
+    AUTO_CREATE_SCHEMA: 'False',
     LLAMA_INDEX_CACHE_DIR: path.join(runtimeDir, 'cache', 'llama_index'),
     HF_HOME: path.join(runtimeDir, 'cache', 'huggingface'),
     TRANSFORMERS_CACHE: path.join(runtimeDir, 'cache', 'huggingface'),
     NLTK_DATA: path.join(runtimeDir, 'cache', 'nltk_data'),
   };
+  if (isDev) {
+    env.DATABASE_URL = `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\/g, '/')}`;
+  }
 
   appendDesktopLog('INFO', `Backend working directory: ${runtimeDir}`);
   
@@ -1058,10 +1124,29 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('before-quit', (event) => {
+  if (gracefulQuitStarted || !backendProcess || backendProcess.exitCode !== null) {
+    return;
+  }
+  event.preventDefault();
+  gracefulQuitStarted = true;
+  void runBoundedShutdown(
+    () => notifyBackendLifecycleEvent('shutdown'),
+    () => {
+      intentionalBackendShutdown = true;
+      backendProcess?.kill();
+    },
+  ).finally(() => app.quit());
+});
+
 app.on('quit', () => {
   if (updateCheckTimer) {
     clearInterval(updateCheckTimer);
     updateCheckTimer = null;
+  }
+  if (clockDriftTimer) {
+    clearInterval(clockDriftTimer);
+    clockDriftTimer = null;
   }
 
   if (backendProcess) {
@@ -1092,12 +1177,17 @@ ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
 ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
   if (!backendProcess || backendProcess.exitCode !== null) {
-    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
+    return { status: 'offline', phase: 'stopped', services: {}, chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
   }
 
   try {
     const response = await desktopFetch('http://127.0.0.1:5000/api/v1/system/diagnostics/health');
     const payload = await responseJson<{
+      runtime?: {
+        phase?: string;
+        ready?: boolean;
+        services?: Record<string, { state?: string; safe_reason?: string | null }>;
+      };
       database?: {
         status?: string;
         chromadb?: { collections?: Record<string, number> };
@@ -1107,7 +1197,9 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
       };
     }>(response);
     return {
-      status: payload?.database?.status === 'ok' ? 'managed' : 'degraded',
+      status: payload?.runtime?.ready && payload?.database?.status === 'ok' ? 'managed' : 'degraded',
+      phase: payload?.runtime?.phase ?? 'unknown',
+      services: payload?.runtime?.services ?? {},
       chroma_collections: payload?.database?.chromadb?.collections ?? {},
       redis_ping_ms: payload?.database?.redis?.ping_ms ?? null,
       object_store_buckets: payload?.database?.object_store?.buckets ?? {},
@@ -1116,7 +1208,7 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
       last_recall_timestamp: payload?.database?.memory?.last_recall_timestamp ?? null,
     };
   } catch {
-    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
+    return { status: 'unavailable', phase: 'unknown', services: {}, chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
   }
 });
 

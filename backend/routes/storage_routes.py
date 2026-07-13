@@ -16,8 +16,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from backend.auth.api_decorators import api_session_login_required
+from backend.runtime import get_application_runtime
 from backend.security.desktop_ipc import require_desktop_ipc_capability
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
@@ -25,6 +26,9 @@ logger = logging.getLogger(__name__)
 
 
 def _runtime_root() -> Path:
+    runtime = current_app.extensions.get("dle_runtime")
+    if runtime is not None:
+        return runtime.runtime_root
     settings_path = os.environ.get("DATALOGIC_STORAGE_SETTINGS_PATH")
     if settings_path:
         return Path(settings_path).resolve().parent
@@ -32,7 +36,7 @@ def _runtime_root() -> Path:
 
 
 def _sqlite_path_from_database_url() -> Path | None:
-    url = os.environ.get("DATABASE_URL") or ""
+    url = str(current_app.config.get("SQLALCHEMY_DATABASE_URI") or "")
     if not url.startswith("sqlite"):
         return None
     parsed = urlparse(url)
@@ -268,7 +272,8 @@ def run_desktop_backup():
     try:
         data = request.get_json(silent=True) or {}
         target_dir = data.get("target_dir") if isinstance(data.get("target_dir"), str) else None
-        backup = _create_backup(target_dir)
+        with get_application_runtime().exclusive_operation("backup"):
+            backup = _create_backup(target_dir)
         return jsonify({
             'success': True,
             'data': backup,
@@ -596,15 +601,17 @@ def _test_object(data: dict) -> dict:
 def start_databases():
     """Start local database services (desktop mode only)."""
     try:
-        from backend.storage import get_db_manager
-        
-        manager = get_db_manager()
-        manager.start_all()
-        
+        supervisor = get_application_runtime().supervisor
+        results = {
+            service: supervisor.start(service).to_dict()
+            for service in ("postgresql", "redis", "neo4j")
+        }
+        success = all(result["success"] for result in results.values())
         return jsonify({
-            'success': True,
-            'message': 'Database startup initiated'
-        })
+            'success': success,
+            'results': results,
+            'message': 'Database startup completed' if success else 'One or more database services did not start',
+        }), 200 if success else 503
     except Exception:
         logger.exception("Failed to start database services")
         return jsonify({
@@ -710,15 +717,17 @@ def save_cloud_config():
 def stop_databases():
     """Stop local database services."""
     try:
-        from backend.storage import get_db_manager
-
-        manager = get_db_manager()
-        manager.stop_all()
-
+        supervisor = get_application_runtime().supervisor
+        results = {
+            service: supervisor.stop(service).to_dict()
+            for service in reversed(("postgresql", "redis", "neo4j"))
+        }
+        success = all(result["success"] for result in results.values())
         return jsonify({
-            'success': True,
-            'message': 'Database shutdown initiated'
-        })
+            'success': success,
+            'results': results,
+            'message': 'Database shutdown completed' if success else 'One or more database services did not stop',
+        }), 200 if success else 500
     except Exception:
         logger.exception("Failed to stop database services")
         return jsonify({

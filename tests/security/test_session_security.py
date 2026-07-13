@@ -1,4 +1,3 @@
-import importlib
 from types import SimpleNamespace
 
 from tests.conftest import seed_login_session
@@ -12,9 +11,18 @@ def test_session_cookie_security_defaults(monkeypatch):
     monkeypatch.setenv("CORS_ORIGINS", "https://localhost:3000")
     monkeypatch.setenv("ALLOW_PLAINTEXT_PROD_SECRETS", "true")
 
-    app_module = importlib.import_module("app")
-    importlib.reload(app_module)
-    app = app_module.app
+    from app import create_app
+
+    app = create_app(
+        "production",
+        {
+            "SQLALCHEMY_DATABASE_URI": "postgresql://test:test@127.0.0.1:5432/test",
+            "DLE_INITIALIZE_STORES": False,
+            "DLE_START_MANAGED_SERVICES": False,
+            "DLE_REQUIRED_SERVICES": "",
+        },
+        start_runtime=False,
+    )
 
     assert app.config["SESSION_COOKIE_HTTPONLY"] is True
     assert app.config["SESSION_COOKIE_SAMESITE"] in {"Lax", "Strict", "None"}

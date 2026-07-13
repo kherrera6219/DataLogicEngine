@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 import uuid
+from flask import current_app, has_app_context
+from werkzeug.local import LocalProxy
 
 from backend.truth_engine.truth_link.transport import SSETransport
 
@@ -62,4 +64,20 @@ class MCPSubscriptionManager:
         }
 
 
-subscription_manager = MCPSubscriptionManager()
+_fallback_subscription_manager: MCPSubscriptionManager | None = None
+
+
+def get_subscription_manager() -> MCPSubscriptionManager:
+    if has_app_context():
+        manager = current_app.extensions.get("dle_mcp_subscription_manager")
+        if manager is None:
+            manager = MCPSubscriptionManager()
+            current_app.extensions["dle_mcp_subscription_manager"] = manager
+        return manager
+    global _fallback_subscription_manager
+    if _fallback_subscription_manager is None:
+        _fallback_subscription_manager = MCPSubscriptionManager()
+    return _fallback_subscription_manager
+
+
+subscription_manager = LocalProxy(get_subscription_manager)

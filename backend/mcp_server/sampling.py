@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import Any
+from flask import current_app, has_app_context
+from werkzeug.local import LocalProxy
 
 
 class MCPSamplingService:
@@ -70,4 +72,20 @@ class MCPSamplingService:
         return self._local_completion(prompt)
 
 
-sampling_service = MCPSamplingService()
+_fallback_sampling_service: MCPSamplingService | None = None
+
+
+def get_sampling_service() -> MCPSamplingService:
+    if has_app_context():
+        service = current_app.extensions.get("dle_mcp_sampling_service")
+        if service is None:
+            service = MCPSamplingService()
+            current_app.extensions["dle_mcp_sampling_service"] = service
+        return service
+    global _fallback_sampling_service
+    if _fallback_sampling_service is None:
+        _fallback_sampling_service = MCPSamplingService()
+    return _fallback_sampling_service
+
+
+sampling_service = LocalProxy(get_sampling_service)

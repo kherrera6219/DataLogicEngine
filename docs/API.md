@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.3.0 |
+| Document version | v3.4.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -829,19 +829,75 @@ Representative route:
 ### Health check
 
 - **GET** `/health`
-  - Public-safe status, service name, and timestamp only.
+  - Public-safe status, service name, correlation ID, and timestamp only.
+  - Returns `503` when the primary database check fails; configuration and
+    service details remain private.
   - Detailed database/configuration state is available only at authenticated
     `GET /api/v1/system/diagnostics/health`.
 
 ### Liveness
 
 - **GET** `/live`
-  - Confirms the process is running.
+  - Confirms only that the process can answer.
+  - Returns `status`, `service`, `correlation_id`, and `timestamp`.
+  - Liveness does not imply migrations, stores, or required services are ready.
 
 ### Readiness
 
 - **GET** `/ready`
-  - Confirms required startup dependencies are ready.
+  - Confirms runtime phase, primary database, session secret, and every required
+    supervised service are ready.
+  - Returns `200` with `status: ready`, or `503` with `status: not_ready`, safe
+    blocker names/details, correlation ID, and timestamp.
+
+Representative response:
+
+```json
+{
+  "status": "not_ready",
+  "checks": {
+    "runtime": "failed",
+    "database": "error",
+    "secret_key": "set"
+  },
+  "blockers": ["runtime:failed", "minio", "database"],
+  "blocker_details": {
+    "runtime:failed": "required_services_not_ready",
+    "minio": "service_not_installed",
+    "database": "unavailable"
+  },
+  "correlation_id": "...",
+  "timestamp": "..."
+}
+```
+
+### Authenticated runtime capabilities
+
+- **GET** `/api/v1/system/capabilities`
+  - Requires the desktop/session principal.
+  - Returns the runtime/installation instance, startup phase, active exclusive
+    operation, recent Windows lifecycle events, ready flag, and every supervised
+    service.
+  - Service state is one of `not_installed`, `stopped`, `starting`, `migrating`,
+    `ready`, `degraded`, `failed`, `stopping`, or `blocked`.
+  - Each service record can include required flag, safe reason, endpoint,
+    expected/observed identity, dependency list, and start/stop budgets.
+
+### Desktop lifecycle events and drain
+
+- **POST** `/api/v1/system/lifecycle/event`
+  - Requires an authenticated, signed Electron desktop request; a normal web
+    session receives `DESKTOP_LIFECYCLE_AUTH_REQUIRED`.
+  - Body: `{ "event": "suspend|hibernate|resume|logoff|shutdown|time_changed|forced_termination" }`.
+  - Returns `202` after the runtime accepts the event. Unsupported events return
+    `400` with `UNSUPPORTED_LIFECYCLE_EVENT`.
+  - Suspend/hibernate enter drain, resume re-probes required services, and
+    terminal events stop the runtime.
+
+During startup, drain, migration, backup, restore, update, or shutdown, new
+mutation requests return `503` with `RUNTIME_NOT_ACCEPTING_WORK` and the current
+runtime phase. Public probes, reads, and the signed lifecycle endpoint remain
+available according to their normal authorization contract.
 
 ### Metrics
 
@@ -889,18 +945,27 @@ Optional encrypted exports return `payload_encrypted` and an envelope hash/signa
 A technical reviewer should validate this document against these files:
 
 1. `app.py` — route registration, middleware, health, metrics, security envelope.
-2. `backend/dmrf/orchestrator.py` — DMRF control-plane lifecycle.
-3. `backend/truth_engine/api.py` — Truth Engine API surface.
-4. `backend/truth_engine/truth_gate/gateway.py` — TruthGate behavior.
-5. `backend/truth_engine/truth_core/engine.py` — TruthCore sessions and workflows.
-6. `backend/truth_engine/truth_memory/manager.py` — audit, artifacts, metrics, explainability.
-7. `backend/truth_engine/truth_link/bus.py` — event bus and streaming.
-8. `backend/security/desktop_local_auth.py` — local desktop auth.
-9. `backend/security/export_integrity.py` — trace export integrity.
-10. `backend/storage/` — SQL, graph, vector, object, and memory storage surfaces.
-11. `frontend/lib/api/` — frontend API clients and CSRF handling.
-12. `tests/contract/` — canonical API contract tests.
-13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+2. `backend/runtime/` — application phases, service states, installation
+   ownership, readiness, drain, and supervision.
+3. `backend/dmrf/orchestrator.py` — DMRF control-plane lifecycle.
+4. `backend/truth_engine/api.py` — Truth Engine API surface.
+5. `backend/truth_engine/truth_gate/gateway.py` — TruthGate behavior.
+6. `backend/truth_engine/truth_core/engine.py` — TruthCore sessions and workflows.
+7. `backend/truth_engine/truth_memory/manager.py` — audit, artifacts, metrics, explainability.
+8. `backend/truth_engine/truth_link/bus.py` — event bus and streaming.
+9. `backend/security/desktop_local_auth.py` — local desktop auth.
+10. `backend/security/export_integrity.py` — trace export integrity.
+11. `backend/storage/` — SQL, graph, vector, object, and memory storage surfaces.
+12. `frontend/lib/api/` — frontend API clients and CSRF handling.
+13. `tests/contract/` — canonical API contract tests.
+14. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v3.4.0
+
+1. Documented the distinct liveness, health, readiness, authenticated
+   capabilities, signed lifecycle-event, and runtime-drain response contracts.
+2. Added the typed service-state and safe-blocker model used by Electron and
+   operational diagnostics.
 
 ## Change notes for v3.3.0
 

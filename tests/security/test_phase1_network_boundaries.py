@@ -25,19 +25,27 @@ def test_listener_policy_rejects_private_and_public_exposure(host):
 
 
 def test_desktop_listener_rejects_untrusted_host(monkeypatch):
-    import app as app_module
+    from app import create_app
 
-    monkeypatch.setattr(app_module, "IS_DESKTOP_MODE", True)
-    response = app_module.app.test_client().get("/health", headers={"Host": "attacker.example"})
+    application = create_app(
+        "testing",
+        {"DLE_DESKTOP_MODE": True, "DLE_INITIALIZE_STORES": False},
+        start_runtime=False,
+    )
+    response = application.test_client().get("/health", headers={"Host": "attacker.example"})
     assert response.status_code == 400
     assert response.get_json()["code"] == "UNTRUSTED_DESKTOP_HOST"
 
 
 def test_desktop_listener_accepts_loopback_host(monkeypatch):
-    import app as app_module
+    from app import create_app
 
-    monkeypatch.setattr(app_module, "IS_DESKTOP_MODE", True)
-    response = app_module.app.test_client().get(
+    application = create_app(
+        "testing",
+        {"DLE_DESKTOP_MODE": True, "DLE_INITIALIZE_STORES": False},
+        start_runtime=False,
+    )
+    response = application.test_client().get(
         "/phase1-host-policy-probe",
         headers={"Host": "127.0.0.1:5000"},
     )
@@ -45,10 +53,14 @@ def test_desktop_listener_accepts_loopback_host(monkeypatch):
 
 
 def test_desktop_listener_rejects_untrusted_origin(monkeypatch):
-    import app as app_module
+    from app import create_app
 
-    monkeypatch.setattr(app_module, "IS_DESKTOP_MODE", True)
-    response = app_module.app.test_client().get(
+    application = create_app(
+        "testing",
+        {"DLE_DESKTOP_MODE": True, "DLE_INITIALIZE_STORES": False},
+        start_runtime=False,
+    )
+    response = application.test_client().get(
         "/health",
         headers={"Host": "127.0.0.1:5000", "Origin": "https://attacker.example"},
     )

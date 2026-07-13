@@ -32,7 +32,7 @@ class AuditLogger:
     and security monitoring.
     """
     
-    def __init__(self, config=None):
+    def __init__(self, config=None, *, auto_start: bool = True):
         """
         Initialize the Audit Logger.
         
@@ -41,12 +41,13 @@ class AuditLogger:
         """
         self.config = config or {}
         
-        # Create audit logs directory
-        os.makedirs("logs/audit", exist_ok=True)
+        # Create the application-owned audit directory.
+        self.log_dir = str(self.config.get("log_dir", "logs/audit"))
+        os.makedirs(self.log_dir, exist_ok=True)
         
         # Initialize the current log file
         self.current_date = datetime.now().strftime("%Y%m%d")
-        self.current_log_file = f"logs/audit/audit_{self.current_date}.jsonl"
+        self.current_log_file = os.path.join(self.log_dir, f"audit_{self.current_date}.jsonl")
         self.immutable_replica_enabled = (
             bool(self.config.get("immutable_replica_enabled"))
             if "immutable_replica_enabled" in self.config
@@ -73,8 +74,9 @@ class AuditLogger:
         self._write_lock = threading.Lock()
         self._managed_handlers: List[logging.Handler] = []
         
-        # Start log rotation
-        self.start_log_rotation()
+        # Runtime owners may defer thread creation until the startup phase.
+        if auto_start:
+            self.start_log_rotation()
         
         logger.info("Audit Logger initialized")
 
@@ -126,7 +128,7 @@ class AuditLogger:
                 # If the date has changed, rotate the log file
                 if current_date != self.current_date:
                     self.current_date = current_date
-                    self.current_log_file = f"logs/audit/audit_{self.current_date}.jsonl"
+                    self.current_log_file = os.path.join(self.log_dir, f"audit_{self.current_date}.jsonl")
                     logger.info(f"Rotated audit log to {self.current_log_file}")
                 
                 # Wait up to an hour but wake immediately on shutdown.

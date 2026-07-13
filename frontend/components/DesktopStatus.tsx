@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Wifi, Minus } from 'lucide-react';
 import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
+import type { DesktopDatabaseStatus } from '@/types/electron';
 
 const COLLAPSE_STORAGE_KEY = 'desktopEngine.collapsed';
 
@@ -11,6 +12,7 @@ const DesktopStatus = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
   const [networkState, setNetworkState] = useState<string>('checking');
+  const [databaseState, setDatabaseState] = useState<DesktopDatabaseStatus | null>(null);
   // Restore the user's minimize preference (read during initial client render so
   // the panel never blocks the screen on load).
   const [collapsed, setCollapsed] = useState(() => {
@@ -36,9 +38,15 @@ const DesktopStatus = () => {
         try {
           const s = await electronApi.getBackendStatus();
           setStatus(s);
-          if (s === 'running' && electronApi.getNetworkStatus) {
-            const network = await electronApi.getNetworkStatus();
-            setNetworkState(network.state);
+          if (s === 'running') {
+            const [network, database] = await Promise.all([
+              electronApi.getNetworkStatus?.(),
+              electronApi.getDbStatus(),
+            ]);
+            setNetworkState(network?.state ?? 'unavailable');
+            setDatabaseState(database);
+          } else {
+            setDatabaseState(null);
           }
         } catch {
           setStatus('error');
@@ -95,7 +103,9 @@ const DesktopStatus = () => {
         </div>
         <div className="flex items-center gap-1">
           <Database className="w-3 h-3 text-slate-400" />
-          <span className="text-[10px] text-slate-400 mr-2">DB: Active</span>
+          <span className="text-[10px] text-slate-400 mr-2">
+            DB: {databaseState?.status ?? 'offline'}
+          </span>
           {status === 'running' ? (
             <span className="flex items-center gap-1 text-xs text-emerald-400">
               <CheckCircle className="w-3 h-3" /> Online
@@ -126,6 +136,16 @@ const DesktopStatus = () => {
           <Wifi className="h-3 w-3 shrink-0 text-slate-500" />
           <span className="truncate">{networkState}</span>
         </div>
+        {databaseState && databaseState.status !== 'managed' ? (
+          <div className="rounded border border-amber-900/70 bg-amber-950/40 px-2 py-1 text-amber-300">
+            Runtime {databaseState.phase};{' '}
+            {Object.entries(databaseState.services)
+              .filter(([, service]) => service.state !== 'ready')
+              .slice(0, 3)
+              .map(([name, service]) => `${name}: ${service.safe_reason ?? service.state ?? 'unknown'}`)
+              .join(', ') || 'capability details unavailable'}
+          </div>
+        ) : null}
       </div>
 
       <div className="bg-slate-950 rounded p-2 text-[10px] font-mono h-24 overflow-hidden border border-slate-800">

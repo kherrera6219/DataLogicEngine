@@ -191,7 +191,20 @@ def build_network_inventory() -> list[dict[str, Any]]:
 
 def build_manifest() -> dict[str, Any]:
     configure_safe_inventory_environment()
-    from app import app  # pylint: disable=import-outside-toplevel
+    from app import create_app  # pylint: disable=import-outside-toplevel
+
+    app = create_app(
+        "testing",
+        {
+            "DLE_RUNTIME_ROOT": str(
+                Path(tempfile.gettempdir()) / "datalogicengine-route-inventory-runtime"
+            ),
+            "DLE_INITIALIZE_SCHEMA": False,
+            "DLE_INITIALIZE_STORES": False,
+            "DLE_START_MANAGED_SERVICES": False,
+            "DLE_START_BACKGROUND_WORKERS": False,
+        },
+    )
 
     rows: list[dict[str, Any]] = []
     for rule in sorted(app.url_map.iter_rules(), key=lambda item: (item.rule, item.endpoint)):

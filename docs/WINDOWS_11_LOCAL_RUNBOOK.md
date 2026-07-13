@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.1 |
-| Last updated | 2026-07-07 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -14,7 +14,11 @@
 
 Run, validate, package, troubleshoot, and recover DataLogicEngine as a local-first Windows 11 application.
 
-This runbook reflects the current Windows/local-first architecture: Electron frontend, Flask loopback backend, desktop local auth, app-owned storage services, local object/vector/graph/memory stores, provider-key management, packaging smoke, NSIS governance, and signed-release preparation.
+This runbook reflects the current Windows/local-first architecture: Electron
+frontend, an explicit Flask loopback application/runtime, desktop local auth,
+installation ownership and readiness, app-owned storage services, local object/
+vector/graph/memory stores, provider-key management, packaging smoke, NSIS
+governance, and signed-release preparation.
 
 ## Audience
 
@@ -49,29 +53,36 @@ Run DataLogicEngine locally on Windows 11 with:
 5. deterministic validation and packaging evidence;
 6. no requirement for externally hosted runtime databases.
 
-Default local mode can use SQLite/in-memory fallbacks. Full local data mode can use app-owned PostgreSQL, Redis, Neo4j, ChromaDB, object store, USKD graph, and local memory files.
+Development/testing mode can explicitly use SQLite, memory, and filesystem
+fallbacks. Production mode requires app-owned PostgreSQL, Redis, Neo4j,
+ChromaDB, and MinIO and refuses fallback when any required service is absent.
 
 ---
 
 ## Current state
 
-As of v2.7.1 (2026-07-07):
+As of Phase 2 closure (2026-07-13):
 
-1. Local startup scripts are functional.
-2. Core frontend routes are reachable.
-3. Desktop mode supports no-login startup through desktop local-auth policy.
-4. Settings API key save/test, AI model controls, and local storage lifecycle controls are wired.
-5. Desktop installer builds from a freshly rebuilt PyInstaller backend and is copied to the repo root with checksum and blockmap sidecars.
-6. Startup script auto-resolves backend/frontend port conflicts by default.
-7. Desktop runtime stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
-8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns; installer-mode smoke validates install and uninstall exit code `0`.
-9. Installer build rebuilds the PyInstaller backend before packaging so the shipped backend matches source.
-10. Provider tests return specific failure reasons such as `invalid_api_key`, `rate_limited`, `invalid_model`, and `network_error`.
-11. Latest local rebuild evidence records installer SHA-256 `3afeafef6991f580574290500c702429218c38c0c50dff4088716909661ff8cb` with installer integrity and NSIS governance passing; reinstall/provider QC is the next validation step.
-12. First-run QC on 2026-07-07 confirmed the installed backend, health endpoints, Redis, Neo4j, MinIO, runtime SQLite, Chroma metadata, and local object-store directories were reachable.
-13. Desktop API-key save/test requests now prefer signed Electron desktop auth over stale Flask session cookies, and desktop mutations plus desktop session-recovery handshake calls declare Electron desktop auth headers before CORS/preflight handling.
-14. The floating desktop status widget no longer auto-polls DSQP persona profiles, preventing idle provider-backed DSQP calls while the app is merely open.
-15. The `electron:dist` build command rebuilds the PyInstaller backend before Electron packaging, and the frozen backend includes ONNX Runtime and tokenizers for Chroma collection statistics.
+1. `create_app()` produces isolated application instances; importing `app.py`
+   performs no application construction or resource startup.
+2. Startup is phased and protected by a per-user installation identity, version
+   record, runtime-root ACL, and exclusive OS lock.
+3. One app-owned supervisor publishes truthful per-service state and refuses to
+   trust an unknown listener merely because a port is open.
+4. `/live`, `/ready`, `/health`, authenticated capabilities, and signed desktop
+   lifecycle events have distinct contracts with correlation IDs.
+5. Electron waits for `/ready`, shows actual service/runtime degradation, and
+   uses bounded graceful shutdown.
+6. Production refuses SQLite fallback and automatic schema creation. Missing
+   MinIO/Chroma or any other required service keeps production not ready.
+7. The development launcher passes a real start/probe/stop cycle and leaves no
+   backend/frontend listener after shutdown.
+8. Full production container delivery, immutable service versions, unique
+   protected service credentials, installation-specific ports, and real use of
+   all five services remain Phase 3 release blockers.
+9. Existing installer/signing evidence predates this runtime refactor and is not
+   Phase 2 installed-production evidence; packaging qualification resumes in
+   Phases 14-15.
 
 ---
 
@@ -86,11 +97,12 @@ Required:
 5. PowerShell.
 6. Git.
 
-Optional:
+Additional requirements by task:
 
-1. Docker Desktop for container/build verification.
-2. Provider API key for model-backed testing.
-3. Local portable database binaries for full data services.
+1. Rootless Podman Machine/WSL2 for the approved production data-plane path
+   (delivery qualification remains Phase 3).
+2. Docker Desktop only for development compatibility/container-build checks.
+3. Provider API key for model-backed testing.
 
 ---
 
@@ -151,6 +163,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
 ```
 
+The launcher checks ownership before starting any service. If another product
+owns a configured data port, startup fails with the process/container name and a
+repair action. Do not stop an unrelated product automatically and do not point
+DataLogicEngine at that listener. Installation-specific service ports are part
+of Phase 3 provisioning.
+
 ### Stop app stack
 
 ```powershell
@@ -171,12 +189,17 @@ The Windows local-first runtime uses app-owned/internal data services and local 
 
 | Store | Default port | Mode | Directory path | Purpose |
 |---|---:|---|---|---|
-| PostgreSQL | `5432` | portable process where enabled | `databases/postgresql/` | structured system tables, traces, audit records. |
-| Redis | `6379` | portable process where enabled | `databases/redis/` | cache, session/rate-limit support, queue/stream behavior. |
-| Neo4j | `7687` | portable process where enabled | `databases/neo4j/` | graph relationships and graph query behavior. |
-| ChromaDB | portless | embedded local client | `databases/chroma/` | vector storage and semantic retrieval. |
-| Object store | portless | filesystem | `databases/objects/` | deliverables, audit logs, FROST snapshots, trace bundles, eval data. |
+| PostgreSQL | `5432` default | Phase 3 app-managed OCI service | runtime-root volume | production relational authority. |
+| Redis | `6379` default | Phase 3 app-managed OCI service | runtime-root volume | production cache, session, rate-limit, queue, and stream service. |
+| Neo4j | `7687` default | Phase 3 app-managed OCI service | runtime-root volume | production graph authority. |
+| ChromaDB | app-owned | Phase 3 qualified local service/store | runtime-root volume | vector storage and semantic retrieval. |
+| MinIO | `9000` default | Phase 3 app-managed OCI service | runtime-root volume | production object-store authority. |
 | UnifiedMemory | portless | JSON persistence | `databases/memory/memory_graph.json` | structured reasoning memory graph. |
+
+The ports above are defaults, not proof of ownership. The runtime trusts only
+the installation identity and expected supervised process/container identity.
+Filesystem object storage is a development/bootstrap path, not the production
+MinIO substitute.
 
 Default object-store buckets:
 
@@ -251,7 +274,7 @@ Relevant files:
 1. Frontend responds: `http://127.0.0.1:3000`
 2. Backend health responds: `http://127.0.0.1:5000/health`
 3. Readiness responds: `http://127.0.0.1:5000/ready`
-4. Metrics responds: `http://127.0.0.1:5000/metrics`
+4. Authenticated metrics responds: `http://127.0.0.1:5000/metrics`
 5. Provider key validates:
    ```powershell
    .venv\Scripts\python.exe .\scripts\verify_api_keys.py
@@ -410,8 +433,10 @@ Electron Builder/NSIS is the primary current packaging path. WiX/WinSW remains o
 
 1. Open Settings -> AI Providers and confirm at least one provider is listed and active.
 2. Confirm key was saved to the same database the running app uses.
-3. Desktop uses the runtime-root SQLite file, not necessarily `instance/`.
-4. As a fallback, set provider key in `.env`.
+3. Development may use a runtime-root SQLite file; production uses the internal
+   PostgreSQL authority and refuses SQLite.
+4. For development only, a provider key may be supplied through `.env`.
+   Production secrets must use the approved protected source.
 5. Re-run:
    ```powershell
    .venv\Scripts\python.exe .\scripts\verify_api_keys.py
@@ -446,6 +471,13 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
 4. Check `AUTO_CREATE_SCHEMA` is not set in unsafe mode.
 5. Run runtime precheck.
 6. Review local logs.
+7. Compare `/live` with `/ready`: a live process may correctly be not ready.
+8. Inspect authenticated `/api/v1/system/capabilities` for the service state,
+   safe reason, expected identity, and active lifecycle operation.
+9. If `runtime_already_owned` appears, close the other DataLogicEngine process;
+   do not delete the lock while that owner is alive.
+10. If a foreign port owner is named, stop/configure that product or wait for
+    Phase 3 installation-specific port provisioning; never reuse it.
 
 ### Chroma/Object/Neo4j/local data store fails
 
@@ -476,8 +508,17 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
 3. Release builds require trusted production certificate provisioned in GitHub secrets and signed release workflow run before public distribution.
 4. Provider-backed flows require valid provider credentials and network access.
 5. Unsigned local builds are suitable for developer validation but not public/customer release.
+6. The Phase 3 five-service OCI data plane is not yet delivered or qualified by
+   the installer, so production/public release remains NO-GO.
 
 ---
+
+## Change notes for v2.8.0
+
+1. Replaced stale installed-runtime claims with the verified Phase 2 factory,
+   ownership, phased startup, readiness, lifecycle, and shutdown contract.
+2. Clarified the development fallback versus production five-service boundary
+   and added foreign-port/runtime-lock repair guidance.
 
 ## Change notes for v2.7.0
 

@@ -20,6 +20,7 @@ from datetime import datetime, timedelta, UTC
 from unittest.mock import patch
 import hashlib
 import csv
+from pathlib import Path
 
 from backend.security.audit_logger import AuditLogger
 
@@ -86,7 +87,7 @@ class TestAuditLoggerInitialization:
         current_date = datetime.now().strftime("%Y%m%d")
         expected_file = f"logs/audit/audit_{current_date}.jsonl"
 
-        assert audit_logger.current_log_file == expected_file
+        assert Path(audit_logger.current_log_file) == Path(expected_file)
 
 
 class TestBasicEventLogging:

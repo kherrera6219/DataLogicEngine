@@ -327,8 +327,23 @@ class GraphStore:
         })
         return len(results) > 0
 
-# Singleton instance for easy access
-graph_store = GraphStore()
+graph_store: Optional[GraphStore] = None
 
 def get_graph_store() -> GraphStore:
+    """Return a graph client owned by the active application instance."""
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            store = current_app.extensions.get("dle_graph_store")
+            if store is None:
+                store = GraphStore()
+                current_app.extensions["dle_graph_store"] = store
+            return store
+    except ImportError:
+        pass
+
+    global graph_store
+    if graph_store is None:
+        graph_store = GraphStore()
     return graph_store

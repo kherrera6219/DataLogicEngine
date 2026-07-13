@@ -115,7 +115,7 @@ def test_ingestion_route_rejects_path_outside_allowed_root(authenticated_client,
     )
 
     assert response.status_code == 400
-    assert "Source path must stay under" in response.get_json()["error"]
+    assert response.get_json()["error"] == "Invalid ingestion path"
 
 
 def test_ingestion_history_lists_recent_manifests(authenticated_client, tmp_path, monkeypatch):
@@ -374,4 +374,3 @@ def test_neo4j_sync_called_on_async_with_flag(app, tmp_path, monkeypatch):
         assert status["status"] == "completed"
         assert len(sync_calls) == 1
         assert status["neo4j_sync"] == {"merged_nodes": 1, "merged_edges": 0}
-

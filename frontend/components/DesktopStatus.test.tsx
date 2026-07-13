@@ -22,7 +22,7 @@ describe('DesktopStatus', () => {
     window.electronAPI = {
       ping: vi.fn().mockResolvedValue('pong'),
       getBackendStatus: vi.fn().mockResolvedValue('checking'),
-      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),
+      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', phase: 'ready', services: {}, chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),
       quadAnalysisStatus: vi.fn().mockResolvedValue({ pod_count: 0, collective_confidence: 0, mode: 'idle' }),
       dmrfStatus: vi.fn().mockResolvedValue({ status: 'idle', tier: null, frost_depth: null, run_id: null, tier_counts: {} }),
       dsqpPersonaProfiles: vi.fn().mockResolvedValue({ success: true, profiles: [], partial: false, failures: {} }),

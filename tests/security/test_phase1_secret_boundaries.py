@@ -63,6 +63,7 @@ def test_runtime_storage_credentials_are_dpapi_protected(tmp_path, monkeypatch):
 
 
 def test_backup_excludes_secret_and_settings_files(tmp_path, monkeypatch):
+    from app import create_app
     from backend.routes.storage_routes import _create_backup
 
     runtime_root = tmp_path / "runtime"
@@ -82,7 +83,17 @@ def test_backup_excludes_secret_and_settings_files(tmp_path, monkeypatch):
 
     monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(settings_path))
     monkeypatch.delenv("DATABASE_URL", raising=False)
-    result = _create_backup(str(tmp_path / "backups"))
+    application = create_app(
+        "testing",
+        {
+            "DLE_RUNTIME_ROOT": str(runtime_root),
+            "DLE_INITIALIZE_STORES": False,
+            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{runtime_root / 'ukg_database.db'}",
+        },
+        start_runtime=False,
+    )
+    with application.app_context():
+        result = _create_backup(str(tmp_path / "backups"))
 
     with zipfile.ZipFile(result["artifact_path"]) as archive:
         names = set(archive.namelist())
