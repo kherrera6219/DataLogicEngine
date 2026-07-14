@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.11.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -206,6 +206,35 @@ Canonical route policy:
 
 - `/api/v1/*` is the supported route family.
 - Legacy aliases are transition-only and should emit deprecation headers.
+
+### Client Gateway boundary
+
+The external Client Gateway is header-authenticated and does not use browser
+CSRF semantics. Desktop owner mutations retain session, origin, and CSRF
+controls. The production gateway requires:
+
+1. high-entropy copy-once `ukg_` secrets with protected hash-only verification,
+   explicit scopes, expiry, rotation, revocation, and audit tombstones;
+2. no external-key access to provider credentials, owner/admin APIs, or internal
+   PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, supervisor, or diagnostics;
+3. strict request/nested-message schemas and pre-execution body/message/metadata/
+   token/deadline limits;
+4. atomic Redis minute/day/concurrency enforcement with fail-closed production
+   behavior when Redis policy state is unavailable;
+5. PostgreSQL idempotency authority and durable jobs, Redis job leases/cancel
+   state, encrypted payloads, and hash-verified S3 retention for large results;
+6. client-owned trace/result reads, explicit `trace:read`/`evidence:read`, and
+   404 isolation for another client's identifiers;
+7. logs, errors, metrics, audit, exports, and support bundles that omit client
+   secrets, provider keys, authorization headers, prompt/response content, and
+   certificate private material; and
+8. CORS disabled plus loopback binding by default.
+
+`private_windows_gateway` remains fail-closed. It cannot start until TLS/mTLS,
+certificate lifecycle, firewall, interface/address restriction, two-machine,
+security, failure/recovery, and uninstall qualification passes. Public internet,
+anonymous access, browser registration, and multi-tenant operation remain out
+of scope. See `docs/PRIVATE_GATEWAY_RUNBOOK.md`.
 
 ---
 
@@ -495,6 +524,12 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Change notes for v2.11.0
+
+1. Added the Phase 8 client-principal, scope, idempotency, Redis admission/job,
+   encrypted retained-result, trace ownership, redaction, and fail-closed private
+   listener controls.
 
 ## Change notes for v2.10.0
 

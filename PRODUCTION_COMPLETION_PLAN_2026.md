@@ -18,25 +18,25 @@
 
 ### Current execution checkpoint
 
-Phase 7 reached its engineering checkpoint on 2026-07-13. One generated
-OpenAI/Google manifest now controls backend, frontend, test, and documentation
-model facts. The backend owns async provider adapters, one request-wide
-deadline, request cancellation, typed failure/retry policy, per-model circuit
-breakers, call/token/spend ceilings, content-free provider usage/egress records,
-and encrypted bounded offline replay. The UI exposes exact provider state,
-preflight disclosure, cancellation, warning confirmation, and owner ledger
-review/export/reset controls. Complete-response delivery is explicitly labeled
-`buffered`; native governed token release remains Phase 8 work. Phase 8 is now
-active.
+Phase 8 reached its engineering checkpoint on 2026-07-13. The versioned
+`dle-gateway.v1` boundary now provides strict native sync, stage-native governed
+SSE, durable async/status/result/cancel, idempotency, capability and owned-trace
+retrieval, stable errors, and a bounded OpenAI-compatible facade. Copy-once
+client identity, explicit scopes/policy, atomic Redis admission and job
+coordination, PostgreSQL virtual-model/job/idempotency authority, encrypted
+large results in the app-owned S3 service, split desktop administration, SDKs,
+examples, contract-diff CI, ADR-0005, and operational documentation are current.
+Phase 9 is now active.
 
-This checkpoint is not the full Phase 6 production exit gate and does not
+This checkpoint is not the full Phase 8 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
 license review, final object-store decision, and real installed OpenAI/Gemini
 trace proof, installed OpenAI/Google corpus results, live Phase 7 provider
-acceptance, and signed blinded human acceptance remain open gates that can only
-close against the later rebuilt release candidate.
+acceptance, signed blinded human acceptance, and Phase 8 same-host/private,
+TLS/firewall, backup/restore, UI, failure/load/soak, and two-machine acceptance
+remain open gates that can only close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -1730,6 +1730,17 @@ This phase does not create a second reasoning stack and does not turn the produc
 into cloud SaaS. It admits additional named client principals into the local or
 explicitly enabled private Windows trust boundary and routes every accepted
 request through the Phase 5-7 contracts.
+
+### Execution status - engineering checkpoint complete, installed gates deferred
+
+CP8-A, CP8-D, CP8-E, and CP8-H pass. CP8-B, CP8-C, CP8-F, CP8-G, and CP8-J pass
+at the source/engineering boundary while their rebuilt-installed security,
+recovery, packaged UI, expanded data-lifecycle, and failure/load/soak evidence
+remains deferred. CP8-I remains a release blocker in full. Private mode is
+disabled until TLS, certificate, firewall, client-policy, and two-machine
+qualification pass. Evidence is under
+`reports/production-readiness/2026/phase-08/`; production/public release remains
+**NO-GO**.
 
 ### Work packages
 
@@ -3802,15 +3813,16 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 8** from the committed Phase 7 engineering checkpoint. Inventory
-the live external gateway routes, principals, key/scopes, client policy,
-versioning, virtual-model mapping, sync/SSE/async behavior, SDK surfaces,
-desktop administration, loopback/private listeners, and interoperability tests.
-Add failure-first external-contract and auth-boundary tests before expanding the
-surface. Preserve the one `governed.v1` orchestrator and Phase 7 provider budgets;
-the gateway must not become a second execution path.
+Start **Phase 9** from the committed Phase 8 engineering checkpoint. Inventory
+the live file/folder acquisition and picker-capability paths, staging/parsers,
+ingestion jobs, PostgreSQL corpus authority, Redis queue/lease/event state,
+Neo4j/Chroma materializations, S3 artifacts, retrieval paths, memory authorities,
+and Knowledge/Graph controls. Add failure-first path/archive/content-defense,
+restart/idempotency, cross-store divergence, retrieval-causality, and delete/
+reingest tests before extending the subsystem.
 
-Preserve CP5-E, CP6-F, all installed-only Phase 3/4 gates, Dependabot alert 389,
-and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 8 must not treat source tests as installed same-host/private
-interoperability or live-provider proof.
+Preserve the one `governed.v1` orchestrator and versioned client boundary, all
+installed-only Phase 3-8 gates, Dependabot alert 389, and the SeaweedFS
+candidate-only Replacement Control boundary as release blockers. Phase 9 must
+not treat source fixtures as installed ingestion, recovery, or causal-retrieval
+proof.

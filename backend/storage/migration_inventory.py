@@ -26,7 +26,7 @@ class MigrationSurface:
 MIGRATION_SURFACES: tuple[MigrationSurface, ...] = (
     MigrationSurface(
         key="postgresql",
-        target_version="alembic:c2d3e4f5a6b7",
+        target_version="alembic:b7c8d9e0f1a2",
         version_probe="SELECT version_num FROM alembic_version",
         forward_migration="transactional Alembic upgrade through the single revision head",
         rollback_policy="revision-specific downgrade only after verified coordinated backup",

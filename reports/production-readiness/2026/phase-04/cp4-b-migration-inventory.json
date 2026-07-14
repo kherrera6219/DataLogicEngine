@@ -7,7 +7,7 @@
   "managed_backup_required_before_destructive_migration": true,
   "legacy_create_all_is_production_coordinator": false,
   "alembic": {
-    "revision_count": 14,
+    "revision_count": 21,
     "revisions": [
       {
         "revision": "000000000001",
@@ -29,6 +29,13 @@
         ]
       },
       {
+        "revision": "a6b7c8d9e0f1",
+        "file": "a6b7c8d9e0f1_add_gateway_async_runs.py",
+        "down_revisions": [
+          "f5a6b7c8d9e0"
+        ]
+      },
+      {
         "revision": "a9b0c1d2e3f4",
         "file": "a9b0c1d2e3f4_add_deletion_tombstones.py",
         "down_revisions": [
@@ -43,6 +50,13 @@
         ]
       },
       {
+        "revision": "b1c2d3e4f5a6",
+        "file": "b1c2d3e4f5a6_expand_governed_trace_status.py",
+        "down_revisions": [
+          "a9b0c1d2e3f4"
+        ]
+      },
+      {
         "revision": "b4c5d6e7f8a9",
         "file": "b4c5d6e7f8a9_drop_user_mfa_columns.py",
         "down_revisions": [
@@ -50,10 +64,24 @@
         ]
       },
       {
+        "revision": "b7c8d9e0f1a2",
+        "file": "b7c8d9e0f1a2_add_gateway_virtual_model_authority.py",
+        "down_revisions": [
+          "a6b7c8d9e0f1"
+        ]
+      },
+      {
         "revision": "c1d2e3f4a5b6",
         "file": "c1d2e3f4a5b6_add_user_ai_preferences.py",
         "down_revisions": [
           "a1b2c3d4e5f6"
+        ]
+      },
+      {
+        "revision": "c2d3e4f5a6b7",
+        "file": "c2d3e4f5a6b7_add_evidence_quality_contract.py",
+        "down_revisions": [
+          "b1c2d3e4f5a6"
         ]
       },
       {
@@ -71,6 +99,13 @@
         ]
       },
       {
+        "revision": "d3e4f5a6b7c8",
+        "file": "d3e4f5a6b7c8_add_provider_usage_privacy_ledger.py",
+        "down_revisions": [
+          "c2d3e4f5a6b7"
+        ]
+      },
+      {
         "revision": "d6e7f8a9b0c1",
         "file": "d6e7f8a9b0c1_drop_oauth_accounts_table.py",
         "down_revisions": [
@@ -82,6 +117,13 @@
         "file": "e2f3a4b5c6d7_add_phase_b_frost_trace_fields.py",
         "down_revisions": [
           "d1e2f3a4b5c6"
+        ]
+      },
+      {
+        "revision": "e4f5a6b7c8d9",
+        "file": "e4f5a6b7c8d9_add_gateway_client_key_lifecycle.py",
+        "down_revisions": [
+          "d3e4f5a6b7c8"
         ]
       },
       {
@@ -99,6 +141,13 @@
         ]
       },
       {
+        "revision": "f5a6b7c8d9e0",
+        "file": "f5a6b7c8d9e0_add_gateway_idempotency_authority.py",
+        "down_revisions": [
+          "e4f5a6b7c8d9"
+        ]
+      },
+      {
         "revision": "f8a9b0c1d2e3",
         "file": "f8a9b0c1d2e3_add_cross_store_outbox.py",
         "down_revisions": [
@@ -110,7 +159,7 @@
       "000000000001"
     ],
     "heads": [
-      "a9b0c1d2e3f4"
+      "b7c8d9e0f1a2"
     ],
     "linear_order": [
       "000000000001",
@@ -126,14 +175,21 @@
       "d6e7f8a9b0c1",
       "e7f8a9b0c1d2",
       "f8a9b0c1d2e3",
-      "a9b0c1d2e3f4"
+      "a9b0c1d2e3f4",
+      "b1c2d3e4f5a6",
+      "c2d3e4f5a6b7",
+      "d3e4f5a6b7c8",
+      "e4f5a6b7c8d9",
+      "f5a6b7c8d9e0",
+      "a6b7c8d9e0f1",
+      "b7c8d9e0f1a2"
     ],
     "errors": []
   },
   "surfaces": [
     {
       "key": "postgresql",
-      "target_version": "alembic:a9b0c1d2e3f4",
+      "target_version": "alembic:b7c8d9e0f1a2",
       "version_probe": "SELECT version_num FROM alembic_version",
       "forward_migration": "transactional Alembic upgrade through the single revision head",
       "rollback_policy": "revision-specific downgrade only after verified coordinated backup",
@@ -221,5 +277,5 @@
     "supported_prior_release_upgrade_qualified": false,
     "downgrade_against_newer_data_allowed": false
   },
-  "captured_at": "2026-07-14T01:22:49.215515+00:00"
+  "captured_at": "2026-07-14T08:34:48.008650+00:00"
 }

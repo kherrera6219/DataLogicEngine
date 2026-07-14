@@ -1,0 +1,26 @@
+{
+  "schema_version": "dle-phase-checks.v1",
+  "phase": 8,
+  "date": "2026-07-13",
+  "checks": [
+    {"name": "backend_full", "status": "passed", "passed": 1993, "skipped": 18, "warnings": 21},
+    {"name": "frontend_full", "status": "passed", "passed": 403, "files": 82},
+    {"name": "frontend_typecheck", "status": "passed"},
+    {"name": "frontend_lint", "status": "passed_with_warning", "errors": 0, "warnings": 1},
+    {"name": "frontend_production_build", "status": "passed", "static_pages": 30},
+    {"name": "python_sdk_full", "status": "passed", "passed": 30},
+    {"name": "typescript_sdk_full", "status": "passed", "passed": 5},
+    {"name": "typescript_sdk_build", "status": "passed"},
+    {"name": "gateway_contract", "status": "passed", "passed": 22, "skipped": 1},
+    {"name": "openapi_compatibility_diff", "status": "passed"},
+    {"name": "migration_matrix", "status": "passed", "passed": 18, "revision_count": 21, "head": "b7c8d9e0f1a2"},
+    {"name": "ruff", "status": "passed"},
+    {"name": "python_compileall", "status": "passed"},
+    {"name": "documentation_references", "status": "passed", "errors": 0},
+    {"name": "git_diff_check", "status": "passed"}
+  ],
+  "installed_gateway_acceptance": "deferred_release_blocker",
+  "private_gateway_authorized": false,
+  "release_ready": false,
+  "release_verdict": "NO-GO"
+}

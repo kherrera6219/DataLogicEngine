@@ -64,7 +64,7 @@ def route_inventory() -> list[dict[str, object]]:
             auth = [item for item in decorator_block if any(token in item.lower() for token in ("auth", "login", "admin", "key", "desktop"))]
             route_path = match.group(2)
             lowered_file = str(path.relative_to(ROOT)).lower()
-            if "admin" in lowered_file or route_path.startswith("/api/admin"):
+            if "admin" in lowered_file or route_path.startswith(("/api/admin", "/api/v1/admin")):
                 classification = "administration"
             elif route_path.startswith(("/api/v1", "/v1")):
                 classification = "client-gateway"

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -340,6 +340,47 @@ sequenceDiagram
         CI-->>Author: Fix links/metadata/references
     end
 ```
+
+## SD-09: Durable Client Gateway run
+
+```mermaid
+sequenceDiagram
+    participant Client as Approved client
+    participant Gateway as dle-gateway.v1
+    participant PG as PostgreSQL
+    participant Redis as Redis
+    participant Gov as Governed orchestrator
+    participant S3 as App-owned S3
+    Client->>Gateway: POST /runs plus client key and idempotency key
+    Gateway->>PG: Verify client policy and idempotency
+    Gateway->>Redis: Atomic admission and content-free queued state
+    Gateway->>PG: Commit encrypted queued job
+    Gateway-->>Client: 202 plus job/status/result/cancel URLs
+    Gateway->>Redis: Acquire expiring worker lease
+    Gateway->>PG: Recheck live key policy; mark running
+    Gateway->>Gov: Execute one canonical GovernedRequest
+    Gov-->>Gateway: Validated governed result
+    alt Small encrypted result
+        Gateway->>PG: Commit encrypted result and terminal state
+    else Large retained result
+        Gateway->>PG: Commit required materialization reference/hash
+        Gateway->>S3: Materialize encrypted gateway-results object
+        S3-->>Gateway: Object exists and hash matches
+    end
+    Gateway->>Redis: Record terminal content-free state and release lease
+    Client->>Gateway: GET /runs/job/result
+    Gateway->>PG: Verify client ownership and result reference
+    Gateway->>S3: Read/verify only when object-backed
+    Gateway-->>Client: Governed result
+```
+
+Cancellation writes PostgreSQL plus Redis state and signals the same governed
+request. A process interruption does not auto-replay running provider work.
+
+## Change notes for v3.1.0
+
+1. Added the Client Gateway durable-run, idempotency, Redis coordination,
+   policy recheck, S3 result, ownership, and no-duplicate-spend sequence.
 
 ## Change notes for v3.0.0
 

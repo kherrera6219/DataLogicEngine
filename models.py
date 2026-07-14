@@ -802,6 +802,43 @@ class ModelRoutingPolicy(db.Model):
         }
 
 
+class GatewayVirtualModel(db.Model):
+    """PostgreSQL authority for one published gateway virtual-model policy."""
+
+    __tablename__ = 'gateway_virtual_models'
+    __table_args__ = (
+        Index('ix_gateway_virtual_models_active', 'is_active'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(db.String(64), primary_key=True)
+    label = db.Column(db.String(120), nullable=False)
+    mode = db.Column(db.String(32), nullable=False)
+    max_provider_calls = db.Column(db.Integer, nullable=False)
+    provider_backed = db.Column(db.Boolean, nullable=False, default=True)
+    description = db.Column(db.String(500), nullable=False)
+    policy = db.Column(JSON, nullable=False, default=dict)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': self.id,
+            'label': self.label,
+            'mode': self.mode,
+            'max_provider_calls': self.max_provider_calls,
+            'provider_backed': self.provider_backed,
+            'description': self.description,
+            'policy': self.policy or {},
+        }
+
+
 class AIAuditEvent(db.Model):
     """AI governance audit trail with model/policy metadata."""
     __tablename__ = 'ai_audit_events'
@@ -881,12 +918,21 @@ class ExternalAPIKey(db.Model):
     rate_limit_rpm = db.Column(db.Integer, default=60)
     rate_limit_daily = db.Column(db.Integer)
     max_tokens_per_request = db.Column(db.Integer)
+    max_concurrent_requests = db.Column(db.Integer, default=2)
     permissions = db.Column(db.JSON)
     allowed_providers = db.Column(db.JSON)
     allowed_models = db.Column(db.JSON)
     
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     expires_at = db.Column(db.DateTime, nullable=True)
+    revoked_at = db.Column(db.DateTime, nullable=True)
+    revoked_reason = db.Column(db.String(240), nullable=True)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    rotated_from_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('external_api_keys.id'),
+        nullable=True,
+    )
     
     usage_records = db.relationship('LLMProviderUsage', backref='api_key', lazy='dynamic')
 
@@ -909,7 +955,11 @@ class ExternalAPIKey(db.Model):
             return None
         
         key_hash = hashlib.sha256(full_key.encode()).hexdigest()
-        key_record = cls.query.filter_by(key_hash=key_hash, is_active=True).first()
+        key_record = cls.query.filter_by(
+            key_hash=key_hash,
+            is_active=True,
+            deleted_at=None,
+        ).first()
         if not key_record:
             return None
 
@@ -924,15 +974,161 @@ class ExternalAPIKey(db.Model):
         return key_record
 
     def to_dict(self):
+        from backend.llm_gateway.external_contract import normalize_client_scopes
+
         return {
             'id': str(self.id),
             'name': self.name,
+            # Retain the original public field while exposing the explicit
+            # storage-column name used by the Phase 8 administration contract.
             'prefix': self.key_prefix,
+            'key_prefix': self.key_prefix,
             'is_active': self.is_active,
             'total_requests': self.total_requests,
             'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'expires_at': self.expires_at.isoformat() if self.expires_at else None
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
+            'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
+            'revoked_reason': self.revoked_reason,
+            'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
+            'rotated_from_id': str(self.rotated_from_id) if self.rotated_from_id else None,
+            'scopes': sorted(normalize_client_scopes(self.permissions)),
+            'allowed_providers': self.allowed_providers or [],
+            'allowed_models': self.allowed_models or [],
+            'rate_limit_rpm': self.rate_limit_rpm,
+            'rate_limit_daily': self.rate_limit_daily,
+            'max_tokens_per_request': self.max_tokens_per_request,
+            'max_concurrent_requests': self.max_concurrent_requests,
+        }
+
+
+class GatewayIdempotencyRecord(db.Model):
+    """Durable authority preventing duplicate external gateway execution."""
+
+    __tablename__ = 'gateway_idempotency_records'
+    __table_args__ = (
+        db.UniqueConstraint(
+            'api_key_id',
+            'idempotency_key',
+            name='uq_gateway_idempotency_client_key',
+        ),
+        Index('ix_gateway_idempotency_state_expiry', 'state', 'expires_at'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    api_key_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('external_api_keys.id'),
+        nullable=False,
+    )
+    idempotency_key = db.Column(db.String(128), nullable=False)
+    request_sha256 = db.Column(db.String(64), nullable=False)
+    request_id = db.Column(db.String(128), nullable=False)
+    state = db.Column(db.String(24), nullable=False, default='pending')
+    response_status = db.Column(db.Integer, nullable=True)
+    response_payload = db.Column(JSON, nullable=True)
+    run_id = db.Column(db.String(36), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    def to_dict(self, *, include_response: bool = False) -> Dict[str, Any]:
+        payload = {
+            'id': str(self.id),
+            'api_key_id': str(self.api_key_id),
+            'idempotency_key': self.idempotency_key,
+            'request_id': self.request_id,
+            'state': self.state,
+            'response_status': self.response_status,
+            'run_id': self.run_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
+        }
+        if include_response:
+            payload['response_payload'] = self.response_payload
+        return payload
+
+
+class GatewayAsyncRun(db.Model):
+    """Durable authority for one bounded external gateway job."""
+
+    __tablename__ = 'gateway_async_runs'
+    __table_args__ = (
+        db.UniqueConstraint(
+            'api_key_id',
+            'idempotency_key',
+            name='uq_gateway_async_run_client_idempotency',
+        ),
+        Index('ix_gateway_async_run_state_created', 'status', 'created_at'),
+        Index('ix_gateway_async_run_request_id', 'request_id'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    request_id = db.Column(db.String(128), nullable=False)
+    idempotency_key = db.Column(db.String(128), nullable=False)
+    request_sha256 = db.Column(db.String(64), nullable=False)
+    api_key_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('external_api_keys.id', ondelete='SET NULL'),
+        nullable=True,
+    )
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(24), nullable=False, default='queued')
+    virtual_model = db.Column(db.String(64), nullable=False)
+    request_encryption = db.Column(db.String(32), nullable=False)
+    request_ciphertext = db.Column(db.Text, nullable=False)
+    response_encryption = db.Column(db.String(32), nullable=True)
+    response_ciphertext = db.Column(db.Text, nullable=True)
+    response_storage = db.Column(db.String(32), nullable=False, default='postgresql_ciphertext')
+    response_object_bucket = db.Column(db.String(100), nullable=True)
+    response_object_key = db.Column(db.String(500), nullable=True)
+    response_sha256 = db.Column(db.String(64), nullable=True)
+    response_size_bytes = db.Column(db.Integer, nullable=True)
+    response_status = db.Column(db.Integer, nullable=True)
+    run_id = db.Column(db.String(36), nullable=True)
+    error_code = db.Column(db.String(100), nullable=True)
+    error_message = db.Column(db.String(500), nullable=True)
+    cancellation_requested = db.Column(db.Boolean, nullable=False, default=False)
+    attempt_count = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return content-free job metadata safe for the client principal."""
+        return {
+            'job_id': str(self.id),
+            'request_id': self.request_id,
+            'status': self.status,
+            'virtual_model': self.virtual_model,
+            'run_id': self.run_id,
+            'response_status': self.response_status,
+            'result_storage': self.response_storage,
+            'result_size_bytes': self.response_size_bytes,
+            'error_code': self.error_code,
+            'error_message': self.error_message,
+            'cancellation_requested': bool(self.cancellation_requested),
+            'attempt_count': int(self.attempt_count or 0),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
         }
 
 

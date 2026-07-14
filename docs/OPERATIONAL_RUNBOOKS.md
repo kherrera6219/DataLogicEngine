@@ -529,7 +529,22 @@ otherwise `SEV-2`.
    main-process purpose signature.
 5. Verify provider/internal credentials remain DPAPI-protected and the backup
    contains none of `.env`, settings, logs, secret, or key files.
-6. Private listener requests remain blocked until Phase 8 qualification.
+6. Private listener requests remain blocked until the signed installed Phase 8
+   TLS/certificate/firewall/two-machine qualification passes.
+
+For a suspected Client Gateway key or job incident:
+
+1. disable the affected client by immediate revocation or expiry;
+2. confirm queued/running jobs received cancellation and no new request passes;
+3. review redacted lifecycle audit, client request counts, owned jobs, traces,
+   Redis limiter/job state, and PostgreSQL authority without exporting content;
+4. rotate unaffected planned clients only when bounded overlap is intended;
+5. verify authorization headers, `ukg_` secrets, provider credentials, prompt/
+   response content, and encrypted result objects are absent from logs/support;
+6. if Redis, PostgreSQL, or the object store is unavailable, keep production
+   admission/result release failed closed rather than bypassing policy; and
+7. rerun native sync/SSE/async/cancel/trace isolation and the contract suite
+   before restoring the client.
 
 ---
 

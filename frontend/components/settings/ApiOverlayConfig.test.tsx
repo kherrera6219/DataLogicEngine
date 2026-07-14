@@ -14,6 +14,7 @@ vi.mock('@/components/ui/card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CardTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
@@ -43,6 +44,7 @@ vi.mock('lucide-react', () => ({
   Eye: () => <div data-testid="eye-icon" />,
   CheckCircle: () => <div data-testid="check-circle-icon" />,
   Shield: () => <div data-testid="shield-icon" />,
+  ShieldCheck: () => <div data-testid="shield-check-icon" />,
   ArrowRight: () => <div data-testid="arrow-right-icon" />,
   Server: () => <div data-testid="server-icon" />,
   Activity: () => <div data-testid="activity-icon" />,
@@ -113,20 +115,20 @@ afterEach(() => {
 describe('ApiOverlayConfig', () => {
   it('should render configuration header', () => {
     render(<ApiOverlayConfig />);
-    expect(screen.getByText('UKG API Overlay Configuration')).toBeInTheDocument();
-    expect(screen.getByText('Valid')).toBeInTheDocument();
+    expect(screen.getByText('Provider Connections')).toBeInTheDocument();
+    expect(screen.getByText(/These are not client gateway keys/i)).toBeInTheDocument();
   });
 
   it('should allow entering API key', () => {
     render(<ApiOverlayConfig />);
-    const input = screen.getByLabelText('API Key');
+    const input = screen.getByLabelText('Provider API key');
     fireEvent.change(input, { target: { value: 'sk-test-123' } });
     expect(input).toHaveValue('sk-test-123');
   });
 
   it('should save provider key explicitly', async () => {
     render(<ApiOverlayConfig />);
-    const input = screen.getByLabelText('API Key');
+    const input = screen.getByLabelText('Provider API key');
     fireEvent.change(input, { target: { value: 'sk-test-123' } });
 
     const saveBtn = screen.getByRole('button', { name: 'Save provider key' });
@@ -134,21 +136,20 @@ describe('ApiOverlayConfig', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Saved')).toBeInTheDocument();
-      expect(screen.getByText('Stored')).toBeInTheDocument();
-      expect(toastMock).toHaveBeenCalledWith('API key saved.', 'success');
+      expect(toastMock).toHaveBeenCalledWith('Provider key saved in protected local storage.', 'success');
     }, { timeout: 2000 });
   });
 
   it('should test provider connection', async () => {
     render(<ApiOverlayConfig />);
-    const input = screen.getByLabelText('API Key');
+    const input = screen.getByLabelText('Provider API key');
     fireEvent.change(input, { target: { value: 'sk-test-123' } });
 
     const testBtn = screen.getByRole('button', { name: 'Test provider connection' });
     fireEvent.click(testBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Connected')).toBeInTheDocument();
+      expect(screen.getByText(/passed live validation/i)).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 
@@ -178,39 +179,26 @@ describe('ApiOverlayConfig', () => {
     }));
 
     render(<ApiOverlayConfig />);
-    const input = screen.getByLabelText('API Key');
+    const input = screen.getByLabelText('Provider API key');
     fireEvent.change(input, { target: { value: 'sk-bad-key' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Test provider connection' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Connection Error')).toBeInTheDocument();
-      expect(screen.getByText('HTTP 401')).toBeInTheDocument();
+      expect(screen.getByText(/^Connection Error/)).toBeInTheDocument();
+      expect(screen.getByText(/HTTP 401/)).toBeInTheDocument();
       expect(screen.getByText(/Invalid API key/i)).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 
-  it('should run playground test', async () => {
-    render(<ApiOverlayConfig />);
-    const promptInput = screen.getByLabelText('Test Prompt');
-    fireEvent.change(promptInput, { target: { value: 'Test query' } });
-
-    const runBtn = screen.getByRole('button', { name: 'Run enhancement test' });
-    fireEvent.click(runBtn);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Gateway response body/i)).toBeInTheDocument();
-    }, { timeout: 3000 });
-  });
-
-  it('should expose labeled provider controls and tier buttons', async () => {
+  it('exposes only provider connection controls', async () => {
     render(<ApiOverlayConfig />);
 
     expect(screen.getByRole('combobox', { name: 'Provider' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Model' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Processing tier Trivial' })).toBeInTheDocument();
-    expect(screen.getByRole('slider', { name: 'Confidence threshold' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Copy gateway endpoint' })).toBeInTheDocument();
+    expect(screen.queryByText(/Processing Tier/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Confidence Threshold/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Create inbound application credentials in Client Gateway/i)).toBeInTheDocument();
   });
 
   it('offers the current Google model choices without the retired model', async () => {

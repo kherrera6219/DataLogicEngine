@@ -105,7 +105,7 @@ def create_test_api_key():
             key_prefix=prefix,
             key_hash=key_hash,
             user_id=user.id,
-            permissions={"read": True, "write": True, "admin": False},
+            permissions={"scopes": ["chat", "stream", "models:read", "run:cancel"]},
             rate_limit_rpm=1000,
         )
         db.session.add(api_key)

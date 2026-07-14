@@ -130,7 +130,7 @@ def test_mcp_subscription_manager_sends_sse_event():
     assert manager.unsubscribe(subscription["subscription_id"]) is True
 
 
-def test_sdk_v060_dsqp_and_coordinate_resolver_work_offline():
+def test_sdk_v070_dsqp_and_coordinate_resolver_work_offline():
     sdk_path = "C:/software/DataLogicEngine/sdk/UKG_Python_SDK"
     if sdk_path not in sys.path:
         sys.path.insert(0, sdk_path)
@@ -138,7 +138,7 @@ def test_sdk_v060_dsqp_and_coordinate_resolver_work_offline():
     import ukg_sdk
     from ukg_sdk import CoordinateResolver17, DSQPClient
 
-    assert ukg_sdk.__version__ == "0.6.0"
+    assert ukg_sdk.__version__ == "0.7.0"
     coordinate = CoordinateResolver17().resolve("compliance audit risk").to_dict()
     persona = DSQPClient().construct("compliance audit risk", coordinate, axis_number=10)
 

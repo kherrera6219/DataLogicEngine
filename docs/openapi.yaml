@@ -4,10 +4,10 @@ info:
   description: >
     Current partial REST contract for the local-first DataLogicEngine desktop
     application. The live app uses single-owner OS-level desktop auth, Flask
-    sessions, CSRF protection, and optional API-key style integration where
-    explicitly wired. Removed web login/register/MFA/SSO routes are intentionally
+    sessions, CSRF protection, and copy-once client keys for the explicitly
+    versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.2.0
+  version: 3.3.0
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -53,6 +53,15 @@ components:
       in: header
       name: X-DataLogic-Desktop
       description: Desktop loopback trust header used by Electron challenge/auto-login.
+    clientBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: ukg_<copy-once-client-key>
+    clientApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Copy-once client key. Bearer authentication is preferred.
   schemas:
     StandardResponse:
       type: object
@@ -103,11 +112,15 @@ components:
                   type: integer
     ChatRequest:
       type: object
+      additionalProperties: false
       properties:
         messages:
           type: array
+          minItems: 1
+          maxItems: 64
           items:
             type: object
+            additionalProperties: false
             required:
               - role
               - content
@@ -119,7 +132,35 @@ components:
                   - assistant
                   - system
               content:
-                type: string
+                oneOf:
+                  - type: string
+                    minLength: 1
+                    maxLength: 200000
+                  - type: array
+                    minItems: 1
+                    maxItems: 20
+                    items:
+                      type: object
+        request_id:
+          type: string
+          minLength: 8
+          maxLength: 128
+        idempotency_key:
+          type: string
+          minLength: 8
+          maxLength: 128
+          description: Synchronous-chat retry key. Reuse with a changed request returns 409 and never repeats governed work; streaming rejects it until resume semantics qualify.
+        session_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+          nullable: true
+        virtual_model:
+          type: string
+          enum:
+            - dle-standard
+            - dle-enhanced
+            - dle-local-review
         run_ukg_pipeline:
           type: boolean
           default: true
@@ -139,15 +180,33 @@ components:
             - google
             - gemini
           nullable: true
+          description: Requires routing:override scope and an exact server-owned provider allowlist entry.
         model:
           type: string
           nullable: true
-          description: Defaults to the saved LLMProvider/UserAIPreferences model.
+          description: Requires routing:override scope and an exact server-owned model allowlist entry.
+        constraints:
+          type: object
+          additionalProperties: true
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.7
+        max_tokens:
+          type: integer
+          minimum: 1
+          nullable: true
+        meta:
+          type: object
+          additionalProperties: true
       required:
         - messages
     ChatResponse:
       type: object
       properties:
+        request_id:
+          type: string
         response:
           type: string
         run_id:
@@ -162,6 +221,12 @@ components:
         contract_version:
           type: string
           example: governed.v1
+        gateway_contract_version:
+          type: string
+          example: dle-gateway.v1
+        virtual_model:
+          type: string
+          enum: [dle-standard, dle-enhanced, dle-local-review]
         status:
           type: string
           enum: [completed, abstained, policy_block, validation_failure, provider_failure, cancelled, internal_failure, capability_unavailable]
@@ -224,6 +289,282 @@ components:
           items:
             type: string
       additionalProperties: true
+    GatewayError:
+      type: object
+      required: [error, code]
+      properties:
+        error:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                code:
+                  type: string
+                message:
+                  type: string
+              additionalProperties: true
+        code:
+          type: string
+        limit:
+          type: integer
+        remaining:
+          type: integer
+        retry_after_seconds:
+          type: integer
+      additionalProperties: true
+    GatewayCapabilities:
+      type: object
+      required:
+        - contract_version
+        - profile
+        - virtual_models
+        - scopes
+        - provider_credentials_exposed
+      properties:
+        contract_version:
+          type: string
+          example: dle-gateway.v1
+        profile:
+          type: string
+          enum: [desktop_loopback, same_host_gateway]
+        virtual_models:
+          type: object
+          additionalProperties:
+            type: object
+        scopes:
+          type: array
+          items:
+            type: string
+        provider_credentials_exposed:
+          type: boolean
+          enum: [false]
+      additionalProperties: false
+    GatewayJob:
+      type: object
+      required:
+        - job_id
+        - request_id
+        - status
+        - virtual_model
+        - gateway_contract_version
+        - status_url
+        - result_url
+        - cancel_url
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled, expired]
+        virtual_model:
+          type: string
+          enum: [dle-standard, dle-enhanced, dle-local-review]
+        run_id:
+          type: string
+          format: uuid
+          nullable: true
+        response_status:
+          type: integer
+          nullable: true
+        result_storage:
+          type: string
+          enum: [postgresql_ciphertext, minio_ciphertext]
+          description: Encrypted small results remain in PostgreSQL; retained large results use the app-owned S3 store.
+        result_size_bytes:
+          type: integer
+          nullable: true
+        error_code:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        cancellation_requested:
+          type: boolean
+        attempt_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+        gateway_contract_version:
+          type: string
+          enum: [dle-gateway.v1]
+        status_url:
+          type: string
+        result_url:
+          type: string
+        cancel_url:
+          type: string
+      additionalProperties: false
+    OpenAIChatCompletionRequest:
+      type: object
+      required: [model, messages]
+      properties:
+        model:
+          type: string
+          enum: [dle-standard, dle-enhanced, dle-local-review]
+        messages:
+          $ref: "#/components/schemas/ChatRequest/properties/messages"
+        stream:
+          type: boolean
+          default: false
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.7
+        max_tokens:
+          type: integer
+          minimum: 1
+        max_completion_tokens:
+          type: integer
+          minimum: 1
+        n:
+          type: integer
+          enum: [1]
+          default: 1
+        user:
+          type: string
+          minLength: 1
+          maxLength: 128
+      additionalProperties: false
+    ClientKeyMetadata:
+      type: object
+      required: [id, name, key_prefix, is_active, scopes]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        key_prefix:
+          type: string
+        is_active:
+          type: boolean
+        total_requests:
+          type: integer
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+        revoked_reason:
+          type: string
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        rotated_from_id:
+          type: string
+          format: uuid
+          nullable: true
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [chat, stream, run:create, run:read, run:cancel, trace:read, evidence:read, models:read, routing:override]
+        allowed_providers:
+          type: array
+          items:
+            type: string
+        allowed_models:
+          type: array
+          items:
+            type: string
+        rate_limit_rpm:
+          type: integer
+        rate_limit_daily:
+          type: integer
+          nullable: true
+        max_tokens_per_request:
+          type: integer
+          nullable: true
+        max_concurrent_requests:
+          type: integer
+      additionalProperties: false
+    ClientKeyCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        scopes:
+          type: array
+          default: [chat]
+          items:
+            type: string
+            enum: [chat, stream, run:create, run:read, run:cancel, trace:read, evidence:read, models:read, routing:override]
+        allowed_providers:
+          type: array
+          items:
+            type: string
+            enum: [openai, google]
+        allowed_models:
+          type: array
+          items:
+            type: string
+        expires_in_days:
+          type: integer
+          minimum: 1
+        rate_limit_rpm:
+          type: integer
+          minimum: 1
+          default: 60
+        rate_limit_daily:
+          type: integer
+          minimum: 1
+        max_tokens_per_request:
+          type: integer
+          minimum: 1
+        max_concurrent_requests:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 2
+      additionalProperties: false
+    ClientKeyRotate:
+      type: object
+      properties:
+        overlap_seconds:
+          type: integer
+          minimum: 0
+          maximum: 86400
+          default: 300
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      additionalProperties: false
     AISettings:
       type: object
       properties:
@@ -352,10 +693,12 @@ paths:
 
   /gateway/chat:
     post:
-      summary: Send a gateway-backed chat request
+      summary: Execute a governed synchronous gateway request
       tags:
         - LLM Gateway
       security:
+        - clientBearer: []
+        - clientApiKey: []
         - sessionCookie: []
           csrfToken: []
       requestBody:
@@ -366,25 +709,565 @@ paths:
               $ref: "#/components/schemas/ChatRequest"
       responses:
         "200":
-          description: Model-backed response returned.
+          description: Governed response envelope returned.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ChatResponse"
+                allOf:
+                  - $ref: "#/components/schemas/StandardResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ChatResponse"
         "202":
           description: Request queued for offline replay when enabled and providers are unavailable.
+        "401":
+          description: Client key or desktop session is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "403":
+          description: The authenticated client lacks chat scope or violates server-owned policy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "422":
+          description: Strict request, virtual-model, provider, or model validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "413":
+          description: The request body exceeds the configured pre-execution limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "409":
+          description: Idempotency key is in progress or conflicts with a changed request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
         "429":
-          description: Provider rate-limited the request.
+          description: Client admission or upstream provider rate limit was reached.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/GatewayError"
         "503":
-          description: No reachable active provider and offline queue disabled.
+          description: Required admission state or provider execution is unavailable.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/GatewayError"
+
+  /gateway/chat/stream:
+    post:
+      summary: Execute a governed gateway request as server-sent events
+      description: >
+        Emits live governed stage, heartbeat, backpressure, evidence, validation,
+        validated content-delta, completion, cancellation, and safe failure events.
+        Provider text is withheld until output validation completes.
+      tags:
+        - LLM Gateway
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Live governed SSE stage stream with validated output delivery.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          description: Client key or desktop session is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "403":
+          description: The authenticated client lacks stream scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "422":
+          description: Strict request or virtual-model validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "413":
+          description: The request body exceeds the configured pre-execution limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "429":
+          description: Client admission limit was reached.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "503":
+          description: Required admission state or provider execution is unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+
+  /gateway/requests/{request_id}/cancel:
+    post:
+      summary: Request cancellation for an active governed request
+      tags:
+        - LLM Gateway
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 8
+      responses:
+        "202":
+          description: Cancellation was requested.
+        "401":
+          description: Client key or desktop session is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "403":
+          description: The authenticated client lacks run:cancel scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "404":
+          description: No active request matched the identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+
+  /gateway/capabilities:
+    get:
+      summary: Discover the authenticated client's content-free gateway capabilities
+      tags:
+        - LLM Gateway
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Versioned virtual models, active profile, and authenticated client scopes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayCapabilities"
+        "401":
+          description: Client key or desktop session is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+        "403":
+          description: The authenticated client lacks models:read scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayError"
+
+  /gateway/health:
+    get:
+      summary: Read authenticated content-free gateway health
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Capability health without a provider call; external clients do not receive provider topology.
+        "401":
+          description: Client key or desktop session is missing or invalid.
+
+  /gateway/usage-ledger:
+    get:
+      summary: Read the owner-visible provider usage ledger
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Content-free local call, token, latency, price-state, and budget totals.
+
+  /gateway/runs:
+    post:
+      summary: Create an encrypted durable governed job
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ChatRequest"
+                - type: object
+                  required: [idempotency_key]
+      responses:
+        "202":
+          description: Job accepted or an identical idempotent job replayed.
+          headers:
+            Location:
+              schema: {type: string}
+            Retry-After:
+              schema: {type: integer}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayJob"
+        "409":
+          description: Idempotency conflict.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GatewayError"}
+        "422":
+          description: Strict job request validation failed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GatewayError"}
+        "429":
+          description: Client job queue is full.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GatewayError"}
+    get:
+      summary: List jobs visible to the authenticated principal
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      parameters:
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 200, default: 50}
+      responses:
+        "200":
+          description: Content-free job metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jobs]
+                properties:
+                  jobs:
+                    type: array
+                    items: {$ref: "#/components/schemas/GatewayJob"}
+                additionalProperties: false
+
+  /gateway/runs/{job_id}:
+    get:
+      summary: Read durable gateway job status
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Content-free job status.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GatewayJob"}
+        "404":
+          description: Job is absent or not visible to this principal.
+
+  /gateway/runs/{job_id}/result:
+    get:
+      summary: Read the authenticated encrypted job result
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Completed governed result and job metadata.
+        "202":
+          description: Job is still queued or running.
+          headers:
+            Retry-After:
+              schema: {type: integer}
+        "409":
+          description: Terminal job has no result payload.
+        "404":
+          description: Job is absent or not visible to this principal.
+
+  /gateway/runs/{job_id}/cancel:
+    post:
+      summary: Cancel a queued or running durable job
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "202":
+          description: Cancellation recorded and signalled.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GatewayJob"}
+        "409":
+          description: Job was already terminal.
+        "404":
+          description: Job is absent or not visible to this principal.
+
+  /gateway/traces/{run_id}:
+    get:
+      summary: Read a redacted trace summary owned by the authenticated client
+      tags: [LLM Gateway]
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Content-safe stages and, with evidence:read, evidence references.
+        "403":
+          description: The authenticated client lacks trace:read scope.
+        "404":
+          description: Trace is absent or is owned by another client principal.
+
+  /v1/models:
+    get:
+      summary: List DataLogicEngine virtual models using the bounded OpenAI shape
+      tags: [LLM Gateway]
+      servers:
+        - url: http://localhost:5000
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Only governed virtual models; provider credentials and raw model catalog are excluded.
+
+  /v1/chat/completions:
+    post:
+      summary: Execute the bounded OpenAI-compatible chat facade
+      description: >
+        Supports one completion, the three governed virtual models, sync or SSE,
+        temperature, one output-token limit, and an optional user/session ID.
+        Unknown OpenAI fields are rejected and this facade always enters the
+        native DataLogicEngine governed contract.
+      tags: [LLM Gateway]
+      servers:
+        - url: http://localhost:5000
+      security:
+        - clientBearer: []
+        - clientApiKey: []
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Supported for non-streaming calls only.
+          schema: {type: string, minLength: 8, maxLength: 128}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OpenAIChatCompletionRequest"}
+      responses:
+        "200":
+          description: OpenAI-shaped completion JSON or SSE chunks with a `dle` governance extension.
+          content:
+            application/json:
+              schema: {type: object}
+            text/event-stream:
+              schema: {type: string}
+        "401": {description: Invalid client key.}
+        "403": {description: Insufficient chat or stream scope.}
+        "409": {description: Idempotency conflict.}
+        "422": {description: Unsupported or invalid compatibility field.}
+        "429": {description: Client or provider limit reached.}
+        "503": {description: Required gateway capability is unavailable.}
+
+  /admin/api-keys:
+    get:
+      summary: List owner-visible client-key metadata
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Client-key metadata without secret material.
+    post:
+      summary: Create a copy-once client key
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientKeyCreate"
+      responses:
+        "201":
+          description: Client-key metadata plus the one-time `api_key` value.
+        "422":
+          description: Strict lifecycle request validation failed.
+
+  /admin/api-keys/audit:
+    get:
+      summary: List redacted client-key lifecycle audit evidence
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Redacted create, rotate, revoke, expire, and deletion-material events.
+
+  /admin/gateway/status:
+    get:
+      summary: Read the owner gateway listener and dependency control-plane state
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Truthful profile, bind, TLS, mTLS, firewall, CORS, and required-service state.
+
+  /admin/api-keys/{key_id}/rotate:
+    post:
+      summary: Rotate a client key with bounded overlap
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientKeyRotate"
+      responses:
+        "201":
+          description: Replacement metadata plus the one-time `api_key` value.
+        "409":
+          description: The key is not active.
+
+  /admin/api-keys/{key_id}/revoke:
+    post:
+      summary: Immediately revoke a client key
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Revocation recorded with durable audit metadata.
+
+  /admin/api-keys/{key_id}/expire:
+    post:
+      summary: Immediately expire a client key
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Expiration recorded with durable audit metadata.
+
+  /admin/api-keys/{key_id}:
+    delete:
+      summary: Delete inactive client-key verification material
+      tags: [LLM Gateway]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Inactive verification material deleted; audit metadata retained.
+        "409":
+          description: Active keys must be revoked or expired before deletion.
 
   /gateway/providers:
     get:

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
+| Document version | v3.2.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -99,6 +99,7 @@ flowchart TD
 
 | Stage | Responsibility | Key implementation paths |
 |---|---|---|
+| Client Gateway admission | Strictly validates `dle-gateway.v1`, authenticates a copy-once client key, applies scopes/virtual model/idempotency and atomic Redis limits, then creates the immutable external principal. | `backend/llm_gateway/api.py`, `external_contract.py`, `admission_limiter.py`, `idempotency.py` |
 | Transport/security envelope | Authenticates the owner/client and supplies server-owned principal, scope, project, privacy, and budget context. | `app.py`, `backend/routes/`, `backend/auth/`, `backend/security/` |
 | Contract and orchestration | Validates `governed.v1`, prevents recursion/bypass, owns stage transitions, and bounds provider calls. | `backend/governed_execution/contracts.py`, `backend/governed_execution/orchestrator.py` |
 | DMRF/TruthGate | Applies injection defense, TruthGate, tier, and 17-axis routing with measured data. | `backend/dmrf/`, `backend/truth_engine/truth_gate/` |
@@ -154,6 +155,27 @@ Possible outcomes:
 5. Cancellation stops additional provider/tool calls.
 6. Every outcome returns one stable trace ID and stores only executed stages.
 7. Confidence must be null when no versioned measurement exists.
+
+## External Client Gateway transport outcomes
+
+All transports enter the same workflow after admission:
+
+- sync waits for one governed result and supports durable idempotent replay;
+- SSE emits live stage state but releases answer text only after validation;
+- async persists an encrypted PostgreSQL job, uses Redis coordination, and
+  retains large encrypted results in MinIO before authorized result release;
+- cancellation signals the same request/run registry and records terminal state;
+- the OpenAI facade changes request/response shape only; and
+- owned trace reads expose safe stage metadata and separately scoped evidence
+  references.
+
+Stream resume is unavailable in v1. An interrupted running async job is not
+automatically replayed because provider spend may already have occurred.
+
+## Change notes for v3.2.0
+
+1. Added the external client admission, transport, idempotency, Redis job, S3
+   retained-result, cancellation, compatibility, and trace-read workflow.
 
 ## Change notes for v3.0.0
 

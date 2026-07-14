@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 external gateway engineering checkpoint**: added the strict,
+  versioned `dle-gateway.v1` contract with native sync, stage-native governed
+  SSE, durable async/status/result/cancel, durable idempotency, capabilities,
+  owned trace summaries, stable errors, and a bounded OpenAI-compatible facade.
+- **Gateway identity, policy, and data authority**: added copy-once client key
+  lifecycle, explicit scopes and per-client limits, Redis atomic admission/job
+  coordination, PostgreSQL virtual-model/job/idempotency authority, encrypted
+  large results in `gateway-results`, and fail-closed dependency behavior.
+- **Gateway administration and developer contract**: separated Provider
+  Connections from Client Gateway controls, added Python SDK 0.7.0 and a
+  TypeScript SDK, examples, ADR-0005, OpenAPI breaking-change CI,
+  compatibility guidance, private gateway runbook, and Phase 8 evidence.
 - **Phase 7 governed provider execution checkpoint**: added one generated
   OpenAI/Google model manifest, backend-owned async adapters, request-wide
   deadlines and cancellation, typed provider failures and circuit state,
@@ -38,18 +50,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Truthful governed-run evidence**: added real-database causality and
   failure-path tests plus exact executed-stage persistence for successful,
   blocked, failed, cancelled, and capability-unavailable runs.
-- **SDK 0.6 service boundary**: published wheel and source distributions for a
-  thin HTTP/service SDK that does not duplicate backend orchestration.
+- **SDK service boundary**: published wheel and source distributions for a thin
+  HTTP/service SDK that does not duplicate backend orchestration; Phase 8 extends
+  it to version 0.7.0 with chat, streaming, durable jobs, cancellation,
+  capabilities, trace, and result retrieval.
 - **Phase 4 data-lifecycle engineering checkpoint**: added a generated 67-entity/28-contract ownership registry (extended to 70 entities by the Phase 6 trace-quality schema), transactional cross-store outbox and reconciliation state, fail-closed per-store startup migration coordinator, encrypted signed six-component backup, offline isolated clean-root restore with atomic activation/rollback, retention/deletion tombstones, uninstall dispositions, and a Windows volume/ACL plus DPAPI/AES-256-GCM protection standard.
 - **Populated recovery evidence**: a live five-service drill recovered PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, retained JSON, and pending outbox state with exact object-hash parity and prior-root preservation, then passed deletion across PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, JSON, and logs.
 - **Phase 3 internal data-plane engineering checkpoint**: added a per-install, digest-pinned rootless Podman profile for PostgreSQL, Redis, Neo4j, ChromaDB, and a candidate-only S3 service; protected service credentials; verified container identity; loopback-only endpoints; resource/security limits; supervisor lifecycle integration; and a live qualification gate covering real operations, restart durability, truthful status, and cleanup.
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
 
 ### Changed
-- **Truthful provider and delivery state**: settings now distinguish stored from
-  available keys, connection tests return typed failure classes, chat discloses
-  external data categories and remaining allowance, and complete-response SSE is
-  labeled `buffered` pending Phase 8 native governed streaming.
+- **Truthful provider and delivery state**: settings distinguish stored from
+  available keys, connection tests return typed failure classes, and chat
+  discloses external data categories and remaining allowance. The gateway now
+  emits stage-native SSE and withholds provider text until validation before a
+  terminal `validated_output` event.
 - **Provider ownership boundary**: removed SDK-owned provider implementations,
   unsupported provider factories/probes, implicit cloud embeddings, and direct
   audio/coordinate-mapping provider calls. Unsupported audio provider features
@@ -60,8 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   capability boundary.
 - **Confidence and trace semantics**: unmeasured confidence is null, simulation
   stops at the Phase 10 boundary, and planned-but-unexecuted stages are omitted.
-- **Production completion ledger**: advanced active engineering work to Phase 6
-  while retaining installed Phase 3/4 gates and Phase 5 CP5-E as explicit
+- **Production completion ledger**: advanced active engineering work to Phase 9
+  while retaining every installed-only Phase 3-8 gate, real-provider/human
+  acceptance, alert 389, and object-store Replacement Control as explicit
   release blockers.
 - **Storage authority and UI**: production storage adapters now use supervisor-owned PostgreSQL, Redis, Neo4j, Chroma, and S3 endpoints and fail closed when required services or artifact writes are unavailable. The Storage settings page now truthfully presents the internal app-owned data plane instead of editable cloud/external database configuration.
 - **Phase 4 completion ledger**: recorded the 0.1.1 retained-data upgrade,

@@ -3,7 +3,7 @@
 import pytest
 import sys
 from types import SimpleNamespace
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock, patch
 from datetime import datetime, timedelta, UTC
 
 # Mocking the UKG SDK components before importing gateway
@@ -343,39 +343,73 @@ class TestHasActiveCloudProviders:
 
 
 class TestGatewayStreaming:
+    @staticmethod
+    def _governed_result(*, ok: bool, answer: str, trace_id: str, error: str | None = None):
+        failure = None
+        if error:
+            failure = SimpleNamespace(message=error, to_dict=lambda: {
+                'kind': 'provider_failure',
+                'code': 'PROVIDER_FAILURE',
+            })
+        return SimpleNamespace(
+            answer=answer,
+            trace_id=trace_id,
+            provider_used='openai' if ok else 'none',
+            model_used='gpt-5.5',
+            usage={'tokens_in': 1, 'tokens_out': 1} if ok else {},
+            ok=ok,
+            coordinate=None,
+            tier=None,
+            stages=[],
+            evidence=[],
+            claims=[],
+            citations=[],
+            validators=[],
+            confidence=None,
+            confidence_measurement=None,
+            convergence=None,
+            warnings=[],
+            failure=failure,
+            metadata={},
+            contract_version='governed.v1',
+            status='completed' if ok else 'provider_failure',
+        )
+
     @pytest.mark.asyncio
     async def test_process_stream_emits_chunks_and_done(self):
         gateway = LLMGateway()
-        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-4")
-        gateway.process = AsyncMock(return_value=GatewayResponse(
-            content="abcdefghijklmnopqrstuvwxyz",
-            run_id="run_1",
-            provider_used="openai",
-            model_used="gpt-4",
-            usage={"tokens_in": 1, "tokens_out": 1},
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-5.5")
+        governed = self._governed_result(
             ok=True,
-        ))
-
-        chunks = [chunk async for chunk in gateway.process_stream(request)]
-        assert chunks[0]["type"] == "chunk"
+            answer='abcdefghijklmnopqrstuvwxyz',
+            trace_id='run_1',
+        )
+        with patch(
+            'backend.governed_execution.orchestrator.GovernedExecutionOrchestrator.execute',
+            new=AsyncMock(return_value=governed),
+        ):
+            chunks = [chunk async for chunk in gateway.process_stream(request)]
+        content = next(chunk for chunk in chunks if chunk['type'] == 'chunk')
+        assert content['event'] == 'content.delta'
+        assert content['delivery_mode'] == 'validated_output'
         assert chunks[-1]["type"] == "done"
         assert chunks[-1]["run_id"] == "run_1"
 
     @pytest.mark.asyncio
     async def test_process_stream_emits_error_event_on_failure(self):
         gateway = LLMGateway()
-        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-4")
-        gateway.process = AsyncMock(return_value=GatewayResponse(
-            content="",
-            run_id="run_2",
-            provider_used="none",
-            model_used="gpt-4",
-            usage={},
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-5.5")
+        governed = self._governed_result(
             ok=False,
-            error="provider timeout",
-        ))
-
-        chunks = [chunk async for chunk in gateway.process_stream(request)]
+            answer='',
+            trace_id='run_2',
+            error='provider timeout',
+        )
+        with patch(
+            'backend.governed_execution.orchestrator.GovernedExecutionOrchestrator.execute',
+            new=AsyncMock(return_value=governed),
+        ):
+            chunks = [chunk async for chunk in gateway.process_stream(request)]
         assert len(chunks) == 1
         assert chunks[0]["type"] == "error"
         assert chunks[0]["error"] == "provider timeout"

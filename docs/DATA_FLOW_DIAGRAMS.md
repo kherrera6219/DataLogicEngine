@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -292,6 +292,32 @@ Support bundles must avoid raw secrets and should be treated as sensitive operat
 6. Local data-store boundary.
 7. Trace/export boundary.
 8. Operational logs/support bundle boundary.
+
+## DFD-09: Client Gateway admission and durable result flow
+
+```mermaid
+flowchart LR
+    CLIENT[Approved application with ukg key] --> CONTRACT[Strict dle-gateway.v1 contract]
+    CONTRACT --> PG[(PostgreSQL client policy idempotency jobs virtual models)]
+    CONTRACT --> REDIS[(Redis atomic limits concurrency job lease cancel state)]
+    PG --> GOV[Canonical governed orchestrator]
+    REDIS --> GOV
+    GOV --> SYNC[Sync governed result]
+    GOV --> SSE[Live stages then validated output]
+    GOV --> JOB[Encrypted durable job result]
+    JOB --> SMALL[(PostgreSQL encrypted small result)]
+    JOB --> LARGE[(MinIO gateway-results encrypted large result)]
+    LARGE --> VERIFY[Hash verification before authorized release]
+    GOV --> TRACE[Client-owned redacted trace summary]
+```
+
+Provider keys and all internal service credentials remain outside the client
+boundary. Private network ingress remains disabled pending qualification.
+
+## Change notes for v3.1.0
+
+1. Added the Client Gateway contract, PostgreSQL/Redis/MinIO responsibility,
+   validated-output SSE, durable result, and owned trace flow.
 
 ## Change notes for v3.0.0
 

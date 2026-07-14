@@ -3,10 +3,10 @@
 ## Status
 
 - Inventory schema: `1.0.0`
-- Captured: `2026-07-14T01:22:49.215515+00:00`
+- Captured: `2026-07-14T08:34:48.008650+00:00`
 - Production migration ready: **No**
-- Alembic revisions: **14**
-- Alembic base/head: `000000000001` / `a9b0c1d2e3f4`
+- Alembic revisions: **21**
+- Alembic base/head: `000000000001` / `b7c8d9e0f1a2`
 - Alembic graph errors: **0**
 - Managed coordinated backup available: **Yes**
 
@@ -20,7 +20,7 @@ a development helper and is not the production coordinator.
 
 | Surface | Target version | Version probe | Forward migration | Rollback policy | Status | Blocker |
 |---|---|---|---|---|---|---|
-| postgresql | alembic:a9b0c1d2e3f4 | SELECT version_num FROM alembic_version | transactional Alembic upgrade through the single revision head | revision-specific downgrade only after verified coordinated backup | fresh_install_and_current_head_coordinated_restore_passed | supported_0_1_1_upgrade_not_qualified |
+| postgresql | alembic:b7c8d9e0f1a2 | SELECT version_num FROM alembic_version | transactional Alembic upgrade through the single revision head | revision-specific downgrade only after verified coordinated backup | fresh_install_and_current_head_coordinated_restore_passed | supported_0_1_1_upgrade_not_qualified |
 | redis | dle.redis.v1 | GET dle:schema:redis | versioned namespace migration or explicit disposable-key invalidation | restore durable keys from coordinated backup; invalidate disposable keys | version_ledger_fresh_bootstrap_and_durable_restore_passed | supported_0_1_1_redis_adoption_not_qualified |
 | neo4j | dle.neo4j.v1 | MATCH (v:DLESchemaVersion {component:'neo4j'}) RETURN v.version | ordered constraints, indexes, labels, relationships, and property transforms | restore isolated graph dump or apply an explicitly reversible graph revision | version_ledger_schema_restore_and_current_revision_passed | supported_0_1_1_neo4j_adoption_not_qualified |
 | chroma | dle.chroma.v1 | read versioned collection registry and source corpus revision | build compatible collection, reconcile sources, verify query parity, then switch | retain prior collection until parity and owner-confirmed cutover | versioned_registry_collection_restore_and_count_parity_passed | supported_0_1_1_chroma_rebuild_not_qualified |

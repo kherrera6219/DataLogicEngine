@@ -7,8 +7,8 @@
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
-| Completed phase | Phase 7 engineering checkpoint - Provider execution, privacy, budgets, cancellation, and replay |
-| Current phase | Phase 8 - External API Gateway and LLM middleware productization |
+| Completed phase | Phase 8 engineering checkpoint - External API Gateway and LLM middleware productization |
+| Current phase | Phase 9 - Ingestion, retrieval, graph, and memory completion |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -253,40 +253,53 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
-Phase 7 reached its engineering checkpoint on 2026-07-13. One generated
-OpenAI/Google manifest is authoritative. Backend-owned async adapters execute
-through the single `governed.v1` orchestrator under a request-wide deadline,
-cancellation, bounded retry and circuit policy, server call/token/spend limits,
-and a content-free usage/egress ledger. Offline replay is encrypted and limited
-to transient network/provider-outage/timeout failures. The UI reports exact
-provider state, disclosure, budgets, cancellation, and owner ledger controls.
-Buffered delivery is labeled truthfully.
+Phase 8 reached its engineering checkpoint on 2026-07-13. The strict,
+versioned `dle-gateway.v1` boundary provides native sync, stage-native governed
+SSE, durable async/status/result/cancel, durable idempotency, capabilities,
+owned trace retrieval, stable errors, and a bounded OpenAI-compatible facade.
+External clients use copy-once `ukg_` credentials and explicit least-privilege
+scopes; provider secrets and administrative authority stay server-owned.
 
-Validation passed 1,945 backend tests with 18 skipped, 402 frontend tests, 25 SDK
-tests, frontend typecheck/lint/build, Ruff, Python compilation, generated
-manifest parity, documentation references, and migration head `d3e4f5a6b7c8`.
-CP7-F remains an explicit rebuilt-installed OpenAI/Google acceptance blocker;
-no provider-disabled fixture is represented as live evidence.
+PostgreSQL is authoritative for key lifecycle, virtual models, idempotency,
+durable runs, and result references. Redis performs atomic admission,
+concurrency, worker coordination, and cancellation. Large encrypted job results
+use the app-owned `gateway-results` S3 bucket. The desktop now separates Provider
+Connections from Client Gateway controls. Python SDK 0.7.0, the TypeScript SDK,
+examples, OpenAPI compatibility diff, ADR-0005, and gateway runbooks are current.
 
-Phase 8 is active. It must productize the external gateway without creating a
-parallel answer path or weakening the Phase 5-7 policy, evidence, provider,
-budget, privacy, and trace controls.
+Validation passed 1,993 backend tests with 18 skipped, 403 frontend tests, 30
+Python SDK tests, and 5 TypeScript SDK tests, plus frontend typecheck/lint/build,
+Ruff, Python compilation, contract/docs checks, and migration head
+`b7c8d9e0f1a2`. Phase 8 evidence is under
+`reports/production-readiness/2026/phase-08/`.
+
+CP8-I and installed portions of CP8-B/C/F/G/J remain explicit release blockers:
+the rebuilt signed application must prove same-host/private Windows behavior,
+real OpenAI/Google interoperability, expanded backup/restore/restart/deletion,
+packaged UI truth, TLS/firewall/certificate state, failure/load/soak budgets, and
+two-machine operation. Private mode stays disabled. No source fixture is
+represented as installed evidence.
+
+Phase 9 is active. It must make acquisition, ingestion, cross-store indexing,
+retrieval, graph use, and memory durable, secure, reconcilable, and causally
+useful to the same governed path.
 
 ## Exact next action
 
-1. Inventory all external gateway routes, auth principals, API-key scopes and
-   client policy, API versions, virtual-model aliases, sync/SSE/async behavior,
-   SDK calls, desktop owner controls, and listener/interoperability surfaces.
-2. Add failure-first Phase 8 contract, auth-boundary, quota-isolation, and
-   canonical-path parity tests before expanding the surface.
-3. Define the versioned external request/event/error contract and virtual-model
-   mapping on top of the existing provider manifest and `governed.v1` path.
-4. Complete copy-once key lifecycle, client scopes/budgets, native governed SSE
-   and bounded async jobs, SDKs, desktop administration, and explicitly enabled
-   TLS/private listener qualification in the plan's order.
-5. Keep CP5-E, CP6-F, CP7-F, all installed-only Phase 3/4 gates, alert 389, and the
-   SeaweedFS candidate-only boundary release-blocking until the rebuilt installed
-   application can produce the authorized evidence.
+1. Inventory local file/folder entry points, Electron picker capabilities,
+   staging, parsers, ingestion jobs, corpus records, queue/lease/event state,
+   graph/vector/object writes, retrieval, memory authorities, and Knowledge/
+   Graph controls.
+2. Add failure-first path/archive/content-defense, restart/idempotency,
+   cross-store divergence, retrieval-causality, and delete/reingest tests.
+3. Define the authoritative document/chunk/revision and ingestion-job contracts,
+   then route Neo4j/Chroma/object writes through the existing outbox and
+   reconciliation boundaries.
+4. Complete Phase 9 in plan order: secure acquisition, durable jobs, cross-store
+   indexing, causal retrieval, memory authority, and truthful Knowledge/Graph UI.
+5. Keep every installed-only Phase 3-8 gate, alert 389, and the SeaweedFS
+   candidate-only boundary release-blocking until rebuilt installed evidence can
+   close them.
 
 ## Phase rules
 

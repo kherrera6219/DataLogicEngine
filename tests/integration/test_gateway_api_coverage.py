@@ -100,6 +100,8 @@ def test_api_key_auth_header(app_client):
     mock_key.id = "key1"
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100
+    mock_key.permissions = {"scopes": ["chat", "routing:override"]}
+    mock_key.allowed_models = ["gpt-4"]
     MockAPIKey.verify_key.return_value = mock_key
     
     # Mock Gateway process
@@ -136,6 +138,15 @@ def test_api_key_auth_header(app_client):
     assert resp.json['audit_trail']['download_url'] == "/api/v1/trace/runs/run1/export"
     assert resp.json['confidence_score'] == 0.91
     assert resp.json['trace_summary']['steps'][0]['status'] == "completed"
+    assert resp.json['gateway_contract_version'] == "dle-gateway.v1"
+    assert resp.json['virtual_model'] == "dle-standard"
+    governed_request = mock_gw_instance.process.await_args.args[0]
+    assert governed_request.principal_kind == "external_client"
+    assert governed_request.principal_id == "key1"
+    assert governed_request.constraints['max_provider_calls'] == 1
+    assert governed_request.metadata['gateway_contract_version'] == "dle-gateway.v1"
+    assert governed_request.metadata['virtual_model'] == "dle-standard"
+    assert governed_request.metadata['client_scopes'] == ['chat', 'routing:override']
     MockAPIKey.verify_key.assert_called_with('ukg_valid')
 
 def test_api_key_invalid(app_client):
@@ -159,6 +170,8 @@ def test_gateway_chat_endpoint(app_client):
     mock_key.id = "key1"
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100 # Fix type error
+    mock_key.permissions = {"scopes": ["chat", "routing:override"]}
+    mock_key.allowed_models = ["gpt-4"]
     MockAPIKey.verify_key.return_value = mock_key
     
     # Mock Gateway process
@@ -210,6 +223,8 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
     mock_key.id = "key1"
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100
+    mock_key.permissions = {"scopes": ["chat", "routing:override"]}
+    mock_key.allowed_models = ["gpt-4"]
     MockAPIKey.verify_key.return_value = mock_key
 
     mock_resp = MagicMock()
@@ -301,7 +316,7 @@ def test_gateway_chat_rejects_max_tokens_policy(app_client):
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100
     mock_key.allowed_providers = None
-    mock_key.allowed_models = None
+    mock_key.allowed_models = ["gpt-4"]
     mock_key.permissions = {"read": True, "write": True}
     mock_key.max_tokens_per_request = 128
     MockAPIKey.verify_key.return_value = mock_key
@@ -341,7 +356,7 @@ def test_gateway_chat_rejects_permission_denied_policy(app_client):
     )
 
     assert resp.status_code == 403
-    assert resp.json['error'] == "API key permission denied"
+    assert resp.json['code'] == "INSUFFICIENT_SCOPE"
 
 
 def test_gateway_chat_enforces_daily_rate_limit(app_client):
@@ -445,7 +460,7 @@ def test_create_provider(mock_curr_user, app_client):
     mock_new_provider.to_dict.return_value = {'id': 1, 'name': 'New Provider', 'provider_type': 'openai'}
     MockProvider.return_value = mock_new_provider
     
-    resp = app_client.post('/api/admin/providers', json={
+    resp = app_client.post('/api/v1/admin/providers', json={
         'name': 'New Provider',
         'provider_type': 'openai'
     })
@@ -464,7 +479,7 @@ def test_list_api_keys_admin(mock_curr_user, app_client):
     
     MockAPIKey.query.order_by.return_value.all.return_value = []
     
-    resp = app_client.get('/api/admin/api-keys')
+    resp = app_client.get('/api/v1/admin/api-keys')
     assert resp.status_code == 200
 
 @patch('flask_login.utils._get_user')
@@ -483,17 +498,19 @@ def test_create_api_key(mock_curr_user, app_client):
     mock_key_instance.to_dict.return_value = {'id': 1, 'name': 'Test Key'}
     MockAPIKey.return_value = mock_key_instance
     
-    resp = app_client.post('/api/admin/api-keys', json={'name': 'Test Key'})
+    resp = app_client.post('/api/v1/admin/api-keys', json={'name': 'Test Key'})
     
     assert resp.status_code == 201
     assert resp.json['api_key'] == "full_key"
     mock_db.session.add.assert_called()
 
 # --- Health Check ---
-def test_health_check(app_client):
+@patch('flask_login.utils._get_user')
+def test_health_check(mock_curr_user, app_client):
     mocks = app_client.application.mocks
     MockProvider = mocks['Provider']
 
+    mock_curr_user.return_value = MockUser(is_admin=True)
     MockProvider.query.filter_by.return_value.count.return_value = 1
     resp = app_client.get('/api/v1/gateway/health')
     assert resp.status_code == 200
@@ -510,6 +527,8 @@ def test_gateway_chat_failure_includes_audit_trail(app_client):
     mock_key.id = "key1"
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100
+    mock_key.permissions = {"scopes": ["chat", "routing:override"]}
+    mock_key.allowed_models = ["gpt-4"]
     MockAPIKey.verify_key.return_value = mock_key
 
     mock_resp = MagicMock()
@@ -549,6 +568,8 @@ def test_gateway_stream_done_event_includes_audit_trail(app_client):
     mock_key.id = "key1"
     mock_key.user_id = 99
     mock_key.rate_limit_rpm = 100
+    mock_key.permissions = {"scopes": ["stream", "routing:override"]}
+    mock_key.allowed_models = ["gpt-4"]
     MockAPIKey.verify_key.return_value = mock_key
 
     async def fake_stream(_request):
@@ -566,3 +587,248 @@ def test_gateway_stream_done_event_includes_audit_trail(app_client):
     body = resp.get_data(as_text=True)
     assert '"type": "done"' in body
     assert '"/api/v1/trace/runs/run-stream/bundle"' in body
+    assert '"gateway_contract_version": "dle-gateway.v1"' in body
+    assert '"virtual_model": "dle-standard"' in body
+
+
+def test_phase8_stream_idempotency_is_explicitly_unavailable_until_resume_exists(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-stream"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.max_concurrent_requests = None
+    mock_key.permissions = {"scopes": ["stream"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.post(
+        '/api/v1/gateway/chat/stream',
+        headers={'X-API-Key': 'ukg_stream'},
+        json={
+            'idempotency_key': 'stream-retry-123',
+            'messages': [{'role': 'user', 'content': 'Hi'}],
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json['code'] == 'STREAM_IDEMPOTENCY_UNAVAILABLE'
+    mocks['Gateway'].return_value.process_stream.assert_not_called()
+
+
+def test_phase8_read_only_key_cannot_invoke_model(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-read-only"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["run:read", "trace:read"]}
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = None
+    mock_key.max_tokens_per_request = None
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_read_only'},
+        json={'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+
+    assert response.status_code == 403
+    assert response.json['code'] == 'INSUFFICIENT_SCOPE'
+    assert response.json['required_scope'] == 'chat'
+    mocks['Gateway'].return_value.process.assert_not_called()
+
+
+def test_phase8_direct_model_override_requires_scope_and_server_allowlist(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-chat"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["chat"]}
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = ["gpt-4"]
+    mock_key.max_tokens_per_request = None
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    missing_scope = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_chat'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+    assert missing_scope.status_code == 403
+    assert missing_scope.json['required_scope'] == 'routing:override'
+
+    mock_key.permissions = {"scopes": ["chat", "routing:override"]}
+    mock_key.allowed_models = None
+    missing_allowlist = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_chat'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+    assert missing_allowlist.status_code == 403
+    assert 'not allowed' in missing_allowlist.json['error']
+    mocks['Gateway'].return_value.process.assert_not_called()
+
+
+def test_phase8_unknown_request_field_fails_closed(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-chat"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["chat"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_chat'},
+        json={
+            'messages': [{'role': 'user', 'content': 'Hi'}],
+            'unapproved_override': True,
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json['error']['code'] == 'VALIDATION_ERROR'
+    mocks['Gateway'].return_value.process.assert_not_called()
+
+
+def test_phase8_oversized_request_is_rejected_before_validation_or_work(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-chat"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.max_concurrent_requests = None
+    mock_key.permissions = {"scopes": ["chat"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_chat'},
+        json={
+            'messages': [{'role': 'user', 'content': 'x' * 1_100_000}],
+        },
+    )
+
+    assert response.status_code == 413
+    assert response.json['code'] == 'REQUEST_BODY_TOO_LARGE'
+    mocks['Gateway'].return_value.process.assert_not_called()
+
+
+def test_phase8_capability_discovery_is_content_free_and_scope_filtered(app_client):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-discovery"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["models:read", "chat"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.get(
+        '/api/v1/gateway/capabilities',
+        headers={'Authorization': 'Bearer ukg_discovery'},
+    )
+
+    assert response.status_code == 200
+    assert response.json['contract_version'] == 'dle-gateway.v1'
+    assert response.json['profile'] == 'desktop_loopback'
+    assert set(response.json['virtual_models']) == {
+        'dle-standard', 'dle-enhanced', 'dle-local-review'
+    }
+    assert response.json['scopes'] == ['chat', 'models:read']
+    assert 'api_key' not in response.get_data(as_text=True).lower()
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api/v1/gateway/providers",
+        "/api/v1/gateway/sessions",
+        "/api/v1/gateway/sessions/00000000-0000-0000-0000-000000000001/messages",
+    ],
+)
+def test_phase8_external_clients_cannot_enter_desktop_control_plane(app_client, path):
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-client"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["models:read", "run:read"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+
+    response = app_client.get(path, headers={'X-API-Key': 'ukg_client'})
+
+    assert response.status_code == 403
+    assert response.json['code'] == 'OWNER_CONTROL_PLANE_ONLY'
+
+
+def test_phase8_production_admission_fails_closed_when_redis_is_unavailable(app_client):
+    from backend.llm_gateway.admission_limiter import GatewayLimiterUnavailable
+
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-rate-limited"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 10
+    mock_key.rate_limit_daily = None
+    mock_key.permissions = {"scopes": ["chat"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+    app_client.application.config['DLE_PRODUCTION_MODE'] = True
+
+    with patch(
+        'backend.llm_gateway.api.AtomicGatewayLimiter.from_url',
+        side_effect=GatewayLimiterUnavailable("redis unavailable"),
+    ):
+        response = app_client.post(
+            '/api/v1/gateway/chat',
+            headers={'X-API-Key': 'ukg_client'},
+            json={'messages': [{'role': 'user', 'content': 'Hi'}]},
+        )
+
+    assert response.status_code == 503
+    assert response.json['code'] == 'GATEWAY_LIMITER_UNAVAILABLE'
+    mocks['Gateway'].return_value.process.assert_not_called()
+
+
+def test_phase8_production_concurrency_limit_denies_before_work(app_client):
+    from backend.llm_gateway.admission_limiter import AdmissionDecision
+
+    mocks = app_client.application.mocks
+    mock_key = MagicMock()
+    mock_key.id = "key-concurrency"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = None
+    mock_key.max_concurrent_requests = 1
+    mock_key.permissions = {"scopes": ["chat"]}
+    mocks['APIKey'].verify_key.return_value = mock_key
+    app_client.application.config['DLE_PRODUCTION_MODE'] = True
+    atomic = MagicMock()
+    atomic.acquire_concurrency.return_value = AdmissionDecision(
+        allowed=False,
+        count=1,
+        limit=1,
+        remaining=0,
+        retry_after_seconds=17,
+    )
+
+    with patch('backend.llm_gateway.api.AtomicGatewayLimiter.from_url', return_value=atomic):
+        response = app_client.post(
+            '/api/v1/gateway/chat',
+            headers={'X-API-Key': 'ukg_client'},
+            json={'messages': [{'role': 'user', 'content': 'Hi'}]},
+        )
+
+    assert response.status_code == 429
+    assert response.headers['Retry-After'] == '17'
+    assert response.json['code'] == 'CLIENT_RATE_LIMITED'
+    mocks['Gateway'].return_value.process.assert_not_called()

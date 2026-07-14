@@ -46,6 +46,7 @@ REQUIRED_OBJECT_BUCKETS = (
     "graphs",
     "evaluation-data",
     "trace-exports",
+    "gateway-results",
 )
 
 

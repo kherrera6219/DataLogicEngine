@@ -1,0 +1,27 @@
+{
+  "schema_version": "dle-phase-artifacts.v1",
+  "phase": 8,
+  "date": "2026-07-13",
+  "artifacts": [
+    "backend/llm_gateway/external_contract.py",
+    "backend/llm_gateway/admission_limiter.py",
+    "backend/llm_gateway/idempotency.py",
+    "backend/llm_gateway/job_coordination.py",
+    "backend/llm_gateway/jobs.py",
+    "backend/llm_gateway/payload_cipher.py",
+    "migrations/versions/e4f5a6b7c8d9_add_gateway_client_key_lifecycle.py",
+    "migrations/versions/f5a6b7c8d9e0_add_gateway_idempotency_authority.py",
+    "migrations/versions/a6b7c8d9e0f1_add_gateway_async_runs.py",
+    "migrations/versions/b7c8d9e0f1a2_add_gateway_virtual_model_authority.py",
+    "docs/openapi.yaml",
+    "docs/contracts/gateway-v1-compatibility.json",
+    "docs/GATEWAY_COMPATIBILITY.md",
+    "docs/PRIVATE_GATEWAY_RUNBOOK.md",
+    "docs/adr/ADR-0005-external-gateway-boundary.md",
+    "frontend/components/settings/ClientGatewayConfig.tsx",
+    "sdk/UKG_Python_SDK/ukg_sdk/gateway.py",
+    "sdk/DataLogicEngine_TypeScript_SDK",
+    "examples/gateway",
+    "scripts/check_gateway_openapi_compatibility.py"
+  ]
+}

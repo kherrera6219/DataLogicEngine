@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.1 |
-| Last updated | 2026-07-07 |
+| Document version | v2.11.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -42,7 +42,10 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **application-readiness validation is strong for local-first/desktop and engineering review, but signed production release still requires final external evidence and credential validation.**
+Current status: **Phase 8 gateway engineering is complete and Phase 9 is active,
+but signed production release remains NO-GO until retained installed, security,
+provider, recovery, accessibility, signing, and independent-review evidence is
+complete.**
 
 ### Ready / substantially implemented
 
@@ -59,6 +62,12 @@ Current status: **application-readiness validation is strong for local-first/des
 11. Privacy controls, cloud/AI disclosures, local-first product copy, and admin/compliance surfaces.
 12. Frontend accessibility automation path and visual/E2E testing path.
 13. First-run QC evidence covering local backend/service/database connectivity, desktop API-key save/test CSRF repair, removal of idle DSQP provider polling, and a rebuilt local installer with integrity/NSIS governance passing.
+14. Versioned `dle-gateway.v1` native sync, governed SSE, durable async,
+    idempotency, owned trace, capabilities, stable errors, and bounded
+    OpenAI-compatible contracts.
+15. Explicit client scopes and copy-once key lifecycle, Redis atomic admission,
+    PostgreSQL virtual-model/job/idempotency authority, encrypted object-backed
+    large results, split Client Gateway administration, SDKs, and contract-diff CI.
 
 ### Remaining release blockers before signed production distribution
 
@@ -69,6 +78,11 @@ Current status: **application-readiness validation is strong for local-first/des
 5. Reinstall validation of the rebuilt desktop installer with real OpenAI/Google provider save/test flows.
 6. Final release checklist completion with generated reports attached.
 7. Confirmation that no production build uses default secrets, `AUTO_CREATE_SCHEMA=true`, or desktop-only trust in cloud mode.
+8. Phase 8 installed same-host/private Windows, TLS/firewall/certificate,
+   two-machine, real OpenAI/Google, expanded backup/restore/restart/deletion,
+   packaged UI, failure/load/soak, and privacy/security acceptance.
+9. Closure or explicit time-bounded owner disposition of Dependabot alert 389
+   after a reviewed patched ChromaDB release and adversarial qualification.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -79,15 +93,15 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 | Domain | Status | Required evidence |
 |---|---|---|
 | Architecture | Ready for review | `docs/ARCHITECTURE.md`, diagram set, DMRF/Truth Engine files. |
-| API contract | Mostly ready | Contract tests, canonical `/api/v1/*` docs, route governance headers. |
+| API contract | Engineering checkpoint complete | `dle-gateway.v1`, OpenAPI compatibility diff, native/compatible contract tests, SDK and examples parity. |
 | Security | Ready with release caveats | Security tests, runtime precheck, desktop auth tests, secret validation, signing evidence. |
-| Data/storage | Ready for local-first | Schema parity report, storage mode verification, object/vector/graph health. |
+| Data/storage | Gateway authority complete; Phase 9 active | 73 PostgreSQL entities, 29 logical contracts, seven object buckets, migration head `b7c8d9e0f1a2`; ingestion/retrieval reconciliation remains Phase 9. |
 | Testing | Strong | Backend/frontend/contract/parity/security/governance/packaging CI. |
-| Frontend/product | Strong | Dashboard, chat, trace, graph, Truth Engine, MCP, admin, privacy/disclosure surfaces. |
+| Frontend/product | Gateway controls complete; later workflows remain | Split Provider Connections/Client Gateway administration is tested; installed visual truth and Phases 9-13 remain. |
 | Desktop packaging | Strong but signing-dependent | backend rebuild, NSIS governance, installer integrity, packaging smoke, installer-mode install/uninstall smoke, signed artifact verification. |
 | Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
 | Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |
-| Production cloud | Controlled/conditional | HTTPS, trusted hosts, CORS, secrets, provider staging test, no desktop trust assumptions. |
+| Private gateway | Disabled pending qualification | Loopback is the default; TLS/mTLS, firewall, certificate, client policy, real providers, and two-machine acceptance must pass before enablement. |
 
 ---
 

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Settings as SettingsIcon, Shield, Bell, Save,
+  Settings as SettingsIcon, Shield, Bell,
   Brain, Network, Monitor, Sun, Lock, Database, PanelLeftClose, PanelLeftOpen,
   RefreshCw
 } from "lucide-react";
@@ -43,6 +43,10 @@ const DEFAULT_NOTIF_PREFS: NotificationPrefs = {
 const ApiOverlayConfig = dynamic(
   () => import("@/components/settings/ApiOverlayConfig").then((module) => ({ default: module.ApiOverlayConfig })),
   { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading API overlay...</div> }
+);
+const ClientGatewayConfig = dynamic(
+  () => import("@/components/settings/ClientGatewayConfig").then((module) => ({ default: module.ClientGatewayConfig })),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading Client Gateway...</div> }
 );
 const DatabaseSettings = dynamic(
   () => import("@/components/settings/DatabaseSettings"),
@@ -148,9 +152,7 @@ export default function SettingsPage() {
                Settings 
                <span className="text-sm font-normal text-slate-500 dark:text-gray-500">/ Configuration</span>
             </h1>
-            <Button className="bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-900/20">
-               <Save className="h-4 w-4 mr-2" /> Save Changes
-            </Button>
+            <span className="text-xs text-slate-500 dark:text-gray-400">Changes save within each section</span>
          </div>
 
          <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
@@ -175,7 +177,8 @@ export default function SettingsPage() {
                      {[
                         { id: 'general', label: 'General', icon: Monitor },
                         { id: 'notifications', label: 'Notifications', icon: Bell },
-                        { id: 'api', label: 'API Gateway', icon: Network },
+                        { id: 'providers', label: 'Provider Connections', icon: Brain },
+                        { id: 'gateway', label: 'Client Gateway', icon: Network },
                         { id: 'storage', label: 'Storage', icon: Database },
                         { id: 'knowledge', label: 'Knowledge', icon: Database },
                         { id: 'security', label: 'Security', icon: Shield },
@@ -370,13 +373,18 @@ export default function SettingsPage() {
                      </Card>
                   </TabsContent>
 
-                   {/* API GATEWAY */}
-                   <TabsContent value="api" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                   {/* PROVIDER CONNECTIONS */}
+                   <TabsContent value="providers" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                       <div className="space-y-1 mb-6">
-                         <h2 className="text-lg font-bold">API Gateway Configuration</h2>
-                         <p className="text-sm text-slate-600 dark:text-gray-400">Manage API keys and connection usage.</p>
+                         <h2 className="text-lg font-bold">Provider Connections</h2>
+                         <p className="text-sm text-slate-600 dark:text-gray-400">Store and validate outbound OpenAI or Google credentials.</p>
                       </div>
                       <ApiOverlayConfig />
+                   </TabsContent>
+
+                   {/* CLIENT GATEWAY */}
+                   <TabsContent value="gateway" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                      <ClientGatewayConfig />
                    </TabsContent>
 
                    {/* STORAGE */}

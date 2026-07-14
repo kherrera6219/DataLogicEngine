@@ -469,6 +469,10 @@ class LLMGateway:
         """Compatibility adapter into the canonical governed contract."""
 
         governed = await self.execute(request)
+        return self._gateway_response_from_governed(governed, request)
+
+    @staticmethod
+    def _gateway_response_from_governed(governed, request: GatewayRequest) -> GatewayResponse:
         usage = dict(governed.usage or {})
         usage.setdefault("tokens_in", usage.get("prompt_tokens", 0))
         usage.setdefault("tokens_out", usage.get("completion_tokens", 0))
@@ -506,17 +510,92 @@ class LLMGateway:
         )
 
     async def process_stream(self, request: GatewayRequest) -> AsyncIterator[dict[str, Any]]:
-        """
-        Stream gateway responses as incremental chunks.
+        """Emit live governed stage events and validated answer deltas."""
+        from backend.governed_execution.contracts import GovernedRequest
+        from backend.governed_execution.orchestrator import GovernedExecutionOrchestrator
 
-        This currently wraps the stable non-streaming execution path and emits
-        chunked SSE-friendly payloads until native provider streaming is enabled.
-        """
-        response = await self.process(request)
+        governed_request = (
+            request
+            if isinstance(request, GovernedRequest)
+            else GovernedRequest.from_gateway(request)
+        )
+        events: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=256)
+        sequence = 0
+
+        def event_sink(trace_id: str, stage: dict[str, Any]) -> None:
+            nonlocal sequence
+            sequence += 1
+            payload = {
+                "type": "stage",
+                "event": "stage.progress",
+                "event_id": sequence,
+                "delivery_mode": "live_governed_stage",
+                "run_id": trace_id,
+                "stage": stage,
+            }
+            try:
+                events.put_nowait(payload)
+            except asyncio.QueueFull:
+                # Never block governed execution on a slow client. The final
+                # trace remains authoritative and the stream reports the gap.
+                try:
+                    events.get_nowait()
+                except asyncio.QueueEmpty:
+                    pass
+                events.put_nowait({
+                    "type": "warning",
+                    "event": "stream.backpressure",
+                    "event_id": sequence,
+                    "delivery_mode": "live_governed_stage",
+                    "run_id": trace_id,
+                    "code": "STREAM_EVENT_DROPPED",
+                })
+
+        execution = asyncio.create_task(
+            GovernedExecutionOrchestrator(self, event_sink=event_sink).execute(governed_request)
+        )
+        try:
+            while not execution.done() or not events.empty():
+                try:
+                    event = events.get_nowait()
+                except asyncio.QueueEmpty:
+                    event_wait = asyncio.create_task(events.get())
+                    done, _ = await asyncio.wait(
+                        {execution, event_wait},
+                        timeout=15.0,
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+                    if event_wait in done:
+                        event = event_wait.result()
+                    else:
+                        event_wait.cancel()
+                        if execution in done:
+                            continue
+                        sequence += 1
+                        yield {
+                            "type": "heartbeat",
+                            "event": "stream.heartbeat",
+                            "event_id": sequence,
+                            "delivery_mode": "live_governed_stage",
+                            "request_id": governed_request.request_id,
+                        }
+                        continue
+                yield event
+            governed = await execution
+        finally:
+            if not execution.done():
+                execution.cancel()
+                try:
+                    await execution
+                except asyncio.CancelledError:
+                    pass
+
+        response = self._gateway_response_from_governed(governed, governed_request)
         if not response.ok:
             yield {
                 "type": "error",
-                "delivery_mode": "buffered",
+                "event": "stream.error",
+                "delivery_mode": "live_governed_stage",
                 "error": response.error or "Gateway failed",
                 "run_id": response.run_id,
                 "provider_used": response.provider_used,
@@ -524,13 +603,39 @@ class LLMGateway:
             }
             return
 
+        if response.evidence_count:
+            sequence += 1
+            yield {
+                "type": "evidence",
+                "event": "evidence.ready",
+                "event_id": sequence,
+                "delivery_mode": "validated_output",
+                "run_id": response.run_id,
+                "evidence_count": response.evidence_count,
+                "citations": response.citations or [],
+            }
+
+        sequence += 1
+        yield {
+            "type": "validation",
+            "event": "validation.completed",
+            "event_id": sequence,
+            "delivery_mode": "validated_output",
+            "run_id": response.run_id,
+            "confidence_measurement": response.confidence_measurement,
+            "convergence": response.convergence,
+        }
+
         content = response.content or ""
         chunk_size = 256
         for index in range(0, len(content), chunk_size):
             await asyncio.sleep(0)
+            sequence += 1
             yield {
                 "type": "chunk",
-                "delivery_mode": "buffered",
+                "event": "content.delta",
+                "event_id": sequence,
+                "delivery_mode": "validated_output",
                 "index": index // chunk_size,
                 "content": content[index:index + chunk_size],
                 "run_id": response.run_id,
@@ -538,9 +643,12 @@ class LLMGateway:
                 "model_used": response.model_used,
             }
 
+        sequence += 1
         yield {
             "type": "done",
-            "delivery_mode": "buffered",
+            "event": "stream.completed",
+            "event_id": sequence,
+            "delivery_mode": "validated_output",
             "run_id": response.run_id,
             "provider_used": response.provider_used,
             "model_used": response.model_used,

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active engineering contract; installed-release qualification pending |
 | Owner | Platform Engineering |
@@ -21,11 +21,11 @@ helpers and are not production migration paths.
 
 | Surface | Current target | Current-version result | Prior 0.1.1 result |
 |---|---|---|---|
-| PostgreSQL | Alembic `a9b0c1d2e3f4` | Fresh/current migration and restore passed | Populated upgrade not yet qualified |
+| PostgreSQL | Alembic `b7c8d9e0f1a2` | Phase 8 source migration chain is linear; rebuilt current-version migration/restore remains to be rerun | Populated upgrade not yet qualified |
 | Redis | `dle.redis.v1` | Durable export, restore, and version ledger passed | Adoption/migration not yet qualified |
 | Neo4j | `dle.neo4j.v1` | Logical restore, schema marker, and parity passed | Adoption/migration not yet qualified |
 | ChromaDB | `dle.chroma.v1` | Collection restore and record parity passed | Rebuild/adoption not yet qualified |
-| MinIO | `dle.minio.v1` | Bucket/object hash and metadata parity passed | Adoption/migration not yet qualified |
+| MinIO | `dle.minio.v1` | Prior six-bucket hash/metadata parity passed; new encrypted `gateway-results` bucket requires rebuilt qualification | Adoption/migration not yet qualified |
 | UnifiedMemory JSON | `unified-memory.v1` | Version enforcement and atomic replace passed | Retained legacy inputs remain Phase 9 work |
 | Retained configuration | `configuration.v1` | Validation, DPAPI-vault migration, and restore passed | Installed retained-data matrix not yet qualified |
 | Development SQLite | `development-sqlite.v1` | Development reinstall policy passed | Production SQLite-to-PostgreSQL import not implemented |

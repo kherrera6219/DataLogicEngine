@@ -47,7 +47,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | New engineer | `docs/ENGINEER_ONBOARDING.md`, `docs/DEVELOPER_GUIDE.md` |
 | Production completion owner | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`, root `PRODUCTION_COMPLETION_PLAN_2026.md`, root `TODO.md`, root `HANDOFF.md` |
 | Architect | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/DATA_FLOW_DIAGRAMS.md`, `docs/DECISION_LOGIC.md` |
-| API integrator | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
+| API integrator | `docs/API.md`, `docs/GATEWAY_COMPATIBILITY.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
 | Security reviewer | `docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, `docs/CIS_BENCHMARKS.md` |
 | Operator / SRE | `docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` |
 | Release reviewer | `docs/RELEASE_CHECKLIST.md`, `docs/PRODUCTION_READINESS.md`, `docs/SLSA_LEVEL_3_ATTESTATION.md` |
@@ -90,8 +90,10 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | Document | Purpose |
 |---|---|
 | `docs/API.md` | API reference and security/auth behavior. |
+| `docs/GATEWAY_COMPATIBILITY.md` | Native/SDK/OpenAI compatibility, streaming, durable-job, and qualification matrix. |
 | `docs/API_VERSIONING.md` | Canonical `/api/v1/*`, compatibility aliases, deprecation policy. |
 | `docs/openapi.yaml` | Machine-readable API contract where applicable. |
+| `docs/PRIVATE_GATEWAY_RUNBOOK.md` | Fail-closed private Windows gateway qualification and incident procedure. |
 
 ### Security, privacy, and governance
 

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.4.0 |
+| Document version | v3.5.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -18,11 +18,9 @@ Define the current data architecture for DataLogicEngine across SQL models, grap
 
 This document replaces the older PostgreSQL-only framing with the current multi-store architecture.
 
-Phase 6 adds source provenance and measured quality columns to `trace_evidence`,
-claim type/citation identifiers to `trace_claims`, explicit relationship and
-validator identity to `claim_evidence_links`, and the new `trace_citations`,
-`trace_validators`, and `trace_quality_decisions` tables. Alembic head
-`c2d3e4f5a6b7` is authoritative.
+Phase 8 adds client-key lifecycle metadata plus
+`gateway_idempotency_records`, `gateway_async_runs`, and
+`gateway_virtual_models`. Alembic head `b7c8d9e0f1a2` is authoritative.
 
 ## Audience
 
@@ -77,8 +75,9 @@ substitution when the managed profile is selected. Development mode retains
 those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
-`deliverables`, `graphs`, `evaluation-data`, and `trace-exports`. The generated
-The authority registry assigns one authority to 70 PostgreSQL entities and 28 logical
+`deliverables`, `graphs`, `evaluation-data`, `trace-exports`, and
+`gateway-results`. The authority registry assigns one authority to 73
+PostgreSQL entities and 29 logical
 data classes. PostgreSQL is the logical authority for graph nodes/relationships
 and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
 materializations. MinIO remains authoritative for declared artifact classes.
@@ -89,8 +88,8 @@ materialization-state record. A required artifact or index is not marked
 complete until the destination confirms the same revision/hash.
 
 Production startup runs a fail-closed migration coordinator before stores and
-workers. The 14-revision Alembic chain has base `000000000001` and head
-`a9b0c1d2e3f4`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
+workers. The 21-revision Alembic chain has base `000000000001` and head
+`b7c8d9e0f1a2`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
 memory also carry version probes and ledger entries. See
 `docs/MIGRATION_SUPPORT_MATRIX.md` for the supported-upgrade limits.
 
@@ -539,7 +538,12 @@ deliverables
 graphs
 evaluation-data
 trace-exports
+gateway-results
 ```
+
+`gateway-results` retains only encrypted large asynchronous gateway results.
+PostgreSQL owns the job/reference/hash; Redis owns expiring lease/cancellation
+state. Result bytes are hash-verified before an authorized client can read them.
 
 Object-store safety controls include:
 

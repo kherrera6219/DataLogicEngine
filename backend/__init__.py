@@ -82,9 +82,14 @@ def create_legacy_app():
     app.register_blueprint(search_bp, url_prefix='/api/search')
     
     # LLM Gateway Blueprints
-    from .llm_gateway.api import gateway_bp, admin_bp as gateway_admin_bp
+    from .llm_gateway.api import (
+        gateway_bp,
+        admin_bp as gateway_admin_bp,
+        openai_compat_bp,
+    )
     app.register_blueprint(gateway_bp)
     app.register_blueprint(gateway_admin_bp)
+    app.register_blueprint(openai_compat_bp)
     
     # UKG Structural APIs
     from .pillar_api import pillar_api

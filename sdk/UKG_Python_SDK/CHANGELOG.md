@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.0 (2026-07-13)
+
+- Added thin synchronous and asynchronous `dle-gateway.v1` clients.
+- Added chat, live governed SSE, durable runs, result polling, cancellation,
+  capability discovery, and client-owned trace retrieval.
+- Added typed gateway errors, safe idempotent retry, and exact contract-version
+  validation without any client-side provider or reasoning stack.
+- Documented that provider credentials remain inside the installed service.
+
+## 0.6.0 (2026-07-13)
+
+- Removed duplicate client-owned provider and TruthEngine orchestration.
+- Converted compatibility entry points into service-client shims over the
+  canonical governed backend.
+
 ## 0.5.0 (2026-05-27)
 
 - Added offline-capable `DSQPClient` that no longer depends on backend package imports.
@@ -20,4 +35,3 @@
 - Added/updated KA execution hooks (live registry → execution map) and KA hooks.
 - Added 10-layer stack, 12-step refinement, and FROST context-simulation modules.
 - Maintained provider adapters (OpenAI / Azure OpenAI / Anthropic) and memory adapters.
-

@@ -95,7 +95,7 @@ jobs:
 
     - name: Run API contract tests
       run: |
-        python -m pytest -q --no-cov tests/contract/test_api_contract.py
+        python -m pytest -q --no-cov tests/contract/
       env:
         PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"

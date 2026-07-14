@@ -16,10 +16,12 @@ logger = logging.getLogger("ukg_sdk")
 from ukg_sdk.exceptions import (
     AuthenticationError,
     AuthorizationError,
+    ConflictError,
     NotFoundError,
     RateLimitError,
     ServerError,
     UKGError,
+    UKGHTTPError,
     ValidationError,
 )
 from ukg_sdk.api_models import (
@@ -68,12 +70,19 @@ class BaseClient:
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "ukg-sdk-python/0.6.0",
-            "X-API-Version": "1.0",
+            "User-Agent": "ukg-sdk-python/0.7.0",
+            "X-API-Version": "dle-gateway.v1",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         return headers
+
+    @staticmethod
+    def _retry_is_safe(method: str, payload: Optional[dict[str, Any]]) -> bool:
+        """Retry reads or explicitly idempotent writes only."""
+        return method.upper() in {"GET", "HEAD", "OPTIONS"} or bool(
+            isinstance(payload, dict) and payload.get("idempotency_key")
+        )
     
     def _build_url(self, path: str) -> str:
         """Build full URL from path."""
@@ -88,27 +97,42 @@ class BaseClient:
         except Exception:
             body = {"message": response.text}
         
-        message = body.get("message", body.get("error", "Unknown error"))
+        raw_error = body.get("error")
+        if isinstance(raw_error, dict):
+            message = str(raw_error.get("message") or raw_error.get("code") or "Unknown error")
+            code = raw_error.get("code") or body.get("code")
+        else:
+            message = str(body.get("message") or raw_error or "Unknown error")
+            code = body.get("code")
         
         if response.status_code == 401:
-            raise AuthenticationError(message, response.status_code, body)
+            raise AuthenticationError(message, response.status_code, body, code=code)
         elif response.status_code == 403:
-            raise AuthorizationError(message, response.status_code, body)
+            raise AuthorizationError(message, response.status_code, body, code=code)
         elif response.status_code == 404:
-            raise NotFoundError(message, response.status_code, body)
-        elif response.status_code == 400:
-            raise ValidationError(message, body.get("errors"), status_code=response.status_code)
+            raise NotFoundError(message, response.status_code, body, code=code)
+        elif response.status_code == 409:
+            raise ConflictError(message, response.status_code, body, code=code)
+        elif response.status_code in {400, 413, 422}:
+            raise ValidationError(
+                message,
+                body.get("errors") or body.get("details"),
+                status_code=response.status_code,
+                code=code,
+            )
         elif response.status_code == 429:
             retry_after = response.headers.get("Retry-After")
             raise RateLimitError(
                 message,
                 retry_after=int(retry_after) if retry_after else None,
                 status_code=response.status_code,
+                detail=body,
+                code=code,
             )
         elif response.status_code >= 500:
-            raise ServerError(message, response.status_code, body)
+            raise ServerError(message, response.status_code, body, code=code)
         else:
-            raise UKGError(message, response.status_code, body)
+            raise UKGHTTPError(message, response.status_code, body, code=code)
 
 
 class UKGClient(BaseClient):
@@ -123,6 +147,8 @@ class UKGClient(BaseClient):
         self.runs = RunsClient(self)
         self.exports = ExportsClient(self)
         self.compliance = ComplianceClient(self)
+        from ukg_sdk.gateway import GatewayClient
+        self.gateway = GatewayClient(self)
     
     def close(self) -> None:
         """Close the HTTP client."""
@@ -150,7 +176,8 @@ class UKGClient(BaseClient):
             params = {k: v for k, v in params.items() if v is not None}
         
         last_error: Optional[Exception] = None
-        for attempt in range(self.max_retries):
+        attempts = self.max_retries if self._retry_is_safe(method, json) else 1
+        for attempt in range(attempts):
             try:
                 logger.debug(f"{method} {url}")
                 start_time = time.time()
@@ -171,17 +198,17 @@ class UKGClient(BaseClient):
                 
             except (httpx.TimeoutException, httpx.ConnectError) as e:
                 last_error = e
-                if attempt < self.max_retries - 1:
+                if attempt < attempts - 1:
                     time.sleep(self.retry_delay * (attempt + 1))
                 continue
             except RateLimitError as e:
                 last_error = e
-                if e.retry_after and attempt < self.max_retries - 1:
+                if e.retry_after and attempt < attempts - 1:
                     time.sleep(e.retry_after)
                     continue
                 raise
         
-        raise UKGError(f"Request failed after {self.max_retries} attempts: {last_error}")
+        raise UKGError(f"Request failed after {attempts} attempt(s): {last_error}")
     
     def get(self, path: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """GET request."""
@@ -216,6 +243,8 @@ class UKGAsyncClient(BaseClient):
         self.runs = AsyncRunsClient(self)
         self.exports = AsyncExportsClient(self)
         self.compliance = AsyncComplianceClient(self)
+        from ukg_sdk.gateway import AsyncGatewayClient
+        self.gateway = AsyncGatewayClient(self)
     
     async def close(self) -> None:
         """Close the HTTP client."""
@@ -244,7 +273,8 @@ class UKGAsyncClient(BaseClient):
             params = {k: v for k, v in params.items() if v is not None}
         
         last_error: Optional[Exception] = None
-        for attempt in range(self.max_retries):
+        attempts = self.max_retries if self._retry_is_safe(method, json) else 1
+        for attempt in range(attempts):
             try:
                 logger.debug(f"{method} {url}")
                 start_time = time.time()
@@ -265,17 +295,17 @@ class UKGAsyncClient(BaseClient):
                 
             except (httpx.TimeoutException, httpx.ConnectError) as e:
                 last_error = e
-                if attempt < self.max_retries - 1:
+                if attempt < attempts - 1:
                     await asyncio.sleep(self.retry_delay * (attempt + 1))
                 continue
             except RateLimitError as e:
                 last_error = e
-                if e.retry_after and attempt < self.max_retries - 1:
+                if e.retry_after and attempt < attempts - 1:
                     await asyncio.sleep(e.retry_after)
                     continue
                 raise
         
-        raise UKGError(f"Request failed after {self.max_retries} attempts: {last_error}")
+        raise UKGError(f"Request failed after {attempts} attempt(s): {last_error}")
     
     async def get(self, path: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         return await self._request("GET", path, params=params)

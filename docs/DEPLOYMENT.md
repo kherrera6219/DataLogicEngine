@@ -222,12 +222,18 @@ Default local storage paths include:
 Object-store buckets initialized by the app include:
 
 ```text
-audit_logs
-simulation_artifacts
+audit-logs
+simulation-artifacts
 deliverables
 graphs
-eval_data
+evaluation-data
+trace-exports
+gateway-results
 ```
+
+`gateway-results` contains only encrypted retained large asynchronous gateway
+results. PostgreSQL stores the durable reference and hash; clients never receive
+S3 credentials or direct object-store access.
 
 ## 2. Windows VM deployment
 
@@ -244,6 +250,12 @@ not production substitutes.
 2. Install the signed app package or current installer artifact.
 3. Let the application initialize internal database services under app-owned data directories.
 4. Validate runtime health through `/health`, `/ready`, `/metrics`, and desktop database status paths where available.
+
+The gateway listener remains loopback-only. Same-host clients use
+`desktop_loopback` or `same_host_gateway` with a DataLogicEngine `ukg_` key.
+`private_windows_gateway` is disabled until the signed installed
+TLS/certificate/firewall/two-machine procedure in
+`docs/PRIVATE_GATEWAY_RUNBOOK.md` passes.
 5. Confirm logs and artifacts are stored in expected local/VM directories.
 6. Run a packaging smoke or startup smoke check after installation.
 

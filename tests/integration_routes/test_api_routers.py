@@ -126,7 +126,7 @@ def test_gateway_usage_stats(mock_curr_user, router_app_client):
         ('OpenAI', 50, 2500, 1000)
     ]
     
-    resp = router_app_client.get('/api/admin/usage')
+    resp = router_app_client.get('/api/v1/admin/usage')
     assert resp.status_code == 200
     assert resp.json['schema_version'] == 'provider-usage-ledger.v1'
     assert resp.json['period']['calls'] == 100

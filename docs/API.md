@@ -89,7 +89,7 @@ Representative canonical versioned namespaces:
 
 Canonical unversioned operational namespaces currently remain supported for internal/admin workflows:
 
-1. `/api/admin/*`
+1. `/api/v1/admin/*`
 2. `/api/contextual/*`
 3. `/api/honeycomb/*`
 4. `/api/locations*`
@@ -261,6 +261,16 @@ Governance and trace execution are mandatory for accepted answer requests.
 
 Primary prefix: `/api/v1/gateway`.
 
+External applications authenticate with a copy-once DataLogicEngine client key
+in `Authorization: Bearer ukg_...` or `X-API-Key`. Desktop owner routes use the
+session/CSRF boundary. External keys never authorize `/api/v1/admin/*`, provider
+configuration, storage administration, or any direct internal-service access.
+
+The public contract version is `dle-gateway.v1`. Three server-owned virtual
+models are published: `dle-standard`, `dle-enhanced`, and `dle-local-review`.
+PostgreSQL owns the active policies; a caller cannot disable governance,
+validation, trace persistence, or required evidence controls.
+
 ### Chat completion
 
 - **POST** `/chat`
@@ -274,20 +284,19 @@ Primary prefix: `/api/v1/gateway`.
       "messages": [
         {"role": "user", "content": "..."}
       ],
-      "mode": "standard",
+      "virtual_model": "dle-standard",
       "constraints": {},
-      "provider": "openai",
-      "model": "gpt-5.5",
       "request_id": "client-generated-uuid",
+      "idempotency_key": "client-generated-retry-key",
       "meta": {
         "budget_warning_confirmed": false
       }
     }
     ```
-    `provider` and `model` may be omitted; the backend falls back to the stored
-    provider record. Supported modes are `standard`, `enhanced`, `local_review`,
-    and `simulation`. Compatibility values `chat`, `trace`, and `explain` map to
-    `standard`; `quad` maps to `enhanced`. The deprecated
+    Direct `provider` and `model` overrides require `routing:override` plus exact
+    server-owned allowlists; normal clients use virtual models. Supported native
+    modes are `standard`, `enhanced`, `local_review`, and `simulation` where the
+    selected client policy permits them. The deprecated
     `run_ukg_pipeline` field is accepted for compatibility but cannot bypass
     governance.
   - **200 OK** — successful response:
@@ -367,18 +376,80 @@ Primary prefix: `/api/v1/gateway`.
 ### Streaming chat
 
 - **POST** `/chat/stream`
-  - Uses the same governed orchestrator and stable run ID. The current transport
-    chunks the completed governed response. Every SSE event includes
-    `delivery_mode: "buffered"`; native governed provider-token delivery is
-    Phase 8 work and may not introduce a second execution path.
+  - Uses the same governed orchestrator and stable run ID.
+  - Emits live typed admission/stage, heartbeat, backpressure, evidence,
+    validation, completion, cancellation, and safe-failure events.
+  - Provider answer text is withheld until validation succeeds, then emitted as
+    `delivery_mode: "validated_output"` chunks. This is not raw provider-token
+    streaming.
+  - Disconnect cancels the active governed request. Stream resume/replay is not
+    supported in v1; streaming rejects idempotency until resume semantics pass.
 
 ### Cancellation
 
 - **POST** `/requests/{request_id}/cancel`
-  - Owner/session-only cancellation for an active client-visible request ID.
+  - Requires `run:cancel` for an external client or the desktop owner session.
   - Returns **202** with `CANCELLATION_REQUESTED`, or **404** with
     `REQUEST_NOT_ACTIVE`. The backend finalizes the governed trace as cancelled;
     the renderer cannot extend the server deadline.
+
+### Durable asynchronous runs
+
+- **POST** `/runs` requires `run:create` and `idempotency_key`; returns **202**
+  plus status, result, and cancellation URLs.
+- **GET** `/runs` and **GET** `/runs/{job_id}` require `run:read` and return only
+  jobs owned by that client principal.
+- **GET** `/runs/{job_id}/result` returns **202** while execution or required
+  object materialization is pending, then the governed result.
+- **POST** `/runs/{job_id}/cancel` requires `run:cancel`.
+- PostgreSQL owns encrypted requests/job references; Redis owns expiring job
+  leases, cancellation, and content-free state. Small encrypted results remain
+  in PostgreSQL and large retained encrypted results use the hash-verified
+  `gateway-results` S3 bucket.
+- Interrupted running work is not automatically replayed because doing so could
+  duplicate provider spend.
+
+### Discovery and trace retrieval
+
+- **GET** `/capabilities` requires `models:read` for external clients and returns
+  only allowed scopes, profile, and virtual models. Provider credentials are
+  never returned.
+- **GET** `/health` is authenticated, invokes no provider, and omits provider
+  topology from external-client responses.
+- **GET** `/traces/{run_id}` requires `trace:read`, verifies ownership through
+  the durable gateway audit record, and returns content-safe stage metadata.
+  Evidence references require `evidence:read`; snippets are not returned.
+
+### Client-key owner administration
+
+Canonical owner routes are under `/api/v1/admin`:
+
+- **GET/POST** `/api-keys` — list redacted metadata or create a copy-once key;
+- **POST** `/api-keys/{key_id}/rotate` — rotate with bounded overlap;
+- **POST** `/api-keys/{key_id}/revoke` — immediate revocation and job cancel;
+- **POST** `/api-keys/{key_id}/expire` — immediate expiry and job cancel;
+- **DELETE** `/api-keys/{key_id}` — destroy verification/policy material only
+  after the key is inactive while retaining an audit tombstone;
+- **GET** `/api-keys/audit` — redacted lifecycle evidence; and
+- **GET** `/gateway/status` — profile, bind, TLS/mTLS, firewall, CORS, and
+  required-service state.
+
+Client scopes are explicit: `chat`, `stream`, `run:create`, `run:read`,
+`run:cancel`, `trace:read`, `evidence:read`, `models:read`, and the separately
+approved `routing:override`. Legacy read permission never grants model execution.
+Production rate/day/concurrency enforcement is atomic and Redis-backed; the
+gateway fails closed when that required state is unavailable.
+
+### Bounded OpenAI compatibility
+
+- **GET** `/v1/models` and **POST** `/v1/chat/completions` use the unprefixed
+  OpenAI path shape but still require a DataLogicEngine client key.
+- Only the three governed virtual models, one completion, messages, streaming,
+  temperature, one output-token limit, and optional user/session identity are
+  supported.
+- Unsupported and unknown OpenAI fields are rejected with **422**, never ignored.
+- The facade adapts shapes into the native contract and cannot bypass the
+  canonical orchestrator. See `docs/GATEWAY_COMPATIBILITY.md`.
 
 ### Offline queue
 
@@ -914,7 +985,7 @@ under single-mode OS-level auth):
 
 Representative route:
 
-- **GET** `/api/admin/providers`
+- **GET** `/api/v1/admin/providers`
   - List configured LLM providers and their statuses.
 
 ---

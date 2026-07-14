@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v3.0.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture + API Governance |
@@ -49,6 +49,15 @@ Examples:
 4. `/api/v1/trace/runs`
 5. `/api/v1/privacy/*`
 6. `/api/v1/storage/*`
+7. `/api/v1/gateway/chat`
+8. `/api/v1/gateway/runs`
+9. `/api/v1/admin/api-keys`
+
+The external middleware contract carried by those routes is
+`dle-gateway.v1`. It is separately checked because compatible clients include
+the Python/TypeScript SDKs and the bounded OpenAI facade. The `/v1/models` and
+`/v1/chat/completions` compatibility paths are intentional shape adapters; they
+still enter `dle-gateway.v1` and do not expose an OpenAI provider credential.
 
 ---
 
@@ -183,6 +192,16 @@ Required checks for canonical `/api/v1/*` changes:
 4. role/admin behavior where applicable;
 5. deprecation headers for compatibility aliases;
 6. no browser-style redirects for canonical API auth failures.
+7. `python scripts/check_gateway_openapi_compatibility.py` passes against
+   `docs/contracts/gateway-v1-compatibility.json`.
+8. OpenAPI, native/compatibility routes, Python/TypeScript SDKs, examples, and
+   active documentation agree on virtual models and supported behavior.
+
+For `dle-gateway.v1`, adding a required field, removing a published
+path/method/success response/property, narrowing an enum, changing client auth,
+or weakening idempotency/job semantics requires a new major gateway contract.
+Additive optional fields and new routes remain compatible. CI runs the entire
+`tests/contract/` directory and fails on an unversioned breaking change.
 
 ---
 
@@ -201,6 +220,13 @@ but do not justify a compatibility alias for the insecure behavior.
 The generated route/surface manifest is versioned evidence. Any new route,
 GraphQL operation, IPC channel, MCP method, file capability, or listener must be
 classified before merge.
+
+## Change notes for v3.0.0
+
+1. Defined `dle-gateway.v1` as the external middleware contract above the
+   canonical `/api/v1` namespace.
+2. Added the checked compatibility baseline, Python/TypeScript SDK parity,
+   bounded OpenAI adapter rules, and explicit breaking-change criteria.
 
 ## Change notes for v2.8.0
 

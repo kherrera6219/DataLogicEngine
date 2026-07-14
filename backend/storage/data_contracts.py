@@ -114,6 +114,9 @@ POSTGRES_ENTITY_KEYS: Mapping[str, str] = MappingProxyType(
         "external_api_keys": "id",
         "feature_flag_audit_events": "id",
         "feature_flags": "id",
+        "gateway_async_runs": "id",
+        "gateway_idempotency_records": "id",
+        "gateway_virtual_models": "id",
         "ka_artifact_links": "id",
         "llm_provider_usage": "id",
         "llm_providers": "id",
@@ -217,8 +220,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     _contract(
         "virtual_models",
         StoreAuthority.POSTGRESQL,
-        "virtual_model.id",
-        status="target_table_missing_phase_8_dependency",
+        "gateway_virtual_models.id",
     ),
     _contract(
         "routing_policies",
@@ -229,9 +231,8 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     _contract(
         "idempotency_records",
         StoreAuthority.POSTGRESQL,
-        "idempotency_record.id",
+        "gateway_idempotency_records.id",
         materializations=(StoreAuthority.REDIS,),
-        status="durable_target_table_missing",
         compensation="reject_duplicate_or_retry_pending_authority_record",
     ),
     _contract(
@@ -244,10 +245,18 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     _contract(
         "asynchronous_jobs_and_results",
         StoreAuthority.POSTGRESQL,
-        "job.id",
-        materializations=(StoreAuthority.REDIS,),
-        status="durable_job_and_result_tables_missing",
+        "gateway_async_runs.id",
+        materializations=(StoreAuthority.REDIS, StoreAuthority.MINIO),
         compensation="requeue_only_from_committed_authority_state",
+    ),
+    _contract(
+        "retained_gateway_job_results",
+        StoreAuthority.MINIO,
+        "gateway-results/jobs/{job_id}/result.enc",
+        materializations=(StoreAuthority.POSTGRESQL,),
+        transaction="postgres_job_then_required_object_put",
+        compensation="keep_result_pending_until_ciphertext_hash_verifies",
+        retention="gateway_job_policy",
     ),
     _contract("provider_usage", StoreAuthority.POSTGRESQL, "llm_provider_usage.id"),
     _contract(

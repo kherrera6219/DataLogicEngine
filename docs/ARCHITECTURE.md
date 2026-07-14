@@ -445,6 +445,31 @@ callers/results. Provider selection returns exactly one supported provider/model
 Deadline, cancellation, typed failure/retry, circuit, call/token/spend,
 egress-ledger, and replay policy stay inside the request-wide governed bound.
 
+The external Client Gateway is an admission and transport layer above that same
+orchestrator, not a second provider path. `dle-gateway.v1` supports named client
+principals, explicit scopes, server-owned virtual models, strict schemas, sync,
+live governed SSE, durable jobs, trace summaries, and a bounded OpenAI shape.
+Loopback is the default. The private Windows profile fails startup until its
+certificate/firewall/two-machine qualification is accepted.
+
+```text
+Approved client + ukg_ key
+  -> strict dle-gateway.v1 contract
+  -> PostgreSQL client/virtual-model/idempotency/job policy
+  -> atomic Redis minute/day/concurrency admission + job lease/cancel state
+  -> one GovernedRequest with immutable external-client principal
+  -> GovernedExecutionOrchestrator
+  -> retrieval / KAs / TruthCore / validation / trace
+  -> bounded LLMGateway provider execution when the virtual model permits
+  -> governed result, validated-output SSE, or durable encrypted result
+```
+
+Client keys contain only protected verification material and are returned once.
+Provider keys remain a separate outbound Provider Connections boundary. Large
+retained job results are encrypted, hash-verified, and materialized into the
+app-owned `gateway-results` S3 bucket; clients never receive object-store
+credentials or direct object URLs.
+
 ### Provider routing
 
 The orchestrator constructs one policy/persona/evidence/KA-aware prompt before
@@ -536,8 +561,12 @@ provider call.
 - `backend/llm_gateway/provider_budget.py` — server-owned budget policy
 - `backend/llm_gateway/provider_errors.py` — typed retry/replay/failure policy
 - `backend/llm_gateway/api.py` — gateway, cancellation, queue, status, and ledger routes
+- `backend/llm_gateway/external_contract.py` — profiles, scopes, and virtual models
+- `backend/llm_gateway/admission_limiter.py` — atomic Redis admission/concurrency
+- `backend/llm_gateway/jobs.py` and `job_coordination.py` — bounded durable jobs
 - `config/provider_manifest.v1.json` — provider/model capability authority
-- `models.py` — DPAPI-first provider credential and usage-ledger storage
+- `models.py` — provider credentials, client keys, virtual models, idempotency,
+  jobs, traces, audit, and usage authorities
 
 ---
 
@@ -548,11 +577,11 @@ The platform uses a multi-store architecture with clear separation of responsibi
 | Store | Role |
 |---|---|
 | SQLAlchemy database | Durable application state, users, sessions, traces, graph rows, artifacts, audit records. |
-| Redis | Required production cache, sessions, rate limits, queues, and TruthLink streams. |
+| Redis | Required production cache, sessions, atomic client limits/concurrency, gateway job coordination/cancellation state, queues, and TruthLink streams. |
 | Neo4j | Durable graph store for knowledge graph relationships. |
 | USKD NetworkX graph | RAM-resident graph for fast reasoning traversal. |
 | ChromaDB | Local vector/embedding storage. |
-| MinIO | Required production S3-compatible artifacts, exports, evidence, and backups. |
+| MinIO | Required production S3-compatible artifacts, exports, evidence, retained large gateway results, and backups. |
 | Local object store | Bootstrap/development/repair role only; not the production MinIO substitute. |
 | UnifiedMemoryService | Structured reasoning memory graph persisted to JSON. |
 | TruthMemory | Audit/explainability memory for Truth Engine and DMRF sessions. |

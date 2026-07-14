@@ -623,7 +623,7 @@ def _register_application_routes(app: Flask) -> None:
     try:
         from backend.llm_gateway.api import register_gateway_routes
         register_gateway_routes(app)
-        logger.info("LLM Gateway API registered at /api/v1/gateway and /api/admin")
+        logger.info("LLM Gateway API registered at /api/v1/gateway and /api/v1/admin")
     except ImportError as e:
         logger.warning(f"Could not register LLM Gateway API: {e}")
 
@@ -1765,10 +1765,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
         )
         if app.config.get("DLE_START_BACKGROUND_WORKERS"):
             app.extensions["dle_audit_logger"].start_log_rotation()
+            from backend.llm_gateway.jobs import get_gateway_job_runner
             from backend.storage.materialization_dispatcher import (
                 CrossStoreMaterializationWorker,
             )
 
+            get_gateway_job_runner(app)
             materializer = CrossStoreMaterializationWorker(app)
             app.extensions["dle_materialization_worker"] = materializer
             materializer.start(_runtime)
@@ -1796,6 +1798,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 materializer.stop()
             except Exception:
                 logger.exception("Cross-store materializer shutdown failed")
+        gateway_job_runner = app.extensions.get("dle_gateway_job_runner")
+        if gateway_job_runner is not None:
+            try:
+                gateway_job_runner.stop()
+            except Exception:
+                logger.exception("Gateway job runner shutdown failed")
         graph_store = app.extensions.get("dle_graph_store")
         if graph_store is not None:
             try:

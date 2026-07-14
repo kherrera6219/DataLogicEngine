@@ -86,8 +86,9 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Mode | Description | Status |
 |---|---|---|
 | Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and user-provided provider keys. | Primary target; current rebuild, installer, install smoke, and uninstall smoke validated |
-| Windows VM gateway | Same Windows app stack running inside a user-controlled Windows VM as API-in/API-out middleware between applications/agents/chatbots and AI providers/tools. | Supported |
-| Controlled web/cloud | Hosted deployment where explicitly configured by the operator. This is not the default managed SaaS model. | Conditional |
+| Same-host Client Gateway | Named applications on the owner-controlled Windows machine use copy-once client keys over loopback. | Phase 8 source contract implemented; signed-installed acceptance pending |
+| Private Windows VM gateway | Same Windows app stack accepts approved private Windows clients through qualified TLS/mTLS and firewall policy. | Disabled until two-machine qualification passes |
+| Controlled web/cloud or public internet | Hosted/public/multi-tenant operation. | Out of approved production scope |
 
 ## Product surfaces
 
@@ -102,7 +103,7 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Truth Engine | `/truth-engine` | Truth Engine monitoring and review. |
 | MCP Hub | `/mcp`, `/admin/mcp`, `/admin/mcp/servers` | connector/server registry and governance. |
 | Admin | `/admin` | admin dashboard, providers, compliance, audit views (single-mode OS-level auth). |
-| Settings | `/settings`, `/settings/privacy` | provider, model, storage, privacy, notifications, local config. |
+| Settings | `/settings`, `/settings/privacy` | separate outbound Provider Connections, inbound Client Gateway administration, model, storage, privacy, notifications, and local configuration. |
 | Public/legal | `/about`, `/about/*`, `/legal/privacy` | disclosures, limitations, privacy information. |
 
 ## Current capability status
@@ -117,7 +118,8 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Trace Explorer | Live | run detail review, stages, evidence, claims, personas, metrics, export path. |
 | Knowledge graph | Live | graph and knowledge views, SQL/Neo4j/USKD model support. |
 | Knowledge ingestion | Live | local ingestion APIs, text/binary support, manifests, optional Neo4j sync. |
-| Settings/API gateway | Live | provider save/test, query playground, model/provider controls. |
+| Provider Connections | Live | server-owned OpenAI/Google credential save and bounded live test. |
+| Client Gateway | Phase 8 engineering checkpoint | copy-once keys, scopes/limits, virtual models, sync/SSE/async/cancel, trace reads, SDKs, audit/usage/health, and examples; installed same-host/private acceptance remains open. |
 | Storage operations | Live | local storage status and lifecycle controls. |
 | Notifications | Live | user preferences loaded and persisted through user notification API. |
 | Admin dashboard | Live | backend-backed admin data (system metrics, provider status, compliance). |

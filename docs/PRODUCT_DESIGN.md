@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
+| Document version | v3.2.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
@@ -319,6 +319,26 @@ python .\scripts\verify_docs_references.py
 
 ---
 
+## Client Gateway settings design
+
+Settings separates two trust directions:
+
+- **Provider Connections** owns outbound OpenAI/Google credentials and live
+  validation. Provider secrets are never client credentials.
+- **Client Gateway** owns inbound listener status, copy-once client keys,
+  scopes/limits, virtual models/routing, usage, lifecycle audit, health, durable
+  jobs, and integration examples.
+
+The Client Gateway view uses real backend state. Create/rotate shows a secret
+once; revoke/expire/delete require confirmation and durable audit. Request
+counts and last-use come from key metadata, provider usage from the durable
+ledger, and dependencies from the runtime supervisor. The private Windows
+button is disabled and labeled unqualified; there is no enabled no-op control.
+SSE copy says live governed stages and validation-gated output, never raw token
+streaming. Error and unknown states remain explicit.
+
+---
+
 ## Known UX debt
 
 UX debt and product backlog items are consolidated in the root `TODO.md`. This design guide documents the current UX model and validation approach and should not maintain a second backlog.
@@ -334,6 +354,8 @@ Known current caveats:
    measured; installed provider calibration remains CP6-F;
 7. simulation returns an explicit Phase 10 capability boundary;
 8. installed OpenAI/Gemini trace proof remains CP5-E and release-blocking.
+9. signed-installed same-host and private two-machine Client Gateway acceptance
+   remains Phase 8 release-blocking; the private profile stays disabled.
 
 ---
 
@@ -345,6 +367,12 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v3.2.0
+
+1. Split Provider Connections from Client Gateway and documented the real
+   key/policy/usage/audit/health/examples controls plus the disabled private
+   profile and validation-gated streaming copy.
 
 ## Change notes for v3.1.0
 

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -25,6 +25,8 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 | `ADR-0001-engineering-governance-baseline.md` | Engineering governance baseline | Accepted / historical source |
 | `ADR-0002-pq-grpc-transport.md` | PQ/gRPC transport decision | Accepted / historical source |
 | `ADR-0003-internal-service-delivery.md` | App-owned pinned OCI containers through rootless Podman Machine/WSL2 | Accepted / Phase 0 CP0-B |
+| `ADR-0004-seaweedfs-replacement-qualification.md` | SeaweedFS candidate replacement qualification | Proposed / candidate only |
+| `ADR-0005-external-gateway-boundary.md` | External principal, network profile, virtual-model, and compatibility boundary | Accepted / Phase 8 implementation |
 
 ---
 
@@ -97,6 +99,12 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.8.0
+
+1. Added ADR-0004 and ADR-0005 to the current index.
+2. Recorded the accepted Phase 8 external-gateway authority boundary while
+   preserving private exposure as qualification-gated.
 
 ## Change notes for v2.7.0
 

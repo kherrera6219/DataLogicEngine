@@ -53,8 +53,8 @@ def test_gateway_chat_no_auth():
 def test_admin_providers():
     """Test admin providers endpoint."""
     with app.test_client() as client:
-        response = client.get('/api/admin/providers')
-        print(f"GET /api/admin/providers -> {response.status_code}")
+        response = client.get('/api/v1/admin/providers')
+        print(f"GET /api/v1/admin/providers -> {response.status_code}")
         if response.status_code == 401:
             print("Expected 401 (login required)")
         return True

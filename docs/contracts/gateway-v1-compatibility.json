@@ -1,0 +1,66 @@
+{
+  "contract_version": "dle-gateway.v1",
+  "operations": {
+    "/gateway/chat": {"methods": ["post"], "success_responses": ["200", "202"]},
+    "/gateway/chat/stream": {"methods": ["post"], "success_responses": ["200"]},
+    "/gateway/requests/{request_id}/cancel": {"methods": ["post"], "success_responses": ["202"]},
+    "/gateway/capabilities": {"methods": ["get"], "success_responses": ["200"]},
+    "/gateway/health": {"methods": ["get"], "success_responses": ["200"]},
+    "/gateway/runs": {"methods": ["get", "post"], "success_responses": ["200", "202"]},
+    "/gateway/runs/{job_id}": {"methods": ["get"], "success_responses": ["200"]},
+    "/gateway/runs/{job_id}/result": {"methods": ["get"], "success_responses": ["200", "202"]},
+    "/gateway/runs/{job_id}/cancel": {"methods": ["post"], "success_responses": ["202"]},
+    "/gateway/traces/{run_id}": {"methods": ["get"], "success_responses": ["200"]},
+    "/v1/models": {"methods": ["get"], "success_responses": ["200"]},
+    "/v1/chat/completions": {"methods": ["post"], "success_responses": ["200"]},
+    "/admin/api-keys": {"methods": ["get", "post"], "success_responses": ["200", "201"]},
+    "/admin/api-keys/{key_id}/rotate": {"methods": ["post"], "success_responses": ["201"]},
+    "/admin/api-keys/{key_id}/revoke": {"methods": ["post"], "success_responses": ["200"]},
+    "/admin/api-keys/{key_id}/expire": {"methods": ["post"], "success_responses": ["200"]},
+    "/admin/api-keys/{key_id}": {"methods": ["delete"], "success_responses": ["200"]}
+  },
+  "schemas": {
+    "ChatRequest": {
+      "required": ["messages"],
+      "additionalProperties": false,
+      "properties": {
+        "messages": {"type": "array"},
+        "request_id": {"type": "string"},
+        "idempotency_key": {"type": "string"},
+        "session_id": {"type": "string"},
+        "virtual_model": {"type": "string", "enum": ["dle-standard", "dle-enhanced", "dle-local-review"]},
+        "run_ukg_pipeline": {"type": "boolean"},
+        "mode": {"type": "string", "enum": ["standard", "enhanced", "local_review", "simulation"]},
+        "provider": {"type": "string", "enum": ["openai", "google", "gemini"]},
+        "model": {"type": "string"},
+        "constraints": {"type": "object"},
+        "temperature": {"type": "number"},
+        "max_tokens": {"type": "integer"},
+        "meta": {"type": "object"}
+      }
+    },
+    "GatewayJob": {
+      "required": ["job_id", "request_id", "status", "virtual_model", "gateway_contract_version", "status_url", "result_url", "cancel_url"],
+      "additionalProperties": false,
+      "properties": {
+        "job_id": {"type": "string"},
+        "request_id": {"type": "string"},
+        "status": {"type": "string", "enum": ["queued", "running", "completed", "failed", "cancelled", "expired"]},
+        "virtual_model": {"type": "string", "enum": ["dle-standard", "dle-enhanced", "dle-local-review"]}
+      }
+    },
+    "OpenAIChatCompletionRequest": {
+      "required": ["model", "messages"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {"type": "string", "enum": ["dle-standard", "dle-enhanced", "dle-local-review"]},
+        "stream": {"type": "boolean"},
+        "temperature": {"type": "number"},
+        "max_tokens": {"type": "integer"},
+        "max_completion_tokens": {"type": "integer"},
+        "n": {"type": "integer"},
+        "user": {"type": "string"}
+      }
+    }
+  }
+}

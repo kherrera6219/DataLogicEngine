@@ -9,9 +9,16 @@ Primary entrypoints:
 
 from .api_client import UKGClient, UKGAsyncClient, BaseClient
 from .overlay import UKGOverlay
+from .gateway import (
+    AsyncGatewayClient,
+    GatewayCapabilities,
+    GatewayClient,
+    GatewayJob,
+    GatewayResult,
+)
 from .coordinates17 import CoordinateResolver17, Coordinate17
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 try:
     from .dsqp import DSQPClient
@@ -24,6 +31,11 @@ __all__ = [
     "UKGAsyncClient",
     "BaseClient",
     "UKGOverlay",
+    "GatewayClient",
+    "AsyncGatewayClient",
+    "GatewayResult",
+    "GatewayJob",
+    "GatewayCapabilities",
     # Coordinates
     "CoordinateResolver17",
     "Coordinate17",

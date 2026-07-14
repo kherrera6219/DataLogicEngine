@@ -68,7 +68,7 @@ the local desktop trust boundary.
 1. Launch the desktop app or local stack.
 2. Open `/dashboard`.
 3. Open `/settings`.
-4. Configure at least one provider under API Gateway or AI Models.
+4. Configure at least one provider under **Provider Connections** or AI Models.
 5. Test the provider connection.
 6. Open `/chat` and run a simple prompt.
 7. Open `/runs` and inspect the trace/run record.
@@ -80,7 +80,7 @@ the local desktop trust boundary.
 ### 1. Configure provider access
 
 1. Open `/settings`.
-2. Select `API Gateway` or `AI Models`.
+2. Select **Provider Connections** or `AI Models`.
 3. Choose provider and model.
 4. Enter API key.
 5. Select `Save Key` or `Save Model`.
@@ -111,6 +111,28 @@ Behind the scenes, governed requests pass through the single `governed.v1`
 path. The trace shows real sources/evidence, claims, citations, validators,
 TruthCore/KA work, policy decisions, and convergence state that executed.
 
+### 3. Approve a Client Gateway application
+
+1. Open `/settings` and select **Client Gateway**. Do not use Provider
+   Connections for inbound applications.
+2. Review the loopback listener and required-service health. Private Windows
+   access remains disabled until the separate qualification passes.
+3. Set a client name, expiry, explicit scopes, requests-per-minute/day,
+   token-per-request ceiling, and concurrency limit.
+4. Create the client and copy the `ukg_` key immediately. It is never shown
+   again. Do not place an OpenAI or Google key in the client application.
+5. Use the Integration Examples view or a supported SDK. Start with the minimum
+   scopes needed by that application.
+6. Review per-client request count, last use, durable jobs, gateway health, and
+   key lifecycle audit events.
+7. Rotate with bounded overlap when planned. Revoke or expire immediately when
+   access should stop; active jobs are cancelled. Delete verification material
+   only after the key is inactive.
+
+The supported client contract includes native sync, live governed SSE, durable
+async/status/result/cancel, capabilities, and owned trace summaries. See
+`docs/GATEWAY_COMPATIBILITY.md` for exact behavior.
+
 If the trace shows **Evidence support: Not measured**, one or more required
 source-quality, provenance, freshness, claim-support, or validator inputs was
 unavailable. This is not an error to hide and is never replaced with a default
@@ -123,14 +145,14 @@ authoritative source and retry. The Algorithms page labels production-enabled,
 experimental, presentation-only, and placeholder entries and states each
 guarantee and limitation.
 
-### 3. Review sessions and projects
+### 4. Review sessions and projects
 
 1. Open `/projects`.
 2. Search by title, session ID, or visible metadata.
 3. Open `/projects/view?id=<session_id>`.
 4. Review messages, run references, and session timeline.
 
-### 4. Review traces and evidence
+### 5. Review traces and evidence
 
 1. Open `/runs`.
 2. Select a run.
@@ -140,7 +162,7 @@ guarantee and limitation.
 
 Trace review is one of the main ways to understand why the system answered the way it did.
 
-### 5. Explore graph and knowledge data
+### 6. Explore graph and knowledge data
 
 1. Open `/graph`.
 2. Inspect available nodes and relationships.
@@ -149,7 +171,7 @@ Trace review is one of the main ways to understand why the system answered the w
 
 Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store, or ingestion state.
 
-### 6. Run simulations
+### 7. Run simulations
 
 1. Open `/simulations`.
 2. Create or select a scenario.
@@ -157,13 +179,13 @@ Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store,
 4. Review status and results.
 5. Open trace/run details where links are available.
 
-### 7. Use Truth Engine monitoring
+### 8. Use Truth Engine monitoring
 
 1. Open `/truth-engine`.
 2. Review Truth Engine status where enabled.
 3. Inspect health, budget, gate, memory, or link/event information where exposed by the current build.
 
-### 8. Manage MCP connectors
+### 9. Manage MCP connectors
 
 1. Open `/mcp` or `/admin/mcp/servers`.
 2. Review registered servers.
@@ -173,7 +195,7 @@ Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store,
 
 MCP connector behavior depends on configured scopes, credentials, external service availability, and admin policy.
 
-### 9. Run storage checks and lifecycle actions
+### 10. Run storage checks and lifecycle actions
 
 1. Open `/settings`.
 2. Select `Storage`.
@@ -182,7 +204,7 @@ MCP connector behavior depends on configured scopes, credentials, external servi
 5. Use `Start All` / `Stop All` for local data services where available.
 6. Use auto-start toggle for local launch behavior.
 
-### 10. Use privacy tools
+### 11. Use privacy tools
 
 1. Open `/settings/privacy`.
 2. Use `Export My Data` for JSON export where enabled.
@@ -190,9 +212,10 @@ MCP connector behavior depends on configured scopes, credentials, external servi
 4. Review AI processing/history preferences where available.
 5. Review notification preferences where available.
 
-### 11. Review provider usage and offline replay
+### 12. Review provider usage and offline replay
 
-1. Open `/settings` and select the API Gateway/provider panel.
+1. Open `/settings` and select **Provider Connections** for provider usage or
+   **Client Gateway** for inbound client state.
 2. Review session/day/month call and token limits, remaining allowance, and
    pricing status. `Unknown` means no trusted price metadata is configured; it
    never means free.
@@ -203,9 +226,9 @@ MCP connector behavior depends on configured scopes, credentials, external servi
    provider-outage, and timeout failures are eligible. A message is shown as
    queued only after encrypted durable storage succeeds.
 
-The current SSE route delivers the fully governed response in buffered chunks;
-it is not presented as native token streaming. Native governed streaming is a
-Phase 8 qualification item.
+The SSE route emits live governed stage events. Provider answer text is released
+only after validation as `validated_output` chunks; it is not raw provider-token
+streaming and v1 does not resume a disconnected stream.
 
 ## Understanding local-first privacy
 

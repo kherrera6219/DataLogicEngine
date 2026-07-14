@@ -83,6 +83,8 @@ As of the Phase 4 engineering checkpoint (2026-07-13):
    supervises the complete five-service engineering profile.
 9. The live qualification report passed real operations, restart durability,
    truthful state, and cleanup for all five services and six object buckets.
+   Phase 8 adds the seventh `gateway-results` bucket; rebuilt installed
+   qualification of that expanded contract remains pending.
 10. Startup now applies a versioned SQL/per-store migration ledger before
     readiness and refuses newer, unsupported, or unversioned populated data.
 11. The desktop creates encrypted signed coordinated backups using a recovery
@@ -219,7 +221,7 @@ The Windows local-first runtime uses app-owned/internal data services and local 
 | Store | Default port | Mode | Directory path | Purpose |
 |---|---:|---|---|---|
 | PostgreSQL | `5432` default | Phase 3 app-managed OCI service | runtime-root volume | production relational authority. |
-| Redis | `6379` default | Phase 3 app-managed OCI service | runtime-root volume | production cache, session, rate-limit, queue, and stream service. |
+| Redis | `6379` default | Phase 3 app-managed OCI service | runtime-root volume | production cache, session, atomic client limits/concurrency, gateway job coordination/cancellation, queue, and stream service. |
 | Neo4j | `7687` default | Phase 3 app-managed OCI service | runtime-root volume | production graph authority. |
 | ChromaDB | app-owned | Phase 3 qualified local service/store | runtime-root volume | vector storage and semantic retrieval. |
 | MinIO | `9000` default | Phase 3 app-managed OCI service | runtime-root volume | production object-store authority. |
@@ -233,12 +235,21 @@ MinIO substitute.
 Default object-store buckets:
 
 ```text
-audit_logs
-simulation_artifacts
+audit-logs
+simulation-artifacts
 deliverables
 graphs
-eval_data
+evaluation-data
+trace-exports
+gateway-results
 ```
+
+Client Gateway setup is owner-administered in Settings. Copy-once `ukg_` keys
+are for approved applications; OpenAI/Google keys remain under Provider
+Connections. The backend and same-host gateway stay on loopback. Do not set a
+private bind or create a firewall exception; the private profile deliberately
+fails closed until `docs/PRIVATE_GATEWAY_RUNBOOK.md` is completed against the
+signed rebuilt application.
 
 ### Prepare local databases
 

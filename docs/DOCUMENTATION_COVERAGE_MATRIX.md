@@ -31,7 +31,7 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 | Data flow diagrams | `docs/DATA_FLOW_DIAGRAMS.md` | Active | Current DMRF/Truth Engine/data/privacy/export flows. |
 | Decision logic | `docs/DECISION_LOGIC.md` | Active | Current decision points and implementation paths. |
 | Workflow | `docs/WORKFLOW.md` | Active | Governed request lifecycle. |
-| API contract | `docs/API.md`, `docs/openapi.yaml` | Active | Human and current partial machine-readable API references; superseded duplicate exports live under `docs/archive/api/`. |
+| API contract | `docs/API.md`, `docs/openapi.yaml`, `docs/GATEWAY_COMPATIBILITY.md` | Active | Native/SDK/bounded-OpenAI contract, machine-readable surface, and checked v1 compatibility baseline. |
 | API versioning | `docs/API_VERSIONING.md` | Active | Canonical `/api/v1/*`, compatibility aliases, deprecation policy. |
 | Data/storage | `docs/DATABASE_SCHEMA.md` | Active | Multi-store data and memory architecture. |
 | Security controls | `docs/SECURITY.md`, root `SECURITY.md` | Active | IAM, desktop auth, export integrity, AI security, release security. |
@@ -42,7 +42,8 @@ This matrix covers active documentation only. Archived whitepapers, historical n
 | AI management mapping | `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Active | ISO/IEC 42001-style AIMS mapping, not certification claim. |
 | Supply chain roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md` | Active / roadmap | Current-state/target-state supply-chain roadmap. |
 | Testing standards | `docs/TESTING.md` | Active | Quality gates and validation architecture. |
-| Deployment | `docs/DEPLOYMENT.md` | Active | Local/VM/web/cloud deployment guidance. |
+| Deployment | `docs/DEPLOYMENT.md` | Active | Local Windows/same-host operation and explicitly gated private Windows profile. |
+| Private gateway qualification | `docs/PRIVATE_GATEWAY_RUNBOOK.md` | Active gate | Disabled profile, TLS/certificate/firewall/two-machine acceptance and incident response. |
 | Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Active | Local-first Windows operation and packaging. |
 | Operational runbooks | `docs/OPERATIONAL_RUNBOOKS.md` | Active | Incident response and operational recovery. |
 | Release governance | `docs/RELEASE_CHECKLIST.md` | Active | Release evidence and approval controls. |

@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-7 engineering checkpoints are complete; Phase 8 external API Gateway and LLM middleware productization is active. Installed OpenAI/Google quality and provider acceptance, blinded human acceptance, clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, later subsystem/UI completion, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 7 evidence`](reports/production-readiness/2026/phase-07/summary.md).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-8 engineering checkpoints are complete; Phase 9 ingestion, retrieval, graph, and memory completion is active. Installed OpenAI/Google quality and provider acceptance, private/two-machine gateway acceptance, blinded human acceptance, clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, later subsystem/UI completion, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 8 evidence`](reports/production-readiness/2026/phase-08/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -361,7 +361,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 | Capability | Production responsibility |
 | --- | --- |
-| External API Gateway | Primary integration surface for approved applications, agents, and chatbots. It authenticates the DataLogicEngine client, applies policy and budgets, invokes the canonical governed path, and returns the governed result without exposing provider credentials. Phase 8 completes and qualifies this currently partial surface. |
+| External API Gateway | Primary integration surface for approved applications, agents, and chatbots. It authenticates the DataLogicEngine client, applies policy and budgets, invokes the canonical governed path, and returns the governed result without exposing provider credentials. The Phase 8 engineering contract is complete; rebuilt-installed same-host/private qualification remains a release gate. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
 | Canonical governed reasoning | One approved request lifecycle spanning policy, retrieval, KAs, TruthCore/DMRF, provider/tool execution, evidence, validation, persistence, and trace. Completion is governed by Phases 5-7. |
 | Desktop control plane | Production configuration, administration, audit, observability, support, and validation application. Built-in chat is the reference client for the canonical gateway behavior. |
@@ -611,11 +611,12 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 
 ## API Examples
 
-The gateway examples below describe the current developer-preview route. Backend
-API-key and chat foundations exist, but the complete client administration UI,
-strict public contract, streaming/async behavior, virtual models, private TLS
-profile, SDKs, and installed interoperability qualification remain Phase 8 work.
-Do not expose the current development listener to the public internet.
+The gateway examples below describe the versioned `dle-gateway.v1` engineering
+contract. Strict native sync, governed SSE, durable async runs, virtual models,
+owned trace retrieval, client administration, Python/TypeScript SDKs, and a
+bounded OpenAI-compatible facade are implemented. Private TLS/two-machine and
+rebuilt-installed provider interoperability remain release gates. Do not expose
+the current listener to the public internet.
 
 Base URLs:
 
@@ -623,7 +624,7 @@ Base URLs:
 | --- | --- |
 | Local backend | `http://localhost:5000` |
 | Versioned API | `http://localhost:5000/api/v1` |
-| Qualified private Windows gateway | `https://<private-windows-host>:<approved-port>/api/v1` (Phase 8; explicitly enabled only) |
+| Qualified private Windows gateway | `https://<private-windows-host>:<approved-port>/api/v1` (disabled until installed qualification; explicitly enabled only) |
 
 ### Health and Readiness
 
@@ -639,8 +640,9 @@ DataLogicEngine is single-owner / local-first: the desktop app auto-logs in the
 OS user as the owner (`POST /api/v1/auth/desktop/auto-login`), so there is no
 public username/password login endpoint. Programmatic clients use a separate
 DataLogicEngine `ukg_...` client key in `X-API-Key`; they never receive the
-stored Google/OpenAI key. The backend key routes exist today, while the complete
-desktop create/copy-once/rotate/revoke experience is part of Phase 8.
+stored Google/OpenAI key. The desktop Client Gateway view supports copy-once
+creation, inspection, rotation, revocation, expiry, and deletion with durable
+audit evidence.
 
 ```bash
 export UKG_KEY="ukg_<prefix>_<secret>"
@@ -673,8 +675,10 @@ confidence is returned as null rather than replaced with a plausible default.
 The deprecated `run_ukg_pipeline` field is ignored as a bypass control: every
 accepted answer request remains governed. See
 [`docs/API.md`](docs/API.md) for the current route documentation and
-[`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) Phase 8
-for the required production contract.
+[`docs/GATEWAY_COMPATIBILITY.md`](docs/GATEWAY_COMPATIBILITY.md) for the exact
+compatibility boundary and
+[`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) for
+remaining installed acceptance gates.
 
 ### Knowledge Graph Query
 
@@ -737,7 +741,8 @@ cleanup/disposition inputs and must not be used to represent a supported release
   protected credentials, migrations, supervision, backup, and restore.
 - Keep the desktop API and internal services loopback/private.
 - Keep external gateway access loopback-only by default. Enable a private Windows
-  listener only after Phase 8 TLS/firewall/client-policy qualification.
+  listener only after the retained CP8-B/CP8-I TLS, firewall, certificate,
+  client-policy, and two-machine qualification.
 - Keep external telemetry and crash reporting disabled by default unless the
   owner explicitly opts in after privacy/redaction review.
 - Confirm truthful liveness, readiness, capabilities, diagnostics, trace, and
@@ -824,10 +829,10 @@ npm --prefix frontend audit --audit-level=high
 
 | Horizon | Focus |
 | --- | --- |
-| Immediate | Phase 0: approve scope, service delivery, requirements, ownership, supported Windows profiles, legal/distribution authority, and reproducible baseline. |
-| Foundation | Phases 1-7: close trust boundaries, deliver the full internal data plane, establish one canonical governed path, and qualify provider/evidence behavior. |
-| Product interface | Phase 8: complete the external API Gateway, client identity/policy, virtual models, streaming/async behavior, SDKs, desktop administration, and same-host/private interoperability. |
-| Subsystems and UX | Phases 9-13: complete knowledge, simulation, MCP, every frontend workflow, accessibility, observability, diagnostics, and support. |
+| Completed foundation | Phases 0-7: scope and trust boundaries, internal data plane, canonical governed path, evidence validity, and governed provider behavior. |
+| Completed product interface checkpoint | Phase 8: versioned gateway, client identity/policy, virtual models, streaming/async behavior, SDKs, desktop administration, and engineering interoperability contract. Installed private/two-machine acceptance remains gated. |
+| Active subsystem | Phase 9: secure durable ingestion, cross-store reconciliation, causal retrieval, graph use, and memory authority. |
+| Later subsystems and UX | Phases 10-13: complete simulation, MCP, every frontend workflow, accessibility, observability, diagnostics, and support. |
 | Release | Phases 14-18: deterministic signed packaging, installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 
 ## Getting Help

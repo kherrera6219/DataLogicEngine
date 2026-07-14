@@ -7,8 +7,8 @@
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
-| Completed phase | Phase 7 engineering checkpoint - Provider execution, privacy, budgets, cancellation, and replay |
-| Next phase | Phase 8 - External API Gateway and LLM middleware productization |
+| Completed phase | Phase 8 engineering checkpoint - External API Gateway and LLM middleware productization |
+| Next phase | Phase 9 - Ingestion, retrieval, graph, and memory completion |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -121,6 +121,25 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Final Phase 7 validation reports 1,945 backend tests (18 skipped), 402 frontend
   tests, and 25 SDK tests passed, plus frontend typecheck/lint/build, Ruff,
   compilation, generated-manifest, and 17-revision migration-head checks.
+- Phase 8 CP8-A, CP8-D, CP8-E, and CP8-H passed; CP8-B, CP8-C, CP8-F, CP8-G,
+  and CP8-J passed at the source/engineering boundary with their installed,
+  recovery, failure/load, or visual proof retained. CP8-I remains deferred and
+  release-blocking. Evidence is under
+  `reports/production-readiness/2026/phase-08/`.
+- The versioned `dle-gateway.v1` contract now covers strict native sync, live
+  governed SSE, durable async/status/result/cancel, idempotency, capabilities,
+  owned trace retrieval, stable errors, and a bounded OpenAI-compatible facade.
+- PostgreSQL owns client/key lifecycle, virtual models, idempotency, durable jobs,
+  and result references. Redis owns atomic minute/day/concurrency admission and
+  content-free job coordination. Encrypted large job results use the seventh
+  required `gateway-results` object bucket.
+- The desktop separates outbound Provider Connections from inbound Client
+  Gateway administration. Python SDK 0.7.0, a TypeScript SDK, examples,
+  compatibility controls, API documentation, runbooks, and ADR-0005 are current.
+- Final Phase 8 validation reports 1,993 backend tests (18 skipped), 403 frontend
+  tests, 30 Python SDK tests, and 5 TypeScript SDK tests passed, plus frontend
+  typecheck/lint/build, Ruff, compilation, contract-diff, documentation, and the
+  21-revision migration head `b7c8d9e0f1a2`.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -187,6 +206,31 @@ offline behavior.
       provider/model combination; provider-disabled checks cannot approve live
       paths.
 
+## Phase 8 objective - engineering checkpoint complete
+
+Make DataLogicEngine usable by approved applications, agents, and chatbots as
+versioned governed LLM middleware without creating a second execution path or
+exposing provider credentials.
+
+## Phase 8 work packages
+
+- [x] Define fail-closed loopback, same-host, and qualification-gated private
+      profiles, explicit principals/scopes, server-owned virtual models, and
+      ADR-0005.
+- [x] Implement copy-once client keys, rotation/revocation/expiry/deletion,
+      per-client policy, atomic Redis admission, and durable lifecycle audit.
+- [x] Publish strict native sync, live SSE, durable async/cancel/result,
+      idempotency, discovery, trace, stable-error, and bounded OpenAI contracts.
+- [x] Keep every external answer on `governed.v1`, with validation completed
+      before provider text is released and no governance-bypass fields.
+- [x] Add PostgreSQL/Redis/object-store authority, encrypted large results,
+      restart-safe job disposition, and fail-closed dependency behavior.
+- [x] Separate Provider Connections and Client Gateway desktop controls and add
+      supported Python/TypeScript SDKs, examples, compatibility checks, and
+      operational documentation.
+- [x] Preserve installed same-host/private, provider, backup/restore, UI visual,
+      load/soak, TLS/firewall, and two-machine proof as explicit release gates.
+
 ## Phase 3 deferred release gates
 
 | Checkpoint | Required result | Status |
@@ -226,6 +270,17 @@ offline behavior.
 |---|---|---|
 | CP7-F | Rebuilt installed app completes owner-run Google and OpenAI contract, latency, cancellation, trace, and no-secret evidence | Engineering fixtures and failure matrix passed; installed live-provider acceptance deferred and release-blocking |
 
+## Phase 8 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP8-B | Rebuilt installed same-host/private profiles prove TLS, firewall, certificate, listener, and policy behavior | Loopback and fail-closed source contract passed; installed private profile remains disabled and release-blocking |
+| CP8-C | Client lifecycle survives coordinated backup/restore and installed compromise drills | Source lifecycle and audit tests passed; installed backup/restore proof deferred |
+| CP8-F | Installed desktop controls and reference client prove visible and durable parity | UI/backend contract tests passed; packaged visual and reference-client acceptance deferred |
+| CP8-G | Expanded gateway state passes installed seven-bucket backup/restore/restart/deletion qualification | Source authorities and object-result contract passed; rebuilt installed lifecycle drill deferred |
+| CP8-I | Same-host and private two-machine clients complete real governed Google and OpenAI requests | Deferred to the rebuilt signed application and release-blocking |
+| CP8-J | Installed concurrency, failure, latency, security/privacy, restart, and soak matrix passes | Engineering adversarial coverage passed; full installed load/soak matrix deferred |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -238,8 +293,8 @@ offline behavior.
 | 5 | Canonical governed reasoning path | **Engineering checkpoint complete 2026-07-13; installed CP5-E retained** |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Engineering checkpoint complete 2026-07-13; installed CP6-F retained** |
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Engineering checkpoint complete 2026-07-13; installed CP7-F retained** |
-| 8 | External API Gateway and LLM middleware productization | **Active** |
-| 9 | Ingestion, retrieval, graph, and memory completion | Blocked by prior phases |
+| 8 | External API Gateway and LLM middleware productization | **Engineering checkpoint complete 2026-07-13; installed gates retained** |
+| 9 | Ingestion, retrieval, graph, and memory completion | **Active** |
 | 10 | Simulation completion | Blocked by prior phases |
 | 11 | MCP and connector completion | Blocked by prior phases |
 | 12 | UI workflow, project model, and accessibility completion | Blocked by prior phases |
@@ -266,10 +321,11 @@ offline behavior.
 
 ## Exact next action
 
-Begin Phase 8 with a live inventory of external gateway routes, authentication
-principals, API-key scopes/policies, versioning, virtual-model mapping,
-sync/SSE/async behavior, SDK clients, desktop owner controls, listener modes,
-and same-host/private interoperability. Add failure-first external-contract and
-auth-boundary tests before extending the gateway. Preserve `governed.v1`, all
-Phase 7 budgets/egress controls, CP5-E/CP6-F/CP7-F, the Phase 3/4 installed
-gates, alert 389, and the SeaweedFS candidate-only boundary.
+Begin Phase 9 with a live inventory of file/folder acquisition, Electron picker
+capabilities, staging/parsers, ingestion jobs, PostgreSQL corpus records,
+Redis queues/leases/events, Neo4j/Chroma materializations, object artifacts,
+retrieval paths, memory authorities, and Knowledge/Graph controls. Add
+failure-first path/archive/content, restart/idempotency, cross-store divergence,
+retrieval-causality, and delete/reingest tests before extending the subsystem.
+Preserve `governed.v1`, the Phase 8 client boundary, every earlier installed
+gate, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.

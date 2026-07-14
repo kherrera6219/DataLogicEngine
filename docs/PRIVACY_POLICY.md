@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
+| Document version | v2.12.0 |
 | Last updated | 2026-07-13 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -93,8 +93,19 @@ Depending on configuration, local storage can include:
 5. UnifiedMemory JSON persistence;
 6. TruthMemory audit/explainability records;
 7. trace export bundles and manifests.
+8. Client Gateway names, copy-once key verification metadata, scopes, limits,
+   request/job/trace identifiers, content-free usage/audit state, encrypted
+   durable requests/results, and retained large encrypted job-result objects.
 
 Local-first does not mean no data ever leaves the machine. Data can leave the machine when a user or deployment configures cloud AI providers, MCP connectors, external APIs, web/cloud deployment, or export/share workflows.
+
+Approved Client Gateway applications may submit prompt/message content to the
+local service. The application principal is not a DataLogicEngine user or tenant.
+Its secret is shown once, only protected verification material is retained, and
+provider credentials are never returned. Client-owned trace reads expose safe
+stage metadata; evidence references require a separate scope and exclude stored
+snippets. Logs, metrics, lifecycle audit, and support output omit request/result
+content and authorization headers.
 
 ## 6. Cloud AI providers and third parties
 
@@ -198,6 +209,12 @@ Default guidance:
 4. **Export bundles** — retained wherever the user/admin saves them; exported files may remain outside the application after download.
 5. **Provider data** — governed by the configured provider's own retention and API policy.
 6. **Connector data** — governed by connector/service policy and local audit settings.
+7. **Client Gateway jobs** — encrypted requests/results and Redis coordination
+   state expire under the configured bounded job policy. Large retained results
+   follow the same policy in the app-owned `gateway-results` S3 bucket.
+8. **Client-key audit tombstones** — key secret/verification material is
+   destroyed on deletion while non-secret lifecycle identity may be retained for
+   referential audit and incident review.
 
 Administrators should configure and document retention policies for production or shared deployments.
 
@@ -256,6 +273,11 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.12.0
+
+1. Added Client Gateway principal, copy-once secret, encrypted job/result,
+   trace/evidence scope, content-free audit, and bounded retention behavior.
 
 ## Change notes for v2.11.0
 
