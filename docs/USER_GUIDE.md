@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Product Operations |
 | Review cadence | Every 30 days |
@@ -26,7 +26,7 @@ This guide reflects the current local-first product: dashboard, chat, projects, 
 
 ## Prerequisites
 
-1. Running local desktop, Windows VM, or deployed instance.
+1. Running local desktop or the Windows VM qualification profile.
 2. Internet access for cloud provider inference.
 3. At least one configured OpenAI or Google/Gemini API key for provider-backed chat/reasoning.
 4. Local storage services running when testing graph/vector/object/data features.
@@ -36,10 +36,11 @@ This guide reflects the current local-first product: dashboard, chat, projects, 
 | Mode | Behavior |
 |---|---|
 | Desktop/local-first | App opens directly into the internal dashboard using desktop local-auth behavior. |
-| Windows VM | Same app stack inside a VM with app-owned local services. |
-| Web/cloud | Use `/login` and configured web auth/session controls. |
+| Windows VM qualification | Same app stack inside a controlled VM with app-owned local services; this is a validation profile, not a public web service. |
 
-The current local-first build intentionally disables self-service registration. `/register` redirects to `/dashboard` unless web self-registration is reopened as a product requirement.
+Public web/cloud SaaS, web login, and self-service registration are outside the
+active production-completion scope. The single owner is authenticated through
+the local desktop trust boundary.
 
 ## Primary navigation
 
@@ -97,7 +98,21 @@ The current local-first build intentionally disables self-service registration. 
 5. Review the answer.
 6. Follow run/session links to inspect trace details.
 
-Behind the scenes, governed requests can pass through DMRF, TruthGate, tiering, 17-axis routing, DSQP personas, TruthCore, evidence/convergence checks, memory/audit persistence, and trace export paths.
+Behind the scenes, governed requests pass through the single `governed.v1`
+path. The trace shows real sources/evidence, claims, citations, validators,
+TruthCore/KA work, policy decisions, and convergence state that executed.
+
+If the trace shows **Evidence support: Not measured**, one or more required
+source-quality, provenance, freshness, claim-support, or validator inputs was
+unavailable. This is not an error to hide and is never replaced with a default
+percentage. A percentage, when present, is evidence-support coverage with a
+formula explanation; it is not a promise that the answer is correct.
+
+An **Abstained** result means required claims remained unsupported or
+contradicted after the one allowed enhanced refinement. Provide a newer or more
+authoritative source and retry. The Algorithms page labels production-enabled,
+experimental, presentation-only, and placeholder entries and states each
+guarantee and limitation.
 
 ### 3. Review sessions and projects
 

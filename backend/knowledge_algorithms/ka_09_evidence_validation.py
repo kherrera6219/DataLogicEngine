@@ -43,6 +43,14 @@ class KA009EvidenceValidation(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA009Input) -> Dict[str, Any]:
         evidence_list = input_data.evidence
         query = input_data.query
+
+        if not evidence_list:
+            return {
+                "success": False,
+                "status": "insufficient_evidence",
+                "results": [],
+                "overall_validity": False,
+            }
         
         self.log_execution_step("Validating Evidence", {"count": len(evidence_list)})
         
@@ -94,7 +102,11 @@ class KA009EvidenceValidation(KnowledgeAlgorithm):
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
         algo = KA009EvidenceValidation(context)
-        return algo.run(context)
+        result = algo.run(context)
+        output = result.get("output") if isinstance(result.get("output"), dict) else {}
+        if output.get("status"):
+            result["status"] = output["status"]
+        return result
     except Exception as e:
         logger.error(f"KA-009 Failed: {e}")
         return {"success": False, "error": str(e)}

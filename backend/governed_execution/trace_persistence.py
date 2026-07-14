@@ -11,14 +11,18 @@ import uuid
 
 from extensions import db
 from models import (
+    ClaimEvidenceLink,
     TraceAxisVector,
+    TraceCitation,
     TraceClaim,
     TraceEvidence,
     TraceKAInvocation,
     TracePersona,
     TracePolicyDecision,
+    TraceQualityDecision,
     TraceRun,
     TraceStage,
+    TraceValidator,
 )
 
 
@@ -91,6 +95,8 @@ def persist_governed_trace(
         trace = _objects(sdk_result.get("trace"))
         evidence = _objects(sdk_result.get("evidence"))
         claims = _objects(sdk_result.get("claims"))
+        citations = _objects(sdk_result.get("citations"))
+        validators = _objects(sdk_result.get("validators"))
         usage = _mapping(sdk_result.get("usage"))
 
         confidence = sdk_result.get("confidence")
@@ -132,6 +138,7 @@ def persist_governed_trace(
             or run.truthgate_decision
         )
         run.token_cost = _int(total_tokens)
+        run.refinement_cycles = _int(metadata.get("refinement_cycles"))
         if axis_vector.get("frost_layer_depth") is not None:
             run.frost_depth = _int(axis_vector.get("frost_layer_depth"))
         if axis_vector.get("truth_engine_mode"):
@@ -147,6 +154,9 @@ def persist_governed_trace(
                 "failure": sdk_result.get("failure"),
                 "provider_call_count": metadata.get("provider_call_count", 0),
                 "source_ids": metadata.get("source_ids", []),
+                "confidence_measurement": sdk_result.get("confidence_measurement"),
+                "convergence": sdk_result.get("convergence"),
+                "convergence_decisions": metadata.get("convergence_decisions", []),
                 "dmrf": {
                     "run_id": dmrf.get("run_id"),
                     "query_digest": dmrf.get("query_digest"),
@@ -211,25 +221,39 @@ def persist_governed_trace(
         validation_stage = stage_by_name.get("output_validation")
         claim_refs: dict[str, list[str]] = {}
         for claim in claims:
-            for source_id in claim.get("evidence_ids") or []:
-                claim_refs.setdefault(str(source_id), []).append(str(claim.get("claim_id") or ""))
+            for evidence_id in claim.get("evidence_ids") or []:
+                claim_refs.setdefault(str(evidence_id), []).append(str(claim.get("claim_id") or ""))
 
         active_evidence: set[uuid.UUID] = set()
+        evidence_id_map: dict[str, uuid.UUID] = {}
         evidence_hashes: list[str] = []
         for index, item in enumerate(evidence):
             source_id = str(item.get("source_id") or f"source_{index}")
-            evidence_id = _stable(run.run_id, "evidence", source_id)
+            external_evidence_id = str(item.get("evidence_id") or "")
+            evidence_id = gateway._parse_uuid_or_none(external_evidence_id) or _stable(
+                run.run_id, "evidence", f"{source_id}:{item.get('content_hash') or index}"
+            )
             active_evidence.add(evidence_id)
+            evidence_id_map[external_evidence_id or source_id] = evidence_id
             record = db.session.get(TraceEvidence, evidence_id)
             if record is None:
                 record = TraceEvidence(evidence_id=evidence_id, run_id=run.run_id)
                 db.session.add(record)
             item_metadata = _mapping(item.get("metadata"))
+            source = _mapping(item.get("source"))
             record.run_id = run.run_id
             record.source_type = str(item.get("source_type") or "unknown")
             record.source_id = source_id
             record.source_title = item.get("title")
             record.authority = str(item_metadata.get("authority", "medium"))
+            record.origin = source.get("origin")
+            record.author_publisher = source.get("author_publisher")
+            record.captured_at = gateway._parse_trace_datetime(source.get("captured_at"))
+            record.effective_at = gateway._parse_trace_datetime(source.get("effective_at"))
+            record.retrieved_at = gateway._parse_trace_datetime(item.get("retrieved_at"))
+            record.permissions = _mapping(source.get("permissions"))
+            record.transformation_chain = _objects(source.get("transformation_chain"))
+            record.embedding_revision = source.get("embedding_revision")
             record.locator = _mapping(item.get("locator"))
             record.snippet = str(item.get("text") or "")
             record.content_hash = str(item.get("content_hash") or "")
@@ -237,11 +261,13 @@ def persist_governed_trace(
                 item_metadata.get("retrieval_method") or item.get("source_type") or "unknown"
             )
             record.relevance_score = _float_or_none(item.get("score"))
-            record.used_by_claims = claim_refs.get(source_id, [])
+            record.quality_score = _float_or_none(item.get("quality_score"))
+            record.freshness_score = _float_or_none(item.get("freshness_score"))
+            record.provenance_completeness = _float_or_none(item.get("provenance_completeness"))
+            record.used_by_claims = claim_refs.get(external_evidence_id or source_id, [])
             record.used_by_personas = []
             record.used_by_stages = [str(retrieval_stage)] if retrieval_stage else []
             evidence_hashes.append(record.content_hash or "")
-        _prune(TraceEvidence, run.run_id, "evidence_id", active_evidence)
         run.evidence_pack_hash = (
             hashlib.sha256("|".join(sorted(evidence_hashes)).encode("utf-8")).hexdigest()
             if evidence_hashes
@@ -249,6 +275,7 @@ def persist_governed_trace(
         )
 
         active_claims: set[uuid.UUID] = set()
+        claim_id_map: dict[str, uuid.UUID] = {}
         answer = str(sdk_result.get("answer") or "")
         for index, item in enumerate(claims):
             external_id = str(item.get("claim_id") or f"claim_{index}")
@@ -256,21 +283,128 @@ def persist_governed_trace(
                 run.run_id, "claim", external_id
             )
             active_claims.add(claim_id)
+            claim_id_map[external_id] = claim_id
             record = db.session.get(TraceClaim, claim_id)
             if record is None:
                 record = TraceClaim(claim_id=claim_id, run_id=run.run_id, text="")
                 db.session.add(record)
             text = str(item.get("text") or "")
+            explicit_start = item.get("answer_span_start")
+            explicit_end = item.get("answer_span_end")
             start = answer.find(text) if text else -1
             record.run_id = run.run_id
             record.text = text
-            record.answer_span_start = start if start >= 0 else None
-            record.answer_span_end = start + len(text) if start >= 0 else None
+            record.answer_span_start = _int(explicit_start) if explicit_start is not None else (start if start >= 0 else None)
+            record.answer_span_end = _int(explicit_end) if explicit_end is not None else (start + len(text) if start >= 0 else None)
             record.status = str(item.get("status") or "unsupported")
             record.confidence = _float_or_none(item.get("confidence"))
-            record.evidence_ids = [str(value) for value in item.get("evidence_ids") or []]
+            record.claim_type = str(item.get("claim_type") or "factual")
+            record.evidence_ids = [
+                str(evidence_id_map[str(value)])
+                for value in item.get("evidence_ids") or []
+                if str(value) in evidence_id_map
+            ]
             record.stage_ids = [str(validation_stage)] if validation_stage else []
+            record.citation_ids = [str(value) for value in item.get("citation_ids") or []]
+        existing_claim_ids = {
+            item.claim_id for item in TraceClaim.query.filter_by(run_id=run.run_id).all()
+        }
+        for record in TraceCitation.query.filter_by(run_id=run.run_id).all():
+            db.session.delete(record)
+        for record in TraceValidator.query.filter_by(run_id=run.run_id).all():
+            db.session.delete(record)
+        for link in ClaimEvidenceLink.query.filter(
+            ClaimEvidenceLink.claim_id.in_(existing_claim_ids or {uuid.UUID(int=0)})
+        ).all():
+            db.session.delete(link)
+        db.session.flush()
         _prune(TraceClaim, run.run_id, "claim_id", active_claims)
+        for item in claims:
+            claim_id = claim_id_map.get(str(item.get("claim_id") or ""))
+            if claim_id is None:
+                continue
+            for link in _objects(item.get("evidence_links")):
+                evidence_id = evidence_id_map.get(str(link.get("evidence_id") or ""))
+                if evidence_id is None:
+                    continue
+                db.session.add(
+                    ClaimEvidenceLink(
+                        claim_id=claim_id,
+                        evidence_id=evidence_id,
+                        confidence=_float_or_none(link.get("score")),
+                        relationship=str(link.get("relationship") or "insufficient"),
+                        rationale=link.get("rationale"),
+                        validator_id=link.get("validator_id"),
+                    )
+                )
+
+        active_citations: set[str] = set()
+        for index, item in enumerate(citations):
+            external_id = str(item.get("citation_id") or f"citation_{index}")
+            evidence_id = evidence_id_map.get(str(item.get("evidence_id") or ""))
+            if evidence_id is None:
+                continue
+            citation_id = f"{run.run_id}:{external_id}"
+            active_citations.add(citation_id)
+            record = db.session.get(TraceCitation, citation_id)
+            if record is None:
+                record = TraceCitation(citation_id=citation_id, run_id=run.run_id)
+                db.session.add(record)
+            record.run_id = run.run_id
+            record.claim_id = claim_id_map.get(str(item.get("claim_id") or ""))
+            record.evidence_id = evidence_id
+            record.source_id = str(item.get("source_id") or "")
+            record.label = str(item.get("label") or "")
+            record.answer_span_start = item.get("answer_span_start")
+            record.answer_span_end = item.get("answer_span_end")
+        _prune(TraceCitation, run.run_id, "citation_id", active_citations)
+
+        active_validators: set[str] = set()
+        for index, item in enumerate(validators):
+            external_id = str(item.get("validator_id") or f"validator_{index}")
+            validator_id = f"{run.run_id}:{external_id}"
+            active_validators.add(validator_id)
+            record = db.session.get(TraceValidator, validator_id)
+            if record is None:
+                record = TraceValidator(validator_id=validator_id, run_id=run.run_id)
+                db.session.add(record)
+            record.run_id = run.run_id
+            record.claim_id = claim_id_map.get(str(item.get("claim_id") or ""))
+            record.validator_type = str(item.get("validator_type") or "unknown")
+            record.version = str(item.get("version") or "unknown")
+            record.status = str(item.get("status") or "not_measured")
+            record.inputs = _mapping(item.get("inputs"))
+            record.outputs = _mapping(item.get("outputs"))
+            record.missing_inputs = [str(value) for value in item.get("missing_inputs") or []]
+            record.duration_ms = item.get("duration_ms")
+        _prune(TraceValidator, run.run_id, "validator_id", active_validators)
+
+        quality_rows: list[tuple[str, dict[str, Any]]] = []
+        confidence_measurement = _mapping(sdk_result.get("confidence_measurement"))
+        if confidence_measurement:
+            quality_rows.append(("confidence", confidence_measurement))
+        for item in _objects(metadata.get("convergence_decisions")):
+            quality_rows.append(("convergence", item))
+        active_quality: set[uuid.UUID] = set()
+        for index, (decision_type, item) in enumerate(quality_rows):
+            decision_id = _stable(run.run_id, "quality", f"{decision_type}:{index}")
+            active_quality.add(decision_id)
+            record = db.session.get(TraceQualityDecision, decision_id)
+            if record is None:
+                record = TraceQualityDecision(decision_id=decision_id, run_id=run.run_id)
+                db.session.add(record)
+            record.run_id = run.run_id
+            record.decision_type = decision_type
+            record.version = str(item.get("formula_version") or item.get("decision_version") or "unknown")
+            record.status = str(item.get("status") or item.get("action") or "not_measured")
+            record.value = _float_or_none(item.get("value"))
+            record.components = _mapping(item.get("components")) or item
+            record.missing_inputs = item.get("missing_components") or []
+            record.rationale = item.get("explanation") or item.get("reason")
+            record.iteration = item.get("iteration")
+            record.terminal = item.get("terminal")
+        _prune(TraceQualityDecision, run.run_id, "decision_id", active_quality)
+        _prune(TraceEvidence, run.run_id, "evidence_id", active_evidence)
 
         dsqp = _mapping(metadata.get("dsqp"))
         profiles = _mapping(dsqp.get("profiles"))

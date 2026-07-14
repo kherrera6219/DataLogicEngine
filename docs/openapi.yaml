@@ -122,13 +122,16 @@ components:
                 type: string
         run_ukg_pipeline:
           type: boolean
-          default: false
+          default: true
+          description: Deprecated compatibility flag. False does not bypass governance.
         mode:
           type: string
           enum:
             - standard
-            - ukg
-          default: ukg
+            - enhanced
+            - local_review
+            - simulation
+          default: standard
         provider:
           type: string
           enum:
@@ -156,6 +159,70 @@ components:
         model_used:
           type: string
           nullable: true
+        contract_version:
+          type: string
+          example: governed.v1
+        status:
+          type: string
+          enum: [completed, abstained, policy_block, validation_failure, provider_failure, cancelled, internal_failure, capability_unavailable]
+        confidence_score:
+          type: number
+          format: float
+          nullable: true
+          description: Versioned evidence-support coverage, not correctness probability.
+        confidence_measurement:
+          type: object
+          nullable: true
+          properties:
+            formula_version:
+              type: string
+              example: dle-confidence.v1
+            value:
+              type: number
+              format: float
+              nullable: true
+            status:
+              type: string
+              enum: [measured, not_measured]
+            components:
+              type: object
+              additionalProperties:
+                type: number
+                nullable: true
+            missing_components:
+              type: array
+              items:
+                type: string
+            explanation:
+              type: string
+        convergence:
+          type: object
+          nullable: true
+          properties:
+            decision_version:
+              type: string
+              example: dle-convergence.v1
+            action:
+              type: string
+              enum: [finalize, refine, abstain, block]
+            terminal:
+              type: boolean
+        claims:
+          type: array
+          items:
+            type: object
+        citations:
+          type: array
+          items:
+            type: object
+        validators:
+          type: array
+          items:
+            type: object
+        source_ids:
+          type: array
+          items:
+            type: string
       additionalProperties: true
     AISettings:
       type: object

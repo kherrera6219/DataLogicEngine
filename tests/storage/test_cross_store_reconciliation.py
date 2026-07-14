@@ -21,7 +21,7 @@ from backend.storage.data_contracts import (
 def test_every_sqlalchemy_entity_has_one_postgresql_identity_contract():
     live_tables = set(models.db.metadata.tables)
 
-    assert len(live_tables) == 67
+    assert len(live_tables) == 70
     assert set(POSTGRES_ENTITY_KEYS) == live_tables
     assert validate_contract_registry(live_tables) == []
 
@@ -98,7 +98,7 @@ def test_contract_manifest_is_deterministic_and_machine_readable():
 
     assert first == second
     assert first["schema_version"] == DATA_CONTRACT_SCHEMA_VERSION
-    assert first["postgresql_entity_count"] == 67
+    assert first["postgresql_entity_count"] == 70
     assert first["validation_errors"] == []
     assert first["release_constraints"]["object_store_architecture"] == "minio"
     assert first["release_constraints"]["seaweedfs_production_selected"] is False

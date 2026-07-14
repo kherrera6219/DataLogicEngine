@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.4.0 |
+| Document version | v1.5.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,19 +18,22 @@
 
 ### Current execution checkpoint
 
-Phase 5 reached its engineering checkpoint on 2026-07-13. The transport-neutral
-`governed.v1` contract and one backend orchestrator now own the causal path from
-admission through DMRF, retrieval, deterministic DSQP, TruthCore/KA preflight,
-provider execution, validation, transactional persistence, and trace. Approved
-answer-producing callers enter that boundary or return an explicit capability
-boundary. Exact stage and causality tests pass. Phase 6 is now active.
+Phase 6 reached its engineering checkpoint on 2026-07-13. Typed sources,
+trace-bound evidence, stable claims/citations, explicit evidence relationships,
+versioned validators, `dle-confidence.v1`, and bounded convergence now execute
+and persist on the single `governed.v1` path. TruthCore publishes an exact
+preflight state/failure contract, all 125 KAs are classified, production-enabled
+KAs have semantic invariants, and experimental/placeholder execution is disabled
+by default. The local golden corpus, provider/model matrix, human rubric, and AI
+system card are versioned. Phase 7 is now active.
 
-This checkpoint is not the Phase 5 installed-production exit gate and does not
+This checkpoint is not the full Phase 6 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
 license review, final object-store decision, and real installed OpenAI/Gemini
-trace proof remain open gates that can only close against the later rebuilt
+trace proof, installed OpenAI/Google corpus results, and signed blinded human
+acceptance remain open gates that can only close against the later rebuilt
 release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -1499,6 +1502,21 @@ explicit evidence and category-appropriate validation.
 - **CP6-F - Quality evaluation:** the versioned golden corpus, automated metrics,
   human-review sample, provider/model matrix, and AI system card meet approved
   thresholds with no hidden regression.
+
+### Engineering checkpoint update - 2026-07-13
+
+CP6-A through CP6-E pass in source, database-migration, API, UI, and deterministic
+test evidence. CP6-F has the versioned repository-authored corpus, thresholds,
+automated contract checks, provider/model drift gate, human-review rubric, and AI
+system card. The deterministic local row passes. OpenAI `gpt-5.5`, Google
+`gemini-3.1-pro-preview`, the blinded sample, second-reviewer assignment, and
+owner release approval remain pending rebuilt-installed evidence. Those rows are
+quarantined and the matrix reports `release_ready=false`.
+
+This explicit installed-only deferral permits Phase 7 engineering to proceed; it
+does not satisfy the Phase 6 exit gate or change production/public release from
+**NO-GO**. Evidence is under
+`reports/production-readiness/2026/phase-06/` and `docs/evaluation/`.
 
 ### Self-checks
 
@@ -3747,14 +3765,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 4** from the committed Phase 3 engineering checkpoint. First
-publish the cross-store ownership and identifier contracts, then implement
-versioned migrations plus coordinated backup, restore, repair, and rollback for
-PostgreSQL, Redis, Neo4j, ChromaDB, and the object-store contract. Preserve the
-Phase 3 production locks and keep managed backup fail-closed until a complete,
-verified cross-store recovery set exists.
+Start **Phase 7** from the committed Phase 6 engineering checkpoint. Inventory
+the live provider factories, SDK calls, request deadlines, cancellation,
+streaming, retry/failover, cost/quota, egress/privacy, offline queue, and UI state
+before changing them. Add provider-contract and failure-first tests, then
+centralize the supported OpenAI/Google model manifest and remove unsupported
+production factories/fallbacks.
 
-Do not treat SeaweedFS as the production object store during Phase 4. Its
-qualification data may be used to exercise the S3-compatible contract, but the
-architecture remains MinIO-specific and ADR-0004 remains Proposed until every
-Replacement Control gate and final owner approval pass.
+Preserve CP5-E, CP6-F, all installed-only Phase 3/4 gates, Dependabot alert 389,
+and the SeaweedFS candidate-only Replacement Control boundary as release
+blockers. Phase 7 must not treat a provider-disabled test as live-provider proof.

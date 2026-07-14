@@ -10,15 +10,19 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
     from extensions import db
     from models import (
         TraceClaim,
+        TraceCitation,
         TraceEvidence,
         TraceKAInvocation,
         TracePersona,
         TracePolicyDecision,
+        TraceQualityDecision,
         TraceRun,
         TraceStage,
+        TraceValidator,
     )
 
     run_id = uuid.uuid4()
+    evidence_id = uuid.uuid4()
     admission_id = uuid.uuid4()
     persistence_id = uuid.uuid4()
     payload = {
@@ -59,6 +63,7 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
         ],
         "evidence": [
             {
+                "evidence_id": str(evidence_id),
                 "source_id": "source-1",
                 "citation_label": "S1",
                 "text": "Approved control text",
@@ -68,19 +73,86 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
                 "content_hash": "abc123",
                 "locator": {"page": 4},
                 "metadata": {"retrieval_method": "vector", "authority": "high"},
+                "source": {
+                    "source_id": "source-1",
+                    "source_type": "document",
+                    "origin": "owner-upload",
+                    "author_publisher": "Security Team",
+                    "captured_at": "2026-07-01T00:00:00+00:00",
+                    "permissions": {"scope": "owner"},
+                    "transformation_chain": [{"operation": "chunk", "version": "1"}],
+                    "embedding_revision": "embed-v1",
+                },
+                "retrieved_at": "2026-07-13T20:00:00+00:00",
+                "quality_score": 0.8,
+                "freshness_score": 0.5,
+                "provenance_completeness": 1.0,
             }
         ],
         "claims": [
             {
                 "claim_id": "claim-1",
                 "text": "Use the approved control [S1].",
-                "evidence_ids": ["source-1"],
+                "evidence_ids": [str(evidence_id)],
                 "status": "supported",
                 "confidence": 1.0,
+                "claim_type": "factual",
+                "evidence_links": [
+                    {
+                        "evidence_id": str(evidence_id),
+                        "source_id": "source-1",
+                        "relationship": "supports",
+                        "rationale": "Fixture support",
+                        "validator_id": "validator-1",
+                        "score": 1.0,
+                    }
+                ],
+                "citation_ids": ["citation-1"],
             }
         ],
+        "citations": [
+            {
+                "citation_id": "citation-1",
+                "label": "S1",
+                "evidence_id": str(evidence_id),
+                "source_id": "source-1",
+                "claim_id": "claim-1",
+                "answer_span_start": 25,
+                "answer_span_end": 29,
+            }
+        ],
+        "validators": [
+            {
+                "validator_id": "validator-1",
+                "validator_type": "claim_support",
+                "version": "claim-support.v1",
+                "status": "passed",
+                "claim_id": "claim-1",
+                "inputs": {"evidence_ids": [str(evidence_id)]},
+                "outputs": {"claim_status": "supported"},
+                "missing_inputs": [],
+            }
+        ],
+        "confidence_measurement": {
+            "formula_version": "dle-confidence.v1",
+            "value": 1.0,
+            "status": "measured",
+            "components": {"claim_support": 1.0},
+            "missing_components": [],
+            "explanation": "Fixture measurement",
+        },
         "metadata": {
             "provider_call_count": 1,
+            "refinement_cycles": 0,
+            "convergence_decisions": [
+                {
+                    "decision_version": "dle-convergence.v1",
+                    "action": "finalize",
+                    "reason": "claims_supported",
+                    "iteration": 0,
+                    "terminal": True,
+                }
+            ],
             "source_ids": ["source-1"],
             "dmrf": {
                 "run_id": "dmrf-1",
@@ -152,7 +224,10 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
         assert stages[0].inputs == {"request_id": "request-1"}
         assert stages[1].end_time is not None
         assert TraceEvidence.query.filter_by(run_id=run_id).one().source_id == "source-1"
-        assert TraceClaim.query.filter_by(run_id=run_id).one().evidence_ids == ["source-1"]
+        assert TraceClaim.query.filter_by(run_id=run_id).one().evidence_ids == [str(evidence_id)]
+        assert TraceCitation.query.filter_by(run_id=run_id).one().evidence_id == evidence_id
+        assert TraceValidator.query.filter_by(run_id=run_id).one().status == "passed"
+        assert TraceQualityDecision.query.filter_by(run_id=run_id).count() == 2
         assert TracePersona.query.filter_by(run_id=run_id).one().status == "completed"
         ka = TraceKAInvocation.query.filter_by(run_id=run_id).one()
         assert ka.ka_id == "KA-113"

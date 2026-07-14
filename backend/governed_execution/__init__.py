@@ -2,7 +2,11 @@
 
 from backend.governed_execution.contracts import (
     GOVERNED_CONTRACT_VERSION,
+    CitationRecord,
     ClaimRecord,
+    ConfidenceMeasurement,
+    ConvergenceDecision,
+    EvidenceLinkRecord,
     EvidenceRecord,
     GovernedContext,
     GovernedFailure,
@@ -12,11 +16,17 @@ from backend.governed_execution.contracts import (
     GovernedResult,
     GovernedStage,
     GovernedStageStatus,
+    SourceRecord,
+    ValidatorRecord,
 )
 
 __all__ = [
     "GOVERNED_CONTRACT_VERSION",
+    "CitationRecord",
     "ClaimRecord",
+    "ConfidenceMeasurement",
+    "ConvergenceDecision",
+    "EvidenceLinkRecord",
     "EvidenceRecord",
     "GovernedContext",
     "GovernedFailure",
@@ -26,4 +36,6 @@ __all__ = [
     "GovernedResult",
     "GovernedStage",
     "GovernedStageStatus",
+    "SourceRecord",
+    "ValidatorRecord",
 ]

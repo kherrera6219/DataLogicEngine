@@ -1,0 +1,47 @@
+{
+  "schema_version": "dle-provider-quality-matrix.v1",
+  "matrix_version": "2026.07.13.1",
+  "corpus_version": "2026.07.13.1",
+  "combinations": [
+    {
+      "provider": "deterministic_local",
+      "model": "none",
+      "workflow": "governed-control-plane",
+      "release_required": true,
+      "automated_status": "passed",
+      "human_review_status": "pending_blinded_sample",
+      "owner_approval": false,
+      "quarantined": false,
+      "evidence": "reports/phase06_evidence.json"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-5.5",
+      "workflow": "governed-provider-answer",
+      "release_required": true,
+      "automated_status": "pending_installed_provider_evaluation",
+      "human_review_status": "pending_blinded_sample",
+      "owner_approval": false,
+      "quarantined": true,
+      "evidence": null
+    },
+    {
+      "provider": "google",
+      "model": "gemini-3.1-pro-preview",
+      "workflow": "governed-provider-answer",
+      "release_required": true,
+      "automated_status": "pending_installed_provider_evaluation",
+      "human_review_status": "pending_blinded_sample",
+      "owner_approval": false,
+      "quarantined": true,
+      "evidence": null
+    }
+  ],
+  "release_ready": false,
+  "blockers": [
+    "rebuilt-installed OpenAI corpus evaluation not run",
+    "rebuilt-installed Google corpus evaluation not run",
+    "blinded human acceptance sample not signed",
+    "owner approval not recorded"
+  ]
+}

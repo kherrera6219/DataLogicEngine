@@ -407,9 +407,14 @@ function TraceDetailContent() {
               {trace.scores && (
                 <>
                   <div className="flex justify-between gap-3">
-                    <span className="text-gray-500">Confidence</span>
-                    <span className="font-medium">{scoreToPercent(trace.scores.confidence)}</span>
+                    <span className="text-gray-500">Evidence support</span>
+                    <span className="font-medium">
+                      {trace.scores.confidence == null ? 'Not measured' : scoreToPercent(trace.scores.confidence)}
+                    </span>
                   </div>
+                  <p className="text-xs text-gray-500">
+                    {trace.data_snapshot?.confidence_measurement?.explanation || 'No versioned evidence-support measurement is available for this run.'}
+                  </p>
                   <div className="flex justify-between gap-3">
                     <span className="text-gray-500">Bias Risk</span>
                     <span className="font-medium">{scoreToFixed(trace.scores.bias_risk)}</span>

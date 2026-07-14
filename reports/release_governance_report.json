@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-30T06:17:55.282220+00:00",
+  "generated_at": "2026-07-14T05:31:25.458318+00:00",
   "findings": [
     {
       "level": "OK",
@@ -114,7 +114,7 @@
     {
       "level": "OK",
       "scope": "release-checklist",
-      "message": "Contains required token: python scripts/verify_installer_integrity.py --require-artifacts"
+      "message": "Contains required token: .\\.venv\\Scripts\\python.exe scripts\\verify_installer_integrity.py --require-artifacts"
     },
     {
       "level": "OK",
@@ -129,12 +129,12 @@
     {
       "level": "OK",
       "scope": "release-checklist",
-      "message": "Contains required token: Metrics/alerts reviewed for first 30 minutes after rollout."
+      "message": "Contains required token: Error rates and latency reviewed for first 30 minutes after rollout."
     },
     {
       "level": "OK",
       "scope": "release-checklist",
-      "message": "Contains required token: Disaster recovery restore drill reviewed within the last 30 days."
+      "message": "Contains required token: Disaster recovery restore drill reviewed within the required window"
     }
   ],
   "summary": {

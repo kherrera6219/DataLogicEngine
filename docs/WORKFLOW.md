@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -14,9 +14,8 @@
 
 Provide a high-level workflow reference for how a request traverses DataLogicEngine reasoning layers, security controls, validation gates, memory systems, and trace/export paths.
 
-This version records the Phase 5 `governed.v1` contract and the single
-backend-owned causal execution path. Phase 6 remains responsible for the quality
-and calibration of evidence, confidence, convergence, and KA validity.
+This version records the Phase 6 evidence, validation, confidence, convergence,
+TruthCore, and KA contracts on the single backend-owned `governed.v1` path.
 
 ## Audience
 
@@ -54,7 +53,9 @@ authenticated user/client request
   -> TruthCore workflow selection + required KA preflight
   -> one policy/persona/evidence/KA-aware provider request
   -> output/claim/citation/policy validation
-  -> one transactional run/stage/evidence/claim persistence operation
+  -> dle-confidence.v1 measurement or explicit not_measured
+  -> bounded finalize/refine/abstain/block decision
+  -> one transactional run/stage/evidence/claim/citation/validator persistence operation
   -> GovernedResult with stable trace_id
 ```
 
@@ -84,7 +85,9 @@ flowchart TD
     I --> J[Construct one approved provider prompt]
     J --> K[Bounded provider execution]
     K --> L[Output, claim, citation, and policy validation]
-    L --> M[Transactional trace persistence]
+    L --> Q{Convergence decision}
+    Q -- Refine once --> K
+    Q -- Finalize or abstain or block --> M[Transactional trace persistence]
     M --> N[GovernedResult and stable trace ID]
     X --> M
     Y --> M
@@ -102,9 +105,9 @@ flowchart TD
 | Retrieval | Selects bounded, source-identified local context and rejects suspicious chunks. | `backend/governed_execution/retrieval.py` |
 | DSQP/TruthCore/KAs | Builds deterministic persona context, selects the workflow, and executes required preflight KAs. | `backend/governed_execution/orchestrator.py`, `backend/dsqp/`, `backend/truth_engine/` |
 | Prompt/provider | Builds one prompt containing approved policy, sources, personas, and KAs, then performs bounded provider execution. | `backend/governed_execution/prompt.py`, `backend/llm_gateway/` |
-| Validation | Validates provider output and current claim/citation/policy structure. Phase 6 strengthens evidence validity and calibration. | `backend/governed_execution/validation.py` |
-| Trace persistence | Stores the run and only executed stages/evidence/claims/personas/KAs/policies/axes under one trace ID. | `backend/governed_execution/trace_persistence.py`, `backend/tracing/` |
-| Result/UI | Returns explicit completed, blocked, failed, cancelled, or unavailable state; confidence is null when unmeasured. | `frontend/components/Chat/LiveTracePanel.tsx`, `frontend/lib/api/types.ts` |
+| Validation/quality | Extracts stable claims and citations, resolves persisted evidence relationships, records validators, measures named components, and selects bounded convergence. | `backend/governed_execution/validation.py`, `backend/governed_execution/quality.py` |
+| Trace persistence | Stores the run and only executed stages, sources, evidence, claims, links, citations, validators, decisions, personas, KAs, policies, and axes under one trace ID. | `backend/governed_execution/trace_persistence.py`, `backend/tracing/` |
+| Result/UI | Returns completed, abstained, blocked, failed, cancelled, or unavailable state; evidence-support coverage includes its explanation or displays Not measured. | `frontend/components/Chat/ChatTracePanel.tsx`, `frontend/app/runs/view/page.tsx` |
 
 ---
 
@@ -133,7 +136,7 @@ Possible outcomes:
 | Capability unavailable | A later-phase mode such as simulation is explicitly unavailable; no answer is fabricated. |
 | Failed | Provider, validation, or internal execution failed; later stages are absent. |
 | Cancelled | Execution stopped and no additional provider/tool calls occur. |
-| Safe fallback | Evidence, confidence, provider, or policy state did not support a final answer. |
+| Abstained | Required evidence remained insufficient or contradicted after the bounded refinement cycle. |
 | Finalized deterministic result | Request was resolved without external model/tool execution. |
 | Finalized provider-backed result | Request used LLM/tool execution and passed evidence/convergence gates. |
 | Human review recommended | High-risk/uncertain conditions require user/operator review. |

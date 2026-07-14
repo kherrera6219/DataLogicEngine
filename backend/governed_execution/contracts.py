@@ -175,6 +175,26 @@ class GovernedRequest:
 
 
 @dataclass(slots=True)
+class SourceRecord:
+    """Stable source identity and provenance independent of retrieval rank."""
+
+    source_id: str
+    source_type: str
+    origin: str | None = None
+    title: str | None = None
+    author_publisher: str | None = None
+    captured_at: str | None = None
+    effective_at: str | None = None
+    permissions: dict[str, Any] = field(default_factory=dict)
+    transformation_chain: list[dict[str, Any]] = field(default_factory=list)
+    embedding_revision: str | None = None
+    content_hash: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
 class EvidenceRecord:
     source_id: str
     citation_label: str
@@ -185,6 +205,12 @@ class EvidenceRecord:
     content_hash: str | None = None
     locator: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
+    evidence_id: str | None = None
+    source: SourceRecord | None = None
+    retrieved_at: str = field(default_factory=lambda: _now().isoformat())
+    quality_score: float | None = None
+    freshness_score: float | None = None
+    provenance_completeness: float | None = None
 
     def __post_init__(self) -> None:
         self.source_id = str(self.source_id)
@@ -192,6 +218,74 @@ class EvidenceRecord:
         self.text = str(self.text)
         if self.content_hash is None:
             self.content_hash = sha256(self.text.encode("utf-8")).hexdigest()
+        if self.source is None:
+            self.source = SourceRecord(
+                source_id=self.source_id,
+                source_type=self.source_type,
+                title=self.title,
+                content_hash=self.content_hash,
+            )
+        else:
+            self.source.source_id = self.source_id
+            self.source.source_type = self.source.source_type or self.source_type
+            self.source.content_hash = self.source.content_hash or self.content_hash
+            self.source_type = self.source.source_type
+            self.title = self.title or self.source.title
+
+    def bind_to_trace(self, trace_id: str) -> str:
+        """Assign the stable per-run evidence ID used by claim/citation rows."""
+
+        if self.evidence_id is None:
+            self.evidence_id = str(
+                uuid.uuid5(
+                    uuid.NAMESPACE_URL,
+                    f"datalogicengine:{trace_id}:evidence:{self.source_id}:{self.content_hash}",
+                )
+            )
+        return self.evidence_id
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "evidence_id": self.evidence_id,
+            "source_id": self.source_id,
+            "citation_label": self.citation_label,
+            "text": self.text,
+            "source_type": self.source_type,
+            "title": self.title,
+            "score": self.score,
+            "content_hash": self.content_hash,
+            "locator": dict(self.locator),
+            "metadata": dict(self.metadata),
+            "source": self.source.to_dict() if self.source else None,
+            "retrieved_at": self.retrieved_at,
+            "quality_score": self.quality_score,
+            "freshness_score": self.freshness_score,
+            "provenance_completeness": self.provenance_completeness,
+        }
+
+
+@dataclass(slots=True)
+class EvidenceLinkRecord:
+    evidence_id: str
+    source_id: str
+    relationship: str
+    rationale: str
+    validator_id: str
+    score: float | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class CitationRecord:
+    citation_id: str
+    label: str
+    evidence_id: str
+    source_id: str
+    claim_id: str | None = None
+    answer_span_start: int | None = None
+    answer_span_end: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -202,8 +296,70 @@ class ClaimRecord:
     claim_id: str
     text: str
     evidence_ids: list[str] = field(default_factory=list)
-    status: str = "unsupported"
+    status: str = "insufficient"
     confidence: float | None = None
+    answer_span_start: int | None = None
+    answer_span_end: int | None = None
+    claim_type: str = "factual"
+    evidence_links: list[EvidenceLinkRecord] = field(default_factory=list)
+    citation_ids: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "claim_id": self.claim_id,
+            "text": self.text,
+            "evidence_ids": list(self.evidence_ids),
+            "status": self.status,
+            "confidence": self.confidence,
+            "answer_span_start": self.answer_span_start,
+            "answer_span_end": self.answer_span_end,
+            "claim_type": self.claim_type,
+            "evidence_links": [link.to_dict() for link in self.evidence_links],
+            "citation_ids": list(self.citation_ids),
+        }
+
+
+@dataclass(slots=True)
+class ValidatorRecord:
+    validator_id: str
+    validator_type: str
+    version: str
+    status: str
+    claim_id: str | None = None
+    inputs: dict[str, Any] = field(default_factory=dict)
+    outputs: dict[str, Any] = field(default_factory=dict)
+    missing_inputs: list[str] = field(default_factory=list)
+    duration_ms: int | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class ConfidenceMeasurement:
+    formula_version: str
+    value: float | None
+    status: str
+    components: dict[str, float | None] = field(default_factory=dict)
+    weights: dict[str, float] = field(default_factory=dict)
+    missing_components: list[str] = field(default_factory=list)
+    explanation: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class ConvergenceDecision:
+    action: str
+    reason: str
+    iteration: int
+    max_iterations: int
+    terminal: bool
+    unsupported_claim_ids: list[str] = field(default_factory=list)
+    contradicted_claim_ids: list[str] = field(default_factory=list)
+    failed_validator_ids: list[str] = field(default_factory=list)
+    decision_version: str = "dle-convergence.v1"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -283,6 +439,11 @@ class GovernedContext:
     stages: list[GovernedStage] = field(default_factory=list)
     evidence: list[EvidenceRecord] = field(default_factory=list)
     claims: list[ClaimRecord] = field(default_factory=list)
+    citations: list[CitationRecord] = field(default_factory=list)
+    validators: list[ValidatorRecord] = field(default_factory=list)
+    confidence_measurement: ConfidenceMeasurement | None = None
+    convergence_decisions: list[ConvergenceDecision] = field(default_factory=list)
+    refinement_cycles: int = 0
     policy_decisions: list[dict[str, Any]] = field(default_factory=list)
     routing: dict[str, Any] = field(default_factory=dict)
     dsqp: dict[str, Any] = field(default_factory=dict)
@@ -314,6 +475,10 @@ class GovernedResult:
     stages: list[GovernedStage] = field(default_factory=list)
     evidence: list[EvidenceRecord] = field(default_factory=list)
     claims: list[ClaimRecord] = field(default_factory=list)
+    citations: list[CitationRecord] = field(default_factory=list)
+    validators: list[ValidatorRecord] = field(default_factory=list)
+    confidence_measurement: ConfidenceMeasurement | None = None
+    convergence: ConvergenceDecision | None = None
     warnings: list[str] = field(default_factory=list)
     failure: GovernedFailure | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -335,6 +500,12 @@ class GovernedResult:
             "trace": [stage.to_dict() for stage in self.stages],
             "evidence": [item.to_dict() for item in self.evidence],
             "claims": [claim.to_dict() for claim in self.claims],
+            "citations": [citation.to_dict() for citation in self.citations],
+            "validators": [validator.to_dict() for validator in self.validators],
+            "confidence_measurement": self.confidence_measurement.to_dict()
+            if self.confidence_measurement
+            else None,
+            "convergence": self.convergence.to_dict() if self.convergence else None,
             "warnings": list(self.warnings),
             "failure": self.failure.to_dict() if self.failure else None,
             "metadata": dict(self.metadata),

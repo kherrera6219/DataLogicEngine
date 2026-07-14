@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.0.0 |
+| Document version | v4.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -17,7 +17,8 @@ Define the current logical and runtime architecture of DataLogicEngine for engin
 This version reflects the current code-backed architecture: an isolated
 application factory and owned runtime, the Phase 5 `governed.v1` execution
 contract, one backend-owned causal orchestrator, app-owned data services,
-frontend trace review, and release-governed validation.
+frontend trace review, Phase 6 typed evidence-quality decisions, and
+release-governed validation.
 
 ## Audience
 
@@ -41,7 +42,7 @@ frontend trace review, and release-governed validation.
 
 ## Architecture overview
 
-### Phase 5 canonical governed-execution checkpoint
+### Phase 6 evidence-quality engineering checkpoint
 
 All approved answer-producing surfaces now enter one transport-neutral
 `GovernedRequest` and one backend-owned `GovernedExecutionOrchestrator`.
@@ -50,11 +51,22 @@ orchestrator owns admission, cancellation, DMRF/TruthGate, bounded retrieval,
 deterministic DSQP, TruthCore/KA preflight, prompt construction, bounded provider
 execution, validation, and transactional trace persistence.
 
-`LLMGateway.execute()` is the canonical gateway entry. `process()` is a thin
+`LLMGateway.execute()` remains the canonical gateway entry. `process()` is a thin
 compatibility adapter. The public TruthCore entry is also an adapter, and SDK
 0.6 is a service client rather than a second reasoning implementation.
 Simulation returns an explicit Phase 10 capability boundary after admission.
-Unmeasured confidence remains null pending the Phase 6 validity model.
+
+The Phase 6 contract adds typed `SourceRecord`, trace-bound `EvidenceRecord`,
+stable claim offsets, persisted claim/evidence relationships, citations,
+validators, `ConfidenceMeasurement`, and `ConvergenceDecision`. Retrieval
+relevance is never reused as source quality. Missing source quality/freshness or
+unmeasured validators keep the versioned evidence-support result null. Enhanced
+mode performs at most one refinement cycle, then finalizes, abstains, or blocks.
+
+TruthCore's production preflight publishes `truthcore-preflight.v1` state and
+failure transitions and can execute only production-enabled KA catalog entries.
+Experimental and placeholder KAs are disabled in governed production traces.
+Legacy hash-vector DRL output is not a production convergence signal.
 
 ### Phase 3 internal data-plane checkpoint
 
@@ -298,7 +310,7 @@ DMRFResult creation
   -> await DSQPOrchestrator.construct_all()
   -> TruthCoreDMRFAdapter.workflow_steps()
   -> EvidenceModel.score()
-  -> ConvergencePolicy.should_refine()
+  -> ConvergencePolicy.should_refine() [legacy DMRF telemetry only]
   -> TruthMemoryDMRFAdapter.persist()
   -> DMRFMLflowTracker.record()
   -> TruthLinkDMRFAdapter.publish()
@@ -306,6 +318,13 @@ DMRFResult creation
 ```
 
 Every DMRF step is recorded as a `DMRFStep` and passed through the FROST snapshot bridge. This creates a step-level trace instead of only retaining input/output pairs.
+
+The DMRF `ConvergencePolicy` result is retained as routing telemetry; it does
+not decide whether an answer is finalized. The canonical `governed.v1`
+orchestrator binds claims to persisted evidence and uses
+`backend/governed_execution/quality.py` (`dle-confidence.v1`) for the bounded
+`refine`, `finalize`, `abstain`, or `block` decision. Missing measurements stay
+`null/not_measured`, and refinement is limited to one additional provider call.
 
 In the packaged desktop runtime, enhanced chat enables DMRF by default. DMRF constructs axes 8-11 concurrently, and the SDK overlay reuses that persona chain rather than issuing a second DSQP construction pass. The gateway merges DMRF and SDK records into one run ID before persisting the final trace.
 

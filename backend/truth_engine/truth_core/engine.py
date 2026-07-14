@@ -23,11 +23,6 @@ from backend.truth_engine.truth_core.persona_scaling_bridge import (
 from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
 from backend.truth_engine.truth_core.historical_embeddings import serialize_embedding
-from backend.llm_gateway.model_defaults import (
-    ANTHROPIC_PRIMARY_MODEL,
-    GOOGLE_PRIMARY_MODEL,
-    OPENAI_LATEST_MODEL,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +45,6 @@ class TruthCoreEngine:
         'high_stakes': {'sla_seconds': 10, 'priority': 2, 'description': '12-Step Refinement Workflow'},
         'extreme': {'sla_seconds': 60, 'priority': 3, 'description': 'GNN/NN/Quantum Simulations'},
         'autonomous': {'sla_seconds': 300, 'priority': 4, 'description': 'Governed Multi-Agent'}
-    }
-    
-    ROUTING_PROFILES = {
-        'code': 'codestral',
-        'analysis': ANTHROPIC_PRIMARY_MODEL,
-        'long_context': GOOGLE_PRIMARY_MODEL,
-        'reasoning': 'grok-4-fast',
-        'default': OPENAI_LATEST_MODEL
     }
     
     REFINEMENT_STEPS = [
@@ -200,6 +187,9 @@ class TruthCoreEngine:
             selected.append(("algorithm_of_thought", "KA-001"))
 
         executed: list[Dict[str, Any]] = []
+        transitions: list[Dict[str, Any]] = [
+            {"from": "initialized", "to": "running", "reason": "contract_admitted"}
+        ]
         for step_name, ka_id in selected:
             started_at = datetime.now(UTC)
             start = time.perf_counter()
@@ -219,7 +209,7 @@ class TruthCoreEngine:
                 )
                 break
             try:
-                ka_input = {"query": query}
+                ka_input = {"query": query, "_production_workflow": True}
                 output = await asyncio.to_thread(
                     self.ka_controller.execute_algorithm,
                     ka_id,
@@ -239,6 +229,13 @@ class TruthCoreEngine:
                 if status == "failed":
                     item["error"] = str(output.get("error") or "ka_execution_failed")
                 executed.append(item)
+                transitions.append(
+                    {
+                        "from": "running",
+                        "to": "running" if status == "completed" else "failed",
+                        "reason": f"{ka_id}:{status}",
+                    }
+                )
                 if status == "failed":
                     break
             except Exception as exc:
@@ -257,11 +254,41 @@ class TruthCoreEngine:
                 )
                 break
 
+        ok = bool(executed) and all(item["status"] == "completed" for item in executed)
+        transitions.append(
+            {
+                "from": "running" if ok else "failed",
+                "to": "completed" if ok else "failed",
+                "reason": "all_selected_steps_completed" if ok else "selected_step_failed",
+            }
+        )
+        failure = None
+        if not ok:
+            failed_step = next(
+                (item for item in executed if item.get("status") == "failed"),
+                None,
+            )
+            failure = {
+                "kind": "ka_execution_failure",
+                "code": "TRUTHCORE_KA_FAILURE",
+                "step": failed_step.get("step") if failed_step else None,
+                "ka_id": failed_step.get("ka_id") if failed_step else None,
+                "message": failed_step.get("error") if failed_step else "No TruthCore step executed",
+            }
         return {
-            "ok": bool(executed) and all(item["status"] == "completed" for item in executed),
+            "contract_version": "truthcore-preflight.v1",
+            "ok": ok,
+            "state": "completed" if ok else "failed",
             "mode": mode,
+            "input_contract": {
+                "query": query,
+                "mode": mode,
+                "context_keys": sorted(context),
+            },
             "steps_executed": executed,
             "context_keys": sorted(context),
+            "state_transitions": transitions,
+            "failure": failure,
         }
 
     async def determine_tier(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:

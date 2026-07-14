@@ -129,14 +129,16 @@ def test_persona_enhancer_uses_integration_function():
 
 
 @pytest.mark.asyncio
-async def test_refinement_orchestrator_adds_drl_convergence():
+async def test_refinement_orchestrator_requires_explicit_validator_convergence():
     orchestrator = RefinementOrchestrator(ka_controller=FakeController())
     orchestrator.STEPS = []
 
     result = await orchestrator.refine({"content": "draft", "confidence": 0.4}, {"session_id": "s1"})
 
-    assert result["drl_convergence"]["threshold_met"] is True
-    assert result["final_confidence"] >= orchestrator.target_confidence
+    assert result["drl_convergence"]["action"] == "abstain"
+    assert result["drl_convergence"]["support_ratio"] is None
+    assert result["drl_convergence"]["missing_inputs"] == ["validator_results"]
+    assert result["final_confidence"] == 0.4
 
 
 def test_dynamic_weights_and_ka038_are_json_serializable():

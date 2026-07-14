@@ -143,6 +143,27 @@ class _Gateway:
         return None
 
 
+class _RefinementGateway(_Gateway):
+    def __init__(self, *, refinement_ok=True, converges=True):
+        super().__init__()
+        self.refinement_ok = refinement_ok
+        self.converges = converges
+
+    async def _direct_llm_call(self, provider, model, messages, temperature, max_tokens):
+        self.provider_calls += 1
+        self.provider_messages.append(messages)
+        if self.provider_calls == 2 and not self.refinement_ok:
+            return {"ok": False, "error": "refinement provider unavailable", "retryable": False}
+        answer = "Completely unrelated assertion [S1]"
+        if self.provider_calls == 2 and self.converges:
+            answer = "alpha evidence [S1]"
+        return {
+            "ok": True,
+            "answer": answer,
+            "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+        }
+
+
 class _DMRFResult:
     def __init__(self, *, ok: bool = True):
         self.ok = ok
@@ -295,8 +316,11 @@ async def test_changing_retrieved_evidence_changes_final_result(monkeypatch):
     second = await _orchestrator(_Gateway()).execute(_request())
 
     assert first.answer != second.answer
-    assert first.claims[0].evidence_ids == ["source-1"]
-    assert second.claims[0].evidence_ids == ["source-1"]
+    assert first.claims[0].evidence_ids == [first.evidence[0].evidence_id]
+    assert second.claims[0].evidence_ids == [second.evidence[0].evidence_id]
+    assert first.evidence[0].source_id == "source-1"
+    assert second.evidence[0].source_id == "source-1"
+    assert first.evidence[0].evidence_id != second.evidence[0].evidence_id
 
 
 @pytest.mark.asyncio
@@ -328,6 +352,67 @@ async def test_provider_failure_has_no_validation_stage(monkeypatch):
     names = [stage.name for stage in result.stages]
     assert "output_validation" not in names
     assert result.stages[names.index("provider_execution")].status.value == "failed"
+
+
+@pytest.mark.asyncio
+async def test_enhanced_refinement_converges_once_and_terminates(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
+            [],
+        ),
+    )
+    gateway = _RefinementGateway()
+    result = await _orchestrator(gateway).execute(_request())
+
+    assert result.status == "completed"
+    assert result.convergence.action == "finalize"
+    assert gateway.provider_calls == 2
+    assert [stage.name for stage in result.stages].count("refinement_1") == 1
+
+
+@pytest.mark.asyncio
+async def test_repeated_nonconvergence_abstains_at_one_cycle(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
+            [],
+        ),
+    )
+    gateway = _RefinementGateway(converges=False)
+    result = await _orchestrator(gateway).execute(_request())
+
+    assert result.status == "abstained"
+    assert result.convergence.action == "abstain"
+    assert gateway.provider_calls == 2
+
+
+@pytest.mark.asyncio
+async def test_refinement_provider_failure_is_terminal(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
+            [],
+        ),
+    )
+    gateway = _RefinementGateway(refinement_ok=False)
+    result = await _orchestrator(gateway).execute(_request())
+
+    assert result.ok is False
+    assert result.failure.code == "PROVIDER_REFINEMENT_FAILURE"
+    assert gateway.provider_calls == 2
 
 
 @pytest.mark.asyncio

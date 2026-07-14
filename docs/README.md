@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.18.0 |
+| Document version | v2.19.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,9 +21,10 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 5 engineering complete for CP5-A
-through CP5-D, with installed-provider CP5-E deferred; Phase 6 evidence,
-confidence, convergence, TruthCore, and KA validity is active.
+The current execution checkpoint is Phase 6 engineering complete for CP6-A
+through CP6-E, with live provider/model evaluation and blinded human acceptance
+under CP6-F deferred to the rebuilt installed candidate. Phase 7 provider
+execution, latency, privacy, streaming, and offline behavior is active.
 Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
@@ -76,6 +77,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/DATA_FLOW_DIAGRAMS.md` | Data flows across DMRF, Truth Engine, storage, privacy, export, providers, MCP. |
 | `docs/DECISION_LOGIC.md` | Major decision points and implementation paths. |
 | `docs/DATABASE_SCHEMA.md` | Multi-store data and memory architecture. |
+| `docs/KNOWLEDGE_ALGORITHM_CATALOG.md` | Production classification, guarantees, limitations, and enablement policy for all registered KAs. |
 | `docs/MIGRATION_SUPPORT_MATRIX.md` | Per-store versions, startup migration policy, and supported-upgrade status. |
 | `docs/DATA_CLASSIFICATION_REGISTER.md` | Sensitivity, location, protection, and retention register. |
 | `docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md` | Protected-volume, DPAPI, portable-backup, and key-recovery standard. |
@@ -113,6 +115,9 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/OPERATIONAL_RUNBOOKS.md` | Operational and incident runbooks. |
 | `docs/RELEASE_CHECKLIST.md` | Release evidence and approval checklist. |
 | `docs/PRODUCTION_READINESS.md` | Readiness scorecard, current caveats, release posture. |
+| `docs/evaluation/QUALITY_EVALUATION.md` | Versioned Phase 6 corpus, metrics, thresholds, and provider/model evaluation contract. |
+| `docs/evaluation/HUMAN_REVIEW_RUBRIC.md` | Blinded human-review and disagreement-resolution procedure. |
+| `docs/evaluation/AI_SYSTEM_CARD.md` | Intended use, dependencies, evaluation limits, oversight, and known failure modes. |
 | `PRODUCTION_COMPLETION_PLAN_2026.md` (repository root) | Canonical 19-phase program for completing the local-first Windows governed LLM middleware/API gateway, production desktop control/administration/audit/validation application, full app-owned PostgreSQL/Redis/Neo4j/ChromaDB/MinIO data plane, qualification, production-documentation replacement, professional/Microsoft review dossier, consolidation, and signed release. |
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
 | `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` | Packaged enhanced-chat, DMRF/DSQP, provider-routing, persistence, and Trace Explorer QC. |
@@ -121,6 +126,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `reports/ci_repair_2026-07-11.md` | Root-cause analysis and validation for the dependency-resolution and Windows packaging CI repair. |
 | `reports/code_scanning_alerts_2026-07-08.md` | CodeQL exception-disclosure source analysis, remediation, and regression evidence. |
 | `reports/production-readiness/2026/phase-05/summary.md` | Phase 5 contract, causality, single-path, trace-truth, validation, risk, and deferred installed-proof evidence. |
+| `reports/production-readiness/2026/phase-06/summary.md` | Phase 6 evidence, confidence, convergence, TruthCore, KA, and evaluation checkpoint evidence. |
 
 ### Documentation governance
 

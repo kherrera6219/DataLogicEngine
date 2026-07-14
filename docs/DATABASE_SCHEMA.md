@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.3.0 |
+| Document version | v3.4.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -17,6 +17,12 @@
 Define the current data architecture for DataLogicEngine across SQL models, graph storage, vector storage, object storage, runtime cache/queue, USKD memory graph, UnifiedMemory, TruthMemory, and trace/export evidence.
 
 This document replaces the older PostgreSQL-only framing with the current multi-store architecture.
+
+Phase 6 adds source provenance and measured quality columns to `trace_evidence`,
+claim type/citation identifiers to `trace_claims`, explicit relationship and
+validator identity to `claim_evidence_links`, and the new `trace_citations`,
+`trace_validators`, and `trace_quality_decisions` tables. Alembic head
+`c2d3e4f5a6b7` is authoritative.
 
 ## Audience
 
@@ -72,7 +78,7 @@ those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
 `deliverables`, `graphs`, `evaluation-data`, and `trace-exports`. The generated
-Phase 4 registry assigns one authority to 67 PostgreSQL entities and 28 logical
+The authority registry assigns one authority to 70 PostgreSQL entities and 28 logical
 data classes. PostgreSQL is the logical authority for graph nodes/relationships
 and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
 materializations. MinIO remains authoritative for declared artifact classes.

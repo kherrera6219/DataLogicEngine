@@ -40,7 +40,15 @@ class KA061AdversarialInputShield(KnowledgeAlgorithm):
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     loaded = json.load(f) or {}
-                    return {**self._default_config(), **loaded}
+                    defaults = self._default_config()
+                    configured_patterns = loaded.get("block_patterns") or []
+                    return {
+                        **defaults,
+                        **loaded,
+                        "block_patterns": list(
+                            dict.fromkeys(defaults["block_patterns"] + configured_patterns)
+                        ),
+                    }
             return self._default_config()
         except Exception:
             return self._default_config()

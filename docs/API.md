@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.0.0 |
+| Document version | v4.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -14,8 +14,8 @@
 
 Provide source-of-truth API contract guidance for DataLogicEngine REST
 endpoints. This version records the Phase 5 `governed.v1` answer contract, one
-backend-owned causal orchestrator, explicit result/failure state, and stable
-trace identity.
+backend-owned causal orchestrator, Phase 6 evidence-quality records, explicit
+result/failure state, and stable trace identity.
 
 ## Audience
 
@@ -298,16 +298,32 @@ Primary prefix: `/api/v1/gateway`.
         "trace_summary": [],
         "source_ids": [],
         "claims": [],
+        "citations": [],
+        "validators": [],
         "confidence_score": null,
+        "confidence_measurement": {
+          "formula_version": "dle-confidence.v1",
+          "value": null,
+          "status": "not_measured",
+          "components": {},
+          "missing_components": ["source_quality"],
+          "explanation": "Required evidence-quality inputs were unavailable."
+        },
+        "convergence": {
+          "decision_version": "dle-convergence.v1",
+          "action": "finalize",
+          "terminal": true
+        },
         "warnings": [],
         "failure": null
       },
       "timestamp": "2026-07-13T00:00:00+00:00"
     }
     ```
-    `confidence_score` is null unless a versioned measurement exists. Phase 6
-    owns the evidence-quality and confidence formulas; clients must not replace
-    null with a display default.
+    `confidence_score` is evidence-support coverage, not correctness
+    probability. It is null unless every named `dle-confidence.v1` component is
+    measured. Clients must display `confidence_measurement.explanation` and must
+    not replace null with a default.
   - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
     ```json
     {
@@ -507,6 +523,10 @@ Legacy alias: `/api/ka` with deprecation headers.
 
 - **POST** `/algorithms/<ka_id>/execute`
   - Run a specific Knowledge Algorithm.
+  - Experimental, presentation-only, and placeholder entries return
+    `409 KA_NONPRODUCTION_OPT_IN_REQUIRED` unless the owner explicitly sends
+    top-level `allow_nonproduction: true`. They cannot serve as governed
+    production validators.
   - Preferred body:
     ```json
     {

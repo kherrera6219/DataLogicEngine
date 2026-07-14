@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from backend.governed_execution.contracts import GovernedContext
+from backend.governed_execution.contracts import ConvergenceDecision, GovernedContext
 
 
 def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
@@ -69,6 +69,34 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
                 output[index]["content"] = parts
             break
     return output
+
+
+def build_refinement_messages(
+    context: GovernedContext,
+    prior_answer: str,
+    decision: ConvergenceDecision,
+) -> list[dict[str, Any]]:
+    """Build one bounded retry that names the measured support defects."""
+
+    messages = build_provider_messages(context)
+    messages.extend(
+        [
+            {"role": "assistant", "content": prior_answer},
+            {
+                "role": "user",
+                "content": (
+                    "Revise the answer once. Remove or qualify claims that cannot be supported "
+                    "by the supplied evidence, resolve contradictions, and use only known citation "
+                    "labels. Unsupported claim IDs: "
+                    + ", ".join(decision.unsupported_claim_ids or ["none"])
+                    + ". Contradicted claim IDs: "
+                    + ", ".join(decision.contradicted_claim_ids or ["none"])
+                    + "."
+                ),
+            },
+        ]
+    )
+    return messages
 
 
 def _persona_summary(dsqp: dict[str, Any]) -> dict[str, Any]:

@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 6 evidence and quality engineering checkpoint**: added trace-bound
+  typed source, evidence, claim, citation, validator, confidence, and convergence
+  records; persisted claim/evidence causality; a strict versioned
+  `dle-confidence.v1` formula; bounded refine/finalize/abstain/block behavior;
+  and truthful `not_measured` UI/API states.
+- **Governed KA production catalogue**: classified all 125 registered Knowledge
+  Algorithms, disabled research/placeholder entries from production workflows by
+  default, and added semantic, repeatability, metadata, and performance gates for
+  every production-enabled algorithm.
+- **Versioned AI evaluation baseline**: added a license-declared local golden
+  corpus, release metrics and thresholds, provider/model drift quarantine,
+  blinded human-review rubric, provider matrix, and AI system card. Installed
+  OpenAI/Google and human-acceptance rows remain pending release evidence.
 - **Phase 5 canonical governed execution**: introduced the transport-neutral
   `governed.v1` request/context/result/failure contract and one backend-owned
   orchestrator for admission, DMRF policy, bounded retrieval, deterministic
@@ -18,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   blocked, failed, cancelled, and capability-unavailable runs.
 - **SDK 0.6 service boundary**: published wheel and source distributions for a
   thin HTTP/service SDK that does not duplicate backend orchestration.
-- **Phase 4 data-lifecycle engineering checkpoint**: added a generated 67-entity/28-contract ownership registry, transactional cross-store outbox and reconciliation state, fail-closed per-store startup migration coordinator, encrypted signed six-component backup, offline isolated clean-root restore with atomic activation/rollback, retention/deletion tombstones, uninstall dispositions, and a Windows volume/ACL plus DPAPI/AES-256-GCM protection standard.
+- **Phase 4 data-lifecycle engineering checkpoint**: added a generated 67-entity/28-contract ownership registry (extended to 70 entities by the Phase 6 trace-quality schema), transactional cross-store outbox and reconciliation state, fail-closed per-store startup migration coordinator, encrypted signed six-component backup, offline isolated clean-root restore with atomic activation/rollback, retention/deletion tombstones, uninstall dispositions, and a Windows volume/ACL plus DPAPI/AES-256-GCM protection standard.
 - **Populated recovery evidence**: a live five-service drill recovered PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, retained JSON, and pending outbox state with exact object-hash parity and prior-root preservation, then passed deletion across PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, JSON, and logs.
 - **Phase 3 internal data-plane engineering checkpoint**: added a per-install, digest-pinned rootless Podman profile for PostgreSQL, Redis, Neo4j, ChromaDB, and a candidate-only S3 service; protected service credentials; verified container identity; loopback-only endpoints; resource/security limits; supervisor lifecycle integration; and a live qualification gate covering real operations, restart durability, truthful status, and cleanup.
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.

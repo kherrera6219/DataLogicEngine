@@ -23,8 +23,34 @@ vi.mock('@/hooks/useTraceStream', () => ({
 const mockTraceBundle: TraceBundle = {
   run_id: 'test-run-123',
   status: 'completed',
+  run: {
+    run_id: 'test-run-123',
+    status: 'completed',
+    created_at: null,
+    data_snapshot: {
+      confidence_measurement: {
+        formula_version: 'dle-confidence.v1',
+        value: null,
+        status: 'not_measured',
+        explanation: 'Required provenance inputs were unavailable.',
+      },
+    },
+  },
+  frost_layers: [],
   stages: [],
-  metrics: { duration_ms: 1000, token_count: 100 },
+  evidence_sources: [],
+  evidence: [],
+  claims: [],
+  persona_positions: [],
+  personas: [],
+  ka_invocations: [],
+  kas: [],
+  coordinate: null,
+  axes: null,
+  policy_decisions: [],
+  memory_events: [],
+  metrics: { total_duration_ms: 1000, confidence: null },
+  export_url: '/api/v1/trace/runs/test-run-123/export',
 };
 
 describe('ChatTracePanel', () => {
@@ -54,6 +80,8 @@ describe('ChatTracePanel', () => {
     await waitFor(() => {
       expect(mockGetBundle).toHaveBeenCalledWith('test-run-123');
     });
+    expect(screen.getByText('Not measured')).toBeInTheDocument();
+    expect(screen.getByText(/Required provenance inputs were unavailable/)).toBeInTheDocument();
   });
 
   it('should handle error loading bundle', async () => {

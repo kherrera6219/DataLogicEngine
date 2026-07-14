@@ -1,0 +1,17 @@
+{
+  "schema_version": "dle-phase-evidence.v1",
+  "phase": 6,
+  "date": "2026-07-13",
+  "corpus_version": "2026.07.13.1",
+  "confidence_formula": "dle-confidence.v1",
+  "deterministic_control_plane": {
+    "status": "passed",
+    "focused_tests_passed": 46,
+    "full_backend_tests_passed": 1915,
+    "full_backend_tests_skipped": 18
+  },
+  "installed_provider_evaluation": "deferred_release_blocker",
+  "blinded_human_review": "deferred_release_blocker",
+  "release_ready": false,
+  "release_verdict": "NO-GO"
+}

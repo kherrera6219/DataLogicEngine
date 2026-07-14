@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.4.0 |
-| Completed phase | Phase 5 engineering checkpoint - Canonical governed reasoning path |
-| Next phase | Phase 6 - Evidence, confidence, convergence, TruthCore, and KA validity |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.5.0 |
+| Completed phase | Phase 6 engineering checkpoint - Evidence, confidence, convergence, TruthCore, and KA validity |
+| Next phase | Phase 7 - Provider execution, latency, privacy, streaming, and offline behavior |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -52,7 +52,7 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Phase 4 reached its engineering checkpoint on 2026-07-13. Evidence is under
   `reports/production-readiness/2026/phase-04/`; installed-release gates are
   retained rather than misreported as passed.
-- The ownership registry covers 67 PostgreSQL entities and 28 logical data
+- The ownership registry covers 70 PostgreSQL entities and 28 logical data
   classes with one authority each. PostgreSQL-authoritative graph/vector
   materializations and required MinIO artifact writes use a durable, retryable
   outbox without changing object authority.
@@ -88,6 +88,22 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Final Phase 5 validation reports 1,895 backend tests (18 skipped), 402
   frontend tests, and 25 SDK tests passed, plus production frontend/Electron,
   route, migration, source-quality, schema, lockfile, secret, and error gates.
+- Phase 6 CP6-A through CP6-E passed on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-06/`; CP6-F installed provider/human
+  acceptance remains deferred and release-blocking.
+- The canonical path now uses typed source provenance, trace-bound evidence,
+  stable claim/citation offsets, persisted relationship/validator records,
+  `dle-confidence.v1`, explicit Not measured state, and one-cycle bounded
+  finalize/refine/abstain/block convergence.
+- TruthCore publishes `truthcore-preflight.v1`; stale product-specific routing
+  and hash-vector convergence were removed from the production contract.
+- All 125 KAs have production classifications and category contracts. Only
+  deterministic, semantically tested KAs are production enabled; experimental
+  and placeholder execution requires explicit owner opt-in and cannot appear as
+  a governed production validator.
+- Golden corpus `2026.07.13.1`, automated thresholds, provider/model drift gate,
+  human rubric, and AI system card are versioned. Deterministic local checks
+  pass; OpenAI, Google, blinded review, and owner approval remain pending.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -110,7 +126,7 @@ execution, validation, persistence, trace, and result.
 - [x] Keep installed Gemini/OpenAI proof as a later installed release gate when
       provider credentials and the rebuilt application are available.
 
-## Phase 6 objective
+## Phase 6 objective - engineering checkpoint complete
 
 Replace plausible defaults, templates, and synthetic governance metrics with
 typed provenance, category-valid evidence and validators, calibrated confidence,
@@ -118,17 +134,41 @@ explicit insufficiency, and executable TruthCore/KA records.
 
 ## Phase 6 work packages
 
-- [ ] Inventory all source, evidence, claim, citation, validator, confidence,
+- [x] Inventory all source, evidence, claim, citation, validator, confidence,
       convergence, TruthCore, and KA shapes and default values.
-- [ ] Define stable source identity, provenance, permissions, transformation,
+- [x] Define stable source identity, provenance, permissions, transformation,
       claim-offset, citation, and validator contracts.
-- [ ] Define category-specific evidence sufficiency and contradiction rules.
-- [ ] Replace default confidence/convergence with versioned measured formulas,
-      calibration evidence, and explicit unavailable state.
-- [ ] Persist validator and KA inputs, outputs, status, duration, version, and
+- [x] Define category-specific evidence sufficiency and contradiction rules.
+- [x] Replace default confidence/convergence with a versioned measured formula,
+      local calibration baseline, and explicit unavailable state. Installed
+      provider calibration remains in CP6-F.
+- [x] Persist validator and KA inputs, outputs, status, duration, version, and
       causal relationship to the final decision.
-- [ ] Prove unsupported/high-stakes claims fail safely and trace only measured
+- [x] Prove unsupported/high-stakes claims fail safely and trace only measured
       evidence and executed validation.
+
+## Phase 7 objective
+
+Make supported OpenAI and Google calls bounded, cancelable, observable,
+privacy-aware, and truthfully represented across synchronous, streaming, and
+offline behavior.
+
+## Phase 7 work packages
+
+- [ ] Inventory provider/model factories, SDK call types, request-wide timeout
+      gaps, retries/failover, cancellation, streaming, usage/cost, egress,
+      offline queue/replay, and UI states.
+- [ ] Generate one supported OpenAI/Google provider/model capability manifest
+      for Python, TypeScript, tests, and docs.
+- [ ] Remove unknown-provider fallback and unsupported production factories and
+      probes; retain only explicit archived/disabled compatibility evidence.
+- [ ] Enforce one request-wide deadline and cancellation path through retrieval,
+      provider execution, validation, persistence, and refinement.
+- [ ] Implement truthful streaming, retry/failover, quota/cost, privacy/egress,
+      and offline/replay contracts with failure-first tests.
+- [ ] Preserve separate installed corpus approval for every supported
+      provider/model combination; provider-disabled checks cannot approve live
+      paths.
 
 ## Phase 3 deferred release gates
 
@@ -144,7 +184,7 @@ explicit insufficiency, and executable TruthCore/KA records.
 
 | Checkpoint | Required result | Status |
 |---|---|---|
-| CP4-A | Every entity has one authority and documented materializations | Passed; 67 physical entities and 28 logical contracts, zero registry errors |
+| CP4-A | Every entity has one authority and documented materializations | Passed; 70 physical entities and 28 logical contracts, zero registry errors |
 | CP4-B | Every supported prior release upgrades without loss | Fresh/current migrations passed; populated 0.1.1 retained-data upgrade deferred |
 | CP4-C | Installed populated coordinated backup passes | Current populated five-service engineering backup passed; signed installed proof deferred |
 | CP4-D | Clean-machine restore reproduces all state | Isolated clean-root engineering restore passed; signed clean-machine proof deferred |
@@ -157,6 +197,12 @@ explicit insufficiency, and executable TruthCore/KA records.
 |---|---|---|
 | CP5-E | Installed built-in chat and external boundary complete real Gemini and OpenAI runs with resolvable traces | Source/engineering path passed; rebuilt installed proof deferred and release-blocking |
 
+## Phase 6 deferred release gate
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP6-F | Every supported provider/model plus deterministic workflow passes the versioned corpus and signed blinded human sample | Deterministic contract row passed; OpenAI/Google installed evaluations, second reviewer, blinded sample, and owner approval deferred and release-blocking |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -167,8 +213,8 @@ explicit insufficiency, and executable TruthCore/KA records.
 | 3 | Full internal service delivery and supervision | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
 | 4 | Data contracts, migrations, backup, and recovery | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
 | 5 | Canonical governed reasoning path | **Engineering checkpoint complete 2026-07-13; installed CP5-E retained** |
-| 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Active** |
-| 7 | Provider execution, latency, privacy, streaming, and offline behavior | Blocked by prior phases |
+| 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Engineering checkpoint complete 2026-07-13; installed CP6-F retained** |
+| 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Active** |
 | 8 | External API Gateway and LLM middleware productization | Blocked by prior phases |
 | 9 | Ingestion, retrieval, graph, and memory completion | Blocked by prior phases |
 | 10 | Simulation completion | Blocked by prior phases |
@@ -197,8 +243,9 @@ explicit insufficiency, and executable TruthCore/KA records.
 
 ## Exact next action
 
-Begin Phase 6 with a live inventory of source/evidence/claim/citation/validator,
-confidence/convergence, TruthCore, and KA contracts and every remaining default
-or synthetic metric. Add category-specific failure tests before replacement.
-Preserve the Phase 5 single orchestrator, deferred CP5-E, all Phase 3/4 installed
-release gates, and the SeaweedFS candidate-only boundary.
+Begin Phase 7 with a live inventory of supported/legacy provider factories,
+model defaults, SDK calls, deadlines, retries, cancellation, streaming, cost and
+quota accounting, privacy/egress, offline queue/replay, and UI state. Add
+failure-first provider contract tests before consolidating the OpenAI/Google
+manifest or removing unsupported paths. Preserve CP5-E, CP6-F, all Phase 3/4
+installed gates, alert 389, and the SeaweedFS candidate-only boundary.

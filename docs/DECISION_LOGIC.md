@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -15,7 +15,8 @@
 
 Capture the significant decision points in DataLogicEngine: what is evaluated, what outcomes are possible, and where the decision is implemented.
 
-This version reflects the Phase 5 `governed.v1` causal request path. Older
+This version reflects the Phase 6 evidence-quality and convergence contract on
+the Phase 5 `governed.v1` causal request path. Older
 conceptual references and private compatibility helpers are not independent
 answer-producing architectures.
 
@@ -342,17 +343,42 @@ Reject suspicious or malformed retrieval chunks
   -> include accepted evidence in the provider request
   -> validate output/claim/citation/policy shape
 
-IF a versioned confidence measurement does not exist
-  -> return confidence = null
+bind each accepted evidence item to the trace ID
+  -> derive stable evidence ID from trace + source + content hash
+  -> measure explicit provenance completeness, source quality, and freshness
+  -> leave any unavailable component null/not_measured
+
+extract stable factual claims and citation offsets
+  -> resolve citation to persisted evidence
+  -> classify relationship as supports, contradicts, or insufficient
+
+calculate dle-confidence.v1 evidence-support coverage
+  -> claim support 0.35
+  -> claim consistency 0.10
+  -> explicit source quality 0.20
+  -> provenance completeness 0.15
+  -> freshness 0.10
+  -> validator pass rate 0.10
+
+IF any named component is unavailable
+  -> return confidence = null and status = not_measured
+
+IF evidence-required claims are contradicted or insufficient
+  -> enhanced mode may refine once
+  -> then abstain at the bound
+
+IF a policy validator fails
+  -> block
 
 IF validation fails
   -> return typed validation_failure
   -> do not record completed persistence stages that never executed
 ```
 
-Phase 5 proves causality and trace truth, not the scientific validity of the
-confidence/convergence formula. Phase 6 owns provenance, category-specific
-sufficiency, contradiction, calibration, and explicit insufficiency.
+The numeric value is evidence-support coverage, not the probability that an
+answer is correct. Text length, routing/stage completion, hashes, and debate
+turns are not confidence inputs. OpenAI/Google calibration and blinded human
+acceptance remain rebuilt-installed release gates.
 
 ---
 

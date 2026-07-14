@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.4.0 |
-| Completed phase | Phase 5 engineering checkpoint - Canonical governed reasoning path |
-| Current phase | Phase 6 - Evidence, confidence, convergence, TruthCore, and KA validity |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.5.0 |
+| Completed phase | Phase 6 engineering checkpoint - Evidence, confidence, convergence, TruthCore, and KA validity |
+| Current phase | Phase 7 - Provider execution, latency, privacy, streaming, and offline behavior |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -147,7 +147,7 @@ Phase 4 reached its engineering checkpoint on 2026-07-13. Evidence is under
 
 Key results:
 
-- The versioned ownership matrix covers 67 PostgreSQL entities and 28 logical
+- The versioned ownership matrix covers 70 PostgreSQL entities and 28 logical
   data contracts with one authority and explicit materializations.
 - PostgreSQL-authoritative Neo4j/Chroma materializations and required MinIO
   artifact writes use a transactional, idempotent outbox with retries and
@@ -215,27 +215,63 @@ OpenAI and Gemini requests through the same path with resolvable persisted
 traces. No installed-provider claim was made. Production/public release remains
 **NO-GO**.
 
+## Phase 6 engineering checkpoint
+
+Phase 6 reached its engineering checkpoint on 2026-07-13. Evidence is under
+`reports/production-readiness/2026/phase-06/` and `docs/evaluation/`.
+
+Key results:
+
+- Typed sources record stable identity, content hash, origin, publisher, capture/
+  effective/retrieval time, permissions, transformation chain, and embedding
+  revision when known. Evidence IDs bind source+content to one trace.
+- Stable claim spans and citations resolve to persisted evidence with explicit
+  supports/contradicts/insufficient relationships and versioned validators.
+- `dle-confidence.v1` reports evidence-support coverage from named measured
+  components. Missing values remain null/Not measured and are explained in API
+  and trace UI; relevance is not source quality and the value is not correctness
+  probability.
+- Enhanced convergence can refine once and then must finalize, abstain, or block.
+  Repeated non-convergence and refinement-provider failure terminate safely.
+- TruthCore publishes `truthcore-preflight.v1` input/output/state/failure records.
+  Stale `codestral`/`grok-4-fast` routing and legacy hash-vector convergence are
+  outside the production contract.
+- Every one of the 125 registered KAs has category, determinism, contract,
+  evidence, semantic test, performance, documentation, guarantee, version, and
+  limitation metadata. Only semantically tested deterministic entries are
+  production enabled; experimental/placeholder entries are disabled by default.
+- Alembic head `c2d3e4f5a6b7` persists provenance, claim links, citations,
+  validators, confidence measurements, and convergence decisions.
+- Corpus `2026.07.13.1`, thresholds, provider/model drift gate, human rubric,
+  provider matrix, and AI system card are versioned.
+
+CP6-A through CP6-E pass for the engineering checkpoint. CP6-F remains an
+explicit installed-release blocker: OpenAI `gpt-5.5`, Google
+`gemini-3.1-pro-preview`, the blinded human sample, second reviewer, and owner
+release approval are pending. The provider rows remain quarantined and
+`release_ready=false`. Production/public release remains **NO-GO**.
+
 ## Current checkpoint
 
-Phase 6 is active. It must replace remaining plausible defaults and legacy
-evidence/convergence behavior with typed sources, stable claims/citations,
-category-valid validators, calibrated confidence, explicit insufficiency, and
-real KA/TruthCore execution evidence. It must preserve the Phase 5 single
-orchestrator and must not reinterpret trace presence as evidence quality.
+Phase 7 is active. It must consolidate the supported OpenAI/Google provider and
+model contract, remove unsupported production factories/fallbacks, enforce a
+request-wide deadline and cancellation, make streaming/retry/failover/offline
+behavior truthful, and account for cost/quota and privacy/egress without
+weakening the Phase 5/6 governed evidence path.
 
 ## Exact next action
 
-1. Inventory the live source, evidence, claim, citation, validator, confidence,
-   convergence, TruthCore, and KA record shapes and every remaining default or
-   synthetic metric.
-2. Define the Phase 6 typed provenance and validation contracts without changing
-   `governed.v1` caller ownership.
-3. Add category-specific deterministic tests for evidence sufficiency, unsupported
-   claims, contradiction, confidence, convergence, and high-stakes refusal.
-4. Replace defaults only after those tests expose the current behavior, then
-   persist validator inputs/outputs and surface explicit unknown/unavailable state.
-5. Keep CP5-E and all installed-only Phase 3/4 gates as release blockers until
-   the rebuilt application exists and the authorized installed tests run.
+1. Inventory supported and legacy provider factories, model constants, SDK call
+   behavior, deadlines, retries, cancellation, streaming, usage/cost, egress,
+   offline queue/replay, and UI state.
+2. Add failure-first Phase 7 provider-contract tests before changing runtime code.
+3. Generate one OpenAI/Google capability manifest and remove unsupported
+   production fallbacks/factories/probes.
+4. Implement one request-wide deadline/cancellation and truthful streaming,
+   failover, quota, privacy, and offline/replay behavior.
+5. Keep CP5-E, CP6-F, all installed-only Phase 3/4 gates, alert 389, and the
+   SeaweedFS candidate-only boundary release-blocking until the rebuilt installed
+   application can produce the authorized evidence.
 
 ## Phase rules
 

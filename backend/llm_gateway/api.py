@@ -348,6 +348,14 @@ async def gateway_chat():
                 'queue_item': queued,
             }), 202
         return jsonify({'error': 'No response generated from any provider'}), 503
+
+    confidence_measurement = getattr(response, 'confidence_measurement', None)
+    if not isinstance(confidence_measurement, dict):
+        confidence_measurement = None
+    convergence = getattr(response, 'convergence', None)
+    if not isinstance(convergence, dict):
+        convergence = None
+
     if not getattr(response, "ok", True):
         # Rate-limit errors (429 from the provider) must never be silently queued.
         # The provider is reachable and the key is valid — the request was simply
@@ -398,6 +406,8 @@ async def gateway_chat():
             'contract_version': response.contract_version,
             'status': response.status,
             'failure': response.failure,
+            'confidence_measurement': confidence_measurement,
+            'convergence': convergence,
         }), 503
 
     output_classification = None
@@ -412,6 +422,12 @@ async def gateway_chat():
     evidence_count = getattr(response, "evidence_count", 0)
     if not isinstance(evidence_count, int):
         evidence_count = 0
+    citations = getattr(response, 'citations', None)
+    if not isinstance(citations, list):
+        citations = []
+    validators = getattr(response, 'validators', None)
+    if not isinstance(validators, list):
+        validators = []
 
     return api_response({
         'response': response.content,
@@ -423,7 +439,11 @@ async def gateway_chat():
         'trace_summary': _trace_summary_for_response(response),
         'coordinates': response.coordinate,
         'confidence_score': confidence_score,
+        'confidence_measurement': confidence_measurement,
+        'convergence': convergence,
         'claims': claims,
+        'citations': citations,
+        'validators': validators,
         'evidence_count': evidence_count,
         'output_classification': output_classification,
         'warnings': response.warnings,

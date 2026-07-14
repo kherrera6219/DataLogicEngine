@@ -1,6 +1,5 @@
 import logging
 import asyncio
-import hashlib
 from typing import Dict, Any
 from datetime import datetime, UTC
 
@@ -15,7 +14,8 @@ class RefinementStep:
 class RefinementOrchestrator:
     """
     Orchestrates the 12-step refinement workflow for UKG output.
-    Ensures iterative polishing and confidence gating (target >= 99.5%).
+    Legacy bounded KA sequence. Canonical production convergence is owned by
+    ``backend.governed_execution.quality``.
     """
 
     STEPS = [
@@ -35,7 +35,6 @@ class RefinementOrchestrator:
 
     def __init__(self, ka_controller: Any):
         self.ka_controller = ka_controller
-        self.target_confidence = 0.995
 
     async def refine(self, initial_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -57,7 +56,11 @@ class RefinementOrchestrator:
                 prev_confidence = last_good_state.get('confidence', 0)
 
                 # Security Rule: If confidence drops significantly (>15%), potentially adversarial or error
-                if new_confidence < prev_confidence - 0.15:
+                if (
+                    isinstance(new_confidence, (int, float))
+                    and isinstance(prev_confidence, (int, float))
+                    and new_confidence < prev_confidence - 0.15
+                ):
                     logger.warning(f"Refinement Step {step.name} caused anomaly (conf: {prev_confidence} -> {new_confidence}). Recovering...")
                     current_response = last_good_state.copy()
                     continue
@@ -71,14 +74,14 @@ class RefinementOrchestrator:
                     "ka_id": step.ka_id,
                     "timestamp": datetime.now(UTC).isoformat(),
                     "confidence": new_confidence,
-                    "confidence_gain": new_confidence - prev_confidence
+                    "confidence_gain": (
+                        new_confidence - prev_confidence
+                        if isinstance(new_confidence, (int, float))
+                        and isinstance(prev_confidence, (int, float))
+                        else None
+                    )
                 })
                 
-                # 5. Gated Stop Conditions (Target >= 99.5%)
-                if new_confidence >= self.target_confidence and step.name not in ["Safety_Sentinel", "PII_Redaction"]:
-                    logger.info(f"Refinement target {self.target_confidence} met at step {step.name}. Proceeding to final gates.")
-                    # We continue to Safety/PII steps always
-
             except Exception as e:
                 logger.error(f"Refinement step {step.name} critical failure: {e}. Reverting to last known good state.")
                 current_response = last_good_state.copy()
@@ -88,32 +91,52 @@ class RefinementOrchestrator:
             drl_result = self._run_drl_convergence(current_response, context)
             current_response['drl_convergence'] = drl_result
             current_response['confidence_candidates'] = {
-                "refinement": float(current_response.get('confidence', 0) or 0),
-                "drl_convergence": float(drl_result.get('confidence', 0) or 0),
+                "refinement": current_response.get('confidence'),
+                "validator_support": drl_result.get('support_ratio'),
             }
-            if not self.STEPS and drl_result.get("threshold_met"):
-                current_response['confidence'] = current_response['confidence_candidates']['drl_convergence']
         except Exception as exc:
-            logger.debug("DRL convergence refinement skipped: %s", exc)
-        current_response['final_confidence'] = current_response.get('confidence', 0)
+            logger.debug("Explicit convergence evaluation skipped: %s", exc)
+        current_response['final_confidence'] = current_response.get('confidence')
         
         return current_response
 
     def _run_drl_convergence(self, current_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Run quad DeepRecursiveLearning convergence on a deterministic content vector."""
-        import numpy as np
-        from core.persona.quad.mathematical_framework import DeepRecursiveLearning
+        """Evaluate explicit validator observations; content hashes are not evidence."""
 
-        content = str(current_response.get('content', ''))
-        digest = hashlib.sha256(content.encode()).digest()
-        vector = np.array([(byte - 128) / 128.0 for byte in digest], dtype=float)
-        learner = DeepRecursiveLearning(max_depth=12, epsilon=-1.0)
-        _, iterations, confidence = learner.deep_recursive_learning(vector, context)
+        validators = [
+            item for item in context.get("validator_results", []) if isinstance(item, dict)
+        ]
+        if not validators:
+            return {
+                "decision_version": "legacy-explicit-convergence.v1",
+                "action": "abstain",
+                "terminal": True,
+                "support_ratio": None,
+                "missing_inputs": ["validator_results"],
+                "failed_validator_ids": [],
+            }
+        failed = [
+            str(item.get("validator_id") or "unknown")
+            for item in validators
+            if item.get("status") == "failed"
+        ]
+        policy_failed = any(
+            item.get("status") == "failed" and item.get("validator_type") == "policy"
+            for item in validators
+        )
+        measured = [item for item in validators if item.get("status") in {"passed", "failed"}]
+        support_ratio = (
+            sum(item.get("status") == "passed" for item in measured) / len(measured)
+            if measured
+            else None
+        )
         return {
-            "iterations": iterations,
-            "confidence": confidence,
-            "target_confidence": self.target_confidence,
-            "threshold_met": confidence >= self.target_confidence,
+            "decision_version": "legacy-explicit-convergence.v1",
+            "action": "block" if policy_failed else ("abstain" if failed else "finalize"),
+            "terminal": True,
+            "support_ratio": support_ratio,
+            "missing_inputs": [] if measured else ["measured_validator_results"],
+            "failed_validator_ids": failed,
         }
 
     async def _execute_step(self, step: RefinementStep, content: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -127,7 +150,7 @@ class RefinementOrchestrator:
                 "step_metadata": {
                     "session_id": context.get('session_id'),
                     "step_name": step.name,
-                    "target_confidence": self.target_confidence
+                    "convergence_contract": "explicit-validator-inputs"
                 }
             }
             
@@ -144,7 +167,7 @@ class RefinementOrchestrator:
             # Extract refined output. KAs should return 'refined_content' or 'response'
             refined_content = result.get('refined_content', result.get('response', content.get('content', '')))
             # Confidence should be returned by the KA based on its specific audit logic
-            new_confidence = result.get('confidence', content.get('confidence', 0.8))
+            new_confidence = result.get('confidence', content.get('confidence'))
             
             return {
                 "content": refined_content,

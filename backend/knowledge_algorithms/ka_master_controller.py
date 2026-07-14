@@ -43,10 +43,21 @@ class KAMasterController(KnowledgeAlgorithm):
                     data = yaml.safe_load(f) or {}
                     reg = data.get("ka_registry", {})
                     catalog = self._load_catalog_metadata()
-                    return {
-                        k: {"id": k, "metadata": self._build_algorithm_metadata(k, v, catalog)}
-                        for k, v in reg.items()
-                    }
+                    from backend.knowledge_algorithms.production_catalog import (
+                        load_production_catalog,
+                        validate_production_catalog,
+                    )
+
+                    production = load_production_catalog(self._registry_path)
+                    errors = validate_production_catalog(production)
+                    if errors:
+                        raise KAConfigError("Invalid KA production catalog: " + "; ".join(errors))
+                    output = {}
+                    for ka_id, implementation in reg.items():
+                        metadata = self._build_algorithm_metadata(ka_id, implementation, catalog)
+                        metadata.update(production[ka_id].to_dict())
+                        output[ka_id] = {"id": ka_id, "metadata": metadata}
+                    return output
             return {}
         except Exception as e:
             raise KAConfigError(f"Failed to load KA registry: {str(e)}")
@@ -151,6 +162,13 @@ class KAMasterController(KnowledgeAlgorithm):
         
         if norm_id not in self.algorithms:
             raise KAError(f"Algorithm {norm_id} not registered.", error_code="E404")
+        metadata = self.algorithms[norm_id]["metadata"]
+        if input_data.get("_production_workflow") and not metadata.get("production_enabled"):
+            raise KAError(
+                f"Algorithm {norm_id} is not enabled for production workflows.",
+                error_code="E403",
+                details={"classification": metadata.get("classification")},
+            )
             
         if is_async:
             task = run_ka_task.delay(norm_id, input_data)

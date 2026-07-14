@@ -73,7 +73,11 @@ class GatewayResponse:
     trace: Optional[list[dict]] = None
     explainability: Optional[dict] = None
     confidence: Optional[float] = None
+    confidence_measurement: Optional[dict[str, Any]] = None
+    convergence: Optional[dict[str, Any]] = None
     claims: list[dict[str, Any]] = field(default_factory=list)
+    citations: list[dict[str, Any]] = field(default_factory=list)
+    validators: list[dict[str, Any]] = field(default_factory=list)
     evidence_count: int = 0
     warnings: list[str] = field(default_factory=list)
     error: Optional[str] = None
@@ -493,7 +497,13 @@ class LLMGateway:
             if isinstance(governed.metadata, dict) and governed.metadata.get("validation")
             else None,
             confidence=governed.confidence,
+            confidence_measurement=governed.confidence_measurement.to_dict()
+            if governed.confidence_measurement
+            else None,
+            convergence=governed.convergence.to_dict() if governed.convergence else None,
             claims=[claim.to_dict() for claim in governed.claims],
+            citations=[citation.to_dict() for citation in governed.citations],
+            validators=[validator.to_dict() for validator in governed.validators],
             evidence_count=len(governed.evidence),
             warnings=list(governed.warnings),
             error=governed.failure.message if governed.failure else None,

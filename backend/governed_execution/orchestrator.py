@@ -19,7 +19,12 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
-from backend.governed_execution.prompt import build_provider_messages
+from backend.governed_execution.prompt import build_provider_messages, build_refinement_messages
+from backend.governed_execution.quality import (
+    calculate_confidence,
+    decide_convergence,
+    measure_evidence,
+)
 from backend.governed_execution.retrieval import retrieve_evidence
 from backend.governed_execution.validation import validate_output
 from backend.llm_gateway.latency_metrics import record_ai_request
@@ -263,6 +268,9 @@ class GovernedExecutionOrchestrator:
             context.query,
             rag_service=self.rag_service,
         )
+        for item in context.evidence:
+            item.bind_to_trace(context.trace_id)
+            measure_evidence(item)
         context.warnings.extend(retrieval_warnings)
         self._finish(
             context,
@@ -482,12 +490,44 @@ class GovernedExecutionOrchestrator:
             governance_engine=self.gateway._governance,
         )
         context.claims = validation.pop("claims")
+        context.citations = validation.pop("citations")
+        context.validators = validation.pop("validators")
+        context.confidence_measurement = calculate_confidence(
+            context.claims,
+            context.evidence,
+            context.validators,
+        )
+        max_refinements = self._bounded_int(
+            request.constraints.get("max_refinement_cycles"),
+            1 if request.mode is GovernedMode.ENHANCED else 0,
+            0,
+            1,
+        )
+        requires_evidence = bool(request.constraints.get("requires_evidence")) or (
+            request.mode is GovernedMode.ENHANCED
+            or str(dmrf_result.tier).lower() in {"high", "high_stakes", "extreme", "autonomous"}
+        )
+        convergence = decide_convergence(
+            context.claims,
+            context.validators,
+            context.confidence_measurement,
+            mode=request.mode,
+            tier=dmrf_result.tier,
+            iteration=0,
+            max_iterations=max_refinements,
+            requires_evidence=requires_evidence,
+        )
+        context.convergence_decisions.append(convergence)
         context.warnings.extend(validation.get("warnings") or [])
         self._finish(
             context,
             validation_stage,
             GovernedStageStatus.COMPLETED if validation["ok"] else GovernedStageStatus.FAILED,
-            outputs=validation,
+            outputs={
+                **validation,
+                "confidence_measurement": context.confidence_measurement.to_dict(),
+                "convergence": convergence.to_dict(),
+            },
             metrics={
                 "claim_count": len(context.claims),
                 "validation_score": validation["validation_score"],
@@ -504,23 +544,124 @@ class GovernedExecutionOrchestrator:
                 details={"checks": validation["checks"]},
             )
 
+        if convergence.action == "refine":
+            refinement_stage = self._begin(
+                context,
+                "refinement_1",
+                "refinement",
+                convergence.to_dict(),
+            )
+            context.refinement_cycles = 1
+            context.provider_messages = build_refinement_messages(
+                context,
+                validation["answer"],
+                convergence,
+            )
+            refined_result = await self._execute_provider(context, save_user_message=False)
+            if not refined_result.get("ok"):
+                self._finish(
+                    context,
+                    refinement_stage,
+                    GovernedStageStatus.FAILED,
+                    outputs={"attempts": refined_result.get("attempts", [])},
+                    error_code="PROVIDER_REFINEMENT_FAILURE",
+                )
+                return await self._failure(
+                    context,
+                    kind=GovernedFailureKind.PROVIDER_FAILURE,
+                    code="PROVIDER_REFINEMENT_FAILURE",
+                    message=self.gateway._public_error_message(refined_result.get("error")),
+                    stage="refinement_1",
+                    retryable=bool(refined_result.get("retryable")),
+                )
+            refined_validation = validate_output(
+                str(refined_result.get("answer") or ""),
+                context.evidence,
+                mode=request.mode,
+                governance_engine=self.gateway._governance,
+            )
+            context.claims = refined_validation.pop("claims")
+            context.citations = refined_validation.pop("citations")
+            context.validators = refined_validation.pop("validators")
+            context.confidence_measurement = calculate_confidence(
+                context.claims,
+                context.evidence,
+                context.validators,
+            )
+            convergence = decide_convergence(
+                context.claims,
+                context.validators,
+                context.confidence_measurement,
+                mode=request.mode,
+                tier=dmrf_result.tier,
+                iteration=1,
+                max_iterations=max_refinements,
+                requires_evidence=requires_evidence,
+            )
+            context.convergence_decisions.append(convergence)
+            context.warnings.extend(refined_validation.get("warnings") or [])
+            self._finish(
+                context,
+                refinement_stage,
+                GovernedStageStatus.COMPLETED if refined_validation["ok"] else GovernedStageStatus.FAILED,
+                outputs={
+                    **refined_validation,
+                    "confidence_measurement": context.confidence_measurement.to_dict(),
+                    "convergence": convergence.to_dict(),
+                },
+                metrics={"provider_call_count": context.provider_call_count},
+                error_code="OUTPUT_VALIDATION_FAILURE" if not refined_validation["ok"] else None,
+            )
+            if not refined_validation["ok"]:
+                return await self._failure(
+                    context,
+                    kind=GovernedFailureKind.VALIDATION_FAILURE,
+                    code="OUTPUT_VALIDATION_FAILURE",
+                    message="Refined provider output did not pass governed validation",
+                    stage="refinement_1",
+                    details={"checks": refined_validation["checks"]},
+                )
+            provider_result = refined_result
+            validation = refined_validation
+
+        if convergence.action == "block":
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code="CONVERGENCE_POLICY_BLOCK",
+                message="Provider output was blocked by a governed validator",
+                stage="output_validation",
+                details=convergence.to_dict(),
+            )
+
+        result_status = "completed"
+        result_answer = validation["answer"]
+        if convergence.action == "abstain":
+            result_status = "abstained"
+            result_answer = (
+                "DataLogicEngine could not produce an evidence-supported answer from the "
+                "available sources. Review the cited evidence or provide additional sources."
+            )
+
         result = GovernedResult(
             trace_id=context.trace_id,
             ok=True,
-            status="completed",
+            status=result_status,
             mode=request.mode,
-            answer=validation["answer"],
+            answer=result_answer,
             provider_used=provider_result.get("provider_used"),
             model_used=provider_result.get("model_used"),
             usage=provider_result.get("usage", {}),
-            # Output-check completion is not an evidence confidence formula.
-            # Keep this unmeasured until the Phase 6 contract is implemented.
-            confidence=None,
+            confidence=context.confidence_measurement.value,
             coordinate=context.routing.get("axis_vector"),
             tier=context.routing.get("tier"),
             stages=context.stages,
             evidence=context.evidence,
             claims=context.claims,
+            citations=context.citations,
+            validators=context.validators,
+            confidence_measurement=context.confidence_measurement,
+            convergence=convergence,
             warnings=context.warnings,
             metadata=self._metadata(context, provider_result=provider_result, validation=validation),
         )
@@ -535,7 +676,12 @@ class GovernedExecutionOrchestrator:
             )
         return result
 
-    async def _execute_provider(self, context: GovernedContext) -> dict[str, Any]:
+    async def _execute_provider(
+        self,
+        context: GovernedContext,
+        *,
+        save_user_message: bool = True,
+    ) -> dict[str, Any]:
         request = context.request
         allowed_provider_types = self.gateway._normalize_allowlist(
             request.metadata.get("allowed_provider_types")
@@ -574,7 +720,7 @@ class GovernedExecutionOrchestrator:
         if not providers:
             return {"ok": False, "error": "No active providers found", "attempts": []}
 
-        if request.session_id and store_history:
+        if request.session_id and store_history and save_user_message:
             await self.gateway._save_chat_message(
                 request.session_id,
                 request.user_id,
@@ -803,6 +949,12 @@ class GovernedExecutionOrchestrator:
             stages=context.stages,
             evidence=context.evidence,
             claims=context.claims,
+            citations=context.citations,
+            validators=context.validators,
+            confidence_measurement=context.confidence_measurement,
+            convergence=context.convergence_decisions[-1]
+            if context.convergence_decisions
+            else None,
             warnings=context.warnings,
             failure=failure,
             metadata=self._metadata(context),
@@ -960,6 +1112,13 @@ class GovernedExecutionOrchestrator:
             "truthcore": context.truthcore,
             "policy_decisions": context.policy_decisions,
             "provider_call_count": context.provider_call_count,
+            "refinement_cycles": context.refinement_cycles,
+            "confidence_measurement": context.confidence_measurement.to_dict()
+            if context.confidence_measurement
+            else None,
+            "convergence_decisions": [
+                item.to_dict() for item in context.convergence_decisions
+            ],
             "source_ids": [item.source_id for item in context.evidence],
             **extra,
         }

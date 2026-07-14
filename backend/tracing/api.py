@@ -20,7 +20,8 @@ from models import (
     TraceAxisVector, TracePersona, TraceKAInvocation,
     TracePolicyDecision, TraceMemoryEvent, TraceArtifact,
     ChatSession, TraceSpan, StageLog, TraceExport,
-    ClaimEvidenceLink, ComplianceMapping, KAExecution
+    ClaimEvidenceLink, ComplianceMapping, KAExecution,
+    TraceCitation, TraceValidator, TraceQualityDecision,
 )
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
@@ -209,6 +210,9 @@ def _empty_trace_bundle(run_id: str, error: str | None = None) -> dict:
         "evidence_sources": [],
         "evidence": [],
         "claims": [],
+        "citations": [],
+        "validators": [],
+        "quality_decisions": [],
         "persona_positions": [],
         "personas": [],
         "ka_invocations": [],
@@ -247,6 +251,9 @@ def _build_trace_bundle(run: TraceRun) -> dict:
     ).all()
     evidence = TraceEvidence.query.filter_by(run_id=run.run_id).all()
     claims = TraceClaim.query.filter_by(run_id=run.run_id).all()
+    citations = TraceCitation.query.filter_by(run_id=run.run_id).all()
+    validators = TraceValidator.query.filter_by(run_id=run.run_id).all()
+    quality_decisions = TraceQualityDecision.query.filter_by(run_id=run.run_id).all()
     personas = TracePersona.query.filter_by(run_id=run.run_id).all()
     kas = TraceKAInvocation.query.filter_by(run_id=run.run_id).all()
     axis_vector = TraceAxisVector.query.filter_by(run_id=run.run_id).first()
@@ -268,6 +275,9 @@ def _build_trace_bundle(run: TraceRun) -> dict:
         'evidence_sources': [item.to_dict() for item in evidence],
         'evidence': [item.to_dict() for item in evidence],
         'claims': [claim.to_dict() for claim in claims],
+        'citations': [citation.to_dict() for citation in citations],
+        'validators': [validator.to_dict() for validator in validators],
+        'quality_decisions': [decision.to_dict() for decision in quality_decisions],
         'persona_positions': [persona.to_dict() for persona in personas],
         'personas': [persona.to_dict() for persona in personas],
         'ka_invocations': [ka.to_dict() for ka in kas],

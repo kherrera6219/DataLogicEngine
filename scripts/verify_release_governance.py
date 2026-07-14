@@ -41,11 +41,11 @@ REQUIRED_RELEASE_CHECKLIST_TOKENS = (
     "python scripts/verify_docs_references.py",
     "python scripts/validate_schema_parity.py",
     "python scripts/verify_release_governance.py",
-    "python scripts/verify_installer_integrity.py --require-artifacts",
+    r".\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts",
     r"powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation",
     "Deployment health checks validated.",
-    "Metrics/alerts reviewed for first 30 minutes after rollout.",
-    "Disaster recovery restore drill reviewed within the last 30 days.",
+    "Error rates and latency reviewed for first 30 minutes after rollout.",
+    "Disaster recovery restore drill reviewed within the required window",
 )
 
 

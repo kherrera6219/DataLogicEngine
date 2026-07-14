@@ -16,6 +16,12 @@ interface AlgorithmRecord {
   notes?: string;
   risk_class?: string;
   status?: string;
+  classification?: string;
+  production_enabled?: boolean;
+  deterministic?: boolean;
+  guarantee?: string;
+  limitations?: string;
+  catalog_version?: string;
 }
 
 interface AlgorithmListResponse {
@@ -128,10 +134,29 @@ export default function AlgorithmsPage() {
                     <CardTitle className="text-lg text-slate-900 dark:text-gray-100 group-hover:text-blue-400 transition-colors">{entry.name}</CardTitle>
                     <CardDescription className="text-slate-500 dark:text-gray-500">{entry.category || 'Uncategorized'}</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant={entry.production_enabled ? 'default' : 'outline'}>
+                        {entry.production_enabled ? 'Production enabled' : 'Not production enabled'}
+                      </Badge>
+                      {entry.classification && (
+                        <Badge variant="outline">{entry.classification.replaceAll('_', ' ')}</Badge>
+                      )}
+                      {entry.catalog_version && <Badge variant="outline">{entry.catalog_version}</Badge>}
+                    </div>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
                       {algorithmDescription(entry)}
                     </p>
+                    {entry.guarantee && (
+                      <p className="text-xs text-slate-700 dark:text-gray-300">
+                        <span className="font-semibold">Guarantee:</span> {entry.guarantee}
+                      </p>
+                    )}
+                    {entry.limitations && (
+                      <p className="text-xs text-slate-500 dark:text-gray-500">
+                        <span className="font-semibold">Limit:</span> {entry.limitations}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               ))}

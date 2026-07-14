@@ -1022,6 +1022,9 @@ class TraceRun(db.Model):
     ka_invocations = db.relationship('TraceKAInvocation', backref='run', lazy='dynamic', cascade='all, delete-orphan')
     policy_decisions = db.relationship('TracePolicyDecision', backref='run', lazy='dynamic', cascade='all, delete-orphan')
     memory_events = db.relationship('TraceMemoryEvent', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    citations = db.relationship('TraceCitation', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    validators = db.relationship('TraceValidator', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    quality_decisions = db.relationship('TraceQualityDecision', backref='run', lazy='dynamic', cascade='all, delete-orphan')
 
     def to_dict(self):
         snapshot = self.data_snapshot if isinstance(self.data_snapshot, dict) else {}
@@ -1142,6 +1145,14 @@ class TraceEvidence(db.Model):
     source_id = db.Column(db.String(255), nullable=True)
     source_title = db.Column(db.String(500), nullable=True)
     authority = db.Column(db.String(20), default='medium')  # high, medium, low
+    origin = db.Column(db.Text, nullable=True)
+    author_publisher = db.Column(db.String(500), nullable=True)
+    captured_at = db.Column(db.DateTime, nullable=True)
+    effective_at = db.Column(db.DateTime, nullable=True)
+    retrieved_at = db.Column(db.DateTime, nullable=True)
+    permissions = db.Column(JSONB, nullable=True)
+    transformation_chain = db.Column(JSONB, nullable=True)
+    embedding_revision = db.Column(db.String(255), nullable=True)
 
     # Location within source
     locator = db.Column(JSONB, nullable=True)  # page, section, line_range, url
@@ -1154,6 +1165,9 @@ class TraceEvidence(db.Model):
     retrieval_method = db.Column(db.String(50), nullable=True)  # vector, graph, rules, manual
     relevance_score = db.Column(db.Float, nullable=True)
     axis_match_score = db.Column(db.Float, nullable=True)
+    quality_score = db.Column(db.Float, nullable=True)
+    freshness_score = db.Column(db.Float, nullable=True)
+    provenance_completeness = db.Column(db.Float, nullable=True)
 
     # Usage tracking
     used_by_claims = db.Column(JSONB, nullable=True)    # [claim_id]
@@ -1186,7 +1200,14 @@ class TraceEvidence(db.Model):
                 'type': self.source_type,
                 'id': self.source_id,
                 'title': self.source_title,
-                'authority': self.authority
+                'authority': self.authority,
+                'origin': self.origin,
+                'author_publisher': self.author_publisher,
+                'captured_at': self.captured_at.isoformat() if self.captured_at else None,
+                'effective_at': self.effective_at.isoformat() if self.effective_at else None,
+                'permissions': self.permissions,
+                'transformation_chain': self.transformation_chain,
+                'embedding_revision': self.embedding_revision,
             },
             'locator': self.locator,
             'snippet': self.snippet,
@@ -1194,7 +1215,11 @@ class TraceEvidence(db.Model):
             'retrieval': {
                 'method': self.retrieval_method,
                 'relevance_score': self.relevance_score,
-                'axis_match': self.axis_match_score
+                'axis_match': self.axis_match_score,
+                'retrieved_at': self.retrieved_at.isoformat() if self.retrieved_at else None,
+                'quality_score': self.quality_score,
+                'freshness_score': self.freshness_score,
+                'provenance_completeness': self.provenance_completeness,
             },
             'used_by': {
                 'claims': self.used_by_claims,
@@ -1220,22 +1245,26 @@ class TraceClaim(db.Model):
     # Support status
     status = db.Column(db.String(20), default='pending')  # supported, partial, unsupported, contested
     confidence = db.Column(db.Float, nullable=True)
+    claim_type = db.Column(db.String(32), nullable=True)
 
     # Evidence links
     evidence_ids = db.Column(JSONB, nullable=True)  # [evidence_id]
     stage_ids = db.Column(JSONB, nullable=True)     # [stage_id]
+    citation_ids = db.Column(JSONB, nullable=True)
 
     def to_dict(self):
         return {
             'claim_id': str(self.claim_id),
             'run_id': str(self.run_id),
             'text': self.text,
+            'claim_type': self.claim_type,
             'answer_span': {'start': self.answer_span_start, 'end': self.answer_span_end},
             'support': {
                 'status': self.status,
                 'confidence': self.confidence,
                 'evidence_ids': self.evidence_ids,
-                'stage_ids': self.stage_ids
+                'stage_ids': self.stage_ids,
+                'citation_ids': self.citation_ids,
             }
         }
 
@@ -1470,8 +1499,98 @@ class ClaimEvidenceLink(db.Model):
     claim_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_claims.claim_id'), nullable=False)
     evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
 
-    confidence = db.Column(db.Float, default=1.0)
+    confidence = db.Column(db.Float, nullable=True)
+    relationship = db.Column(db.String(32), nullable=False, default='insufficient')
     rationale = db.Column(db.Text, nullable=True)
+    validator_id = db.Column(db.String(100), nullable=True)
+
+
+class TraceCitation(db.Model):
+    """A rendered answer citation resolved to persisted evidence."""
+    __tablename__ = 'trace_citations'
+
+    citation_id = db.Column(db.String(100), primary_key=True)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False, index=True)
+    claim_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_claims.claim_id'), nullable=True)
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
+    source_id = db.Column(db.String(255), nullable=False)
+    label = db.Column(db.String(32), nullable=False)
+    answer_span_start = db.Column(db.Integer, nullable=True)
+    answer_span_end = db.Column(db.Integer, nullable=True)
+
+    def to_dict(self):
+        return {
+            'citation_id': self.citation_id.split(':', 1)[-1],
+            'run_id': str(self.run_id),
+            'claim_id': str(self.claim_id) if self.claim_id else None,
+            'evidence_id': str(self.evidence_id),
+            'source_id': self.source_id,
+            'label': self.label,
+            'answer_span_start': self.answer_span_start,
+            'answer_span_end': self.answer_span_end,
+        }
+
+
+class TraceValidator(db.Model):
+    """One versioned validator observation used by a governed decision."""
+    __tablename__ = 'trace_validators'
+
+    validator_id = db.Column(db.String(100), primary_key=True)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False, index=True)
+    claim_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_claims.claim_id'), nullable=True)
+    validator_type = db.Column(db.String(64), nullable=False)
+    version = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(32), nullable=False)
+    inputs = db.Column(JSONB, nullable=True)
+    outputs = db.Column(JSONB, nullable=True)
+    missing_inputs = db.Column(JSONB, nullable=True)
+    duration_ms = db.Column(db.Integer, nullable=True)
+
+    def to_dict(self):
+        return {
+            'validator_id': self.validator_id.split(':', 1)[-1],
+            'run_id': str(self.run_id),
+            'claim_id': str(self.claim_id) if self.claim_id else None,
+            'validator_type': self.validator_type,
+            'version': self.version,
+            'status': self.status,
+            'inputs': self.inputs,
+            'outputs': self.outputs,
+            'missing_inputs': self.missing_inputs,
+            'duration_ms': self.duration_ms,
+        }
+
+
+class TraceQualityDecision(db.Model):
+    """Versioned confidence measurement or convergence decision."""
+    __tablename__ = 'trace_quality_decisions'
+
+    decision_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False, index=True)
+    decision_type = db.Column(db.String(32), nullable=False)
+    version = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(32), nullable=False)
+    value = db.Column(db.Float, nullable=True)
+    components = db.Column(JSONB, nullable=True)
+    missing_inputs = db.Column(JSONB, nullable=True)
+    rationale = db.Column(db.Text, nullable=True)
+    iteration = db.Column(db.Integer, nullable=True)
+    terminal = db.Column(db.Boolean, nullable=True)
+
+    def to_dict(self):
+        return {
+            'decision_id': str(self.decision_id),
+            'run_id': str(self.run_id),
+            'decision_type': self.decision_type,
+            'version': self.version,
+            'status': self.status,
+            'value': self.value,
+            'components': self.components,
+            'missing_inputs': self.missing_inputs,
+            'rationale': self.rationale,
+            'iteration': self.iteration,
+            'terminal': self.terminal,
+        }
 
 
 class TraceSpan(db.Model):

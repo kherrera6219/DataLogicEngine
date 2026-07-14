@@ -31,6 +31,8 @@ export interface ChatResponse {
   provider_used?: string | null;
   model_used?: string;
   confidence_score?: number | null;
+  confidence_measurement?: ConfidenceMeasurement | null;
+  convergence?: Record<string, unknown> | null;
   evidence_count?: number;
   source_ids?: string[];
   claims?: Array<{
@@ -40,6 +42,8 @@ export interface ChatResponse {
     status: string;
     confidence: number;
   }>;
+  citations?: Array<Record<string, unknown>>;
+  validators?: Array<Record<string, unknown>>;
   failure?: {
     kind: string;
     code: string;
@@ -72,6 +76,21 @@ export interface TraceRun {
   model_name?: string | null;
   /** Provider that served this run (e.g. "openai", "google"). */
   provider_used?: string | null;
+  data_snapshot?: {
+    confidence_measurement?: ConfidenceMeasurement | null;
+    convergence?: Record<string, unknown> | null;
+    [key: string]: unknown;
+  } | null;
+}
+
+export interface ConfidenceMeasurement {
+  formula_version?: string;
+  value?: number | null;
+  status?: string;
+  components?: Record<string, number | null>;
+  weights?: Record<string, number>;
+  missing_components?: string[];
+  explanation?: string;
 }
 
 export interface User {
@@ -175,6 +194,9 @@ export interface TraceBundle {
   evidence_sources: TraceEvidenceSource[];
   evidence: TraceEvidenceSource[];
   claims: Record<string, unknown>[];
+  citations?: Record<string, unknown>[];
+  validators?: Record<string, unknown>[];
+  quality_decisions?: Record<string, unknown>[];
   persona_positions: TracePersona[];
   personas: TracePersona[];
   ka_invocations: TraceKAInvocation[];

@@ -14,7 +14,7 @@ interface ChatTracePanelProps {
 }
 
 function scoreToPercent(value?: number | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '--';
+  if (typeof value !== 'number' || Number.isNaN(value)) return 'Not measured';
   const normalized = value <= 1 ? value * 100 : value;
   return `${normalized.toFixed(1)}%`;
 }
@@ -32,6 +32,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const isLive = bundle?.status === 'running';
   const traceStream = useTraceStream(isLive && resolvedRunId ? resolvedRunId : null);
+  const confidenceMeasurement = bundle?.run?.data_snapshot?.confidence_measurement;
 
   if (!resolvedRunId && !auditTrail) return null;
 
@@ -101,7 +102,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                 <div className="rounded border border-slate-200 bg-white/80 p-2 dark:border-white/10 dark:bg-white/5">
                   <div className="mb-1 flex items-center gap-1 text-slate-500 dark:text-slate-400">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    Confidence
+                    Evidence support
                   </div>
                   <div className="font-semibold">{scoreToPercent(bundle.metrics?.confidence)}</div>
                 </div>
@@ -123,6 +124,13 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                   <div className="mb-1 text-slate-500 dark:text-slate-400">Evidence</div>
                   <div className="font-semibold">{bundle.evidence_sources?.length ?? 0}</div>
                 </div>
+              </div>
+
+              <div className="rounded border border-slate-200 bg-white/70 p-2 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                {confidenceMeasurement?.explanation || 'Evidence-support coverage was not measured for this run.'}
+                {confidenceMeasurement?.formula_version && (
+                  <span className="ml-1 font-mono text-[10px]">({confidenceMeasurement.formula_version})</span>
+                )}
               </div>
 
               <div className="space-y-1">

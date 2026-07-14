@@ -1,0 +1,26 @@
+{
+  "schema_version": "phase-evidence.v1",
+  "phase": 6,
+  "date": "2026-07-13",
+  "contract": "governed.v1",
+  "confidence_formula": "dle-confidence.v1",
+  "corpus_version": "2026.07.13.1",
+  "ka_catalog_version": "ka-catalog.v1",
+  "migration_head": "c2d3e4f5a6b7",
+  "checkpoints": {
+    "CP6-A": "passed",
+    "CP6-B": "passed",
+    "CP6-C": "passed",
+    "CP6-D": "passed",
+    "CP6-E": "passed",
+    "CP6-F": "deferred_installed_provider_and_human_release_blocker"
+  },
+  "evaluation": {
+    "golden_corpus": "docs/evaluation/golden_corpus_v1.json",
+    "provider_matrix": "docs/evaluation/provider_model_matrix_v1.json",
+    "quality_contract": "docs/evaluation/QUALITY_EVALUATION.md",
+    "human_review": "docs/evaluation/HUMAN_REVIEW_RUBRIC.md",
+    "system_card": "docs/evaluation/AI_SYSTEM_CARD.md"
+  },
+  "release_verdict": "NO-GO"
+}

@@ -149,6 +149,12 @@ def format_algorithm(ka):
         'version': ka.get('Version'),
         'owner': ka.get('Owner'),
         'status': ka.get('Status') or 'Unknown',
+        'classification': ka.get('classification'),
+        'production_enabled': bool(ka.get('production_enabled')),
+        'deterministic': bool(ka.get('deterministic')),
+        'guarantee': ka.get('guarantee'),
+        'limitations': ka.get('limitations'),
+        'catalog_version': ka.get('version'),
         'notes': ka.get('Notes'),
         'implementation': {
             'mode': ka.get('Implementation_Mode'),
@@ -363,9 +369,23 @@ def execute_algorithm(ka_id):
         if ka_id_norm not in _get_controller().algorithms:
             return _error_response('Algorithm not found', 404)
 
-        input_data, payload_error = _request_input_payload(request.get_json())
+        request_data = request.get_json()
+        input_data, payload_error = _request_input_payload(request_data)
         if payload_error:
             return _error_response(payload_error, 400)
+
+        metadata = _get_controller().algorithms[ka_id_norm].get("metadata", {})
+        allow_nonproduction = bool(
+            isinstance(request_data, dict) and request_data.get("allow_nonproduction") is True
+        )
+        if metadata.get("production_enabled") is False and not allow_nonproduction:
+            return jsonify({
+                'success': False,
+                'error': 'Algorithm is not enabled for production execution',
+                'code': 'KA_NONPRODUCTION_OPT_IN_REQUIRED',
+                'classification': metadata.get('classification'),
+                'limitations': metadata.get('limitations'),
+            }), 409
 
         ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
 
@@ -551,6 +571,7 @@ def batch_execute():
         input_data, payload_error = _request_input_payload(data)
         if payload_error:
             return _error_response(payload_error, 400)
+        allow_nonproduction = data.get("allow_nonproduction") is True
 
         results = []
         for ka_id in algorithm_ids:
@@ -571,9 +592,19 @@ def batch_execute():
                 })
                 continue
 
+            ka_meta = _get_controller().algorithms[ka_id_norm].get("metadata", {})
+            if ka_meta.get("production_enabled") is False and not allow_nonproduction:
+                results.append({
+                    'ka_id': ka_id_norm,
+                    'status': 'blocked',
+                    'error': 'Algorithm is not enabled for production execution',
+                    'code': 'KA_NONPRODUCTION_OPT_IN_REQUIRED',
+                    'classification': ka_meta.get('classification'),
+                })
+                continue
+
             try:
                 ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
-                ka_meta = _get_controller().algorithms[ka_id_norm].get("metadata", {})
                 results.append({
                     'ka_id': ka_meta.get('KA_ID', ka_id_norm),
                     'name': ka_meta.get('KA_Name') or ka_meta.get('KA_ID') or ka_id_norm,
