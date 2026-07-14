@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 
@@ -30,11 +30,24 @@ class TestCoreIntegration:
         session = await truth_engine.create_session("test query")
         session_id = session['session_id']
         
-        # Mock the workflow execution
-        with patch.object(truth_engine, '_execute_workflow', return_value={"response": "Final Consensus", "confidence": 0.99}):
+        governed = MagicMock(status="completed", answer="Final Consensus", confidence=None)
+        governed.to_dict.return_value = {
+            "contract_version": "governed.v1",
+            "ok": True,
+            "status": "completed",
+            "answer": "Final Consensus",
+            "confidence": None,
+            "trace": [],
+            "metadata": {"dsqp": {"profiles": {}}},
+        }
+        with patch(
+            "backend.llm_gateway.gateway.LLMGateway.execute",
+            new=AsyncMock(return_value=governed),
+        ) as execute:
             final_result = await truth_engine.process(session_id)
             assert final_result['status'] == 'completed'
-            assert final_result['result']['response'] == "Final Consensus"
+            assert final_result['result']['answer'] == "Final Consensus"
+            execute.assert_awaited_once()
 
     def test_end_to_end_logic_flow(self):
         # Test how KA results feed into the Truth Engine

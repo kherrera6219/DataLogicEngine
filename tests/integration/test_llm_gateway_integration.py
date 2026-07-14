@@ -254,9 +254,9 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
 
 
 @pytest.mark.asyncio
-async def test_gateway_persists_trace_run_for_direct_success(app, monkeypatch):
+async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_requested(app, monkeypatch):
     from extensions import db
-    from models import TraceRun
+    from models import TraceRun, TraceStage
     monkeypatch.delenv("LLM_DEFAULT_PROVIDER", raising=False)
     monkeypatch.delenv("AI_PROVIDER", raising=False)
 
@@ -297,7 +297,19 @@ async def test_gateway_persists_trace_run_for_direct_success(app, monkeypatch):
         assert run.final_answer == "Direct trace response"
         assert run.model_name == "gpt-4"
         assert run.user_id is None
-        assert run.stages.count() == 0
+        stages = run.stages.order_by(TraceStage.layer_index).all()
+        assert [stage.name for stage in stages] == [
+            "admission",
+            "dmrf_routing",
+            "retrieval",
+            "dsqp_personas",
+            "truthcore_preflight",
+            "provider_request_construction",
+            "provider_execution",
+            "output_validation",
+            "persistence",
+        ]
+        assert all(stage.status == "completed" for stage in stages)
 
 
 @pytest.mark.asyncio
@@ -360,7 +372,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
         assert run.to_dict()["provider_used"] == "google"
         assert run.to_dict()["model_name"] == "gpt-4"
         assert run.stages.count() == 1
-        assert run.stages.first().status == "pass"
+        assert run.stages.first().status == "completed"
 
 
 @pytest.mark.asyncio
@@ -437,7 +449,8 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
         assert response.ok is False
         assert response.provider_used == "none"
         assert run is not None
-        assert run.status == "fail"
+        assert run.status == "provider_failure"
         assert run.input_message == "Persist failed trace"
         assert run.model_name == "gpt-4"
-        assert run.data_snapshot["gateway_error"]["message"] == "No active providers found"
+        assert run.data_snapshot["failure"]["message"] == "No active providers found"
+        assert "output_validation" not in [stage.name for stage in run.stages.all()]

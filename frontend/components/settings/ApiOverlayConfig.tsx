@@ -19,7 +19,7 @@ import {
 import { api, ApiError, buildApiUrl, request } from '@/lib/api';
 
 interface TestResult {
-  confidence: number;
+  confidence: number | null;
   answer: string;
   trace: {
     runId: string;
@@ -354,7 +354,7 @@ export function ApiOverlayConfig() {
         run_id?: string;
         provider_used?: string;
         model_used?: string;
-        confidence_score?: number;
+        confidence_score?: number | null;
       }>('/gateway/chat', {
         method: 'POST',
         body: JSON.stringify({
@@ -367,7 +367,7 @@ export function ApiOverlayConfig() {
       });
 
       setTestResult({
-        confidence: result.confidence_score ?? 0.85,
+        confidence: result.confidence_score ?? null,
         answer: result.response || 'No response body returned by gateway.',
         trace: {
           runId: result.run_id || 'n/a',
@@ -622,7 +622,11 @@ print(response.json())`}
               {testResult && (
                 <div className="mt-4 p-4 bg-green-900/10 border border-green-500/20 rounded-lg animate-in zoom-in-95">
                   <div className="flex justify-between items-center mb-2">
-                    <Badge variant="success" className="bg-green-500/20 text-green-400">{(testResult.confidence * 100).toFixed(1)}% Confidence</Badge>
+                    <Badge variant="success" className="bg-green-500/20 text-green-400">
+                      {testResult.confidence === null
+                        ? 'Confidence not measured'
+                        : `${(testResult.confidence * 100).toFixed(1)}% Confidence`}
+                    </Badge>
                     <span className="text-[10px] text-gray-500">{testResult.trace.runId}</span>
                   </div>
                   <p className="text-xs text-gray-300 leading-relaxed">

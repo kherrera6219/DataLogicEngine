@@ -1,98 +1,31 @@
-# UKG Python SDK — Developer API Reference (v0.5.0)
+# SDK developer contract — v0.6
 
-This is a **developer-facing** reference for integrating the UKG overlay into an LLM provider and your downstream app.
+The Python package is a client boundary. The installed backend is the sole owner
+of the `governed.v1` request lifecycle and its trace transaction.
 
-## Core Concepts
+## Supported architecture
 
-- **Overlay**: UKG wraps provider calls (OpenAI/Azure/Anthropic) and enforces routing, safety, evidence validation, TruthEngine checks, and audit trails.
-- **FROST**: in-context, nested simulated database (10 tiers) used for *working memory* and simulation state. It is *not* a real DB.
-- **UKG/USKD**: structured knowledge indexed by the 17-axis coordinate system. The SDK can persist selected artifacts to Postgres/Redis (optional) while keeping the main reasoning loop in-context.
+1. The client sends a request to `/api/v1/gateway/chat`.
+2. The backend performs admission, DMRF routing, retrieval, deterministic DSQP,
+   TruthCore/KA preflight, provider execution, validation, and persistence.
+3. The client returns the backend trace ID and measured fields without inventing
+   confidence, stages, durations, or local audit events.
 
-## Main Entry Points
+SDK code must not call a model provider directly as part of a product request,
+run a local KA safety pipeline, reconstruct DSQP, or synthesize a second trace.
+Provider adapter modules may remain for backend/internal compatibility but are
+not orchestration entry points.
 
-### `ukg_sdk.client.UKGClient`
+## Compatibility testing
 
-Primary facade.
+The SDK suite uses an HTTP mock transport and asserts:
 
-**Constructor**
-```python
-from ukg_sdk import UKGClient
-from ukg_sdk.client import UKGClientConfig
+- the request targets `/api/v1/gateway/chat`;
+- an object passed through the deprecated `provider=` parameter is never called;
+- returned `contract_version`, `status`, trace ID, and nullable confidence are
+  preserved;
+- legacy `TruthEngine` names use the same service boundary;
+- the overlay has no KA-061 or DSQP execution hooks.
 
-client = UKGClient(
-    config=UKGClientConfig(
-        base_url="http://localhost:8080",  # or your hosted overlay
-        timeout_s=60,
-        max_retries=2,
-    )
-)
-```
-
-**Request**
-```python
-env = client.request(
-    method="POST",
-    path="/v1/ukg/answer",
-    json_body={
-        "query": "Explain X",
-        "mode": "enterprise",
-        "policy_profile": "default",
-    },
-)
-print(env.data["answer"])
-```
-
-### Providers
-
-- `ukg_sdk.providers.openai.OpenAIProvider`
-- `ukg_sdk.providers.azure_openai.AzureOpenAIProvider`
-- `ukg_sdk.providers.anthropic.AnthropicProvider`
-
-Providers expose a unified async `complete()` interface and return a normalized `LLMResponse`.
-
-### Coordinate Resolver
-
-`ukg_sdk.coordinates17.CoordinateResolver17`
-
-- `resolve(input_data) -> Coordinate`
-- `Coordinate.as_compact_string() -> str`
-- `Coordinate.to_dict() -> dict`
-
-### Memory Adapters
-
-- `ukg_sdk.memory.redis.RedisMemoryAdapter`
-- `ukg_sdk.memory.postgres.PostgresMemoryAdapter`
-
-Adapters implement:
-
-- `get(key)`
-- `set(key, value, ttl=None)`
-- `append_audit(event)` (compliance-grade, append-only)
-
-### KA Registry + Execution Map
-
-- Registry: `ukg_sdk.ka.registry.KARegistry` (loads canonical JSON)
-- Execution map: `ukg_sdk.ka.executor.KAExecutor`
-
-`KAExecutor` binds `KA_ID -> callable` and returns normalized `KAExecutionResult` values.
-
-## Error Model
-
-All API surfaces raise `UKGError` subclasses:
-
-- `UKGHttpError` (non-2xx)
-- `UKGValidationError`
-- `UKGPolicyError`
-- `UKGProviderError`
-
-## Artifacts & Audit
-
-- Artifacts are written to the configured artifact store (`local`, `s3`, or `disabled`)
-- Audit events are emitted for:
-  - KA invocation
-  - TruthEngine gates
-  - memory read/write
-  - provider call + token usage
-  - policy veto
-
-See `docs/specs/` and `ukg_sdk/data/` for canonical registries and workflow definitions.
+Installed OpenAI/Gemini qualification belongs to CP5-E and is not satisfied by
+SDK unit tests.

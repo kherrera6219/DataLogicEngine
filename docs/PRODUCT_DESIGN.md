@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
 | Review cadence | Every 30 days |
@@ -14,7 +14,9 @@
 
 Define the current UX architecture, route model, interaction patterns, design guardrails, and reviewer experience for DataLogicEngine.
 
-This version aligns the product design with the current local-first Windows/Electron runtime, governed AI lifecycle, DMRF, Truth Engine, Trace Explorer, graph/knowledge surfaces, MCP governance, privacy controls, and release-readiness expectations.
+This version aligns the product design with the Phase 5 `governed.v1`
+lifecycle, explicit execution/failure states, stable trace identity, and the
+Phase 6 evidence/confidence boundary.
 
 ## Audience
 
@@ -54,8 +56,8 @@ A user should quickly understand:
 
 ```text
 Ask a question
-  -> get an answer
-  -> inspect the trace
+  -> see completed, blocked, failed, cancelled, or unavailable state
+  -> inspect the exact executed-stage trace
   -> review evidence/claims/personas
   -> inspect graph context
   -> export/delete data when needed
@@ -73,6 +75,9 @@ Ask a question
 6. **Owner-aware operations** — admin/MCP/compliance features should be visible and protected according to the single-owner/runtime context.
 7. **Accessible by default** — keyboard navigation, labels, empty states, and readable themes are product requirements.
 8. **No false certainty** — AI limitations, provider behavior, privacy, and release caveats should be visible where relevant.
+9. **No fabricated execution** — do not render planned stages as completed,
+   replace null confidence with a plausible number, or label a capability
+   boundary as a provider failure.
 
 ---
 
@@ -195,7 +200,17 @@ Trace pages should help users answer:
 6. What was the confidence/risk/convergence state?
 7. Can this run be exported or audited?
 
-Design guardrail: AI answers should not be treated as isolated chat text when trace data exists.
+Design guardrails:
+
+1. AI answers should not be treated as isolated chat text when trace data exists.
+2. Show the stable trace ID for completed, blocked, failed, cancelled, and
+   capability-unavailable outcomes.
+3. Render only stages returned by the governed result. Do not infer missing
+   stages or durations.
+4. Display confidence as not measured when null. Phase 6 will define which
+   measured values are valid for each answer category.
+5. Distinguish a policy block, provider failure, validation failure,
+   cancellation, internal failure, and later-phase capability boundary.
 
 ---
 
@@ -246,6 +261,10 @@ Design guardrail: heavy visualization and admin surfaces should not degrade firs
 5. Realtime/async state: websocket hooks and polling where applicable for chat/simulations/traces.
 6. Sidebar state: persisted collapse/expand behavior.
 7. Error state: API error boundary and page-level empty/error states.
+8. Governed execution state: `contract_version`, `status`, `trace_id`, actual
+   stages, source IDs, claims, nullable confidence, warnings, and typed failure.
+9. Simulation state: unavailable until Phase 10; the UI must not imply that
+   personas, providers, tools, or convergence ran.
 
 ---
 
@@ -300,6 +319,10 @@ Known current caveats:
 3. some specialist surfaces depend on backend data/configuration state;
 4. provider-backed features require configured provider credentials;
 5. graph/vector/object-store views depend on local data services and ingestion state.
+6. confidence remains unmeasured/null until the Phase 6 category-valid formula
+   and calibration work completes;
+7. simulation returns an explicit Phase 10 capability boundary;
+8. installed OpenAI/Gemini trace proof remains CP5-E and release-blocking.
 
 ---
 
@@ -311,6 +334,13 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v3.0.0
+
+1. Added explicit governed-result and failure states, stable trace-ID behavior,
+   exact-stage rendering, and null-confidence UX rules.
+2. Recorded the Phase 10 simulation boundary and deferred installed-provider
+   proof without presenting either as completed product behavior.
 
 ## Change notes for v2.7.0
 

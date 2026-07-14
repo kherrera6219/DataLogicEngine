@@ -978,7 +978,7 @@ class TraceRun(db.Model):
     correlation_id = db.Column(db.String(100), nullable=True)
 
     # Status and timing
-    status = db.Column(db.String(20), default='running')  # running, pass, warn, fail
+    status = db.Column(db.String(32), default='running')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     completed_at = db.Column(db.DateTime, nullable=True)
 
@@ -992,7 +992,7 @@ class TraceRun(db.Model):
     data_snapshot = db.Column(JSONB, nullable=True)  # ukg_snapshot, uskd_snapshot, index_versions
 
     # Scores
-    confidence = db.Column(db.Float, default=0.0)
+    confidence = db.Column(db.Float, nullable=True)
     entropy = db.Column(db.Float, default=0.0)
     bias_risk = db.Column(db.Float, default=0.0)
 
@@ -1219,7 +1219,7 @@ class TraceClaim(db.Model):
 
     # Support status
     status = db.Column(db.String(20), default='pending')  # supported, partial, unsupported, contested
-    confidence = db.Column(db.Float, default=0.0)
+    confidence = db.Column(db.Float, nullable=True)
 
     # Evidence links
     evidence_ids = db.Column(JSONB, nullable=True)  # [evidence_id]
@@ -1282,7 +1282,7 @@ class TracePersona(db.Model):
 
     # Output
     draft_text = db.Column(db.Text, nullable=True)
-    confidence = db.Column(db.Float, default=0.0)
+    confidence = db.Column(db.Float, nullable=True)
 
     # Objections and consensus
     objections = db.Column(JSONB, nullable=True)  # [{type, detail}]

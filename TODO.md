@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.1 |
-| Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
-| Next phase | Phase 5 - Canonical governed reasoning path |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.4.0 |
+| Completed phase | Phase 5 engineering checkpoint - Canonical governed reasoning path |
+| Next phase | Phase 6 - Evidence, confidence, convergence, TruthCore, and KA validity |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -72,8 +72,24 @@ conditions, and exit gates remain authoritative in the active root plan.
   release. The locked service is the non-affected Rust binary, and the Python
   client now refuses persisted embedding functions/schema before use. The alert
   remains open and release-blocking; ChromaDB production approval remains false.
+- Phase 5 CP5-A through CP5-D passed on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-05/`; CP5-E remains a deferred
+  installed-release blocker.
+- The versioned `governed.v1` contract and one backend orchestrator now own
+  admission, DMRF, retrieval, deterministic DSQP, TruthCore/KA preflight,
+  provider execution, validation, persistence, and trace state.
+- Built-in chat, gateway/replay/stream, compatible facades, the public TruthCore
+  adapter, persona/video callers, and SDK service clients use the canonical
+  boundary or an explicit unavailable boundary. Simulation stops at its Phase
+  10 boundary and does not fabricate execution.
+- Exact trace-stage and causality tests pass for success, policy block, provider
+  failure, cancellation, and internal failure. Unmeasured confidence remains
+  null pending Phase 6.
+- Final Phase 5 validation reports 1,895 backend tests (18 skipped), 402
+  frontend tests, and 25 SDK tests passed, plus production frontend/Electron,
+  route, migration, source-quality, schema, lockfile, secret, and error gates.
 
-## Phase 5 objective
+## Phase 5 objective - engineering checkpoint complete
 
 Deliver one causal, testable governed request path from built-in chat and
 approved clients through policy, retrieval, routing/personas, provider/tool
@@ -81,18 +97,38 @@ execution, validation, persistence, trace, and result.
 
 ## Phase 5 work packages
 
-- [ ] Inventory every built-in chat, gateway, replay, SDK, compatible facade,
+- [x] Inventory every built-in chat, gateway, replay, SDK, compatible facade,
       and simulation entry into governed reasoning.
-- [ ] Define one versioned governed request/context/result/failure contract.
-- [ ] Select one backend-owned orchestrator and remove or thin duplicate paths.
-- [ ] Make policy, retrieval, DMRF, DSQP, KAs, provider/tool calls, validation,
+- [x] Define one versioned governed request/context/result/failure contract.
+- [x] Select one backend-owned orchestrator and remove or thin duplicate paths.
+- [x] Make policy, retrieval, DMRF, DSQP, KAs, provider/tool calls, validation,
       bounded refinement, persistence, and trace causally connected.
-- [ ] Eliminate synthetic stages, fixed durations, default confidence, and
+- [x] Eliminate synthetic stages, fixed durations, default confidence, and
       planned-but-unexecuted telemetry.
-- [ ] Prove blocked, failed, cancelled, and successful runs record only stages
+- [x] Prove blocked, failed, cancelled, and successful runs record only stages
       that actually executed and return one stable trace ID.
-- [ ] Keep installed Gemini/OpenAI proof as a later installed release gate when
+- [x] Keep installed Gemini/OpenAI proof as a later installed release gate when
       provider credentials and the rebuilt application are available.
+
+## Phase 6 objective
+
+Replace plausible defaults, templates, and synthetic governance metrics with
+typed provenance, category-valid evidence and validators, calibrated confidence,
+explicit insufficiency, and executable TruthCore/KA records.
+
+## Phase 6 work packages
+
+- [ ] Inventory all source, evidence, claim, citation, validator, confidence,
+      convergence, TruthCore, and KA shapes and default values.
+- [ ] Define stable source identity, provenance, permissions, transformation,
+      claim-offset, citation, and validator contracts.
+- [ ] Define category-specific evidence sufficiency and contradiction rules.
+- [ ] Replace default confidence/convergence with versioned measured formulas,
+      calibration evidence, and explicit unavailable state.
+- [ ] Persist validator and KA inputs, outputs, status, duration, version, and
+      causal relationship to the final decision.
+- [ ] Prove unsupported/high-stakes claims fail safely and trace only measured
+      evidence and executed validation.
 
 ## Phase 3 deferred release gates
 
@@ -115,6 +151,12 @@ execution, validation, persistence, trace, and result.
 | CP4-E | Delete parity leaves no unapproved remnants | Live seven-surface engineering deletion passed; installed matrix retained |
 | CP4-F | All retained data meets at-rest/key contract | Policy and fail-closed checks implemented; BitLocker/ACL Windows matrix deferred |
 
+## Phase 5 deferred release gate
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP5-E | Installed built-in chat and external boundary complete real Gemini and OpenAI runs with resolvable traces | Source/engineering path passed; rebuilt installed proof deferred and release-blocking |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -124,8 +166,8 @@ execution, validation, persistence, trace, and result.
 | 2 | Runtime factory, startup, and capability state | **Complete 2026-07-13** |
 | 3 | Full internal service delivery and supervision | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
 | 4 | Data contracts, migrations, backup, and recovery | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
-| 5 | Canonical governed reasoning path | **Active** |
-| 6 | Evidence, confidence, convergence, TruthCore, and KA validity | Blocked by prior phases |
+| 5 | Canonical governed reasoning path | **Engineering checkpoint complete 2026-07-13; installed CP5-E retained** |
+| 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Active** |
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | Blocked by prior phases |
 | 8 | External API Gateway and LLM middleware productization | Blocked by prior phases |
 | 9 | Ingestion, retrieval, graph, and memory completion | Blocked by prior phases |
@@ -155,8 +197,8 @@ execution, validation, persistence, trace, and result.
 
 ## Exact next action
 
-Begin Phase 5 with a live caller inventory for built-in chat, gateway, SDK,
-replay, compatible facades, and simulation. Define the shared governed request/
-context/result/failure contract, choose the single backend-owned orchestrator,
-and add causality tests before changing execution. Preserve all deferred Phase 3
-and Phase 4 installed release gates and the SeaweedFS candidate-only boundary.
+Begin Phase 6 with a live inventory of source/evidence/claim/citation/validator,
+confidence/convergence, TruthCore, and KA contracts and every remaining default
+or synthetic metric. Add category-specific failure tests before replacement.
+Preserve the Phase 5 single orchestrator, deferred CP5-E, all Phase 3/4 installed
+release gates, and the SeaweedFS candidate-only boundary.

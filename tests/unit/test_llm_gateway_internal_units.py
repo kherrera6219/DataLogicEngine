@@ -208,39 +208,20 @@ class TestProviderPreference:
         assert providers
         assert {provider.provider_type for provider in providers} == {"google"}
 
-    @pytest.mark.asyncio
-    async def test_ukg_overlay_uses_runtime_data_directory(self, monkeypatch, tmp_path):
-        captured = {}
+    def test_legacy_bypass_flag_is_adapted_not_honored(self):
+        from backend.governed_execution.contracts import GovernedRequest
 
-        class FakeOverlay:
-            def __init__(self, *, provider, model, data_dir):
-                captured["provider"] = provider
-                captured["model"] = model
-                captured["data_dir"] = data_dir
-
-            async def run(self, **kwargs):
-                return {"ok": True, "answer": "ok", "trace": []}
-
-        monkeypatch.setitem(sys.modules, "ukg_sdk.overlay", SimpleNamespace(UKGOverlay=FakeOverlay))
-        monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(tmp_path / "settings.json"))
-        gateway = LLMGateway()
-        monkeypatch.setattr(gateway, "_create_trace_run", AsyncMock())
-
-        result = await gateway._run_ukg_overlay(
-            sdk_provider=SimpleNamespace(),
-            model="gemini-3.1-pro-preview",
-            query="hello",
-            run_id="00000000-0000-0000-0000-000000000001",
-            user_id="1",
-            session_id=None,
-            meta={},
-            temperature=0.7,
-            max_tokens=32,
+        governed = GovernedRequest.from_gateway(
+            GatewayRequest(
+                messages=[{"role": "user", "content": "hello"}],
+                run_ukg_pipeline=False,
+            )
         )
 
-        assert result["ok"] is True
-        assert captured["model"] == "gemini-3.1-pro-preview"
-        assert captured["data_dir"] == tmp_path / "sdk" / "ukg_sdk" / "data"
+        assert governed.query_text() == "hello"
+        assert "run_ukg_pipeline=false is deprecated and does not bypass governance" in (
+            governed.metadata["compatibility_warnings"]
+        )
 
 
 class TestModelDefaults:
@@ -392,34 +373,8 @@ class TestGatewayStreaming:
 
 
 class TestUnifiedDMRFTrace:
-    def test_dmrf_is_enabled_by_default_for_enhanced_requests(self, monkeypatch):
-        monkeypatch.delenv("USE_DMRF", raising=False)
-        monkeypatch.setenv("IS_DESKTOP_APP", "true")
-        assert LLMGateway._dmrf_enabled({}) is True
-        assert LLMGateway._dmrf_enabled({"use_dmrf": False}) is False
-
-    def test_dmrf_steps_are_prepended_to_overlay_trace(self):
-        result = {
-            "trace": [{"ka_id": "KA-004", "status": "ok", "output": {"valid": True}}]
-        }
-        LLMGateway._attach_dmrf_trace_metadata(
-            result,
-            {
-                "dmrf": {
-                    "tier": "moderate",
-                    "axis_vector": {"confidence": 0.93, "frost_layer_depth": 4},
-                    "steps": [
-                        {
-                            "name": "truth_gate",
-                            "status": "ok",
-                            "outputs": {"gate": {"passed": True}},
-                            "snapshot_id": "snapshot-1",
-                        }
-                    ],
-                }
-            },
-        )
-
-        assert [item["ka_id"] for item in result["trace"]] == ["DMRF:truth_gate", "KA-004"]
-        assert result["confidence"] == 0.93
-        assert result["trace"][0]["metrics"]["snapshot_id"] == "snapshot-1"
+    def test_optional_dmrf_and_trace_splice_helpers_are_removed(self):
+        assert not hasattr(LLMGateway, "_dmrf_enabled")
+        assert not hasattr(LLMGateway, "_attach_dmrf_trace_metadata")
+        assert not hasattr(LLMGateway, "_run_ukg_overlay")
+        assert not hasattr(LLMGateway, "_run_quad_analysis")

@@ -38,7 +38,6 @@ def load_truth_engine_from_specs(
             except Exception:
                 continue
 
-    engine = TruthEngine(config=config)
-    # Attach specs for audit / introspection
-    engine.frost.set("truth_engine_specs", specs)
-    return engine
+    effective = config or TruthEngineConfig()
+    effective.specs = specs
+    return TruthEngine(config=effective)

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.3.0 |
+| Document version | v4.0.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -15,9 +15,9 @@
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
 This version reflects the current code-backed architecture: an isolated
-application factory and owned runtime, local-first runtime modes, DMRF control
-plane, 17-axis routing, DSQP persona construction, Truth Engine v7.3,
-multi-store memory, frontend trace review, and release-governed validation.
+application factory and owned runtime, the Phase 5 `governed.v1` execution
+contract, one backend-owned causal orchestrator, app-owned data services,
+frontend trace review, and release-governed validation.
 
 ## Audience
 
@@ -40,6 +40,21 @@ multi-store memory, frontend trace review, and release-governed validation.
 8. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 
 ## Architecture overview
+
+### Phase 5 canonical governed-execution checkpoint
+
+All approved answer-producing surfaces now enter one transport-neutral
+`GovernedRequest` and one backend-owned `GovernedExecutionOrchestrator`.
+Transport routes own authentication and server-derived principal context; the
+orchestrator owns admission, cancellation, DMRF/TruthGate, bounded retrieval,
+deterministic DSQP, TruthCore/KA preflight, prompt construction, bounded provider
+execution, validation, and transactional trace persistence.
+
+`LLMGateway.execute()` is the canonical gateway entry. `process()` is a thin
+compatibility adapter. The public TruthCore entry is also an adapter, and SDK
+0.6 is a service client rather than a second reasoning implementation.
+Simulation returns an explicit Phase 10 capability boundary after admission.
+Unmeasured confidence remains null pending the Phase 6 validity model.
 
 ### Phase 3 internal data-plane checkpoint
 
@@ -66,18 +81,15 @@ pass.
 DataLogicEngine is a local-first AI governance and knowledge-reasoning platform. It is not centered on a single LLM call. The architecture is built around a governed request lifecycle:
 
 ```text
-User prompt
-  -> frontend/API security envelope
-  -> DMRF control plane
-  -> TruthGate
-  -> tier classification
-  -> 17-axis routing
-  -> DSQP persona construction
-  -> TruthCore workflow planning/execution
-  -> model/tool execution when required
-  -> evidence freshness and convergence policy
-  -> memory/audit/artifact persistence
-  -> trace review and integrity-protected export
+authenticated request
+  -> governed.v1 admission/cancellation
+  -> DMRF defense, TruthGate, tier, and 17-axis route
+  -> bounded source-identified retrieval
+  -> deterministic DSQP + TruthCore/KA preflight
+  -> one approved provider prompt and bounded execution
+  -> output/claim/citation/policy validation
+  -> transactional run/stage/evidence/claim persistence
+  -> stable trace ID and explicit result/failure
 ```
 
 The major architecture planes are:
@@ -87,8 +99,11 @@ The major architecture planes are:
    startup phases, service supervisor, readiness/capabilities, admission drain,
    and Windows lifecycle coordination.
 3. **API/security plane** — Flask API, sessions, CSRF, CORS, trusted hosts, rate limits, desktop local auth, middleware, operational health.
-4. **AI control plane** — DMRF orchestration, injection defense, tiering, 17-axis routing, DSQP, Truth Engine integration, convergence policy, observability.
-5. **Truth Engine plane** — TruthGate, TruthCore, TruthMemory, TruthLink.
+4. **AI control plane** — the `governed.v1` contract and canonical orchestrator,
+   DMRF defense/tiering/axes, bounded retrieval, deterministic DSQP,
+   TruthCore/KA preflight, prompt construction, validation, and trace truth.
+5. **Truth Engine plane** — TruthGate and the canonical TruthCore adapter;
+   legacy private workflow helpers do not own a public answer path.
 6. **Data and memory plane** — SQL, Redis, Neo4j, ChromaDB, local object store, USKD NetworkX graph, UnifiedMemory, TruthMemory.
 7. **Governance plane** — tests, CI, release gates, trace export integrity, docs/versioning, compliance and audit controls.
 
@@ -99,8 +114,9 @@ flowchart TD
     User[User / Judge / Operator]
     FE[Next.js + Electron Frontend]
     API[Flask API and Security Envelope]
-    DMRF[DMRF Control Plane]
-    Truth[Truth Engine v7.3]
+    Governed[governed.v1 Orchestrator]
+    DMRF[DMRF / TruthGate / Routing]
+    Truth[TruthCore / KA Preflight]
     LLM[LLM Gateway / MCP Tools]
     Data[Data and Memory Stores]
     Trace[Trace Explorer and Export Integrity]
@@ -108,12 +124,12 @@ flowchart TD
 
     User --> FE
     FE --> API
-    API --> DMRF
+    API --> Governed
+    Governed --> DMRF
     DMRF --> Truth
-    Truth --> LLM
-    DMRF --> Data
-    Truth --> Data
-    LLM --> Data
+    Truth --> Governed
+    Governed --> LLM
+    Governed --> Data
     Data --> Trace
     DMRF --> Trace
     Truth --> Trace
@@ -349,7 +365,9 @@ Each DSQP persona contains seven components:
 6. `career_path`
 7. `related_jobs`
 
-The current implementation is deterministic and offline-capable. Future LLM-assisted construction can replace internal answer generation without changing the output contract.
+The canonical Phase 5 path constructs DSQP context deterministically. A future
+LLM-assisted mode would require explicit consent, provider-call accounting, and
+proof that its output causally affects the final decision.
 
 Key files:
 
@@ -370,7 +388,8 @@ Truth Engine is a four-module subsystem:
 | TruthMemory | Audit, cache, metrics, artifact, explainability, and MLflow-style tracking layer. |
 | TruthLink | Event bus with priority queue, optional Redis streams, SSE, and dead-letter handling. |
 
-TruthCore workflow steps include:
+The private legacy TruthCore helper retains workflow-step implementations for
+internal tests and Phase 6 migration:
 
 ```text
 intent_parsing
@@ -386,6 +405,10 @@ final_safety_gate
 memory_patch
 ```
 
+These steps are not independently claimed as executed by the public answer path.
+The canonical orchestrator selects the bounded workflow and records only the
+TruthCore/KAs that actually run.
+
 Key files:
 
 - `backend/truth_engine/api.py`
@@ -396,14 +419,21 @@ Key files:
 
 ## LLM Gateway architecture
 
-The LLM Gateway (`backend/llm_gateway/`) provides multi-provider AI routing with cross-provider failover, circuit breaker protection, and rate-limit-aware error handling.
+The LLM Gateway (`backend/llm_gateway/`) is the provider boundary inside the
+canonical orchestrator. `LLMGateway.execute()` accepts `GovernedRequest` and
+owns the single orchestrator entry; `process()` only converts older gateway
+callers/results. Provider selection retains circuit-breaker and rate-limit-aware
+handling inside a request-wide provider-call bound.
 
 ### Provider routing
 
-`LLMGateway.process()` resolves eligible providers from the `llm_provider` database table (falling back to environment variables), then attempts requests in order with per-attempt retries. The request lifecycle:
+The orchestrator constructs one policy/persona/evidence/KA-aware prompt before
+invoking the provider boundary. The provider-only lifecycle is:
 
 ```text
-LLMGateway.process()
+GovernedExecutionOrchestrator
+  -> construct approved provider messages
+  -> LLMGateway bounded provider method
   -> _get_eligible_providers()   (DB first, env var fallback)
   -> for each provider:
       -> CircuitBreaker.allow_request()?
@@ -456,18 +486,27 @@ The stored `LLMProvider.model_id` (set by the user in Settings → API Configura
 
 ### Cloud model selection
 
-When a request reaches `LLMGateway.process()`, the gateway uses the caller-pinned provider/model, or the user's saved preference (`UserAIPreferences`), or the first active cloud `LLMProvider` record's default model. Every request is served by **one user-selected cloud model**:
+When a governed request reaches the provider boundary, it uses the caller-pinned
+provider/model when policy permits, the owner's saved preference, or the first
+eligible active provider. A completed provider-backed answer is served by one
+selected cloud model:
 
 | Provider type | Model |
 |---|---|
 | `openai` | `gpt-5.5` |
 | `google` / `gemini` | `gemini-3.1-pro-preview` |
 
-There is no local model tier or complexity-based escalation; an API key + internet connection are required for reasoning. Internal steps that previously used a local model (DSQP answer generation, the defense-supervisor screen) call the selected cloud model via `backend/llm_gateway/active_model.generate_with_active_model()`, and fall back to their deterministic / fail-open path when no key is configured.
+There is no local model tier or complexity-based escalation. A provider-backed
+answer requires an owner-configured key and network access; `local_review` must
+not fabricate one. Canonical DSQP is deterministic and does not make a hidden
+provider call.
 
 ### Key files
 
-- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_has_active_cloud_providers`, `_is_rate_limit_error`, `_is_retryable_error`, circuit breaker
+- `backend/governed_execution/` — canonical contracts, orchestration, retrieval,
+  prompt construction, validation, and trace persistence
+- `backend/llm_gateway/gateway.py` — `execute()` adapter/orchestrator entry,
+  bounded provider handling, eligibility, error classification, circuit breaker
 - `backend/llm_gateway/api.py` — Flask routes, `gateway_chat()` with 429 early-return
 - `backend/llm_gateway/model_defaults.py` — default model IDs per provider
 - `models.py` — `LLMProvider.get_api_key()` / `set_api_key()` Fernet encryption
@@ -623,7 +662,10 @@ Observability surfaces include:
 
 - correlation IDs;
 - `/metrics` Prometheus output;
-- DMRF tier counters and FROST depth metrics;
+- exact governed stages with start/end time, measured duration, status, and
+  stable trace ID;
+- DMRF tier, axes, DSQP, TruthCore, KA, policy, provider, evidence, and claim
+  records only when those activities execute;
 - Truth Engine status/stats endpoints;
 - Trace Explorer;
 - TruthMemory audit and explainability data;
@@ -668,20 +710,25 @@ A technical reviewer should inspect these diagrams first:
 Then inspect these implementation files:
 
 1. `app.py`
-2. `backend/dmrf/orchestrator.py`
-3. `backend/dmrf/router.py`
-4. `backend/dsqp/dsqp_chain.py`
-5. `backend/truth_engine/api.py`
-6. `backend/truth_engine/truth_core/engine.py`
-7. `backend/truth_engine/truth_gate/gateway.py`
-8. `backend/truth_engine/truth_memory/manager.py`
-9. `backend/truth_engine/truth_link/bus.py`
-10. `backend/storage/connection_manager.py`
-11. `backend/storage/uskd_memory_graph.py`
-12. `backend/memory/unified_memory_service.py`
-13. `frontend/app/layout.tsx`
-14. `frontend/components/layout/AppSidebar.tsx`
-15. `.github/workflows/ci.yml`
+2. `backend/governed_execution/contracts.py`
+3. `backend/governed_execution/orchestrator.py`
+4. `backend/governed_execution/retrieval.py`
+5. `backend/governed_execution/prompt.py`
+6. `backend/governed_execution/validation.py`
+7. `backend/governed_execution/trace_persistence.py`
+8. `backend/llm_gateway/gateway.py`
+9. `backend/dmrf/router.py`
+10. `backend/truth_engine/truth_core/engine.py`
+11. `backend/storage/connection_manager.py`
+12. `frontend/components/Chat/LiveTracePanel.tsx`
+13. `.github/workflows/ci.yml`
+
+## Change notes for v4.0.0
+
+1. Recorded `governed.v1`, the single backend-owned orchestrator, the thin SDK
+   and compatibility adapters, exact trace semantics, and simulation boundary.
+2. Separated Phase 5 causal execution proof from the Phase 6 evidence,
+   confidence, convergence, and KA-validity program.
 
 ## Change notes for v3.3.0
 

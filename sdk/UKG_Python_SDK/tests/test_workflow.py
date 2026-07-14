@@ -38,6 +38,7 @@ class TestWorkflowRunner:
         assert isinstance(result, WorkflowResult)
         assert result.tier == "TRIVIAL"
         assert result.answer["recommended_pipeline"] == ["KA-001"]
+        assert result.artifacts["truth_engine"]["execution_owner"] == "installed_backend"
 
     def test_run_local_stub_supports_default_tier_system_schema(self):
         workflow = {

@@ -11,20 +11,6 @@ from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOr
 from core.persona.quad.mathematical_framework import DynamicWeightFunctions
 
 
-class FakeQuadEngine:
-    async def run_quad_analysis(self, query, context):
-        return {
-            "synthesis": "base synthesis",
-            "perspectives": {
-                "knowledge": {"response": "Axis 8 analysis", "confidence": 0.82},
-                "sector": {"response": "Axis 9 analysis", "confidence": 0.8},
-                "regulatory": {"response": "Axis 10 analysis", "confidence": 0.86},
-                "compliance": {"response": "Axis 11 analysis", "confidence": 0.84},
-            },
-            "metadata": {"confidence": 0.83},
-        }
-
-
 class FakeController:
     llm_gateway = None
 
@@ -64,23 +50,9 @@ class FakePersonaConstruction:
         )
 
 
-@pytest.mark.asyncio
-async def test_gateway_quad_analysis_reaches_pod_orchestrator(monkeypatch):
-    import backend.quad_persona.quad_engine as quad_engine
-
-    monkeypatch.setattr(quad_engine, "create_quad_persona_engine", lambda *args, **kwargs: FakeQuadEngine())
-    gateway = LLMGateway()
-
-    result = await gateway._run_quad_analysis(
-        "Assess legal compliance risk",
-        {"tags": ["legal"], "force_expanded_committee": True},
-    )
-
-    pod_trace = next(item for item in result["trace"] if item["ka_id"] == "PodOrchestrator")
-    assert result["ok"] is True
-    assert pod_trace["output"]["pod_count"] > 0
-    assert "collective_confidence" in pod_trace["output"]
-    assert LLMGateway.get_quad_analysis_status()["pod_count"] == pod_trace["output"]["pod_count"]
+def test_gateway_has_no_duplicate_quad_or_overlay_pipeline():
+    assert not hasattr(LLMGateway, "_run_quad_analysis")
+    assert not hasattr(LLMGateway, "_run_ukg_overlay")
 
 
 @pytest.mark.asyncio
@@ -99,30 +71,6 @@ async def test_quad_engine_returns_gateway_contract_without_live_provider():
     for persona_result in analysis["perspectives"].values():
         assert persona_result["status"] == "success"
         assert "ImportError" not in persona_result["response"]
-
-
-@pytest.mark.asyncio
-async def test_gateway_quad_analysis_uses_real_engine_without_monkeypatch():
-    gateway = LLMGateway()
-
-    result = await gateway._run_quad_analysis(
-        "Assess legal compliance risk",
-        {
-            "tags": ["legal"],
-            "force_expanded_committee": True,
-            "query_id": "phase6-real-engine",
-        },
-    )
-
-    persona_trace = next(item for item in result["trace"] if item["ka_id"] == "PersonaAnalysis")
-    pod_trace = next(item for item in result["trace"] if item["ka_id"] == "PodOrchestrator")
-    assert result["ok"] is True
-    assert set(persona_trace["output"]) == {"knowledge", "sector", "regulatory", "compliance"}
-    for persona_result in persona_trace["output"].values():
-        assert persona_result["status"] == "success"
-        assert "ImportError" not in persona_result["response"]
-    assert pod_trace["output"]["pod_count"] > 0
-    assert LLMGateway.get_quad_analysis_status()["pod_count"] == pod_trace["output"]["pod_count"]
 
 
 @pytest.mark.asyncio

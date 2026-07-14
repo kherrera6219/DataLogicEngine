@@ -9,6 +9,7 @@ Provides unified interface for object/blob storage with support for:
 import mimetypes
 import hashlib
 import logging
+import os
 import re
 from pathlib import Path, PurePosixPath
 from typing import List, Dict, Optional, BinaryIO, Union
@@ -147,10 +148,27 @@ class LocalFileBackend(ObjectBackend):
 
         bucket_root = (self.base_path / safe_bucket).resolve()
         resolved_path = (bucket_root / safe_key).resolve()
+        # On Windows, concurrent resolve() calls can transiently return one
+        # path with the extended ``\\?\`` prefix and the other without it.
+        # pathlib.relative_to treats those equivalent paths as different. Use
+        # commonpath over normalized comparison strings while still resolving
+        # both sides first so junction/symlink escapes remain blocked.
+        def comparison_path(path: Path) -> str:
+            normalized = os.path.normcase(os.path.abspath(os.fspath(path)))
+            if normalized.startswith("\\\\?\\UNC\\"):
+                return "\\\\" + normalized[8:]
+            if normalized.startswith("\\\\?\\"):
+                return normalized[4:]
+            return normalized
+
+        bucket_comparison = comparison_path(bucket_root)
+        path_comparison = comparison_path(resolved_path)
         try:
-            resolved_path.relative_to(bucket_root)
-        except ValueError as exc:
-            raise ValueError("Object key resolved outside bucket root") from exc
+            contained = os.path.commonpath([bucket_comparison, path_comparison]) == bucket_comparison
+        except ValueError:
+            contained = False
+        if not contained:
+            raise ValueError("Object key resolved outside bucket root")
 
         return resolved_path
     

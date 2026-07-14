@@ -1,19 +1,12 @@
 # ruff: noqa: E402
-"""
-LLM Gateway Core - Integrated with UKG SDK
+"""Provider boundary and compatibility adapter for governed execution.
 
-Routes LLM requests through the UKG reasoning pipeline using the
-existing UKG_Python_SDK (UKGOverlay, CoordinateResolver17, KAExecutor).
-
-The gateway provides:
-- Database-stored provider configs with encrypted API keys
-- External API key management for customers
-- Usage analytics
-- REST wrapper around the SDK
+The backend-owned :class:`GovernedExecutionOrchestrator` is the only product
+request pipeline. This module owns provider selection, bounded calls, usage, and
+the legacy ``GatewayRequest``/``GatewayResponse`` transport adapter.
 """
 
 import asyncio
-import json
 import logging
 import os
 import sys
@@ -28,10 +21,9 @@ SDK_PATH = Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Python_S
 if str(SDK_PATH) not in sys.path:
     sys.path.insert(0, str(SDK_PATH))
 
-from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage, UserAIPreferences
+from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
-from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.model_defaults import (
     ANTHROPIC_PRIMARY_MODEL,
     GOOGLE_FAST_MODEL,
@@ -86,6 +78,9 @@ class GatewayResponse:
     warnings: list[str] = field(default_factory=list)
     error: Optional[str] = None
     meta: dict[str, Any] = field(default_factory=dict)
+    contract_version: str = "governed.v1"
+    status: str = "completed"
+    failure: Optional[dict[str, Any]] = None
 
 
 class CircuitBreaker:
@@ -270,16 +265,6 @@ class LLMGateway:
     def _desktop_local_first_enabled() -> bool:
         """Return True when the gateway should prefer local desktop fallback behavior."""
         return os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}
-
-    @staticmethod
-    def _dmrf_enabled(meta: dict[str, Any]) -> bool:
-        """Return True when DMRF should wrap the gateway control plane."""
-        if meta.get("use_dmrf") is not None:
-            return str(meta.get("use_dmrf")).lower() in {"1", "true", "yes", "on"}
-        configured = os.environ.get("USE_DMRF")
-        if configured is not None:
-            return configured.lower() in {"1", "true", "yes", "on"}
-        return LLMGateway._desktop_local_first_enabled()
 
     @staticmethod
     def _has_active_cloud_providers() -> bool:
@@ -475,625 +460,47 @@ class LLMGateway:
             ),
         )
     
+    async def execute(self, request):
+        """Execute the canonical versioned governed contract."""
+
+        from backend.governed_execution.contracts import GovernedRequest
+        from backend.governed_execution.orchestrator import GovernedExecutionOrchestrator
+
+        governed_request = request if isinstance(request, GovernedRequest) else GovernedRequest.from_gateway(request)
+        return await GovernedExecutionOrchestrator(self).execute(governed_request)
+
     async def process(self, request: GatewayRequest) -> GatewayResponse:
-        """
-        Process a gateway request with failover and circuit breaker.
-        """
-        run_id = str(uuid.uuid4())
-        request.meta["run_id"] = run_id
-        start_time = datetime.now(UTC)
+        """Compatibility adapter into the canonical governed contract."""
 
-        query = self._extract_query(request.messages)
-        governance = self._governance.prepare_request(request, query)
-        if not governance.ok:
-            self._governance.record_audit_event(
-                run_id=run_id,
-                user_id=request.user_id,
-                api_key_id=request.api_key_id,
-                provider=request.provider,
-                model=request.model or "unknown",
-                model_version="unknown",
-                governance_flags=governance.governance_flags,
-                request_tokens_estimate=governance.estimated_request_tokens,
-                success=False,
-                error_code="GOVERNANCE_BLOCK",
-                error_message=governance.error,
-                metadata={"timestamp": datetime.now(UTC).isoformat()},
-            )
-            return await self._error_response(
-                run_id,
-                governance.error or "Request blocked by governance policy",
-                start_time,
-                request,
-            )
-
-        query = governance.query
-        request.meta["governance_flags"] = governance.governance_flags
-        if governance.prompt_template_key:
-            request.meta["prompt_template_key"] = governance.prompt_template_key
-            request.meta["prompt_template_version"] = governance.prompt_template_version
-        if governance.routing_policy_name:
-            request.meta["routing_policy_name"] = governance.routing_policy_name
-            request.meta["routing_policy_version"] = governance.routing_policy_version
-        request.meta["estimated_request_tokens"] = governance.estimated_request_tokens
-
-        allowed_provider_types = self._normalize_allowlist(
-            request.meta.get("allowed_provider_types") or request.meta.get("allowed_providers")
-        )
-        allowed_models = self._normalize_allowlist(request.meta.get("allowed_models"))
-
-        if governance.allowed_provider_types:
-            allowed_provider_types = (
-                allowed_provider_types & governance.allowed_provider_types
-                if allowed_provider_types
-                else set(governance.allowed_provider_types)
-            )
-        if governance.allowed_models:
-            allowed_models = (
-                allowed_models & governance.allowed_models
-                if allowed_models
-                else set(governance.allowed_models)
-            )
-
-        if allowed_provider_types:
-            request.meta["allowed_provider_types"] = sorted(allowed_provider_types)
-        if allowed_models:
-            request.meta["allowed_models"] = sorted(allowed_models)
-
-        if request.run_ukg_pipeline and self._dmrf_enabled(request.meta):
-            try:
-                from backend.dmrf import DMRFOrchestrator
-
-                dmrf_result = await DMRFOrchestrator(
-                    desktop_mode=self._desktop_local_first_enabled(),
-                    db_session=self.db,
-                ).process(
-                    query,
-                    context=request.meta,
-                    offline=bool(request.meta.get("offline") or request.meta.get("providers_unreachable")),
-                )
-                dmrf_bundle = dmrf_result.export_bundle()
-                request.meta["dmrf"] = dmrf_bundle
-                request.meta["dmrf_tier"] = dmrf_result.tier
-                request.meta["axis_vector"] = dmrf_bundle.get("axis_vector", {})
-                if not dmrf_result.ok:
-                    return await self._error_response(
-                        run_id,
-                        "; ".join(dmrf_result.warnings) or "DMRF blocked request",
-                        start_time,
-                        request,
-                    )
-            except Exception as exc:
-                logger.warning("DMRF control plane failed open: %s", exc)
-                request.meta.setdefault("dmrf_warnings", []).append(str(exc))
-
-        requested_model = str(request.model).strip().lower() if request.model else ""
-        if allowed_models and requested_model and requested_model not in allowed_models:
-            self._governance.record_audit_event(
-                run_id=run_id,
-                user_id=request.user_id,
-                api_key_id=request.api_key_id,
-                provider=request.provider,
-                model=request.model or "unknown",
-                model_version="unknown",
-                prompt_template_key=request.meta.get("prompt_template_key"),
-                prompt_template_version=request.meta.get("prompt_template_version"),
-                routing_policy_name=request.meta.get("routing_policy_name"),
-                routing_policy_version=request.meta.get("routing_policy_version"),
-                governance_flags=request.meta.get("governance_flags"),
-                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                success=False,
-                error_code="MODEL_ALLOWLIST_BLOCK",
-                error_message=f"Requested model '{request.model}' is not allowed by policy",
-                metadata={"timestamp": datetime.now(UTC).isoformat()},
-            )
-            return await self._error_response(
-                run_id,
-                f"Requested model '{request.model}' is not allowed by API key policy",
-                start_time,
-                request,
-            )
-        
-        # An operator-configured cloud default takes precedence over legacy
-        # desktop preferences. Older installs may still have Ollama persisted
-        # as the preferred provider/model even though cloud routing is enabled.
-        operator_default_provider = self._preferred_env_provider()
-        local_provider_types = {"local_slm", "ollama", "vllm"}
-        requested_provider_type = str(request.provider or "").strip().lower()
-        if operator_default_provider and requested_provider_type in local_provider_types:
-            logger.info(
-                "Ignoring legacy local provider preference '%s'; desktop default is '%s'",
-                requested_provider_type,
-                operator_default_provider,
-            )
-            request.provider = None
-            request.model = None
-
-        if operator_default_provider and not request.provider:
-            request.provider = operator_default_provider
-            request.model = request.model or default_model_for_provider(operator_default_provider)
-
-        # Apply user AI preferences (disable check + preferred provider)
-        _store_history = True
-        if request.user_id:
-            try:
-                user_prefs = UserAIPreferences.query.filter_by(user_id=request.user_id).first()
-                if user_prefs:
-                    if not user_prefs.ai_processing_enabled:
-                        return await self._error_response(
-                            run_id, "AI processing is disabled in your account settings.", start_time, request
-                        )
-                    if not request.provider and user_prefs.preferred_provider:
-                        request.provider = user_prefs.preferred_provider
-                    if not request.model and user_prefs.preferred_model:
-                        request.model = user_prefs.preferred_model
-                    _store_history = bool(user_prefs.store_chat_history)
-            except Exception:
-                pass  # Preferences are optional — never block a request on DB failure
-
-        # Model selection: the request uses the caller-pinned provider/model, or
-        # the user's saved preference (set above from UserAIPreferences), or the
-        # first active cloud provider's default model — gpt-5.5 (OpenAI) or
-        # gemini-3.1-pro-preview (Google) — resolved by _get_eligible_providers +
-        # _resolve_model below. There is no tiered escalation; a single
-        # user-selected cloud model handles every request.
-
-        # ── Defense supervisor (N2) ─────────────────────────────────────────
-        # LLM-backed semantic screening on the selected cloud model for pipeline
-        # queries. Complements the pattern shields already applied in
-        # governance.prepare_request; fail-open when no model/key is configured.
-        supervisor_block = self._screen_with_defense_supervisor(request, query)
-        if supervisor_block:
-            verdict = request.meta.get("defense_supervisor", {})
-            self._governance.record_audit_event(
-                run_id=run_id,
-                user_id=request.user_id,
-                api_key_id=request.api_key_id,
-                provider=request.provider,
-                model=request.model or "unknown",
-                model_version="unknown",
-                governance_flags=(request.meta.get("governance_flags") or [])
-                + ["defense_supervisor_blocked"],
-                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                success=False,
-                error_code="DEFENSE_SUPERVISOR_BLOCK",
-                error_message=supervisor_block,
-                metadata={
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "threat_type": verdict.get("threat_type"),
-                    "threat_score": verdict.get("threat_score"),
-                    "recommended_action": verdict.get("recommended_action"),
-                },
-            )
-            return await self._error_response(
-                run_id,
-                "Request blocked by security policy",
-                start_time,
-                request,
-            )
-
-        # 1. Get eligible providers
-        providers = await self._get_eligible_providers(
-            request.provider,
-            request.meta,
-            allowed_provider_types=allowed_provider_types or None,
-            allowed_models=allowed_models or None,
-        )
-        if not providers:
-            self._governance.record_audit_event(
-                run_id=run_id,
-                user_id=request.user_id,
-                api_key_id=request.api_key_id,
-                provider=request.provider,
-                model=request.model or "unknown",
-                model_version="unknown",
-                prompt_template_key=request.meta.get("prompt_template_key"),
-                prompt_template_version=request.meta.get("prompt_template_version"),
-                routing_policy_name=request.meta.get("routing_policy_name"),
-                routing_policy_version=request.meta.get("routing_policy_version"),
-                governance_flags=request.meta.get("governance_flags"),
-                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                success=False,
-                error_code="NO_PROVIDER",
-                error_message="No active providers found",
-                metadata={"timestamp": datetime.now(UTC).isoformat()},
-            )
-            return await self._error_response(run_id, "No active providers found", start_time, request)
-
-        last_error = None
-
-        messages_for_request = self._replace_latest_user_message(request.messages, query)
-        user_id_str = str(request.user_id) if request.user_id else "anonymous"
-        
-        history = []
-        if request.session_id:
-            if _store_history:
-                await self._save_chat_message(request.session_id, request.user_id, "user", query)
-            history = await self._get_recent_history(request.session_id)
-        
-        # 3. Try providers in order
-        for provider_record in providers:
-            cb = self._get_circuit_breaker(str(provider_record.id))
-            
-            if not cb.can_execute():
-                logger.warning(f"Circuit OPEN for provider {provider_record.name}, skipping...")
-                continue
-
-            model = self._resolve_model(request, provider_record)
-            if allowed_models and model.strip().lower() not in allowed_models:
-                logger.warning(
-                    "Skipping provider %s due to API key model policy",
-                    getattr(provider_record, "name", "unknown"),
-                )
-                continue
-
-            request.meta["last_provider_used"] = getattr(provider_record, "provider_type", None)
-            request.meta["last_model_used"] = model
-
-            provider_timeout_seconds = self._provider_timeout_seconds(provider_record)
-            max_retries = self._provider_max_retries(provider_record)
-            for attempt in range(max_retries):
-                try:
-                    # 4. Create SDK provider and run
-                    sdk_provider = self._create_sdk_provider(provider_record)
-                    
-                    full_messages = history + messages_for_request
-                    
-                    # RAG context captured here for the exact-cache key (see Local Model
-                    # Acceleration).  Must be set *before* the if/else so it is always
-                    # in scope, even for direct (non-UKG) calls where RAG is not used.
-                    _rag_ctx_for_cache = ""
-
-                    if request.run_ukg_pipeline:
-                        # Retrieve relevant context from RAG (VectorStore)
-                        rag_context = ""
-                        if request.meta.get("use_rag", True):
-                            try:
-                                from backend.services.rag_service import get_rag_service
-                                rag = get_rag_service()
-                                rag_chunks = []
-
-                                doc_context = rag.get_context_for_query(query, max_tokens=1200)
-                                if doc_context:
-                                    rag_chunks.append(doc_context)
-
-                                # Add semantic memory from prior chat sessions for this user.
-                                if request.user_id:
-                                    prior_hits = rag.search_user_chat_history(
-                                        user_id=str(request.user_id),
-                                        query=query,
-                                        k=6,
-                                        exclude_session_id=request.session_id,
-                                    )
-                                    if prior_hits:
-                                        memory_lines = []
-                                        for hit in prior_hits[:3]:
-                                            role = hit.get("metadata", {}).get("role", "message")
-                                            text = (hit.get("text") or "").strip()
-                                            if not text:
-                                                continue
-                                            clipped = text[:280] + ("..." if len(text) > 280 else "")
-                                            memory_lines.append(f"{role}: {clipped}")
-                                        if memory_lines:
-                                            rag_chunks.append(
-                                                "Relevant context from prior chat threads:\n" + "\n".join(memory_lines)
-                                            )
-
-                                rag_context = "\n\n---\n\n".join(rag_chunks)
-                                if rag_context:
-                                    logger.debug(f"Retrieved RAG context: {len(rag_context)} chars")
-                            except Exception as e:
-                                logger.warning(f"RAG context retrieval failed: {e}")
-                        
-                        # Capture RAG context for Local Model Acceleration cache key.
-                        _rag_ctx_for_cache = rag_context
-
-                        # Inject RAG context into meta for UKG overlay
-                        augmented_meta = {**request.meta, "rag_context": rag_context, "chat_history": history}
-                        
-                        # Decide between standard overlay and quad persona analysis
-                        if request.mode == "quad" or request.meta.get("quad_persona", False):
-                            result_coro = self._run_quad_analysis(
-                                query=query,
-                                context=augmented_meta,
-                            )
-                        else:
-                            result_coro = self._run_ukg_overlay(
-                                sdk_provider=sdk_provider,
-                                model=model,
-                                query=query,
-                                run_id=run_id,
-                                user_id=user_id_str,
-                                session_id=request.session_id,
-                                meta=augmented_meta,
-                                temperature=request.temperature,
-                                max_tokens=request.max_tokens or 1024,
-                            )
-                    else:
-                        result_coro = self._direct_llm_call(
-                            sdk_provider=sdk_provider,
-                            model=model,
-                            messages=full_messages,
-                            temperature=request.temperature,
-                            max_tokens=request.max_tokens or 1024,
-                        )
-
-                    # Single cloud model per request — no local acceleration cache.
-                    result = await asyncio.wait_for(
-                        result_coro, timeout=provider_timeout_seconds
-                    )
-
-                    if result.get("ok", True):
-                        cb.record_success()
-                        latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                        record_ai_request(
-                            provider=getattr(provider_record, "provider_type", "unknown"),
-                            duration_ms=latency_ms,
-                            success=True,
-                        )
-
-                        usage_payload = result.get("usage", {}) if isinstance(result.get("usage"), dict) else {}
-                        tokens_in = int(usage_payload.get("prompt_tokens", 0) or 0)
-                        tokens_out = int(usage_payload.get("completion_tokens", 0) or 0)
-                        estimated_cost_usd = self._governance.estimate_cost_usd(model, tokens_in, tokens_out)
-                        usage_payload["estimated_cost_usd"] = estimated_cost_usd
-                        result["usage"] = usage_payload
-                        result["latency_ms"] = latency_ms
-                        result["provider_used"] = getattr(provider_record, "provider_type", "unknown")
-                        result["model_used"] = model
-
-                        moderated_answer, output_classification, governance_warnings = (
-                            self._governance.apply_output_controls(result.get("answer", ""))
-                        )
-                        result["answer"] = moderated_answer
-                        explainability = result.get("explainability")
-                        if not isinstance(explainability, dict):
-                            explainability = {}
-                        explainability["output_classification"] = output_classification
-                        result["explainability"] = explainability
-                        result["warnings"] = list(result.get("warnings", [])) + governance_warnings
-                        self._attach_dmrf_trace_metadata(result, request.meta)
-
-                        await self._record_usage(
-                            provider_record.id,
-                            request.user_id,
-                            request.api_key_id,
-                            run_id,
-                            model,
-                            tokens_in,
-                            tokens_out,
-                            latency_ms,
-                            True,
-                            estimated_cost_usd=estimated_cost_usd,
-                        )
-
-                        model_version = (
-                            result.get("model_version")
-                            or (result.get("metadata", {}) or {}).get("model_version")
-                            or getattr(provider_record, "api_version", None)
-                            or "unknown"
-                        )
-                        self._governance.record_audit_event(
-                            run_id=run_id,
-                            user_id=request.user_id,
-                            api_key_id=request.api_key_id,
-                            provider=getattr(provider_record, "provider_type", "unknown"),
-                            model=model,
-                            model_version=model_version,
-                            prompt_template_key=request.meta.get("prompt_template_key"),
-                            prompt_template_version=request.meta.get("prompt_template_version"),
-                            routing_policy_name=request.meta.get("routing_policy_name"),
-                            routing_policy_version=request.meta.get("routing_policy_version"),
-                            classification=output_classification,
-                            governance_flags=request.meta.get("governance_flags"),
-                            request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                            tokens_in=tokens_in,
-                            tokens_out=tokens_out,
-                            estimated_cost_usd=estimated_cost_usd,
-                            success=True,
-                            metadata={
-                                "timestamp": datetime.now(UTC).isoformat(),
-                            },
-                        )
-
-                        await self._create_trace_run(
-                            result,
-                            query,
-                            run_id,
-                            user_id_str,
-                            request.session_id,
-                            model,
-                        )
-
-                        if request.session_id and _store_history:
-                            await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
-
-                        return self._build_response(
-                            result, run_id, provider_record, model, latency_ms,
-                            response_meta=request.meta,
-                        )
-                    
-                    # If provider returned !ok but might be retryable (e.g., 503)
-                    last_error = result.get("error", "Unknown provider error")
-                    is_rate_limited = self._is_rate_limit_error(last_error)
-                    # Rate-limit (429) is NOT retried — the window won't reset in ms —
-                    # and does NOT count as a circuit-breaker failure.
-                    retryable = not is_rate_limited and (
-                        bool(result.get("retryable")) or self._is_retryable_error(last_error)
-                    )
-                    logger.warning(
-                        "Provider %s attempt %s/%s failed: %s (retryable=%s, rate_limited=%s)",
-                        provider_record.name,
-                        attempt + 1,
-                        max_retries,
-                        last_error,
-                        retryable,
-                        is_rate_limited,
-                    )
-
-                    if attempt < max_retries - 1 and retryable:
-                        await self._retry_backoff_sleep(attempt)
-                        continue
-
-                    if not is_rate_limited:
-                        cb.record_failure()
-                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                    record_ai_request(
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        duration_ms=latency_ms,
-                        success=False,
-                    )
-                    await self._record_usage(
-                        provider_record.id,
-                        request.user_id,
-                        request.api_key_id,
-                        run_id,
-                        model,
-                        result.get("usage", {}).get("prompt_tokens", 0),
-                        result.get("usage", {}).get("completion_tokens", 0),
-                        latency_ms,
-                        False,
-                        error_code="PROVIDER_ERROR",
-                        error_message=last_error,
-                    )
-                    self._governance.record_audit_event(
-                        run_id=run_id,
-                        user_id=request.user_id,
-                        api_key_id=request.api_key_id,
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        model=model,
-                        model_version=getattr(provider_record, "api_version", None) or "unknown",
-                        prompt_template_key=request.meta.get("prompt_template_key"),
-                        prompt_template_version=request.meta.get("prompt_template_version"),
-                        routing_policy_name=request.meta.get("routing_policy_name"),
-                        routing_policy_version=request.meta.get("routing_policy_version"),
-                        governance_flags=request.meta.get("governance_flags"),
-                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                        success=False,
-                        error_code="PROVIDER_ERROR",
-                        error_message=last_error,
-                        metadata={"timestamp": datetime.now(UTC).isoformat()},
-                    )
-                    break  # Try next provider
-
-                except asyncio.TimeoutError:
-                    last_error = f"Provider request timed out after {provider_timeout_seconds}s"
-                    logger.warning(
-                        "Provider %s attempt %s/%s timed out after %ss",
-                        provider_record.name,
-                        attempt + 1,
-                        max_retries,
-                        provider_timeout_seconds,
-                    )
-                    if attempt < max_retries - 1:
-                        await self._retry_backoff_sleep(attempt)
-                        continue
-
-                    cb.record_failure()
-                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                    record_ai_request(
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        duration_ms=latency_ms,
-                        success=False,
-                    )
-                    await self._record_usage(
-                        provider_record.id,
-                        request.user_id,
-                        request.api_key_id,
-                        run_id,
-                        model,
-                        0,
-                        0,
-                        latency_ms,
-                        False,
-                        error_code="TIMEOUT",
-                        error_message=last_error,
-                    )
-                    self._governance.record_audit_event(
-                        run_id=run_id,
-                        user_id=request.user_id,
-                        api_key_id=request.api_key_id,
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        model=model,
-                        model_version=getattr(provider_record, "api_version", None) or "unknown",
-                        prompt_template_key=request.meta.get("prompt_template_key"),
-                        prompt_template_version=request.meta.get("prompt_template_version"),
-                        routing_policy_name=request.meta.get("routing_policy_name"),
-                        routing_policy_version=request.meta.get("routing_policy_version"),
-                        governance_flags=request.meta.get("governance_flags"),
-                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                        success=False,
-                        error_code="TIMEOUT",
-                        error_message=last_error,
-                        metadata={"timestamp": datetime.now(UTC).isoformat()},
-                    )
-                    break  # Try next provider
-
-                except Exception as e:
-                    last_error = str(e)
-                    is_rate_limited = self._is_rate_limit_error(last_error)
-                    retryable = not is_rate_limited and self._is_retryable_error(last_error)
-                    logger.error(
-                        "Provider %s attempt %s/%s exception: %s (retryable=%s, rate_limited=%s)",
-                        provider_record.name,
-                        attempt + 1,
-                        max_retries,
-                        e,
-                        retryable,
-                        is_rate_limited,
-                        exc_info=True,
-                    )
-                    if attempt < max_retries - 1 and retryable:
-                        await self._retry_backoff_sleep(attempt)
-                        continue
-
-                    if not is_rate_limited:
-                        cb.record_failure()
-                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                    record_ai_request(
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        duration_ms=latency_ms,
-                        success=False,
-                    )
-                    await self._record_usage(
-                        provider_record.id,
-                        request.user_id,
-                        request.api_key_id,
-                        run_id,
-                        model,
-                        0,
-                        0,
-                        latency_ms,
-                        False,
-                        error_code="EXCEPTION",
-                        error_message=last_error,
-                    )
-                    self._governance.record_audit_event(
-                        run_id=run_id,
-                        user_id=request.user_id,
-                        api_key_id=request.api_key_id,
-                        provider=getattr(provider_record, "provider_type", "unknown"),
-                        model=model,
-                        model_version=getattr(provider_record, "api_version", None) or "unknown",
-                        prompt_template_key=request.meta.get("prompt_template_key"),
-                        prompt_template_version=request.meta.get("prompt_template_version"),
-                        routing_policy_name=request.meta.get("routing_policy_name"),
-                        routing_policy_version=request.meta.get("routing_policy_version"),
-                        governance_flags=request.meta.get("governance_flags"),
-                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
-                        success=False,
-                        error_code="EXCEPTION",
-                        error_message=last_error,
-                        metadata={"timestamp": datetime.now(UTC).isoformat()},
-                    )
-                    break  # Try next provider
-
-        # All eligible providers failed or were unavailable.
-        return await self._error_response(
-            run_id,
-            last_error or "All providers failed to generate a response",
-            start_time,
-            request,
+        governed = await self.execute(request)
+        usage = dict(governed.usage or {})
+        usage.setdefault("tokens_in", usage.get("prompt_tokens", 0))
+        usage.setdefault("tokens_out", usage.get("completion_tokens", 0))
+        return GatewayResponse(
+            content=governed.answer,
+            run_id=governed.trace_id,
+            provider_used=governed.provider_used or "none",
+            model_used=governed.model_used or request.model or "unknown",
+            usage=usage,
+            ok=governed.ok,
+            coordinate=governed.coordinate,
+            tier=governed.tier,
+            layers=[stage.name for stage in governed.stages],
+            trace=[stage.to_dict() for stage in governed.stages],
+            explainability={
+                "output_classification": (governed.metadata.get("validation") or {}).get("classification")
+            }
+            if isinstance(governed.metadata, dict) and governed.metadata.get("validation")
+            else None,
+            confidence=governed.confidence,
+            claims=[claim.to_dict() for claim in governed.claims],
+            evidence_count=len(governed.evidence),
+            warnings=list(governed.warnings),
+            error=governed.failure.message if governed.failure else None,
+            meta=dict(governed.metadata),
+            contract_version=governed.contract_version,
+            status=governed.status,
+            failure=governed.failure.to_dict() if governed.failure else None,
         )
 
     async def process_stream(self, request: GatewayRequest) -> AsyncIterator[dict[str, Any]]:
@@ -1436,385 +843,6 @@ class LLMGateway:
 
         return providers
 
-    def _build_response(
-        self,
-        result: dict,
-        run_id: str,
-        provider: LLMProvider,
-        model: str,
-        latency_ms: int,
-        *,
-        response_meta: dict | None = None,
-    ) -> GatewayResponse:
-        usage_data = result.get("usage", {})
-        usage_payload = {
-            "tokens_in": usage_data.get("prompt_tokens", 0),
-            "tokens_out": usage_data.get("completion_tokens", 0),
-            "latency_ms": latency_ms,
-        }
-        if isinstance(usage_data, dict) and "estimated_cost_usd" in usage_data:
-            usage_payload["estimated_cost_usd"] = usage_data.get("estimated_cost_usd")
-
-        tier = result.get("tier")
-        content = result.get("answer", "")
-        _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
-        if tier and str(tier).lower().strip() not in _tier_exclusions:
-            content = content + "\n\n" + self._audit_footer(result, tier, latency_ms)
-
-        return GatewayResponse(
-            content=content,
-            run_id=run_id,
-            provider_used=provider.provider_type,
-            model_used=model,
-            usage=usage_payload,
-            ok=result.get("ok", True),
-            coordinate=result.get("coordinate"),
-            tier=tier,
-            layers=result.get("layers"),
-            trace=result.get("trace"),
-            explainability=result.get("explainability"),
-            confidence=result.get("confidence"),
-            claims=result.get("claims") if isinstance(result.get("claims"), list) else [],
-            evidence_count=len(result.get("evidence", [])) if isinstance(result.get("evidence"), list) else 0,
-            warnings=list(result.get("warnings", [])),
-            error=result.get("error"),
-            meta=dict(response_meta or {}),
-        )
-
-    @staticmethod
-    def _attach_dmrf_trace_metadata(result: dict[str, Any], request_meta: dict[str, Any]) -> None:
-        """Carry DMRF control-plane decisions into the unified trace payload."""
-        if not isinstance(result, dict) or not isinstance(request_meta, dict):
-            return
-        dmrf_bundle = request_meta.get("dmrf")
-        if not isinstance(dmrf_bundle, dict):
-            return
-
-        metadata = result.get("metadata")
-        if not isinstance(metadata, dict):
-            metadata = {}
-        metadata.setdefault("dmrf", dmrf_bundle)
-        result["metadata"] = metadata
-
-        dmrf_tier = request_meta.get("dmrf_tier") or dmrf_bundle.get("tier")
-        if dmrf_tier and not result.get("tier"):
-            result["tier"] = dmrf_tier
-
-        axis_vector = dmrf_bundle.get("axis_vector")
-        if isinstance(axis_vector, dict):
-            if not result.get("coordinate"):
-                result["coordinate"] = axis_vector
-            if result.get("confidence") is None and axis_vector.get("confidence") is not None:
-                result["confidence"] = axis_vector.get("confidence")
-            if axis_vector.get("frost_layer_depth") is not None and result.get("frost_depth") is None:
-                result["frost_depth"] = axis_vector.get("frost_layer_depth")
-            if axis_vector.get("truth_engine_mode") and not result.get("truth_engine_mode"):
-                result["truth_engine_mode"] = axis_vector.get("truth_engine_mode")
-
-        existing_trace = result.get("trace") if isinstance(result.get("trace"), list) else []
-        existing_ids = {
-            str(item.get("ka_id"))
-            for item in existing_trace
-            if isinstance(item, dict) and item.get("ka_id")
-        }
-        dmrf_trace: list[dict[str, Any]] = []
-        for index, step in enumerate(dmrf_bundle.get("steps") or []):
-            if not isinstance(step, dict):
-                continue
-            name = str(step.get("name") or f"step_{index + 1}")
-            trace_id = f"DMRF:{name}"
-            if trace_id in existing_ids:
-                continue
-            dmrf_trace.append({
-                "ka_id": trace_id,
-                "stage_name": name.replace("_", " ").title(),
-                "stage_type": "control_plane",
-                "status": step.get("status", "ok"),
-                "output": step.get("outputs") if isinstance(step.get("outputs"), dict) else {},
-                "start_time": step.get("started_at"),
-                "end_time": step.get("completed_at"),
-                "metrics": {"snapshot_id": step.get("snapshot_id")},
-            })
-        if dmrf_trace:
-            result["trace"] = dmrf_trace + existing_trace
-
-    @staticmethod
-    def _audit_footer(result: dict, tier, latency_ms: int) -> str:
-        """Return the spec Section 11.2 canonical audit footer for Tier 2+ responses."""
-        expl = result.get("explainability") or {}
-        raw_coord = result.get("coordinate") or {}
-        coordinate = raw_coord if isinstance(raw_coord, dict) else {}
-        active_axes = coordinate.get("active_axes") or []
-        personas = expl.get("personas_invoked") or []
-        confidence = result.get("confidence", 0.0)
-        steps = result.get("refinement_steps") or []
-        compliance_flags = result.get("compliance_flags") or "None"
-        assumption = expl.get("key_assumption", "Not specified")
-        consequence = expl.get("consequence_if_wrong", "Not specified")
-
-        axes_str = ", ".join(str(a) for a in active_axes) if active_axes else "Not resolved"
-        personas_str = ", ".join(str(p) for p in personas) if personas else "Not recorded"
-        steps_str = ", ".join(str(s) for s in steps) if steps else "None"
-        flags_str = str(compliance_flags) if isinstance(compliance_flags, str) else ", ".join(str(f) for f in compliance_flags)
-
-        return (
-            f"[UKG Audit Trace]\n"
-            f"Tier: {tier}\n"
-            f"Active Axes: {axes_str}\n"
-            f"Personas Invoked: {personas_str}\n"
-            f"Confidence: {confidence:.3f}\n"
-            f"Refinement Steps Executed: {steps_str}\n"
-            f"Compliance Flags: {flags_str}\n"
-            f"Key Assumption to Verify: {assumption}\n"
-            f"What Changes if Wrong: {consequence}"
-        )
-
-    async def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
-        latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-        public_error = self._public_error_message(error)
-        model_used = request.meta.get("last_model_used") or request.model or "unknown"
-        provider_used = request.meta.get("last_provider_used") or "none"
-        await self._create_trace_run(
-            {
-                "ok": False,
-                "answer": "",
-                "error": public_error,
-                "metadata": {
-                    "gateway_error": {
-                        "message": public_error,
-                        "raw_message": str(error or ""),
-                        "provider": provider_used,
-                        "model": model_used,
-                        "latency_ms": latency_ms,
-                    }
-                },
-            },
-            self._extract_query(request.messages),
-            run_id,
-            str(request.user_id) if request.user_id else "anonymous",
-            request.session_id,
-            str(model_used),
-        )
-        return GatewayResponse(
-            content="",
-            run_id=run_id,
-            provider_used=provider_used,
-            model_used=str(model_used),
-            usage={"latency_ms": latency_ms},
-            ok=False,
-            error=public_error,
-        )
-    
-    
-    @staticmethod
-    def _recent_context_summary(
-        messages: list[dict[str, Any]] | None,
-        limit: int = 5,
-        max_chars: int = 240,
-    ) -> str:
-        """Summarize the prior turns (excluding the latest message) for
-        Crescendo detection by the defense supervisor."""
-        prior = [m for m in (messages or [])[:-1] if isinstance(m, dict)]
-        lines: list[str] = []
-        for message in prior[-limit:]:
-            role = str(message.get("role", "user"))
-            content = message.get("content", "")
-            if isinstance(content, list):
-                content = " ".join(
-                    part.get("text", "") for part in content if isinstance(part, dict)
-                )
-            text = str(content)[:max_chars].strip()
-            if text:
-                lines.append(f"{role}: {text}")
-        return "\n".join(lines)
-
-    def _screen_with_defense_supervisor(
-        self, request: GatewayRequest, query: str
-    ) -> Optional[str]:
-        """Run LLM-backed security screening for pipeline queries (N2).
-
-        Returns an error message when the request must be blocked, else
-        None. The full verdict is stored in request.meta["defense_supervisor"].
-        Fail-open: any wiring error allows the request (the pattern shields
-        in governance.prepare_request already ran).
-        """
-        if not request.run_ukg_pipeline:
-            return None
-        try:
-            from backend.security.defense_supervisor import get_defense_supervisor
-
-            supervisor = get_defense_supervisor()
-            if not supervisor.enabled():
-                return None
-            verdict = supervisor.screen(
-                query,
-                context_summary=self._recent_context_summary(request.messages),
-                user_role="owner",
-            )
-            request.meta["defense_supervisor"] = verdict
-            # HONEYPOT collapses to BLOCK by design: this is a single-user,
-            # local-first app (one OS owner), so there is no external adversary
-            # to feed a decoy response — blocking is the correct, conservative
-            # action for both verdicts. The distinct HONEYPOT label is preserved
-            # in request.meta for the audit trail. (A3-4; user_role is "owner".)
-            if verdict.get("available") and verdict.get("recommended_action") in {
-                "BLOCK",
-                "HONEYPOT",
-            }:
-                return verdict.get("reason") or "Blocked by security supervisor"
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Defense supervisor wiring failed open: %s", exc)
-        return None
-
-    def _extract_query(self, messages: list[dict[str, Any]]) -> str:
-        """Extract user query from messages, handling multimodal content."""
-        for msg in reversed(messages):
-            if msg.get("role") == "user":
-                content = msg.get("content", "")
-                if isinstance(content, list):
-                    # Extract text parts from multimodal content
-                    text_parts = [part.get("text", "") for part in content if part.get("type") == "text"]
-                    return " ".join(text_parts)
-                return content
-        return ""
-
-    def _replace_latest_user_message(self, messages: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
-        """Override the latest user message content (used after prompt-template rendering)."""
-        cloned_messages = [dict(message) for message in messages]
-        for index in range(len(cloned_messages) - 1, -1, -1):
-            if cloned_messages[index].get("role") == "user":
-                cloned_messages[index]["content"] = query
-                return cloned_messages
-
-        cloned_messages.append({"role": "user", "content": query})
-        return cloned_messages
-    
-    async def _run_quad_analysis(
-        self,
-        query: str,
-        context: dict[str, Any],
-    ) -> dict[str, Any]:
-        """Run query through QuadPersonaEngine and PodOrchestrator."""
-        try:
-            from backend.quad_persona.quad_engine import create_quad_persona_engine
-            from backend.truth_engine.truth_core.persona_scaling_bridge import (
-                orchestration_summary,
-                scaling_decision_from_sufficiency,
-            )
-            from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
-            from core.persona.quad.pod_orchestrator import create_pod_orchestrator
-            engine = create_quad_persona_engine(llm_gateway=self)
-            
-            # Run the concurrent analysis
-            analysis = await engine.run_quad_analysis(query, context)
-            perspectives = analysis.get("perspectives", {})
-            active_axes = context.get("active_axes") or context.get("mapped_axes") or [8, 9, 10, 11]
-            sufficiency = PersonaSufficiencyTool().evaluate(
-                query,
-                active_axes,
-                perspectives,
-                {"domain": context.get("risk_domain", context.get("domain", "standard")), "tags": context.get("tags", [])},
-            )
-            if context.get("force_expanded_committee"):
-                sufficiency["mode"] = "expanded_committee"
-                sufficiency["spawn"] = sufficiency.get("spawn") or {
-                    "knowledge": 1,
-                    "sector": 1,
-                    "regulatory": 1,
-                    "compliance": 1,
-                }
-
-            scaling_decision = scaling_decision_from_sufficiency(sufficiency)
-            orchestration_state = create_pod_orchestrator().orchestrate(
-                query,
-                {**context, "query_id": context.get("query_id") or str(uuid.uuid4())},
-                scaling_decision,
-                base_persona_results=perspectives,
-            )
-            pod_summary = orchestration_summary(orchestration_state)
-            self.__class__._last_quad_analysis_status = pod_summary
-            analysis_synthesis = analysis.get("synthesis", "Failed to synthesize persona perspectives.")
-            if isinstance(analysis_synthesis, dict):
-                analysis_synthesis = analysis_synthesis.get("summary", "Failed to synthesize persona perspectives.")
-            answer = orchestration_state.final_synthesis or analysis_synthesis
-            
-            return {
-                "ok": True,
-                "answer": answer,
-                "trace": [
-                    {"ka_id": "PersonaAnalysis", "status": "pass", "output": perspectives},
-                    {"ka_id": "PodOrchestrator", "status": "pass", "output": pod_summary},
-                    {"ka_id": "Synthesis", "status": "pass", "output": {"summary": answer[:200] + "..."}}
-                ],
-                "confidence_score": pod_summary["collective_confidence"] or analysis.get("metadata", {}).get("confidence", 0.9),
-                "tier": "high_stakes",
-                "coordinate": "AXIS_07_COMPLIANCE", # Default coordinate for persona analysis
-                "metadata": {"quad_analysis_status": pod_summary},
-            }
-        except Exception as e:
-            logger.error(f"Quad persona analysis failed: {e}")
-            self.__class__._last_quad_analysis_status = {
-                "pod_count": 0,
-                "collective_confidence": 0.0,
-                "mode": "error",
-                "status": "failed",
-            }
-            return {"ok": False, "error": str(e)}
-
-    async def _run_ukg_overlay(
-        self,
-        sdk_provider: Any,
-        model: str,
-        query: str,
-        run_id: str,
-        user_id: str,
-        session_id: Optional[str],
-        meta: dict[str, Any],
-        temperature: float,
-        max_tokens: int,
-    ) -> dict[str, Any]:
-        """Run query through UKGOverlay."""
-        try:
-            from ukg_sdk.overlay import UKGOverlay
-        except ImportError as e:
-            logger.warning(f"UKGOverlay not available: {e}")
-            return await self._direct_llm_call_fallback(
-                sdk_provider, model, query, temperature, max_tokens
-            )
-        
-        if sdk_provider is None:
-            return {"ok": False, "error": "No provider configured"}
-        
-        # Create overlay instance
-        runtime_data_root = self._runtime_data_root()
-        overlay_data_dir = runtime_data_root / "sdk" / "ukg_sdk" / "data"
-        overlay = UKGOverlay(
-            provider=sdk_provider,
-            model=model,
-            data_dir=overlay_data_dir,
-        )
-        
-        # Get correlation ID from request context when one exists.
-        try:
-            from flask import g
-            correlation_id = getattr(g, 'correlation_id', None)
-        except RuntimeError:
-            correlation_id = None
-        
-        # Run through UKG pipeline
-        result = await overlay.run(
-            query=query,
-            user_id=user_id,
-            session_id=session_id,
-            correlation_id=correlation_id,
-            meta=meta,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            tier_override=meta.get("dmrf_tier"),
-        )
-        
-        return result
-    
     @staticmethod
     def _parse_uuid_or_none(value: Any) -> Optional[uuid.UUID]:
         if value is None:
@@ -1843,13 +871,13 @@ class LLMGateway:
 
     @staticmethod
     def _normalize_trace_status(value: Any) -> str:
-        status = str(value or "pass").strip().lower()
+        status = str(value or "completed").strip().lower()
         return {
-            "ok": "pass",
-            "completed": "pass",
-            "success": "pass",
-            "failed": "fail",
-            "error": "fail",
+            "ok": "completed",
+            "pass": "completed",
+            "success": "completed",
+            "fail": "failed",
+            "error": "failed",
         }.get(status, status)
 
     @staticmethod
@@ -1867,6 +895,9 @@ class LLMGateway:
     def _dsqp_profiles_from_output(output: Any) -> Optional[dict[str, Any]]:
         if not isinstance(output, dict):
             return None
+        profiles = output.get("profiles")
+        if isinstance(profiles, dict):
+            return profiles
         profiles = output.get("constructed_persona_profiles")
         if isinstance(profiles, dict):
             return profiles
@@ -1883,287 +914,20 @@ class LLMGateway:
         user_id: str,
         session_id: Optional[str],
         model: str,
-    ) -> None:
-        """Create or update TraceRun and TraceStage records from gateway output."""
-        try:
-            from models import TraceAxisVector, TraceKAInvocation, TracePersona, TraceRun, TraceStage
-            try:
-                from extensions import db
-            except ImportError:
-                # Final fallback
-                import sys
-                import os
-                sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-                from extensions import db
+    ) -> bool:
+        """Persist the canonical governed trace through one transaction."""
 
-            trace_run_id = self._parse_uuid_or_none(run_id)
-            if trace_run_id is None:
-                logger.debug("Skipping trace persistence for non-UUID run_id: %s", run_id)
-                return
+        from backend.governed_execution.trace_persistence import persist_governed_trace
 
-            try:
-                from flask import g, has_app_context
-                correlation_id = getattr(g, "correlation_id", None) if has_app_context() else None
-            except Exception:
-                correlation_id = None
-
-            metadata = sdk_result.get("metadata")
-            if not isinstance(metadata, dict):
-                metadata = {}
-            dmrf_bundle = metadata.get("dmrf") if isinstance(metadata.get("dmrf"), dict) else {}
-            axis_vector = dmrf_bundle.get("axis_vector") if isinstance(dmrf_bundle.get("axis_vector"), dict) else {}
-            gate_result = dmrf_bundle.get("gate_result") if isinstance(dmrf_bundle.get("gate_result"), dict) else {}
-
-            model_version = (
-                sdk_result.get("model_version")
-                or metadata.get("model_version")
-                or "unknown"
-            )
-            confidence = (
-                sdk_result.get("confidence")
-                if sdk_result.get("confidence") is not None
-                else sdk_result.get("confidence_score")
-            )
-            if confidence is None:
-                confidence = axis_vector.get("confidence")
-            try:
-                confidence_value = float(confidence if confidence is not None else 0.85)
-            except (TypeError, ValueError):
-                confidence_value = 0.85
-
-            usage = sdk_result.get("usage") if isinstance(sdk_result.get("usage"), dict) else {}
-            total_tokens = usage.get("total_tokens")
-            if total_tokens is None:
-                total_tokens = int(usage.get("prompt_tokens", 0) or 0) + int(
-                    usage.get("completion_tokens", 0) or 0
-                )
-
-            sdk_tier = str(sdk_result.get("tier") or dmrf_bundle.get("tier") or "")
-            session_uuid = self._parse_uuid_or_none(session_id)
-            user_pk = self._parse_int_or_none(user_id)
-
-            run = db.session.get(TraceRun, trace_run_id)
-            if run is None:
-                run = TraceRun(run_id=trace_run_id)
-                db.session.add(run)
-
-            run.session_id = session_uuid if session_uuid is not None else run.session_id
-            run.user_id = user_pk if user_pk is not None else run.user_id
-            run.status = "pass" if sdk_result.get("ok", True) else "fail"
-            run.completed_at = datetime.now(UTC)
-            run.model_name = model
-            run.model_version = model_version
-            run.input_message = query
-            run.final_answer = sdk_result.get("answer", run.final_answer or "")
-            run.correlation_id = correlation_id or run.correlation_id
-            run.confidence = confidence_value
-            run.tier = sdk_tier if sdk_tier else run.tier
-            run.layers_executed = sdk_result.get("layers", run.layers_executed)
-            run.truthgate_decision = (
-                sdk_result.get("truthgate_decision")
-                or gate_result.get("decision")
-                or gate_result.get("status")
-                or run.truthgate_decision
-            )
-            run.token_cost = int(total_tokens or 0) if total_tokens is not None else run.token_cost
-            if sdk_result.get("latency_ms") is not None:
-                run.latency_ms = int(sdk_result["latency_ms"])
-
-            if sdk_result.get("frost_depth") is not None:
-                run.frost_depth = int(sdk_result["frost_depth"])
-            elif axis_vector.get("frost_layer_depth") is not None:
-                run.frost_depth = int(axis_vector["frost_layer_depth"])
-            if sdk_result.get("truth_engine_mode"):
-                run.truth_engine_mode = str(sdk_result["truth_engine_mode"])
-            elif axis_vector.get("truth_engine_mode"):
-                run.truth_engine_mode = str(axis_vector["truth_engine_mode"])
-
-            data_snapshot = dict(run.data_snapshot or {})
-            if dmrf_bundle:
-                data_snapshot["dmrf"] = {
-                    "run_id": dmrf_bundle.get("run_id"),
-                    "query_digest": dmrf_bundle.get("query_digest"),
-                    "tier": dmrf_bundle.get("tier"),
-                }
-            provider_used = sdk_result.get("provider_used") or metadata.get("provider_used")
-            if provider_used:
-                data_snapshot["provider_used"] = str(provider_used)
-            gateway_error = metadata.get("gateway_error")
-            if isinstance(gateway_error, dict):
-                data_snapshot["gateway_error"] = gateway_error
-            if data_snapshot:
-                run.data_snapshot = data_snapshot
-
-            db.session.flush()
-
-            if axis_vector:
-                trace_axis = TraceAxisVector.query.filter_by(run_id=run.run_id).first()
-                if trace_axis is None:
-                    trace_axis = TraceAxisVector(
-                        vector_id=uuid.uuid5(
-                            uuid.NAMESPACE_URL,
-                            f"datalogicengine:{run.run_id}:axis-vector",
-                        ),
-                        run_id=run.run_id,
-                        axes=axis_vector.get("axes") or axis_vector,
-                    )
-                    db.session.add(trace_axis)
-                else:
-                    trace_axis.axes = axis_vector.get("axes") or axis_vector
-                trace_axis.coordinate_hash = uuid.uuid5(
-                    uuid.NAMESPACE_URL,
-                    json.dumps(trace_axis.axes, sort_keys=True, default=str),
-                ).hex
-                db.session.flush()
-                run.coordinate17_id = trace_axis.vector_id
-
-            trace = sdk_result.get("trace", [])
-            if not isinstance(trace, list):
-                trace = []
-            existing_stage_count = TraceStage.query.filter_by(run_id=run.run_id).count()
-            existing_persona_count = TracePersona.query.filter_by(run_id=run.run_id).count()
-            existing_ka_count = TraceKAInvocation.query.filter_by(run_id=run.run_id).count()
-            emitted_stages: list[Any] = []
-            emitted_personas: list[Any] = []
-            emitted_kas: list[Any] = []
-            if trace and existing_stage_count == 0:
-                for i, trace_item in enumerate(trace):
-                    if not isinstance(trace_item, dict):
-                        trace_item = {"output": trace_item}
-                    start_time = self._parse_trace_datetime(trace_item.get("start_time"))
-                    end_time = self._parse_trace_datetime(trace_item.get("end_time"))
-                    duration_ms = trace_item.get("duration_ms")
-                    if duration_ms is None and start_time and end_time:
-                        duration_ms = max(0, int((end_time - start_time).total_seconds() * 1000))
-                    elif duration_ms is not None:
-                        try:
-                            duration_ms = max(0, int(duration_ms))
-                        except (TypeError, ValueError):
-                            duration_ms = None
-                    stage = TraceStage(
-                        stage_id=uuid.uuid5(
-                            uuid.NAMESPACE_URL,
-                            f"datalogicengine:{run.run_id}:stage:{i}:{trace_item.get('ka_id', '')}",
-                        ),
-                        run_id=run.run_id,
-                        name=trace_item.get("stage_name") or trace_item.get("ka_id", f"Stage-{i}"),
-                        stage_type=trace_item.get("stage_type", "layer"),
-                        layer_index=i + 1,
-                        status=self._normalize_trace_status(trace_item.get("status")),
-                        start_time=start_time,
-                        end_time=end_time,
-                        duration_ms=duration_ms,
-                        outputs=trace_item.get("output", {}),
-                        metrics=trace_item.get("metrics") if isinstance(trace_item.get("metrics"), dict) else {},
-                    )
-                    db.session.add(stage)
-                    emitted_stages.append(stage)
-
-                    ka_id = str(trace_item.get("ka_id") or "")
-                    if ka_id.upper().startswith("KA-") and existing_ka_count == 0:
-                        invocation = TraceKAInvocation(
-                            invocation_id=uuid.uuid5(
-                                uuid.NAMESPACE_URL,
-                                f"datalogicengine:{run.run_id}:ka:{i}:{ka_id}",
-                            ),
-                            run_id=run.run_id,
-                            stage_id=stage.stage_id,
-                            ka_id=ka_id,
-                            ka_name=trace_item.get("stage_name") or ka_id,
-                            status=stage.status,
-                            duration_ms=duration_ms,
-                            inputs=trace_item.get("input") if isinstance(trace_item.get("input"), dict) else {},
-                            outputs=trace_item.get("output") if isinstance(trace_item.get("output"), dict) else {},
-                        )
-                        db.session.add(invocation)
-                        emitted_kas.append(invocation)
-
-            if trace and existing_persona_count == 0:
-                for trace_item in trace:
-                    if not isinstance(trace_item, dict):
-                        continue
-                    output = trace_item.get("output")
-                    profiles = self._dsqp_profiles_from_output(output)
-                    if not isinstance(profiles, dict):
-                        continue
-                    for axis_number, profile in profiles.items():
-                        if not isinstance(profile, dict):
-                            continue
-                        metadata_payload = profile.get("metadata")
-                        metadata_payload = metadata_payload if isinstance(metadata_payload, dict) else {}
-                        validation = profile.get("validation")
-                        validation = validation if isinstance(validation, dict) else {}
-                        description = str(profile.get("description") or "")
-                        persona = TracePersona(
-                            persona_id=uuid.uuid5(
-                                uuid.NAMESPACE_URL,
-                                f"datalogicengine:{run.run_id}:dsqp:{axis_number}",
-                            ),
-                            run_id=run.run_id,
-                            persona_type=str(profile.get("persona_type") or f"axis_{axis_number}"),
-                            persona_name=str(profile.get("name") or f"Axis {axis_number} Persona"),
-                            status="pass" if validation.get("valid", True) else "warn",
-                            evidence_ids=[],
-                            context_scope=str(metadata_payload.get("coordinate_path") or ""),
-                            draft_text=description,
-                            confidence=float(profile.get("coverage_score") or 0.0),
-                            objections=validation.get("errors") or [],
-                            consensus_impact={
-                                "construction_mode": metadata_payload.get("construction_mode"),
-                                "axis_number": profile.get("axis_number", axis_number),
-                                "components": list((profile.get("components") or {}).keys()),
-                                "profile": json.loads(json.dumps(profile, default=str)),
-                            },
-                        )
-                        db.session.add(persona)
-                        emitted_personas.append(persona)
-
-            db.session.commit()
-            logger.info(
-                "Persisted TraceRun %s with %s new stages, %s personas, and %s KA invocations",
-                run.run_id,
-                len(emitted_stages),
-                len(emitted_personas),
-                len(emitted_kas),
-            )
-            for stage in emitted_stages:
-                try:
-                    from backend.websocket import emit_trace_stage_update
-                    emit_trace_stage_update(run.run_id, stage.to_dict())
-                except Exception as emit_exc:
-                    logger.debug("Trace stage websocket emit skipped: %s", emit_exc)
-
-            if trace:
-                try:
-                    from backend.truth_engine.confidence_calculator import ConfidenceCalculator
-                    canonical_conf = ConfidenceCalculator().calculate(
-                        run,
-                        ka_results=trace,
-                        gate_decision=sdk_result.get("truthgate_decision"),
-                    )
-                    run.confidence = canonical_conf
-                    db.session.add(run)
-                    db.session.commit()
-                except Exception as conf_exc:
-                    logger.warning("F-CONF-01 calculation failed (non-fatal): %s", conf_exc)
-
-            _tier_exclusions = {"", "0", "t0", "1", "t1", "trivial"}
-            if sdk_tier and str(sdk_tier).lower().strip() not in _tier_exclusions:
-                try:
-                    from backend.truth_engine.truth_memory.commit_service import TruthMemoryCommitService
-                    TruthMemoryCommitService().commit(run, db.session)
-                except Exception as commit_exc:
-                    logger.warning("Audit bundle commit failed (non-fatal): %s", commit_exc)
-
-        except Exception as e:
-            try:
-                from extensions import db
-                db.session.rollback()
-            except Exception:
-                pass
-            logger.warning("Failed to create trace records: %s", e)
-            # Don't fail the request if tracing fails
-
+        return persist_governed_trace(
+            self,
+            sdk_result,
+            query=query,
+            run_id=run_id,
+            user_id=user_id,
+            session_id=session_id,
+            model=model,
+        )
 
     async def _direct_llm_call(
         self,
@@ -2173,7 +937,7 @@ class LLMGateway:
         temperature: float,
         max_tokens: int,
     ) -> dict[str, Any]:
-        """Direct LLM call without UKG pipeline."""
+        """Execute one orchestrator-authorized provider call."""
         if sdk_provider is None:
             return {"ok": False, "error": "No provider configured"}
         
@@ -2201,18 +965,6 @@ class LLMGateway:
             }
         except Exception as e:
             return {"ok": False, "error": str(e)}
-    
-    async def _direct_llm_call_fallback(
-        self,
-        sdk_provider: Any,
-        model: str,
-        query: str,
-        temperature: float,
-        max_tokens: int,
-    ) -> dict[str, Any]:
-        """Fallback direct call when SDK not available."""
-        messages = [{"role": "user", "content": query}]
-        return await self._direct_llm_call(sdk_provider, model, messages, temperature, max_tokens)
     
     async def _record_usage(
         self,
@@ -2355,18 +1107,6 @@ class LLMGateway:
                     
         except Exception as e:
             logger.error(f"Failed to save chat message: {e}")
-
-    async def _get_recent_history(self, session_id: str, limit: int = 10) -> list[dict]:
-        """Load recent messages for context."""
-        try:
-            import uuid
-            messages = ChatMessage.query.filter_by(session_id=uuid.UUID(session_id))\
-                .order_by(ChatMessage.created_at.desc())\
-                .limit(limit).all()
-            return [{"role": m.role, "content": m.content} for m in reversed(messages)]
-        except Exception as e:
-            logger.warning(f"Failed to load chat history: {e}")
-            return []
 
 # Singleton instance
 _gateway_instance = None

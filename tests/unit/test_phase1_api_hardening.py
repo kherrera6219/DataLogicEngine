@@ -2,7 +2,6 @@ from types import SimpleNamespace
 
 from app import db
 from models import SimulationSession, User
-import backend.routes.simulation_routes as simulation_routes_module
 
 
 class _GatewayOk:
@@ -18,8 +17,11 @@ class _GatewayOk:
             run_id="run-123",
             provider_used="test-provider",
             model_used="test-model",
-            explainability={"confidence_score": 0.91},
-            layers=["ingest", "synthesize"],
+            contract_version="governed.v1",
+            status="completed",
+            confidence=None,
+            failure=None,
+            layers=["admission", "persistence"],
             warnings=[],
         )
 
@@ -33,8 +35,10 @@ class _GatewayFail:
             run_id="run-err",
             provider_used=None,
             model_used=None,
-            explainability={},
-            layers=[],
+            contract_version="governed.v1",
+            status="provider_failure",
+            confidence=None,
+            failure={"code": "PROVIDER_FAILURE"},
             warnings=["provider unavailable"],
         )
 
@@ -79,11 +83,6 @@ def test_simulation_get_and_stop_are_scoped_to_authenticated_user(app, authentic
 def test_simulation_run_is_scoped_to_authenticated_user(app, authenticated_client, monkeypatch):
     owner_id = _create_user(app, "owner3", "owner3@example.com")
     _create_simulation(app, owner_id=owner_id, session_id="sim-owner-3")
-    monkeypatch.setattr(
-        simulation_routes_module.engine,
-        "process_query",
-        lambda query, context: {"status": "completed", "final_conclusion": "ok"},
-    )
 
     response = authenticated_client.post("/api/v1/simulations/sim-owner-3/run")
 
@@ -106,7 +105,7 @@ def test_simulation_create_accepts_legacy_query_payload(authenticated_client):
     assert body["data"]["session_id"]
 
 
-def test_api_query_uses_gateway_and_persists_result(app, authenticated_client, monkeypatch):
+def test_api_query_uses_canonical_gateway(app, authenticated_client, monkeypatch):
     gateway = _GatewayOk()
     monkeypatch.setattr("backend.llm_gateway.gateway.get_gateway", lambda: gateway)
 
@@ -115,13 +114,14 @@ def test_api_query_uses_gateway_and_persists_result(app, authenticated_client, m
     assert response.status_code == 200
     assert response.get_json()["response"] == "gateway answer"
     assert gateway.requests
+    assert gateway.requests[0].source == "compatible_query_facade"
     assert gateway.requests[0].meta["source"] == "api_v1_query"
 
     with app.app_context():
         simulation = SimulationSession.query.order_by(SimulationSession.id.desc()).first()
         assert simulation is not None
         assert simulation.status == "completed"
-        assert simulation.results["response"] == "gateway answer"
+        assert simulation.results["runId"] == "run-123"
 
 
 def test_api_query_fails_closed_when_gateway_unavailable(app, authenticated_client, monkeypatch):
@@ -131,8 +131,5 @@ def test_api_query_fails_closed_when_gateway_unavailable(app, authenticated_clie
 
     assert response.status_code == 503
 
-    with app.app_context():
-        simulation = SimulationSession.query.order_by(SimulationSession.id.desc()).first()
-        assert simulation is not None
-        assert simulation.status == "failed"
-        assert "providers" in simulation.results["error"].lower()
+    body = response.get_json()
+    assert body["error"]["code"] == "QUERY_UNAVAILABLE"

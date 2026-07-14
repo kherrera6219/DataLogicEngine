@@ -1,18 +1,10 @@
+import json
+
+import httpx
+
 from backend.dsqp import COMPONENT_KEYS, DSQPChain, DSQPOrchestrator, DSQPValidator
 from core.system.persona_construction_service import PersonaConstructionService
 from sdk.UKG_Python_SDK.ukg_sdk.overlay import UKGOverlay
-from sdk.UKG_Python_SDK.ukg_sdk.audit import FileAuditStore
-from sdk.UKG_Python_SDK.ukg_sdk.providers import LLMResponse
-
-
-class _Provider:
-    async def complete(self, *, messages, model, temperature=0.2, max_tokens=1024):
-        return LLMResponse(
-            text="Provider-backed answer",
-            raw={},
-            model=model,
-            usage={"total_tokens": 8},
-        )
 
 
 def test_dsqp_chain_returns_seven_component_json_serializable_persona():
@@ -61,23 +53,49 @@ def test_persona_construction_service_uses_dsqp_with_static_fallback_available()
     assert profile.components["job_role"]["query_mission"]
 
 
-async def test_sdk_overlay_trace_includes_dsqp_chain(tmp_path):
+async def test_sdk_overlay_is_thin_client_for_governed_gateway():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["path"] = request.url.path
+        captured["payload"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "data": {
+                    "response": "Governed answer",
+                    "run_id": "00000000-0000-0000-0000-000000000001",
+                    "contract_version": "governed.v1",
+                    "status": "completed",
+                    "trace_summary": {"steps": [{"stage_name": "dsqp_personas"}]},
+                }
+            },
+        )
+
+    client = httpx.AsyncClient(
+        base_url="http://test/api/v1",
+        transport=httpx.MockTransport(handler),
+    )
     overlay = UKGOverlay(
-        provider=_Provider(),
+        base_url="http://test/api/v1",
         model="test-model",
-        audit=FileAuditStore(tmp_path / "audit.jsonl"),
+        client=client,
     )
+    try:
+        result = await overlay.run(
+            query="Assess finance AI release controls",
+            tier_override="T2",
+            meta={"risk_domain": "finance"},
+        )
+    finally:
+        await client.aclose()
 
-    result = await overlay.run(
-        query="Assess finance AI release controls",
-        tier_override="T2",
-        meta={"risk_domain": "finance"},
-    )
-
-    dsqp_stage = next(stage for stage in result["trace"] if stage["ka_id"] == "DSQP")
-    assert dsqp_stage["status"] == "ok"
-    assert set(dsqp_stage["output"]["dsqp_chain"]["profiles"]) == {"8", "9", "10", "11"}
-    assert dsqp_stage["output"]["dsqp_chain"]["failures"] == {}
+    assert captured["path"] == "/api/v1/gateway/chat"
+    assert captured["payload"]["messages"] == [
+        {"role": "user", "content": "Assess finance AI release controls"}
+    ]
+    assert result["contract_version"] == "governed.v1"
+    assert result["trace"] == [{"stage_name": "dsqp_personas"}]
 
 
 def test_dsqp_validator_requires_self_questioning_process():

@@ -27,7 +27,8 @@ from models import (
     ModelRoutingPolicy,
     AIAuditEvent,
 )
-from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
+from backend.llm_gateway.gateway import LLMGateway, NetworkState
+from backend.governed_execution import GovernedRequest
 from backend.llm_gateway.model_defaults import SUPPORTED_PROVIDER_TYPES, default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import (
@@ -310,20 +311,24 @@ async def gateway_chat():
     if policy_error:
         return policy_error
         
-    # Build GatewayRequest
-    gateway_request = GatewayRequest(
+    gateway_request = GovernedRequest(
         messages=messages,
         provider=data.get('provider'),
         model=data.get('model'),
-        mode=data.get('mode', 'chat'),
+        mode=data.get('mode', 'standard'),
         constraints=data.get('constraints', {}),
-        run_ukg_pipeline=data.get('run_ukg_pipeline', True),
         temperature=data.get('temperature', 0.7),
-        max_tokens=data.get('max_tokens'),
+        max_tokens=data.get('max_tokens') or 1024,
         user_id=g.user_id,
         session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
-        meta=data.get('meta', {}),
+        metadata={
+            **data.get('meta', {}),
+            "legacy_run_ukg_pipeline": data.get('run_ukg_pipeline', True),
+        },
+        source="external_gateway" if g.api_key else "desktop_gateway",
+        principal_kind="external_client" if g.api_key else "desktop",
+        principal_id=str(g.api_key.id) if g.api_key else str(g.user_id),
     )
     
     # Process request. Pass the request-scoped DB session so governance can
@@ -357,6 +362,9 @@ async def gateway_chat():
                 'audit_trail': _audit_trail_for_run(response.run_id),
                 'provider_used': response.provider_used,
                 'model_used': response.model_used,
+                'contract_version': response.contract_version,
+                'status': response.status,
+                'failure': response.failure,
             }), 429
 
         if get_offline_queue_enabled():
@@ -371,6 +379,9 @@ async def gateway_chat():
                 'audit_trail': _audit_trail_for_run(response.run_id),
                 'provider_used': response.provider_used,
                 'model_used': response.model_used,
+                'contract_version': response.contract_version,
+                'status': response.status,
+                'failure': response.failure,
                 'queued': True,
                 'queue_item': queued,
             }), 202
@@ -384,6 +395,9 @@ async def gateway_chat():
             'audit_trail': _audit_trail_for_run(response.run_id),
             'provider_used': response.provider_used,
             'model_used': response.model_used,
+            'contract_version': response.contract_version,
+            'status': response.status,
+            'failure': response.failure,
         }), 503
 
     output_classification = None
@@ -413,6 +427,10 @@ async def gateway_chat():
         'evidence_count': evidence_count,
         'output_classification': output_classification,
         'warnings': response.warnings,
+        'contract_version': response.contract_version,
+        'status': response.status,
+        'failure': response.failure,
+        'source_ids': response.meta.get('source_ids', []),
     })
 
 
@@ -452,19 +470,21 @@ async def replay_offline_queue():
     for item in pending:
         payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
         mark_item(str(item.get("id")), "pending")
-        gateway_request = GatewayRequest(
+        gateway_request = GovernedRequest(
             messages=payload.get("messages", []),
             provider=payload.get("provider"),
             model=payload.get("model"),
-            mode=payload.get("mode", "chat"),
+            mode=payload.get("mode", "standard"),
             constraints=payload.get("constraints", {}),
-            run_ukg_pipeline=payload.get("run_ukg_pipeline", True),
             temperature=payload.get("temperature", 0.7),
-            max_tokens=payload.get("max_tokens"),
+            max_tokens=payload.get("max_tokens") or 1024,
             user_id=getattr(g.auth_user, "id", None),
             session_id=payload.get("session_id"),
             api_key_id=None,
-            meta={**payload.get("meta", {}), "offline_replay": True},
+            metadata={**payload.get("meta", {}), "offline_replay": True},
+            source="offline_replay",
+            principal_kind="desktop",
+            principal_id=str(getattr(g.auth_user, "id", "desktop")),
         )
         response = await gateway.process(gateway_request)
         if response and getattr(response, "ok", True):
@@ -519,19 +539,21 @@ def gateway_chat_stream():
     if policy_error:
         return policy_error
     
-    gateway_request = GatewayRequest(
+    gateway_request = GovernedRequest(
         messages=messages,
         provider=data.get('provider'),
         model=data.get('model'),
-        mode=data.get('mode', 'chat'),
+        mode=data.get('mode', 'standard'),
         constraints=data.get('constraints', {}),
-        run_ukg_pipeline=data.get('run_ukg_pipeline', True),
         temperature=data.get('temperature', 0.7),
-        max_tokens=data.get('max_tokens'),
+        max_tokens=data.get('max_tokens') or 1024,
         user_id=g.user_id,
         session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
-        meta=data.get('meta', {}),
+        metadata=data.get('meta', {}),
+        source="gateway_stream",
+        principal_kind="external_client" if g.api_key else "desktop",
+        principal_id=str(g.api_key.id) if g.api_key else str(g.user_id),
     )
     
     def generate():

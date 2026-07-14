@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-4 engineering checkpoints are complete; Phase 5 canonical governed reasoning is active. Clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, the complete governed lifecycle, external gateway, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 4 evidence`](reports/production-readiness/2026/phase-04/summary.md).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-5 engineering checkpoints are complete; Phase 6 evidence, confidence, convergence, TruthCore, and KA validity is active. Clean signed-install/upgrade/recovery/provider qualification, independent reviews, final object-store selection, later subsystem/UI completion, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 5 evidence`](reports/production-readiness/2026/phase-05/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,7 +64,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 5 single causal governed reasoning path and truthful traces
+- Phase 6 typed evidence, claims, citations, validators, calibrated confidence, convergence, and KA/TruthCore validity
+- Deferred installed OpenAI/Gemini proof for the Phase 5 canonical path
 - Deferred clean-installed Phase 3-4 data-plane, upgrade/recovery, and independent review gates
 - Final Replacement Control decision for the object-store implementation
 - External API Gateway and LLM middleware productization
@@ -389,6 +390,13 @@ flowchart LR
   Stores --> MinIO["MinIO"]
 ```
 
+The Phase 5 engineering checkpoint establishes `governed.v1` and one
+backend-owned causal execution path. Built-in chat and approved API clients use
+the same orchestrator. A policy block prevents provider execution, failures and
+cancellation stop later stages, and traces contain only measured work. Phase 6
+must now validate the quality of the evidence and confidence; a present trace is
+not itself proof that an answer is correct.
+
 ### Runtime Components
 
 | Layer | Components | Notes |
@@ -653,15 +661,16 @@ curl -X POST http://localhost:5000/api/v1/gateway/chat \
     ],
     "provider": "google",
     "model": "gemini-3.1-pro-preview",
-    "mode": "chat",
-    "run_ukg_pipeline": true
+    "mode": "standard"
   }'
 ```
 
-Current responses can include a run/trace reference, provider/model identity, and
-available audit metadata. Production acceptance requires those fields to reflect
-only work that actually executed; missing evidence or confidence must be reported
-as unavailable/not measured rather than replaced with a plausible default. See
+Current responses include the `governed.v1` contract version, status, stable
+run/trace reference, provider/model identity, executed-stage summary, evidence
+and claim metadata, warnings, and a typed failure when applicable. Missing
+confidence is returned as null rather than replaced with a plausible default.
+The deprecated `run_ukg_pipeline` field is ignored as a bypass control: every
+accepted answer request remains governed. See
 [`docs/API.md`](docs/API.md) for the current route documentation and
 [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) Phase 8
 for the required production contract.

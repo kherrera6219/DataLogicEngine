@@ -256,17 +256,12 @@ async def process_session(session_id):
     """Process a TruthCore session."""
     try:
         result = await _truth_core.process(session_id)
-
-        _truth_memory.record_session(result)
-
-        _truth_link.publish(
-            source_module='truth_core',
-            message_type='session_completed',
-            payload={'session_id': session_id, 'status': result['status']},
-            session_id=session_id
-        )
-
-        return jsonify(result)
+        governed = result.get('result') if isinstance(result.get('result'), dict) else {}
+        if governed.get('ok', True):
+            return jsonify(result)
+        failure = governed.get('failure') if isinstance(governed.get('failure'), dict) else {}
+        status_code = 403 if failure.get('kind') == 'policy_block' else 503
+        return jsonify(result), status_code
 
     except ValueError:
         return jsonify({'error': 'Truth session not found'}), 404

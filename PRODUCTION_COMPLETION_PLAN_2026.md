@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.3.1 |
+| Document version | v1.4.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,19 +18,20 @@
 
 ### Current execution checkpoint
 
-Phase 4 reached its engineering checkpoint on 2026-07-13. Cross-store ownership,
-startup migrations, durable materialization, encrypted coordinated backup,
-isolated clean-root restore, retention/deletion, uninstall disposition, and the
-data-at-rest policy are implemented. A populated five-service engineering drill
-passed backup, restore, restart, hash/value parity, prior-root preservation, and
-delete parity. Phase 5 is now the active engineering phase.
+Phase 5 reached its engineering checkpoint on 2026-07-13. The transport-neutral
+`governed.v1` contract and one backend orchestrator now own the causal path from
+admission through DMRF, retrieval, deterministic DSQP, TruthCore/KA preflight,
+provider execution, validation, transactional persistence, and trace. Approved
+answer-producing callers enter that boundary or return an explicit capability
+boundary. Exact stage and causality tests pass. Phase 6 is now active.
 
-This checkpoint is not the Phase 4 installed-production exit gate and does not
+This checkpoint is not the Phase 5 installed-production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
-license review, and final object-store decision remain open gates that can only
-close against the later rebuilt release candidate.
+license review, final object-store decision, and real installed OpenAI/Gemini
+trace proof remain open gates that can only close against the later rebuilt
+release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -1279,6 +1280,21 @@ deferred. Production/public release remains **NO-GO**.
 matrix, data-classification register, and data-at-rest/key-management standard.
 
 ## 13. Phase 5 - Canonical governed reasoning path
+
+### Engineering checkpoint result - 2026-07-13
+
+CP5-A through CP5-D passed. `governed.v1` is the shared contract; the backend
+owns one orchestrator; built-in chat, gateway/replay/stream, compatible facades,
+the public TruthCore adapter, persona/video callers, and SDK service clients no
+longer own or bypass a second governed pipeline; and persisted/displayed stages
+match real execution for success and failure classes. Confidence remains null
+when unmeasured so Phase 6 can introduce category-valid formulas.
+
+CP5-E is deliberately deferred under the owner-authorized installed-gate rule.
+It remains release-blocking until the rebuilt installed application completes
+real OpenAI and Gemini runs through the same contract with resolvable traces.
+Evidence is under `reports/production-readiness/2026/phase-05/`. Production and
+public release remain **NO-GO**.
 
 ### Objective
 

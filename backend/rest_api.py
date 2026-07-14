@@ -6,7 +6,7 @@ This module provides standardized REST API endpoints for the UKG system.
 All endpoints follow RESTful conventions and return consistent JSON responses.
 """
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, g
 from datetime import datetime, UTC
 import logging
 from backend.utils.error_normalization import normalize_public_error_message
@@ -80,20 +80,41 @@ def process_query():
         if not query:
             return error_response("Query is required", "MISSING_FIELD", 400)
         
-        # Get the app orchestrator
-        app_orchestrator = current_app.config.get('APP_ORCHESTRATOR')
-        if not app_orchestrator:
-            return error_response("App orchestrator not initialized", "SYSTEM_NOT_INIT", 500)
-        
-        # Process the query
-        result = app_orchestrator.process_request(
-            query=query,
-            max_confidence=data.get('confidence', 0.95),
-            max_passes=data.get('max_passes', 3),
-            target_max_layer=data.get('max_layer', 3)
+        import asyncio
+
+        from backend.governed_execution import GovernedRequest
+        from backend.llm_gateway.gateway import get_gateway
+
+        governed = GovernedRequest(
+            messages=[{"role": "user", "content": query}],
+            mode="enhanced" if int(data.get("max_passes", 1) or 1) > 1 else "standard",
+            user_id=getattr(g, "user_id", None),
+            constraints={
+                "requested_confidence": data.get("confidence"),
+                "requested_max_passes": data.get("max_passes"),
+                "requested_max_layer": data.get("max_layer"),
+            },
+            metadata={"source": "legacy_rest_query"},
+            source="compatible_query_facade",
+            principal_kind="desktop",
         )
+        response = asyncio.run(get_gateway().process(governed))
+        if not response.ok:
+            return error_response(
+                response.error or "Governed query failed",
+                (response.failure or {}).get("code", "QUERY_ERROR"),
+                503,
+            )
         
-        return success_response(result)
+        return success_response({
+            "response": response.content,
+            "run_id": response.run_id,
+            "contract_version": response.contract_version,
+            "status": response.status,
+            "confidence": response.confidence,
+            "provider_used": response.provider_used,
+            "model_used": response.model_used,
+        })
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         return error_response(

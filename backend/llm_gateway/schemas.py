@@ -28,11 +28,21 @@ class GatewayChatRequest(BaseModel):
     messages: List[Message] = Field(..., min_length=1)
     provider: Optional[str] = None
     model: Optional[str] = Field(None, min_length=1)
-    mode: Literal["chat", "trace", "explain", "quad"] = "chat"
+    mode: Literal[
+        "chat",
+        "trace",
+        "explain",
+        "quad",
+        "standard",
+        "enhanced",
+        "local_review",
+        "simulation",
+    ] = "standard"
     constraints: Dict[str, Any] = Field(default_factory=dict)
     run_ukg_pipeline: bool = True
     temperature: float = Field(0.7, ge=0.0, le=2.0)
     max_tokens: Optional[int] = Field(None, ge=1)
+    session_id: Optional[str] = None
     
     # Trace specific
     trace_settings: Optional[TraceSettings] = None

@@ -1,6 +1,6 @@
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 
 class TestTruthCoreEngine:
@@ -63,23 +63,35 @@ class TestTruthCoreEngine:
 
     @pytest.mark.asyncio
     async def test_process_workflow_execution(self, engine):
-        # Mock get_workflow_steps to return a simplified list for testing
-        with patch.object(engine, "get_workflow_steps", return_value=["intent_parsing", "final_safety_gate"]):
-             # Setup mocks for step execution
-             engine._execute_refinement_step = MagicMock(return_value={
-                 "step": "mock_step", 
-                 "status": "completed", 
-                 "output": {"result": "ok"}
-             })
-             
-             # Create session
-             session = await engine.create_session("test", tier="moderate")
-             
-             # Run process
-             result_session = await engine.process(session["session_id"])
-             
-             assert result_session["status"] == "completed"
-             assert len(result_session["workflow_steps"]) == 2
+        governed_payload = {
+            "ok": True,
+            "status": "completed",
+            "answer": "governed answer",
+            "confidence": None,
+            "trace": [
+                {"stage_name": "admission", "status": "completed"},
+                {"stage_name": "persistence", "status": "completed"},
+            ],
+            "metadata": {"dsqp": {"profiles": {"8": {}}}},
+        }
+        governed = MagicMock(
+            status="completed",
+            answer="governed answer",
+            confidence=None,
+        )
+        governed.to_dict.return_value = governed_payload
+
+        session = await engine.create_session("test", tier="moderate")
+        with patch(
+            "backend.llm_gateway.gateway.LLMGateway.execute",
+            new=AsyncMock(return_value=governed),
+        ) as execute:
+            result_session = await engine.process(session["session_id"])
+
+        assert result_session["status"] == "completed"
+        assert result_session["confidence_score"] is None
+        assert len(result_session["workflow_steps"]) == 2
+        execute.assert_awaited_once()
 
     def test_axis_queries_from_coordinate_vector(self):
         vector = {

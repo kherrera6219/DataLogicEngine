@@ -1,0 +1,20 @@
+{
+  "schema_version": "phase-evidence.v1",
+  "phase": 5,
+  "date": "2026-07-13",
+  "contract": "governed.v1",
+  "migration_head": "b1c2d3e4f5a6",
+  "checkpoints": {
+    "CP5-A": "passed",
+    "CP5-B": "passed",
+    "CP5-C": "passed_engineering_checkpoint",
+    "CP5-D": "passed",
+    "CP5-E": "deferred_installed_release_blocker"
+  },
+  "sdk": {
+    "version": "0.6.0",
+    "wheel": "sdk-dist/ukg_sdk-0.6.0-py3-none-any.whl",
+    "sdist": "sdk-dist/ukg_sdk-0.6.0.tar.gz"
+  },
+  "release_verdict": "NO-GO"
+}

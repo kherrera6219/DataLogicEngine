@@ -17,9 +17,7 @@ from typing import Any
 
 from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator
 
-from .convergence_policy import ConvergencePolicy
 from .desktop_config import DMRFDesktopConfig
-from .evidence_model import EvidenceModel
 from .frost_bridge import FROSTBridge
 from .injection_defense import InjectionDefense
 from .mlflow_tracker import DMRFMLflowTracker
@@ -27,7 +25,6 @@ from .models import DMRFResult, DMRFStep
 from .observability import DMRFObservability
 from .router import DMRFRouter
 from .tier_classifier import DMRFTierClassifier
-from .truth_integration.core_adapter import TruthCoreDMRFAdapter
 from .truth_integration.gate_adapter import TruthGateDMRFAdapter
 from .truth_integration.link_adapter import TruthLinkDMRFAdapter
 from .truth_integration.memory_adapter import TruthMemoryDMRFAdapter
@@ -62,7 +59,6 @@ class DMRFOrchestrator:
         )
         self.injection_defense = InjectionDefense()
         self.gate = TruthGateDMRFAdapter()
-        self.core = TruthCoreDMRFAdapter()
         self.link = TruthLinkDMRFAdapter(desktop_mode=self.desktop_mode)
         self.memory = TruthMemoryDMRFAdapter(db_session=db_session)
         self.tracker = DMRFMLflowTracker()
@@ -102,33 +98,21 @@ class DMRFOrchestrator:
         result.axis_vector = axis_vector
         self._record_step(result, "axis_router", {"axis_vector": axis_vector.to_dict()})
 
-        dsqp_result = await self.dsqp.construct_all(
-            query,
-            axis_vector=axis_vector.to_dict(),
-            context={
-                **context,
-                "risk_domain": axis_vector.axes["15"]["value"],
-                "coordinate_path": f"dmrf.{axis_vector.axes['1']['value']}.{axis_vector.axes['2']['value']}",
-            },
-        )
-        result.dsqp_chain = dsqp_result
-        self._record_step(result, "dsqp_personas", {"dsqp_chain": dsqp_result})
-
-        workflow_steps = self.core.workflow_steps(result.tier, axis_vector.axes["17"])
-        self._record_step(result, "truth_core_plan", {"workflow_steps": workflow_steps})
-
-        evidence = EvidenceModel(axis_vector.axes["15"]["value"]).score(
-            {"observed_at": context.get("evidence_observed_at")}
-        )
-        convergence = ConvergencePolicy(axis_vector.axes["15"]["value"]).should_refine(
-            confidence=axis_vector.confidence,
-            target_confidence=0.995 if result.tier in {"high_stakes", "extreme", "autonomous"} else 0.95,
-            iteration=0,
-            max_iterations=self.max_refinement_iterations,
-            evidence_age_days=evidence["age_days"],
-        )
-        result.convergence = {**convergence, "evidence": evidence}
-        self._record_step(result, "convergence_policy", {"convergence": result.convergence})
+        # The canonical orchestrator retrieves source-identified context before
+        # constructing personas. Standalone DMRF callers retain the deterministic
+        # compatibility behavior, while the product path defers this stage.
+        if not context.get("_canonical_defer_dsqp"):
+            dsqp_result = await self.dsqp.construct_all(
+                query,
+                axis_vector=axis_vector.to_dict(),
+                context={
+                    **context,
+                    "risk_domain": axis_vector.axes["15"]["value"],
+                    "coordinate_path": f"dmrf.{axis_vector.axes['1']['value']}.{axis_vector.axes['2']['value']}",
+                },
+            )
+            result.dsqp_chain = dsqp_result
+            self._record_step(result, "dsqp_personas", {"dsqp_chain": dsqp_result})
 
         if self.db_session is not None:
             try:
@@ -139,7 +123,7 @@ class DMRFOrchestrator:
         tracking = self.tracker.record(result)
         self._record_step(result, "mlflow_tracking", {"tracking": tracking})
 
-        link_result = self.link.publish("completed", result.export_bundle())
+        link_result = self.link.publish("routed", result.export_bundle())
         self._record_step(result, "truthlink_publish", {"truthlink": link_result})
         self._observability.record(
             tier=result.tier,

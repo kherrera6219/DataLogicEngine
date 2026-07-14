@@ -1,6 +1,6 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock, ANY
+from unittest.mock import MagicMock, AsyncMock, ANY
 
 # Import targets
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
@@ -158,34 +158,29 @@ class TestLLMGateway:
         assert cb.state == "CLOSED"
 
     @pytest.mark.asyncio
-    async def test_gateway_routing(self):
+    async def test_gateway_compatibility_request_enters_canonical_execute(self):
         from backend.llm_gateway.gateway import LLMGateway
-        
+        from backend.governed_execution.contracts import GovernedMode, GovernedResult
+
         mock_db = MagicMock()
         gateway = LLMGateway(db_session=mock_db)
-        
-        # Mock provider config
-        mock_provider = MagicMock()
-        mock_provider.name = "openai"
-        mock_provider.id = 1
-        mock_provider.provider_type = "openai"
-        mock_provider.api_key = "test-key"
-        
-        # Mock eligible providers
-        with patch.object(gateway, "_get_eligible_providers", new_callable=AsyncMock) as mock_get_p:
-            mock_get_p.return_value = [mock_provider]
-            
-            req = GatewayRequest(messages=[{"role": "user", "content": "hi"}], provider="openai")
-            
-            with patch.object(gateway, '_run_ukg_overlay', new_callable=AsyncMock) as mock_overlay:
-                mock_overlay.return_value = {
-                    "answer": "UKG Response",
-                    "ok": True,
-                    "usage": {"prompt_tokens": 10, "completion_tokens": 5}
-                }
-                
-                # Mock record_usage to avoid DB calls
-                with patch.object(gateway, '_record_usage', new_callable=AsyncMock):
-                    response = await gateway.process(req)
-                    assert response.content == "UKG Response"
-                    assert response.ok
+        gateway.execute = AsyncMock(
+            return_value=GovernedResult(
+                trace_id="00000000-0000-0000-0000-000000000001",
+                ok=True,
+                status="completed",
+                mode=GovernedMode.STANDARD,
+                answer="Governed response",
+                provider_used="openai",
+                model_used="gpt-test",
+                usage={"prompt_tokens": 10, "completion_tokens": 5},
+            )
+        )
+
+        req = GatewayRequest(messages=[{"role": "user", "content": "hi"}], provider="openai")
+        response = await gateway.process(req)
+
+        gateway.execute.assert_awaited_once_with(req)
+        assert response.content == "Governed response"
+        assert response.contract_version == "governed.v1"
+        assert response.ok is True

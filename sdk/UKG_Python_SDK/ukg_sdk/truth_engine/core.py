@@ -1,118 +1,126 @@
+"""Compatibility client for the backend-owned governed execution path.
+
+Before SDK 0.6 this module assembled a second TruthGate/TruthCore/KA pipeline in
+the client process.  Direct imports are retained for source compatibility, but
+execution now crosses the installed DataLogicEngine service boundary.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-from .truthgate import TruthGate
-from .truthcore import TruthCore
-from .truthlink import TruthLink
-from .truthmemory import TruthMemory
-from .frost import FROSTContext
-from ..ka.executor import KAExecutor
+from ..api_client import UKGClient
 
 
 @dataclass
 class TruthEngineConfig:
-    """High-level configuration for TruthEngine wiring.
+    """Connection and governed-mode settings for the compatibility client."""
 
-    This SDK version keeps the config intentionally small; enterprise deployments
-    should extend this with policy packs, cryptographic settings, and storage routing.
-    """
-    enable_truthgate: bool = True
-    enable_truthlink: bool = True
-    enable_truthmemory: bool = True
-    min_confidence: float = 0.95
+    base_url: str = "http://localhost:5000/api/v1"
+    api_key: Optional[str] = None
+    timeout: float = 120.0
+    mode: str = "standard"
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    specs: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class TruthResult:
+    """Measured result returned by the canonical governed gateway."""
+
     ok: bool
-    confidence: float
     verdict: str
-    evidence: Dict[str, Any] = field(default_factory=dict)
-    diagnostics: Dict[str, Any] = field(default_factory=dict)
+    answer: str = ""
+    confidence: Optional[float] = None
+    run_id: Optional[str] = None
+    contract_version: Optional[str] = None
+    failure: Optional[dict[str, Any]] = None
+    raw: dict[str, Any] = field(default_factory=dict)
 
 
 class TruthEngine:
-    """Composite TruthEngine (TruthGate + TruthCore + TruthLink + TruthMemory).
+    """Deprecated name for a thin client to ``/api/v1/gateway/chat``.
 
-    Notes:
-    - FROSTContext is treated as an *in-context* simulated store (not a real DB).
-    - Persistence adapters (Postgres/Redis) live in ukg_sdk.memory_adapters and may
-      be used to checkpoint snapshots and audit trails.
+    The class owns no TruthGate, KA, DSQP, retrieval, provider, validation, or
+    persistence logic.  Those responsibilities belong to the backend canonical
+    orchestrator so SDK and desktop callers receive the same governed result.
     """
 
     def __init__(
         self,
         config: Optional[TruthEngineConfig] = None,
-        frost: Optional[FROSTContext] = None,
-        truthgate: Optional[TruthGate] = None,
-        truthcore: Optional[TruthCore] = None,
-        truthlink: Optional[TruthLink] = None,
-        truthmemory: Optional[TruthMemory] = None,
-        executor: Optional[KAExecutor] = None,
-    ):
+        *,
+        client: Optional[UKGClient] = None,
+        **legacy_execution_components: Any,
+    ) -> None:
+        if legacy_execution_components:
+            names = ", ".join(sorted(legacy_execution_components))
+            raise TypeError(
+                "Client-side TruthEngine components were removed in SDK 0.6; "
+                f"configure the installed service instead (received: {names})"
+            )
         self.config = config or TruthEngineConfig()
-        self.frost = frost or FROSTContext()
-        self.executor = executor or KAExecutor()
-        self.truthgate = truthgate or TruthGate()
-        self.truthcore = truthcore or TruthCore(executor=self.executor)
-        self.truthlink = truthlink or TruthLink()
-        self.truthmemory = truthmemory or TruthMemory()
+        self._client = client or UKGClient(
+            base_url=self.config.base_url,
+            api_key=self.config.api_key,
+            timeout=self.config.timeout,
+        )
+        self._owns_client = client is None
 
-    def evaluate(self, claim: str, context: Optional[Dict[str, Any]] = None) -> TruthResult:
-        ctx = context or {}
-        diagnostics: Dict[str, Any] = {}
+    def evaluate(
+        self,
+        claim: str,
+        context: Optional[dict[str, Any]] = None,
+        *,
+        mode: Optional[str] = None,
+    ) -> TruthResult:
+        """Evaluate a claim through the canonical installed service."""
 
-        if self.config.enable_truthmemory:
-            try:
-                mem = self.truthmemory.recall(claim, ctx, frost=self.frost)
-                diagnostics["memory"] = mem
-            except Exception as e:
-                diagnostics["memory_error"] = str(e)
+        if not str(claim or "").strip():
+            raise ValueError("claim is required")
+        body = self._client.post(
+            "/gateway/chat",
+            json={
+                "messages": [{"role": "user", "content": claim}],
+                "mode": mode or self.config.mode,
+                "provider": self.config.provider,
+                "model": self.config.model,
+                "meta": {"source": "python_sdk_truth_engine", **(context or {})},
+            },
+        )
+        data = body.get("data") if isinstance(body.get("data"), dict) else body
+        status = str(data.get("status") or "unavailable")
+        failure = data.get("failure") if isinstance(data.get("failure"), dict) else None
+        return TruthResult(
+            ok=status == "completed" and failure is None,
+            verdict=status,
+            answer=str(data.get("response") or ""),
+            confidence=data.get("confidence_score"),
+            run_id=data.get("run_id"),
+            contract_version=data.get("contract_version"),
+            failure=failure,
+            raw=data,
+        )
 
-        if self.config.enable_truthgate:
-            gate = self.truthgate.check(claim, ctx)
-            diagnostics["truthgate"] = gate
-            if isinstance(gate, dict) and gate.get("veto") is True:
-                return TruthResult(ok=False, confidence=float(gate.get("confidence", 0.0)), verdict="veto", evidence={}, diagnostics=diagnostics)
-            
-            # Prepare request for core
-            # If gate returns a 'request' dict, use it. Otherwise construct one.
-            if isinstance(gate, dict) and "request" in gate:
-                request = gate["request"]
-                if "tier" not in request and "tier" in gate:
-                     request["tier"] = gate["tier"]
-            else:
-                 request = {"query": claim, "context": ctx, "tier": gate.get("tier") if isinstance(gate, dict) else None}
-        else:
-             request = {"query": claim, "context": ctx}
+    def summarize(self) -> dict[str, Any]:
+        """Return non-secret client configuration for compatibility diagnostics."""
 
-        core = self.truthcore.process(request)
-        diagnostics["truthcore"] = core
-        confidence = float(core.get("confidence", 0.0)) if isinstance(core, dict) else 0.0
-
-        if self.config.enable_truthlink:
-            try:
-                links = self.truthlink.link(claim, ctx, frost=self.frost)
-                diagnostics["truthlink"] = links
-            except Exception as e:
-                diagnostics["truthlink_error"] = str(e)
-
-        ok = confidence >= self.config.min_confidence
-        verdict = "pass" if ok else "fail"
-        return TruthResult(ok=ok, confidence=confidence, verdict=verdict, evidence={"core": core}, diagnostics=diagnostics)
-
-    def summarize(self) -> Dict[str, Any]:
-        """Return a summary of the engine state."""
         return {
-            "config": self.config.__dict__ if hasattr(self.config, "__dict__") else str(self.config),
-            "gate": str(self.truthgate),
-            "core": str(self.truthcore),
-            "memory_adapter": str(self.truthmemory._adapter) if hasattr(self.truthmemory, "_adapter") else "unknown"
+            "execution_owner": "installed_backend",
+            "contract": "governed.v1",
+            "base_url": self.config.base_url,
+            "mode": self.config.mode,
+            "provider": self.config.provider,
+            "model": self.config.model,
+            "spec_count": len(self.config.specs),
         }
+
+    def close(self) -> None:
+        if self._owns_client:
+            self._client.close()
 
     @classmethod
     def load_default(cls) -> "TruthEngine":
-        """Load a TruthEngine with default configuration."""
         return cls()

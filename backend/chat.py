@@ -170,19 +170,23 @@ def _call_llm_gateway(
     Returns dict with 'content', 'provider', 'model', 'run_id'.
     """
     try:
-        from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
+        from backend.governed_execution import GovernedRequest
+        from backend.llm_gateway.gateway import LLMGateway
         
         gateway = LLMGateway(db_session=db.session)
         
-        request = GatewayRequest(
+        request = GovernedRequest(
             messages=messages,
-            run_ukg_pipeline=True,
+            mode="standard",
             user_id=user_id,
             session_id=session_id,
-            meta={
+            metadata={
                 "use_rag": use_rag,
                 "source": "chat_api"
-            }
+            },
+            source="built_in_chat",
+            principal_kind="desktop",
+            principal_id=str(user_id),
         )
         
         # Run async gateway in sync context

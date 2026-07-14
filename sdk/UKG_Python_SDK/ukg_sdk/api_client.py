@@ -68,7 +68,7 @@ class BaseClient:
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "ukg-sdk-python/0.5.0",
+            "User-Agent": "ukg-sdk-python/0.6.0",
             "X-API-Version": "1.0",
         }
         if self.api_key:

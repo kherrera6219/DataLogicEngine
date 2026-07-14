@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, API integrators |
@@ -84,47 +84,47 @@ sequenceDiagram
     actor User
     participant UI as Frontend UI
     participant API as Flask API
-    participant DMRF as DMRF Orchestrator
-    participant Inject as InjectionDefense
-    participant Gate as TruthGate
-    participant Tier as TierClassifier
-    participant Axis as 17-Axis Router
-    participant DSQP as DSQP
-    participant Core as TruthCore
-    participant Evidence as Evidence/Convergence
-    participant Memory as Memory/Trace Stores
+    participant GOV as governed.v1 Orchestrator
+    participant DMRF as DMRF / TruthGate / Routing
+    participant RET as Bounded Retrieval
+    participant CORE as DSQP / TruthCore / KAs
+    participant GW as Provider Boundary
+    participant VAL as Validator
+    participant TRACE as Transactional Trace Store
 
     User->>UI: Submit prompt/action
     UI->>API: POST canonical API request
     API->>API: Auth, CSRF, CORS, trusted-host, rate-limit checks
-    API->>DMRF: Start governed lifecycle
-    DMRF->>Inject: Analyze prompt/context
-    alt Injection blocked
-        Inject-->>DMRF: Block decision
-        DMRF-->>API: Structured block
-        API-->>UI: Block response + trace metadata
-    else Allowed
-        Inject-->>DMRF: Allowed/warn
-        DMRF->>Gate: Evaluate TruthGate context
-        alt Gate blocks
-            Gate-->>DMRF: Block
-            DMRF-->>API: Structured block
-            API-->>UI: Block response
-        else Gate allows
-            Gate-->>DMRF: Allow/warn
-            DMRF->>Tier: Classify tier
-            DMRF->>Axis: Resolve 17-axis route
-            DMRF->>DSQP: Build personas if needed
-            DMRF->>Core: Execute TruthCore plan
-            Core->>Evidence: Score evidence/convergence
-            Evidence->>Memory: Persist memory/audit/trace
-            Memory-->>Evidence: Stored
-            Evidence-->>Core: Final result
-            Core-->>DMRF: Governed response
-            DMRF-->>API: Response envelope
-            API-->>UI: Response + trace affordance
+    API->>GOV: GovernedRequest(governed.v1)
+    GOV->>GOV: Admission, recursion, cancellation, mode checks
+    alt Simulation mode
+        GOV->>TRACE: Persist admission + capability-unavailable stage
+        GOV-->>API: Explicit Phase 10 unavailable result + trace_id
+    else Standard, enhanced, or local review
+        GOV->>DMRF: InjectionDefense, TruthGate, tier, 17-axis route
+        alt Policy blocked
+            DMRF-->>GOV: Typed policy block
+            GOV->>TRACE: Persist only executed/blocked stages
+            GOV-->>API: Blocked result + stable trace_id
+        else Allowed
+            DMRF-->>GOV: Measured policy/routing context
+            GOV->>RET: Retrieve bounded source-identified context
+            RET-->>GOV: Accepted evidence records
+            GOV->>CORE: Deterministic DSQP + workflow + required KA preflight
+            CORE-->>GOV: Exact persona/KA inputs and outputs
+            alt Local review
+                GOV->>VAL: Validate local-review result without provider claim
+            else Provider-backed
+                GOV->>GW: One approved prompt with policy/evidence/persona/KAs
+                GW-->>GOV: Provider output or typed failure
+                GOV->>VAL: Validate output, claims, citations, policy
+            end
+            GOV->>TRACE: Persist run and actual stages/evidence/claims atomically
+            TRACE-->>GOV: Stored under stable trace_id
+            GOV-->>API: GovernedResult
         end
     end
+    API-->>UI: Explicit status/failure/trace; null unmeasured confidence
 ```
 
 ---
@@ -133,17 +133,18 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Core as TruthCore
+    participant Core as Governed Orchestrator
     participant Gateway as LLM Gateway
     participant Secrets as Secret Resolver
     participant Provider as Configured AI Provider
     participant Metrics as Usage/Metrics
 
-    Core->>Gateway: Request provider execution
+    Core->>Core: Construct approved policy/evidence/persona/KA prompt
+    Core->>Gateway: Request bounded provider execution
     Gateway->>Secrets: Resolve provider key/config
     alt Missing provider config
         Secrets-->>Gateway: Unavailable
-        Gateway-->>Core: Structured provider error
+        Gateway-->>Core: Typed provider-unavailable failure
     else Config available
         Secrets-->>Gateway: Provider config
         Gateway->>Provider: Send selected prompt/context
@@ -154,7 +155,7 @@ sequenceDiagram
         else Provider failure
             Provider-->>Gateway: Error/timeout
             Gateway->>Metrics: Record failure
-            Gateway-->>Core: Structured provider failure
+            Gateway-->>Core: Typed provider failure; no later validation stage
         end
     end
 ```
@@ -339,6 +340,12 @@ sequenceDiagram
         CI-->>Author: Fix links/metadata/references
     end
 ```
+
+## Change notes for v3.0.0
+
+1. Replaced the parallel DMRF/TruthCore sequence with the single implemented
+   `governed.v1` orchestrator, exact persistence, and explicit mode boundaries.
+2. Documented causal prompt contents and failure behavior at the provider edge.
 
 ## Change notes for v2.7.0
 

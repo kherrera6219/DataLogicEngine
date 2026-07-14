@@ -113,28 +113,26 @@ async def test_run_simulation_failure_returns_failed_status():
 
 
 @pytest.mark.asyncio
-async def test_call_llm_uses_gateway_process():
+async def test_call_llm_uses_phase10_turn_adapter():
     gateway = SimpleNamespace(
-        process=AsyncMock(return_value=SimpleNamespace(ok=True, content="gateway-output", error=None))
+        generate_simulation_turn=AsyncMock(return_value="gateway-output")
     )
     engine = SimulationEngine(llm_gateway=gateway)
 
     result = await engine._call_llm("Prompt body", "Analyst")
 
     assert result == "gateway-output"
-    gateway.process.assert_awaited_once()
+    gateway.generate_simulation_turn.assert_awaited_once_with(
+        prompt="Prompt body", persona="Analyst", max_tokens=500
+    )
 
 
 @pytest.mark.asyncio
-async def test_call_llm_raises_when_gateway_returns_error():
-    gateway = SimpleNamespace(
-        process=AsyncMock(
-            return_value=SimpleNamespace(ok=False, content="", error="No active providers found")
-        )
-    )
+async def test_call_llm_raises_when_phase10_adapter_returns_empty():
+    gateway = SimpleNamespace(generate_simulation_turn=AsyncMock(return_value=""))
     engine = SimulationEngine(llm_gateway=gateway)
 
-    with pytest.raises(RuntimeError, match="LLM execution failed"):
+    with pytest.raises(RuntimeError, match="empty response"):
         await engine._call_llm("Prompt body", "Analyst")
 
 

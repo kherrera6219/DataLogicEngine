@@ -1,4 +1,5 @@
 import json
+from unittest.mock import AsyncMock, MagicMock, patch
 
 def test_truth_engine_health(authenticated_client):
     """Test Truth Engine health check."""
@@ -30,10 +31,28 @@ def test_truth_engine_session_flow(authenticated_client):
         status_response = authenticated_client.get(f'/api/truth/core/session/{session_id}')
         assert status_response.status_code == 200
         
-        # 3. Process session
-        # Note: This might take time or fail if AI services are down, so we handle it gracefully
-        process_response = authenticated_client.post(f'/api/truth/core/session/{session_id}/process')
-        assert process_response.status_code in [200, 500] # Allow 500 for missing AI
+        # 3. Process session through the canonical governed boundary without
+        # using live provider credentials in the test process.
+        governed = MagicMock(status='completed', answer='governed answer', confidence=None)
+        governed.to_dict.return_value = {
+            'contract_version': 'governed.v1',
+            'ok': True,
+            'status': 'completed',
+            'answer': 'governed answer',
+            'confidence': None,
+            'trace': [{'stage_name': 'persistence', 'status': 'completed'}],
+            'metadata': {'dsqp': {'profiles': {}}},
+        }
+        with patch(
+            'backend.llm_gateway.gateway.LLMGateway.execute',
+            new=AsyncMock(return_value=governed),
+        ) as execute:
+            process_response = authenticated_client.post(
+                f'/api/truth/core/session/{session_id}/process'
+            )
+        assert process_response.status_code == 200
+        assert process_response.get_json()['result']['contract_version'] == 'governed.v1'
+        execute.assert_awaited_once()
     else:
         # If blocked by gate, check if it's a 403
         assert response.status_code in [403, 400]

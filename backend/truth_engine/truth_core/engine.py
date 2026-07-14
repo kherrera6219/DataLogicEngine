@@ -180,6 +180,90 @@ class TruthCoreEngine:
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized with Final Assembly stack")
 
+    async def execute_governed_preflight(
+        self,
+        query: str,
+        context: Dict[str, Any],
+        *,
+        mode: str = "standard",
+    ) -> Dict[str, Any]:
+        """Execute the deterministic TruthCore work selected for a governed run.
+
+        Provider invocation and final output validation are owned by the
+        canonical gateway orchestrator. This preflight therefore runs only the
+        KAs whose outputs are supplied to that provider request. It never emits
+        planned or fabricated steps.
+        """
+
+        selected = [("complexity_routing", "KA-113")]
+        if mode == "enhanced":
+            selected.append(("algorithm_of_thought", "KA-001"))
+
+        executed: list[Dict[str, Any]] = []
+        for step_name, ka_id in selected:
+            started_at = datetime.now(UTC)
+            start = time.perf_counter()
+            if self.ka_controller is None:
+                executed.append(
+                    {
+                        "step": step_name,
+                        "ka_id": ka_id,
+                        "status": "failed",
+                        "input": {"query": query},
+                        "output": {},
+                        "error": "ka_controller_unavailable",
+                        "started_at": started_at.isoformat(),
+                        "completed_at": datetime.now(UTC).isoformat(),
+                        "duration_ms": max(0, int((time.perf_counter() - start) * 1000)),
+                    }
+                )
+                break
+            try:
+                ka_input = {"query": query}
+                output = await asyncio.to_thread(
+                    self.ka_controller.execute_algorithm,
+                    ka_id,
+                    ka_input,
+                )
+                status = "completed" if output.get("success", True) else "failed"
+                item = {
+                    "step": step_name,
+                    "ka_id": ka_id,
+                    "status": status,
+                    "input": ka_input,
+                    "output": output,
+                    "started_at": started_at.isoformat(),
+                    "completed_at": datetime.now(UTC).isoformat(),
+                    "duration_ms": max(0, int((time.perf_counter() - start) * 1000)),
+                }
+                if status == "failed":
+                    item["error"] = str(output.get("error") or "ka_execution_failed")
+                executed.append(item)
+                if status == "failed":
+                    break
+            except Exception as exc:
+                executed.append(
+                    {
+                        "step": step_name,
+                        "ka_id": ka_id,
+                        "status": "failed",
+                        "input": {"query": query},
+                        "output": {},
+                        "error": type(exc).__name__,
+                        "started_at": started_at.isoformat(),
+                        "completed_at": datetime.now(UTC).isoformat(),
+                        "duration_ms": max(0, int((time.perf_counter() - start) * 1000)),
+                    }
+                )
+                break
+
+        return {
+            "ok": bool(executed) and all(item["status"] == "completed" for item in executed),
+            "mode": mode,
+            "steps_executed": executed,
+            "context_keys": sorted(context),
+        }
+
     async def determine_tier(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Determines workflow tier using rule-based fallback and AI-driven KA-005."""
         context = context or {}
@@ -288,7 +372,12 @@ class TruthCoreEngine:
         return session
 
     async def process(self, session_id: str) -> Dict[str, Any]:
-        """Process a query through the appropriate tier workflow."""
+        """Process a compatibility session through the canonical orchestrator.
+
+        ``_execute_workflow`` remains an internal Phase 6 remediation surface;
+        public TruthCore session processing must not create a parallel governed
+        request path.
+        """
         if session_id not in self.active_sessions:
             if self.db_session:
                 try:
@@ -303,27 +392,51 @@ class TruthCoreEngine:
             
             if session_id not in self.active_sessions:
                 raise ValueError(f"Session {session_id} not found")
-        
+
         session = self.active_sessions[session_id]
         session['status'] = 'processing'
         session['started_at'] = datetime.now(UTC).isoformat()
-        
+
         tier = session['tier']
         query = session['query']
-        context = session.get('context', {})
-        
+        context = session.get('context') or session.get('axis_context') or {}
+
         try:
-            steps = self.get_workflow_steps(tier)
-            result = await self._execute_workflow(query, context, steps, tier)
-            
-            session['status'] = 'completed'
+            from backend.governed_execution.contracts import GovernedMode, GovernedRequest
+            from backend.llm_gateway.gateway import LLMGateway
+
+            mode = (
+                GovernedMode.ENHANCED
+                if tier in {'high_stakes', 'extreme', 'autonomous'}
+                else GovernedMode.STANDARD
+            )
+            governed = await LLMGateway(db_session=self.db_session).execute(
+                GovernedRequest(
+                    messages=[{'role': 'user', 'content': query}],
+                    mode=mode,
+                    source='truth_core_compatibility',
+                    principal_kind='authenticated_user',
+                    principal_id=str(session.get('user_id')) if session.get('user_id') else None,
+                    user_id=session.get('user_id'),
+                    session_id=session_id,
+                    metadata={
+                        **context,
+                        'legacy_truth_tier': tier,
+                        'legacy_routing_profile': session.get('routing_profile'),
+                    },
+                )
+            )
+            result = governed.to_dict()
+
+            session['status'] = governed.status
             session['completed_at'] = datetime.now(UTC).isoformat()
             session['result'] = result
-            session['context'] = result.get('context', {}) # Store final context
-            session['confidence_score'] = result.get('confidence', 0)
-            session['workflow_steps'] = result.get('steps_executed', [])
-            session['personas_used'] = result.get('personas_used', [])
-            
+            session['context'] = context
+            session['confidence_score'] = governed.confidence
+            session['workflow_steps'] = result.get('trace', [])
+            profiles = ((result.get('metadata') or {}).get('dsqp') or {}).get('profiles') or {}
+            session['personas_used'] = sorted(profiles)
+
             if self.db_session:
                 try:
                     from models import TruthSession
@@ -331,11 +444,11 @@ class TruthCoreEngine:
                         session_id=session_id
                     ).first()
                     if db_sess:
-                        db_sess.status = 'completed'
-                        db_sess.response = result.get('response', '')
-                        db_sess.confidence_score = result.get('confidence', 0)
-                        db_sess.workflow_steps = result.get('steps_executed', [])
-                        db_sess.personas_used = result.get('personas_used', [])
+                        db_sess.status = governed.status
+                        db_sess.response = governed.answer
+                        db_sess.confidence_score = governed.confidence
+                        db_sess.workflow_steps = result.get('trace', [])
+                        db_sess.personas_used = session['personas_used']
                         db_sess.completed_at = datetime.now(UTC)
                         self.db_session.commit()
                 except Exception as e:
@@ -347,7 +460,7 @@ class TruthCoreEngine:
             session['error'] = str(e)
             logger.error(f"TruthCore processing failed for session {session_id}: {e}")
             raise
-        
+
         return session
 
     def _refresh_graph_context(self, query: str, working_context: Dict[str, Any]) -> None:

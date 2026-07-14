@@ -1,4 +1,5 @@
 import pytest
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import MagicMock, patch
 
 from backend.storage.graph_store import GraphStore
@@ -101,3 +102,16 @@ def test_local_object_store_normalizes_windows_separators(tmp_path):
 
     assert backend.exists("docs", "nested/folder/a.txt")
     assert backend.get("docs", "nested/folder/a.txt") == b"hello"
+
+
+def test_local_object_store_concurrent_resolve_keeps_objects_in_bucket(tmp_path):
+    backend = LocalFileBackend(base_path=str(tmp_path))
+
+    def write(index: int) -> str:
+        return backend.put("deliverables", f"dsqp/persona-{index}.json", b"{}")
+
+    with ThreadPoolExecutor(max_workers=16) as executor:
+        keys = list(executor.map(write, range(256)))
+
+    assert len(keys) == 256
+    assert all(backend.exists("deliverables", key) for key in keys)

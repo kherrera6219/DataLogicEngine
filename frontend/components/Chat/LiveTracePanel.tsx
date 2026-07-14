@@ -68,8 +68,8 @@ function statusClass(status?: string): string {
   const normalized = (status || '').toLowerCase();
   if (normalized === 'pass' || normalized === 'completed') return 'text-green-500';
   if (normalized === 'running') return 'text-blue-400';
-  if (normalized === 'warn') return 'text-yellow-500';
-  if (normalized === 'fail' || normalized === 'failed') return 'text-red-400';
+  if (normalized === 'warn' || normalized === 'blocked' || normalized === 'cancelled' || normalized === 'unavailable') return 'text-yellow-500';
+  if (normalized === 'fail' || normalized === 'failed' || normalized.endsWith('_failure')) return 'text-red-400';
   return 'text-slate-500 dark:text-gray-500';
 }
 
@@ -190,7 +190,7 @@ export function LiveTracePanel() {
       return 0;
     }
     const finished = stages.filter((stage) =>
-      ['pass', 'completed', 'warn', 'fail', 'failed', 'skipped'].includes((stage.status || '').toLowerCase())
+      ['pass', 'completed', 'warn', 'fail', 'failed', 'blocked', 'cancelled', 'skipped'].includes((stage.status || '').toLowerCase())
     ).length;
     return Math.round((finished / stages.length) * 100);
   }, [currentRun, stages]);
@@ -356,7 +356,7 @@ export function LiveTracePanel() {
                       <div className="flex items-center gap-2">
                         {['pass', 'completed'].includes((stage.status || '').toLowerCase()) ? (
                           <ShieldCheck className="h-3 w-3 text-green-500" />
-                        ) : ['fail', 'failed', 'warn'].includes((stage.status || '').toLowerCase()) ? (
+                        ) : ['fail', 'failed', 'warn', 'blocked', 'cancelled'].includes((stage.status || '').toLowerCase()) ? (
                           <AlertCircle className="h-3 w-3 text-yellow-500" />
                         ) : (
                           <Clock className="h-3 w-3 text-blue-400" />

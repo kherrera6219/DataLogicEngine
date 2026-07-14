@@ -451,11 +451,13 @@ def execute_high_stakes_workflow():
 
         result = _run_async(engine.process(session['session_id']))
 
+        governed = result.get('result') if isinstance(result.get('result'), dict) else {}
+        success = bool(governed.get('ok'))
         return jsonify({
-            'success': True,
+            'success': success,
             'session_id': session['session_id'],
             'result': result
-        }), 200
+        }), 200 if success else 503
     except Exception:
         logger.exception("Error executing high-stakes workflow")
         return _error_response('High-stakes workflow execution failed', 500)

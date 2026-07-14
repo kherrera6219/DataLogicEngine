@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, security reviewers, technical evaluators |
@@ -15,7 +15,9 @@
 
 Capture the significant decision points in DataLogicEngine: what is evaluated, what outcomes are possible, and where the decision is implemented.
 
-This version reflects the current DMRF + Truth Engine + 17-axis + DSQP + local-first architecture. Older conceptual references such as generic QuadPersona or Supervisor-LLM Active Defense are not treated as current source-of-truth unless implemented by the current modules below.
+This version reflects the Phase 5 `governed.v1` causal request path. Older
+conceptual references and private compatibility helpers are not independent
+answer-producing architectures.
 
 ## Related documents
 
@@ -37,14 +39,14 @@ This version reflects the current DMRF + Truth Engine + 17-axis + DSQP + local-f
 | DL-01 | Runtime mode selection | `frontend/lib/runtime/policy.ts`, `backend/storage/connection_manager.py` |
 | DL-02 | Authentication path selection | `frontend/contexts/AuthContext.tsx`, `backend/security/desktop_local_auth.py`, auth routes |
 | DL-03 | API route/auth error behavior | `app.py`, `backend/auth/api_decorators.py`, route modules |
-| DL-04 | DMRF injection-defense decision | `backend/dmrf/injection_defense.py` |
+| DL-04 | Governed admission and DMRF injection-defense decision | `backend/governed_execution/orchestrator.py`, `backend/dmrf/injection_defense.py` |
 | DL-05 | TruthGate allow/block/warn decision | `backend/truth_engine/truth_gate/gateway.py` |
 | DL-06 | Tier classification | `backend/dmrf/tier_classifier.py` |
 | DL-07 | 17-axis routing and FROST mode | `backend/dmrf/router.py`, `core/axes/` |
-| DL-08 | DSQP persona construction | `backend/dsqp/dsqp_chain.py` |
-| DL-09 | TruthCore workflow decision | `backend/truth_engine/truth_core/engine.py` |
-| DL-10 | Evidence/convergence decision | `backend/dmrf/evidence_model.py`, `backend/dmrf/convergence_policy.py` |
-| DL-11 | Provider/model execution decision | `backend/llm_gateway/` |
+| DL-08 | Deterministic DSQP persona construction | `backend/governed_execution/orchestrator.py`, `backend/dsqp/` |
+| DL-09 | TruthCore/KA workflow decision | `backend/governed_execution/orchestrator.py` |
+| DL-10 | Evidence and validation decision | `backend/governed_execution/retrieval.py`, `backend/governed_execution/validation.py` |
+| DL-11 | Provider/model execution decision | `backend/governed_execution/prompt.py`, `backend/llm_gateway/` |
 | DL-12 | MCP scope/tool decision | `backend/mcp_server/`, MCP routes/services |
 | DL-13 | Storage mode decision | `backend/storage/connection_manager.py` |
 | DL-14 | Export integrity decision | `backend/security/export_integrity.py` |
@@ -148,7 +150,10 @@ Decision categories include:
 ```text
 INPUT: user prompt + context
 
-IF category == none and severity below threshold
+IF mode == simulation
+  -> stop after admission with capability_unavailable until Phase 10
+
+ELSE IF category == none and severity below threshold
   -> continue to TruthGate
 
 IF suspicious but recoverable
@@ -250,7 +255,8 @@ Resolve active axes
 
 ## DL-08: DSQP persona construction
 
-Primary implementation: `backend/dsqp/dsqp_chain.py`.
+Primary implementation: `backend/governed_execution/orchestrator.py` with the
+DSQP modules as deterministic inputs.
 
 DSQP constructs structured personas from axes 8-11.
 
@@ -261,7 +267,7 @@ Persona families:
 3. Regulatory Expert;
 4. Compliance Expert.
 
-Each persona may include:
+Each traced persona may include:
 
 1. job role;
 2. education;
@@ -274,39 +280,50 @@ Each persona may include:
 ```text
 INPUT: 17-axis context + role axes
 
-IF persona context is needed
-  -> build deterministic structured persona set
-  -> attach to workflow/trace
+Build deterministic structured persona context from axes 8-11
+  -> include selected contribution in the provider prompt
+  -> persist the exact contribution in trace
 
-ELSE
-  -> skip persona construction or use default lightweight context
+IF a contribution is not used
+  -> do not claim it influenced the answer
 ```
+
+Cloud-generated persona construction is disabled in the canonical path. A later
+explicitly consented feature would need to count its provider calls and prove
+that its output causally affected the result.
 
 ---
 
 ## DL-09: TruthCore workflow decision
 
-Primary implementation: `backend/truth_engine/truth_core/engine.py`.
+Primary implementation: `backend/governed_execution/orchestrator.py`. The public
+`TruthCoreEngine.process()` method is a compatibility adapter into the canonical
+gateway; it is not a second public orchestrator.
 
 TruthCore determines workflow depth and execution plan.
 
 ```text
-INPUT: tier + TruthGate result + 17-axis route + DSQP personas
+INPUT: mode + tier + TruthGate result + 17-axis route + DSQP context
 
-IF trivial
-  -> shallow workflow
+IF TruthGate blocks
+  -> no TruthCore, KA, or provider execution
 
-IF moderate
-  -> normal governed workflow
+IF standard
+  -> select bounded workflow and execute required KA-113 preflight
 
-IF high_stakes/extreme/autonomous
-  -> deeper workflow with additional evidence/convergence/review controls
+IF enhanced
+  -> select bounded deeper workflow and execute KA-113 plus KA-001 preflight
 
-IF blocked or insufficient evidence
-  -> safe fallback or refusal/block path
+IF local_review
+  -> perform local review without claiming a provider answer
+
+IF simulation
+  -> explicit Phase 10 capability-unavailable result after admission
 ```
 
-TruthCore should not treat provider output as final without policy/evidence handling when a governed workflow requires review.
+Only executed KAs are persisted. A KA shown in trace must have its real input,
+output, status, and duration. Phase 6 validates whether each KA result is
+category-appropriate and evidentially sufficient.
 
 ---
 
@@ -314,21 +331,28 @@ TruthCore should not treat provider output as final without policy/evidence hand
 
 Primary implementations:
 
-- `backend/dmrf/evidence_model.py`
-- `backend/dmrf/convergence_policy.py`
+- `backend/governed_execution/retrieval.py`
+- `backend/governed_execution/validation.py`
 
 ```text
-INPUT: evidence items + claims + tier + freshness/confidence signals
+INPUT: bounded source-identified evidence + provider output + claims/citations
 
-IF evidence is fresh/sufficient and convergence threshold is met
-  -> finalize
+Reject suspicious or malformed retrieval chunks
+  -> assign stable per-run source labels to accepted chunks
+  -> include accepted evidence in the provider request
+  -> validate output/claim/citation/policy shape
 
-IF evidence is stale/insufficient but recoverable
-  -> refine/retry/deepen workflow
+IF a versioned confidence measurement does not exist
+  -> return confidence = null
 
-IF evidence cannot support answer
-  -> safe fallback / uncertainty / human review recommendation
+IF validation fails
+  -> return typed validation_failure
+  -> do not record completed persistence stages that never executed
 ```
+
+Phase 5 proves causality and trace truth, not the scientific validity of the
+confidence/convergence formula. Phase 6 owns provenance, category-specific
+sufficiency, contradiction, calibration, and explicit insufficiency.
 
 ---
 
@@ -337,13 +361,14 @@ IF evidence cannot support answer
 Primary implementation: `backend/llm_gateway/`.
 
 ```text
-INPUT: workflow plan + configured providers + model settings + credentials
+INPUT: one approved prompt containing policy constraints, evidence source IDs,
+       DSQP contributions, KA results, and user query
 
 IF deterministic/local processing is sufficient
   -> do not call provider
 
-ELSE IF provider credentials/model config exists
-  -> call configured provider/model
+ELSE IF provider credentials/model config exists and budget remains
+  -> call configured provider/model within the request call bound
   -> record latency/usage/error metadata
 
 ELSE
@@ -356,6 +381,9 @@ Rules:
 2. Do not log raw provider secrets.
 3. Provider calls may transmit selected context outside the local machine.
 4. Provider tests should return specific failure reasons where available.
+5. A policy block or simulation boundary is not a provider/network failure.
+6. `run_ukg_pipeline=false` is deprecated and never bypasses governance.
+7. Recursive entry into governed execution is refused.
 
 ---
 
@@ -470,6 +498,13 @@ IF required evidence missing
 6. Do not treat local-first as air-gapped.
 7. Do not treat desktop local-auth as cloud trust.
 8. Persist decision metadata where trace/audit is expected.
+
+## Change notes for v3.0.0
+
+1. Aligned admission, DSQP, TruthCore/KA, evidence/validation, and provider
+   decisions with the implemented `governed.v1` orchestrator.
+2. Removed plan-only convergence/default-persona implications and documented
+   null confidence plus the Phase 6 validity boundary.
 
 ## Change notes for v2.7.0
 

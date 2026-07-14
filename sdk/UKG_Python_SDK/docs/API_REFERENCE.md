@@ -1,179 +1,56 @@
-# UKG SDK v0.5.0 — Developer API Reference
+# Python SDK API reference — v0.6
 
-## `ukg_sdk.UKGOverlay`
+## `UKGOverlay`
 
-**Purpose:** main orchestrator that mounts the UKG overlay around an LLM provider.
-
-```python
-class UKGOverlay:
-  def __init__(
-      self,
-      *,
-      provider: LLMProvider,
-      model: str,
-      registry: KARegistry | None = None,
-      registry_path: str | Path | None = None,
-      data_dir: str | Path | None = None,
-      coordinate_resolver: CoordinateResolver17 | None = None,
-      memory: MemoryAdapter | None = None,
-      audit: AuditStore | None = None,
-      actor: str = "ukg-sdk",
-  )
-
-  async def run(
-      self,
-      *,
-      query: str,
-      user_id: str = "anonymous",
-      session_id: str | None = None,
-      meta: dict | None = None,
-      temperature: float = 0.2,
-      max_tokens: int = 1024,
-      tier_override: str | None = None,
-  ) -> dict
-```
-
-**Return:** dict with:
-
-- `ok: bool`
-- `answer: str` (if ok)
-- `coordinate: str` (17-axis compact string)
-- `tier: str`
-- `layers: list[str]`
-- `trace: list[dict]`
-- `explainability: dict | None`
-
----
-
-## Providers (`ukg_sdk.providers.*`)
-
-### `LLMProvider`
+Asynchronous compatibility client for `POST /api/v1/gateway/chat`.
 
 ```python
-class LLMProvider(ABC):
-  async def complete(
-    self,
+UKGOverlay(
     *,
-    messages: list[dict[str,str]],
-    model: str,
+    base_url: str | None = None,
+    api_key: str | None = None,
+    timeout_s: float = 120.0,
+    verify_tls: bool = True,
+)
+
+await overlay.run(
+    *,
+    query: str,
+    user_id: str = "anonymous",
+    session_id: str | None = None,
+    correlation_id: str | None = None,
+    meta: dict | None = None,
     temperature: float = 0.2,
     max_tokens: int = 1024,
-  ) -> LLMResponse
+    tier_override: str | None = None,
+    mode: str = "standard",
+    provider: str | None = None,
+    model: str | None = None,
+) -> dict
 ```
 
-### Built-in providers
+The result includes `answer`, `trace_id`, `contract_version`, `status`, measured
+usage, evidence/claim summary fields, warnings, and nullable `confidence`.
 
-- `OpenAIProvider` (env: `OPENAI_API_KEY`, optional `OPENAI_BASE_URL`)
-- `AzureOpenAIProvider` (env: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, optional `AZURE_OPENAI_DEPLOYMENT`)
-- `AnthropicProvider` (env: `ANTHROPIC_API_KEY`, optional `ANTHROPIC_BASE_URL`)
+## `UKGClient` / `UKGAsyncClient`
 
----
+General synchronous and asynchronous HTTP clients. Both accept `base_url`,
+`api_key`, `timeout`, retry count, and retry delay. Subclients expose sessions,
+runs, exports, and compliance resources.
 
-## KA system (`ukg_sdk.ka.*`)
+## `TruthEngine` / `TruthEngineAPI`
 
-### Registry
+Deprecated names retained as thin synchronous clients to the governed gateway.
+Supplying legacy TruthGate, memory, KA executor, or registry components raises a
+clear migration error; these classes cannot create a second execution pipeline.
 
-- `KAInfo` — metadata model
-- `KARegistry` — `items: dict[str, KAInfo]`
+## `WorkflowRunner`
 
-Loaders:
+Loads the bundled workflow metadata, selects a tier deterministically, and can
+return a planning preview. It does not execute an answer.
 
-- `ukg_sdk.ka.registry.load_registry_from_json(path)`
-- `ukg_sdk.ka.registry.load_default_registry(package_data_dir)`
+## Data helpers
 
-### Execution hooks
-
-```python
-class KAExecutor:
-  def register(self, ka_id: str, handler: KAHandler) -> None
-  def execute(
-    self,
-    ka_id: str,
-    *,
-    input: dict,
-    layer: str,
-    state: dict,
-    memory: Any = None,
-    audit: Any = None,
-    strict: bool = True,
-  ) -> KAExecutionResult
-```
-
-Types:
-
-- `KAExecutionContext` (ka, input, layer, state, memory, audit)
-- `KAExecutionResult` (ok, output, next_layer, veto_reason)
-
-Built-in handlers:
-
-- `KA-004` validation/normalization
-- `KA-005` query classification
-- `KA-113` tier router
-- `KA-001` Algorithm of Thought (light)
-- `KA-019` synthesis (light)
-- `KA-056` explainability (light)
-
----
-
-## 17-axis coordinates (`ukg_sdk.coordinates17`)
-
-- `Coordinate` — container with `as_compact_string()` and `to_dict()`
-- `CoordinateResolver17.resolve(input_data: str | dict) -> Coordinate`
-
----
-
-## Memory adapters (`ukg_sdk.memory.*`)
-
-Base:
-
-- `MemoryAdapter`
-- `MemoryRecord`
-
-Implementations:
-
-- `InMemoryMemoryAdapter`
-- `PostgresMemoryAdapter` (requires `asyncpg`)
-- `RedisMemoryAdapter` (requires `redis` asyncio)
-
----
-
-## Audit storage (`ukg_sdk.audit.*`)
-
-Base:
-
-- `AuditStore`
-- `AuditEvent`
-
-Implementations:
-
-- `FileAuditStore` (JSONL, hash-chained)
-- `PostgresAuditStore` (requires `asyncpg`)
-
----
-
-## Workflow & Truth Engine (`ukg_sdk.truth_engine.*`, `ukg_sdk.workflow.*`)
-
-### `TruthEngine`
-
-**Purpose:** Composite engine combining properties of Gate, Core, Link, and Memory.
-
-```python
-class TruthEngine:
-    def evaluate(self, claim: str, context: dict | None = None) -> TruthResult
-    def summarize(self) -> dict
-```
-
-### `WorkflowRunner`
-
-**Purpose:** Load and execute KA pipelines defined in `workflow.json`.
-
-```python
-class WorkflowRunner:
-    @classmethod
-    def load_default(cls) -> WorkflowRunner
-    def choose_tier(self, complexity_score: float) -> ComplexityTier
-    def run_local_stub(self, query: str, tier: ComplexityTier) -> WorkflowResult
-```
-
-`WorkflowRunner.load_default()` reads the bundled `ukg_sdk/data/workflow.json`,
-including the current `tier_system.tiers` schema.
+`CoordinateResolver17`, `Coordinate17`, and the optional `DSQPClient` are local
+data/client helpers. Their output is not an authoritative governed result unless
+it is submitted to and recorded by the installed backend.

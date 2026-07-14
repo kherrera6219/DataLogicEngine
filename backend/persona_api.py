@@ -6,6 +6,7 @@ Quad Persona Simulation Engine.
 """
 
 import logging
+import asyncio
 from datetime import datetime, UTC
 
 from flask import Blueprint, request, jsonify
@@ -18,18 +19,24 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 persona_api = Blueprint('persona_api', __name__)
 
-# Lazy-loaded simulation engine (initialized on first use)
-_simulation_engine = None
+def _run_governed(query: str, context: dict, mode: str):
+    """Adapt legacy persona endpoints to the canonical governed contract."""
 
+    from backend.governed_execution.contracts import GovernedRequest
+    from backend.llm_gateway.gateway import LLMGateway
+    from extensions import db
 
-def _get_simulation_engine():
-    """Get or create the simulation engine (lazy initialization)."""
-    global _simulation_engine
-    if _simulation_engine is None:
-        from core.simulation.legacy_simulation_engine import create_simulation_engine
-        _simulation_engine = create_simulation_engine()
-        logger.info("Simulation engine initialized (lazy)")
-    return _simulation_engine
+    user_id = current_user.id if current_user and current_user.is_authenticated else None
+    governed = GovernedRequest(
+        messages=[{"role": "user", "content": query}],
+        mode=mode,
+        source="persona_compatibility_api",
+        principal_kind="desktop",
+        principal_id=str(user_id) if user_id is not None else None,
+        user_id=user_id,
+        metadata={"persona_context": context},
+    )
+    return asyncio.run(LLMGateway(db_session=db.session).execute(governed))
 
 @persona_api.route('/query', methods=['POST'])
 @api_session_login_required
@@ -65,10 +72,9 @@ def process_query():
         context['conversation_id'] = f"conv_{datetime.now(UTC).timestamp()}"
     
     try:
-        # Process the query with the simulation engine (lazy loaded)
-        result = _get_simulation_engine().process_query(query, context)
-        
-        return jsonify(result)
+        result = _run_governed(query, context, "simulation")
+        status_code = 200 if result.ok else 503
+        return jsonify(result.to_dict()), status_code
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         return jsonify({
@@ -100,18 +106,15 @@ def direct_query():
     context = data.get('context', {})
     
     try:
-        # Construct the four axes-8–11 expert personas directly via the
-        # canonical DSQP system (deterministic, offline-capable). This replaces
-        # the legacy root quad_persona engine/factory, which was a duplicate,
-        # shadowed implementation that raised TypeError on construction.
-        from backend.dsqp import DSQPOrchestrator
-
-        orchestrator = DSQPOrchestrator()
-        result = orchestrator.construct_all_sync(query, context=context)
+        result = _run_governed(query, context, "local_review")
+        if not result.ok:
+            return jsonify(result.to_dict()), 503
 
         return jsonify({
             'query': query,
-            'response': result,
+            'response': result.metadata.get('dsqp', {}),
+            'trace_id': result.trace_id,
+            'contract_version': result.contract_version,
             'timestamp': datetime.now(UTC).isoformat()
         })
     except Exception as e:

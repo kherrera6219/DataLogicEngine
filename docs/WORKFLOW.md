@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -14,7 +14,9 @@
 
 Provide a high-level workflow reference for how a request traverses DataLogicEngine reasoning layers, security controls, validation gates, memory systems, and trace/export paths.
 
-This version replaces the older generic 17D/layer diagram with the current DMRF + Truth Engine + 17-axis + DSQP + trace lifecycle.
+This version records the Phase 5 `governed.v1` contract and the single
+backend-owned causal execution path. Phase 6 remains responsible for the quality
+and calibration of evidence, confidence, convergence, and KA validity.
 
 ## Audience
 
@@ -40,26 +42,28 @@ This version replaces the older generic 17D/layer diagram with the current DMRF 
 
 ## Workflow summary
 
-A governed DataLogicEngine request follows this lifecycle:
+A standard or enhanced governed request follows this lifecycle:
 
 ```text
-user prompt/action
-  -> frontend/runtime policy
-  -> Flask API/security envelope
-  -> DMRF injection defense
-  -> TruthGate
-  -> tier classification
-  -> 17-axis routing
-  -> DSQP persona construction
-  -> TruthCore workflow planning
-  -> model/tool execution where required
-  -> evidence and convergence policy
-  -> memory/audit/artifact persistence
-  -> TruthLink event publication
-  -> Trace Explorer and export integrity
+authenticated user/client request
+  -> GovernedRequest(governed.v1)
+  -> admission and cancellation check
+  -> DMRF injection defense + TruthGate + tier + 17-axis route
+  -> bounded source-identified retrieval
+  -> deterministic DSQP axes 8-11 context
+  -> TruthCore workflow selection + required KA preflight
+  -> one policy/persona/evidence/KA-aware provider request
+  -> output/claim/citation/policy validation
+  -> one transactional run/stage/evidence/claim persistence operation
+  -> GovernedResult with stable trace_id
 ```
 
-This workflow is intentionally broader than a direct LLM call. The model/provider is one component inside a governed lifecycle.
+`standard`, `enhanced`, `local_review`, and `simulation` are the supported modes.
+`simulation` currently fails explicitly at the Phase 10 capability boundary
+immediately after admission. `local_review` does not claim a provider answer.
+Compatibility values `chat`, `trace`, and `explain` map to `standard`; `quad`
+maps to `enhanced`. The deprecated `run_ukg_pipeline` flag cannot bypass this
+workflow.
 
 ---
 
@@ -67,30 +71,23 @@ This workflow is intentionally broader than a direct LLM call. The model/provide
 
 ```mermaid
 flowchart TD
-    A[User prompt / action] --> B[Frontend runtime policy]
-    B --> C[Flask API + security envelope]
-    C --> D[DMRF InjectionDefense]
-    D --> E{Blocked?}
-    E -- Yes --> X[Structured block response + audit/trace]
-    E -- No --> F[TruthGate]
-    F --> G{Gate decision}
-    G -- Block --> X
-    G -- Allow / Warn --> H[TierClassifier]
-    H --> I[17-axis router]
-    I --> J[DSQP persona construction]
-    J --> K[TruthCore workflow planning]
-    K --> L{Model/tool needed?}
-    L -- Yes --> M[LLM Gateway / MCP connector]
-    M --> N[Provider/tool output]
-    L -- No --> O[Deterministic/local processing]
-    N --> P[EvidenceModel + ConvergencePolicy]
-    O --> P
-    P --> Q{Converged?}
-    Q -- Refine --> K
-    Q -- Finalize --> R[Persist memory/audit/artifacts]
-    R --> S[TruthLink event publication]
-    S --> T[Trace Explorer / export manifest]
-    T --> U[Response to frontend/user]
+    A[Authenticated request] --> B[GovernedRequest governed.v1]
+    B --> C[Admission and cancellation]
+    C --> D{Simulation mode?}
+    D -- Yes --> X[Phase 10 capability-unavailable result]
+    D -- No --> E[DMRF policy, gate, tier, and axes]
+    E --> F{Allowed?}
+    F -- No --> Y[Policy-blocked result]
+    F -- Yes --> G[Bounded retrieval with source IDs]
+    G --> H[Deterministic DSQP context]
+    H --> I[TruthCore and required KA preflight]
+    I --> J[Construct one approved provider prompt]
+    J --> K[Bounded provider execution]
+    K --> L[Output, claim, citation, and policy validation]
+    L --> M[Transactional trace persistence]
+    M --> N[GovernedResult and stable trace ID]
+    X --> M
+    Y --> M
 ```
 
 ---
@@ -99,18 +96,15 @@ flowchart TD
 
 | Stage | Responsibility | Key implementation paths |
 |---|---|---|
-| Frontend/runtime policy | determine desktop/web behavior, auth UX, route handling, API calls. | `frontend/app/`, `frontend/lib/runtime/policy.ts`, `frontend/contexts/AuthContext.tsx` |
-| API/security envelope | sessions, CSRF, CORS, trusted hosts, rate limits, JSON errors, health/metrics. | `app.py`, `backend/routes/`, `backend/auth/`, `backend/security/` |
-| DMRF InjectionDefense | detect prompt injection, logical traps, obfuscation, persona hijack, resource exhaustion. | `backend/dmrf/injection_defense.py` |
-| TruthGate | trust, budget, priority, compliance, PII, blocked-pattern gate. | `backend/truth_engine/truth_gate/gateway.py` |
-| TierClassifier | classify request as trivial/moderate/high-stakes/extreme/autonomous. | `backend/dmrf/tier_classifier.py` |
-| 17-axis router | assign coordinate, active axes, FROST depth, Truth mode. | `backend/dmrf/router.py`, `core/axes/` |
-| DSQP | construct structured personas from axes 8-11. | `backend/dsqp/dsqp_chain.py` |
-| TruthCore | plan and execute tiered workflow. | `backend/truth_engine/truth_core/engine.py` |
-| LLM/tool execution | call provider/model or MCP connector when needed. | `backend/llm_gateway/`, `backend/mcp_server/` |
-| Evidence/convergence | score evidence and decide finalize/refine behavior. | `backend/dmrf/evidence_model.py`, `backend/dmrf/convergence_policy.py` |
-| Memory/audit/artifacts | persist run memory, audit, artifacts, metrics, explainability. | `backend/storage/`, `backend/memory/`, `backend/truth_engine/truth_memory/` |
-| Trace/export | expose run review and integrity-protected exports. | `backend/tracing/`, `backend/security/export_integrity.py`, `frontend/app/runs/` |
+| Transport/security envelope | Authenticates the owner/client and supplies server-owned principal, scope, project, privacy, and budget context. | `app.py`, `backend/routes/`, `backend/auth/`, `backend/security/` |
+| Contract and orchestration | Validates `governed.v1`, prevents recursion/bypass, owns stage transitions, and bounds provider calls. | `backend/governed_execution/contracts.py`, `backend/governed_execution/orchestrator.py` |
+| DMRF/TruthGate | Applies injection defense, TruthGate, tier, and 17-axis routing with measured data. | `backend/dmrf/`, `backend/truth_engine/truth_gate/` |
+| Retrieval | Selects bounded, source-identified local context and rejects suspicious chunks. | `backend/governed_execution/retrieval.py` |
+| DSQP/TruthCore/KAs | Builds deterministic persona context, selects the workflow, and executes required preflight KAs. | `backend/governed_execution/orchestrator.py`, `backend/dsqp/`, `backend/truth_engine/` |
+| Prompt/provider | Builds one prompt containing approved policy, sources, personas, and KAs, then performs bounded provider execution. | `backend/governed_execution/prompt.py`, `backend/llm_gateway/` |
+| Validation | Validates provider output and current claim/citation/policy structure. Phase 6 strengthens evidence validity and calibration. | `backend/governed_execution/validation.py` |
+| Trace persistence | Stores the run and only executed stages/evidence/claims/personas/KAs/policies/axes under one trace ID. | `backend/governed_execution/trace_persistence.py`, `backend/tracing/` |
+| Result/UI | Returns explicit completed, blocked, failed, cancelled, or unavailable state; confidence is null when unmeasured. | `frontend/components/Chat/LiveTracePanel.tsx`, `frontend/lib/api/types.ts` |
 
 ---
 
@@ -136,23 +130,34 @@ Possible outcomes:
 | Outcome | Meaning |
 |---|---|
 | Blocked | InjectionDefense or TruthGate prevented unsafe or invalid processing. |
+| Capability unavailable | A later-phase mode such as simulation is explicitly unavailable; no answer is fabricated. |
+| Failed | Provider, validation, or internal execution failed; later stages are absent. |
+| Cancelled | Execution stopped and no additional provider/tool calls occur. |
 | Safe fallback | Evidence, confidence, provider, or policy state did not support a final answer. |
 | Finalized deterministic result | Request was resolved without external model/tool execution. |
 | Finalized provider-backed result | Request used LLM/tool execution and passed evidence/convergence gates. |
-| Refinement required | Convergence policy required another pass or deeper tier. |
 | Human review recommended | High-risk/uncertain conditions require user/operator review. |
 
 ---
 
 ## Validation points
 
-1. DMRF trace should show injection-defense result.
-2. TruthGate decision should be visible in run/trace context where enabled.
-3. Tier and 17-axis routing should be inspectable for governed requests.
-4. DSQP persona data should be visible where persona construction occurs.
-5. Evidence/claims should connect to final output.
-6. Export manifests should include integrity metadata where export is used.
-7. Metrics should show route/provider/connector behavior through `/metrics`.
+1. A TruthGate block prevents provider execution.
+2. Removing or changing a retrieved source changes the constructed provider
+   context and its available citations.
+3. DSQP and KA items shown in trace must appear in the provider request or final
+   decision.
+4. Provider failure cannot create completed validation/evidence stages.
+5. Cancellation stops additional provider/tool calls.
+6. Every outcome returns one stable trace ID and stores only executed stages.
+7. Confidence must be null when no versioned measurement exists.
+
+## Change notes for v3.0.0
+
+1. Replaced the plan-shaped DMRF diagram with the implemented Phase 5
+   `governed.v1` lifecycle and its explicit modes/failure boundaries.
+2. Recorded the single backend orchestrator, causal prompt construction,
+   transactional trace truth, and Phase 6 evidence-quality boundary.
 
 ## Change notes for v2.7.0
 

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, security reviewers, technical evaluators |
@@ -13,7 +13,9 @@
 
 ## Purpose
 
-Describe how data moves through DataLogicEngine across user interaction, API/security boundaries, DMRF, Truth Engine, DSQP, model/tool execution, storage, memory, trace/export, privacy, and observability.
+Describe how data moves through the Phase 5 `governed.v1` contract, one causal
+orchestrator, provider boundary, transactional trace, storage, privacy, and
+observability surfaces.
 
 These diagrams are source-of-truth data-flow references for the current architecture. Archived whitepapers may contain older exploratory diagrams and should not override this document.
 
@@ -67,10 +69,10 @@ flowchart LR
     BROWSER --> API
     API --> DMRF
     DMRF --> TRUTH
-    TRUTH --> DATA
     TRUTH --> PROVIDERS
     TRUTH --> MCP
-    TRUTH --> EXPORT
+    DMRF --> DATA
+    DATA --> EXPORT
     API --> OPS
     DATA --> OPS
 ```
@@ -81,37 +83,28 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A[User prompt/action] --> B[Frontend runtime policy]
-    B --> C[API request]
-    C --> D[Auth/session/desktop local-auth]
-    D --> E[CSRF/CORS/trusted-host/rate-limit checks]
-    E --> F[DMRF InjectionDefense]
-    F --> G{Allowed?}
-    G -- No --> X[Block response + audit/trace]
-    G -- Yes --> H[TruthGate]
-    H --> I{Gate decision}
-    I -- Block --> X
-    I -- Allow or warn --> J[TierClassifier]
-    J --> K[17-axis Router]
-    K --> L[DSQP Personas]
-    L --> M[TruthCore Plan]
-    M --> N{External execution needed?}
-    N -- LLM --> O[LLM Gateway]
-    N -- Tool --> P[MCP Connector]
-    N -- No --> Q[Local deterministic processing]
-    O --> R[Provider response]
-    P --> S[Tool result]
-    R --> T[Evidence + Convergence]
-    S --> T
-    Q --> T
-    T --> U{Finalize?}
-    U -- Refine --> M
-    U -- Yes --> V[Persist data/memory/audit]
-    V --> W[Trace Explorer + export integrity]
-    W --> Y[Response to user]
+    A[Authenticated prompt/action] --> B[GovernedRequest governed.v1]
+    B --> C[Admission and cancellation]
+    C --> D{Simulation?}
+    D -- Yes --> X[Phase 10 unavailable result]
+    D -- No --> E[DMRF defense, TruthGate, tier, axes]
+    E --> F{Allowed?}
+    F -- No --> Y[Policy-blocked result]
+    F -- Yes --> G[Bounded source-identified retrieval]
+    G --> H[Deterministic DSQP]
+    H --> I[TruthCore and required KA preflight]
+    I --> J[One policy/evidence/persona/KA prompt]
+    J --> K[Bounded provider execution]
+    K --> L[Output, claim, citation, policy validation]
+    L --> M[Transactional run and trace persistence]
+    X --> M
+    Y --> M
+    M --> N[GovernedResult and stable trace ID]
 ```
 
-Desktop enhanced-mode telemetry uses the same gateway `run_id` from request creation through the API response, SQL trace records, chat message history, Trace Explorer bundle, and export. DMRF owns the 17-axis route and DSQP persona chain; the SDK overlay consumes those results and adds its KA/model stages without reconstructing the personas.
+Every mode uses the same trace ID from request admission through persisted run,
+stage, evidence, claim, KA, persona, policy, API, and UI state. The SDK consumes
+the service result and does not add or reconstruct execution stages.
 
 ---
 
@@ -143,20 +136,16 @@ Desktop local-auth data must not be treated as a public cloud/web trust boundary
 
 ```mermaid
 flowchart TD
-    REQ[Governed request] --> INJ[InjectionDefense]
+    REQ[GovernedRequest] --> INJ[InjectionDefense]
     INJ --> TG[TruthGate]
     TG --> TIER[TierClassifier]
     TIER --> AX[17-axis route]
-    AX --> DSQP[DSQP persona construction]
-    DSQP --> TC[TruthCore]
-    TC --> EV[EvidenceModel]
-    TC --> CP[ConvergencePolicy]
-    EV --> DEC{Converged?}
-    CP --> DEC
-    DEC -- No --> TC
-    DEC -- Yes --> MEM[TruthMemory / UnifiedMemory]
-    MEM --> LINK[TruthLink events]
-    LINK --> TRACE[Trace record]
+    AX --> RET[Bounded retrieval]
+    RET --> DSQP[Deterministic DSQP context]
+    DSQP --> TC[TruthCore selection and KA preflight]
+    TC --> PROMPT[Approved provider prompt]
+    PROMPT --> VALIDATE[Output/claim/citation validation]
+    VALIDATE --> TRACE[Transactional trace persistence]
 ```
 
 ---
@@ -165,16 +154,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    PLAN[TruthCore execution plan] --> NEED{Need model call?}
-    NEED -- No --> LOCAL[Local deterministic result]
-    NEED -- Yes --> GW[LLM Gateway]
+    PLAN[Canonical orchestrator] --> NEED{Provider answer allowed/needed?}
+    NEED -- No --> LOCAL[Local review or explicit failure]
+    NEED -- Yes --> PROMPT[Construct approved prompt]
+    PROMPT --> GW[LLM Gateway provider boundary]
     GW --> CFG[Provider/model config]
     CFG --> KEY[Provider secret lookup]
     KEY --> REQ[Prompt + selected context + metadata]
     REQ --> PROVIDER[Configured AI provider]
     PROVIDER --> RESP[Provider response]
     RESP --> CHECK[Error/latency/usage handling]
-    CHECK --> RETURN[Return to TruthCore]
+    CHECK --> RETURN[Return to canonical validator]
 
     KEY -. never log raw secrets .-> SAFE[Secret hygiene]
 ```
@@ -208,13 +198,13 @@ Connector data handling depends on connector scopes, external service policy, an
 
 ```mermaid
 flowchart LR
-    API[API / DMRF / Truth Engine] --> SQL[(SQLAlchemy DB\nSQLite/Postgres)]
+    API[Governed orchestrator and application APIs] --> SQL[(PostgreSQL\nrelational authority)]
     API --> REDIS[(Redis\ncache/session/rate-limit)]
     API --> NEO[(Neo4j\ngraph store)]
     API --> CHROMA[(ChromaDB\nvector store)]
-    API --> OBJ[(Local Object Store\ndeliverables/audit/exports)]
+    API --> OBJ[(App-owned S3 contract\ndeliverables/audit/exports)]
     API --> USKD[(USKD RAM Graph\nNetworkX)]
-    API --> UMEM[(UnifiedMemory\nJSON graph)]
+    API --> UMEM[(Bounded working memory\nmaterialized state)]
     API --> TMEM[(TruthMemory\naudit/explainability)]
 
     OBJ --> EXPORT[Export bundle / manifest]
@@ -302,6 +292,12 @@ Support bundles must avoid raw secrets and should be treated as sensitive operat
 6. Local data-store boundary.
 7. Trace/export boundary.
 8. Operational logs/support bundle boundary.
+
+## Change notes for v3.0.0
+
+1. Replaced plan-only refinement/convergence flow with the implemented
+   `governed.v1` causal lifecycle and transactional trace boundary.
+2. Corrected the SDK, simulation, confidence, and production-store data flows.
 
 ## Change notes for v2.7.0
 

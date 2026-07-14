@@ -20,7 +20,9 @@ Design constraints:
   deterministic path produces, so the validator and downstream L5 / SDK overlay
   consumers are unaffected.
 
-Disable with ``DSQP_LLM_ASSISTED=false``.
+Enable with ``DSQP_LLM_ASSISTED=true``. The canonical governed path keeps this
+off unless an enhanced request has explicit consent and a separately accounted
+provider-call budget.
 """
 
 from __future__ import annotations
@@ -86,9 +88,14 @@ class DSQPAnswerGenerator:
         self._model = model
 
     @staticmethod
-    def enabled() -> bool:
-        """Master switch — on by default; DSQP_LLM_ASSISTED=false forces deterministic."""
-        return os.environ.get("DSQP_LLM_ASSISTED", "true").strip().lower() in {
+    def enabled(context: dict[str, Any] | None = None) -> bool:
+        """Return whether this request explicitly authorizes cloud DSQP work."""
+
+        context = context or {}
+        request_value = context.get("dsqp_llm_assisted")
+        if request_value is not None:
+            return str(request_value).strip().lower() in {"1", "true", "yes", "on"}
+        return os.environ.get("DSQP_LLM_ASSISTED", "false").strip().lower() in {
             "1",
             "true",
             "yes",
@@ -142,7 +149,7 @@ class DSQPAnswerGenerator:
         and validated. Missing/invalid components are simply absent — the caller
         fills them deterministically. Never raises.
         """
-        if not self.enabled():
+        if not self.enabled(context):
             return {}
 
         domain = str(context.get("risk_domain") or context.get("domain") or "standard")

@@ -67,7 +67,11 @@ class _FakeTruthEngine:
 
     async def process(self, session_id):
         self.processed_session_id = session_id
-        return {"status": "completed", "session_id": session_id}
+        return {
+            "status": "completed",
+            "session_id": session_id,
+            "result": {"ok": True, "status": "completed"},
+        }
 
     def get_session_status(self, session_id):
         return {

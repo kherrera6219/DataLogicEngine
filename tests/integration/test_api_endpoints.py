@@ -5,7 +5,6 @@ Tests authentication, canonical API behavior, and legacy compatibility endpoints
 import pytest
 from unittest.mock import patch
 from app import app, db
-import backend.routes.simulation_routes as simulation_routes_module
 from tests._helpers import drop_all_test_tables
 
 
@@ -142,14 +141,8 @@ class TestSimulationEndpoints:
         assert isinstance(data["data"], list)
         assert response.headers["Deprecation"] == "true"
 
-    def test_run_simulation(self, authenticated_client, monkeypatch):
+    def test_run_simulation(self, authenticated_client):
         """Test running a simulation."""
-        monkeypatch.setattr(
-            simulation_routes_module.engine,
-            'process_query',
-            lambda query, context: {'status': 'completed', 'final_conclusion': 'ok'},
-        )
-
         # Create simulation first
         create_response = authenticated_client.post('/api/simulations', json={
             'name': 'Run Test',
@@ -164,20 +157,14 @@ class TestSimulationEndpoints:
         # Run simulation
         response = authenticated_client.post(f'/api/simulations/{session_id}/run')
 
-        assert response.status_code == 200
+        assert response.status_code == 503
         body = response.get_json()
-        assert body["success"] is True
-        assert body["data"]["status"] == "completed"
+        assert body["success"] is False
+        assert body["error"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
         assert response.headers["Deprecation"] == "true"
 
-    def test_get_simulation_results(self, authenticated_client, monkeypatch):
+    def test_get_simulation_results(self, authenticated_client):
         """Test retrieving simulation results."""
-        monkeypatch.setattr(
-            simulation_routes_module.engine,
-            'process_query',
-            lambda query, context: {'status': 'completed', 'final_conclusion': 'ok'},
-        )
-
         # Create and run simulation
         create_response = authenticated_client.post('/api/simulations', json={
             'name': 'Results Test',
@@ -189,7 +176,7 @@ class TestSimulationEndpoints:
         session_id = sim_data["data"]["session_id"]
 
         run_response = authenticated_client.post(f'/api/simulations/{session_id}/run')
-        assert run_response.status_code == 200
+        assert run_response.status_code == 503
 
         # Get results
         response = authenticated_client.get(f'/api/simulations/{session_id}')
@@ -198,6 +185,11 @@ class TestSimulationEndpoints:
         body = response.get_json()
         assert body["success"] is True
         assert body["data"]["session_id"] == session_id
+        assert body["data"]["status"] == "deferred"
+        assert (
+            body["data"]["results"]["governed_boundary"]["failure"]["code"]
+            == "SIMULATION_PHASE10_BOUNDARY"
+        )
         assert response.headers["Deprecation"] == "true"
 
 
@@ -220,7 +212,7 @@ class TestGraphEndpoints:
         })
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
-        assert response.status_code in [200, 302, 400, 404, 500]
+        assert response.status_code == 404
 
     def test_create_node(self, authenticated_client):
         """Test creating a knowledge graph node."""
@@ -250,7 +242,8 @@ class TestPersonaEndpoints:
         })
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
-        assert response.status_code in [200, 302, 400, 404, 500]
+        assert response.status_code == 503
+        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
 
     def test_query_sector_expert(self, authenticated_client):
         """Test querying sector expert persona."""
@@ -263,7 +256,8 @@ class TestPersonaEndpoints:
         })
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
-        assert response.status_code in [200, 302, 400, 404, 500]
+        assert response.status_code == 503
+        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
 
     def test_query_regulatory_expert(self, authenticated_client):
         """Test querying regulatory expert persona."""
@@ -276,7 +270,8 @@ class TestPersonaEndpoints:
         })
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
-        assert response.status_code in [200, 302, 400, 404, 500]
+        assert response.status_code == 503
+        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
 
     def test_list_persona_types(self, authenticated_client):
         """Test listing available persona types."""
@@ -289,7 +284,7 @@ class TestPersonaEndpoints:
             data = response.get_json()
             assert isinstance(data, (list, dict))
 
-    def test_direct_query_builds_dsqp_personas(self, authenticated_client):
+    def test_direct_query_builds_dsqp_personas(self, authenticated_client, monkeypatch):
         """Regression: /direct-query must return a real result, not a 500.
 
         Previously this endpoint called the root quad_persona factory, whose
@@ -298,6 +293,10 @@ class TestPersonaEndpoints:
         four axes-8–11 expert personas deterministically. This test asserts a
         genuine 200 with DSQP profiles (it would have caught the original crash).
         """
+        monkeypatch.setattr(
+            "backend.governed_execution.orchestrator.retrieve_evidence",
+            lambda *args, **kwargs: ([], []),
+        )
         response = authenticated_client.post('/api/v1/persona/direct-query', json={
             'query': 'What are HIPAA requirements for storing PHI in the cloud?',
             'context': {'domain': 'healthcare'},

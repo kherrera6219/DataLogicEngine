@@ -34,7 +34,7 @@ class DMRFTierClassifier:
     ) -> TierClassification:
         context = context or {}
         q = query.lower()
-        score = min(1.0, max(len(query) / 500.0, 0.05))
+        score = min(1.0, len(query) / 500.0)
         rationale = [f"length_score={score:.2f}"]
 
         if any(term in q for term in ("autonomous", "agent", "take action", "execute", "without approval")):
@@ -56,7 +56,9 @@ class DMRFTierClassifier:
 
         return TierClassification(
             tier=tier,
-            confidence=round(0.72 + min(score, 0.25), 4),
+            # This is the measured rule-signal score, not a probability or a
+            # fabricated model-confidence estimate.
+            confidence=round(score, 4),
             rationale=rationale,
             raw={"score": round(score, 4), "context_keys": sorted(context)},
             capped_from=capped_from,
@@ -73,4 +75,3 @@ class DMRFTierClassifier:
         if score < 0.90:
             return "extreme"
         return "autonomous"
-

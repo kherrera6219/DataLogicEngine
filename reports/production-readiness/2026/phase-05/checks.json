@@ -1,0 +1,27 @@
+{
+  "schema_version": "phase-checks.v1",
+  "phase": 5,
+  "date": "2026-07-13",
+  "results": {
+    "backend": {"status": "passed", "passed": 1895, "skipped": 18, "warnings": 21, "duration_seconds": 210.11},
+    "frontend": {"status": "passed", "files": 81, "tests": 402},
+    "sdk": {"status": "passed", "tests": 25, "version": "0.6.0"},
+    "frontend_typecheck": "passed",
+    "frontend_lint": "passed_with_one_preexisting_warning",
+    "frontend_production_build": "passed",
+    "electron_typescript_build": "passed",
+    "electron_security": {"status": "passed", "channels": 19, "windows": 2, "findings": 0},
+    "ruff": "passed",
+    "compileall": "passed",
+    "documentation_references": {"status": "passed", "errors": 0, "advisory_warnings": 46},
+    "route_manifest": {"status": "passed", "routes": 426, "unclassified": 0},
+    "public_error_scan": {"status": "passed", "files": 385, "findings": 0},
+    "secret_scan": {"status": "passed", "findings": 0},
+    "schema_parity": "passed",
+    "lockfile_governance": "passed",
+    "migration_head": "b1c2d3e4f5a6",
+    "object_store_stress_operations": 2000
+  },
+  "installed_provider_proof": "deferred_release_blocker",
+  "release_verdict": "NO-GO"
+}

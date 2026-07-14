@@ -8,17 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 5 canonical governed execution**: introduced the transport-neutral
+  `governed.v1` request/context/result/failure contract and one backend-owned
+  orchestrator for admission, DMRF policy, bounded retrieval, deterministic
+  DSQP, TruthCore/KA preflight, provider execution, validation, and transactional
+  trace persistence.
+- **Truthful governed-run evidence**: added real-database causality and
+  failure-path tests plus exact executed-stage persistence for successful,
+  blocked, failed, cancelled, and capability-unavailable runs.
+- **SDK 0.6 service boundary**: published wheel and source distributions for a
+  thin HTTP/service SDK that does not duplicate backend orchestration.
 - **Phase 4 data-lifecycle engineering checkpoint**: added a generated 67-entity/28-contract ownership registry, transactional cross-store outbox and reconciliation state, fail-closed per-store startup migration coordinator, encrypted signed six-component backup, offline isolated clean-root restore with atomic activation/rollback, retention/deletion tombstones, uninstall dispositions, and a Windows volume/ACL plus DPAPI/AES-256-GCM protection standard.
 - **Populated recovery evidence**: a live five-service drill recovered PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, retained JSON, and pending outbox state with exact object-hash parity and prior-root preservation, then passed deletion across PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, JSON, and logs.
 - **Phase 3 internal data-plane engineering checkpoint**: added a per-install, digest-pinned rootless Podman profile for PostgreSQL, Redis, Neo4j, ChromaDB, and a candidate-only S3 service; protected service credentials; verified container identity; loopback-only endpoints; resource/security limits; supervisor lifecycle integration; and a live qualification gate covering real operations, restart durability, truthful status, and cleanup.
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
 
 ### Changed
+- **One answer-producing path**: built-in chat, gateway chat/stream/replay,
+  compatible facades, public TruthCore entry, persona/video callers, and SDK
+  clients now enter the canonical boundary or return an explicit later-phase
+  capability boundary.
+- **Confidence and trace semantics**: unmeasured confidence is null, simulation
+  stops at the Phase 10 boundary, and planned-but-unexecuted stages are omitted.
+- **Production completion ledger**: advanced active engineering work to Phase 6
+  while retaining installed Phase 3/4 gates and Phase 5 CP5-E as explicit
+  release blockers.
 - **Storage authority and UI**: production storage adapters now use supervisor-owned PostgreSQL, Redis, Neo4j, Chroma, and S3 endpoints and fail closed when required services or artifact writes are unavailable. The Storage settings page now truthfully presents the internal app-owned data plane instead of editable cloud/external database configuration.
-- **Production completion ledger**: advanced active engineering work to Phase 5 while retaining the 0.1.1 retained-data upgrade, clean-installer recovery, exact-runtime, protected-volume/ACL matrix, independent-review, and final object-store decisions as explicit release blockers.
+- **Phase 4 completion ledger**: recorded the 0.1.1 retained-data upgrade,
+  clean-installer recovery, exact-runtime, protected-volume/ACL matrix,
+  independent-review, and final object-store decisions as retained blockers.
 - **Storage settings backup**: the desktop now requires and confirms a user-controlled recovery passphrase, passes it only through the protected local IPC/backend boundary, and clears it after an integrity-verified backup.
 
 ### Fixed
+- **Windows object-store concurrency containment**: normalized extended Windows
+  path forms before outside-root checks, preserving containment during concurrent
+  operations and passing focused and 2,000-operation stress validation.
 - **Critical ChromaDB advisory containment**: verified the locked 1.5.9 service image is the Rust single-node binary rather than the affected Python server, forced every Python-client collection open/create to disable persisted embedding functions, and reject hostile embedding configuration in collection/schema transport data before use. Dependabot alert 389 remains open and production-blocking because no patched upstream release exists.
 - **Five GitHub Actions jobs blocked by an incompatible Python dependency pin**: corrected `tokenizers` from `0.23.1` to `0.22.2`, which satisfies the `transformers>=5.0.0` requirement (`tokenizers<=0.23.0`) and restores dependency installation for Deploy, backend tests, dependency audit, crash-reporting probe, and Windows packaging. The Windows PyInstaller step now fails immediately when any native command exits nonzero instead of continuing into a misleading missing-metadata error. Updated the gateway-router test fixture to model the real limiter exemption decorator, fixing three setup errors that were masked by the earlier dependency failure.
 - **CodeQL exception-detail exposure alerts #593-#596 and #598-#601**: search, retention, audit verification, security, and storage paths now keep detailed exceptions in server logs and return stable client-safe messages. Added regressions proving internal exception sentinels cannot enter service result objects or API JSON.

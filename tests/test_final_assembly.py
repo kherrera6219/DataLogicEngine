@@ -60,11 +60,13 @@ async def test_engine_integration_high_stakes(engine):
     query = "defense strategy for autonomous systems"
     context = {"force_tier": "high_stakes", "tags": ["defense"]}
     
-    session = await engine.create_session(query, context=context)
-    result_session = await engine.process(session['session_id'])
-    
-    result = result_session['result']
-    assert result_session['tier'] == 'high_stakes'
+    result = await engine._execute_workflow(
+        query,
+        context,
+        engine.get_workflow_steps('high_stakes'),
+        'high_stakes',
+    )
+    assert result['tier'] == 'high_stakes'
     
     steps = result['steps_executed']
     refinement_step = next((s for s in steps if s['step'] == 'final_safety_gate'), None)

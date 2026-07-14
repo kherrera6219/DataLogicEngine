@@ -1,7 +1,4 @@
-"""
-KA-005: Query Classification
-Purpose: Identify query intent and domain using local rules and SDK delegation.
-"""
+"""KA-005: deterministic local query intent and domain classification."""
 import logging
 import json
 import os
@@ -43,9 +40,11 @@ class KA005QueryClassification(KnowledgeAlgorithm):
         # 1. Local Rule-based Classification
         local_category, local_conf = self._perform_local_classification(query)
         
-        # 2. SDK Delegation
-        self.log_execution_step("Delegating to SDK for refined classification", {"query": query})
-        sdk_result = self._delegate_to_sdk({"query": query})
+        # Provider calls from inside a KA would recursively enter the governed
+        # pipeline and make the call budget untraceable. Phase 5 keeps this KA
+        # deterministic; a future validator may request an explicitly budgeted
+        # refinement at the canonical orchestrator boundary.
+        sdk_result: Dict[str, Any] = {}
         
         final_category = sdk_result.get("category", local_category)
         final_conf = sdk_result.get("confidence", local_conf)
@@ -96,69 +95,12 @@ class KA005QueryClassification(KnowledgeAlgorithm):
         return best_cat, best_conf
 
     async def _delegate_to_sdk_async(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Async version of SDK delegation."""
-        return await self._classify_via_gateway(data.get("query", ""))
+        """Compatibility shim; recursive provider delegation is disabled."""
+        return {}
 
     def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Replacement for SDK delegation: Use LLMGateway directly.
-        """
-        import asyncio
-        try:
-            running_loop = asyncio.get_running_loop()
-        except RuntimeError:
-            running_loop = None
-
-        if running_loop and running_loop.is_running():
-            # Running a nested loop here would fail; return a safe fallback.
-            logger.warning("KA-005 delegation skipped because an event loop is already running")
-            return {}
-
-        return asyncio.run(self._classify_via_gateway(data.get("query", "")))
-
-    async def _classify_via_gateway(self, query: str) -> Dict[str, Any]:
-        """
-        Use LLMGateway (Fast Chat Tier) to classify query.
-        """
-        try:
-             # Lazy import
-            from backend.llm_gateway.gateway import get_gateway
-            gateway = get_gateway()
-            
-            prompt = f"""
-            Classify the following user query into a domain category.
-            Query: "{query}"
-            
-            Return ONLY a JSON object:
-            {{
-                "category": "ACCESS_CONTROL|FINANCE|COMPLIANCE|GENERAL|HR|IT_SUPPORT",
-                "confidence": 0.0-1.0
-            }}
-            """
-            
-            result = await gateway.process(
-                prompt=prompt,
-                tier="fast_chat", # Cost effective for high volume
-                system_instruction="You are a precise semantic classifier.",
-                metadata={"ka_id": "KA-005"}
-            )
-            
-            if result and result.content:
-                import json
-                try:
-                    content = result.content.strip()
-                    if content.startswith("```json"):
-                        content = content[7:]
-                    if content.endswith("```"):
-                        content = content[:-3]
-                    return json.loads(content.strip())
-                except json.JSONDecodeError:
-                    pass
-            
-            return {}
-        except Exception as e:
-            logger.warning(f"KA-005 Gateway classification failed: {e}")
-            return {}
+        """Compatibility shim; classification is intentionally local."""
+        return {}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

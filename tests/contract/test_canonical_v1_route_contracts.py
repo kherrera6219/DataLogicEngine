@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash
 
 from app import app as flask_app, db
 from extensions import limiter
-from backend.routes import simulation_routes as simulation_routes_module
 
 
 @pytest.fixture
@@ -173,13 +172,7 @@ def test_simulation_step_rejects_placeholder_execution(session_authenticated_cli
     assert body["error"]["message"] == "Simulation query is required"
 
 
-def test_canonical_v1_simulation_routes_have_strict_happy_path_contract(session_authenticated_client, monkeypatch):
-    monkeypatch.setattr(
-        simulation_routes_module.engine,
-        "process_query",
-        lambda query, context: {"status": "completed", "final_conclusion": "ok"},
-    )
-
+def test_canonical_v1_simulation_routes_expose_phase10_boundary(session_authenticated_client):
     create_response = session_authenticated_client.post(
         "/api/v1/simulations",
         json={
@@ -201,13 +194,19 @@ def test_canonical_v1_simulation_routes_have_strict_happy_path_contract(session_
     assert any(item["session_id"] == session_id for item in list_body["data"])
 
     run_response = session_authenticated_client.post(f"/api/v1/simulations/{session_id}/run")
-    assert run_response.status_code == 200
+    assert run_response.status_code == 503
     run_body = run_response.get_json()
-    assert run_body["success"] is True
-    assert run_body["data"]["status"] == "completed"
+    assert run_body["success"] is False
+    assert run_body["error"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+    assert run_body["error"]["details"]["contract_version"] == "governed.v1"
 
     get_response = session_authenticated_client.get(f"/api/v1/simulations/{session_id}")
     assert get_response.status_code == 200
     get_body = get_response.get_json()
     assert get_body["success"] is True
     assert get_body["data"]["session_id"] == session_id
+    assert get_body["data"]["status"] == "deferred"
+    assert (
+        get_body["data"]["results"]["governed_boundary"]["failure"]["code"]
+        == "SIMULATION_PHASE10_BOUNDARY"
+    )

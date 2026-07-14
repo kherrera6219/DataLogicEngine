@@ -36,10 +36,11 @@ def engine():
 @pytest.mark.asyncio
 async def test_trivial_tier_express_lane(engine):
     """Test L1 -> L10 express lane."""
-    session = await engine.create_session("How are you?", tier="trivial")
-    result = await engine.process(session['session_id'])
+    result = await engine._execute_workflow(
+        "How are you?", {}, engine.get_workflow_steps("trivial"), "trivial"
+    )
     
-    steps = [s['step'] for s in result['workflow_steps']]
+    steps = [s['step'] for s in result['steps_executed']]
     assert 'intent_parsing' in steps
     assert 'final_safety_gate' in steps
     assert len(steps) == 2
@@ -48,20 +49,25 @@ async def test_trivial_tier_express_lane(engine):
 @pytest.mark.asyncio
 async def test_moderate_tier_workflow(engine):
     """Test L1, L2, L5, L10 workflow."""
-    session = await engine.create_session("What is UKG?", tier="moderate")
-    result = await engine.process(session['session_id'])
+    result = await engine._execute_workflow(
+        "What is UKG?", {}, engine.get_workflow_steps("moderate"), "moderate"
+    )
     
-    steps = [s['step'] for s in result['workflow_steps']]
+    steps = [s['step'] for s in result['steps_executed']]
     assert steps == ['intent_parsing', 'hybrid_retrieval', 'multi_persona_reasoning', 'final_safety_gate']
     assert result['tier'] == 'moderate'
 
 @pytest.mark.asyncio
 async def test_high_stakes_tier_full_audit(engine):
     """Test workflow with L8 trust gate and L9 meta-reasoning."""
-    session = await engine.create_session("Financial forecast for 2026", tier="high_stakes")
-    result = await engine.process(session['session_id'])
+    result = await engine._execute_workflow(
+        "Financial forecast for 2026",
+        {},
+        engine.get_workflow_steps("high_stakes"),
+        "high_stakes",
+    )
     
-    steps = [s['step'] for s in result['workflow_steps']]
+    steps = [s['step'] for s in result['steps_executed']]
     assert 'trust_validation' in steps
     assert 'meta_reasoning' in steps
     assert 'final_safety_gate' in steps
@@ -70,10 +76,11 @@ async def test_high_stakes_tier_full_audit(engine):
 @pytest.mark.asyncio
 async def test_extreme_tier_full_stack(engine):
     """Test all 10 layers."""
-    session = await engine.create_session("Solve autonomous fusion", tier="extreme")
-    result = await engine.process(session['session_id'])
+    result = await engine._execute_workflow(
+        "Solve autonomous fusion", {}, engine.get_workflow_steps("extreme"), "extreme"
+    )
     
-    steps = [s['step'] for s in result['workflow_steps']]
+    steps = [s['step'] for s in result['steps_executed']]
     assert len(steps) == 10
     assert steps[0] == 'intent_parsing'
     assert steps[-1] == 'final_safety_gate'
@@ -84,6 +91,7 @@ async def test_extreme_tier_full_stack(engine):
 async def test_sentinel_safety_enforced_on_all_tiers(engine):
     """Ensure L10 is always the last step."""
     for tier in ['trivial', 'moderate', 'high_stakes', 'extreme']:
-        session = await engine.create_session("test", tier=tier)
-        result = await engine.process(session['session_id'])
-        assert result['workflow_steps'][-1]['step'] == 'final_safety_gate'
+        result = await engine._execute_workflow(
+            "test", {}, engine.get_workflow_steps(tier), tier
+        )
+        assert result['steps_executed'][-1]['step'] == 'final_safety_gate'

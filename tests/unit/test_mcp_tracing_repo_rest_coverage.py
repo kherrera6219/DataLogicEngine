@@ -171,7 +171,7 @@ def test_node_repository_paths(monkeypatch):
     db_session.rollback.assert_called()
 
 
-def test_rest_api_paths():
+def test_rest_api_paths(monkeypatch):
     app = Flask(__name__)
     app.config["TESTING"] = True
     app.register_blueprint(rest_api_module.rest_api)
@@ -180,10 +180,6 @@ def test_rest_api_paths():
     graph_manager = MagicMock()
     graph_manager.get_statistics.return_value = {"nodes": 10}
     app.config["GRAPH_MANAGER"] = graph_manager
-
-    orchestrator = MagicMock()
-    orchestrator.process_request.return_value = {"answer": "ok"}
-    app.config["APP_ORCHESTRATOR"] = orchestrator
 
     resp = client.get("/api/v1/graph/stats")
     assert resp.status_code == 200
@@ -203,11 +199,36 @@ def test_rest_api_paths():
     resp = client.post("/api/v1/query", json={"confidence": 0.9})
     assert resp.status_code == 400
 
-    app.config["APP_ORCHESTRATOR"] = None
+    failed_gateway = MagicMock()
+    failed_gateway.process = AsyncMock(
+        return_value=SimpleNamespace(
+            ok=False,
+            error="No active providers found",
+            failure={"code": "PROVIDER_FAILURE"},
+        )
+    )
+    monkeypatch.setattr(
+        "backend.llm_gateway.gateway.get_gateway", lambda: failed_gateway
+    )
     resp = client.post("/api/v1/query", json={"query": "hello"})
-    assert resp.status_code == 500
+    assert resp.status_code == 503
 
-    app.config["APP_ORCHESTRATOR"] = orchestrator
+    successful_gateway = MagicMock()
+    successful_gateway.process = AsyncMock(
+        return_value=SimpleNamespace(
+            ok=True,
+            content="ok",
+            run_id="run-1",
+            contract_version="governed.v1",
+            status="completed",
+            confidence=None,
+            provider_used="test",
+            model_used="test-model",
+        )
+    )
+    monkeypatch.setattr(
+        "backend.llm_gateway.gateway.get_gateway", lambda: successful_gateway
+    )
     resp = client.post(
         "/api/v1/query",
         json={"query": "hello", "confidence": 0.8, "max_passes": 2, "max_layer": 3},
@@ -215,6 +236,10 @@ def test_rest_api_paths():
     assert resp.status_code == 200
     assert resp.json["success"] is True
 
-    app.config["APP_ORCHESTRATOR"] = MagicMock(process_request=MagicMock(side_effect=RuntimeError("query failed")))
+    exception_gateway = MagicMock()
+    exception_gateway.process = AsyncMock(side_effect=RuntimeError("query failed"))
+    monkeypatch.setattr(
+        "backend.llm_gateway.gateway.get_gateway", lambda: exception_gateway
+    )
     resp = client.post("/api/v1/query", json={"query": "hello"})
     assert resp.status_code == 500

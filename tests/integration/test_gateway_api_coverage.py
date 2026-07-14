@@ -115,6 +115,10 @@ def test_api_key_auth_header(app_client):
     mock_resp.confidence = 0.91
     mock_resp.claims = []
     mock_resp.evidence_count = 0
+    mock_resp.contract_version = "governed.v1"
+    mock_resp.status = "completed"
+    mock_resp.failure = None
+    mock_resp.meta = {"source_ids": []}
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -167,6 +171,10 @@ def test_gateway_chat_endpoint(app_client):
     mock_resp.coordinate = None
     mock_resp.warnings = []
     mock_resp.ok = True
+    mock_resp.contract_version = "governed.v1"
+    mock_resp.status = "completed"
+    mock_resp.failure = None
+    mock_resp.meta = {"source_ids": []}
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -210,6 +218,12 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
     mock_resp.run_id = "run-failed"
     mock_resp.provider_used = "openai"
     mock_resp.model_used = "gpt-4"
+    mock_resp.contract_version = "governed.v1"
+    mock_resp.status = "provider_failure"
+    mock_resp.failure = {
+        "kind": "provider_failure",
+        "code": "PROVIDER_FAILURE",
+    }
 
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -503,6 +517,12 @@ def test_gateway_chat_failure_includes_audit_trail(app_client):
     mock_resp.run_id = "run-failed"
     mock_resp.provider_used = "openai"
     mock_resp.model_used = "gpt-4"
+    mock_resp.contract_version = "governed.v1"
+    mock_resp.status = "provider_failure"
+    mock_resp.failure = {
+        "kind": "provider_failure",
+        "code": "PROVIDER_FAILURE",
+    }
 
     mock_gateway_cls.return_value.process = AsyncMock(return_value=mock_resp)
 

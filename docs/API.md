@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.4.0 |
+| Document version | v4.0.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -12,7 +12,10 @@
 
 ## Purpose
 
-Provide source-of-truth API contract guidance for DataLogicEngine REST endpoints and their enterprise integration patterns. This version reflects the current architecture: local-first runtime modes, canonical `/api/v1/*` routes, DMRF control-plane execution, Truth Engine modules, trace/export integrity, MCP integration, and operational governance surfaces.
+Provide source-of-truth API contract guidance for DataLogicEngine REST
+endpoints. This version records the Phase 5 `governed.v1` answer contract, one
+backend-owned causal orchestrator, explicit result/failure state, and stable
+trace identity.
 
 ## Audience
 
@@ -39,8 +42,9 @@ Provide source-of-truth API contract guidance for DataLogicEngine REST endpoints
 DataLogicEngine exposes a Flask REST API with canonical versioned routes under `/api/v1/*` and selected operational routes that remain intentionally unversioned. The current backend architecture includes these major API-facing systems:
 
 1. Desktop local-auth (Windows identity + signed Electron loopback), session, API key, and CSRF-token flows.
-2. LLM Gateway routes for provider-managed model access.
-3. DMRF control-plane execution for governed AI reasoning.
+2. LLM Gateway routes that adapt authenticated requests into `governed.v1`.
+3. One backend-owned governed orchestrator for DMRF, retrieval, DSQP,
+   TruthCore/KA, provider, validation, and trace execution.
 4. Truth Engine routes for TruthGate, TruthCore, TruthMemory, and TruthLink operations.
 5. Trace routes for run review, trace bundles, evidence, personas, metrics, and exports.
 6. Knowledge graph, 17-axis, ingestion, and search routes.
@@ -168,24 +172,19 @@ Error response:
 
 ## End-to-end AI request lifecycle
 
-The current AI request lifecycle is:
+The implemented AI request lifecycle is:
 
 ```text
-frontend prompt
-  -> API client + CSRF/session handling
-  -> Flask API/security envelope
-  -> DMRF injection defense
-  -> TruthGate
-  -> tier classification
-  -> 17-axis routing
-  -> DSQP persona construction
-  -> TruthCore workflow planning/execution
-  -> LLM Gateway or MCP/tool execution where needed
-  -> evidence freshness and convergence policy
-  -> TruthMemory / UnifiedMemory persistence
-  -> TruthLink event publication
-  -> trace/run review
-  -> optional integrity-protected export
+authenticated prompt
+  -> GovernedRequest(governed.v1)
+  -> admission/cancellation/mode boundary
+  -> DMRF defense + TruthGate + tier + axes
+  -> bounded source-identified retrieval
+  -> deterministic DSQP + TruthCore/KA preflight
+  -> one approved provider request
+  -> output/claim/citation/policy validation
+  -> transactional trace persistence
+  -> GovernedResult or GovernedFailure with stable trace_id
 ```
 
 See `docs/diagrams/12_end_to_end_request_lifecycle.md` for the full lifecycle diagram.
@@ -256,7 +255,8 @@ Relevant implementation:
 
 ## 2. LLM Gateway Routes (`/gateway`)
 
-Unified interface for model/provider calls with governance, telemetry, provider configuration, and optional UKG/trace integration.
+Unified governed-answer interface plus provider configuration and diagnostics.
+Governance and trace execution are mandatory for accepted answer requests.
 
 Primary prefix: `/api/v1/gateway`.
 
@@ -270,23 +270,44 @@ Primary prefix: `/api/v1/gateway`.
       "messages": [
         {"role": "user", "content": "..."}
       ],
-      "run_ukg_pipeline": false,
-      "mode": "ukg",
+      "mode": "standard",
+      "constraints": {},
       "provider": "openai",
       "model": "gpt-5.5"
     }
     ```
-    `provider` and `model` may be omitted; the backend falls back to the stored provider record.
+    `provider` and `model` may be omitted; the backend falls back to the stored
+    provider record. Supported modes are `standard`, `enhanced`, `local_review`,
+    and `simulation`. Compatibility values `chat`, `trace`, and `explain` map to
+    `standard`; `quad` maps to `enhanced`. The deprecated
+    `run_ukg_pipeline` field is accepted for compatibility but cannot bypass
+    governance.
   - **200 OK** — successful response:
     ```json
     {
-      "response": "assistant reply text",
-      "run_id": "optional-run-uuid",
-      "provider_used": "openai",
-      "model_used": "gpt-5.5"
+      "success": true,
+      "message": "Operation successful",
+      "data": {
+        "response": "assistant reply text",
+        "run_id": "stable-run-uuid",
+        "audit_trail": "/api/v1/trace/runs/stable-run-uuid",
+        "provider_used": "openai",
+        "model_used": "gpt-5.5",
+        "contract_version": "governed.v1",
+        "status": "completed",
+        "trace_summary": [],
+        "source_ids": [],
+        "claims": [],
+        "confidence_score": null,
+        "warnings": [],
+        "failure": null
+      },
+      "timestamp": "2026-07-13T00:00:00+00:00"
     }
     ```
-    `provider_used` / `model_used` report the user-selected cloud model that served the request (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`).
+    `confidence_score` is null unless a versioned measurement exists. Phase 6
+    owns the evidence-quality and confidence formulas; clients must not replace
+    null with a display default.
   - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
     ```json
     {
@@ -305,14 +326,18 @@ Primary prefix: `/api/v1/gateway`.
     }
     ```
     The frontend displays a "rate limited" message and does not retry automatically.
-  - **503 Service Unavailable** — all providers failed and offline queue is disabled.
+  - **503 Service Unavailable** — a typed policy/provider/validation/internal or
+    capability-unavailable failure. The body includes `contract_version`,
+    `status`, `failure`, and `run_id` when the request was admitted.
 
   Implementation: `backend/llm_gateway/api.py` → `gateway_chat()`.
 
 ### Streaming chat
 
 - **POST** `/stream`
-  - Server-Sent Events or streaming response path where supported by the gateway.
+  - Uses the same governed orchestrator and stable run ID. The current transport
+    chunks the completed governed response; native provider token streaming is
+    later gateway work and may not introduce a second execution path.
 
 ### Provider key management
 
@@ -349,20 +374,20 @@ Primary prefix: `/api/v1/gateway`.
 
 ## 3. DMRF Control-Plane Routes
 
-DMRF is the governed AI reasoning control plane. It is not merely a model wrapper. It coordinates:
+DMRF is a participating control plane inside the canonical governed
+orchestrator. It does not independently own provider execution. The orchestrator
+coordinates:
 
 1. injection defense;
 2. TruthGate;
 3. tier classification;
 4. 17-axis routing;
-5. DSQP persona construction;
-6. TruthCore workflow planning;
-7. evidence freshness scoring;
-8. convergence/refinement policy;
-9. TruthMemory persistence;
-10. MLflow-style tracking;
-11. TruthLink publication;
-12. observability.
+5. bounded retrieval;
+6. deterministic DSQP context;
+7. TruthCore workflow selection and required KA preflight;
+8. one approved provider prompt/call;
+9. output/claim/citation/policy validation;
+10. transactional executed-stage/evidence/claim persistence.
 
 Primary implementation:
 
@@ -755,7 +780,9 @@ Representative routes:
 - **GET** `/simulations`
   - List simulation sessions where enabled.
 - **POST** `/simulation/run`
-  - Run a simulation path where supported by canonical route wiring.
+  - Enters `governed.v1` simulation mode and currently returns an explicit
+    capability-unavailable result after admission. It does not run retrieval,
+    DSQP, KAs, provider, or tools until Phase 10 implements the bounded workflow.
 
 ---
 
@@ -959,6 +986,13 @@ A technical reviewer should validate this document against these files:
 12. `frontend/lib/api/` — frontend API clients and CSRF handling.
 13. `tests/contract/` — canonical API contract tests.
 14. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v4.0.0
+
+1. Documented `governed.v1`, supported modes, non-bypass compatibility behavior,
+   stable trace/failure fields, null confidence, and exact chat response shape.
+2. Aligned stream, DMRF, and simulation routes with the single canonical
+   orchestrator and explicit later-phase boundaries.
 
 ## Change notes for v3.4.0
 

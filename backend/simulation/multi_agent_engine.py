@@ -139,55 +139,26 @@ class MultiAgentSimulationEngine:
             raise RuntimeError(f"Simulation creation failed: {e}")
 
     async def _call_llm(self, prompt: str, persona: str = "default") -> str:
-        """Call LLM through the gateway."""
-        try:
-            gateway = self.llm_gateway
-            if gateway is None:
-                from backend.llm_gateway.gateway import get_gateway
-                gateway = get_gateway()
+        """Use only the Phase 10 simulation-specific bounded provider adapter.
 
-            if not hasattr(gateway, "process"):
-                raise RuntimeError("Configured LLM gateway does not expose a process(request) method")
+        Calling ``LLMGateway.process`` here would recursively start the complete
+        governed workflow for every debate turn. Until Phase 10 selects and
+        qualifies one simulation engine, no default provider adapter is wired.
+        """
 
-            from backend.llm_gateway.gateway import GatewayRequest
-
-            response = await gateway.process(
-                GatewayRequest(
-                    messages=[
-                        {"role": "system", "content": f"You are {persona}, an expert analyst."},
-                        {"role": "user", "content": prompt},
-                    ],
-                    mode="chat",
-                    run_ukg_pipeline=True,
-                    temperature=0.7,
-                    max_tokens=500,
-                    meta={
-                        "source": "multi_agent_simulation_engine",
-                        "persona": persona,
-                    },
-                )
+        adapter = self.llm_gateway
+        if adapter is None or not hasattr(adapter, "generate_simulation_turn"):
+            raise RuntimeError(
+                "SIMULATION_PHASE10_BOUNDARY: bounded simulation provider adapter is unavailable"
             )
-            if response is None:
-                raise RuntimeError("LLM gateway returned no response")
-
-            if isinstance(response, dict):
-                ok = bool(response.get("ok", True))
-                content = response.get("content", "")
-                error = response.get("error")
-            else:
-                ok = bool(getattr(response, "ok", True))
-                content = getattr(response, "content", "")
-                error = getattr(response, "error", None)
-
-            if not ok:
-                raise RuntimeError(error or "LLM gateway request failed")
-            if not content:
-                raise RuntimeError("LLM gateway returned an empty response")
-
-            return content
-        except Exception as e:
-            self.logger.error(f"LLM call failed: {e}", exc_info=True)
-            raise RuntimeError(f"LLM execution failed for persona '{persona}'") from e
+        content = await adapter.generate_simulation_turn(
+            prompt=prompt,
+            persona=persona,
+            max_tokens=500,
+        )
+        if not str(content or "").strip():
+            raise RuntimeError("Simulation provider adapter returned an empty response")
+        return str(content)
 
     async def run_simulation(self, simulation_id: str, depth: str = "standard", timeout: int = 300) -> Dict[str, Any]:
         """

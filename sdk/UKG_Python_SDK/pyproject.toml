@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ukg-sdk"
-version = "0.5.0"
-description = "UKG Python SDK — 17-axis overlay, KA executor, audit-chained tracing"
+version = "0.6.0"
+description = "Thin Python clients for the installed DataLogicEngine governed API"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }

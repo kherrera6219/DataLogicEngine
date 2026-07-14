@@ -17,6 +17,8 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
+  contract_version?: 'governed.v1' | string;
+  status?: string;
   response?: string;
   history?: Message[];
   trace_id?: string;
@@ -28,6 +30,24 @@ export interface ChatResponse {
   queue_item?: unknown;
   provider_used?: string | null;
   model_used?: string;
+  confidence_score?: number | null;
+  evidence_count?: number;
+  source_ids?: string[];
+  claims?: Array<{
+    claim_id: string;
+    text: string;
+    evidence_ids: string[];
+    status: string;
+    confidence: number;
+  }>;
+  failure?: {
+    kind: string;
+    code: string;
+    message: string;
+    stage: string;
+    retryable: boolean;
+    details?: Record<string, unknown>;
+  } | null;
 }
 
 export interface AuditTrail {

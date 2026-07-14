@@ -251,18 +251,22 @@ def api_query():
         db.session.add(simulation)
         db.session.commit()
 
-        from backend.llm_gateway.gateway import GatewayRequest, get_gateway
+        from backend.governed_execution import GovernedRequest
+        from backend.llm_gateway.gateway import get_gateway
 
-        gateway_request = GatewayRequest(
+        gateway_request = GovernedRequest(
             messages=[{"role": "user", "content": query}],
-            run_ukg_pipeline=True,
+            mode="standard",
             user_id=user.id,
             session_id=simulation.session_id,
-            meta={
+            metadata={
                 "source": "api_v1_query",
                 "confidence_threshold": confidence_threshold,
                 "max_layer": max_layer,
             },
+            source="compatible_query_facade",
+            principal_kind="desktop",
+            principal_id=str(user.id),
         )
         response = _run_async(get_gateway().process(gateway_request))
         if not response or not getattr(response, "ok", True):
@@ -284,8 +288,7 @@ def api_query():
                 error_code="QUERY_UNAVAILABLE",
             )
 
-        explainability = response.explainability if isinstance(response.explainability, dict) else {}
-        confidence = explainability.get("confidence_score", 0.85)
+        confidence = response.confidence if isinstance(response.confidence, (int, float)) else None
         active_layer = len(response.layers) if response.layers else 1
         simulation.status = "completed"
         simulation.current_step = active_layer

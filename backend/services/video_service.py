@@ -152,13 +152,15 @@ class VideoService:
                 }
             })
 
-        from backend.llm_gateway.gateway import GatewayRequest
+        from backend.governed_execution import GovernedRequest
         from backend.llm_gateway.model_defaults import OPENAI_LATEST_MODEL
-        request = GatewayRequest(
+        request = GovernedRequest(
             messages=[{"role": "user", "content": content}],
             model=OPENAI_LATEST_MODEL,  # current OpenAI model (gpt-5.5; multimodal/vision-capable)
-            run_ukg_pipeline=False, # Direct vision call usually better than overlay for raw frames
-            meta={"task": "video_analysis", "priority": "high"}
+            mode="standard",
+            metadata={"task": "video_analysis", "priority": "high"},
+            source="video_analysis",
+            principal_kind="desktop",
         )
 
         try:

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.17.0 |
+| Document version | v2.18.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,9 +21,10 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 4 engineering complete with its
-installed-production gates deferred; Phase 5 canonical governed reasoning is
-active. Production/public release remains **NO-GO**.
+The current execution checkpoint is Phase 5 engineering complete for CP5-A
+through CP5-D, with installed-provider CP5-E deferred; Phase 6 evidence,
+confidence, convergence, TruthCore, and KA validity is active.
+Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
 
@@ -71,6 +72,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/ARCHITECTURE.md` | Current system architecture. |
 | `docs/ARCHITECTURE_MAP.md` | Implementation-mapped architecture, trust boundaries, validation matrix. |
 | `docs/WORKFLOW.md` | Governed request lifecycle. |
+| `docs/diagrams/12_end_to_end_request_lifecycle.md` | Canonical `governed.v1` causal lifecycle, failure behavior, and trace boundary. |
 | `docs/DATA_FLOW_DIAGRAMS.md` | Data flows across DMRF, Truth Engine, storage, privacy, export, providers, MCP. |
 | `docs/DECISION_LOGIC.md` | Major decision points and implementation paths. |
 | `docs/DATABASE_SCHEMA.md` | Multi-store data and memory architecture. |
@@ -118,6 +120,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | Repository-wide production audit comparing the active product/architecture design with the implemented backend, governed chat path, desktop runtime, storage, frontend, packaging, and test evidence. |
 | `reports/ci_repair_2026-07-11.md` | Root-cause analysis and validation for the dependency-resolution and Windows packaging CI repair. |
 | `reports/code_scanning_alerts_2026-07-08.md` | CodeQL exception-disclosure source analysis, remediation, and regression evidence. |
+| `reports/production-readiness/2026/phase-05/summary.md` | Phase 5 contract, causality, single-path, trace-truth, validation, risk, and deferred installed-proof evidence. |
 
 ### Documentation governance
 
@@ -207,12 +210,20 @@ The active documentation set has been normalized around:
 
 1. active document metadata and current-state routing guidance;
 2. local-first desktop and controlled web/cloud modes;
-3. DMRF as the governed control plane;
-4. Truth Engine as the policy/reasoning/memory layer;
-5. 17-axis routing and DSQP persona construction;
-6. trace, evidence, privacy, export, and release governance;
+3. `governed.v1` and one backend-owned causal orchestrator;
+4. DMRF/TruthGate, bounded retrieval, deterministic DSQP, and TruthCore/KA
+   preflight as participants in that path;
+5. exact executed-stage traces and stable result/failure identity;
+6. Phase 6 separation between trace presence and evidence/confidence validity;
 7. evidence-based security and compliance claims;
 8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.18.0
+
+1. Advanced the active documentation checkpoint to Phase 6 and indexed the
+   Phase 5 evidence and canonical lifecycle diagram.
+2. Replaced parallel control-plane wording with the implemented `governed.v1`
+   ownership and explicit evidence-validity boundary.
 
 ## Change notes for v2.14.2
 

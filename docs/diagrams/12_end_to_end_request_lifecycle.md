@@ -1,323 +1,153 @@
-# End-to-End Request Lifecycle
+# End-to-End Governed Request Lifecycle
 
 > **Document metadata**
-> - Document version: v1.1.0
-> - Last reviewed: 2026-07-06
+> - Document version: v2.0.0
+> - Last reviewed: 2026-07-13
 > - Status: Active architecture review map
 > - Owner: Platform Architecture
-> - Scope: End-to-end request lifecycle from frontend prompt through trace/export evidence.
+> - Contract: `governed.v1`
 
 ## Purpose
 
-This is the single judge-facing walkthrough for how DataLogicEngine processes an AI request from user prompt to traceable, exportable evidence.
+This is the reviewer-facing walkthrough for the Phase 5 canonical request path.
+It shows the one backend-owned causal lifecycle used by built-in chat and
+approved answer clients, the exact trace boundary, and the capabilities that are
+deliberately deferred.
 
-It connects the major subsystems already mapped in the earlier diagrams:
+A governed request is not prompt to model to answer. It is an authenticated,
+policy-controlled, source-aware, bounded execution that returns an explicit
+result or failure with one stable trace ID.
 
-- Frontend product surface
-- API/security envelope
-- DMRF control plane
-- 17-axis routing
-- DSQP persona construction
-- Truth Engine
-- LLM Gateway
-- Storage and memory systems
-- Trace explorer
-- Export integrity
-- Observability and release evidence
+## Primary code paths
 
-The point of this diagram is simple:
+- `backend/governed_execution/contracts.py`
+- `backend/governed_execution/orchestrator.py`
+- `backend/governed_execution/retrieval.py`
+- `backend/governed_execution/prompt.py`
+- `backend/governed_execution/validation.py`
+- `backend/governed_execution/trace_persistence.py`
+- `backend/llm_gateway/gateway.py`
+- `backend/llm_gateway/api.py`
+- `frontend/components/Chat/LiveTracePanel.tsx`
+- `frontend/lib/api/types.ts`
 
-> A DataLogicEngine request is not just prompt → model → answer. It is prompt → governed reasoning lifecycle → auditable result.
-
-## Primary Code Paths
-
-- `frontend/app/layout.tsx`
-- `frontend/app/chat/`
-- `frontend/components/Chat/`
-- `frontend/lib/api/chat.ts`
-- `frontend/lib/api/trace.ts`
-- `app.py`
-- `backend/dmrf/orchestrator.py`
-- `backend/dmrf/models.py`
-- `backend/dmrf/router.py`
-- `backend/dsqp/dsqp_orchestrator.py`
-- `backend/truth_engine/api.py`
-- `backend/truth_engine/truth_gate/gateway.py`
-- `backend/truth_engine/truth_core/engine.py`
-- `backend/truth_engine/truth_memory/manager.py`
-- `backend/truth_engine/truth_link/bus.py`
-- `backend/llm_gateway/`
-- `backend/storage/`
-- `backend/memory/unified_memory_service.py`
-- `backend/tracing/`
-- `backend/security/export_integrity.py`
-
-## Mermaid Lifecycle Diagram
+## Canonical lifecycle
 
 ```mermaid
 flowchart TD
-    User[User / Judge enters prompt]
-    Chat[Frontend Chat UI\n/chat + components/Chat]
-    ApiClient[Frontend API Client\nlib/api/chat.ts + base request + CSRF]
-    ApiEnvelope[Flask API Envelope\napp.py]
-
-    User --> Chat
-    Chat --> ApiClient
-    ApiClient --> ApiEnvelope
-
-    subgraph SECURITY[API Security and Runtime Envelope]
-        Auth[Auth / Session / Desktop Auto-Login]
-        CSRF[CSRF + Origin Checks]
-        CORS[CORS Allowlist]
-        Hosts[Trusted Host Validation]
-        RateLimit[Rate Limiting]
-        Middleware[Security Middleware\ninput/request/error controls]
-    end
-
-    ApiEnvelope --> Auth
-    Auth --> CSRF
-    CSRF --> CORS
-    CORS --> Hosts
-    Hosts --> RateLimit
-    RateLimit --> Middleware
-
-    subgraph DMRF[DMRF Control Plane]
-        DMRFStart[Create DMRFResult\nrun_id + query digest]
-        Inject[InjectionDefense]
-        Gate[TruthGate Adapter]
-        Tier[TierClassifier]
-        Axis[17-Axis Router\nAxisVector]
-        DSQP[DSQP Persona Construction\nAxes 8-11]
-        Plan[TruthCore Workflow Plan\nTier + Axis17]
-        Evidence[EvidenceModel\nFreshness score]
-        Converge[ConvergencePolicy\nRefine / Converged]
-        Snapshots[FROST Step Snapshots]
-    end
-
-    Middleware --> DMRFStart
-    DMRFStart --> Inject
-    Inject --> Gate
-    Gate --> Tier
-    Tier --> Axis
-    Axis --> DSQP
-    DSQP --> Plan
-    Plan --> Evidence
-    Evidence --> Converge
-    DMRFStart -. every step .-> Snapshots
-    Inject -. snapshot .-> Snapshots
-    Gate -. snapshot .-> Snapshots
-    Tier -. snapshot .-> Snapshots
-    Axis -. snapshot .-> Snapshots
-    DSQP -. snapshot .-> Snapshots
-    Plan -. snapshot .-> Snapshots
-    Converge -. snapshot .-> Snapshots
-
-    subgraph TRUTH[Truth Engine]
-        TruthGate[TruthGate\nsecurity + budget + compliance]
-        TruthCore[TruthCore\ntiered workflow execution]
-        TruthMemory[TruthMemory\naudit + metrics + artifacts + explainability]
-        TruthLink[TruthLink\nevent bus + Redis streams + SSE + DLQ]
-    end
-
-    Gate --> TruthGate
-    Plan --> TruthCore
-    Converge --> TruthMemory
-    TruthMemory --> TruthLink
-
-    subgraph MODEL[Model and Tool Execution]
-        LLMGateway[LLM Gateway\nprovider selection + policy + telemetry]
-        Provider[Configured Model Provider\nOpenAI / Google Gemini / local when enabled]
-        MCP[MCP / External Tool Connectors]
-    end
-
-    TruthCore --> LLMGateway
-    LLMGateway --> Provider
-    TruthCore --> MCP
-
-    subgraph DATA[Data, Memory, and Evidence Stores]
-        SQL[SQL Store\nsessions + traces + artifacts + audit rows]
-        Redis[Redis\ncache + session + queue + streams]
-        Neo4j[Neo4j Graph Store]
-        USKD[USKD NetworkX Memory Graph]
-        Vector[ChromaDB Vector Store]
-        ObjectStore[Object Store\ndeliverables + graphs + eval_data + audit logs]
-        UnifiedMemory[UnifiedMemoryService\nstructured reasoning memory]
-    end
-
-    Axis --> Neo4j
-    Axis --> USKD
-    TruthCore --> Vector
-    TruthCore --> UnifiedMemory
-    TruthMemory --> SQL
-    TruthMemory --> Redis
-    TruthMemory --> ObjectStore
-    DSQP --> ObjectStore
-    TruthLink --> Redis
-    Snapshots --> ObjectStore
-
-    subgraph RESPONSE[Response and Review Surfaces]
-        Result[DMRFResult / TruthCore Result\nanswer + tier + axis vector + steps + personas + convergence + warnings]
-        FrontendResult[Frontend Detailed Response View]
-        Runs[Trace Explorer\n/runs + /runs/view]
-        Graph[Graph / Knowledge Browser]
-        Monitor[Truth Engine Monitor]
-    end
-
-    Provider --> Result
-    MCP --> Result
-    Converge --> Result
-    Result --> FrontendResult
-    Result --> Runs
-    Axis --> Graph
-    TruthLink --> Monitor
-
-    subgraph EXPORT[Export and Integrity]
-        TraceBundle[Trace / Run Export Bundle]
-        SectionHashes[Section Hashes]
-        BundleHash[Bundle SHA-256]
-        Signature[Optional HMAC-SHA256 Signature]
-        Encryption[Optional Fernet Encryption]
-        Manifest[Integrity Manifest]
-        Auditor[Judge / Auditor Review]
-    end
-
-    Runs --> TraceBundle
-    TraceBundle --> SectionHashes
-    TraceBundle --> BundleHash
-    BundleHash --> Manifest
-    Signature --> Manifest
-    Encryption --> Manifest
-    Manifest --> Auditor
+    U["Owner or approved client"] --> T["Authenticated API or built-in chat transport"]
+    T --> R["GovernedRequest governed.v1"]
+    R --> A["Admission, recursion guard, cancellation, mode check"]
+    A --> SIM{"Simulation mode?"}
+    SIM -- Yes --> SB["Phase 10 capability-unavailable stage"]
+    SIM -- No --> D["DMRF injection defense, TruthGate, tier, 17-axis route"]
+    D --> ALLOW{"Policy allows?"}
+    ALLOW -- No --> BLOCK["Typed policy-block result"]
+    ALLOW -- Yes --> RET["Bounded retrieval with stable source IDs"]
+    RET --> DSQP["Deterministic DSQP axes 8-11 context"]
+    DSQP --> TC["TruthCore workflow selection and required KA preflight"]
+    TC --> MODE{"Local review?"}
+    MODE -- Yes --> LOCAL["Local review without provider-answer claim"]
+    MODE -- No --> PROMPT["One prompt with policy, evidence, personas, KAs, query"]
+    PROMPT --> PROVIDER["Bounded provider execution"]
+    PROVIDER --> VALIDATE["Output, claim, citation, and policy validation"]
+    LOCAL --> VALIDATE
+    VALIDATE --> STORE["Transactional run, stage, evidence, and claim persistence"]
+    SB --> STORE
+    BLOCK --> STORE
+    STORE --> RESULT["GovernedResult or GovernedFailure plus stable trace_id"]
+    RESULT --> UI["Chat status and Trace Explorer"]
 ```
 
-## Sequence Diagram
+## Success sequence
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as User / Judge
-    participant FE as Frontend Chat UI
-    participant API as Flask API Envelope
-    participant DMRF as DMRF Orchestrator
-    participant TG as TruthGate
-    participant AX as 17-Axis Router
-    participant DSQP as DSQP
-    participant TC as TruthCore
-    participant LLM as LLM Gateway / Provider
-    participant MEM as TruthMemory / UnifiedMemory
-    participant TL as TruthLink
-    participant TRACE as Trace Explorer / Export
+    actor User
+    participant API as Authenticated transport
+    participant GOV as Governed orchestrator
+    participant DMRF as DMRF and TruthGate
+    participant RET as Retrieval
+    participant CORE as DSQP, TruthCore, and KAs
+    participant LLM as Provider boundary
+    participant VAL as Validator
+    participant DB as Transactional trace store
+    participant UI as Client and Trace Explorer
 
-    User->>FE: Enter prompt
-    FE->>API: Submit request with session/CSRF/runtime context
-    API->>API: Auth, CSRF, CORS, trusted host, rate limit, middleware checks
-    API->>DMRF: Start governed reasoning lifecycle
-
-    DMRF->>DMRF: Create run_id and DMRFResult
-    DMRF->>DMRF: InjectionDefense.detect()
-    alt Injection blocked
-        DMRF-->>API: ok=false + blocked warning
-        API-->>FE: Safe blocked response
-        FE-->>User: Show policy/safety response
-    else Injection passes
-        DMRF->>TG: TruthGate evaluate query/context
-        alt TruthGate blocked
-            TG-->>DMRF: block_reason + security flags
-            DMRF-->>API: ok=false + gate warning
-            API-->>FE: Governed block response
-        else TruthGate passes
-            DMRF->>DMRF: Classify tier
-            DMRF->>AX: Route into 17-axis AxisVector
-            DMRF->>DSQP: Build persona axes 8-11
-            DMRF->>TC: Select TruthCore workflow from tier + Axis17
-            TC->>MEM: Recall relevant memory / graph context
-            TC->>LLM: Execute model/tool steps when required
-            LLM-->>TC: Model/tool output
-            TC->>MEM: Record layer/session/artifact/audit data
-            DMRF->>DMRF: Score evidence freshness + convergence
-            DMRF->>TL: Publish completed event/export bundle
-            TL-->>FE: Optional real-time status/SSE event
-            DMRF-->>API: DMRFResult / traceable result bundle
-            API-->>FE: Answer + trace metadata
-            FE-->>User: Display answer and evidence/trace link
-            User->>TRACE: Open run / export trace
-            TRACE->>TRACE: Build export manifest + hashes/signature/encryption options
-            TRACE-->>User: Download/review integrity-protected bundle
-        end
-    end
+    User->>API: Submit prompt
+    API->>GOV: GovernedRequest(governed.v1) with server-owned principal
+    GOV->>GOV: Admit and start stable trace_id
+    GOV->>DMRF: Defense, gate, tier, axes
+    DMRF-->>GOV: Allowed policy/routing record
+    GOV->>RET: Retrieve bounded local context
+    RET-->>GOV: Source-identified evidence
+    GOV->>CORE: Deterministic personas, workflow, required KAs
+    CORE-->>GOV: Exact executed inputs and outputs
+    GOV->>LLM: One approved prompt
+    LLM-->>GOV: Provider output and measured usage
+    GOV->>VAL: Validate output, claims, citations, policy
+    VAL-->>GOV: Validation record
+    GOV->>DB: Persist exact run/stages/evidence/claims atomically
+    DB-->>GOV: Stored
+    GOV-->>API: GovernedResult
+    API-->>UI: Status, answer, trace_id, sources, claims, nullable confidence
 ```
 
-## Lifecycle Stages
+## Failure and cancellation rules
 
-| Stage | Code area | Output |
-|---:|---|---|
-| 1 | `frontend/app/chat/`, `frontend/components/Chat/` | User prompt and UI context. |
-| 2 | `frontend/lib/api/` | API request with CSRF/session handling. |
-| 3 | `app.py` | Authenticated, rate-limited, middleware-screened backend request. |
-| 4 | `backend/dmrf/orchestrator.py` | `DMRFResult` with run ID and lifecycle state. |
-| 5 | `backend/dmrf/injection_defense.py` | Safe/blocked injection-defense result. |
-| 6 | `backend/dmrf/truth_integration/gate_adapter.py`, `backend/truth_engine/truth_gate/` | TruthGate evaluation, flags, budget, compliance. |
-| 7 | `backend/dmrf/tier_classifier.py` | Five-tier classification. |
-| 8 | `backend/dmrf/router.py`, `core/axes/` | 17-axis `AxisVector`. |
-| 9 | `backend/dsqp/` | Persona profiles for axes 8-11. |
-| 10 | `backend/truth_engine/truth_core/engine.py` | Workflow plan and layer execution. |
-| 11 | `backend/llm_gateway/`, `backend/mcp_server/` | Model/tool execution when needed. |
-| 12 | `backend/dmrf/evidence_model.py`, `backend/dmrf/convergence_policy.py` | Evidence freshness and convergence/refinement decision. |
-| 13 | `backend/truth_engine/truth_memory/`, `backend/memory/` | Audit, artifacts, metrics, explainability, structured memory. |
-| 14 | `backend/truth_engine/truth_link/` | Completion/event publication. |
-| 15 | `backend/tracing/`, `frontend/app/runs/` | Trace explorer and run detail review. |
-| 16 | `backend/security/export_integrity.py` | Integrity-protected export manifest. |
-
-## What Makes This Different From a Wrapper
-
-A simple wrapper usually has this lifecycle:
-
-```text
-prompt → model → response
+```mermaid
+flowchart LR
+    P["Policy block"] --> NP["No provider call"]
+    PF["Provider failure"] --> NV["No completed validation stage"]
+    C["Cancellation"] --> NC["No additional provider or tool calls"]
+    I["Internal failure"] --> STOP["Stop later stages"]
+    S["Simulation request"] --> B["Stop after admission at Phase 10 boundary"]
+    NP --> TRACE["Persist only actual stages"]
+    NV --> TRACE
+    NC --> TRACE
+    STOP --> TRACE
+    B --> TRACE
+    TRACE --> ID["Return one stable trace_id"]
 ```
 
-DataLogicEngine has this lifecycle:
+Failure kinds are `policy_block`, `validation_failure`, `provider_failure`,
+`cancelled`, `internal_failure`, and `capability_unavailable`. A policy or
+capability decision is not relabeled as a network failure.
 
-```text
-prompt
-  → auth/security/middleware
-  → injection defense
-  → TruthGate
-  → tier classification
-  → 17-axis routing
-  → DSQP persona construction
-  → TruthCore workflow planning
-  → evidence freshness scoring
-  → convergence policy
-  → model/tool execution when required
-  → memory/audit/artifact persistence
-  → event publication
-  → frontend trace review
-  → integrity-protected export
-```
+## Supported modes
 
-## Judge Review Path
+| Mode | Phase 5 behavior |
+|---|---|
+| `standard` | Full bounded governed lifecycle with the standard required KA set. |
+| `enhanced` | Full bounded lifecycle with the approved deeper KA preflight set. |
+| `local_review` | Local retrieval/review path; it does not claim a provider answer. |
+| `simulation` | Explicit Phase 10 capability-unavailable result immediately after admission. |
 
-To verify this lifecycle, inspect:
+Compatibility values `chat`, `trace`, and `explain` map to `standard`; `quad`
+maps to `enhanced`. `run_ukg_pipeline=false` is deprecated and cannot bypass
+governance.
 
-1. `frontend/app/layout.tsx` and `frontend/app/chat/` — product entry and chat surface.
-2. `frontend/lib/api/index.ts`, `frontend/lib/api/chat.ts`, `frontend/lib/api/trace.ts` — frontend request and trace export clients.
-3. `app.py` — backend security and API route envelope.
-4. `backend/dmrf/orchestrator.py` — the main lifecycle controller.
-5. `backend/dmrf/models.py` — result, step, axis vector, and export bundle structures.
-6. `backend/truth_engine/truth_gate/gateway.py` — gate/security/budget/compliance behavior.
-7. `backend/dmrf/router.py` and `core/axes/` — 17-axis routing.
-8. `backend/dsqp/` — persona construction.
-9. `backend/truth_engine/truth_core/engine.py` — workflow selection and execution.
-10. `backend/storage/`, `backend/memory/`, `backend/truth_engine/truth_memory/` — persistence and memory layers.
-11. `backend/truth_engine/truth_link/bus.py` — event publication and streaming.
-12. `backend/security/export_integrity.py` — trace export authenticity.
-13. `frontend/app/runs/` — user-facing trace review.
+## Trace truth contract
 
-## Interpretation
+Every admitted outcome uses one trace ID. Persistence records only work that
+executed:
 
-This request lifecycle is the clearest end-to-end explanation of DataLogicEngine. It shows how a user action becomes a governed, routed, reasoned, persisted, observable, and exportable AI event.
+1. actual stage status, timestamps, and measured duration;
+2. DMRF policy/tier/axis outputs;
+3. accepted source-identified evidence;
+4. DSQP contributions and KA inputs/outputs that influenced execution;
+5. provider identity, model, usage, and failure metadata when called;
+6. claims/citations and validation state when validation ran;
+7. typed terminal failure when the run did not complete.
 
-For a contest or technical evaluation, this is the diagram to put first when someone asks:
+Planned stages, fixed durations, default routing confidence, and unexecuted KAs
+are not inserted. Answer and claim confidence remain null when unmeasured.
 
-> What does the system actually do?
+## Phase boundary
+
+Phase 5 proves causal execution, a single path, and trace truth. Phase 6 must
+prove provenance, evidence sufficiency, claim support, contradiction handling,
+category-specific validators, calibrated confidence, convergence, and KA
+validity. The later rebuilt installed application must still complete real
+OpenAI and Gemini runs with resolvable traces for CP5-E.

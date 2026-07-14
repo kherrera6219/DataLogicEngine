@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.1 |
-| Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
-| Current phase | Phase 5 - Canonical governed reasoning path |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.4.0 |
+| Completed phase | Phase 5 engineering checkpoint - Canonical governed reasoning path |
+| Current phase | Phase 6 - Evidence, confidence, convergence, TruthCore, and KA validity |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -183,25 +183,59 @@ persisted embedding-function/schema configuration. This is an engineering
 mitigation, not production approval: the alert stays release-blocking until a
 reviewed patched release and adversarial installed qualification pass.
 
+## Phase 5 engineering checkpoint
+
+Phase 5 reached its engineering checkpoint on 2026-07-13. Evidence is under
+`reports/production-readiness/2026/phase-05/`.
+
+Key results:
+
+- One transport-neutral `governed.v1` contract now owns the request, context,
+  result, failure, stage, evidence, and claim shapes.
+- One backend orchestrator executes admission, DMRF policy, bounded retrieval,
+  deterministic DSQP context, TruthCore/KA preflight, provider execution,
+  validation, and transactional trace persistence.
+- Built-in chat, gateway chat/stream/replay, compatible API facades, the public
+  TruthCore adapter, persona/video entry points, and SDK service clients enter
+  that path or return an explicit capability boundary. The SDK no longer owns a
+  duplicate reasoning stack.
+- `run_ukg_pipeline=false` cannot bypass governance. Simulation stops after
+  admission at the explicit Phase 10 boundary without retrieval, KA, provider,
+  or tool side effects.
+- Successful, blocked, failed, and cancelled runs persist only stages that
+  actually executed, with measured timestamps/durations and one stable trace ID.
+  Unmeasured confidence remains null for Phase 6 rather than using a default.
+- Final validation passed 1,895 backend tests with 18 skipped, 402 frontend
+  tests, 25 SDK tests, frontend lint/typecheck/build, Electron build/security,
+  Ruff, migration, route, schema, lockfile, secret, and public-error gates.
+
+CP5-A through CP5-D passed. CP5-E remains an explicit installed-release blocker:
+the later rebuilt and installed application must complete real owner-authorized
+OpenAI and Gemini requests through the same path with resolvable persisted
+traces. No installed-provider claim was made. Production/public release remains
+**NO-GO**.
+
 ## Current checkpoint
 
-Phase 5 is active. It owns the single causal governed reasoning path shared by
-built-in chat and approved clients. Phase 5 must build on the Phase 1 trust
-boundary, Phase 2 runtime, Phase 3 service locks, and Phase 4 durable data
-lifecycle without weakening their fail-closed behavior.
+Phase 6 is active. It must replace remaining plausible defaults and legacy
+evidence/convergence behavior with typed sources, stable claims/citations,
+category-valid validators, calibrated confidence, explicit insufficiency, and
+real KA/TruthCore execution evidence. It must preserve the Phase 5 single
+orchestrator and must not reinterpret trace presence as evidence quality.
 
 ## Exact next action
 
-1. Inventory every built-in chat, gateway, replay, SDK, compatible facade, and
-   simulation caller into governed reasoning.
-2. Define the shared versioned governed request/context/result/failure contract.
-3. Choose one backend-owned orchestrator and add tests proving policy,
-   retrieval, persona, evidence, provider/tool, validation, persistence, and
-   trace causality.
-4. Remove synthetic stages and duplicate/bypass orchestration only after the
-   contract and failure-path tests exist.
-5. Carry all installed-only Phase 3/4 gates as release blockers without stopping
-   Phase 5 engineering or calling those gates passed.
+1. Inventory the live source, evidence, claim, citation, validator, confidence,
+   convergence, TruthCore, and KA record shapes and every remaining default or
+   synthetic metric.
+2. Define the Phase 6 typed provenance and validation contracts without changing
+   `governed.v1` caller ownership.
+3. Add category-specific deterministic tests for evidence sufficiency, unsupported
+   claims, contradiction, confidence, convergence, and high-stakes refusal.
+4. Replace defaults only after those tests expose the current behavior, then
+   persist validator inputs/outputs and surface explicit unknown/unavailable state.
+5. Keep CP5-E and all installed-only Phase 3/4 gates as release blockers until
+   the rebuilt application exists and the authorized installed tests run.
 
 ## Phase rules
 

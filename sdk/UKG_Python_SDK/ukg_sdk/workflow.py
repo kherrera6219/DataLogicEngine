@@ -35,8 +35,7 @@ class WorkflowRunner:
     @classmethod
     def load_default(cls) -> "WorkflowRunner":
         wf = read_json(package_data_path("workflow.json"))
-        te = TruthEngine.load_default()
-        return cls(workflow=wf, truth_engine=te)
+        return cls(workflow=wf, truth_engine=TruthEngine.load_default())
 
     def get_tier_policy(self, tier: ComplexityTier) -> Dict[str, Any]:
         tiers = self.workflow.get("tiers") or self.workflow.get("complexity_tiers")
@@ -103,7 +102,7 @@ class WorkflowRunner:
                     or tier_policy.get("ka_pipeline_hint")
                 ),
                 "notes": [
-                    "Local stub only; send this payload to your UKG service (ORCH + KA registry) to execute."
+                    "Planning preview only; send the request to the installed DataLogicEngine service to execute."
                 ],
             },
             confidence=None,
