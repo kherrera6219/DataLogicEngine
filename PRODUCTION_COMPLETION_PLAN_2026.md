@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.2.1 |
+| Document version | v1.3.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,17 +18,19 @@
 
 ### Current execution checkpoint
 
-Phase 3 reached its engineering checkpoint on 2026-07-13. The app-owned
-five-service Podman profile, protected per-install credentials, supervisor,
-fail-closed production adapters, truthful Storage UI contract, and live
-read/write/restart/cleanup qualification are implemented. Phase 4 is now the
-active engineering phase.
+Phase 4 reached its engineering checkpoint on 2026-07-13. Cross-store ownership,
+startup migrations, durable materialization, encrypted coordinated backup,
+isolated clean-root restore, retention/deletion, uninstall disposition, and the
+data-at-rest policy are implemented. A populated five-service engineering drill
+passed backup, restore, restart, hash/value parity, prior-root preservation, and
+delete parity. Phase 5 is now the active engineering phase.
 
-This checkpoint is not the Phase 3 installed-production exit gate and does not
-change the overall release verdict from **NO-GO**. Exact Podman artifact
-qualification, clean signed-installer verification, coordinated recovery,
-independent security/license review, and the final object-store decision remain
-open gates that can only close against the later rebuilt release candidate.
+This checkpoint is not the Phase 4 installed-production exit gate and does not
+change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
+data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
+matrix, exact Podman artifact qualification, independent recovery/security/
+license review, and final object-store decision remain open gates that can only
+close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -247,6 +249,13 @@ safe parallel work. Each phase follows this sequence:
 8. Save evidence under `reports/production-readiness/2026/phase-XX/`.
 9. Update `TODO.md`, `HANDOFF.md`, and affected source-of-truth documents.
 10. Commit only a reviewable, validated checkpoint.
+
+When a checkpoint can only be measured on the later rebuilt, signed, installed
+release candidate, the owner may authorize engineering work to advance without
+calling that checkpoint passed. The deferral must be explicit in the phase
+evidence, TODO, handoff, and release blockers; production/public release remains
+NO-GO until the installed gate actually passes. This exception does not permit a
+known data-loss, trust-boundary, false-success, or silent-fallback defect.
 
 ### 4.2 Required phase evidence
 
@@ -1077,6 +1086,21 @@ deferred independent and failure/recovery gates pass.
 
 ## 12. Phase 4 - Data contracts, migrations, backup, and recovery
 
+### Execution status - engineering checkpoint complete, installed gate deferred
+
+Completed on 2026-07-13 for the current production data contract. CP4-A passed.
+Current-version engineering portions of CP4-B through CP4-F passed where they
+can be exercised before rebuilding the installer: the populated five-service
+backup, isolated clean-root restore, restart/value/hash parity, prior-root
+rollback preservation, and seven-surface deletion drill all succeeded.
+
+The full exit gate remains open for the supported 0.1.1 retained-data upgrade,
+signed clean-machine restore, supported-Windows BitLocker/ACL and key-recovery
+matrix, independent backup/restore review, and final object-store decision.
+These are retained release blockers under the owner-authorized installed-gate
+deferral and do not block Phase 5 engineering. Evidence is under
+`reports/production-readiness/2026/phase-04/`.
+
 ### Objective
 
 Protect user data across schema changes, service upgrades, backup, restore,
@@ -1233,6 +1257,9 @@ backup, clean-machine restore, failed restore rollback, retention action, and
 uninstall/reinstall choice without silent loss or cross-store inconsistency.
 Sensitive data at rest and its keys meet the approved protection and recovery
 contract across every retained location.
+
+**Current result:** engineering checkpoint complete; full installed exit gate
+deferred. Production/public release remains **NO-GO**.
 
 ### Documents updated
 

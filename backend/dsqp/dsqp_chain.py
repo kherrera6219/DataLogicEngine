@@ -203,21 +203,18 @@ class DSQPChain:
 
     @staticmethod
     def _persist_deliverable(persona: ExpandedPersona) -> None:
-        """Persist DSQP construction output to the app-owned object store when available."""
+        """Persist DSQP output through the durable object materialization boundary."""
         try:
-            from backend.storage import get_object_store
+            from backend.storage.artifact_materialization import persist_object_artifact
 
             key = f"dsqp/{persona.persona_id}.json"
-            persona.metadata["object_store"] = {
-                "bucket": "deliverables",
-                "key": key,
-            }
-            payload = json.dumps(persona.to_dict(), sort_keys=True).encode("utf-8")
-            store = get_object_store()
-            store.put(
-                "deliverables",
-                key,
-                payload,
+            persona.metadata["object_store"] = persist_object_artifact(
+                entity_type="dsqp_deliverable",
+                entity_id=persona.persona_id,
+                bucket="deliverables",
+                key=key,
+                body=persona.to_dict(),
+                schema_version="dsqp-persona.v1",
                 content_type="application/json",
                 metadata={
                     "artifact_type": "dsqp_persona",
@@ -225,7 +222,6 @@ class DSQPChain:
                     "axis_number": str(persona.axis_number),
                 },
             )
-            persona.metadata["object_store"]["size_bytes"] = len(payload)
         except Exception as exc:  # pylint: disable=broad-except
             from backend.storage.object_store import raise_if_object_store_required
 

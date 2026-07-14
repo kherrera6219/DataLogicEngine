@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -61,7 +61,7 @@ ChromaDB, and MinIO and refuses fallback when any required service is absent.
 
 ## Current state
 
-As of the Phase 3 engineering checkpoint (2026-07-13):
+As of the Phase 4 engineering checkpoint (2026-07-13):
 
 1. `create_app()` produces isolated application instances; importing `app.py`
    performs no application construction or resource startup.
@@ -83,9 +83,15 @@ As of the Phase 3 engineering checkpoint (2026-07-13):
    supervises the complete five-service engineering profile.
 9. The live qualification report passed real operations, restart durability,
    truthful state, and cleanup for all five services and six object buckets.
-10. This is not clean installed-production evidence. Exact Podman packaging,
-    signed installer/upgrade/uninstall, coordinated recovery, independent
-    review, and final object-store selection remain release blockers.
+10. Startup now applies a versioned SQL/per-store migration ledger before
+    readiness and refuses newer, unsupported, or unversioned populated data.
+11. The desktop creates encrypted signed coordinated backups using a recovery
+    passphrase that is never persisted; offline restore verifies an isolated
+    clean root before atomic activation and preserves the prior root.
+12. Live current-version recovery and seven-surface deletion passed. This is not
+    clean installed-production evidence: 0.1.1 retained-data upgrade, exact
+    Podman packaging, signed clean-machine restore, protected-volume/ACL matrix,
+    independent review, and final object-store selection remain release blockers.
 
 To repeat the engineering qualification from a prepared Podman lab environment:
 
@@ -96,6 +102,16 @@ python scripts/verify_internal_data_plane.py --profile qualification --require-a
 This command is destructive to its qualification-specific containers, network,
 volumes, and secrets. It must never target an installed production identity or
 be cited as signed-installer evidence.
+
+To repeat the Phase 4 populated data-lifecycle engineering drill:
+
+```powershell
+python scripts/qualify_phase4_data_lifecycle.py
+```
+
+The script creates and removes qualification-only resources. For an operator
+restore, stop the app and follow `deploy/DISASTER_RECOVERY.md`; do not run the
+qualification script against an installed identity.
 
 ---
 
@@ -528,6 +544,11 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
    store. MinIO remains the documented target pending ADR-0004 acceptance.
 
 ---
+
+## Change notes for v2.10.0
+
+1. Added the migration-ledger, encrypted coordinated backup, offline clean-root
+   restore, delete-parity, and Windows at-rest qualification boundary.
 
 ## Change notes for v2.9.0
 

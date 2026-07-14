@@ -82,6 +82,32 @@ def test_unified_memory_persists_and_namespaces_recall(tmp_path):
     assert json.loads(path.read_text(encoding="utf-8"))["vertices"]
 
 
+def test_unified_memory_rejects_missing_or_newer_schema_in_strict_mode(tmp_path):
+    path = tmp_path / "memory_graph.json"
+    path.write_text(json.dumps({"vertices": [], "edges": []}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unified_memory_schema_version_incompatible"):
+        UnifiedMemoryService(storage_path=path, auto_load=True, strict=True)
+
+    path.write_text(
+        json.dumps({"version": 99, "vertices": [], "edges": []}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="unified_memory_schema_version_incompatible"):
+        UnifiedMemoryService(storage_path=path, auto_load=True, strict=True)
+
+
+def test_unified_memory_save_is_atomic_and_versioned(tmp_path):
+    path = tmp_path / "memory_graph.json"
+    service = UnifiedMemoryService(storage_path=path, auto_load=False)
+
+    service.save()
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["version"] == UnifiedMemoryService.SCHEMA_VERSION
+    assert not list(tmp_path.glob("*.tmp"))
+
+
 @pytest.mark.skipif(
     not _neo4j_available(),
     reason="Local Neo4j not started (run scripts/windows/start_local_stack.ps1); "

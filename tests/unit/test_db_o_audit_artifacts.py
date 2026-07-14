@@ -6,8 +6,9 @@ import app as app_module
 from app import db
 from backend.dsqp import DSQPChain
 from backend.truth_engine.truth_memory.commit_service import TruthMemoryCommitService
+from backend.storage.materialization_dispatcher import CrossStoreMaterializationDispatcher
 from core.system.frost_service import FROSTService
-from models import TraceRun, TruthAuditEvent
+from models import CrossStoreOutboxEvent, TraceRun, TruthAuditEvent
 
 
 class FakeObjectStore:
@@ -34,6 +35,12 @@ class FakeObjectStore:
             if stored_bucket == bucket and key.startswith(prefix)
         ]
 
+    def exists(self, bucket, key):
+        return (bucket, key) in self.objects
+
+    def get(self, bucket, key):
+        return self.objects[(bucket, key)]["data"]
+
 
 def test_truth_audit_event_has_db_o_artifact_fields():
     columns = TruthAuditEvent.__table__.columns
@@ -45,7 +52,7 @@ def test_truth_audit_event_has_db_o_artifact_fields():
     assert "blockchain_anchor_status" in columns
 
 
-def test_commit_writes_audit_bundle_object_and_anchor_metadata(app, monkeypatch):
+def test_commit_queues_then_materializes_audit_bundle_and_anchor_metadata(app, monkeypatch):
     import backend.storage as storage_module
 
     fake_store = FakeObjectStore()
@@ -78,13 +85,27 @@ def test_commit_writes_audit_bundle_object_and_anchor_metadata(app, monkeypatch)
         event = TruthAuditEvent.query.filter_by(event_type="audit_bundle_commit").first()
         assert receipt
         assert event is not None
+        assert event.object_store_bucket is None
+        assert event.object_store_key is None
+        outbox_event = CrossStoreOutboxEvent.query.one()
+        assert outbox_event.status == "pending"
+        assert ("audit-logs", f"{run.run_id}.json") not in fake_store.objects
+
+        outcome = CrossStoreMaterializationDispatcher(db.session).run_once()
+        db.session.refresh(event)
+
+        assert outcome == {"claimed": 1, "succeeded": 1, "failed": 0}
         assert event.object_store_bucket == "audit-logs"
         assert event.object_store_key == f"{run.run_id}.json"
         assert event.merkle_root
         assert event.blockchain_anchor_tx == "0xabc123"
         assert event.blockchain_anchor_status == "anchored"
         assert ("audit-logs", f"{run.run_id}.json") in fake_store.objects
-        assert event.event_data["object_store"]["key"] == f"{run.run_id}.json"
+        assert event.event_data["object_store"] == {
+            "bucket": "audit-logs",
+            "key": f"{run.run_id}.json",
+            "status": "ready",
+        }
         assert event.event_data["blockchain_anchor"]["transaction_hash"] == "0xabc123"
 
 

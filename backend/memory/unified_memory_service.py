@@ -24,6 +24,7 @@ class UnifiedMemoryService:
     """Wrap StructuredMemoryGraph with local persistence and layer/persona namespacing."""
 
     DEFAULT_PATH = Path("databases/memory/memory_graph.json")
+    SCHEMA_VERSION = 1
 
     def __init__(
         self,
@@ -31,6 +32,7 @@ class UnifiedMemoryService:
         graph: StructuredMemoryGraph | None = None,
         storage_path: str | Path | None = None,
         auto_load: bool = True,
+        strict: bool = False,
     ):
         self.graph = graph or StructuredMemoryGraph()
         self.storage_path = Path(
@@ -40,6 +42,7 @@ class UnifiedMemoryService:
         )
         self.last_recall_timestamp: str | None = None
         self._checkpoints: dict[str, dict[str, Any]] = {}
+        self.strict = bool(strict)
         if auto_load:
             self.load()
 
@@ -94,7 +97,7 @@ class UnifiedMemoryService:
     def export_graph(self) -> dict[str, Any]:
         edges = self.graph.edges.values() if isinstance(self.graph.edges, dict) else self.graph.edges
         return {
-            "version": 1,
+            "version": self.SCHEMA_VERSION,
             "saved_at": datetime.now(UTC).isoformat(),
             "last_recall_timestamp": self.last_recall_timestamp,
             "vertices": [
@@ -108,6 +111,8 @@ class UnifiedMemoryService:
         }
 
     def load_graph(self, payload: dict[str, Any]) -> None:
+        if not isinstance(payload, dict) or payload.get("version") != self.SCHEMA_VERSION:
+            raise ValueError("unified_memory_schema_version_incompatible")
         self.graph.vertices.clear()
         self.graph.adjacency.clear()
         self.graph.edges = {}
@@ -131,17 +136,25 @@ class UnifiedMemoryService:
         try:
             self.load_graph(json.loads(self.storage_path.read_text(encoding="utf-8")))
         except Exception as exc:  # pylint: disable=broad-except
+            if self.strict:
+                raise
             logger.warning("Structured memory graph load skipped: %s", exc)
 
     def save(self) -> None:
+        temporary = self.storage_path.with_suffix(self.storage_path.suffix + ".tmp")
         try:
             self.storage_path.parent.mkdir(parents=True, exist_ok=True)
-            self.storage_path.write_text(
-                json.dumps(self.export_graph(), sort_keys=True, indent=2),
-                encoding="utf-8",
-            )
+            with temporary.open("w", encoding="utf-8", newline="\n") as handle:
+                handle.write(json.dumps(self.export_graph(), sort_keys=True, indent=2) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, self.storage_path)
         except Exception as exc:  # pylint: disable=broad-except
+            if self.strict:
+                raise
             logger.warning("Structured memory graph save skipped: %s", exc)
+        finally:
+            temporary.unlink(missing_ok=True)
 
     def recall(
         self,

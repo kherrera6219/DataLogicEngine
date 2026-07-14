@@ -209,11 +209,21 @@ describe('DatabaseSettings', () => {
     await screen.findByText('Internal Data Plane');
 
     fireEvent.click(screen.getByText('Metrics & Backup'));
+    fireEvent.change(screen.getByLabelText('Recovery passphrase'), {
+      target: { value: 'owner-recovery-secret' },
+    });
+    fireEvent.change(screen.getByLabelText('Confirm recovery passphrase'), {
+      target: { value: 'owner-recovery-secret' },
+    });
     fireEvent.click(screen.getByRole('button', { name: /run backup/i }));
 
     await waitFor(() => {
       expect(runDatabaseBackup).toHaveBeenCalledWith(
-        expect.objectContaining({ target_capability: 'backup-token', operation_id: expect.any(String) }),
+        expect.objectContaining({
+          target_capability: 'backup-token',
+          operation_id: expect.any(String),
+          recovery_secret: 'owner-recovery-secret',
+        }),
       );
       expect(screen.getByText('C:\\Backups\\desktop-backup.zip')).toBeInTheDocument();
     });

@@ -8,7 +8,7 @@ import os
 import platform
 import time
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import BinaryIO
 
@@ -188,3 +188,30 @@ class RuntimeOwnership:
     def release(self) -> None:
         if self.lock is not None:
             self.lock.release()
+
+    def record_completed_upgrade(self, target_version: str) -> InstallationIdentity:
+        """Atomically advance the retained identity only after migrations pass."""
+        if self.identity is None or self.lock is None or not self.lock.acquired:
+            raise RuntimeOwnershipError("installation_upgrade_requires_runtime_lock")
+        normalized = str(target_version or "").strip()
+        if not normalized:
+            raise RuntimeOwnershipError("installation_upgrade_target_invalid")
+        upgraded = replace(self.identity, version=normalized)
+        temporary = self.identity_path.with_suffix(".upgrade.tmp")
+        try:
+            temporary.write_text(
+                json.dumps(asdict(upgraded), sort_keys=True),
+                encoding="utf-8",
+            )
+            os.replace(temporary, self.identity_path)
+            if os.name != "nt":
+                self.identity_path.chmod(0o600)
+            else:
+                from backend.security.windows_acl import ensure_restricted_user_acl
+
+                ensure_restricted_user_acl(self.identity_path, required=True)
+        finally:
+            temporary.unlink(missing_ok=True)
+        self.identity = upgraded
+        self.lock.identity = upgraded
+        return upgraded

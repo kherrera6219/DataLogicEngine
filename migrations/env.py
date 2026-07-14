@@ -4,6 +4,7 @@ from logging.config import fileConfig
 from flask import current_app
 
 from alembic import context
+from sqlalchemy import create_engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -13,15 +14,17 @@ config = context.config
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
+_migration_engine = None
 
 
 def get_engine():
-    try:
-        # this works with Flask-SQLAlchemy<3 and Alchemical
-        return current_app.extensions['migrate'].db.get_engine()
-    except (TypeError, AttributeError):
-        # this works with Flask-SQLAlchemy>=3
-        return current_app.extensions['migrate'].db.engine
+    migration_url = current_app.config.get("DLE_MIGRATION_DATABASE_URL")
+    if migration_url:
+        global _migration_engine
+        if _migration_engine is None:
+            _migration_engine = create_engine(str(migration_url), pool_pre_ping=True)
+        return _migration_engine
+    return current_app.extensions['migrate'].db.engine
 
 
 def get_engine_url():
@@ -96,15 +99,19 @@ def run_migrations_online():
 
     connectable = get_engine()
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=get_metadata(),
-            **conf_args
-        )
+    try:
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=get_metadata(),
+                **conf_args
+            )
 
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+    finally:
+        if _migration_engine is not None:
+            _migration_engine.dispose()
 
 
 if context.is_offline_mode():

@@ -1,19 +1,23 @@
 Single-database configuration for Flask.
 
-Schema bootstrap (IMPORTANT — read before running `flask db upgrade`):
+Schema bootstrap:
 
-The base schema is created by `db.create_all()`, NOT by a base migration. The
-models in `models.py` are the source of truth for table creation; the app builds
-them on first run via `backend/init_db.py` / `setup_local_databases.py` (and the
-`AUTO_CREATE_SCHEMA=true` escape hatch in dev). The Alembic migrations in
-`versions/` are INCREMENTAL DELTAS layered on top of that created schema (column
-adds, table additions for tracing, drops for the auth-deprecation, etc.).
+`000000000001_initial_production_schema.py` is the reviewed, frozen baseline for
+an empty database. `flask db upgrade` creates the baseline and then follows the
+linear delta history to the current single head. The baseline is immutable after
+release; future model changes require a new forward revision.
 
-Consequence: a from-scratch `flask db upgrade` against an EMPTY database will fail
-(e.g. `f3a4b5c6d7e8` ALTERs `truth_sessions`, which `create_all` — not a migration —
-creates). The supported bootstrap is: create the schema (`create_all` via init_db /
-the local stack), THEN `flask db stamp head` (or apply only newer deltas). This is
-intentional for the local-first single-mode app; do not expect the migration chain
-to stand up a database on its own.
+Production and managed startup must use the migration coordinator. It probes the
+current revision, refuses populated unversioned databases, requires a verified
+coordinated backup before an approved destructive upgrade, runs Alembic with the
+dedicated migration credential, and verifies the target revision before workers
+or readiness can proceed. Automatic downgrade is not supported.
 
-The revision chain is linear and single-headed (verify with `flask db heads`).
+`db.create_all()` remains only as an explicitly enabled disposable development
+and test escape hatch. It is not a production bootstrap, migration, or stamping
+path. Never use `flask db stamp` to bypass schema validation.
+
+Maintainers can reproduce a candidate baseline with
+`scripts/generate_initial_schema_migration.py` for review, but must not overwrite
+the committed baseline after release. Verify the chain with `flask db heads` and
+the Phase 4 migration tests.

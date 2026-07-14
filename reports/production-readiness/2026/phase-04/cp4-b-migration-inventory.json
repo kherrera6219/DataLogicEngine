@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0.0",
+  "supported_upgrade_sources": [
+    "0.1.1"
+  ],
+  "production_migration_ready": false,
+  "managed_backup_required_before_destructive_migration": true,
+  "legacy_create_all_is_production_coordinator": false,
+  "alembic": {
+    "revision_count": 14,
+    "revisions": [
+      {
+        "revision": "000000000001",
+        "file": "000000000001_initial_production_schema.py",
+        "down_revisions": []
+      },
+      {
+        "revision": "a1b2c3d4e5f6",
+        "file": "a1b2c3d4e5f6_add_llm_gateway_tables.py",
+        "down_revisions": [
+          "b0d09ef7daef"
+        ]
+      },
+      {
+        "revision": "a4b5c6d7e8f9",
+        "file": "a4b5c6d7e8f9_add_db_o_audit_artifact_fields.py",
+        "down_revisions": [
+          "f3a4b5c6d7e8"
+        ]
+      },
+      {
+        "revision": "a9b0c1d2e3f4",
+        "file": "a9b0c1d2e3f4_add_deletion_tombstones.py",
+        "down_revisions": [
+          "f8a9b0c1d2e3"
+        ]
+      },
+      {
+        "revision": "b0d09ef7daef",
+        "file": "b0d09ef7daef_add_tracing_tables.py",
+        "down_revisions": [
+          "000000000001"
+        ]
+      },
+      {
+        "revision": "b4c5d6e7f8a9",
+        "file": "b4c5d6e7f8a9_drop_user_mfa_columns.py",
+        "down_revisions": [
+          "a4b5c6d7e8f9"
+        ]
+      },
+      {
+        "revision": "c1d2e3f4a5b6",
+        "file": "c1d2e3f4a5b6_add_user_ai_preferences.py",
+        "down_revisions": [
+          "a1b2c3d4e5f6"
+        ]
+      },
+      {
+        "revision": "c5d6e7f8a9b0",
+        "file": "c5d6e7f8a9b0_drop_user_role_is_admin.py",
+        "down_revisions": [
+          "b4c5d6e7f8a9"
+        ]
+      },
+      {
+        "revision": "d1e2f3a4b5c6",
+        "file": "d1e2f3a4b5c6_add_auditbundle_columns_to_trace_runs.py",
+        "down_revisions": [
+          "c1d2e3f4a5b6"
+        ]
+      },
+      {
+        "revision": "d6e7f8a9b0c1",
+        "file": "d6e7f8a9b0c1_drop_oauth_accounts_table.py",
+        "down_revisions": [
+          "c5d6e7f8a9b0"
+        ]
+      },
+      {
+        "revision": "e2f3a4b5c6d7",
+        "file": "e2f3a4b5c6d7_add_phase_b_frost_trace_fields.py",
+        "down_revisions": [
+          "d1e2f3a4b5c6"
+        ]
+      },
+      {
+        "revision": "e7f8a9b0c1d2",
+        "file": "e7f8a9b0c1d2_harden_trace_export_records.py",
+        "down_revisions": [
+          "d6e7f8a9b0c1"
+        ]
+      },
+      {
+        "revision": "f3a4b5c6d7e8",
+        "file": "f3a4b5c6d7e8_add_truth_session_input_embedding.py",
+        "down_revisions": [
+          "e2f3a4b5c6d7"
+        ]
+      },
+      {
+        "revision": "f8a9b0c1d2e3",
+        "file": "f8a9b0c1d2e3_add_cross_store_outbox.py",
+        "down_revisions": [
+          "e7f8a9b0c1d2"
+        ]
+      }
+    ],
+    "bases": [
+      "000000000001"
+    ],
+    "heads": [
+      "a9b0c1d2e3f4"
+    ],
+    "linear_order": [
+      "000000000001",
+      "b0d09ef7daef",
+      "a1b2c3d4e5f6",
+      "c1d2e3f4a5b6",
+      "d1e2f3a4b5c6",
+      "e2f3a4b5c6d7",
+      "f3a4b5c6d7e8",
+      "a4b5c6d7e8f9",
+      "b4c5d6e7f8a9",
+      "c5d6e7f8a9b0",
+      "d6e7f8a9b0c1",
+      "e7f8a9b0c1d2",
+      "f8a9b0c1d2e3",
+      "a9b0c1d2e3f4"
+    ],
+    "errors": []
+  },
+  "surfaces": [
+    {
+      "key": "postgresql",
+      "target_version": "alembic:a9b0c1d2e3f4",
+      "version_probe": "SELECT version_num FROM alembic_version",
+      "forward_migration": "transactional Alembic upgrade through the single revision head",
+      "rollback_policy": "revision-specific downgrade only after verified coordinated backup",
+      "status": "fresh_install_and_current_head_coordinated_restore_passed",
+      "blocker": "supported_0_1_1_upgrade_not_qualified"
+    },
+    {
+      "key": "redis",
+      "target_version": "dle.redis.v1",
+      "version_probe": "GET dle:schema:redis",
+      "forward_migration": "versioned namespace migration or explicit disposable-key invalidation",
+      "rollback_policy": "restore durable keys from coordinated backup; invalidate disposable keys",
+      "status": "version_ledger_fresh_bootstrap_and_durable_restore_passed",
+      "blocker": "supported_0_1_1_redis_adoption_not_qualified"
+    },
+    {
+      "key": "neo4j",
+      "target_version": "dle.neo4j.v1",
+      "version_probe": "MATCH (v:DLESchemaVersion {component:'neo4j'}) RETURN v.version",
+      "forward_migration": "ordered constraints, indexes, labels, relationships, and property transforms",
+      "rollback_policy": "restore isolated graph dump or apply an explicitly reversible graph revision",
+      "status": "version_ledger_schema_restore_and_current_revision_passed",
+      "blocker": "supported_0_1_1_neo4j_adoption_not_qualified"
+    },
+    {
+      "key": "chroma",
+      "target_version": "dle.chroma.v1",
+      "version_probe": "read versioned collection registry and source corpus revision",
+      "forward_migration": "build compatible collection, reconcile sources, verify query parity, then switch",
+      "rollback_policy": "retain prior collection until parity and owner-confirmed cutover",
+      "status": "versioned_registry_collection_restore_and_count_parity_passed",
+      "blocker": "supported_0_1_1_chroma_rebuild_not_qualified"
+    },
+    {
+      "key": "minio",
+      "target_version": "dle.minio.v1",
+      "version_probe": "HEAD app-owned schema manifest object and verify metadata/hash",
+      "forward_migration": "version object metadata, bucket policies, lifecycle, and retention contracts",
+      "rollback_policy": "restore portable bucket snapshot with key/metadata/hash parity",
+      "status": "minio_schema_manifest_portable_restore_and_hash_parity_passed",
+      "blocker": "supported_0_1_1_minio_adoption_not_qualified"
+    },
+    {
+      "key": "local_json_memory",
+      "target_version": "unified-memory.v1",
+      "version_probe": "read and validate root JSON version field before loading vertices or edges",
+      "forward_migration": "write migrated graph to a temporary path and atomically replace after validation",
+      "rollback_policy": "retain and restore the last valid versioned JSON graph",
+      "status": "version_enforcement_atomic_write_startup_and_restore_passed",
+      "blocker": null
+    },
+    {
+      "key": "retained_configuration",
+      "target_version": "configuration.v1",
+      "version_probe": "validate each retained configuration and DPAPI vault schema version",
+      "forward_migration": "validate, transform, protect secrets, and atomically replace each retained file",
+      "rollback_policy": "retain last valid configuration and refuse startup on incompatible newer versions",
+      "status": "credential_vault_migration_and_configuration_restore_passed",
+      "blocker": null
+    },
+    {
+      "key": "sqlite_development",
+      "target_version": "development-sqlite.v1",
+      "version_probe": "inspect SQLite tables/columns and retained desktop file version",
+      "forward_migration": "development-only additive migration; never production authority",
+      "rollback_policy": "copy disposable development database before change or recreate it",
+      "status": "retained_reinstall_contract_passed_production_import_missing",
+      "blocker": "released_sqlite_to_postgresql_import_not_implemented"
+    }
+  ],
+  "blockers": [
+    "released_sqlite_to_postgresql_import_not_implemented",
+    "supported_0_1_1_chroma_rebuild_not_qualified",
+    "supported_0_1_1_minio_adoption_not_qualified",
+    "supported_0_1_1_neo4j_adoption_not_qualified",
+    "supported_0_1_1_redis_adoption_not_qualified",
+    "supported_0_1_1_upgrade_not_qualified"
+  ],
+  "release_constraints": {
+    "production_object_store": "minio",
+    "seaweedfs_production_selected": false,
+    "coordinated_backup_available": true,
+    "coordinated_restore_available": true,
+    "current_version_populated_restore_qualified": true,
+    "supported_prior_release_upgrade_qualified": false,
+    "downgrade_against_newer_data_allowed": false
+  },
+  "captured_at": "2026-07-14T01:22:49.215515+00:00"
+}

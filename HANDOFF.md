@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.1 |
-| Completed phase | Phase 3 engineering checkpoint - Full internal service delivery and supervision |
-| Current phase | Phase 4 - Data contracts, migrations, backup, and recovery |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.0 |
+| Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
+| Current phase | Phase 5 - Canonical governed reasoning path |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -130,8 +130,8 @@ Key results:
   tests, frontend lint/typecheck/build, and Ruff.
 
 This is not the clean installed-production exit gate. Exact Podman 5.8.2
-artifact qualification, clean signed-installer proof, coordinated backup and
-restore, extended failure testing, independent security/license review, and
+artifact qualification, clean signed-installer proof, installed recovery and
+extended failure testing, independent security/license review, and
 final object-store selection remain explicit blockers for the rebuilt release
 candidate. No deferred item is counted as passed.
 
@@ -140,29 +140,60 @@ SeaweedFS 4.29 is a qualification candidate only. ADR-0004 remains Proposed,
 architecture until Replacement Control passes fully and Kevin gives final
 production approval.
 
+## Phase 4 engineering checkpoint
+
+Phase 4 reached its engineering checkpoint on 2026-07-13. Evidence is under
+`reports/production-readiness/2026/phase-04/`.
+
+Key results:
+
+- The versioned ownership matrix covers 67 PostgreSQL entities and 28 logical
+  data contracts with one authority and explicit materializations.
+- PostgreSQL-authoritative Neo4j/Chroma materializations and required MinIO
+  artifact writes use a transactional, idempotent outbox with retries and
+  reconciliation state; declared artifacts remain MinIO-authoritative.
+- Startup runs a fail-closed 14-revision SQL/per-store migration coordinator
+  before readiness and refuses newer, unsupported, or unversioned populated data.
+- The desktop creates an encrypted, signed six-component `.dlebackup` archive
+  only after every component and manifest hash verifies.
+- Offline restore uses a temporary isolated root and ports, new installation and
+  recovery credentials, cross-store verification, atomic activation, prior-root
+  preservation, and rollback on failed post-validation.
+- Live populated qualification recovered PostgreSQL, Redis, Neo4j, Chroma,
+  MinIO, and retained JSON values, including exact object hash and pending outbox
+  state, then passed deletion across all seven required surfaces.
+- Retention, tombstones, uninstall dispositions, data classification, and the
+  Windows volume/ACL + DPAPI + portable AES-256-GCM protection model are explicit.
+
+The full installed exit gate remains open for the supported 0.1.1 retained-data
+upgrade, rebuilt signed clean-machine restore, protected-volume/ACL Windows
+matrix, independent recovery review, and final object-store decision. Kevin
+authorized these installed-only checks to remain release blockers while the plan
+continues. Production/public release remains **NO-GO**.
+
+SeaweedFS remains candidate-only. ADR-0004 is Proposed,
+`production_authorized=false`, `production_selected=false`, and MinIO remains
+the product-specific production architecture.
+
 ## Current checkpoint
 
-Phase 4 is authorized to begin from the committed Phase 3 engineering
-checkpoint. It owns cross-store authority, identifiers, schema/version
-contracts, migrations, coordinated backup/restore, repair, retention/deletion,
-and failure recovery for every required service.
-
-Phase 4 must preserve the Phase 1 trust boundary, Phase 2 runtime ownership, and
-Phase 3 production locks. Managed backup is intentionally refused until a
-complete cross-store recovery set exists. Do not turn a candidate-only object
-profile into production selection or rename the architecture during this phase.
+Phase 5 is active. It owns the single causal governed reasoning path shared by
+built-in chat and approved clients. Phase 5 must build on the Phase 1 trust
+boundary, Phase 2 runtime, Phase 3 service locks, and Phase 4 durable data
+lifecycle without weakening their fail-closed behavior.
 
 ## Exact next action
 
-1. Publish the Phase 4 cross-store ownership and stable-identifier matrix.
-2. Inventory current SQL, Redis, Neo4j, Chroma, object, and JSON data versions
-   and define ordered forward/rollback migrations.
-3. Implement the coordinated backup manifest and clean-root restore contract;
-   keep partial managed backup/restore fail-closed.
-4. Add corruption, disk-full, interrupted migration, partial backup, failed
-   restore, reconciliation, retention, and uninstall-data tests.
-5. Carry the exact-runtime, independent review, installed-app, and final
-   object-store decisions as release blockers, not Phase 4 assumptions.
+1. Inventory every built-in chat, gateway, replay, SDK, compatible facade, and
+   simulation caller into governed reasoning.
+2. Define the shared versioned governed request/context/result/failure contract.
+3. Choose one backend-owned orchestrator and add tests proving policy,
+   retrieval, persona, evidence, provider/tool, validation, persistence, and
+   trace causality.
+4. Remove synthetic stages and duplicate/bypass orchestration only after the
+   contract and failure-path tests exist.
+5. Carry all installed-only Phase 3/4 gates as release blockers without stopping
+   Phase 5 engineering or calling those gates passed.
 
 ## Phase rules
 
@@ -172,4 +203,5 @@ profile into production selection or rename the architecture during this phase.
 - Validate the packaged application whenever runtime behavior changes.
 - Store redacted evidence under the current phase directory.
 - Update `TODO.md`, this handoff, and affected source-of-truth documents at each validated checkpoint.
-- Commit only after the full phase exit gate passes.
+- Commit only after a validated engineering checkpoint or full phase exit gate;
+  installed-only deferrals must remain explicit release blockers.

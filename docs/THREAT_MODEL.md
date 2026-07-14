@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active production-completion baseline |
 | Owner | Security Engineering |
@@ -59,7 +59,8 @@ and network surfaces.
 - prompts, uploaded/ingested documents, knowledge graph content, model output,
   traces, audit records, simulations, and local databases;
 - installer/update artifacts, packaged renderer files, and policy/configuration;
-- backup archives and any recovery material introduced in later phases.
+- encrypted backup archives, owner recovery secrets, manifests, restored roots,
+  and prior roots retained for rollback.
 
 ## Threats, controls, and residual risk
 
@@ -77,8 +78,9 @@ and network surfaces.
 | Private-listener exposure | `main.py`, `app.py`, and `wsgi.py` use a shared fail-closed listener policy accepting only localhost/loopback. `0.0.0.0`, private addresses, public addresses, hostnames, and proxy Host overrides are rejected before Phase 8. | No private-network use is supported yet. Any future enablement requires the Phase 8 TLS/mTLS, certificate, firewall, and two-machine qualification gate. |
 | Certificate or firewall failure | Private listener is disabled, so certificates and firewall rules are not accepted as Phase 1 compensating controls. | Becomes applicable only if Phase 8 enables a qualified private profile. |
 | Update tampering | Auto-update remains disabled unless separately qualified; new windows and remote renderer navigation are denied. | Signing, provenance, anti-rollback, and updater failure testing are Phase 14 release gates. |
-| Database theft | Provider credentials stored in the database are DPAPI-protected and cannot be decrypted under a different Windows user. Runtime credential/settings files are separately protected. | Application data itself is not yet fully encrypted at rest. Coordinated data-at-rest and recovery design is Phase 4. |
-| Backup theft | Secret files, `.env`, settings, logs, and key material are excluded and tested absent. Backups contain only declared data components and a manifest. | Phase 1 backup archives are not portable encrypted recovery packages. User-controlled backup encryption and restore proof are Phase 4 requirements. |
+| Database theft | Provider credentials stored in the database are DPAPI-protected and cannot be decrypted under a different Windows user. Production requires BitLocker/device encryption and restricted runtime-root ACLs, verified at startup. | The current development machine did not prove the supported installed protected-volume/ACL matrix. Same-user live compromise and offline copies made before encryption remain residual risks. |
+| Backup theft or tampering | Portable backups use scrypt-derived AES-256-GCM encryption plus a signed/hash-verified manifest; machine-bound secret vaults, `.env`, settings, and logs are excluded. The recovery secret is not stored. | Loss of the recovery secret makes the archive unrecoverable. Owner-selected destinations, copied archives, and retained prior roots require their own access/retention controls until the signed installed recovery matrix passes. |
+| Partial cross-store restore or delete | Restore occurs in an isolated clean root and activates atomically only after per-store and cross-store verification. Deletion retains a non-PII tombstone and fails visibly if any store has unapproved remnants. | Signed clean-machine recovery, 0.1.1 retained-data upgrade, disk/capacity failure, and the full installed deletion matrix remain release gates. |
 | Raw exception or secret disclosure | Repository-wide route scanning, sentinel response tests, stable public errors, GraphQL normalization, log redaction, provider serialization restrictions, and secret gates prevent known sinks. | New routes/sinks can regress; the mandatory gates must run at every security/API checkpoint. |
 
 ## Trust decisions

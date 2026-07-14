@@ -1430,7 +1430,7 @@ ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: 
     throw new Error('Blocked unexpected IPC payload for channel "run-database-backup"');
   }
   const parsedPayload = payload === undefined ? {} : requireJsonRecord(payload, 'run-database-backup');
-  rejectUnknownKeys(parsedPayload, ['target_capability', 'operation_id'], 'run-database-backup');
+  rejectUnknownKeys(parsedPayload, ['target_capability', 'operation_id', 'recovery_secret'], 'run-database-backup');
   const operationId = requiredOperationId(parsedPayload, 'run-database-backup');
   const targetCapability = optionalBoundedString(
     parsedPayload,
@@ -1438,6 +1438,15 @@ ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: 
     'run-database-backup',
     128,
   );
+  const recoverySecret = optionalBoundedString(
+    parsedPayload,
+    'recovery_secret',
+    'run-database-backup',
+    256,
+  );
+  if (!recoverySecret || recoverySecret.length < 12) {
+    throw new Error('Recovery passphrase must be at least 12 characters.');
+  }
   const targetDir = targetCapability
     ? consumePathCapability(targetCapability, 'backup')
     : undefined;
@@ -1445,7 +1454,7 @@ ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: 
   const response = await withCancellableDesktopOperation(operationId, (signal) =>
     desktopIpcFetch('http://127.0.0.1:5000/api/v1/storage/backup', 'backup', {
       method: 'POST',
-      body: JSON.stringify({ target_dir: targetDir }),
+      body: JSON.stringify({ target_dir: targetDir, recovery_secret: recoverySecret }),
       signal,
     }),
   );

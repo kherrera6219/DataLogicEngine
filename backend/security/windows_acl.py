@@ -11,6 +11,14 @@ from pathlib import Path
 
 
 SYSTEM_SID = "S-1-5-18"
+BROAD_ACCESS_MARKERS = (
+    "everyone",
+    "authenticated users",
+    "builtin\\users",
+    "s-1-1-0",
+    "s-1-5-11",
+    "s-1-5-32-545",
+)
 
 
 def _current_user_sid() -> str:
@@ -63,3 +71,34 @@ def ensure_restricted_user_acl(target: str | os.PathLike[str], *, required: bool
         if required:
             raise RuntimeError(f"Unable to apply a restrictive Windows ACL to {path.name}") from exc
         return False
+
+
+def verify_restricted_user_acl(target: str | os.PathLike[str]) -> bool:
+    """Verify the runtime root does not grant broad Windows-principal access."""
+    path = Path(target).resolve()
+    if platform.system() != "Windows":
+        return False
+    try:
+        user = subprocess.run(
+            ["whoami"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip().lower()
+        user_sid = _current_user_sid().lower()
+        result = subprocess.run(
+            ["icacls", str(path)],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except Exception:
+        return False
+    output = result.stdout.lower()
+    if any(marker in output for marker in BROAD_ACCESS_MARKERS):
+        return False
+    system_present = "nt authority\\system" in output or SYSTEM_SID.lower() in output
+    owner_present = bool(user and user in output) or user_sid in output
+    return system_present and owner_present

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.11.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -67,6 +67,12 @@ reviews, and final object-store selection remain open. The candidate lock keeps
 production provisioning false, so an ordinary release build must not claim to
 install the production data plane yet.
 
+Phase 4 added pre-readiness per-store migrations, encrypted coordinated backup,
+offline isolated clean-root restore, and production startup checks for protected
+Windows volumes and runtime-root ACLs. The populated engineering drill passed,
+but the 0.1.1 retained-data upgrade, signed clean-machine restore, and supported
+Windows encryption/ACL matrix remain release gates.
+
 SeaweedFS 4.29 may be used only by the qualification workflow. MinIO remains the
 deployment architecture until Proposed ADR-0004 is accepted after full
 Replacement Control and final owner approval.
@@ -108,10 +114,11 @@ Before promoting any build:
 6. Run the relevant test suites from `docs/TESTING.md`.
 7. Confirm release gates in `docs/RELEASE_CHECKLIST.md`.
 8. Never enable `AUTO_CREATE_SCHEMA=true` in production. It is a disposable local-only escape hatch.
-9. Apply database migrations before backend startup when running against migration-managed SQL storage:
-   ```powershell
-   flask db upgrade
-   ```
+9. Confirm the startup migration coordinator reaches `ready`; do not replace it
+   with `flask db upgrade`, `db.create_all()`, or `AUTO_CREATE_SCHEMA` in the
+   production profile.
+10. Create and integrity-check an encrypted coordinated backup before any
+    authorized destructive migration.
 
 ## 1. Windows desktop deployment
 
@@ -433,6 +440,11 @@ Before release, confirm:
 16. `AUTO_CREATE_SCHEMA` is not enabled in production.
 17. Production secrets are not defaults.
 18. Desktop-only auth is not exposed as cloud trust.
+19. The migration ledger is current for PostgreSQL, Redis, Neo4j, ChromaDB,
+    MinIO, retained configuration, and JSON memory.
+20. A `.dlebackup` restore drill passes on the supported installed Windows
+    profile, including prior-root rollback preservation.
+21. BitLocker/device encryption and the restrictive installed-root ACL pass.
 
 ## 10. Troubleshooting
 
@@ -488,6 +500,13 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.11.0
+
+1. Added the Phase 4 startup-migration, coordinated backup/restore, and
+   protected-volume/ACL deployment gates.
+2. Kept current-version engineering success separate from the pending signed
+   installed upgrade/recovery qualification.
 
 ## Change notes for v2.10.0
 

@@ -1660,14 +1660,41 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
     def paths_phase(active_runtime: ApplicationRuntime) -> None:
         active_runtime.runtime_root.mkdir(parents=True, exist_ok=True)
         if not app.config.get("TESTING"):
-            from backend.security.windows_acl import ensure_restricted_user_acl
+            from backend.security.windows_acl import (
+                ensure_restricted_user_acl,
+                verify_restricted_user_acl,
+            )
+            from backend.storage.data_at_rest import build_at_rest_report
 
             ensure_restricted_user_acl(
                 active_runtime.runtime_root,
                 required=bool(app.config.get("DLE_PRODUCTION_MODE")),
             )
+            report = build_at_rest_report(
+                active_runtime.runtime_root,
+                acl_probe=verify_restricted_user_acl,
+            )
+            app.extensions["dle_at_rest_report"] = report
+            if app.config.get("DLE_PRODUCTION_MODE") and not report["production_ready"]:
+                raise RuntimeError("at_rest_protection_not_ready")
 
-    def migration_phase(_runtime: ApplicationRuntime) -> None:
+    def migration_phase(active_runtime: ApplicationRuntime) -> None:
+        if app.config.get("DLE_DATA_PLANE_DRIVER") == "podman":
+            from backend.storage.runtime_migrations import (
+                run_managed_data_plane_migrations,
+            )
+
+            app.extensions["dle_migration_ledger"] = run_managed_data_plane_migrations(
+                app,
+                active_runtime,
+            )
+            pending_version = app.extensions.pop(
+                "dle_pending_installation_version_upgrade",
+                None,
+            )
+            if pending_version:
+                active_runtime.ownership.record_completed_upgrade(pending_version)
+            return
         _initialize_database_schema(app)
 
     def runtime_lock_phase(active_runtime: ApplicationRuntime) -> None:
@@ -1677,7 +1704,17 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
             and active_runtime.ownership.identity.version
             != str(app.config.get("APP_VERSION", "0.1.1"))
         ):
-            raise RuntimeError("installation_version_mismatch")
+            from backend.storage.migration_inventory import SUPPORTED_UPGRADE_SOURCES
+
+            installed_version = active_runtime.ownership.identity.version
+            target_version = str(app.config.get("APP_VERSION", "0.1.1"))
+            if (
+                app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
+                and installed_version in SUPPORTED_UPGRADE_SOURCES
+            ):
+                app.extensions["dle_pending_installation_version_upgrade"] = target_version
+            else:
+                raise RuntimeError("installation_version_mismatch")
         _configure_owned_security_services(app, active_runtime)
         if app.config.get("DLE_CONFIGURE_LOGGING"):
             app.config.setdefault("LOG_FILE", str(active_runtime.runtime_root / "logs" / "app.log"))
@@ -1728,6 +1765,13 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
         )
         if app.config.get("DLE_START_BACKGROUND_WORKERS"):
             app.extensions["dle_audit_logger"].start_log_rotation()
+            from backend.storage.materialization_dispatcher import (
+                CrossStoreMaterializationWorker,
+            )
+
+            materializer = CrossStoreMaterializationWorker(app)
+            app.extensions["dle_materialization_worker"] = materializer
+            materializer.start(_runtime)
 
     def readiness_phase(active_runtime: ApplicationRuntime) -> None:
         if app.config.get("DLE_PRODUCTION_MODE") and active_runtime.supervisor.required_blockers():
@@ -1746,6 +1790,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 memory_service.save()
             except Exception:
                 logger.exception("Memory checkpoint during shutdown failed")
+        materializer = app.extensions.get("dle_materialization_worker")
+        if materializer is not None:
+            try:
+                materializer.stop()
+            except Exception:
+                logger.exception("Cross-store materializer shutdown failed")
         graph_store = app.extensions.get("dle_graph_store")
         if graph_store is not None:
             try:

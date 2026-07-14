@@ -38,7 +38,9 @@ class TruthAuditRecorder:
 
     def log_event(self, session_id: str, event_type: str, 
                   event_data: Dict[str, Any], 
-                  category: str = 'general') -> Dict[str, Any]:
+                  category: str = 'general',
+                  *,
+                  commit: bool = True) -> Dict[str, Any]:
         """
         Log an audit event with hash chain linking.
         
@@ -91,7 +93,10 @@ class TruthAuditRecorder:
                     compliance_flags={'eu_ai_act_article_53': True}
                 )
                 self.db_session.add(db_event)
-                self.db_session.commit()
+                if commit:
+                    self.db_session.commit()
+                else:
+                    self.db_session.flush()
                 logger.info(f"Persisted audit event {event_id} with hash {current_hash[:16]}...")
             except Exception as e:
                 logger.error(f"Failed to persist audit event: {e}")

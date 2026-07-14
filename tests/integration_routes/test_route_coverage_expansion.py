@@ -281,6 +281,35 @@ class TestPrivacyRoutes:
         resp = client.post("/api/v1/privacy/tenant-cleanup")
         assert resp.status_code in (401, 302, 403, 405)
 
+    def test_partial_purge_route_is_retired_to_canonical_cross_store_delete(
+        self,
+        app,
+        client,
+    ):
+        _login(client, app)
+
+        resp = client.post("/api/v1/privacy/purge-request")
+
+        assert resp.status_code == 410
+        payload = resp.get_json()
+        assert payload["replacement"] == {
+            "endpoint": "/api/v1/user/data/delete",
+            "method": "POST",
+            "required_body": {"confirm": "DELETE"},
+        }
+
+    def test_unimplemented_tenant_delete_fails_closed_without_false_progress(
+        self,
+        app,
+        client,
+    ):
+        _login(client, app)
+
+        resp = client.post("/api/v1/privacy/tenant-cleanup")
+
+        assert resp.status_code == 501
+        assert resp.get_json()["safe_reason"] == "tenant_delete_workflow_not_authorized"
+
 
 # ====================================================================
 # 7. Location Routes  (/api/locations/*)

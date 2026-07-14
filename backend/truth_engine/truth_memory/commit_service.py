@@ -38,11 +38,15 @@ class TruthMemoryCommitService:
         try:
             bundle = self._build_bundle(run, db_session)
             evidence_pack_hash = self._hash_bundle(bundle)
-            object_ref = self._write_audit_bundle_object(run, bundle)
+            object_ref = {
+                "bucket": "audit-logs",
+                "key": f"{run.run_id}.json",
+                "status": "pending",
+            }
             merkle_root = self._create_merkle_root(bundle)
             anchor = self._anchor_merkle_root(run, merkle_root) if self._requires_blockchain_anchor(run) else None
 
-            receipt = self._write_audit_event(
+            audit_record = self._write_audit_event(
                 run,
                 db_session,
                 bundle,
@@ -54,6 +58,29 @@ class TruthMemoryCommitService:
 
             run.evidence_pack_hash = evidence_pack_hash
             db_session.add(run)
+            from backend.storage.outbox import CrossStoreOutbox
+
+            CrossStoreOutbox(db_session).enqueue(
+                entity_type="truth_audit_event",
+                entity_id=str(audit_record["event_id"]),
+                destination="minio",
+                operation="put_object",
+                schema_version="truth-audit-bundle.v1",
+                source_revision=f"sha256:{evidence_pack_hash}",
+                payload={
+                    "bucket": object_ref["bucket"],
+                    "key": object_ref["key"],
+                    "body": bundle,
+                    "body_sha256": evidence_pack_hash,
+                    "content_type": "application/json",
+                    "metadata": {
+                        "run_id": str(run.run_id),
+                        "tier": str(getattr(run, "tier", "") or ""),
+                        "evidence_pack_hash": evidence_pack_hash,
+                    },
+                },
+                correlation_id=str(run.run_id),
+            )
             db_session.commit()
 
             logger.info(
@@ -62,7 +89,7 @@ class TruthMemoryCommitService:
                 run.tier,
                 evidence_pack_hash[:16],
             )
-            return receipt
+            return audit_record.get("hash_chain", "")
 
         except Exception as exc:
             logger.error("TruthMemory commit failed for run %s: %s", run.run_id, exc)
@@ -107,20 +134,19 @@ class TruthMemoryCommitService:
 
     @staticmethod
     def _write_audit_bundle_object(run, bundle: dict) -> dict:
-        """Persist canonical audit bundle JSON to the app-owned object store."""
+        """Persist canonical audit bundles through the durable object boundary."""
         bucket = "audit-logs"
         key = f"{run.run_id}.json"
         try:
-            from backend.storage import get_object_store
+            from backend.storage.artifact_materialization import persist_object_artifact
 
-            payload = json.dumps(bundle, sort_keys=True, default=str, indent=2).encode("utf-8")
-            store = get_object_store()
-            if not store.create_bucket(bucket):
-                raise RuntimeError("required_audit_bucket_unavailable")
-            store.put(
-                bucket,
-                key,
-                payload,
+            return persist_object_artifact(
+                entity_type="truth_audit_event",
+                entity_id=str(run.run_id),
+                bucket=bucket,
+                key=key,
+                body=bundle,
+                schema_version="truth-audit-bundle.v1",
                 content_type="application/json",
                 metadata={
                     "run_id": str(run.run_id),
@@ -128,7 +154,6 @@ class TruthMemoryCommitService:
                     "evidence_pack_hash": TruthMemoryCommitService._hash_bundle(bundle),
                 },
             )
-            return {"bucket": bucket, "key": key}
         except Exception as exc:
             from backend.storage.object_store import raise_if_object_store_required
 
@@ -242,6 +267,7 @@ class TruthMemoryCommitService:
             event_type="audit_bundle_commit",
             event_data=event_data,
             category="audit",
+            commit=False,
         )
         TruthMemoryCommitService._update_audit_artifact_fields(
             db_session,
@@ -250,7 +276,7 @@ class TruthMemoryCommitService:
             merkle_root=merkle_root,
             anchor=anchor,
         )
-        return record.get("hash_chain", "")
+        return record
 
     @staticmethod
     def _update_audit_artifact_fields(
@@ -270,13 +296,14 @@ class TruthMemoryCommitService:
                 return
             object_ref = object_ref or {}
             anchor = anchor or {}
-            event.object_store_bucket = object_ref.get("bucket")
-            event.object_store_key = object_ref.get("key")
+            if object_ref.get("status") == "ready":
+                event.object_store_bucket = object_ref.get("bucket")
+                event.object_store_key = object_ref.get("key")
             event.merkle_root = merkle_root
             event.blockchain_anchor_tx = anchor.get("transaction_hash")
             event.blockchain_anchor_status = "error" if anchor.get("error") else ("anchored" if anchor else None)
             db_session.add(event)
-            db_session.commit()
+            db_session.flush()
         except Exception as exc:
             logger.warning("Audit artifact field update skipped for event %s: %s", event_id, exc)
             try:

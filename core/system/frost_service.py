@@ -105,13 +105,8 @@ class FROSTService:
         return snapshot_id
 
     def _persist_snapshot_object(self, snapshot_id: str, state: Dict[str, Any]) -> None:
-        """Persist snapshot artifacts to the app-owned object store when available."""
+        """Persist snapshots through the durable object materialization boundary."""
         try:
-            if self._object_store_getter is not None:
-                get_object_store = self._object_store_getter
-            else:
-                from backend.storage import get_object_store  # inversion:ok — injected or lazy optional storage
-
             key = f"{snapshot_id}.json"
             bundle = {
                 "snapshot_id": snapshot_id,
@@ -119,23 +114,44 @@ class FROSTService:
                 "integrity": self.snapshot_metadata.get(snapshot_id, {}),
                 "persisted_at": datetime.now(UTC).isoformat(),
             }
-            payload = json.dumps(bundle, sort_keys=True, cls=DateTimeEncoder).encode("utf-8")
-            store = get_object_store()
-            store.put(
-                "simulation-artifacts",
-                key,
-                payload,
-                content_type="application/json",
-                metadata={
-                    "artifact_type": "frost_snapshot",
-                    "snapshot_id": snapshot_id,
-                },
-            )
-            self.snapshot_metadata[snapshot_id]["object_store"] = {
-                "bucket": "simulation-artifacts",
-                "key": key,
-                "size_bytes": len(payload),
+            metadata = {
+                "artifact_type": "frost_snapshot",
+                "snapshot_id": snapshot_id,
             }
+            source_metadata = self.snapshot_metadata[snapshot_id].get("metadata") or {}
+            for field in ("user_id", "tenant_id", "run_id"):
+                if source_metadata.get(field) is not None:
+                    metadata[field] = str(source_metadata[field])
+            if self._object_store_getter is not None:
+                payload = json.dumps(bundle, sort_keys=True, cls=DateTimeEncoder).encode("utf-8")
+                store = self._object_store_getter()
+                store.put(
+                    "simulation-artifacts",
+                    key,
+                    payload,
+                    content_type="application/json",
+                    metadata=metadata,
+                )
+                reference = {
+                    "bucket": "simulation-artifacts",
+                    "key": key,
+                    "size_bytes": len(payload),
+                    "status": "ready",
+                }
+            else:
+                from backend.storage.artifact_materialization import persist_object_artifact
+
+                reference = persist_object_artifact(
+                    entity_type="simulation_artifact",
+                    entity_id=snapshot_id,
+                    bucket="simulation-artifacts",
+                    key=key,
+                    body=bundle,
+                    schema_version="frost-snapshot.v1",
+                    content_type="application/json",
+                    metadata=metadata,
+                )
+            self.snapshot_metadata[snapshot_id]["object_store"] = reference
         except Exception as exc:  # pylint: disable=broad-except
             from backend.storage.object_store import raise_if_object_store_required
 

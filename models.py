@@ -2635,3 +2635,111 @@ class UserAIPreferences(db.Model):
             'ai_processing_enabled': self.ai_processing_enabled,
             'store_chat_history': self.store_chat_history,
         }
+
+
+class CrossStoreOutboxEvent(db.Model):
+    """Durable authority-to-materialization delivery request."""
+
+    __tablename__ = 'cross_store_outbox_events'
+    __table_args__ = (
+        db.UniqueConstraint(
+            'entity_type',
+            'entity_id',
+            'destination',
+            'operation',
+            'source_revision',
+            name='uq_cross_store_outbox_source_delivery',
+        ),
+        Index('ix_cross_store_outbox_pending', 'status', 'available_at'),
+        Index('ix_cross_store_outbox_destination', 'destination', 'status'),
+        Index('ix_cross_store_outbox_entity', 'entity_type', 'entity_id'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entity_type = db.Column(db.String(120), nullable=False)
+    entity_id = db.Column(db.String(255), nullable=False)
+    destination = db.Column(db.String(32), nullable=False)
+    operation = db.Column(db.String(80), nullable=False)
+    schema_version = db.Column(db.String(80), nullable=False)
+    source_revision = db.Column(db.String(255), nullable=False)
+    correlation_id = db.Column(db.String(128), nullable=False)
+    payload = db.Column(JSONB, nullable=False)
+    payload_sha256 = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(24), nullable=False, default='pending')
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    available_at = db.Column(db.DateTime, nullable=True)
+    locked_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    safe_reason = db.Column(db.String(120), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
+class CrossStoreMaterializationState(db.Model):
+    """Latest required destination revision for a logical authority record."""
+
+    __tablename__ = 'cross_store_materialization_states'
+    __table_args__ = (
+        db.UniqueConstraint(
+            'entity_type',
+            'entity_id',
+            'destination',
+            name='uq_cross_store_materialization_entity_destination',
+        ),
+        Index('ix_cross_store_materialization_state', 'destination', 'state'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entity_type = db.Column(db.String(120), nullable=False)
+    entity_id = db.Column(db.String(255), nullable=False)
+    destination = db.Column(db.String(32), nullable=False)
+    schema_version = db.Column(db.String(80), nullable=False)
+    source_revision = db.Column(db.String(255), nullable=False)
+    observed_revision = db.Column(db.String(255), nullable=True)
+    payload_sha256 = db.Column(db.String(64), nullable=False)
+    state = db.Column(db.String(24), nullable=False, default='pending')
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    safe_reason = db.Column(db.String(120), nullable=True)
+    last_attempt_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
+class DataDeletionTombstone(db.Model):
+    """Non-PII record proving cross-store deletion/reconciliation state."""
+
+    __tablename__ = 'data_deletion_tombstones'
+    __table_args__ = (
+        Index('ix_data_deletion_tombstone_status', 'status', 'requested_at'),
+        {'extend_existing': True},
+    )
+
+    deletion_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    subject_type = db.Column(db.String(40), nullable=False)
+    subject_digest = db.Column(db.String(64), nullable=False, index=True)
+    policy_version = db.Column(db.String(40), nullable=False)
+    status = db.Column(db.String(24), nullable=False, default='pending')
+    store_status = db.Column(JSONB, nullable=False, default=dict)
+    safe_reason = db.Column(db.String(120), nullable=True)
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    requested_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    completed_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )

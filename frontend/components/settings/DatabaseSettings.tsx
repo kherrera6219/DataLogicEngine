@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { request } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
@@ -120,6 +121,8 @@ export function DatabaseSettings() {
   const [desktopMetrics, setDesktopMetrics] = useState<DesktopStorageMetrics | null>(null);
   const [backupRunning, setBackupRunning] = useState(false);
   const [backupOperationId, setBackupOperationId] = useState<string | null>(null);
+  const [backupRecoverySecret, setBackupRecoverySecret] = useState('');
+  const [backupRecoveryConfirmation, setBackupRecoveryConfirmation] = useState('');
   const [lastBackup, setLastBackup] = useState<DesktopBackupResult | null>(null);
   const fetchHealth = useCallback(async () => {
     try {
@@ -233,6 +236,14 @@ export function DatabaseSettings() {
   };
 
   const handleBackup = async () => {
+    if (backupRecoverySecret.length < 12) {
+      toast('Use a recovery passphrase with at least 12 characters.', 'error');
+      return;
+    }
+    if (backupRecoverySecret !== backupRecoveryConfirmation) {
+      toast('Recovery passphrases do not match.', 'error');
+      return;
+    }
     setBackupRunning(true);
     try {
       let target_capability: string | undefined;
@@ -250,8 +261,14 @@ export function DatabaseSettings() {
       }
       const operation_id = crypto.randomUUID();
       setBackupOperationId(operation_id);
-      const result = await window.electronAPI.runDatabaseBackup({ target_capability, operation_id });
+      const result = await window.electronAPI.runDatabaseBackup({
+        target_capability,
+        operation_id,
+        recovery_secret: backupRecoverySecret,
+      });
       setLastBackup(result);
+      setBackupRecoverySecret('');
+      setBackupRecoveryConfirmation('');
       toast('Database backup completed.', 'success', 3000);
       void fetchHealth();
     } catch (error) {
@@ -491,6 +508,29 @@ export function DatabaseSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="backup-recovery-secret">Recovery passphrase</Label>
+                <Input
+                  id="backup-recovery-secret"
+                  type="password"
+                  autoComplete="new-password"
+                  value={backupRecoverySecret}
+                  onChange={(event) => setBackupRecoverySecret(event.target.value)}
+                  disabled={backupRunning}
+                />
+                <Label htmlFor="backup-recovery-confirmation">Confirm recovery passphrase</Label>
+                <Input
+                  id="backup-recovery-confirmation"
+                  type="password"
+                  autoComplete="new-password"
+                  value={backupRecoveryConfirmation}
+                  onChange={(event) => setBackupRecoveryConfirmation(event.target.value)}
+                  disabled={backupRunning}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This passphrase is not stored. You will need it to restore the encrypted backup.
+                </p>
+              </div>
               <Button onClick={handleBackup} disabled={backupRunning}>
                 {backupRunning ? (
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />

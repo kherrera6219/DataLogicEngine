@@ -1,0 +1,341 @@
+{
+  "captured_at": "2026-07-14T01:11:28.048812+00:00",
+  "checks": {
+    "at_rest": {
+      "classifications": [
+        {
+          "key": "provider_credentials",
+          "locations": [
+            "postgresql",
+            "dpapi_vault"
+          ],
+          "protection": [
+            "dpapi",
+            "bitlocker"
+          ],
+          "retention_class": "installation_lifetime",
+          "sensitivity": "restricted"
+        },
+        {
+          "key": "client_credentials",
+          "locations": [
+            "postgresql"
+          ],
+          "protection": [
+            "field_encryption",
+            "bitlocker"
+          ],
+          "retention_class": "revocation_policy",
+          "sensitivity": "restricted"
+        },
+        {
+          "key": "prompts_and_chats",
+          "locations": [
+            "postgresql",
+            "exports"
+          ],
+          "protection": [
+            "bitlocker",
+            "encrypted_export"
+          ],
+          "retention_class": "chat_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "external_client_requests_results",
+          "locations": [
+            "postgresql",
+            "minio"
+          ],
+          "protection": [
+            "bitlocker",
+            "object_access_policy"
+          ],
+          "retention_class": "gateway_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "traces_and_evidence",
+          "locations": [
+            "postgresql",
+            "minio"
+          ],
+          "protection": [
+            "bitlocker",
+            "object_access_policy"
+          ],
+          "retention_class": "trace_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "gateway_audit_and_usage",
+          "locations": [
+            "postgresql",
+            "minio",
+            "logs"
+          ],
+          "protection": [
+            "bitlocker",
+            "integrity_chain"
+          ],
+          "retention_class": "audit_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "ingested_documents",
+          "locations": [
+            "postgresql",
+            "chroma",
+            "neo4j"
+          ],
+          "protection": [
+            "bitlocker",
+            "loopback_auth"
+          ],
+          "retention_class": "ingestion_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "embeddings",
+          "locations": [
+            "chroma"
+          ],
+          "protection": [
+            "bitlocker",
+            "loopback_auth"
+          ],
+          "retention_class": "source_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "graph_data",
+          "locations": [
+            "neo4j",
+            "postgresql"
+          ],
+          "protection": [
+            "bitlocker",
+            "loopback_auth"
+          ],
+          "retention_class": "graph_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "simulations",
+          "locations": [
+            "postgresql",
+            "minio"
+          ],
+          "protection": [
+            "bitlocker",
+            "object_access_policy"
+          ],
+          "retention_class": "simulation_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "exports",
+          "locations": [
+            "user_selected_path"
+          ],
+          "protection": [
+            "owner_selected_encryption",
+            "short_lived_staging"
+          ],
+          "retention_class": "export_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "logs",
+          "locations": [
+            "runtime_logs"
+          ],
+          "protection": [
+            "bitlocker",
+            "restricted_acl",
+            "content_minimization"
+          ],
+          "retention_class": "log_rotation_policy",
+          "sensitivity": "internal"
+        },
+        {
+          "key": "backups",
+          "locations": [
+            "user_selected_path"
+          ],
+          "protection": [
+            "aes_256_gcm",
+            "owner_recovery_secret",
+            "signed_manifest"
+          ],
+          "retention_class": "backup_policy",
+          "sensitivity": "restricted"
+        },
+        {
+          "key": "support_bundles",
+          "locations": [
+            "user_selected_path"
+          ],
+          "protection": [
+            "redaction",
+            "owner_selected_encryption"
+          ],
+          "retention_class": "support_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "retained_json_sqlite",
+          "locations": [
+            "runtime_databases"
+          ],
+          "protection": [
+            "bitlocker",
+            "restricted_acl",
+            "versioned_format"
+          ],
+          "retention_class": "retained_data_policy",
+          "sensitivity": "confidential"
+        },
+        {
+          "key": "temporary_staging",
+          "locations": [
+            "runtime_staging"
+          ],
+          "protection": [
+            "bitlocker",
+            "restricted_acl",
+            "immediate_cleanup"
+          ],
+          "retention_class": "operation_lifetime",
+          "sensitivity": "confidential"
+        }
+      ],
+      "key_separation": {
+        "active_data": "runtime_root/databases",
+        "machine_wrapping": "DPAPI current-user scope",
+        "portable_recovery": "owner-controlled recovery secret not persisted in archive"
+      },
+      "policy_version": "2026.07.13-v1",
+      "production_ready": false,
+      "protection_model": "windows_volume_encryption_plus_dpapi_wrapped_secrets_plus_portable_backup_aes256gcm",
+      "restricted_acl_verified": false,
+      "secure_delete_residual_risk": "Secure deletion cannot be guaranteed on every SSD, virtual disk, snapshot, or retained backup; cryptographic erasure and retention expiry are used where applicable.",
+      "violations": [
+        "active_data_volume_encryption_not_verified",
+        "runtime_root_acl_not_verified"
+      ],
+      "volume": {
+        "encrypted": false,
+        "protection_enabled": false,
+        "provider": "manage-bde",
+        "status": "not_protected"
+      }
+    },
+    "backup": {
+      "artifact_sha256": "0d8a22cc6eb09bc37bc596b0f396143ba73939b13ef9683a5df6bcd8e699d723",
+      "backup_id": "6523e9fe0a0540a98845e3b8d3cdeb1a",
+      "component_count": 6,
+      "encrypted": true,
+      "integrity_verified": true,
+      "sha256": "0d8a22cc6eb09bc37bc596b0f396143ba73939b13ef9683a5df6bcd8e699d723",
+      "size_bytes": 40110
+    },
+    "delete_parity": {
+      "status": "completed",
+      "stores": {
+        "chroma": {
+          "deleted_count": 1,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "local_json": {
+          "deleted_count": 1,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "logs": {
+          "deleted_count": 0,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "minio": {
+          "deleted_count": 1,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "neo4j": {
+          "deleted_count": 1,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "postgresql": {
+          "deleted_count": 3,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        },
+        "redis": {
+          "deleted_count": 1,
+          "retained_count": 0,
+          "retention_basis": null,
+          "status": "pass"
+        }
+      },
+      "subject_digest_length": 64
+    },
+    "restore": {
+      "activation": "restart_application",
+      "cross_store": {
+        "outstanding_work": 1,
+        "status": "pass",
+        "verified_components": [
+          "chroma",
+          "minio",
+          "neo4j",
+          "postgresql",
+          "redis",
+          "retained"
+        ]
+      },
+      "prior_root_preserved": true,
+      "status": "restored"
+    },
+    "restored_values": {
+      "chroma_record": 1,
+      "local_json_vertex": 1,
+      "minio_object_hash": "c0abea31aba1156ef9eca57139697e47ee76a1ce60518c71615743bc5ad24778",
+      "neo4j_node": 1,
+      "postgresql_pending_outbox": 1,
+      "postgresql_user": 1,
+      "redis_durable_key": 1
+    },
+    "source_startup": {
+      "blocker_details": {},
+      "blockers": [],
+      "instance_id": "4c1f37e33cef446fa302b7217fd0c4d1",
+      "phase": "ready",
+      "status": "ready"
+    }
+  },
+  "deferred_release_gates": [
+    "signed_installer_clean_machine_restore",
+    "supported_0_1_1_retained_data_upgrade",
+    "bitlocker_and_acl_supported_windows_matrix",
+    "independent_backup_restore_review",
+    "final_object_store_replacement_decision"
+  ],
+  "duration_seconds": 127.864,
+  "object_store_architecture": "minio",
+  "production_authorized": false,
+  "release_gate": "engineering_qualification_only",
+  "run_id_sha256": "302a4fa66b296b7e1f63f04b30ac0a91b3035fe49f25d514747e4d348f5a52a2",
+  "schema_version": "1.0.0",
+  "seaweedfs_production_selected": false,
+  "started_at": "2026-07-14T01:09:20.184571+00:00",
+  "status": "passed"
+}

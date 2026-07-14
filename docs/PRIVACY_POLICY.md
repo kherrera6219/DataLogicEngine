@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-13 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -41,8 +41,9 @@ The qualification object service is SeaweedFS, but it is not approved for
 production and does not change this policy's MinIO-specific production
 architecture. Its telemetry behavior, logs, TLS, data-at-rest limitations,
 retention, deletion, vulnerability posture, installer delivery, and independent
-legal/security review must be resolved before final selection. Phase 4 owns the
-cross-store retention, deletion, migration, backup, and restore contracts.
+legal/security review must be resolved before final selection. Phase 4 now
+provides cross-store retention, deletion, migration, backup, and restore
+engineering contracts without authorizing the candidate for production.
 
 ## 3. Information we collect or store
 
@@ -157,6 +158,10 @@ Current protection measures include:
 9. signed release workflow for public Windows distribution;
 10. opaque Electron picker tokens so selected ingestion/backup paths are not exposed to the renderer;
 11. exclusion of `.env`, secret/settings files, logs, and key material from desktop backups.
+12. AES-256-GCM encryption and a signed/hash-verified manifest for portable
+    coordinated backups using a user-controlled recovery passphrase;
+13. fail-closed production checks for protected Windows volumes and restricted
+    runtime-root ACLs.
 
 Implementation note: field-level encryption writes new payloads with AES-256-GCM; legacy Fernet-encrypted values remain decryptable for backward compatibility, and a Windows DPAPI helper protects local data.
 
@@ -191,7 +196,15 @@ Where enabled, users can:
 6. manage notification preferences;
 7. remove local data through uninstall options such as `-KeepData` or `-DeleteData` for Windows desktop uninstall flows.
 
-Deletion may require up to 30 days depending on deployment policy, backup/retention configuration, and legal/security obligations.
+The canonical deletion operation reconciles PostgreSQL, Redis, Neo4j, ChromaDB,
+MinIO, local JSON, and logs. It records a non-PII tombstone and does not report
+success when any required surface fails. Approved immutable remnants require a
+disclosed retention basis. Backup copies expire under the backup-retention
+policy and may outlive active-data deletion until that expiry.
+
+Deletion timing depends on deployment policy, backup retention, and explicit
+legal/security obligations. Secure deletion cannot be guaranteed on every SSD,
+virtual disk, snapshot, or retained backup.
 
 ## 12. Security and incident response
 
@@ -226,6 +239,12 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.10.0
+
+1. Added the coordinated portable-backup, cross-store deletion/tombstone, and
+   protected-volume/ACL privacy contracts.
+2. Stated backup-retention and secure-deletion residual risks explicitly.
 
 ## Change notes for v2.9.0
 

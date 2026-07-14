@@ -146,7 +146,7 @@ export interface ElectronAPI {
   getKAExecutionFeed: () => Promise<KAExecutionFeed>;
   getDesktopStorageMetrics: () => Promise<DesktopStorageMetrics | null>;
   chooseBackupFolder: () => Promise<DesktopPathCapability | null>;
-  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string }) => Promise<DesktopBackupResult>;
+  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string; recovery_secret: string }) => Promise<DesktopBackupResult>;
   chooseIngestionSource: () => Promise<DesktopPathCapability | null>;
   runLocalIngestion: (payload: DesktopIngestionRequest) => Promise<DesktopIngestionResult>;
   cancelDesktopOperation: (operationId: string) => Promise<{ cancelled: boolean }>;

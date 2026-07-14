@@ -9,24 +9,15 @@ import json
 from datetime import datetime, UTC
 from typing import Tuple, Dict, Any
 
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, current_app, request
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 
 from extensions import db, limiter
-from models import User, SimulationSession
+from models import SimulationSession
 from backend.auth.api_decorators import api_session_login_required, get_authenticated_principal
-try:
-    from models import ChatSession, ChatMessage
-    _HAS_CHAT_MODELS = True
-except ImportError:
-    _HAS_CHAT_MODELS = False
-try:
-    from models import KnowledgeGraphNode
-    _HAS_KGN_MODEL = True
-except ImportError:
-    _HAS_KGN_MODEL = False
 from backend.config.settings import settings
+from backend.storage.retention import DeletionSubject, RetentionDeleteError
 from backend.utils.responses import success_response, error_response, internal_error
 from backend.utils.validation import validate_json_body
 
@@ -168,43 +159,24 @@ def delete_user_profile() -> Tuple[Response, int]:
         except Exception as e:
             logger.warning(f"Failed to log deletion audit event: {e}")
 
-        # Delete associated data first (maintain referential integrity).
-        # Cover all three deletion surfaces: SimulationSession (primary),
-        # ChatSession + ChatMessage (GDPR portability scope),
-        # and KnowledgeGraphNode (per-tenant ingestion scope).
-        deleted_simulations = SimulationSession.query.filter_by(user_id=user_id).delete()
+        from backend.storage.user_deletion import run_user_deletion
 
-        deleted_chat_messages = 0
-        deleted_chat_sessions = 0
-        if _HAS_CHAT_MODELS:
-            session_ids = [
-                s.id for s in ChatSession.query.filter_by(user_id=user_id).all()
-            ]
-            if session_ids:
-                deleted_chat_messages = ChatMessage.query.filter(
-                    ChatMessage.session_id.in_(session_ids)
-                ).delete(synchronize_session=False)
-            deleted_chat_sessions = ChatSession.query.filter_by(user_id=user_id).delete()
-
-        deleted_kgn = 0
-        if _HAS_KGN_MODEL:
-            tenant_id = getattr(auth_user, 'tenant_id', None)
-            if tenant_id:
-                deleted_kgn = KnowledgeGraphNode.query.filter_by(
-                    tenant_id=tenant_id
-                ).delete()
-
-        # Delete the user
-        user_to_delete = db.session.get(User, user_id)
-        if user_to_delete:
-            db.session.delete(user_to_delete)
-
-        db.session.commit()
+        tombstone = run_user_deletion(
+            current_app._get_current_object(),
+            DeletionSubject(
+                "user",
+                str(user_id),
+                tenant_id=getattr(auth_user, "tenant_id", None),
+            ),
+        )
+        postgres_deleted = int(
+            tombstone.store_status.get("postgresql", {}).get("deleted_count") or 0
+        )
 
         logger.info(
             f"User {username} (SID: {sid}) has permanently wiped their profile. "
-            f"Deleted {deleted_simulations} simulations, {deleted_chat_sessions} chat sessions, "
-            f"{deleted_chat_messages} messages, {deleted_kgn} knowledge nodes."
+            f"Cross-store deletion {tombstone.deletion_id} completed; "
+            f"PostgreSQL rows deleted={postgres_deleted}."
         )
 
         # Final audit entry
@@ -216,10 +188,9 @@ def delete_user_profile() -> Tuple[Response, int]:
                 action="PROFILE_WIPE",
                 status="completed",
                 details={
-                    "deleted_username": username,
-                    "deleted_user_id": user_id,
-                    "windows_sid": sid,
-                    "simulations_deleted": deleted_simulations
+                    "deletion_id": str(tombstone.deletion_id),
+                    "subject_digest": tombstone.subject_digest,
+                    "policy_version": tombstone.policy_version,
                 }
             )
         except Exception as e:
@@ -227,15 +198,20 @@ def delete_user_profile() -> Tuple[Response, int]:
 
         return success_response(
             {
-                "deleted_user_id": user_id,
-                "simulations_deleted": deleted_simulations,
-                "chat_sessions_deleted": deleted_chat_sessions,
-                "chat_messages_deleted": deleted_chat_messages,
-                "knowledge_nodes_deleted": deleted_kgn,
+                "deletion_id": str(tombstone.deletion_id),
+                "policy_version": tombstone.policy_version,
+                "store_status": tombstone.store_status,
+                "postgresql_rows_deleted": postgres_deleted,
             },
             "Your profile and associated data have been permanently deleted."
         )
 
+    except RetentionDeleteError as e:
+        db.session.rollback()
+        logger.error("Cross-store profile deletion incomplete: %s", e)
+        return internal_error(
+            "Deletion is incomplete and safely recorded for retry. No completion was claimed."
+        )
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Database error during profile deletion: {e}", exc_info=True)

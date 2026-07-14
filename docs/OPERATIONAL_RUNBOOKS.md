@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.11.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -59,13 +59,13 @@ uptime, and safe reason as authoritative; an open port alone is never health.
 Foreign identity or an unhealthy required protocol operation keeps production
 not ready.
 
-Managed Podman backup/restore is deliberately refused with
-`coordinated_data_plane_backup_requires_phase_4` until Phase 4 implements one
-manifest and recovery transaction across PostgreSQL, Redis, Neo4j, ChromaDB,
-and object storage. Do not bypass this refusal with per-store copies and call the
-result a production backup. Qualification resources use a separate identity and
-may be removed only by the qualification cleanup command after verifying they
-are not installed-production resources.
+Managed backup now requires one encrypted signed recovery set across PostgreSQL,
+Redis durable state, Neo4j, ChromaDB, MinIO, and retained files. The migration
+ledger must be current, and every component/hash must verify before success is
+reported. Restore is offline, isolated, clean-root, and atomic. Do not bypass
+this contract with per-store copies. Qualification resources use a separate
+identity and may be removed only after verifying they are not installed-
+production resources.
 
 1. Acknowledge incident and assign severity.
 2. Capture correlation IDs, run IDs, trace IDs, session IDs, user scope, and timestamps.
@@ -348,6 +348,10 @@ Relevant files:
 4. Confirm `AUTO_CREATE_SCHEMA=true` was not used as a production workaround.
 5. Inspect recent model/migration changes.
 6. Add regression or migration test coverage.
+7. Do not use `db.create_all()`, manual `flask db upgrade`, cache flush, or a
+   partial store import to force production readiness.
+8. If a destructive migration is authorized, require a verified coordinated
+   backup before retrying.
 
 Relevant files:
 
@@ -571,6 +575,13 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.11.0
+
+1. Replaced the Phase 4 backup refusal note with the implemented encrypted
+   coordinated backup and offline clean-root restore operating contract.
+2. Added fail-closed migration and recovery guidance while retaining signed
+   installed drill requirements as release gates.
 
 ## Change notes for v2.10.0
 

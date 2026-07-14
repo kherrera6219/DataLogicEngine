@@ -1,0 +1,690 @@
+{
+  "schema_version": "1.0.0",
+  "postgresql_entity_count": 67,
+  "postgresql_entities": [
+    {
+      "table": "ai_audit_events",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "api_keys",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "artifact_redactions",
+      "stable_id_field": "redaction_id"
+    },
+    {
+      "table": "audit_logs",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "chat_messages",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "chat_sessions",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "claim_evidence_links",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "compliance_mappings",
+      "stable_id_field": "mapping_id"
+    },
+    {
+      "table": "cross_store_materialization_states",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "cross_store_outbox_events",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "data_deletion_tombstones",
+      "stable_id_field": "deletion_id"
+    },
+    {
+      "table": "evidence_conflicts",
+      "stable_id_field": "conflict_id"
+    },
+    {
+      "table": "external_api_keys",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "feature_flag_audit_events",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "feature_flags",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ka_artifact_links",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "llm_provider_usage",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "llm_providers",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_prompts",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_resources",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_servers",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_tools",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "memory_entries",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "model_routing_policies",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "password_history",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "persona_evidence_links",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "prompt_templates",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "simulation_sessions",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "stage_artifact_links",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "trace_artifacts",
+      "stable_id_field": "artifact_id"
+    },
+    {
+      "table": "trace_axis_vectors",
+      "stable_id_field": "vector_id"
+    },
+    {
+      "table": "trace_claims",
+      "stable_id_field": "claim_id"
+    },
+    {
+      "table": "trace_evidence",
+      "stable_id_field": "evidence_id"
+    },
+    {
+      "table": "trace_exports",
+      "stable_id_field": "export_id"
+    },
+    {
+      "table": "trace_ka_invocations",
+      "stable_id_field": "invocation_id"
+    },
+    {
+      "table": "trace_memory_events",
+      "stable_id_field": "event_id"
+    },
+    {
+      "table": "trace_personas",
+      "stable_id_field": "persona_id"
+    },
+    {
+      "table": "trace_policy_decisions",
+      "stable_id_field": "decision_id"
+    },
+    {
+      "table": "trace_runs",
+      "stable_id_field": "run_id"
+    },
+    {
+      "table": "trace_spans",
+      "stable_id_field": "span_id"
+    },
+    {
+      "table": "trace_stage_logs",
+      "stable_id_field": "log_id"
+    },
+    {
+      "table": "trace_stages",
+      "stable_id_field": "stage_id"
+    },
+    {
+      "table": "truth_artifacts",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "truth_audit_events",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "truth_budgets",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "truth_link_messages",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "truth_metrics",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "truth_sessions",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_domains",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_edges",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_integrated_views",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_ka_executions",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_knowledge_algorithms",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_knowledge_edges",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_knowledge_nodes",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_locations",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_method_nodes",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_nodes",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_personas",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_perspectives",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_pillar_levels",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_sectors",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_sessions",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ukg_time_contexts",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "user_ai_preferences",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "user_notification_preferences",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "users",
+      "stable_id_field": "id"
+    }
+  ],
+  "logical_data_contracts": [
+    {
+      "key": "admission_counters",
+      "authority": "redis",
+      "stable_id": "admission:{principal_id}:{window}:{policy_revision}",
+      "schema_version": "admission_counters.v1",
+      "source_revision": "redis:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "fail_closed_when_counter_state_is_unavailable",
+      "retention_class": "operational_expiring",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "asynchronous_jobs_and_results",
+      "authority": "postgresql",
+      "stable_id": "job.id",
+      "schema_version": "asynchronous_jobs_and_results.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "redis"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "requeue_only_from_committed_authority_state",
+      "retention_class": "policy_required",
+      "implementation_status": "durable_job_and_result_tables_missing",
+      "notes": ""
+    },
+    {
+      "key": "audit_artifact_bundles",
+      "authority": "minio",
+      "stable_id": "audit-logs/{run_id}.json",
+      "schema_version": "audit_artifact_bundles.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "postgres_outbox_then_required_object_put",
+      "compensating_action": "keep_audit_commit_incomplete_and_retry_object_put",
+      "retention_class": "audit_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "chat_transcripts",
+      "authority": "postgresql",
+      "stable_id": "chat_sessions.id/chat_messages.id",
+      "schema_version": "chat_transcripts.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "coordinated_backup_manifest",
+      "authority": "local_filesystem",
+      "stable_id": "backup_id:manifest_schema_version",
+      "schema_version": "coordinated_backup_manifest.v1",
+      "source_revision": "local_filesystem:monotonic_revision",
+      "materializations": [
+        "minio"
+      ],
+      "transaction_boundary": "maintenance_mode_multi_store_checkpoint",
+      "compensating_action": "discard_incomplete_backup_and_resume_only_after_visible_failure",
+      "retention_class": "backup_policy",
+      "implementation_status": "current_version_engineering_qualified_release_authorization_deferred",
+      "notes": ""
+    },
+    {
+      "key": "deletion_tombstones",
+      "authority": "postgresql",
+      "stable_id": "deletion_id:subject_digest:policy_version",
+      "schema_version": "deletion_tombstones.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "cross_store_delete_then_remnant_reconciliation",
+      "compensating_action": "retain_non_pii_tombstone_and_retry_failed_store",
+      "retention_class": "deletion_proof_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "deliverables",
+      "authority": "minio",
+      "stable_id": "deliverables/{workflow}/{deliverable_id}",
+      "schema_version": "deliverables.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "postgres_outbox_then_required_object_put",
+      "compensating_action": "do_not_mark_deliverable_complete_until_object_hash_matches",
+      "retention_class": "deliverable_policy",
+      "implementation_status": "object_write_implemented_durable_index_incomplete",
+      "notes": ""
+    },
+    {
+      "key": "evaluation_data",
+      "authority": "minio",
+      "stable_id": "evaluation-data/{dataset_revision}/{object_id}",
+      "schema_version": "evaluation_data.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "evaluation_policy",
+      "implementation_status": "bucket_created_workflow_contract_pending",
+      "notes": ""
+    },
+    {
+      "key": "external_api_clients_and_scopes",
+      "authority": "postgresql",
+      "stable_id": "external_api_keys.id",
+      "schema_version": "external_api_clients_and_scopes.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "redis"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "gateway_audit_events",
+      "authority": "postgresql",
+      "stable_id": "ai_audit_events.id",
+      "schema_version": "gateway_audit_events.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "minio"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "keep_request_incomplete_until_audit_bundle_is_verified",
+      "retention_class": "audit_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "graph_nodes_and_relationships",
+      "authority": "postgresql",
+      "stable_id": "ukg_knowledge_nodes.uid/ukg_knowledge_edges.source_node_id:type:target_node_id",
+      "schema_version": "graph_nodes_and_relationships.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "neo4j"
+      ],
+      "transaction_boundary": "postgres_outbox_then_idempotent_neo4j_merge",
+      "compensating_action": "retain_outbox_pending_and_report_graph_degraded",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "graph_snapshots",
+      "authority": "minio",
+      "stable_id": "graphs/{graph_revision}/{object_id}",
+      "schema_version": "graph_snapshots.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "neo4j",
+        "postgresql"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "graph_snapshot_policy",
+      "implementation_status": "bucket_created_snapshot_workflow_pending",
+      "notes": ""
+    },
+    {
+      "key": "idempotency_records",
+      "authority": "postgresql",
+      "stable_id": "idempotency_record.id",
+      "schema_version": "idempotency_records.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "redis"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "reject_duplicate_or_retry_pending_authority_record",
+      "retention_class": "policy_required",
+      "implementation_status": "durable_target_table_missing",
+      "notes": ""
+    },
+    {
+      "key": "mcp_metadata",
+      "authority": "postgresql",
+      "stable_id": "mcp_servers/resources/tools/prompts.id",
+      "schema_version": "mcp_metadata.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "owner_identity_and_sessions",
+      "authority": "postgresql",
+      "stable_id": "users.id",
+      "schema_version": "owner_identity_and_sessions.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "provider_configuration",
+      "authority": "postgresql",
+      "stable_id": "llm_providers.id",
+      "schema_version": "provider_configuration.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "dpapi_vault"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "provider_usage",
+      "authority": "postgresql",
+      "stable_id": "llm_provider_usage.id",
+      "schema_version": "provider_usage.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "retained_configuration",
+      "authority": "local_json",
+      "stable_id": "configuration_file:schema_version",
+      "schema_version": "retained_configuration.v1",
+      "source_revision": "local_json:monotonic_revision",
+      "materializations": [
+        "dpapi_vault"
+      ],
+      "transaction_boundary": "validated_atomic_file_replace",
+      "compensating_action": "retain_last_valid_configuration",
+      "retention_class": "installation_lifetime",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "routing_policies",
+      "authority": "postgresql",
+      "stable_id": "model_routing_policies.id",
+      "schema_version": "routing_policies.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "redis"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "runtime_cache",
+      "authority": "redis",
+      "stable_id": "cache_namespace:key:source_revision",
+      "schema_version": "runtime_cache.v1",
+      "source_revision": "redis:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "invalidate_and_recompute_from_authority",
+      "retention_class": "disposable_expiring",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "service_credentials",
+      "authority": "dpapi_vault",
+      "stable_id": "installation_id:credential_schema_version",
+      "schema_version": "service_credentials.v1",
+      "source_revision": "dpapi_vault:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "dpapi_encrypt_then_atomic_file_replace",
+      "compensating_action": "retain_previous_vault_and_refuse_service_start",
+      "retention_class": "installation_lifetime",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "simulation_artifacts",
+      "authority": "minio",
+      "stable_id": "simulation-artifacts/{snapshot_id}.json",
+      "schema_version": "simulation_artifacts.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "postgres_outbox_then_required_object_put",
+      "compensating_action": "mark_simulation_artifact_pending_and_retry",
+      "retention_class": "simulation_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "trace_exports",
+      "authority": "minio",
+      "stable_id": "trace-exports/{export_id}",
+      "schema_version": "trace_exports.v1",
+      "source_revision": "minio:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "postgres_outbox_then_required_object_put",
+      "compensating_action": "keep_trace_export_pending_and_retry",
+      "retention_class": "export_policy",
+      "implementation_status": "bucket_contract_implemented_workflow_migration_pending",
+      "notes": ""
+    },
+    {
+      "key": "trace_records",
+      "authority": "postgresql",
+      "stable_id": "trace_runs.run_id",
+      "schema_version": "trace_records.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "minio"
+      ],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_trace_artifact_pending_and_reconcile",
+      "retention_class": "trace_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "truthlink_events",
+      "authority": "postgresql",
+      "stable_id": "truth_link_messages.id",
+      "schema_version": "truthlink_events.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "redis"
+      ],
+      "transaction_boundary": "postgres_outbox_then_redis_stream_publish",
+      "compensating_action": "replay_unpublished_event_from_postgresql",
+      "retention_class": "operational_event_policy",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "unified_memory_graph",
+      "authority": "local_json",
+      "stable_id": "vertex.vertex_id/edge.source_id:target_id:edge_type",
+      "schema_version": "unified_memory_graph.v1",
+      "source_revision": "local_json:monotonic_revision",
+      "materializations": [
+        "postgresql"
+      ],
+      "transaction_boundary": "atomic_file_replace",
+      "compensating_action": "retain_previous_file_and_rebuild_from_last_valid_revision",
+      "retention_class": "memory_policy",
+      "implementation_status": "legacy_retained_authority_pending_phase_9_consolidation",
+      "notes": ""
+    },
+    {
+      "key": "vector_embeddings",
+      "authority": "postgresql",
+      "stable_id": "source_type:source_id:embedding_model:source_revision",
+      "schema_version": "vector_embeddings.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [
+        "chroma"
+      ],
+      "transaction_boundary": "postgres_outbox_then_idempotent_chroma_upsert",
+      "compensating_action": "retain_source_revision_pending_and_rebuild_collection_entry",
+      "retention_class": "policy_required",
+      "implementation_status": "implemented",
+      "notes": ""
+    },
+    {
+      "key": "virtual_models",
+      "authority": "postgresql",
+      "stable_id": "virtual_model.id",
+      "schema_version": "virtual_models.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "authority_store_transaction",
+      "compensating_action": "mark_partial_and_retry_from_authority",
+      "retention_class": "policy_required",
+      "implementation_status": "target_table_missing_phase_8_dependency",
+      "notes": ""
+    }
+  ],
+  "validation_errors": [],
+  "release_constraints": {
+    "object_store_architecture": "minio",
+    "seaweedfs_qualification_authorized": true,
+    "seaweedfs_production_selected": false,
+    "coordinated_backup_restore_engineering_qualified": true,
+    "managed_backup_production_authorized": false,
+    "supported_prior_release_upgrade_qualified": false,
+    "at_rest_production_qualified": false
+  },
+  "captured_at": "2026-07-14T01:22:48.120703+00:00"
+}

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from backend.ingestion import LocalKnowledgeIngestionService
-from models import KnowledgeGraphNode
+from models import CrossStoreOutboxEvent, KnowledgeGraphNode
 
 
 class FakeRag:
@@ -41,7 +41,8 @@ def test_local_ingestion_creates_sql_nodes_and_manifest(app, tmp_path, monkeypat
         assert result.files_scanned == 1
         assert result.files_ingested == 1
         assert result.chunks_created == 2
-        assert result.chunks_indexed == 2
+        assert result.chunks_indexed == 0
+        assert result.materializations_pending == 4
         assert result.manifest_path
         assert Path(result.manifest_path).exists()
 
@@ -51,7 +52,12 @@ def test_local_ingestion_creates_sql_nodes_and_manifest(app, tmp_path, monkeypat
         assert nodes[0].node_metadata["source"] == "local_file_ingestion"
         assert nodes[0].node_metadata["prompt_injection_markers_removed"]
         assert "[removed]" in "".join(node.content for node in nodes)
-        assert rag.ingested[0]["metadata"]["source_path"].endswith("policy.md")
+        assert rag.ingested == []
+        assert CrossStoreOutboxEvent.query.count() == 4
+        assert {event.destination for event in CrossStoreOutboxEvent.query.all()} == {
+            "chroma",
+            "neo4j",
+        }
 
 
 def test_local_ingestion_dedupes_by_chunk_hash(app, tmp_path, monkeypatch):
@@ -274,7 +280,7 @@ def test_async_ingestion_returns_id_and_completes(app, tmp_path, monkeypatch):
         assert ingestion_id
         status = service.get_async_status(ingestion_id)
         assert status is not None
-        assert status["status"] in {"running", "completed"}
+        assert status["status"] in {"running", "materialization_pending"}
 
         # Wait for background thread to finish (max ~2s).
         for _ in range(20):
@@ -283,7 +289,7 @@ def test_async_ingestion_returns_id_and_completes(app, tmp_path, monkeypatch):
                 break
             time.sleep(0.1)
 
-        assert status["status"] == "completed"
+        assert status["status"] == "materialization_pending"
         assert status["result"] is not None
         assert status["result"]["ingestion_id"] == ingestion_id
 
@@ -338,26 +344,16 @@ def test_async_route_starts_and_returns_202(authenticated_client, tmp_path, monk
 
     final = authenticated_client.get(f"/api/v1/ingestion/status/{ingestion_id}")
     assert final.status_code == 200
-    assert final.get_json()["data"]["status"] == "completed"
+    assert final.get_json()["data"]["status"] == "materialization_pending"
 
 
-def test_neo4j_sync_called_on_async_with_flag(app, tmp_path, monkeypatch):
+def test_neo4j_sync_flag_reports_durable_outbox_pending(app, tmp_path, monkeypatch):
     import time
 
     monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
     source = tmp_path / "corpus"
     source.mkdir()
     (source / "data.txt").write_text("sync test content", encoding="utf-8")
-
-    sync_calls = []
-
-    def mock_sync():
-        sync_calls.append(True)
-        return {"merged_nodes": 1, "merged_edges": 0}
-
-    monkeypatch.setattr(
-        LocalKnowledgeIngestionService, "_sync_to_neo4j", staticmethod(mock_sync),
-    )
 
     with app.app_context():
         service = LocalKnowledgeIngestionService(rag_service=FakeRag())
@@ -371,6 +367,6 @@ def test_neo4j_sync_called_on_async_with_flag(app, tmp_path, monkeypatch):
                 break
             time.sleep(0.1)
 
-        assert status["status"] == "completed"
-        assert len(sync_calls) == 1
-        assert status["neo4j_sync"] == {"merged_nodes": 1, "merged_edges": 0}
+        assert status["status"] == "materialization_pending"
+        assert status["neo4j_sync"] == {"status": "pending_outbox"}
+        assert CrossStoreOutboxEvent.query.filter_by(destination="neo4j").count() == 2

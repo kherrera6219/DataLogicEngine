@@ -70,6 +70,8 @@ def test_generated_credentials_are_unique_and_reject_known_defaults():
     assert not {value.lower() for value in values} & delivery.KNOWN_DEFAULT_SECRETS
     assert credentials["object_store_app"].access_key.startswith("DLEAPP")
     assert credentials["object_store_bootstrap"].access_key.startswith("DLEBOOT")
+    assert credentials["redis_recovery"].username == "dle_recovery"
+    assert credentials["redis_recovery"].password != credentials["redis"].password
 
 
 def test_credential_vault_is_encrypted_installation_bound_and_atomic(tmp_path, monkeypatch):
@@ -106,3 +108,32 @@ def test_credential_vault_is_encrypted_installation_bound_and_atomic(tmp_path, m
         match="credential_vault_installation_mismatch",
     ):
         vault.load_or_create(INSTALLATION_ID)
+
+
+def test_legacy_vault_adds_recovery_identity_without_rotating_existing_secrets(
+    tmp_path,
+    monkeypatch,
+):
+    def encrypt(value: str) -> str:
+        return base64.b64encode(value.encode()).decode()
+
+    def decrypt(value: str) -> str:
+        return base64.b64decode(value.encode()).decode()
+
+    monkeypatch.setattr(delivery, "encrypt_data", encrypt)
+    monkeypatch.setattr(delivery, "decrypt_data", decrypt)
+    monkeypatch.setattr(delivery, "ensure_restricted_user_acl", lambda *_a, **_k: True)
+    path = tmp_path / "legacy-credentials.json"
+    vault = delivery.DataPlaneCredentialVault(path)
+    original = vault.load_or_create(INSTALLATION_ID)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["schema_version"] = delivery.LEGACY_CREDENTIAL_SCHEMA_VERSION
+    payload["services"].pop("redis_recovery")
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    migrated = vault.load_or_create(INSTALLATION_ID)
+    persisted = json.loads(path.read_text(encoding="utf-8"))
+
+    assert migrated["redis"] == original["redis"]
+    assert migrated["redis_recovery"].username == "dle_recovery"
+    assert persisted["schema_version"] == delivery.CREDENTIAL_SCHEMA_VERSION

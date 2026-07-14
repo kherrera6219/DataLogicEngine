@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.2.1 |
-| Completed phase | Phase 3 engineering checkpoint - Full internal service delivery and supervision |
-| Next phase | Phase 4 - Data contracts, migrations, backup, and recovery |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.0 |
+| Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
+| Next phase | Phase 5 - Canonical governed reasoning path |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -49,30 +49,46 @@ conditions, and exit gates remain authoritative in the active root plan.
   frontend lint/typecheck/build, and Ruff.
 - SeaweedFS is not production-selected: ADR-0004 remains Proposed, production
   authorization is false, and the architecture remains MinIO-specific.
+- Phase 4 reached its engineering checkpoint on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-04/`; installed-release gates are
+  retained rather than misreported as passed.
+- The ownership registry covers 67 PostgreSQL entities and 28 logical data
+  classes with one authority each. PostgreSQL-authoritative graph/vector
+  materializations and required MinIO artifact writes use a durable, retryable
+  outbox without changing object authority.
+- Production startup now applies a fail-closed 14-revision migration chain and
+  per-store version ledger before readiness. Newer, unsupported, and unversioned
+  populated data are refused.
+- A populated five-service drill passed encrypted six-component backup,
+  isolated clean-root restore, restart, PostgreSQL/Redis/Neo4j/Chroma/MinIO/JSON
+  value and hash parity, prior-root preservation, and cross-store deletion.
+- The desktop backup requires a user recovery passphrase that is not stored.
+  Offline restore creates a new installation identity and recovery credentials.
+- The approved at-rest design requires protected Windows volumes, restrictive
+  ACLs, DPAPI-wrapped secrets, and AES-256-GCM portable backups. The current
+  machine did not prove BitLocker or installed-root ACL readiness, so production
+  authorization remains false.
 
-## Phase 4 objective
+## Phase 5 objective
 
-Protect user data across schema changes, service upgrades, backup, restore,
-repair, uninstall, and rollback for every required store.
+Deliver one causal, testable governed request path from built-in chat and
+approved clients through policy, retrieval, routing/personas, provider/tool
+execution, validation, persistence, trace, and result.
 
-## Phase 4 work packages
+## Phase 5 work packages
 
-- [ ] Publish one ownership matrix for every relational row, Redis key/stream,
-      graph node/edge, vector collection/chunk, object, and materialized cache.
-- [ ] Define globally stable identifiers and cross-store reference/integrity
-      rules; prohibit silent conflict resolution between stores.
-- [ ] Inventory all existing schemas and data formats, establish migration
-      ordering, and implement versioned forward/rollback migrations.
-- [ ] Implement a coordinated backup manifest with store versions, checkpoints,
-      hashes, object counts, encryption state, and completion status.
-- [ ] Implement clean-root restore, partial-failure recovery, point-in-time
-      policy where supported, repair, and rollback without mixed-version state.
-- [ ] Define retention, deletion, tombstone, rebuild, and uninstall data-keep/
-      data-remove behavior for every store.
-- [ ] Prove corruption, disk-full, interrupted migration, backup failure, restore
-      failure, and cross-store reconciliation behavior.
-- [ ] Keep managed backup/restore actions fail-closed until the complete
-      coordinated recovery contract is implemented and verified.
+- [ ] Inventory every built-in chat, gateway, replay, SDK, compatible facade,
+      and simulation entry into governed reasoning.
+- [ ] Define one versioned governed request/context/result/failure contract.
+- [ ] Select one backend-owned orchestrator and remove or thin duplicate paths.
+- [ ] Make policy, retrieval, DMRF, DSQP, KAs, provider/tool calls, validation,
+      bounded refinement, persistence, and trace causally connected.
+- [ ] Eliminate synthetic stages, fixed durations, default confidence, and
+      planned-but-unexecuted telemetry.
+- [ ] Prove blocked, failed, cancelled, and successful runs record only stages
+      that actually executed and return one stable trace ID.
+- [ ] Keep installed Gemini/OpenAI proof as a later installed release gate when
+      provider credentials and the rebuilt application are available.
 
 ## Phase 3 deferred release gates
 
@@ -84,6 +100,17 @@ repair, uninstall, and rollback for every required store.
 | CP3-D | Supervisor survives lifecycle/failure/relaunch cases | Start/restart/identity/cleanup passed; full failure matrix continues in Phases 4/15 |
 | CP3-E | Installed Storage UI truthfully reports/actions the data plane | UI/backend contract implemented; installed-app proof deferred |
 
+## Phase 4 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP4-A | Every entity has one authority and documented materializations | Passed; 67 physical entities and 28 logical contracts, zero registry errors |
+| CP4-B | Every supported prior release upgrades without loss | Fresh/current migrations passed; populated 0.1.1 retained-data upgrade deferred |
+| CP4-C | Installed populated coordinated backup passes | Current populated five-service engineering backup passed; signed installed proof deferred |
+| CP4-D | Clean-machine restore reproduces all state | Isolated clean-root engineering restore passed; signed clean-machine proof deferred |
+| CP4-E | Delete parity leaves no unapproved remnants | Live seven-surface engineering deletion passed; installed matrix retained |
+| CP4-F | All retained data meets at-rest/key contract | Policy and fail-closed checks implemented; BitLocker/ACL Windows matrix deferred |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -92,8 +119,8 @@ repair, uninstall, and rollback for every required store.
 | 1 | Trust boundary and public error closure | **Complete 2026-07-13** |
 | 2 | Runtime factory, startup, and capability state | **Complete 2026-07-13** |
 | 3 | Full internal service delivery and supervision | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
-| 4 | Data contracts, migrations, backup, and recovery | **Next** |
-| 5 | Canonical governed reasoning path | Blocked by prior phases |
+| 4 | Data contracts, migrations, backup, and recovery | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
+| 5 | Canonical governed reasoning path | **Active** |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | Blocked by prior phases |
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | Blocked by prior phases |
 | 8 | External API Gateway and LLM middleware productization | Blocked by prior phases |
@@ -121,8 +148,8 @@ repair, uninstall, and rollback for every required store.
 
 ## Exact next action
 
-Begin Phase 4 by creating the cross-store ownership/identifier matrix and
-migration inventory, then implement the coordinated backup manifest and
-clean-root restore contract. Keep the managed backup endpoint fail-closed until
-all required stores participate in one verified recovery set. Preserve the
-SeaweedFS candidate-only boundary and all deferred Phase 3 release gates.
+Begin Phase 5 with a live caller inventory for built-in chat, gateway, SDK,
+replay, compatible facades, and simulation. Define the shared governed request/
+context/result/failure contract, choose the single backend-owned orchestrator,
+and add causality tests before changing execution. Preserve all deferred Phase 3
+and Phase 4 installed release gates and the SeaweedFS candidate-only boundary.

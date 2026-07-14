@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.16.0 |
+| Document version | v2.17.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,9 +21,9 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 3 engineering complete with its clean
-installed-production gates deferred; Phase 4 data contracts, migrations,
-backup, and recovery is active. Production/public release remains **NO-GO**.
+The current execution checkpoint is Phase 4 engineering complete with its
+installed-production gates deferred; Phase 5 canonical governed reasoning is
+active. Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
 
@@ -74,6 +74,9 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/DATA_FLOW_DIAGRAMS.md` | Data flows across DMRF, Truth Engine, storage, privacy, export, providers, MCP. |
 | `docs/DECISION_LOGIC.md` | Major decision points and implementation paths. |
 | `docs/DATABASE_SCHEMA.md` | Multi-store data and memory architecture. |
+| `docs/MIGRATION_SUPPORT_MATRIX.md` | Per-store versions, startup migration policy, and supported-upgrade status. |
+| `docs/DATA_CLASSIFICATION_REGISTER.md` | Sensitivity, location, protection, and retention register. |
+| `docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md` | Protected-volume, DPAPI, portable-backup, and key-recovery standard. |
 | `docs/FILE_STRUCTURE.md` | Repository structure and reviewer navigation. |
 | `docs/ENGINEER_ONBOARDING.md` | Structured engineer onboarding path. |
 | `docs/DEVELOPER_GUIDE.md` | Developer setup and daily workflow. |

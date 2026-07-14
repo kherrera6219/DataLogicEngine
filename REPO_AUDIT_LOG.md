@@ -2348,3 +2348,26 @@ Podman artifact qualification, coordinated backup/recovery and extended failure
 testing, independent security/license review, and final object-store selection
 remain open. SeaweedFS is a candidate only; ADR-0004 is Proposed and MinIO
 remains the product-specific architecture.
+
+---
+
+## Production plan Phase 4 engineering checkpoint (2026-07-13)
+
+Reconciled the July 12 audit's storage/lifecycle findings against the live
+five-service implementation. Added one generated ownership/identifier contract,
+versioned pre-readiness migrations, durable outbox/reconciliation, encrypted
+coordinated backup, isolated clean-root recovery, cross-store retention/deletion,
+uninstall dispositions, and the protected-volume/ACL + DPAPI + portable-backup
+data-at-rest standard.
+
+The populated qualification recovered PostgreSQL, Redis, Neo4j, ChromaDB,
+MinIO, pending outbox state, and retained JSON with exact object-hash parity,
+preserved the prior root, restarted the restored application, and passed
+deletion across all seven required surfaces.
+
+Disposition: Phase 4 engineering checkpoint is complete and Phase 5 may begin.
+Production/public release remains **NO-GO**. The 0.1.1 retained-data upgrade,
+signed clean-machine recovery, supported Windows BitLocker/ACL matrix,
+independent recovery review, and final object-store decision are explicit later
+release gates. SeaweedFS remains candidate-only; MinIO remains the production
+architecture.

@@ -93,7 +93,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getKAExecutionFeed: () => invokeWithTimeout('ka-execution-feed'),
   getDesktopStorageMetrics: () => invokeWithTimeout('get-desktop-storage-metrics'),
   chooseBackupFolder: () => invokeWithTimeout('choose-backup-folder'),
-  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string }) => invokeWithTimeout('run-database-backup', payload),
+  runDatabaseBackup: (payload: { target_capability?: string; operation_id: string; recovery_secret: string }) => invokeWithTimeout('run-database-backup', payload),
   chooseIngestionSource: () => invokeWithTimeout('choose-ingestion-source'),
   runLocalIngestion: (payload: {
     source_capability: string;

@@ -54,6 +54,7 @@ class IngestedChunk:
     content_hash: str
     chunk_hash: str
     indexed: bool
+    materialization_state: str = "pending"
 
 
 @dataclass
@@ -65,6 +66,7 @@ class IngestionResult:
     files_rejected: int = 0
     chunks_created: int = 0
     chunks_indexed: int = 0
+    materializations_pending: int = 0
     rejected_files: list[RejectedFile] = field(default_factory=list)
     chunks: list[IngestedChunk] = field(default_factory=list)
     manifest_path: str | None = None
@@ -175,22 +177,54 @@ class LocalKnowledgeIngestionService:
                 created_for_file += 1
                 result.chunks_created += 1
 
-                indexed = bool(
-                    rag
-                    and rag.ingest_knowledge_node(
-                        uid,
-                        chunk,
-                        "ingested_document_chunk",
-                        {
-                            **node_metadata,
-                            "node_id": node_id,
-                            "title": title,
-                            "tenant_id": tenant_id or "",
-                        },
-                    )
+                from backend.storage.outbox import CrossStoreOutbox
+
+                materialization_metadata = {
+                    **node_metadata,
+                    "node_id": node_id,
+                    "title": title,
+                    "tenant_id": tenant_id or "",
+                }
+                source_revision = f"sha256:{chunk_hash}"
+                outbox = CrossStoreOutbox(db.session)
+                outbox.enqueue(
+                    entity_type="knowledge_graph_node",
+                    entity_id=uid,
+                    destination="chroma",
+                    operation="upsert_knowledge_node",
+                    schema_version="knowledge-node.v1",
+                    source_revision=source_revision,
+                    payload={
+                        "node_uid": uid,
+                        "content": chunk,
+                        "node_type": "ingested_document_chunk",
+                        "metadata": materialization_metadata,
+                    },
+                    correlation_id=result.ingestion_id,
                 )
-                if indexed:
-                    result.chunks_indexed += 1
+                outbox.enqueue(
+                    entity_type="knowledge_graph_node",
+                    entity_id=uid,
+                    destination="neo4j",
+                    operation="merge_knowledge_node",
+                    schema_version="knowledge-node.v1",
+                    source_revision=source_revision,
+                    payload={
+                        "node_uid": uid,
+                        "properties": {
+                            "node_id": node_id,
+                            "node_type": "ingested_document_chunk",
+                            "label": title,
+                            "title": title,
+                            "description": chunk[:500],
+                            "content": chunk,
+                            "content_type": "text/plain",
+                            "tenant_id": tenant_id,
+                        },
+                    },
+                    correlation_id=result.ingestion_id,
+                )
+                result.materializations_pending += 2
                 result.chunks.append(
                     IngestedChunk(
                         node_uid=uid,
@@ -200,7 +234,8 @@ class LocalKnowledgeIngestionService:
                         chunk_count=len(chunks),
                         content_hash=content_hash,
                         chunk_hash=chunk_hash,
-                        indexed=indexed,
+                        indexed=False,
+                        materialization_state="pending",
                     )
                 )
 
@@ -381,13 +416,19 @@ class LocalKnowledgeIngestionService:
                     result_dict = result.to_dict()
                     result_dict["ingestion_id"] = ingestion_id
 
-                    neo4j_result = None
-                    if sync_neo4j and result.chunks_created > 0:
-                        neo4j_result = self._sync_to_neo4j()
+                    neo4j_result = (
+                        {"status": "pending_outbox"}
+                        if sync_neo4j and result.chunks_created > 0
+                        else None
+                    )
 
                     with _ASYNC_STATUS_LOCK:
                         _ASYNC_STATUS[ingestion_id].update({
-                            "status": "completed",
+                            "status": (
+                                "materialization_pending"
+                                if result.materializations_pending
+                                else "completed"
+                            ),
                             "completed_at": datetime.now(UTC).isoformat(),
                             "result": result_dict,
                             "neo4j_sync": neo4j_result,

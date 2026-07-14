@@ -21,7 +21,8 @@ from backend.security.dpapi_store import decrypt_data, encrypt_data
 from backend.security.windows_acl import ensure_restricted_user_acl
 
 
-CREDENTIAL_SCHEMA_VERSION = "1.0.0"
+CREDENTIAL_SCHEMA_VERSION = "1.1.0"
+LEGACY_CREDENTIAL_SCHEMA_VERSION = "1.0.0"
 LOCK_SCHEMA_VERSION = "1.0.0"
 REQUIRED_SERVICES = (
     "postgresql",
@@ -175,6 +176,7 @@ def generate_service_credentials() -> dict[str, ServiceCredential]:
         "postgresql": ServiceCredential("dle_app", _generated_secret()),
         "postgresql_migration": ServiceCredential("dle_migration", _generated_secret()),
         "redis": ServiceCredential("dle_app", _generated_secret()),
+        "redis_recovery": ServiceCredential("dle_recovery", _generated_secret()),
         "neo4j": ServiceCredential("neo4j", _generated_secret()),
         "object_store_bootstrap": ServiceCredential(
             "dle_bootstrap",
@@ -276,7 +278,11 @@ class DataPlaneCredentialVault:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
         except (OSError, TypeError, ValueError) as exc:
             raise DataPlaneDeliveryError("credential_vault_unreadable") from exc
-        if payload.get("schema_version") != CREDENTIAL_SCHEMA_VERSION:
+        schema_version = payload.get("schema_version")
+        if schema_version not in {
+            CREDENTIAL_SCHEMA_VERSION,
+            LEGACY_CREDENTIAL_SCHEMA_VERSION,
+        }:
             raise DataPlaneDeliveryError("credential_vault_schema_unsupported")
         if payload.get("installation_id") != installation_id:
             raise DataPlaneDeliveryError("credential_vault_installation_mismatch")
@@ -298,6 +304,23 @@ class DataPlaneCredentialVault:
                     self._unprotect(str(item["secret_key"])) if item.get("secret_key") else ""
                 ),
             )
+        if schema_version == LEGACY_CREDENTIAL_SCHEMA_VERSION:
+            credentials["redis_recovery"] = ServiceCredential(
+                "dle_recovery",
+                _generated_secret(),
+            )
+            self._store(installation_id, credentials)
+        required = {
+            "postgresql",
+            "postgresql_migration",
+            "redis",
+            "redis_recovery",
+            "neo4j",
+            "object_store_bootstrap",
+            "object_store_app",
+        }
+        if set(credentials) != required:
+            raise DataPlaneDeliveryError("credential_vault_service_set_invalid")
         return credentials
 
 

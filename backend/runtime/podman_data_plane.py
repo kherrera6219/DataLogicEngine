@@ -159,6 +159,124 @@ class PodmanDataPlaneManager:
             "object_buckets": REQUIRED_OBJECT_BUCKETS,
         }
 
+    def migration_connection_settings(self) -> dict[str, str]:
+        """Return the dedicated schema-owner connection without changing app credentials."""
+        ports = {item.name: item.host_ports for item in self.plan.services}
+        credential = self.credentials["postgresql_migration"]
+        return {
+            "database_url": (
+                f"postgresql://{quote(credential.username, safe='')}:"
+                f"{quote(credential.password, safe='')}@127.0.0.1:"
+                f"{ports['postgresql'][0]}/datalogic"
+            )
+        }
+
+    def recovery_connection_settings(self) -> dict[str, str]:
+        """Return recovery-only credentials that normal application code never uses."""
+        ports = {item.name: item.host_ports for item in self.plan.services}
+        credential = self.credentials["redis_recovery"]
+        return {
+            "redis_url": (
+                f"redis://{quote(credential.username, safe='')}:"
+                f"{quote(credential.password, safe='')}@127.0.0.1:"
+                f"{ports['redis'][0]}/0"
+            )
+        }
+
+    def export_postgresql_logical_backup(self, destination: str | Path) -> dict[str, Any]:
+        """Create and verify a custom-format pg_dump with the migration identity."""
+        target = Path(destination).expanduser().resolve()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        spec = self._require_spec("postgresql")
+        inspected = self._inspect_container(spec.container_name)
+        if inspected is None:
+            raise PodmanDataPlaneError("postgresql_backup_service_missing")
+        self._assert_owned_container(spec, inspected)
+        remote = "/tmp/dle-coordinated-backup.dump"
+        command = (
+            "PGPASSWORD=$(cat /run/secrets/postgres-password) "
+            "pg_dump --username=dle_migration --dbname=datalogic "
+            f"--format=custom --file={remote}"
+        )
+        try:
+            self._run(["exec", spec.container_name, "sh", "-c", command])
+            self._run(["exec", spec.container_name, "pg_restore", "--list", remote])
+            self._run(["cp", f"{spec.container_name}:{remote}", str(target)])
+        except Exception as exc:
+            target.unlink(missing_ok=True)
+            raise PodmanDataPlaneError("postgresql_logical_backup_failed") from exc
+        finally:
+            self._run(
+                ["exec", spec.container_name, "rm", "-f", remote],
+                check=False,
+            )
+        if not target.is_file() or target.stat().st_size <= 0:
+            target.unlink(missing_ok=True)
+            raise PodmanDataPlaneError("postgresql_logical_backup_empty")
+        return {
+            "format": "pg_dump_custom",
+            "size_bytes": target.stat().st_size,
+            "schema_revision": "alembic",
+        }
+
+    def restore_postgresql_logical_backup(self, source: str | Path) -> dict[str, Any]:
+        """Restore a verified custom-format dump into this manager's isolated database."""
+        backup = Path(source).expanduser().resolve()
+        if not backup.is_file() or backup.stat().st_size <= 0:
+            raise PodmanDataPlaneError("postgresql_restore_backup_missing")
+        spec = self._require_spec("postgresql")
+        inspected = self._inspect_container(spec.container_name)
+        if inspected is None:
+            raise PodmanDataPlaneError("postgresql_restore_service_missing")
+        self._assert_owned_container(spec, inspected)
+        remote = "/tmp/dle-coordinated-restore.dump"
+        command = (
+            "PGPASSWORD=$(cat /run/secrets/postgres-password) "
+            "pg_restore --username=dle_migration --dbname=datalogic "
+            "--clean --if-exists --no-owner --no-privileges --exit-on-error "
+            f"{remote}"
+        )
+        try:
+            self._run(["cp", str(backup), f"{spec.container_name}:{remote}"])
+            self._run(["exec", spec.container_name, "pg_restore", "--list", remote])
+            self._run(["exec", spec.container_name, "sh", "-c", command])
+            revision = self._run(
+                [
+                    "exec",
+                    spec.container_name,
+                    "sh",
+                    "-c",
+                    "PGPASSWORD=$(cat /run/secrets/postgres-password) "
+                    "psql --username=dle_migration --dbname=datalogic "
+                    "--tuples-only --no-align --command="
+                    "'SELECT version_num FROM alembic_version LIMIT 1'",
+                ]
+            ).stdout.strip()
+            table_count = self._run(
+                [
+                    "exec",
+                    spec.container_name,
+                    "sh",
+                    "-c",
+                    "PGPASSWORD=$(cat /run/secrets/postgres-password) "
+                    "psql --username=dle_migration --dbname=datalogic "
+                    "--tuples-only --no-align --command="
+                    "\"SELECT count(*) FROM information_schema.tables "
+                    "WHERE table_schema = 'public'\"",
+                ]
+            ).stdout.strip()
+        except Exception as exc:
+            raise PodmanDataPlaneError("postgresql_logical_restore_failed") from exc
+        finally:
+            self._run(["exec", spec.container_name, "rm", "-f", remote], check=False)
+        if not revision or not table_count.isdigit() or int(table_count) <= 0:
+            raise PodmanDataPlaneError("postgresql_logical_restore_verification_failed")
+        return {
+            "schema_revision": revision,
+            "table_count": int(table_count),
+            "status": "pass",
+        }
+
     def verify_runtime(self) -> dict[str, Any]:
         version = self._run(["version", "--format", "json"])
         info = self._run(["info", "--format", "json"])
@@ -491,6 +609,7 @@ class PodmanDataPlaneManager:
                 )
         if service == "redis":
             credential = self.credentials["redis"]
+            recovery = self.credentials["redis_recovery"]
             return "\n".join(
                 [
                     "bind 0.0.0.0",
@@ -498,6 +617,7 @@ class PodmanDataPlaneManager:
                     "port 6379",
                     "user default off",
                     f"user {credential.username} on >{credential.password} ~* +@all -@dangerous",
+                    f"user {recovery.username} on >{recovery.password} ~* +@all",
                     "appendonly yes",
                     "appendfsync everysec",
                     "save 900 1",

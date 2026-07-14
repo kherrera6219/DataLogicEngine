@@ -79,6 +79,10 @@ def test_connection_settings_use_generated_credentials_and_internal_endpoints(ma
     assert len(settings["object_access_key"]) >= 32
     assert len(settings["object_secret_key"]) >= 32
 
+    migration = manager.migration_connection_settings()
+    assert migration["database_url"].startswith("postgresql://dle_migration:")
+    assert migration["database_url"] != settings["database_url"]
+
 
 def test_service_secrets_enforce_scoped_users_and_bucket_actions(manager):
     redis_config = manager._secret_payload("redis", "redis.conf")

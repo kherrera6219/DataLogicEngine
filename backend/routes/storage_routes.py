@@ -192,9 +192,19 @@ def _build_desktop_metrics() -> dict:
     return result
 
 
-def _create_backup(target_dir: str | None = None) -> dict:
+def _create_backup(
+    target_dir: str | None = None,
+    *,
+    recovery_secret: str | None = None,
+) -> dict:
     if current_app.config.get("DLE_DATA_PLANE_DRIVER") == "podman":
-        raise RuntimeError("coordinated_data_plane_backup_requires_phase_4")
+        if not recovery_secret:
+            raise RuntimeError("portable_recovery_secret_required")
+        from backend.storage.managed_backup import create_managed_backup
+
+        runtime = get_application_runtime()
+        target = target_dir or str(runtime.runtime_root / "backups")
+        return create_managed_backup(current_app._get_current_object(), runtime, target, recovery_secret)
     root = _runtime_root()
     backup_root = Path(target_dir).expanduser().resolve() if target_dir else root / "backups"
     backup_root.mkdir(parents=True, exist_ok=True)
@@ -348,8 +358,13 @@ def run_desktop_backup():
     try:
         data = request.get_json(silent=True) or {}
         target_dir = data.get("target_dir") if isinstance(data.get("target_dir"), str) else None
+        recovery_secret = (
+            data.get("recovery_secret")
+            if isinstance(data.get("recovery_secret"), str)
+            else None
+        )
         with get_application_runtime().exclusive_operation("backup"):
-            backup = _create_backup(target_dir)
+            backup = _create_backup(target_dir, recovery_secret=recovery_secret)
         return jsonify({
             'success': True,
             'data': backup,

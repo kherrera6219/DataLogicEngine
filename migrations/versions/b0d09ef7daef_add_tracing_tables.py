@@ -1,7 +1,7 @@
 """Add tracing tables
 
 Revision ID: b0d09ef7daef
-Revises:
+Revises: 000000000001
 Create Date: 2026-01-08 14:12:49.884355
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "b0d09ef7daef"
-down_revision = None
+down_revision = "000000000001"
 branch_labels = None
 depends_on = None
 

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-14T01:29:58.5999295Z",
+  "artifacts": [
+    {
+      "path": "cp4-a-data-ownership-matrix.json",
+      "size_bytes": 22110,
+      "sha256": "52c03c1746947d12158bddb185875cc16cae2b65b14da5fbba04b367f7c2d599"
+    },
+    {
+      "path": "cp4-b-migration-inventory.json",
+      "size_bytes": 8204,
+      "sha256": "3d926c48eed107e0f81cada6d11666d6a338fe591a58f1a3cdff5d7c87a37245"
+    },
+    {
+      "path": "phase04_data_lifecycle_qualification.json",
+      "size_bytes": 9763,
+      "sha256": "c0daa2c93f3ae2e962021d301ef1b360b31bf2d1fd1056e91d32e061d337c5e8"
+    }
+  ]
+}

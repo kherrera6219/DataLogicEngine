@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
+| Document version | v3.3.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -62,7 +62,7 @@ This document replaces the older PostgreSQL-only framing with the current multi-
 
 ## Current data architecture
 
-### Phase 3 runtime mapping and Phase 4 boundary
+### Phase 4 authoritative data lifecycle
 
 The production profile now injects supervisor-owned connection contracts for
 PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object operations. It
@@ -71,16 +71,22 @@ substitution when the managed profile is selected. Development mode retains
 those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
-`deliverables`, `graphs`, `evaluation-data`, and `trace-exports`. Phase 3 proved
-their put/get/head/list/hash behavior and restart durability, but it does not
-declare cross-store ownership, schema migration ordering, retention, or
-coordinated backup/restore complete.
+`deliverables`, `graphs`, `evaluation-data`, and `trace-exports`. The generated
+Phase 4 registry assigns one authority to 67 PostgreSQL entities and 28 logical
+data classes. PostgreSQL is the logical authority for graph nodes/relationships
+and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
+materializations. MinIO remains authoritative for declared artifact classes.
 
-Phase 4 owns the authoritative entity-to-store matrix, stable identifiers,
-schema and collection versions, migration/rollback order, coordinated recovery
-manifest, deletion/tombstone rules, and reconciliation semantics. Until those
-contracts pass, managed backup/restore remains fail-closed rather than producing
-an incomplete recovery set.
+Cross-store writes use a transactional outbox, stable IDs, schema/source
+revisions, payload hashes, idempotent handlers, retry/reclaim behavior, and a
+materialization-state record. A required artifact or index is not marked
+complete until the destination confirms the same revision/hash.
+
+Production startup runs a fail-closed migration coordinator before stores and
+workers. The 14-revision Alembic chain has base `000000000001` and head
+`a9b0c1d2e3f4`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
+memory also carry version probes and ledger entries. See
+`docs/MIGRATION_SUPPORT_MATRIX.md` for the supported-upgrade limits.
 
 DataLogicEngine is not a single-database application. It uses a multi-store data architecture where each store has a distinct role.
 
@@ -461,8 +467,8 @@ erDiagram
 
 There are three graph layers:
 
-1. **SQL graph records** — durable graph tables such as `knowledge_graph_nodes`, `knowledge_graph_edges`, `nodes`, `edges`, `pillar_levels`, `sectors`, `domains`, and `knowledge_nodes`.
-2. **Neo4j graph store** — graph database interface for graph-native traversal and relationship queries.
+1. **PostgreSQL graph authority** — durable graph tables such as `knowledge_graph_nodes`, `knowledge_graph_edges`, `nodes`, `edges`, `pillar_levels`, `sectors`, `domains`, and `knowledge_nodes`.
+2. **Neo4j graph materialization** — revisioned, outbox-driven graph-native traversal and relationship queries.
 3. **USKD RAM graph** — NetworkX directed graph used by reasoning layers to avoid database round trips for every traversal.
 
 `backend/storage/uskd_memory_graph.py` can load from:
@@ -474,7 +480,7 @@ There are three graph layers:
 This creates the current pattern:
 
 ```text
-SQL / Neo4j durable graph
+PostgreSQL authoritative graph -> Neo4j materialization
         ↓
 USKD NetworkX in-memory graph
         ↓
@@ -483,7 +489,9 @@ fast reasoning traversal
 
 ## Vector architecture
 
-The current vector store implementation uses local ChromaDB by default.
+Production vector sources are PostgreSQL-authoritative and materialize into
+versioned ChromaDB collections through the durable outbox. Development can use a
+local persistent Chroma client.
 
 Key behavior:
 
@@ -507,7 +515,8 @@ TruthCore / DMRF / graph-assisted response generation
 
 ## Object storage architecture
 
-The current object store uses a local filesystem backend by default.
+Production object storage uses the app-owned MinIO service. A contained local
+filesystem backend remains development/bootstrap/repair-only.
 
 Default path:
 
@@ -518,11 +527,12 @@ Default path:
 Default app buckets include:
 
 ```text
-audit_logs
-simulation_artifacts
+audit-logs
+simulation-artifacts
 deliverables
 graphs
-eval_data
+evaluation-data
+trace-exports
 ```
 
 Object-store safety controls include:
@@ -688,6 +698,13 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.3.0
+
+1. Recorded the generated ownership registry, PostgreSQL authority for graph and
+   vector sources, and durable outbox/materialization contract.
+2. Recorded the 14-revision startup migration boundary and current-version
+   coordinated backup/restore qualification.
 
 ## Change notes for v3.2.0
 

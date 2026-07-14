@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-14T01:29:58.5999295Z",
+  "checks": [
+    {
+      "name": "phase4_focused",
+      "command": "python -m pytest tests/migrations tests/storage tests/packaging and touched route/unit suites -q",
+      "exit_code": 0,
+      "result": "137 passed",
+      "duration_seconds": 13.74
+    },
+    {
+      "name": "backend_regression",
+      "command": "python -m pytest -q --disable-warnings --maxfail=1",
+      "exit_code": 0,
+      "result": "1875 passed, 18 skipped",
+      "duration_seconds": 326.50
+    },
+    {
+      "name": "frontend_regression",
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "result": "81 files, 402 tests passed",
+      "duration_seconds": 9.34
+    },
+    {
+      "name": "phase4_live_data_lifecycle",
+      "command": "python scripts/qualify_phase4_data_lifecycle.py",
+      "exit_code": 0,
+      "result": "passed",
+      "duration_seconds": 127.864
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check .",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "frontend_lint_typecheck_electron_build",
+      "command": "npm run lint; npm run typecheck; npm run electron:build",
+      "exit_code": 0,
+      "result": "passed; one pre-existing lint warning"
+    },
+    {
+      "name": "frontend_production_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "documentation_references",
+      "command": "python scripts/verify_docs_references.py",
+      "exit_code": 0,
+      "result": "passed with existing style warnings"
+    },
+    {
+      "name": "trust_boundary_regression",
+      "command": "verify_route_manifest --fail-unclassified; verify_public_error_contracts; verify_secret_storage; verify_electron_security --require-packaged-renderer",
+      "exit_code": 0,
+      "result": "426 routes and all non-HTTP surfaces classified; zero public-error or secret findings; 19 Electron channels passed against fresh renderer"
+    }
+  ]
+}

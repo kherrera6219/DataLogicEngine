@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-07-13T17:45:04.071715+00:00",
+  "generated_at": "2026-07-14T01:32:29.804352+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,10 +13,10 @@
     "public-health"
   ],
   "summary": {
-    "routes": 424,
+    "routes": 426,
     "classifications": {
-      "authenticated-mutation": 91,
-      "authenticated-read": 228,
+      "authenticated-mutation": 92,
+      "authenticated-read": 229,
       "desktop-only": 13,
       "external-client-governed-execution": 2,
       "external-client-read": 3,
@@ -37,32 +37,28 @@
   "routes": [
     {
       "path": "/about",
-      "endpoint": "about",
+      "endpoint": "dle_core.about",
       "methods": [
         "GET"
       ],
       "classification": "desktop-only",
       "required_principal": "desktop-only",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api-docs",
-      "endpoint": "api_docs",
+      "endpoint": "dle_core.api_docs",
       "methods": [
         "GET"
       ],
       "classification": "desktop-only",
       "required_principal": "desktop-only",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
@@ -2865,7 +2861,7 @@
     },
     {
       "path": "/api/v1/csp-report",
-      "endpoint": "csp_report",
+      "endpoint": "dle_core.csp_report",
       "methods": [
         "POST"
       ],
@@ -2873,11 +2869,10 @@
       "required_principal": "authenticated-mutation",
       "auth_evidence": [
         "app:api_login_required_wrapper",
-        "app:validate_desktop_origin",
         "authenticated-session-desktop-or-api-key"
       ],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
@@ -5426,8 +5421,8 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/system/diagnostics/health",
-      "endpoint": "health_diagnostics",
+      "path": "/api/v1/system/capabilities",
+      "endpoint": "dle_core.system_capabilities",
       "methods": [
         "GET"
       ],
@@ -5435,11 +5430,42 @@
       "required_principal": "authenticated-read",
       "auth_evidence": [
         "app:api_session_login_required_wrapper",
-        "app:validate_desktop_origin",
         "owner-session-or-desktop"
       ],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/system/diagnostics/health",
+      "endpoint": "dle_core.health_diagnostics",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "app:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "app",
+      "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/system/lifecycle/event",
+      "endpoint": "dle_core.system_lifecycle_event",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "app:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "app",
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
@@ -6698,17 +6724,15 @@
     },
     {
       "path": "/contact",
-      "endpoint": "contact",
+      "endpoint": "dle_core.contact",
       "methods": [
         "GET"
       ],
       "classification": "desktop-only",
       "required_principal": "desktop-only",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
@@ -6731,22 +6755,20 @@
     },
     {
       "path": "/health",
-      "endpoint": "health",
+      "endpoint": "dle_core.health",
       "methods": [
         "GET"
       ],
       "classification": "public-health",
       "required_principal": "none",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/health/cache",
-      "endpoint": "health_cache",
+      "endpoint": "dle_core.health_cache",
       "methods": [
         "GET"
       ],
@@ -6754,31 +6776,28 @@
       "required_principal": "desktop-only",
       "auth_evidence": [
         "app:api_session_login_required_wrapper",
-        "app:validate_desktop_origin",
         "owner-session-or-desktop"
       ],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/live",
-      "endpoint": "live",
+      "endpoint": "dle_core.live",
       "methods": [
         "GET"
       ],
       "classification": "public-health",
       "required_principal": "none",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/metrics",
-      "endpoint": "metrics",
+      "endpoint": "dle_core.metrics",
       "methods": [
         "GET"
       ],
@@ -6786,41 +6805,36 @@
       "required_principal": "internal-only",
       "auth_evidence": [
         "app:api_session_login_required_wrapper",
-        "app:validate_desktop_origin",
         "owner-session-or-desktop"
       ],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/privacy",
-      "endpoint": "privacy",
+      "endpoint": "dle_core.privacy",
       "methods": [
         "GET"
       ],
       "classification": "desktop-only",
       "required_principal": "desktop-only",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/ready",
-      "endpoint": "ready",
+      "endpoint": "dle_core.ready",
       "methods": [
         "GET"
       ],
       "classification": "public-health",
       "required_principal": "none",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     },
     {
@@ -6840,17 +6854,15 @@
     },
     {
       "path": "/terms",
-      "endpoint": "terms",
+      "endpoint": "dle_core.terms",
       "methods": [
         "GET"
       ],
       "classification": "desktop-only",
       "required_principal": "desktop-only",
-      "auth_evidence": [
-        "app:validate_desktop_origin"
-      ],
+      "auth_evidence": [],
       "source_module": "app",
-      "blueprint": null,
+      "blueprint": "dle_core",
       "mutation_without_auth_evidence": false
     }
   ],

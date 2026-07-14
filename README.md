@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3 internal-data-plane engineering checkpoint are complete; Phase 4 data contracts, migrations, backup, and recovery is active. Clean signed-install qualification, independent reviews, final object-store selection, the complete governed lifecycle, external gateway, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 3 evidence`](reports/production-readiness/2026/phase-03/summary.md).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-4 engineering checkpoints are complete; Phase 5 canonical governed reasoning is active. Clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, the complete governed lifecycle, external gateway, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 4 evidence`](reports/production-readiness/2026/phase-04/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,8 +64,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 4 cross-store ownership, identifiers, migrations, backup, and recovery
-- Deferred clean-installed Phase 3 data-plane and independent review gates
+- Phase 5 single causal governed reasoning path and truthful traces
+- Deferred clean-installed Phase 3-4 data-plane, upgrade/recovery, and independent review gates
 - Final Replacement Control decision for the object-store implementation
 - External API Gateway and LLM middleware productization
 - Complete frontend control-plane and reference-client behavior
@@ -407,10 +407,11 @@ provides a distinct contract that must remain testable:
 
 **1. Data security by architecture**
 Every production store is app-owned and local. There are no required cloud-managed
-databases or third-party data custodians. Production release still requires the
-plan's complete at-rest classification, DPAPI/key handling, ACL, backup,
-recovery, and copied-data-root qualification; the current source must not be
-interpreted as proof that every retained field is already encrypted.
+databases or third-party data custodians. Phase 4 implemented the classification,
+DPAPI/key separation, encrypted portable backup, coordinated restore, and
+fail-closed protected-volume/ACL checks. Production release still requires the
+rebuilt installed Windows matrix; the current source must not be interpreted as
+proof that every retained location is already on a protected volume.
 
 **2. Zero external API calls for data**
 All retrieval, graph traversal, vector search, relational queries, memory recall,
