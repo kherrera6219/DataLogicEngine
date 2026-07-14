@@ -43,6 +43,14 @@ def test_output_classification_detects_sensitive_patterns():
     assert "possible_ssn" in classification["flags"]
 
 
-def test_cost_estimation_returns_positive_value():
-    cost = AIGovernanceEngine.estimate_cost_usd("gpt-5.5", tokens_in=2000, tokens_out=1000)
-    assert cost > 0
+def test_cost_estimation_is_unknown_without_owner_pricing(monkeypatch):
+    monkeypatch.delenv("AI_MODEL_PRICING_USD_PER_1K", raising=False)
+    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.5", 2000, 1000) is None
+
+
+def test_cost_estimation_uses_explicit_owner_pricing(monkeypatch):
+    monkeypatch.setenv(
+        "AI_MODEL_PRICING_USD_PER_1K",
+        '{"gpt-5.5":{"input":0.005,"output":0.03}}',
+    )
+    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.5", 2000, 1000) == 0.04

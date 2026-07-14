@@ -155,12 +155,8 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
 
     provider_keys = (
         "OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
-        "anthropic_API_KEY",
-        "AZURE_OPENAI_API_KEY",
         "GOOGLE_API_KEY",
         "GEMINI_API_KEY",
-        "MISTRAL_API_KEY",
     )
     if not any(env_values.get(key) for key in provider_keys):
         results.append(

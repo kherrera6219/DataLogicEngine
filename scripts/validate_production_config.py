@@ -182,12 +182,9 @@ class ProductionValidator:
         if os.getenv('OPENAI_API_KEY'):
             providers.append('OpenAI')
             print_pass("OpenAI: API key configured")
-        if os.getenv('AZURE_OPENAI_API_KEY'):
-            providers.append('Azure OpenAI')
-            print_pass("Azure OpenAI: API key configured")
-        if os.getenv('ANTHROPIC_API_KEY'):
-            providers.append('Anthropic')
-            print_pass("Anthropic: API key configured")
+        if os.getenv('GOOGLE_API_KEY') or os.getenv('GEMINI_API_KEY'):
+            providers.append('Google')
+            print_pass("Google: API key configured")
 
         if not providers:
             self.warnings.append("No LLM providers configured")

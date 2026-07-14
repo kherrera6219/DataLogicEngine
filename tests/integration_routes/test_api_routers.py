@@ -128,9 +128,10 @@ def test_gateway_usage_stats(mock_curr_user, router_app_client):
     
     resp = router_app_client.get('/api/admin/usage')
     assert resp.status_code == 200
-    assert resp.json['total_requests'] == 100
-    assert resp.json['total_tokens_in'] == 5000
-    assert resp.json['by_provider'][0]['provider'] == 'OpenAI'
+    assert resp.json['schema_version'] == 'provider-usage-ledger.v1'
+    assert resp.json['period']['calls'] == 100
+    assert 'limits' in resp.json
+    assert 'entries' in resp.json
 
 @patch('flask_login.utils._get_user')
 def test_gateway_sessions(mock_curr_user, router_app_client):

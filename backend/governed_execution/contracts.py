@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from hashlib import sha256
 from typing import Any
+import time
 import uuid
 
 
@@ -56,6 +57,7 @@ class GovernedFailureKind(StrEnum):
     VALIDATION_FAILURE = "validation_failure"
     PROVIDER_FAILURE = "provider_failure"
     CANCELLED = "cancelled"
+    TIMEOUT = "timeout"
     INTERNAL_FAILURE = "internal_failure"
     CAPABILITY_UNAVAILABLE = "capability_unavailable"
 
@@ -450,6 +452,10 @@ class GovernedContext:
     truthcore: dict[str, Any] = field(default_factory=dict)
     provider_messages: list[dict[str, Any]] = field(default_factory=list)
     provider_call_count: int = 0
+    provider_latency_ms: int = 0
+    started_monotonic: float = field(default_factory=time.monotonic)
+    deadline_at_monotonic: float | None = None
+    cancellation_entry: Any = None
     warnings: list[str] = field(default_factory=list)
 
     def add_stage(self, name: str, stage_type: str, inputs: dict[str, Any] | None = None) -> GovernedStage:

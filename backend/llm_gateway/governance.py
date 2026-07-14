@@ -18,21 +18,6 @@ from backend.security.ai_guardrail import AIGuardrailService
 from backend.security.prompt_injection_shield import validate_user_input
 
 
-DEFAULT_MODEL_COSTS_USD_PER_1K = {
-    "gpt-5.5": {"input": 0.005, "output": 0.03},
-    "gpt-5.4": {"input": 0.0025, "output": 0.015},
-    "gpt-5": {"input": 0.01, "output": 0.03},
-    "gpt-4": {"input": 0.01, "output": 0.03},
-    "gpt-5.4-mini": {"input": 0.00075, "output": 0.003},
-    "gpt-5.4-nano": {"input": 0.00015, "output": 0.0006},
-    "gpt-5-mini": {"input": 0.002, "output": 0.006},
-    "gpt-5-nano": {"input": 0.001, "output": 0.003},
-    "gemini": {"input": 0.003, "output": 0.009},
-    "claude": {"input": 0.008, "output": 0.024},
-    "default": {"input": 0.002, "output": 0.006},
-}
-
-
 @dataclass
 class GovernanceDecision:
     ok: bool
@@ -297,33 +282,30 @@ class AIGovernanceEngine:
         return final_output, classification, warnings
 
     @staticmethod
-    def estimate_cost_usd(model: str, tokens_in: int, tokens_out: int) -> float:
-        pricing = DEFAULT_MODEL_COSTS_USD_PER_1K.copy()
+    def estimate_cost_usd(model: str, tokens_in: int, tokens_out: int) -> Optional[float]:
+        """Estimate only from owner-installed pricing; missing data is unknown."""
         raw_pricing = os.environ.get("AI_MODEL_PRICING_USD_PER_1K")
-        if raw_pricing:
-            try:
-                parsed = json.loads(raw_pricing)
-                if isinstance(parsed, dict):
-                    for key, value in parsed.items():
-                        if isinstance(value, dict):
-                            pricing[str(key).lower()] = {
-                                "input": float(value.get("input", pricing["default"]["input"])),
-                                "output": float(value.get("output", pricing["default"]["output"])),
-                            }
-            except Exception:
-                pass
+        if not raw_pricing:
+            return None
+        try:
+            pricing = json.loads(raw_pricing)
+        except Exception:
+            return None
+        if not isinstance(pricing, dict):
+            return None
 
         normalized_model = (model or "").strip().lower()
-        selected_rate = pricing["default"]
-        for prefix, rate in pricing.items():
-            if prefix == "default":
-                continue
-            if normalized_model.startswith(prefix):
-                selected_rate = rate
-                break
+        selected_rate = pricing.get(normalized_model)
+        if not isinstance(selected_rate, dict):
+            return None
+        try:
+            input_rate = float(selected_rate["input"])
+            output_rate = float(selected_rate["output"])
+        except (KeyError, TypeError, ValueError):
+            return None
 
-        in_cost = (max(0, int(tokens_in)) / 1000.0) * float(selected_rate["input"])
-        out_cost = (max(0, int(tokens_out)) / 1000.0) * float(selected_rate["output"])
+        in_cost = (max(0, int(tokens_in)) / 1000.0) * input_rate
+        out_cost = (max(0, int(tokens_out)) / 1000.0) * output_rate
         return round(in_cost + out_cost, 8)
 
     def record_audit_event(self, **payload: Any) -> None:

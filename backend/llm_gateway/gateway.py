@@ -9,33 +9,25 @@ the legacy ``GatewayRequest``/``GatewayResponse`` transport adapter.
 import asyncio
 import logging
 import os
-import sys
 import uuid
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
 from typing import Any, AsyncIterator, Optional
 from dataclasses import dataclass, field
 
-# Add SDK to path
-SDK_PATH = Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Python_SDK"
-if str(SDK_PATH) not in sys.path:
-    sys.path.insert(0, str(SDK_PATH))
-
 from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
 from backend.llm_gateway.model_defaults import (
-    ANTHROPIC_PRIMARY_MODEL,
-    GOOGLE_FAST_MODEL,
-    GOOGLE_PRIMARY_MODEL,
-    OPENAI_FAST_MODEL,
-    OPENAI_LONG_CONTEXT_MODEL,
-    OPENAI_NANO_MODEL,
-    OPENAI_PRO_MODEL,
-    OPENAI_RESEARCH_MODEL,
-    OPENAI_STANDARD_MODEL,
     default_model_for_provider,
 )
+from backend.llm_gateway.provider_manifest import (
+    PROVIDERS,
+    normalize_provider_type,
+    provider_definition,
+    validate_provider_model,
+)
+from backend.llm_gateway.providers import GoogleProvider, OpenAIProvider
 
 logger = logging.getLogger(__name__)
 
@@ -138,15 +130,16 @@ class NetworkState:
             return dict(cls._last_result)
 
         providers = cls._configured_providers()
-        # Cloud-only: the app reaches its LLM over the network, so reachability is
-        # simply whether a cloud provider (OpenAI / Google) is configured.
-        state = "ONLINE" if providers else "OFFLINE"
+        # A stored key proves configuration, not reachability or entitlement.
+        # Only the explicit provider-test path may promote this to available.
+        state = "CONFIGURED" if providers else "OFFLINE"
         active_provider = providers[0] if providers else None
         cls._last_checked = now
         cls._last_result = {
             "state": state,
             "last_checked": now.isoformat(),
             "active_provider": active_provider,
+            "provider_status": "stored" if providers else "not_configured",
             "details": {
                 "configured_providers": providers,
                 "ttl_seconds": cls._ttl_seconds,
@@ -157,15 +150,9 @@ class NetworkState:
     @staticmethod
     def _configured_providers() -> list[str]:
         providers: list[str] = []
-        env_map = {
-            "openai": "OPENAI_API_KEY",
-            "anthropic": "ANTHROPIC_API_KEY",
-            "google": "GOOGLE_API_KEY",
-            "azure": "AZURE_OPENAI_API_KEY",
-        }
-        for provider, env_name in env_map.items():
-            if os.environ.get(env_name):
-                providers.append(provider)
+        for provider in PROVIDERS:
+            if any(os.environ.get(env_name) for env_name in provider.api_key_environment):
+                providers.append(provider.id)
 
         # Also count providers configured in the database (keys saved through the
         # Settings UI). Without this the desktop app reports OFFLINE even after a
@@ -173,7 +160,6 @@ class NetworkState:
         for provider_type in NetworkState._db_configured_provider_types():
             if provider_type not in providers:
                 providers.append(provider_type)
-
         return providers
 
     @staticmethod
@@ -189,7 +175,11 @@ class NetworkState:
             for row in rows:
                 if getattr(row, "api_key_encrypted", None):
                     provider_type = str(getattr(row, "provider_type", "") or "").strip().lower()
-                    if provider_type and provider_type not in types:
+                    try:
+                        provider_type = normalize_provider_type(provider_type)
+                    except ValueError:
+                        continue
+                    if provider_type not in types:
                         types.append(provider_type)
             return types
 
@@ -305,12 +295,13 @@ class LLMGateway:
 
     @staticmethod
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
-        if request.model:
-            return str(request.model)
-        provider_type = str(getattr(provider_record, "provider_type", "") or "").lower()
-        if provider_record and getattr(provider_record, "model_id", None):
-            return str(provider_record.model_id)
-        return default_model_for_provider(provider_type or None)
+        provider_type = normalize_provider_type(
+            str(getattr(provider_record, "provider_type", "") or request.provider or "")
+        )
+        selected_model = request.model
+        if not selected_model and provider_record and getattr(provider_record, "model_id", None):
+            selected_model = str(provider_record.model_id)
+        return validate_provider_model(provider_type, selected_model)
 
     @staticmethod
     def _positive_int(value: Any, default: int, minimum: int = 1, maximum: int = 60) -> int:
@@ -430,8 +421,9 @@ class LLMGateway:
         if any(marker in lowered for marker in retryable_markers):
             return True
 
-        # Unknown provider errors are treated as transient unless explicitly classified otherwise.
-        return True
+        # Unknown errors fail closed. Retrying them can duplicate non-idempotent
+        # work and masks contract/provider bugs as transient network incidents.
+        return False
 
     @staticmethod
     async def _retry_backoff_sleep(attempt: int) -> None:
@@ -524,6 +516,7 @@ class LLMGateway:
         if not response.ok:
             yield {
                 "type": "error",
+                "delivery_mode": "buffered",
                 "error": response.error or "Gateway failed",
                 "run_id": response.run_id,
                 "provider_used": response.provider_used,
@@ -537,6 +530,7 @@ class LLMGateway:
             await asyncio.sleep(0)
             yield {
                 "type": "chunk",
+                "delivery_mode": "buffered",
                 "index": index // chunk_size,
                 "content": content[index:index + chunk_size],
                 "run_id": response.run_id,
@@ -546,6 +540,7 @@ class LLMGateway:
 
         yield {
             "type": "done",
+            "delivery_mode": "buffered",
             "run_id": response.run_id,
             "provider_used": response.provider_used,
             "model_used": response.model_used,
@@ -553,74 +548,38 @@ class LLMGateway:
         }
 
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
-        """Create SDK provider instance from database config."""
-        import os
-        try:
-            from ukg_sdk.providers import (
-                OpenAIProvider,
-                AzureOpenAIProvider,
-                AnthropicProvider,
-                GoogleGeminiProvider,
-            )
-        except ImportError:
-            logger.warning("UKG SDK providers not available, using fallback")
-            return None
-        
+        """Create a backend-owned async adapter for a supported provider."""
         if not provider_record:
-            # Fallback to environment
-            return OpenAIProvider()
-        
-        # Try to get API key from database, fallback to environment
+            raise ValueError("No provider configured")
+
+        provider_type = normalize_provider_type(
+            str(getattr(provider_record, "provider_type", "") or "")
+        )
+        definition = provider_definition(provider_type)
         api_key = None
         try:
             api_key = provider_record.get_api_key()
-        except Exception as e:
-            logger.warning(f"Failed to decrypt API key for {provider_record.name}: {e}")
-        
-        # Safety check for provider_type attribute
-        raw_type = getattr(provider_record, 'provider_type', 'openai')
-        provider_type = str(raw_type).lower() if raw_type else 'openai'
-        
-        # Fallback to environment variable if decryption failed
-        if not api_key:
-            env_key_map = {
-                "openai": "OPENAI_API_KEY",
-                "anthropic": "ANTHROPIC_API_KEY",
-                "azure": "AZURE_OPENAI_API_KEY",
-                "google": "GOOGLE_API_KEY",
-                "gemini": "GEMINI_API_KEY"
-            }
-            env_var = env_key_map.get(provider_type, f"{provider_type.upper()}_API_KEY")
-            api_key = os.environ.get(env_var)
-            
-            # Special check for Gemini if Google key missing
-            if provider_type == "google":
-                api_key = api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-            elif provider_type == "anthropic":
-                # Backward compatibility for older .env naming
-                api_key = api_key or os.getenv("anthropic_API_KEY")
+        except Exception as exc:
+            logger.warning("Failed to decrypt API key for %s: %s", provider_record.name, exc)
 
-            if api_key:
-                logger.info(f"Using {env_var} environment variable for {provider_record.name}")
-            else:
-                logger.warning(f"No API key available for {provider_record.name}")
-        
-        if provider_type == "openai":
-            return OpenAIProvider(api_key=api_key)
-        elif provider_type == "azure":
-            return AzureOpenAIProvider(
-                api_key=api_key,
-                endpoint=provider_record.endpoint,
-                deployment=provider_record.deployment_name,
-                api_version=provider_record.api_version,
+        if not api_key:
+            api_key = next(
+                (os.environ.get(name) for name in definition.api_key_environment if os.environ.get(name)),
+                None,
             )
-        elif provider_type == "anthropic":
-            return AnthropicProvider(api_key=api_key)
-        elif provider_type in ["google", "gemini"]:
-             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or GOOGLE_PRIMARY_MODEL)
-        else:
-            # Default to OpenAI-compatible
-            return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
+        if not api_key:
+            raise ValueError(f"No API key available for {provider_type}")
+
+        timeout_seconds = self._provider_timeout_seconds(provider_record)
+        if provider_type == "openai":
+            return OpenAIProvider(
+                api_key=api_key,
+                base_url=getattr(provider_record, "endpoint", None),
+                timeout_seconds=timeout_seconds,
+            )
+        if provider_type == "google":
+            return GoogleProvider(api_key=api_key, timeout_seconds=timeout_seconds)
+        raise ValueError(f"Unsupported provider: {provider_type}")
 
     async def _get_eligible_providers(
         self,
@@ -629,229 +588,139 @@ class LLMGateway:
         allowed_provider_types: Optional[set[str]] = None,
         allowed_models: Optional[set[str]] = None,
     ) -> list[LLMProvider]:
-        """Get list of active providers ordered by priority and task complexity."""
-        import os
-        meta = meta or {}
-        task_tier = meta.get("tier", "high_stakes").lower()
-        
-        providers = []
-        
-        # Try to get providers from database.
-        # Must push an app context because this async method may be called from
-        # outside the Flask request lifecycle (Electron spawn, async coroutines).
-        try:
-            from flask import current_app as _cur_app
-            _app = _cur_app._get_current_object()
-        except RuntimeError:
-            _app = None
+        """Return exactly one explicitly selected supported provider.
 
-        def _query_db():
-            if preferred_name:
-                q = LLMProvider.query.filter(
-                    (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
-                    LLMProvider.is_active
-                )
-                return q.all()
-            else:
-                return LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
-
-        try:
-            if _app is not None:
-                with _app.app_context():
-                    providers = _query_db()
-            else:
-                providers = _query_db()
-        except Exception as e:
-            logger.warning(f"Failed to query providers from DB: {e}")
-            providers = []
-        
-        # Check for environment-based providers to fill missing types
-        if True:
-            # Create synthetic provider entries based on available API keys
-            # Create synthetic provider entries based on available API keys
-
-            # Helper class for synthetic providers
-            class EnvProvider:
-                def __init__(self, name, provider_type, priority=10, model=None):
-                    self.id = name
-                    self.name = name
-                    self.provider_type = provider_type
-                    self.endpoint = None
-                    self.deployment_name = None
-                    self.api_version = None
-                    self.model_id = model or default_model_for_provider(provider_type)
-                    self.priority = priority
-                    self.timeout_seconds = self._env_timeout_default
-                    self.max_retries = self._env_retry_default
-                def get_api_key(self):
-                    return None # _create_sdk_provider will fetch from env
-
-                _env_timeout_default = LLMGateway._positive_int(
+        The provider manifest is authoritative. This method never synthesizes a
+        cross-provider fallback chain and never maps an unknown value to OpenAI.
+        """
+        class EnvProvider:
+            def __init__(self, provider_type: str, priority: int) -> None:
+                definition = provider_definition(provider_type)
+                self.id = f"env:{provider_type}"
+                self.name = provider_type
+                self.provider_type = provider_type
+                self.endpoint = None
+                self.deployment_name = None
+                self.api_version = None
+                self.model_id = definition.default_model
+                self.priority = priority
+                self.is_default = False
+                self.timeout_seconds = LLMGateway._positive_int(
                     os.environ.get("LLM_PROVIDER_TIMEOUT_SECONDS"),
                     30,
                     minimum=1,
                     maximum=300,
                 )
-                _env_retry_default = LLMGateway._positive_int(
+                self.max_retries = LLMGateway._positive_int(
                     os.environ.get("LLM_PROVIDER_MAX_RETRIES"),
-                    3,
+                    2,
                     minimum=1,
-                    maximum=10,
+                    maximum=2,
                 )
-            
-            # Logic (2026 Generation) - 3 Layer Redundancy
-            # We need 3 slots: [Primary, Failover 1 (Cross-Provider), Failover 2 (Safety/Speed)]
-            
-            openai_key = os.environ.get("OPENAI_API_KEY")
-            google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-            anthropic_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic_API_KEY")
-            openai_primary_model = os.environ.get("OPENAI_MODEL_PRIMARY", OPENAI_PRO_MODEL)
-            openai_standard_model = os.environ.get("OPENAI_MODEL_STANDARD", OPENAI_STANDARD_MODEL)
-            openai_fast_model = os.environ.get("OPENAI_MODEL_FAST", OPENAI_FAST_MODEL)
-            openai_nano_model = os.environ.get("OPENAI_MODEL_NANO", OPENAI_NANO_MODEL)
-            openai_long_context_model = os.environ.get("OPENAI_MODEL_LONG_CONTEXT", OPENAI_LONG_CONTEXT_MODEL)
-            openai_research_model = os.environ.get("OPENAI_MODEL_RESEARCH", OPENAI_RESEARCH_MODEL)
-            google_primary_model = os.environ.get("GOOGLE_MODEL_PRIMARY", GOOGLE_PRIMARY_MODEL)
-            google_fast_model = os.environ.get("GOOGLE_MODEL_FAST", GOOGLE_FAST_MODEL)
-            anthropic_primary_model = os.environ.get("ANTHROPIC_MODEL_PRIMARY", ANTHROPIC_PRIMARY_MODEL)
 
-            providers_list = []
+            @staticmethod
+            def get_api_key() -> None:
+                return None
 
-            # Helpers to add unique providers
-            def add_provider(p_list, name, p_type, model, prio):
-                # Simple check to avoid exact duplicates if logic overlaps
-                for p in p_list:
-                    if p.name == name:
-                        return
-                p_list.append(EnvProvider(name, p_type, priority=prio, model=model))
+        try:
+            from flask import current_app as _current_app
 
-            # --- Construct 3-Layer List based on Tier ---
-            
-            if task_tier == "complex_reasoning":
-                # Layer 1: Peak Intelligence (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-primary", "openai", openai_primary_model, 1)
-                # Layer 2: Cross-Provider Strong (Google)
-                if google_key:
-                    add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
-                # Layer 3: Same-Provider Standard (OpenAI) or Other
-                if openai_key:
-                    add_provider(providers_list, "openai-safety", "openai", openai_standard_model, 3)
-                elif google_key:
-                    add_provider(providers_list, "google-safety", "google", google_fast_model, 3)
+            try:
+                app = _current_app._get_current_object()
+            except RuntimeError:
+                app = None
 
-            elif task_tier == "security_defense":
-                # High-Stakes Security Analysis routing
-                # Layer 1: Best Reasoning Available (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-defense", "openai", openai_primary_model, 1)
-                # Layer 2: Strongest Alternate (Google)
-                if google_key:
-                    add_provider(providers_list, "google-defense", "google", google_primary_model, 2)
-                # Layer 3: Fallback (OpenAI Standard)
-                if openai_key:
-                    add_provider(providers_list, "openai-defense-fallback", "openai", openai_standard_model, 3)
+            def _query_db() -> list[Any]:
+                return LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
 
-            elif task_tier == "deep_research":
-                # Layer 1: Autonomous Research (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-research", "openai", openai_research_model, 1)
-                # Layer 2: Strong Reasoning (Google)
-                if google_key:
-                    add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
-                # Layer 3: High Logic (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-fallback", "openai", openai_primary_model, 3)
-
-            elif task_tier in ["rag_heavy", "context_heavy"]:
-                # Layer 1: Massive Context (Google)
-                if google_key:
-                    add_provider(providers_list, "google-context", "google", google_primary_model, 1)
-                # Layer 2: Large Context Reliability (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-fallback", "openai", openai_long_context_model, 2)
-                # Layer 3: Speed/Capacity (Google)
-                if google_key:
-                    add_provider(providers_list, "google-flash", "google", google_fast_model, 3)
-
-            elif task_tier in ["fast_chat", "structured_workflow"]:
-                # Layer 1: Speed King (Google)
-                if google_key:
-                    add_provider(providers_list, "google-flash", "google", google_fast_model, 1)
-                # Layer 2: Structured Efficient (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-mini", "openai", openai_fast_model, 2)
-                # Layer 3: Robust Fallback (Google)
-                if google_key:
-                    add_provider(providers_list, "google-std", "google", google_primary_model, 3)
-                elif openai_key:
-                    add_provider(providers_list, "openai-nano", "openai", openai_nano_model, 3)
-
+            if app is not None:
+                with app.app_context():
+                    providers: list[Any] = _query_db()
             else:
-                # Default / General Chat
-                # Layer 1: Balanced (OpenAI)
-                if openai_key:
-                    add_provider(providers_list, "openai-default", "openai", openai_standard_model, 1)
-                # Layer 2: Balanced (Google)
-                if google_key:
-                    add_provider(providers_list, "google-default", "google", google_primary_model, 2)
-                # Layer 3: Speed (Google)
-                if google_key:
-                    add_provider(providers_list, "google-speed", "google", google_fast_model, 3)
-            
-            # If we still have space and Anthropic key exists, inject it as ultimate backup
-            if anthropic_key and len(providers_list) < 3:
-                add_provider(providers_list, "anthropic-backup", "anthropic", anthropic_primary_model, 4)
+                providers = _query_db()
+        except Exception as exc:
+            logger.warning("Failed to query providers from DB: %s", exc)
+            providers = []
 
-            preferred_env_provider = LLMGateway._preferred_env_provider()
+        supported_rows: list[Any] = []
+        for provider in providers:
+            try:
+                provider.provider_type = normalize_provider_type(provider.provider_type)
+            except (AttributeError, ValueError):
+                continue
+            supported_rows.append(provider)
 
-            if providers_list:
-                # Sort by configured env preference, then by tier priority.
-                providers_list.sort(key=LLMGateway._env_provider_sort_key)
-                logger.info(
-                    "Generated %s environment-based providers for tier '%s': %s",
-                    len(providers_list),
-                    task_tier,
-                    [p.name for p in providers_list],
+        present_types = {provider.provider_type for provider in supported_rows}
+        candidates = list(supported_rows)
+        for priority, definition in enumerate(PROVIDERS, start=1000):
+            if definition.id in present_types:
+                continue
+            if any(os.environ.get(name) for name in definition.api_key_environment):
+                candidates.append(EnvProvider(definition.id, priority))
+
+        normalized_allowed_types: set[str] = set()
+        for value in allowed_provider_types or set():
+            try:
+                normalized_allowed_types.add(normalize_provider_type(value))
+            except ValueError:
+                continue
+        if normalized_allowed_types:
+            candidates = [
+                provider for provider in candidates if provider.provider_type in normalized_allowed_types
+            ]
+
+        requested_type: str | None = None
+        if preferred_name:
+            try:
+                requested_type = normalize_provider_type(preferred_name)
+            except ValueError:
+                named = next(
+                    (
+                        provider
+                        for provider in candidates
+                        if str(getattr(provider, "name", "")).strip().lower()
+                        == str(preferred_name).strip().lower()
+                    ),
+                    None,
                 )
-                db_types = {str(getattr(p, "provider_type", "")).strip().lower() for p in providers}
-                added_types = set()
-                for p in providers_list:
-                    if p.provider_type not in db_types and p.provider_type not in added_types:
-                        providers.append(p)
-                        added_types.add(p.provider_type)
-
-            if preferred_env_provider and not preferred_name:
-                # A desktop env default is explicit operator intent. Do not
-                # silently fall back to saved legacy/local providers such as
-                # Ollama after the configured cloud provider fails.
-                allowed_env_types = {preferred_env_provider}
-                if preferred_env_provider == "google":
-                    allowed_env_types.add("gemini")
-                providers = [
-                    provider
-                    for provider in providers
-                    if str(getattr(provider, "provider_type", "") or "").strip().lower() in allowed_env_types
-                ]
-
-            providers.sort(key=LLMGateway._env_provider_sort_key)
-
-        if allowed_provider_types:
-            providers = [
-                provider
-                for provider in providers
-                if self._provider_matches_policy(provider, allowed_provider_types)
+                if named is None:
+                    return []
+                requested_type = named.provider_type
+        if requested_type:
+            candidates = [
+                provider for provider in candidates if provider.provider_type == requested_type
             ]
 
         if allowed_models:
-            filtered_by_model: list[LLMProvider] = []
-            for provider in providers:
-                provider_model = str(getattr(provider, "model_id", "") or "").strip().lower()
-                if not provider_model or provider_model in allowed_models:
-                    filtered_by_model.append(provider)
-            providers = filtered_by_model
+            normalized_models = {str(model).strip().lower() for model in allowed_models}
+            candidates = [
+                provider
+                for provider in candidates
+                if str(getattr(provider, "model_id", "") or default_model_for_provider(provider.provider_type)).strip().lower()
+                in normalized_models
+            ]
 
-        return providers
+        if not candidates:
+            return []
+
+        if requested_type:
+            selected = candidates[0]
+        else:
+            operator_default = self._preferred_env_provider()
+            selected = next(
+                (
+                    provider
+                    for provider in candidates
+                    if operator_default and provider.provider_type == operator_default
+                ),
+                None,
+            )
+            selected = selected or next(
+                (provider for provider in candidates if bool(getattr(provider, "is_default", False))),
+                None,
+            )
+            selected = selected or sorted(candidates, key=self._env_provider_sort_key)[0]
+        return [selected]
 
     @staticmethod
     def _parse_uuid_or_none(value: Any) -> Optional[uuid.UUID]:
@@ -974,24 +843,36 @@ class LLMGateway:
                 "usage": response.usage or {},
             }
         except Exception as e:
-            return {"ok": False, "error": str(e)}
+            return {"ok": False, "error": str(e), "exception": e}
     
     async def _record_usage(
         self,
         provider_id: Optional[uuid.UUID],
+        provider_type: str,
         user_id: Optional[int],
         api_key_id: Optional[str],
         run_id: str,
+        session_id: Optional[str],
         model: Optional[str],
         tokens_in: int,
         tokens_out: int,
         latency_ms: int,
         success: bool,
         estimated_cost_usd: Optional[float] = None,
+        purpose: str = "answer",
+        request_stage: str = "provider_execution",
+        attempt_number: int = 1,
+        retry_index: int = 0,
+        status: str = "completed",
+        error_class: Optional[str] = None,
         error_code: Optional[str] = None,
         error_message: Optional[str] = None,
-    ) -> None:
-        """Record usage for analytics."""
+        disclosed_categories: Optional[list[str]] = None,
+        idempotency_key: Optional[str] = None,
+        started_at: Optional[datetime] = None,
+        ended_at: Optional[datetime] = None,
+    ) -> bool:
+        """Persist one secret-free provider attempt in the durable ledger."""
         try:
             try:
                 from extensions import db
@@ -1012,20 +893,30 @@ class LLMGateway:
                     return None
 
             provider_uuid = _parse_uuid(provider_id)
-            if provider_uuid is None:
-                logger.debug("Skipping usage persistence for non-DB provider id: %s", provider_id)
-                return
 
             usage_payload = {
                 "provider_id": provider_uuid,
+                "provider_type": provider_type,
                 "user_id": user_id,
                 "api_key_id": _parse_uuid(api_key_id),
                 "run_id": _parse_uuid(run_id),
+                "session_id": str(session_id) if session_id else None,
                 "model": model,
+                "purpose": purpose,
+                "request_stage": request_stage,
+                "attempt_number": max(1, int(attempt_number)),
+                "retry_index": max(0, int(retry_index)),
                 "tokens_in": tokens_in,
                 "tokens_out": tokens_out,
                 "latency_ms": latency_ms,
+                "pricing_status": "available" if estimated_cost_usd is not None else "unknown",
+                "status": status,
                 "success": success,
+                "error_class": error_class,
+                "disclosed_categories": sorted(set(disclosed_categories or [])),
+                "idempotency_key": idempotency_key,
+                "started_at": started_at,
+                "ended_at": ended_at,
             }
 
             if hasattr(LLMProviderUsage, "estimated_cost_usd") and estimated_cost_usd is not None:
@@ -1034,29 +925,28 @@ class LLMGateway:
             if hasattr(LLMProviderUsage, "error_code") and error_code:
                 usage_payload["error_code"] = error_code
             if hasattr(LLMProviderUsage, "error_message") and error_message:
-                usage_payload["error_message"] = error_message
+                usage_payload["error_message"] = normalize_public_error_message(
+                    raw_error=error_message,
+                    fallback="Provider request failed",
+                )[:500]
 
             db.session.add(LLMProviderUsage(**usage_payload))
             try:
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-                if "error_code" in usage_payload or "error_message" in usage_payload:
-                    usage_payload.pop("error_code", None)
-                    usage_payload.pop("error_message", None)
-                    db.session.add(LLMProviderUsage(**usage_payload))
-                    db.session.commit()
-                else:
-                    raise
+                raise
 
             if provider_uuid:
                 provider = LLMProvider.query.get(provider_uuid)
                 if provider:
                     provider.last_used_at = datetime.now(UTC)
                     db.session.commit()
+            return True
                     
         except Exception as e:
-            logger.error(f"Failed to record usage: {e}")
+            logger.error("Failed to record provider usage ledger event: %s", e)
+            return False
     
     async def close(self) -> None:
         """Clean up."""

@@ -223,6 +223,7 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
     mock_resp.failure = {
         "kind": "provider_failure",
         "code": "PROVIDER_FAILURE",
+        "details": {"provider_failure": {"class": "provider_outage"}},
     }
 
     mock_gw_instance = mock_gateway_cls.return_value
@@ -236,7 +237,7 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
         )
     assert resp.status_code == 503
     assert resp.json['error'] == "Gateway failed to generate a response"
-    assert resp.json['code'] == "GATEWAY_REQUEST_FAILED"
+    assert resp.json['code'] == "PROVIDER_OUTAGE"
 
 
 def test_gateway_chat_rejects_disallowed_provider_policy(app_client):
@@ -522,6 +523,7 @@ def test_gateway_chat_failure_includes_audit_trail(app_client):
     mock_resp.failure = {
         "kind": "provider_failure",
         "code": "PROVIDER_FAILURE",
+        "details": {"provider_failure": {"class": "provider_outage"}},
     }
 
     mock_gateway_cls.return_value.process = AsyncMock(return_value=mock_resp)

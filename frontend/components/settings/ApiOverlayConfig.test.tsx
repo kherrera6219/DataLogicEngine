@@ -133,7 +133,9 @@ describe('ApiOverlayConfig', () => {
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Saved')).toHaveLength(2);
+      expect(screen.getByText('Saved')).toBeInTheDocument();
+      expect(screen.getByText('Stored')).toBeInTheDocument();
+      expect(toastMock).toHaveBeenCalledWith('API key saved.', 'success');
     }, { timeout: 2000 });
   });
 

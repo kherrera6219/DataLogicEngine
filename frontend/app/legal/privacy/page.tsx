@@ -84,7 +84,7 @@ export default function PrivacyPolicyPage() {
                 <p className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Cloud Dependency Disclosure</p>
                 <p className="text-blue-800 dark:text-blue-300 leading-relaxed">
                   AI reasoning features require internet access. Prompts, selected context, and provider/model metadata may be sent to the configured third-party AI provider for response generation.
-                  Supported provider families include <strong>OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI</strong>.
+                  The supported external provider families are <strong>OpenAI and Google Gemini</strong>. The exact supported models come from the application&apos;s generated provider manifest.
                 </p>
                 <p className="mt-2 text-blue-800 dark:text-blue-300">
                   Provider retention, training, regional handling, and logging are governed by the provider account, contract, and API settings you configure.

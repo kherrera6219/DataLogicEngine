@@ -17,6 +17,11 @@ import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 import { api, ApiError, buildApiUrl, request } from '@/lib/api';
+import {
+  CONFIGURABLE_PROVIDER_TYPES,
+  DEFAULT_MODEL_BY_PROVIDER,
+  MODEL_LIBRARY,
+} from '@/lib/provider-manifest.generated';
 
 interface TestResult {
   confidence: number | null;
@@ -50,13 +55,6 @@ interface SaveKeyResponse {
     type?: string;
   };
 }
-
-const PROVIDER_MODELS: Record<string, string[]> = {
-  openai: ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'],
-  anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
-  google: ['gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
-  azure: ['gpt-5.5', 'gpt-5.4'],
-};
 
 function formatDayLabel(date: Date): string {
   return date.toLocaleDateString(undefined, { weekday: 'short' });
@@ -132,7 +130,7 @@ function mapProviderTestError(error: unknown): ProviderTestError {
 export function ApiOverlayConfig() {
   const { toast } = useToast();
   const [provider, setProvider] = useState("openai");
-  const [model, setModel] = useState("gpt-5.5");
+  const [model, setModel] = useState(DEFAULT_MODEL_BY_PROVIDER.openai);
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -208,7 +206,7 @@ export function ApiOverlayConfig() {
       .filter((entry) => (entry.type || entry.name || '').toLowerCase() === normalized)
       .map((entry) => entry.model)
       .filter((entry): entry is string => Boolean(entry));
-    const defaults = PROVIDER_MODELS[normalized] || [];
+    const defaults = MODEL_LIBRARY[normalized] || [];
     return Array.from(new Set([...fromProvider, ...defaults]));
   }, [provider, providers]);
 
@@ -421,8 +419,8 @@ export function ApiOverlayConfig() {
                   <span className="bg-blue-600 w-6 h-6 rounded-full text-xs flex items-center justify-center text-white">1</span>
                   Configure LLM Provider
                 </CardTitle>
-                {connectionStatus === 'success' && <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/50">Verified</Badge>}
-                {connectionStatus !== 'success' && saveStatus === 'saved' && <Badge variant="outline" className="border-blue-500/50 text-blue-300">Saved</Badge>}
+                {connectionStatus === 'success' && <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/50">Available</Badge>}
+                {connectionStatus !== 'success' && saveStatus === 'saved' && <Badge variant="outline" className="border-blue-500/50 text-blue-300">Stored</Badge>}
               </div>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
@@ -430,13 +428,7 @@ export function ApiOverlayConfig() {
                 <div className="space-y-2">
                   <label htmlFor="api-overlay-provider" className="text-xs font-bold uppercase text-gray-500">Provider</label>
                   <Select id="api-overlay-provider" value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} className="bg-white/5 border-white/10">
-                    {Array.from(new Set([
-                      ...providers.map((entry) => (entry.type || entry.name || '').toLowerCase()),
-                      'openai',
-                      'anthropic',
-                      'google',
-                      'azure',
-                    ].filter(Boolean))).map((entry) => (
+                    {CONFIGURABLE_PROVIDER_TYPES.map((entry) => (
                       <option key={entry} value={entry}>{entry}</option>
                     ))}
                   </Select>

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
@@ -16,7 +16,8 @@ Define the current UX architecture, route model, interaction patterns, design gu
 
 This version aligns the product design with the Phase 5 `governed.v1`
 lifecycle, explicit execution/failure states, stable trace identity, and the
-Phase 6 evidence/confidence boundary.
+Phase 6 evidence/confidence boundary and Phase 7 provider state, disclosure,
+budget, cancellation, ledger, and replay truth.
 
 ## Audience
 
@@ -227,6 +228,13 @@ Required clarity:
 5. connector behavior and scopes;
 6. storage lifecycle actions;
 7. privacy policy path.
+8. exact provider state: not configured, stored, validating, available, limited,
+   invalid, or unavailable;
+9. external data categories and remaining provider allowance before send;
+10. unknown pricing as unknown, never zero;
+11. cancellation, buffered-versus-native delivery, and whether replay storage
+    actually succeeded;
+12. owner review/export/reset for the content-free usage ledger.
 
 Relevant routes:
 
@@ -265,6 +273,9 @@ Design guardrail: heavy visualization and admin surfaces should not degrade firs
    stages, source IDs, claims, nullable confidence, warnings, and typed failure.
 9. Simulation state: unavailable until Phase 10; the UI must not imply that
    personas, providers, tools, or convergence ran.
+10. Provider execution state: stable client request ID, selected provider/model,
+    current call/token allowance, disclosed categories, cancellation state,
+    explicit failure class, queue persistence result, and `delivery_mode`.
 
 ---
 
@@ -319,8 +330,8 @@ Known current caveats:
 3. some specialist surfaces depend on backend data/configuration state;
 4. provider-backed features require configured provider credentials;
 5. graph/vector/object-store views depend on local data services and ingestion state.
-6. confidence remains unmeasured/null until the Phase 6 category-valid formula
-   and calibration work completes;
+6. confidence remains null whenever required `dle-confidence.v1` inputs are not
+   measured; installed provider calibration remains CP6-F;
 7. simulation returns an explicit Phase 10 capability boundary;
 8. installed OpenAI/Gemini trace proof remains CP5-E and release-blocking.
 
@@ -334,6 +345,12 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v3.1.0
+
+1. Added the Phase 7 provider state, preflight disclosure, server budget,
+   cancellation, usage-ledger, transient replay, and buffered-delivery UX
+   contract.
 
 ## Change notes for v3.0.0
 

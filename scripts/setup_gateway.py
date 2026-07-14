@@ -19,7 +19,6 @@ from app import app
 from extensions import db
 from models import LLMProvider, ExternalAPIKey, User
 from backend.llm_gateway.model_defaults import (
-    ANTHROPIC_PRIMARY_MODEL,
     GOOGLE_PRIMARY_MODEL,
     OPENAI_STANDARD_MODEL,
 )
@@ -42,49 +41,17 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="OpenAI",
                 provider_type="openai",
-                model_id=os.environ.get("OPENAI_MODEL_STANDARD", OPENAI_STANDARD_MODEL),
+                model_id=OPENAI_STANDARD_MODEL,
                 is_active=True,
                 is_default=True,
                 priority=10,
                 timeout_seconds=60,
-                max_retries=3,
+                max_retries=2,
+                config={"availability_status": "stored"},
             )
             provider.set_api_key(os.environ["OPENAI_API_KEY"])
             db.session.add(provider)
             providers_created.append("OpenAI")
-        
-        # Azure OpenAI
-        if os.environ.get("AZURE_OPENAI_API_KEY") and os.environ.get("AZURE_OPENAI_ENDPOINT"):
-            provider = LLMProvider(
-                name="Azure OpenAI",
-                provider_type="azure",
-                endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-                deployment_name=os.environ.get("AZURE_OPENAI_DEPLOYMENT", OPENAI_STANDARD_MODEL),
-                api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-                is_active=True,
-                is_default=not bool(os.environ.get("OPENAI_API_KEY")),  # Default if no OpenAI
-                priority=20,
-                timeout_seconds=60,
-            )
-            provider.set_api_key(os.environ["AZURE_OPENAI_API_KEY"])
-            db.session.add(provider)
-            providers_created.append("Azure OpenAI")
-        
-        # Anthropic
-        anthropic_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic_API_KEY")
-        if anthropic_key:
-            provider = LLMProvider(
-                name="Anthropic Claude",
-                provider_type="anthropic",
-                model_id=os.environ.get("ANTHROPIC_MODEL_PRIMARY", ANTHROPIC_PRIMARY_MODEL),
-                is_active=True,
-                is_default=False,
-                priority=30,
-                timeout_seconds=60,
-            )
-            provider.set_api_key(anthropic_key)
-            db.session.add(provider)
-            providers_created.append("Anthropic Claude")
         
         # Google Gemini
         google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
@@ -92,11 +59,13 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="Google Gemini",
                 provider_type="google",
-                model_id=os.environ.get("GOOGLE_MODEL_PRIMARY", GOOGLE_PRIMARY_MODEL),
+                model_id=GOOGLE_PRIMARY_MODEL,
                 is_active=True,
-                is_default=False,
-                priority=40,
+                is_default=not bool(os.environ.get("OPENAI_API_KEY")),
+                priority=20,
                 timeout_seconds=60,
+                max_retries=2,
+                config={"availability_status": "stored"},
             )
             provider.set_api_key(google_key)
             db.session.add(provider)
@@ -108,8 +77,6 @@ def setup_default_providers():
         else:
             print("No API keys found in environment. Set one of:")
             print("  - OPENAI_API_KEY")
-            print("  - AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT")
-            print("  - ANTHROPIC_API_KEY")
             print("  - GOOGLE_API_KEY or GEMINI_API_KEY")
 
 

@@ -7,7 +7,7 @@ Also includes admin endpoints for provider and API key management.
 """
 
 import asyncio
-from datetime import datetime, UTC
+from datetime import datetime, timedelta, UTC
 from functools import wraps
 from flask import Blueprint, request, jsonify, Response, stream_with_context, g
 from flask_login import current_user
@@ -30,13 +30,26 @@ from models import (
 from backend.llm_gateway.gateway import LLMGateway, NetworkState
 from backend.governed_execution import GovernedRequest
 from backend.llm_gateway.model_defaults import SUPPORTED_PROVIDER_TYPES, default_model_for_provider
+from backend.llm_gateway.provider_manifest import normalize_provider_type, validate_provider_model
+from backend.llm_gateway.provider_errors import (
+    ProviderFailureClass,
+    classify_provider_failure,
+)
+from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import (
     api_session_login_required,
     current_user_is_owner,
     get_authenticated_principal,
 )
-from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
+from backend.desktop.offline_queue import (
+    REPLAYABLE_FAILURE_CLASSES,
+    delete_item,
+    enqueue_chat_request,
+    list_queue,
+    mark_item,
+)
+from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
 from backend.storage.runtime_settings import get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
 from backend.utils.error_normalization import normalize_public_error_message
@@ -103,6 +116,23 @@ def _positive_int(value):
 def _public_gateway_error(raw_error: Optional[str], fallback: str = "Gateway request failed") -> str:
     """Sanitize provider/internal failures before returning API responses."""
     return normalize_public_error_message(raw_error=raw_error, fallback=fallback)
+
+
+def _provider_failure_class(response) -> Optional[str]:
+    failure = getattr(response, "failure", None)
+    if not isinstance(failure, dict):
+        return None
+    details = failure.get("details") if isinstance(failure.get("details"), dict) else {}
+    provider_failure = (
+        details.get("provider_failure")
+        if isinstance(details.get("provider_failure"), dict)
+        else {}
+    )
+    classified = str(provider_failure.get("class") or "").strip().lower()
+    if classified:
+        return classified
+    kind = str(failure.get("kind") or "").strip().lower()
+    return "timeout" if kind == "timeout" else None
 
 
 def _audit_trail_for_run(run_id: Optional[str]) -> Optional[dict]:
@@ -216,6 +246,52 @@ def _apply_api_key_request_policy(payload: dict):
     return None
 
 
+def _gateway_failure_http_status(response) -> tuple[int, str]:
+    """Map the typed governed/provider failure to a truthful public HTTP state."""
+    failure = getattr(response, 'failure', None)
+    if not isinstance(failure, dict):
+        return 500, 'GATEWAY_INTERNAL_ERROR'
+    details = failure.get('details') if isinstance(failure.get('details'), dict) else {}
+    provider_failure = (
+        details.get('provider_failure')
+        if isinstance(details.get('provider_failure'), dict)
+        else {}
+    )
+    failure_class = str(provider_failure.get('class') or '').strip().lower()
+    provider_code = str(provider_failure.get('code') or failure.get('code') or '').strip().upper()
+    if provider_code == 'BUDGET_WARNING_CONFIRMATION_REQUIRED':
+        return 409, provider_code
+    if provider_code.endswith('_HARD_LIMIT'):
+        return 429, provider_code
+    mapping = {
+        ProviderFailureClass.INVALID_KEY.value: (401, 'INVALID_API_KEY'),
+        ProviderFailureClass.UNAUTHORIZED_MODEL.value: (403, 'MODEL_NOT_AUTHORIZED'),
+        ProviderFailureClass.INVALID_MODEL.value: (422, 'INVALID_MODEL'),
+        ProviderFailureClass.QUOTA_EXHAUSTED.value: (429, 'QUOTA_EXHAUSTED'),
+        ProviderFailureClass.BILLING_SUSPENDED.value: (402, 'BILLING_SUSPENDED'),
+        ProviderFailureClass.RATE_LIMITED.value: (429, 'RATE_LIMITED'),
+        ProviderFailureClass.NETWORK.value: (503, 'PROVIDER_NETWORK_ERROR'),
+        ProviderFailureClass.PROVIDER_OUTAGE.value: (503, 'PROVIDER_OUTAGE'),
+        ProviderFailureClass.TIMEOUT.value: (504, 'PROVIDER_TIMEOUT'),
+        ProviderFailureClass.POLICY_BLOCK.value: (403, provider_code or 'POLICY_BLOCK'),
+        ProviderFailureClass.MALFORMED_RESPONSE.value: (502, 'MALFORMED_PROVIDER_RESPONSE'),
+        ProviderFailureClass.CANCELLED.value: (409, 'REQUEST_CANCELLED'),
+        ProviderFailureClass.PERSISTENCE.value: (500, 'PERSISTENCE_FAILED'),
+        ProviderFailureClass.INTERNAL.value: (500, 'GATEWAY_INTERNAL_ERROR'),
+        ProviderFailureClass.UNKNOWN.value: (500, 'UNKNOWN_PROVIDER_FAILURE'),
+    }
+    if failure_class in mapping:
+        return mapping[failure_class]
+    kind = str(failure.get('kind') or '').strip().lower()
+    if kind == 'timeout':
+        return 504, 'REQUEST_TIMEOUT'
+    if kind == 'cancelled':
+        return 409, 'REQUEST_CANCELLED'
+    if kind == 'policy_block':
+        return 403, provider_code or 'POLICY_BLOCK'
+    return 500, provider_code or 'GATEWAY_INTERNAL_ERROR'
+
+
 # ============== API Key Authentication ==============
 
 def api_key_required(f):
@@ -313,6 +389,7 @@ async def gateway_chat():
         
     gateway_request = GovernedRequest(
         messages=messages,
+        request_id=data.get('request_id') or str(uuid.uuid4()),
         provider=data.get('provider'),
         model=data.get('model'),
         mode=data.get('mode', 'standard'),
@@ -339,14 +416,6 @@ async def gateway_chat():
     response = await gateway.process(gateway_request)
     
     if not response:
-        if get_offline_queue_enabled():
-            queued = enqueue_chat_request(data, reason="gateway_no_response")
-            return jsonify({
-                'error': 'No response generated from any provider',
-                'code': 'GATEWAY_QUEUED_OFFLINE',
-                'queued': True,
-                'queue_item': queued,
-            }), 202
         return jsonify({'error': 'No response generated from any provider'}), 503
 
     confidence_measurement = getattr(response, 'confidence_measurement', None)
@@ -357,26 +426,13 @@ async def gateway_chat():
         convergence = None
 
     if not getattr(response, "ok", True):
-        # Rate-limit errors (429 from the provider) must never be silently queued.
-        # The provider is reachable and the key is valid — the request was simply
-        # throttled.  Return 429 so the client can show an actionable message.
-        error_str = str(response.error or "").lower()
-        _rate_limit_markers = ("rate limit", "rate limited", "rate_limit", "quota exceeded", "insufficient_quota")
-        if any(m in error_str for m in _rate_limit_markers):
-            return jsonify({
-                'error': response.error or "Provider rate limited — please wait a moment and try again.",
-                'code': 'RATE_LIMITED',
-                'run_id': response.run_id,
-                'audit_trail': _audit_trail_for_run(response.run_id),
-                'provider_used': response.provider_used,
-                'model_used': response.model_used,
-                'contract_version': response.contract_version,
-                'status': response.status,
-                'failure': response.failure,
-            }), 429
-
-        if get_offline_queue_enabled():
-            queued = enqueue_chat_request(data, reason=_public_gateway_error(response.error, fallback='gateway_failed'))
+        failure_class = _provider_failure_class(response)
+        if get_offline_queue_enabled() and failure_class in REPLAYABLE_FAILURE_CLASSES:
+            queued = enqueue_chat_request(
+                data,
+                reason=failure_class,
+                failure_class=failure_class,
+            )
             return jsonify({
                 'error': _public_gateway_error(
                     response.error,
@@ -393,12 +449,13 @@ async def gateway_chat():
                 'queued': True,
                 'queue_item': queued,
             }), 202
+        http_status, public_code = _gateway_failure_http_status(response)
         return jsonify({
             'error': _public_gateway_error(
                 response.error,
                 fallback='Gateway failed to generate a response',
             ),
-            'code': 'GATEWAY_REQUEST_FAILED',
+            'code': public_code,
             'run_id': response.run_id,
             'audit_trail': _audit_trail_for_run(response.run_id),
             'provider_used': response.provider_used,
@@ -408,7 +465,7 @@ async def gateway_chat():
             'failure': response.failure,
             'confidence_measurement': confidence_measurement,
             'convergence': convergence,
-        }), 503
+        }), http_status
 
     output_classification = None
     if isinstance(response.explainability, dict):
@@ -461,6 +518,23 @@ def get_offline_queue():
     return api_response(list_queue())
 
 
+@gateway_bp.route('/requests/<request_id>/cancel', methods=['POST'])
+@api_session_login_required
+def cancel_gateway_request(request_id: str):
+    """Cancel an active request by its client-visible request id or trace id."""
+    if not CANCELLATION_REGISTRY.cancel(request_id):
+        return jsonify({
+            'cancelled': False,
+            'code': 'REQUEST_NOT_ACTIVE',
+            'message': 'No active request matched that identifier.',
+        }), 404
+    return api_response({
+        'cancelled': True,
+        'request_id': request_id,
+        'code': 'CANCELLATION_REQUESTED',
+    }, status_code=202)
+
+
 @gateway_bp.route('/offline-queue', methods=['POST'])
 @api_session_login_required
 def add_offline_queue_item():
@@ -473,15 +547,45 @@ def add_offline_queue_item():
     if not isinstance(payload, dict) or not payload.get("messages"):
         return jsonify({'error': 'payload.messages required'}), 400
 
-    queued = enqueue_chat_request(payload, reason=str(raw_data.get("reason") or "renderer_offline"))
+    failure_class = str(raw_data.get("failure_class") or "").strip().lower()
+    compatibility = {
+        "renderer_offline": "network",
+        "network_unavailable": "network",
+    }
+    failure_class = compatibility.get(failure_class, failure_class)
+    if failure_class not in REPLAYABLE_FAILURE_CLASSES:
+        return jsonify({
+            'error': 'failure_class must be network, provider_outage, or timeout',
+            'code': 'FAILURE_NOT_REPLAYABLE',
+        }), 400
+    try:
+        queued = enqueue_chat_request(
+            payload,
+            reason=failure_class,
+            failure_class=failure_class,
+        )
+    except ValueError:
+        logger.warning("Offline replay queue rejected an item at a configured limit")
+        return jsonify({
+            'error': 'Offline replay queue limit exceeded',
+            'code': 'OFFLINE_QUEUE_LIMIT',
+        }), 409
     return api_response({"queued": True, "queue_item": queued}, status_code=202)
+
+
+@gateway_bp.route('/offline-queue/<item_id>', methods=['DELETE'])
+@api_session_login_required
+def delete_offline_queue_item(item_id: str):
+    if not delete_item(item_id):
+        return jsonify({'error': 'Queue item not found'}), 404
+    return api_response({'deleted': True, 'id': item_id})
 
 
 @gateway_bp.route('/offline-queue/replay', methods=['POST'])
 @api_session_login_required
 async def replay_offline_queue():
     """Replay pending desktop chat requests through the normal gateway path."""
-    queue = list_queue()
+    queue = list_queue(include_payload=True)
     pending = [item for item in queue["items"] if item.get("status") == "pending"]
     results = []
     # DB-bound so replayed requests are governance-audited (A3-5).
@@ -492,6 +596,7 @@ async def replay_offline_queue():
         mark_item(str(item.get("id")), "pending")
         gateway_request = GovernedRequest(
             messages=payload.get("messages", []),
+            request_id=str(payload.get("request_id") or uuid.uuid4()),
             provider=payload.get("provider"),
             model=payload.get("model"),
             mode=payload.get("mode", "standard"),
@@ -527,8 +632,10 @@ async def replay_offline_queue():
                     "model_used": response.model_used,
                 }
             public_error = _public_gateway_error(error, fallback="Replay failed")
-            mark_item(str(item.get("id")), "failed", error=public_error, response=replay_response or None)
-            results.append({"id": item.get("id"), "status": "failed", "error": public_error, **replay_response})
+            failure_class = _provider_failure_class(response) if response else None
+            next_status = "pending" if failure_class in REPLAYABLE_FAILURE_CLASSES else "failed"
+            mark_item(str(item.get("id")), next_status, error=public_error, response=replay_response or None)
+            results.append({"id": item.get("id"), "status": next_status, "error": public_error, **replay_response})
 
     return api_response({"replayed": len(results), "results": results, "queue": list_queue()})
 
@@ -627,7 +734,11 @@ def gateway_chat_stream():
 @api_key_required
 def list_active_providers():
     """List active providers available to the user."""
-    providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+    providers = [
+        provider
+        for provider in LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+        if str(getattr(provider, 'provider_type', '')).lower() in SUPPORTED_PROVIDER_TYPES
+    ]
     api_key = getattr(g, 'api_key', None)
     if api_key:
         allowed_providers = _normalize_allowlist(api_key.allowed_providers)
@@ -647,6 +758,8 @@ def list_active_providers():
                 'model': p.model_id,
                 'is_default': p.is_default,
                 'has_api_key': bool(getattr(p, 'api_key_encrypted', None)),
+                'status': str((p.config or {}).get('availability_status') or ('stored' if p.api_key_encrypted else 'not_configured')),
+                'status_checked_at': (p.config or {}).get('availability_checked_at'),
             }
             for p in providers
         ]
@@ -689,11 +802,25 @@ def save_provider_key():
         )
         db.session.add(provider)
 
-    provider.model_id = model_id or provider.model_id or default_model_for_provider(provider_type)
+    try:
+        provider.model_id = validate_provider_model(
+            provider_type,
+            model_id or provider.model_id or default_model_for_provider(provider_type),
+        )
+    except ValueError:
+        return jsonify({
+            'error': 'Unsupported provider or model selection',
+            'code': 'INVALID_PROVIDER_MODEL',
+        }), 400
     provider.is_active = True
     provider.is_default = True
     provider.priority = 1
     provider.set_api_key(api_key)
+    provider.config = {
+        **(provider.config or {}),
+        'availability_status': 'stored',
+        'availability_checked_at': None,
+    }
 
     # Only one provider holds is_default=True.
     LLMProvider.query.filter(
@@ -873,11 +1000,20 @@ def create_provider():
         if not data.get(field):
             return jsonify({'error': f'{field} required'}), 400
     
+    try:
+        provider_type = normalize_provider_type(data['provider_type'])
+        model_id = validate_provider_model(provider_type, data.get('model_id'))
+    except ValueError:
+        return jsonify({
+            'error': 'Unsupported provider or model selection',
+            'code': 'INVALID_PROVIDER_MODEL',
+        }), 400
+
     provider = LLMProvider(
         name=data['name'],
-        provider_type=data['provider_type'],
+        provider_type=provider_type,
         endpoint=data.get('endpoint'),
-        model_id=data.get('model_id'),
+        model_id=model_id,
         deployment_name=data.get('deployment_name'),
         api_version=data.get('api_version'),
         is_active=data.get('is_active', True),
@@ -886,8 +1022,11 @@ def create_provider():
         rate_limit_rpm=data.get('rate_limit_rpm'),
         rate_limit_tpm=data.get('rate_limit_tpm'),
         timeout_seconds=data.get('timeout_seconds', 30),
-        max_retries=data.get('max_retries', 3),
-        config=data.get('config'),
+        max_retries=min(2, max(1, int(data.get('max_retries', 2)))),
+        config={
+            **(data.get('config') if isinstance(data.get('config'), dict) else {}),
+            'availability_status': 'stored' if data.get('api_key') else 'not_configured',
+        },
         created_by=actor.id,
     )
     
@@ -932,7 +1071,13 @@ def update_provider(provider_id):
     if 'endpoint' in data:
         provider.endpoint = data['endpoint']
     if 'model_id' in data:
-        provider.model_id = data['model_id']
+        try:
+            provider.model_id = validate_provider_model(provider.provider_type, data['model_id'])
+        except ValueError:
+            return jsonify({
+                'error': 'Unsupported provider or model selection',
+                'code': 'INVALID_PROVIDER_MODEL',
+            }), 400
     if 'deployment_name' in data:
         provider.deployment_name = data['deployment_name']
     if 'api_version' in data:
@@ -948,13 +1093,18 @@ def update_provider(provider_id):
     if 'timeout_seconds' in data:
         provider.timeout_seconds = data['timeout_seconds']
     if 'max_retries' in data:
-        provider.max_retries = data['max_retries']
+        provider.max_retries = min(2, max(1, int(data['max_retries'])))
     if 'config' in data:
         provider.config = data['config']
     
     # Update API key if provided
     if 'api_key' in data and data['api_key']:
         provider.set_api_key(data['api_key'])
+        provider.config = {
+            **(provider.config or {}),
+            'availability_status': 'stored',
+            'availability_checked_at': None,
+        }
     
     # Handle default setting
     if data.get('is_default'):
@@ -981,109 +1131,120 @@ def delete_provider(provider_id):
 @gateway_bp.route('/providers/<provider_id>/test', methods=['POST'])
 @api_session_login_required
 def test_provider(provider_id):
-    """Test provider connection using the Gateway SDK adapter."""
+    """Run a bounded live provider/model availability classification."""
     parsed = _parse_uuid_or_404(provider_id, 'provider_id')
     if isinstance(parsed, tuple):
         return parsed
     provider = LLMProvider.query.get_or_404(parsed)
     
+    adapter = None
+    provider.config = {
+        **(provider.config or {}),
+        'availability_status': 'validating',
+        'availability_checked_at': datetime.now(UTC).isoformat(),
+    }
+    db.session.commit()
     try:
-        # Use the Gateway's internal factory to create the provider instance
-        # This ensures we test exactly what the Gateway uses
         gateway = LLMGateway()
-        
-        # We need to manually construct the EnvProvider-like object or use the DB provider directly
-        # The gateway._create_sdk_provider expects an object with specific attributes
-        
-        # Use the internal helper to instantiate the adapter
         adapter = gateway._create_sdk_provider(provider)
-        
-        if not adapter:
-             return jsonify({
-                'success': False,
-                'status': 'error',
-                'error': 'Failed to create provider adapter (configuration invalid?)',
-            }), 503
-
-        # Run a simple completion check
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
-        # Simple "Hello" test
-        try:
-            start_time = datetime.now()
-            # Most providers support a simple prompt
-            response = loop.run_until_complete(adapter.complete(
+        if adapter is None:
+            raise ConnectionError("Failed to create provider adapter")
+        start_time = datetime.now(UTC)
+        response = asyncio.run(asyncio.wait_for(
+            adapter.complete(
                 messages=[{"role": "user", "content": "Hello, are you online?"}],
-                model=provider.model_id or "default",
-                # OpenAI's Responses API requires max_output_tokens >= 16; keep a
-                # small but valid budget for this liveness probe.
+                model=validate_provider_model(provider.provider_type, provider.model_id),
                 max_tokens=16
-            ))
-            duration = (datetime.now() - start_time).total_seconds() * 1000
-            loop.close()
-            
-            return jsonify({
-                'success': True,
-                'status': 'healthy',
-                'model': response.model or provider.model_id,
-                'latency_ms': round(duration, 2),
-                'message': 'Provider connection successful'
-            })
-            
-        except Exception as exc:
-            loop.close()
-            raise exc
+            ),
+            timeout=min(30, max(1, int(provider.timeout_seconds or 30))),
+        ))
+        duration = (datetime.now(UTC) - start_time).total_seconds() * 1000
+        provider.config = {
+            **(provider.config or {}),
+            'availability_status': 'available',
+            'availability_checked_at': datetime.now(UTC).isoformat(),
+            'availability_failure_class': None,
+        }
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'status': 'available',
+            'model': response.model or provider.model_id,
+            'latency_ms': round(duration, 2),
+            'message': 'Provider and model are available'
+        })
 
     except Exception as exc:
-        logger.error("Provider test failed for %s", provider_id, exc_info=True)
-        # Classify the failure so the UI can show an actionable message
-        # (e.g. "invalid API key") instead of a generic error.
-        raw = str(exc).lower()
-        if any(m in raw for m in ("401", "invalid api key", "invalid_api_key",
-                                  "incorrect api key", "unauthorized", "unauthenticated",
-                                  "authentication", "invalid authentication credentials",
-                                  "expected oauth 2", "api_key_invalid", "api key not valid",
-                                  "permission denied", "403", "forbidden")):
+        logger.error("Provider test failed for %s (%s)", provider_id, type(exc).__name__)
+        classified = classify_provider_failure(exc)
+        limited = classified.failure_class in {
+            ProviderFailureClass.RATE_LIMITED,
+            ProviderFailureClass.QUOTA_EXHAUSTED,
+            ProviderFailureClass.BILLING_SUSPENDED,
+        }
+        invalid = classified.failure_class in {
+            ProviderFailureClass.INVALID_KEY,
+            ProviderFailureClass.INVALID_MODEL,
+            ProviderFailureClass.UNAUTHORIZED_MODEL,
+        }
+        provider.config = {
+            **(provider.config or {}),
+            'availability_status': 'limited' if limited else ('invalid' if invalid else 'unavailable'),
+            'availability_checked_at': datetime.now(UTC).isoformat(),
+            'availability_failure_class': classified.failure_class.value,
+        }
+        db.session.commit()
+        if classified.failure_class is ProviderFailureClass.INVALID_KEY:
             return jsonify({
                 'success': False,
-                'status': 'invalid_api_key',
+                'status': 'invalid',
                 'error': 'Invalid API key',
                 'detail': 'The saved API key was rejected by the provider. Update the key and try again.',
                 'code': 'INVALID_API_KEY',
             }), 401
-        if any(m in raw for m in ("429", "rate limit", "quota", "insufficient_quota", "billing")):
+        if limited:
             return jsonify({
                 'success': False,
-                'status': 'rate_limited',
+                'status': 'limited',
                 'error': 'Rate limited or quota exceeded',
                 'detail': 'The provider rejected the request due to rate limits or quota. Check your plan/billing.',
                 'code': 'RATE_LIMITED',
             }), 429
-        if any(m in raw for m in ("model", "not found", "does not exist", "unsupported")):
+        if classified.failure_class in {ProviderFailureClass.INVALID_MODEL, ProviderFailureClass.UNAUTHORIZED_MODEL}:
             return jsonify({
                 'success': False,
-                'status': 'invalid_model',
+                'status': 'invalid',
                 'error': 'Model unavailable',
                 'detail': 'The configured model is not available for this key/provider.',
                 'code': 'INVALID_MODEL',
             }), 422
-        if any(m in raw for m in ("timeout", "timed out", "connection", "network",
-                                  "unreachable", "getaddrinfo", "ssl")):
+        if classified.failure_class in {
+            ProviderFailureClass.TIMEOUT,
+            ProviderFailureClass.NETWORK,
+            ProviderFailureClass.PROVIDER_OUTAGE,
+        }:
             return jsonify({
                 'success': False,
-                'status': 'network_error',
-                'error': 'Network error reaching provider',
-                'detail': 'Could not reach the provider endpoint. Check your internet connection.',
-                'code': 'NETWORK_ERROR',
-            }), 504
+                'status': 'unavailable',
+                'error': 'Provider request timed out' if classified.failure_class is ProviderFailureClass.TIMEOUT else 'Network error reaching provider',
+                'detail': 'The provider did not respond before the deadline.' if classified.failure_class is ProviderFailureClass.TIMEOUT else 'Could not reach the provider endpoint. Check your internet connection.',
+                'code': 'TIMEOUT' if classified.failure_class is ProviderFailureClass.TIMEOUT else 'NETWORK_ERROR',
+            }), 504 if classified.failure_class is ProviderFailureClass.TIMEOUT else 503
         return jsonify({
             'success': False,
-            'status': 'error',
+            'status': 'unavailable',
             'error': 'Provider connectivity check failed',
             'detail': 'The provider test failed for an unexpected reason. See logs for details.',
             'code': 'PROVIDER_TEST_FAILED',
         }), 502
+    finally:
+        if adapter is not None:
+            try:
+                close_result = adapter.close()
+                if asyncio.iscoroutine(close_result):
+                    asyncio.run(close_result)
+            except Exception:
+                logger.debug("Provider test client close failed", exc_info=True)
 
 
 # ============== AI Governance Registry ==============
@@ -1340,74 +1501,168 @@ def revoke_api_key(key_id):
 
 # ============== Usage Analytics ==============
 
-@admin_bp.route('/usage', methods=['GET'])
-@api_session_login_required
-def get_usage():
-    """Get usage analytics."""
+def _usage_ledger_entry(record: LLMProviderUsage) -> dict:
+    """Serialize only the secret-free/content-free local ledger contract."""
+    return {
+        'id': str(record.id),
+        'run_id': str(record.run_id) if record.run_id else None,
+        'session_id': record.session_id,
+        'provider': record.provider_type,
+        'model': record.model,
+        'purpose': record.purpose,
+        'request_stage': record.request_stage,
+        'attempt_number': record.attempt_number,
+        'retry_index': record.retry_index,
+        'tokens_in': int(record.tokens_in or 0),
+        'tokens_out': int(record.tokens_out or 0),
+        'latency_ms': record.latency_ms,
+        'estimated_cost_usd': record.estimated_cost_usd,
+        'pricing_status': record.pricing_status,
+        'status': record.status,
+        'error_class': record.error_class,
+        'disclosed_categories': list(record.disclosed_categories or []),
+        'started_at': record.started_at.isoformat() if record.started_at else None,
+        'ended_at': record.ended_at.isoformat() if record.ended_at else None,
+        'created_at': record.created_at.isoformat() if record.created_at else None,
+    }
+
+
+def _usage_ledger_summary(days: int = 30, session_id: str | None = None) -> dict:
+    """Build an owner-visible snapshot from the durable provider usage ledger."""
     from sqlalchemy import func
-    from datetime import timedelta
-    actor = get_authenticated_principal()
-    
-    # Filter by time range
-    days = request.args.get('days', 7, type=int)
-    since = db.func.now() - timedelta(days=days)
-    
-    query = LLMProviderUsage.query.filter(LLMProviderUsage.created_at >= since)
-    
-    # Non-admins only see their own usage
-    if not current_user_is_owner():
-        query = query.filter_by(user_id=actor.id)
-    
-    # Aggregate stats
-    total_requests = query.count()
-    successful = query.filter_by(success=True).count()
-    total_tokens_in = db.session.query(func.sum(LLMProviderUsage.tokens_in)).filter(
-        LLMProviderUsage.created_at >= since
-    ).scalar() or 0
-    total_tokens_out = db.session.query(func.sum(LLMProviderUsage.tokens_out)).filter(
-        LLMProviderUsage.created_at >= since
-    ).scalar() or 0
-    avg_latency = db.session.query(func.avg(LLMProviderUsage.latency_ms)).filter(
-        LLMProviderUsage.created_at >= since, LLMProviderUsage.success
-    ).scalar() or 0
-    try:
-        total_estimated_cost = db.session.query(func.sum(LLMProviderUsage.estimated_cost_usd)).filter(
-            LLMProviderUsage.created_at >= since
-        ).scalar() or 0
-    except Exception:
-        total_estimated_cost = 0
-    
-    # Usage by provider
-    by_provider = db.session.query(
-        LLMProvider.name,
+
+    bounded_days = max(1, min(int(days or 30), 366))
+    now = datetime.now(UTC)
+    since = now - timedelta(days=bounded_days)
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = day_start.replace(day=1)
+
+    def filtered_query(start: datetime):
+        query = LLMProviderUsage.query.filter(LLMProviderUsage.created_at >= start)
+        if session_id:
+            query = query.filter(LLMProviderUsage.session_id == str(session_id))
+        return query
+
+    def totals(start: datetime) -> dict:
+        query = filtered_query(start)
+        total_calls = query.count()
+        successful = query.filter(LLMProviderUsage.success.is_(True)).count()
+        tokens_in = query.with_entities(func.coalesce(func.sum(LLMProviderUsage.tokens_in), 0)).scalar() or 0
+        tokens_out = query.with_entities(func.coalesce(func.sum(LLMProviderUsage.tokens_out), 0)).scalar() or 0
+        known_cost_calls = query.filter(LLMProviderUsage.estimated_cost_usd.is_not(None)).count()
+        unknown_cost_calls = query.filter(LLMProviderUsage.estimated_cost_usd.is_(None)).count()
+        known_cost = query.with_entities(
+            func.coalesce(func.sum(LLMProviderUsage.estimated_cost_usd), 0.0)
+        ).scalar() or 0.0
+        return {
+            'calls': int(total_calls),
+            'successful_calls': int(successful),
+            'tokens_in': int(tokens_in),
+            'tokens_out': int(tokens_out),
+            'tokens_total': int(tokens_in) + int(tokens_out),
+            'known_estimated_cost_usd': float(known_cost) if known_cost_calls else None,
+            'known_price_calls': int(known_cost_calls),
+            'unknown_price_calls': int(unknown_cost_calls),
+        }
+
+    period = totals(since)
+    daily = totals(day_start)
+    monthly = totals(month_start)
+    limits = ProviderBudgetPolicy.configured_limits()
+    remaining = {
+        'daily_calls': max(0, int(limits['daily_calls'] or 0) - daily['calls']),
+        'monthly_calls': max(0, int(limits['monthly_calls'] or 0) - monthly['calls']),
+        'daily_tokens': max(0, int(limits['daily_tokens'] or 0) - daily['tokens_total']),
+        'monthly_tokens': max(0, int(limits['monthly_tokens'] or 0) - monthly['tokens_total']),
+        'monthly_spend_usd': (
+            None
+            if limits['monthly_spend_usd'] is None or monthly['known_estimated_cost_usd'] is None
+            else max(0.0, float(limits['monthly_spend_usd']) - float(monthly['known_estimated_cost_usd']))
+        ),
+    }
+    recent = filtered_query(since).order_by(LLMProviderUsage.created_at.desc()).limit(100).all()
+    by_provider_query = db.session.query(
+        LLMProviderUsage.provider_type,
         func.count(LLMProviderUsage.id),
-        func.sum(LLMProviderUsage.tokens_in),
-        func.sum(LLMProviderUsage.tokens_out),
+        func.coalesce(func.sum(LLMProviderUsage.tokens_in), 0),
+        func.coalesce(func.sum(LLMProviderUsage.tokens_out), 0),
         func.sum(LLMProviderUsage.estimated_cost_usd),
-    ).join(LLMProvider).filter(
-        LLMProviderUsage.created_at >= since
-    ).group_by(LLMProvider.name).all()
-    
-    return jsonify({
-        'period_days': days,
-        'total_requests': total_requests,
-        'successful_requests': successful,
-        'success_rate': successful / total_requests if total_requests > 0 else 0,
-        'total_tokens_in': total_tokens_in,
-        'total_tokens_out': total_tokens_out,
-        'total_estimated_cost_usd': float(total_estimated_cost),
-        'avg_latency_ms': round(avg_latency, 2),
+    ).filter(LLMProviderUsage.created_at >= since)
+    if session_id:
+        by_provider_query = by_provider_query.filter(
+            LLMProviderUsage.session_id == str(session_id)
+        )
+    by_provider_rows = by_provider_query.group_by(LLMProviderUsage.provider_type).all()
+
+    return {
+        'schema_version': 'provider-usage-ledger.v1',
+        'generated_at': now.isoformat(),
+        'period_days': bounded_days,
+        'session_id': session_id,
+        'limits': limits,
+        'remaining': remaining,
+        'period': period,
+        'daily': daily,
+        'monthly': monthly,
+        'pricing_status': (
+            'unknown'
+            if monthly['unknown_price_calls'] or not monthly['known_price_calls']
+            else 'available'
+        ),
         'by_provider': [
             {
                 'provider': row[0],
-                'requests': row[1],
-                'tokens_in': row[2] or 0,
-                'tokens_out': row[3] or 0,
-                'estimated_cost_usd': float(row[4] or 0) if len(row) > 4 else 0.0,
+                'calls': int(row[1] or 0),
+                'tokens_in': int(row[2] or 0),
+                'tokens_out': int(row[3] or 0),
+                'known_estimated_cost_usd': float(row[4]) if row[4] is not None else None,
             }
-            for row in by_provider
-        ]
-    })
+            for row in by_provider_rows
+        ],
+        'entries': [_usage_ledger_entry(record) for record in recent],
+    }
+
+
+@gateway_bp.route('/usage-ledger', methods=['GET'])
+@api_session_login_required
+def get_usage_ledger():
+    """Review current budgets and the content-free provider egress ledger."""
+    return jsonify(_usage_ledger_summary(
+        request.args.get('days', 30, type=int),
+        request.args.get('session_id'),
+    ))
+
+
+@gateway_bp.route('/usage-ledger/export', methods=['GET'])
+@api_session_login_required
+def export_usage_ledger():
+    """Export a redacted JSON ledger for local owner review."""
+    payload = _usage_ledger_summary(request.args.get('days', 366, type=int))
+    payload['export_notice'] = (
+        'This export excludes provider credentials, prompt/response content, and prohibited data.'
+    )
+    return jsonify(payload)
+
+
+@gateway_bp.route('/usage-ledger', methods=['DELETE'])
+@admin_required
+def reset_usage_ledger():
+    """Reset the local ledger after an explicit owner confirmation phrase."""
+    data = request.get_json(silent=True) or {}
+    if data.get('confirmation') != 'RESET_PROVIDER_USAGE_LEDGER':
+        return jsonify({
+            'error': 'Exact confirmation phrase required',
+            'required_confirmation': 'RESET_PROVIDER_USAGE_LEDGER',
+        }), 400
+    deleted = LLMProviderUsage.query.delete(synchronize_session=False)
+    db.session.commit()
+    return jsonify({'success': True, 'deleted_records': int(deleted or 0)})
+
+@admin_bp.route('/usage', methods=['GET'])
+@api_session_login_required
+def get_usage():
+    """Compatibility view backed by the Phase 7 ledger contract."""
+    return jsonify(_usage_ledger_summary(request.args.get('days', 7, type=int)))
 
 
 def register_gateway_routes(app):

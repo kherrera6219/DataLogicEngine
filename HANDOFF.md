@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.5.0 |
-| Completed phase | Phase 6 engineering checkpoint - Evidence, confidence, convergence, TruthCore, and KA validity |
-| Current phase | Phase 7 - Provider execution, latency, privacy, streaming, and offline behavior |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
+| Completed phase | Phase 7 engineering checkpoint - Provider execution, privacy, budgets, cancellation, and replay |
+| Current phase | Phase 8 - External API Gateway and LLM middleware productization |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -253,23 +253,38 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
-Phase 7 is active. It must consolidate the supported OpenAI/Google provider and
-model contract, remove unsupported production factories/fallbacks, enforce a
-request-wide deadline and cancellation, make streaming/retry/failover/offline
-behavior truthful, and account for cost/quota and privacy/egress without
-weakening the Phase 5/6 governed evidence path.
+Phase 7 reached its engineering checkpoint on 2026-07-13. One generated
+OpenAI/Google manifest is authoritative. Backend-owned async adapters execute
+through the single `governed.v1` orchestrator under a request-wide deadline,
+cancellation, bounded retry and circuit policy, server call/token/spend limits,
+and a content-free usage/egress ledger. Offline replay is encrypted and limited
+to transient network/provider-outage/timeout failures. The UI reports exact
+provider state, disclosure, budgets, cancellation, and owner ledger controls.
+Buffered delivery is labeled truthfully.
+
+Validation passed 1,945 backend tests with 18 skipped, 402 frontend tests, 25 SDK
+tests, frontend typecheck/lint/build, Ruff, Python compilation, generated
+manifest parity, documentation references, and migration head `d3e4f5a6b7c8`.
+CP7-F remains an explicit rebuilt-installed OpenAI/Google acceptance blocker;
+no provider-disabled fixture is represented as live evidence.
+
+Phase 8 is active. It must productize the external gateway without creating a
+parallel answer path or weakening the Phase 5-7 policy, evidence, provider,
+budget, privacy, and trace controls.
 
 ## Exact next action
 
-1. Inventory supported and legacy provider factories, model constants, SDK call
-   behavior, deadlines, retries, cancellation, streaming, usage/cost, egress,
-   offline queue/replay, and UI state.
-2. Add failure-first Phase 7 provider-contract tests before changing runtime code.
-3. Generate one OpenAI/Google capability manifest and remove unsupported
-   production fallbacks/factories/probes.
-4. Implement one request-wide deadline/cancellation and truthful streaming,
-   failover, quota, privacy, and offline/replay behavior.
-5. Keep CP5-E, CP6-F, all installed-only Phase 3/4 gates, alert 389, and the
+1. Inventory all external gateway routes, auth principals, API-key scopes and
+   client policy, API versions, virtual-model aliases, sync/SSE/async behavior,
+   SDK calls, desktop owner controls, and listener/interoperability surfaces.
+2. Add failure-first Phase 8 contract, auth-boundary, quota-isolation, and
+   canonical-path parity tests before expanding the surface.
+3. Define the versioned external request/event/error contract and virtual-model
+   mapping on top of the existing provider manifest and `governed.v1` path.
+4. Complete copy-once key lifecycle, client scopes/budgets, native governed SSE
+   and bounded async jobs, SDKs, desktop administration, and explicitly enabled
+   TLS/private listener qualification in the plan's order.
+5. Keep CP5-E, CP6-F, CP7-F, all installed-only Phase 3/4 gates, alert 389, and the
    SeaweedFS candidate-only boundary release-blocking until the rebuilt installed
    application can produce the authorized evidence.
 

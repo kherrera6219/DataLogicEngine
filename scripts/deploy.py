@@ -65,9 +65,7 @@ def check_prerequisites():
         azure_vars = [
             "AZURE_AD_TENANT_ID",
             "AZURE_AD_CLIENT_ID",
-            "AZURE_AD_CLIENT_SECRET",
-            "AZURE_OPENAI_ENDPOINT",
-            "AZURE_OPENAI_API_KEY"
+            "AZURE_AD_CLIENT_SECRET"
         ]
         
         missing_azure_vars = [var for var in azure_vars if not os.environ.get(var)]

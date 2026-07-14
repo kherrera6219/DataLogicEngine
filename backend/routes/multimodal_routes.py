@@ -3,13 +3,14 @@ Multimodal API Routes - PRODUCTION VERSION
 ------------------------------------------
 Exposes Audio, Video, and Document processing capabilities.
 """
+import asyncio
 import logging
 from dataclasses import dataclass
 from flask import Blueprint, request, jsonify
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from backend.auth.api_decorators import api_login_required
-from backend.services.audio_service import audio_service
+from backend.services.audio_service import AudioCapabilityUnavailable, audio_service
 from backend.services.video_service import video_service
 from backend.services.document_processor import document_processor
 from backend.utils.error_normalization import normalize_public_error_message
@@ -111,21 +112,26 @@ def _public_error(exc: Exception, fallback: str) -> str:
 
 @multimodal_bp.route('/audio/transcribe', methods=['POST'])
 @api_login_required
-async def transcribe_audio():
+def transcribe_audio():
     audio_bytes, filename, _mime_type, error = _read_validated_upload("file", AUDIO_UPLOAD_POLICY)
     if error:
         return jsonify(error[0]), error[1]
     
     try:
-        text = await audio_service.transcribe(audio_bytes, filename=filename)
+        text = asyncio.run(audio_service.transcribe(audio_bytes, filename=filename))
         return jsonify({"success": True, "text": text})
+    except AudioCapabilityUnavailable:
+        return jsonify({
+            "error": "Audio transcription is not available in this production profile",
+            "code": "AUDIO_CAPABILITY_UNAVAILABLE",
+        }), 501
     except Exception as e:
         logger.error("Transcription failed", exc_info=True)
         return jsonify({"error": _public_error(e, "Internal transcription error")}), 500
 
 @multimodal_bp.route('/audio/synthesize', methods=['POST'])
 @api_login_required
-async def synthesize_speech():
+def synthesize_speech():
     from backend.schemas.request_schemas import AudioSynthesizeRequest
     from pydantic import ValidationError
     
@@ -135,23 +141,28 @@ async def synthesize_speech():
         return jsonify({"error": e.errors()}), 400
     
     try:
-        audio_bytes = await audio_service.synthesize(req.text, voice=req.voice)
+        audio_bytes = asyncio.run(audio_service.synthesize(req.text, voice=req.voice))
         # In a real app, you might save to cloud storage and return a URL
         # For now, we return a success indicator
         return jsonify({"success": True, "message": "Speech synthesized successfully", "size": len(audio_bytes)})
+    except AudioCapabilityUnavailable:
+        return jsonify({
+            "error": "Speech synthesis is not available in this production profile",
+            "code": "AUDIO_CAPABILITY_UNAVAILABLE",
+        }), 501
     except Exception as e:
         logger.error(f"Synthesis failed: {e}")
         return jsonify({"error": "Internal synthesis error"}), 500
 
 @multimodal_bp.route('/video/analyze', methods=['POST'])
 @api_login_required
-async def analyze_video():
+def analyze_video():
     video_bytes, _filename, _mime_type, error = _read_validated_upload("file", VIDEO_UPLOAD_POLICY)
     if error:
         return jsonify(error[0]), error[1]
     
     try:
-        analysis = await video_service.analyze_video(video_bytes)
+        analysis = asyncio.run(video_service.analyze_video(video_bytes))
         return jsonify({"success": True, "analysis": analysis})
     except Exception as e:
         logger.error("Video analysis failed", exc_info=True)

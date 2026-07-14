@@ -11,13 +11,7 @@ from typing import Any, Dict, Optional
 
 KNOWN_PROVIDER_LABELS = {
     "openai",
-    "azure_openai",
-    "anthropic",
     "google",
-    "gemini",
-    "mistral",
-    "cohere",
-    "bedrock",
     "unknown",
     "none",
 }

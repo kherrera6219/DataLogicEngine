@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.19.0 |
+| Document version | v2.20.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,10 +21,10 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 6 engineering complete for CP6-A
-through CP6-E, with live provider/model evaluation and blinded human acceptance
-under CP6-F deferred to the rebuilt installed candidate. Phase 7 provider
-execution, latency, privacy, streaming, and offline behavior is active.
+The current execution checkpoint is Phase 7 engineering complete for CP7-A
+through CP7-E and CP7-G, with live installed OpenAI/Google acceptance under
+CP7-F deferred to the rebuilt candidate. Phase 8 external API Gateway and LLM
+middleware productization is active.
 Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
@@ -118,6 +118,9 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `docs/evaluation/QUALITY_EVALUATION.md` | Versioned Phase 6 corpus, metrics, thresholds, and provider/model evaluation contract. |
 | `docs/evaluation/HUMAN_REVIEW_RUBRIC.md` | Blinded human-review and disagreement-resolution procedure. |
 | `docs/evaluation/AI_SYSTEM_CARD.md` | Intended use, dependencies, evaluation limits, oversight, and known failure modes. |
+| `docs/PROVIDER_MODEL_SUPPORT.md` | Generated authoritative provider/model support view. |
+| `docs/PROVIDER_COST_QUOTA_POLICY.md` | Phase 7 provider call, token, retry, warning, unknown-price, and spend policy. |
+| `docs/LOCAL_USAGE_LEDGER_CONTRACT.md` | Content-free local provider usage/egress ledger and owner-control contract. |
 | `PRODUCTION_COMPLETION_PLAN_2026.md` (repository root) | Canonical 19-phase program for completing the local-first Windows governed LLM middleware/API gateway, production desktop control/administration/audit/validation application, full app-owned PostgreSQL/Redis/Neo4j/ChromaDB/MinIO data plane, qualification, production-documentation replacement, professional/Microsoft review dossier, consolidation, and signed release. |
 | `docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md` | Consolidated findings and corrections for the documentation audit slice and code audit slices 1-12. |
 | `docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md` | Packaged enhanced-chat, DMRF/DSQP, provider-routing, persistence, and Trace Explorer QC. |
@@ -127,6 +130,7 @@ crosswalk records their merge, generated replacement, archive, or deletion.
 | `reports/code_scanning_alerts_2026-07-08.md` | CodeQL exception-disclosure source analysis, remediation, and regression evidence. |
 | `reports/production-readiness/2026/phase-05/summary.md` | Phase 5 contract, causality, single-path, trace-truth, validation, risk, and deferred installed-proof evidence. |
 | `reports/production-readiness/2026/phase-06/summary.md` | Phase 6 evidence, confidence, convergence, TruthCore, KA, and evaluation checkpoint evidence. |
+| `reports/production-readiness/2026/phase-07/summary.md` | Phase 7 provider ownership, deadline/cancellation, budget, privacy ledger, replay, validation, and deferred live-provider evidence. |
 
 ### Documentation governance
 
@@ -223,6 +227,13 @@ The active documentation set has been normalized around:
 6. Phase 6 separation between trace presence and evidence/confidence validity;
 7. evidence-based security and compliance claims;
 8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.20.0
+
+1. Advanced the active checkpoint to Phase 8 and indexed the Phase 7 provider
+   manifest, cost/quota policy, local usage-ledger contract, and evidence.
+2. Preserved CP7-F as installed live-provider evidence rather than treating
+   deterministic provider fixtures as production acceptance.
 
 ## Change notes for v2.18.0
 

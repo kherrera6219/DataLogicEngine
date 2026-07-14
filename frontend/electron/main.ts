@@ -1314,19 +1314,9 @@ ipcMain.handle('network-status', async (event, ...args: unknown[]) => {
 
 ipcMain.handle('local-model-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'local-model-status', args);
-  try {
-    const response = await fetch('http://127.0.0.1:11434/api/tags');
-    if (!response.ok) {
-      return { ollama_available: false, models_installed: [], active_model: null };
-    }
-    const payload = await responseJson<{ models?: Array<{ name?: string }> }>(response);
-    const models = Array.isArray(payload?.models)
-      ? payload.models.map((model) => model.name).filter((name): name is string => Boolean(name))
-      : [];
-    return { ollama_available: true, models_installed: models, active_model: models[0] ?? null };
-  } catch {
-    return { ollama_available: false, models_installed: [], active_model: null };
-  }
+  // Compatibility response only. The cloud-only product never probes Ollama
+  // or any local model service from idle/background desktop status work.
+  return { ollama_available: false, models_installed: [], active_model: null };
 });
 
 ipcMain.handle('reasoning-layer-progress', async (event, ...args: unknown[]) => {

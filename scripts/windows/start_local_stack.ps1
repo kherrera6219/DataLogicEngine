@@ -226,12 +226,8 @@ if (-not $envMap["SESSION_SECRET"]) {
 
 $providerKeys = @(
     "OPENAI_API_KEY",
-    "ANTHROPIC_API_KEY",
-    "anthropic_API_KEY",
-    "AZURE_OPENAI_API_KEY",
     "GOOGLE_API_KEY",
-    "GEMINI_API_KEY",
-    "MISTRAL_API_KEY"
+    "GEMINI_API_KEY"
 )
 $providerConfigured = $false
 foreach ($key in $providerKeys) {

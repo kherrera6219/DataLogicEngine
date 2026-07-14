@@ -1,0 +1,26 @@
+{
+  "schema_version": "dle-phase-checks.v1",
+  "phase": 7,
+  "date": "2026-07-13",
+  "checks": [
+    {"name": "backend_full", "status": "passed", "passed": 1945, "skipped": 18, "warnings": 21},
+    {"name": "frontend_full", "status": "passed", "passed": 402, "files": 81},
+    {"name": "frontend_typecheck", "status": "passed"},
+    {"name": "frontend_lint", "status": "passed_with_warning", "errors": 0, "warnings": 1},
+    {"name": "frontend_production_build", "status": "passed"},
+    {"name": "sdk_full", "status": "passed", "passed": 25},
+    {"name": "ruff", "status": "passed"},
+    {"name": "python_compileall", "status": "passed"},
+    {"name": "provider_manifest_generated_parity", "status": "passed"},
+    {"name": "migration_matrix", "status": "passed", "revision_count": 17, "head": "d3e4f5a6b7c8"},
+    {"name": "secret_storage", "status": "passed", "findings": 0},
+    {"name": "public_error_contract", "status": "passed", "files_scanned": 397, "findings": 0},
+    {"name": "schema_parity", "status": "passed", "errors": 0, "warnings": 0},
+    {"name": "lockfile_governance", "status": "passed"},
+    {"name": "documentation_references", "status": "passed", "errors": 0},
+    {"name": "git_diff_check", "status": "passed"}
+  ],
+  "installed_live_provider_acceptance": "deferred_release_blocker",
+  "release_ready": false,
+  "release_verdict": "NO-GO"
+}

@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.5.0 |
-| Completed phase | Phase 6 engineering checkpoint - Evidence, confidence, convergence, TruthCore, and KA validity |
-| Next phase | Phase 7 - Provider execution, latency, privacy, streaming, and offline behavior |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
+| Completed phase | Phase 7 engineering checkpoint - Provider execution, privacy, budgets, cancellation, and replay |
+| Next phase | Phase 8 - External API Gateway and LLM middleware productization |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -104,6 +104,23 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Golden corpus `2026.07.13.1`, automated thresholds, provider/model drift gate,
   human rubric, and AI system card are versioned. Deterministic local checks
   pass; OpenAI, Google, blinded review, and owner approval remain pending.
+- Phase 7 CP7-A through CP7-E and CP7-G passed on 2026-07-13. Evidence is under
+  `reports/production-readiness/2026/phase-07/`; CP7-F installed live-provider
+  acceptance remains deferred and release-blocking.
+- One generated OpenAI/Google provider manifest now controls Python, TypeScript,
+  tests, product copy, and model support. Provider execution is backend-owned,
+  async, deadline-bound, cancelable, circuit-broken, and has no silent
+  cross-provider failover.
+- Every provider attempt consumes the server call budget and writes a
+  content-free egress/usage record. Session/day/month call and token ceilings,
+  optional known-price spend ceilings, unknown-price truth, warning confirmation,
+  and owner review/export/reset controls are implemented.
+- Offline replay accepts only network/provider-outage/timeout failures, encrypts
+  bounded expiring payloads, preserves idempotency, and re-runs policy. Current
+  governed SSE is accurately labeled buffered pending Phase 8 native delivery.
+- Final Phase 7 validation reports 1,945 backend tests (18 skipped), 402 frontend
+  tests, and 25 SDK tests passed, plus frontend typecheck/lint/build, Ruff,
+  compilation, generated-manifest, and 17-revision migration-head checks.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -155,18 +172,18 @@ offline behavior.
 
 ## Phase 7 work packages
 
-- [ ] Inventory provider/model factories, SDK call types, request-wide timeout
+- [x] Inventory provider/model factories, SDK call types, request-wide timeout
       gaps, retries/failover, cancellation, streaming, usage/cost, egress,
       offline queue/replay, and UI states.
-- [ ] Generate one supported OpenAI/Google provider/model capability manifest
+- [x] Generate one supported OpenAI/Google provider/model capability manifest
       for Python, TypeScript, tests, and docs.
-- [ ] Remove unknown-provider fallback and unsupported production factories and
+- [x] Remove unknown-provider fallback and unsupported production factories and
       probes; retain only explicit archived/disabled compatibility evidence.
-- [ ] Enforce one request-wide deadline and cancellation path through retrieval,
+- [x] Enforce one request-wide deadline and cancellation path through retrieval,
       provider execution, validation, persistence, and refinement.
-- [ ] Implement truthful streaming, retry/failover, quota/cost, privacy/egress,
+- [x] Implement truthful streaming, retry/failover, quota/cost, privacy/egress,
       and offline/replay contracts with failure-first tests.
-- [ ] Preserve separate installed corpus approval for every supported
+- [x] Preserve separate installed corpus approval for every supported
       provider/model combination; provider-disabled checks cannot approve live
       paths.
 
@@ -203,6 +220,12 @@ offline behavior.
 |---|---|---|
 | CP6-F | Every supported provider/model plus deterministic workflow passes the versioned corpus and signed blinded human sample | Deterministic contract row passed; OpenAI/Google installed evaluations, second reviewer, blinded sample, and owner approval deferred and release-blocking |
 
+## Phase 7 deferred release gate
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP7-F | Rebuilt installed app completes owner-run Google and OpenAI contract, latency, cancellation, trace, and no-secret evidence | Engineering fixtures and failure matrix passed; installed live-provider acceptance deferred and release-blocking |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -214,8 +237,8 @@ offline behavior.
 | 4 | Data contracts, migrations, backup, and recovery | **Engineering checkpoint complete 2026-07-13; installed exit gates retained** |
 | 5 | Canonical governed reasoning path | **Engineering checkpoint complete 2026-07-13; installed CP5-E retained** |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Engineering checkpoint complete 2026-07-13; installed CP6-F retained** |
-| 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Active** |
-| 8 | External API Gateway and LLM middleware productization | Blocked by prior phases |
+| 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Engineering checkpoint complete 2026-07-13; installed CP7-F retained** |
+| 8 | External API Gateway and LLM middleware productization | **Active** |
 | 9 | Ingestion, retrieval, graph, and memory completion | Blocked by prior phases |
 | 10 | Simulation completion | Blocked by prior phases |
 | 11 | MCP and connector completion | Blocked by prior phases |
@@ -243,9 +266,10 @@ offline behavior.
 
 ## Exact next action
 
-Begin Phase 7 with a live inventory of supported/legacy provider factories,
-model defaults, SDK calls, deadlines, retries, cancellation, streaming, cost and
-quota accounting, privacy/egress, offline queue/replay, and UI state. Add
-failure-first provider contract tests before consolidating the OpenAI/Google
-manifest or removing unsupported paths. Preserve CP5-E, CP6-F, all Phase 3/4
-installed gates, alert 389, and the SeaweedFS candidate-only boundary.
+Begin Phase 8 with a live inventory of external gateway routes, authentication
+principals, API-key scopes/policies, versioning, virtual-model mapping,
+sync/SSE/async behavior, SDK clients, desktop owner controls, listener modes,
+and same-host/private interoperability. Add failure-first external-contract and
+auth-boundary tests before extending the gateway. Preserve `governed.v1`, all
+Phase 7 budgets/egress controls, CP5-E/CP6-F/CP7-F, the Phase 3/4 installed
+gates, alert 389, and the SeaweedFS candidate-only boundary.

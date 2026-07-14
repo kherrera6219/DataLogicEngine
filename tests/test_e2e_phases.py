@@ -6,6 +6,7 @@ import asyncio
 import sys
 import os
 from datetime import datetime, UTC, timedelta
+import pytest
 
 sys.path.append(os.getcwd())
 
@@ -104,9 +105,10 @@ async def run_functional_tests():
     # Test 6: Audio Service
     print("\n[6/10] Testing AudioService...")
     try:
-        transcript = await audio_service.transcribe(b"dummy audio")
-        assert isinstance(transcript, str)
-        print("  ✓ PASS: AudioService transcribes audio")
+        from backend.services.audio_service import AudioCapabilityUnavailable
+        with pytest.raises(AudioCapabilityUnavailable):
+            await audio_service.transcribe(b"dummy audio")
+        print("  ✓ PASS: AudioService fails closed without a governed adapter")
     except Exception as e:
         errors.append(f"AudioService: {e}")
         print(f"  ✗ FAIL: {e}")

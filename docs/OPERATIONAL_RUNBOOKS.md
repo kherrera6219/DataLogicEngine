@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
+| Document version | v2.12.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -198,20 +198,29 @@ Relevant files:
 
 ---
 
-## Incident 5: LLM provider outage or failover
+## Incident 5: LLM provider outage or execution failure
 
 **Trigger:** Provider error rate/latency spikes, circuit breaker opens, or gateway-backed path fails.
 
 **Default severity:** `SEV-2`; upgrade for broad outage.
 
-1. Confirm provider status and gateway route behavior.
-2. Verify the configured cloud model. The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); a key must be saved in Settings → AI/Model (or set via `OPENAI_API_KEY` / `GOOGLE_API_KEY`). With no reachable provider, gateway chat returns a clear "No active providers found" error — it does not fail silently.
+1. Confirm exact provider status and gateway route behavior. `stored` means a key
+   exists; only `available` means the bounded live test passed.
+2. Verify the configured cloud model. The app uses one selected OpenAI
+   `gpt-5.5` or Google `gemini-3.1-pro-preview` path. It never silently fails over
+   to the other provider.
 3. Check `/metrics` for AI latency/error signals.
 4. Confirm DMRF/TruthCore does not silently return synthetic success.
-5. For provider outages (rate limit / 5xx / network): the gateway classifies the error (`invalid_api_key` 401, `rate_limited` 429, `invalid_model` 422, `network_error` 504) and surfaces it to the client. Confirm the saved key is valid and the provider's status page is healthy.
-6. Post internal status update.
-7. Re-enable primary provider only after sustained health.
-8. Capture incident metrics for reliability review.
+5. Verify the typed class and HTTP result: invalid key `401`, billing `402`,
+   unauthorized model/policy `403`, cancellation/warning confirmation `409`,
+   invalid model `422`, quota/rate/hard budget `429`, malformed response `502`,
+   network/outage `503`, timeout `504`, or persistence/internal `500`.
+6. Confirm only network, provider-outage, or timeout failures entered replay and
+   that no renderer message claimed queue success before durable encrypted write.
+7. Review the content-free usage ledger; every attempt/retry must consume budget
+   and record status without prompt/response content or secrets.
+8. Re-enable the selected provider only after sustained health and a successful
+   bounded test. Capture incident metrics for reliability review.
 
 Relevant files:
 
@@ -561,6 +570,49 @@ Relevant files:
 
 ---
 
+## Incident 19: Provider budget, ledger, or replay integrity failure
+
+**Trigger:** a hard limit is bypassed, usage is missing/duplicated after retry or
+restart, price unknown is shown as zero, ledger persistence fails after provider
+success, replay contains a non-transient failure, or queue encryption/expiry/
+size enforcement fails.
+
+**Default severity:** `SEV-1` for ungoverned egress, secret/content disclosure,
+or released output without durable usage evidence; otherwise `SEV-2`.
+
+1. Stop new provider-backed work and preserve redacted trace/ledger/queue
+   metadata. Never capture provider keys or prompt/response content in evidence.
+2. Confirm the server-owned limits: `AI_PROVIDER_CALLS_PER_SESSION`,
+   `AI_PROVIDER_CALLS_PER_DAY`, `AI_PROVIDER_CALLS_PER_MONTH`,
+   `AI_PROVIDER_TOKENS_PER_DAY`, `AI_PROVIDER_TOKENS_PER_MONTH`, and optional
+   `AI_PROVIDER_SPEND_USD_PER_MONTH`.
+3. Confirm trusted owner pricing is supplied only through
+   `AI_MODEL_PRICING_USD_PER_1K`; without it, price must remain unknown and
+   call/token limits must still apply.
+4. Compare the trace provider-attempt count with `provider-usage-ledger.v1`,
+   including retry index, purpose, stage, failure class, and idempotency key.
+5. On Windows production desktop, confirm offline queue encryption is DPAPI and
+   review `DATALOGIC_OFFLINE_QUEUE_MAX_ITEMS`,
+   `DATALOGIC_OFFLINE_QUEUE_MAX_BYTES`, and
+   `DATALOGIC_OFFLINE_QUEUE_EXPIRY_HOURS`.
+6. Delete unsafe queued items, correct the cause, and re-run policy before any
+   replay. Do not manually convert auth/policy/validation/persistence/
+   cancellation/internal failures into replayable work.
+7. Run the Phase 7 provider, cancellation, budget, ledger, queue, full backend,
+   frontend, and SDK gates before restoring provider-backed work.
+
+Relevant files:
+
+- `backend/llm_gateway/provider_budget.py`
+- `backend/llm_gateway/provider_errors.py`
+- `backend/llm_gateway/api.py`
+- `backend/desktop/offline_queue.py`
+- `models.py`
+- `docs/PROVIDER_COST_QUOTA_POLICY.md`
+- `docs/LOCAL_USAGE_LEDGER_CONTRACT.md`
+
+---
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.
@@ -575,6 +627,13 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Change notes for v2.12.0
+
+1. Replaced stale provider-failover guidance with the Phase 7 one-provider,
+   typed-failure, transient-replay, and exact provider-state contract.
+2. Added provider budget, usage-ledger, pricing, and replay-integrity incident
+   response with the owner-controlled environment limits.
 
 ## Change notes for v2.11.0
 

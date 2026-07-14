@@ -193,6 +193,10 @@ describe('ChatInterface', () => {
         },
         provider_used: 'openai',
         model_used: 'gpt-5',
+        failure: {
+          kind: 'provider_failure',
+          details: { provider_failure: { class: 'network' } },
+        },
       }),
     );
 

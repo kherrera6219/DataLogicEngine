@@ -21,20 +21,11 @@ import asyncio
 import concurrent.futures
 import logging
 import os
-import sys
-from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# Ensure the SDK is importable (mirrors gateway.py).
-_SDK_PATH = str(Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Python_SDK")
-if _SDK_PATH not in sys.path:
-    sys.path.insert(0, _SDK_PATH)
-
-# Provider types the user can select. gpt-5.5 (openai) and gemini-3.1-pro-preview
-# (google/gemini) are the only supported cloud models.
-_CLOUD_TYPES: tuple[str, ...] = ("openai", "google", "gemini")
+_CLOUD_TYPES: tuple[str, ...] = ("openai", "google")
 
 
 def _preferred_env_provider() -> str | None:
@@ -65,6 +56,7 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
         OPENAI_LATEST_MODEL,
         default_model_for_provider,
     )
+    from backend.llm_gateway.provider_manifest import normalize_provider_type, validate_provider_model
 
     preferred = _preferred_env_provider()
 
@@ -91,8 +83,9 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
                     in preferred_types
                 ]
             for row in rows:
-                ptype = str(getattr(row, "provider_type", "") or "").strip().lower()
-                if ptype not in _CLOUD_TYPES:
+                try:
+                    ptype = normalize_provider_type(getattr(row, "provider_type", None))
+                except ValueError:
                     continue
                 try:
                     key = row.get_api_key()
@@ -100,7 +93,10 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
                     key = None
                 if not key:
                     continue
-                model = str(getattr(row, "model_id", "") or "") or default_model_for_provider(ptype)
+                model = validate_provider_model(
+                    ptype,
+                    str(getattr(row, "model_id", "") or "") or default_model_for_provider(ptype),
+                )
                 return (ptype, key, model)
             return None
 
@@ -166,10 +162,10 @@ def generate_with_active_model(
     provider_type, api_key, model = resolved
 
     try:
-        from ukg_sdk.providers import GoogleGeminiProvider, OpenAIProvider
+        from backend.llm_gateway.providers import GoogleProvider, OpenAIProvider
 
-        if provider_type in ("google", "gemini"):
-            provider = GoogleGeminiProvider(api_key=api_key, model=model)
+        if provider_type == "google":
+            provider = GoogleProvider(api_key=api_key)
         else:
             provider = OpenAIProvider(api_key=api_key)
 
@@ -179,12 +175,15 @@ def generate_with_active_model(
         messages.append({"role": "user", "content": prompt})
 
         async def _call():
-            return await provider.complete(
-                messages=messages,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
+            try:
+                return await provider.complete(
+                    messages=messages,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+            finally:
+                await provider.close()
 
         response = _run_coro_sync(_call())
         text = getattr(response, "text", None)

@@ -100,7 +100,10 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     
     # Provider
     mock_prov = MagicMock()
-    mock_prov.model_id = "gpt-4"
+    mock_prov.provider_type = "openai"
+    mock_prov.model_id = "gpt-5.5"
+    mock_prov.timeout_seconds = 30
+    mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
     
     # Gateway Adapter
@@ -110,7 +113,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     # Adapter complete is async
     async def mock_complete(**kwargs):
         resp = MagicMock()
-        resp.model = "gpt-4-turbo"
+        resp.model = "gpt-5.5"
         return resp
         
     mock_adapter.complete = mock_complete
@@ -122,7 +125,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     
     assert resp.status_code == 200
     assert resp.json['success'] is True
-    assert resp.json['model'] == "gpt-4-turbo"
+    assert resp.json['model'] == "gpt-5.5"
     assert 'latency_ms' in resp.json
 
 @patch('flask_login.utils._get_user')
@@ -132,7 +135,12 @@ def test_test_provider_fail(mock_curr_user, app_client):
     mock_gateway_cls = mocks['Gateway']
     
     mock_curr_user.return_value = MockUser()
-    MockProvider.query.get_or_404.return_value = MagicMock()
+    mock_prov = MagicMock()
+    mock_prov.provider_type = "openai"
+    mock_prov.model_id = "gpt-5.5"
+    mock_prov.timeout_seconds = 30
+    mock_prov.config = {}
+    MockProvider.query.get_or_404.return_value = mock_prov
     
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance._create_sdk_provider.return_value = None # Adapter creation fails
@@ -141,7 +149,8 @@ def test_test_provider_fail(mock_curr_user, app_client):
     
     assert resp.status_code == 503
     assert resp.json['success'] is False
-    assert 'Failed to create provider adapter' in resp.json['error']
+    assert resp.json['status'] == 'unavailable'
+    assert resp.json['code'] == 'NETWORK_ERROR'
 
 
 @patch('flask_login.utils._get_user')
@@ -152,7 +161,10 @@ def test_test_provider_unauthenticated_error_returns_invalid_api_key(mock_curr_u
 
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
+    mock_prov.provider_type = "google"
     mock_prov.model_id = "gemini-3.1-pro-preview"
+    mock_prov.timeout_seconds = 30
+    mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
 
     mock_gw_instance = mock_gateway_cls.return_value
@@ -171,7 +183,7 @@ def test_test_provider_unauthenticated_error_returns_invalid_api_key(mock_curr_u
 
     assert resp.status_code == 401
     assert resp.json['success'] is False
-    assert resp.json['status'] == 'invalid_api_key'
+    assert resp.json['status'] == 'invalid'
     assert resp.json['code'] == 'INVALID_API_KEY'
 
 
@@ -183,7 +195,10 @@ def test_test_provider_model_error_remains_invalid_model(mock_curr_user, app_cli
 
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
-    mock_prov.model_id = "gemini-3.1-pro"
+    mock_prov.provider_type = "google"
+    mock_prov.model_id = "gemini-3.1-pro-preview"
+    mock_prov.timeout_seconds = 30
+    mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
 
     mock_gw_instance = mock_gateway_cls.return_value
@@ -202,7 +217,7 @@ def test_test_provider_model_error_remains_invalid_model(mock_curr_user, app_cli
 
     assert resp.status_code == 422
     assert resp.json['success'] is False
-    assert resp.json['status'] == 'invalid_model'
+    assert resp.json['status'] == 'invalid'
     assert resp.json['code'] == 'INVALID_MODEL'
 
 

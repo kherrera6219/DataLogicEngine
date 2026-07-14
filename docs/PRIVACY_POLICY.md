@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.11.0 |
 | Last updated | 2026-07-13 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -98,7 +98,11 @@ Local-first does not mean no data ever leaves the machine. Data can leave the ma
 
 ## 6. Cloud AI providers and third parties
 
-To provide advanced reasoning, DataLogicEngine may send selected prompts, context, provider/model metadata, and tool inputs to configured AI providers.
+To provide advanced reasoning, DataLogicEngine may send selected prompts,
+retrieved text or document chunks, persona/context material, tool results, and
+provider/model metadata to one configured AI provider for an owner-initiated
+governed request. The chat preflight identifies the applicable categories before
+external processing. The renderer cannot contact providers directly.
 
 Current cloud model providers exposed by the active app are:
 
@@ -109,7 +113,10 @@ Archived docs and future integrations may mention other providers, but they are 
 
 Data handling by these providers is governed by the provider account, API terms, regional settings, retention settings, enterprise agreement, and user/deployment configuration.
 
-You can control provider behavior through application settings where available, including AI model/provider selection and AI processing preferences.
+You can control provider behavior through application settings where available,
+including AI model/provider selection, AI processing preferences, server-owned
+call/token/spend limits, and the local usage-ledger controls. A configured key is
+not reported available until a bounded live test succeeds.
 
 ## 7. MCP connectors and external tools
 
@@ -143,6 +150,13 @@ Trace data may include:
 
 Trace exports may include section hashes, bundle hashes, optional HMAC signatures, optional encrypted payloads, and manifest metadata. Export integrity is designed to help users, reviewers, and auditors verify that an exported trace bundle has not been modified.
 
+Phase 7 also keeps a local content-free provider usage/egress ledger. It records
+provider/model, purpose, governed stage, retry/attempt identity, token counts,
+latency, status/failure class, disclosed data categories, timestamps, and a
+request/session reference. It does not store provider credentials or
+prompt/response content. Unknown price is stored as unknown, not zero. The local
+owner can review, export, or explicitly reset this ledger.
+
 ## 9. Data protection
 
 Current protection measures include:
@@ -162,6 +176,9 @@ Current protection measures include:
     coordinated backups using a user-controlled recovery passphrase;
 13. fail-closed production checks for protected Windows volumes and restricted
     runtime-root ACLs.
+14. DPAPI encryption for Windows offline replay payloads, with bounded item/byte
+    counts and expiry. Non-Windows Fernet replay is development/test-only;
+    production desktop replay fails closed without DPAPI.
 
 Implementation note: field-level encryption writes new payloads with AES-256-GCM; legacy Fernet-encrypted values remain decryptable for backward compatibility, and a Windows DPAPI helper protects local data.
 
@@ -239,6 +256,13 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.11.0
+
+1. Added Phase 7 provider preflight categories, one-provider/no-silent-failover
+   behavior, content-free local usage/egress records, and unknown-price truth.
+2. Documented DPAPI-protected, bounded, expiring transient-failure replay and
+   owner review/export/reset controls.
 
 ## Change notes for v2.10.0
 

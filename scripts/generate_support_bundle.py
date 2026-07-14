@@ -152,8 +152,6 @@ def _safe_environment() -> dict[str, Any]:
 
     safe_env["provider_keys_configured"] = {
         "OPENAI_API_KEY": bool(os.environ.get("OPENAI_API_KEY")),
-        "ANTHROPIC_API_KEY": bool(os.environ.get("ANTHROPIC_API_KEY")),
-        "AZURE_OPENAI_API_KEY": bool(os.environ.get("AZURE_OPENAI_API_KEY")),
         "GOOGLE_API_KEY": bool(os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")),
     }
     return safe_env

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShieldAlert, Info, AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { PROVIDER_MANIFEST } from '@/lib/provider-manifest.generated';
 
 export default function AILimitationsPage() {
   return (
@@ -70,17 +71,12 @@ export default function AILimitationsPage() {
           Depending on your settings and available credentials, requests may be routed to configured third-party providers:
         </p>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            { name: "OpenAI", models: "Configured OpenAI models" },
-            { name: "Anthropic", models: "Configured Claude models" },
-            { name: "Google Gemini / Vertex AI", models: "Configured Gemini models" },
-            { name: "Microsoft Azure OpenAI", models: "Configured Azure OpenAI deployments" }
-          ].map(p => (
-            <li key={p.name} className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
+          {PROVIDER_MANIFEST.providers.map((provider) => (
+            <li key={provider.id} className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
               <CheckCircle className="text-green-500 h-5 w-5" />
               <div>
-                <span className="font-bold block">{p.name}</span>
-                <span className="text-xs text-muted-foreground">{p.models}</span>
+                <span className="font-bold block">{provider.label}</span>
+                <span className="text-xs text-muted-foreground">{provider.models.map((model) => model.id).join(', ')}</span>
               </div>
             </li>
           ))}

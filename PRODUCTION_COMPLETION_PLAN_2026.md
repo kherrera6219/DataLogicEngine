@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,23 +18,25 @@
 
 ### Current execution checkpoint
 
-Phase 6 reached its engineering checkpoint on 2026-07-13. Typed sources,
-trace-bound evidence, stable claims/citations, explicit evidence relationships,
-versioned validators, `dle-confidence.v1`, and bounded convergence now execute
-and persist on the single `governed.v1` path. TruthCore publishes an exact
-preflight state/failure contract, all 125 KAs are classified, production-enabled
-KAs have semantic invariants, and experimental/placeholder execution is disabled
-by default. The local golden corpus, provider/model matrix, human rubric, and AI
-system card are versioned. Phase 7 is now active.
+Phase 7 reached its engineering checkpoint on 2026-07-13. One generated
+OpenAI/Google manifest now controls backend, frontend, test, and documentation
+model facts. The backend owns async provider adapters, one request-wide
+deadline, request cancellation, typed failure/retry policy, per-model circuit
+breakers, call/token/spend ceilings, content-free provider usage/egress records,
+and encrypted bounded offline replay. The UI exposes exact provider state,
+preflight disclosure, cancellation, warning confirmation, and owner ledger
+review/export/reset controls. Complete-response delivery is explicitly labeled
+`buffered`; native governed token release remains Phase 8 work. Phase 8 is now
+active.
 
 This checkpoint is not the full Phase 6 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
 license review, final object-store decision, and real installed OpenAI/Gemini
-trace proof, installed OpenAI/Google corpus results, and signed blinded human
-acceptance remain open gates that can only close against the later rebuilt
-release candidate.
+trace proof, installed OpenAI/Google corpus results, live Phase 7 provider
+acceptance, and signed blinded human acceptance remain open gates that can only
+close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -1641,6 +1643,41 @@ truthfully represented in the UI.
 - **CP7-G - Cost and quota:** per-request/session/day/month call, token, embedding,
   simulation, and estimated-spend limits are enforced server-side and remain
   correct across retry, cancellation, restart, and unknown-pricing conditions.
+
+### Engineering checkpoint disposition - 2026-07-13
+
+- **CP7-A passed:** `config/provider_manifest.v1.json` generates the Python,
+  TypeScript, test, settings, product-copy, and model-support views for OpenAI
+  `gpt-5.5` and Google `gemini-3.1-pro-preview`. Unsupported provider factories
+  and SDK-owned provider execution were removed.
+- **CP7-B passed:** `governed.v1` owns a server-capped request-wide deadline,
+  cancellation registry, bounded provider timeout, typed retries, circuit state,
+  and terminal trace finalization.
+- **CP7-C passed:** standard mode permits one answer call and enhanced mode at
+  most two total calls. Retries and refinement consume the same server budget;
+  there is no silent cross-provider failover.
+- **CP7-D passed:** migration `d3e4f5a6b7c8` persists a content-free local ledger
+  for every provider attempt, including purpose, stage, retry, token/latency,
+  result class, disclosed categories, and idempotency identity, without secrets
+  or prompt/response content.
+- **CP7-E passed:** only `network`, `provider_outage`, and `timeout` failures may
+  enter the encrypted, expiring, size-bounded offline queue. Replay preserves
+  idempotency and re-runs policy. Provider state and HTTP failure mapping are
+  explicit.
+- **CP7-F deferred release blocker:** the later rebuilt installed application
+  must complete owner-authorized OpenAI and Google contract/latency/cancellation
+  acceptance with redacted traces and separately supplied keys.
+- **CP7-G passed for engineering:** call and token ceilings are server enforced
+  per request/session/day/month. Optional known-price spend ceilings, 80-percent
+  confirmation, unknown-pricing behavior, and owner ledger controls are covered
+  by deterministic tests. Installed restart/reconciliation acceptance remains
+  part of CP7-F and Phase 15 evidence.
+
+The complete validation snapshot is 1,945 backend tests passed with 18 skipped,
+402 frontend tests passed, 25 SDK tests passed, frontend typecheck/lint/build,
+Ruff, Python compilation, generated-manifest parity, and migration head
+`d3e4f5a6b7c8`. Evidence is under
+`reports/production-readiness/2026/phase-07/`.
 
 ### Self-checks
 
@@ -3765,13 +3802,15 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 7** from the committed Phase 6 engineering checkpoint. Inventory
-the live provider factories, SDK calls, request deadlines, cancellation,
-streaming, retry/failover, cost/quota, egress/privacy, offline queue, and UI state
-before changing them. Add provider-contract and failure-first tests, then
-centralize the supported OpenAI/Google model manifest and remove unsupported
-production factories/fallbacks.
+Start **Phase 8** from the committed Phase 7 engineering checkpoint. Inventory
+the live external gateway routes, principals, key/scopes, client policy,
+versioning, virtual-model mapping, sync/SSE/async behavior, SDK surfaces,
+desktop administration, loopback/private listeners, and interoperability tests.
+Add failure-first external-contract and auth-boundary tests before expanding the
+surface. Preserve the one `governed.v1` orchestrator and Phase 7 provider budgets;
+the gateway must not become a second execution path.
 
 Preserve CP5-E, CP6-F, all installed-only Phase 3/4 gates, Dependabot alert 389,
 and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 7 must not treat a provider-disabled test as live-provider proof.
+blockers. Phase 8 must not treat source tests as installed same-host/private
+interoperability or live-provider proof.

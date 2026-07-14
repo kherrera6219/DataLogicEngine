@@ -1,0 +1,22 @@
+{
+  "schema_version": "dle-phase-evidence.v1",
+  "phase": 7,
+  "date": "2026-07-13",
+  "provider_manifest_version": "provider-manifest.v1",
+  "usage_ledger_schema": "provider-usage-ledger.v1",
+  "offline_queue_schema": "offline-queue.v2",
+  "migration_head": "d3e4f5a6b7c8",
+  "engineering_checkpoint": {
+    "status": "passed_with_deferred_installed_gate",
+    "checkpoints_passed": ["CP7-A", "CP7-B", "CP7-C", "CP7-D", "CP7-E", "CP7-G"],
+    "backend_tests_passed": 1945,
+    "backend_tests_skipped": 18,
+    "frontend_tests_passed": 402,
+    "sdk_tests_passed": 25
+  },
+  "installed_live_provider_acceptance": "deferred_release_blocker",
+  "native_governed_streaming": "deferred_to_phase_8",
+  "seaweedfs_production_selected": false,
+  "release_ready": false,
+  "release_verdict": "NO-GO"
+}

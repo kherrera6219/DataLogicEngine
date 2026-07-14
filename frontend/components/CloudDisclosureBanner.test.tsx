@@ -20,7 +20,7 @@ describe('CloudDisclosureBanner', () => {
     render(<CloudDisclosureBanner />);
     
     expect(screen.getByText(/Cloud AI Data Notice/i)).toBeInTheDocument();
-    expect(screen.getByText(/Local data stays on this device/i)).toBeInTheDocument();
+    expect(screen.getByText(/Local data stays in app-owned services on this device/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /LEARN MORE/i })).toHaveAttribute('href', '/about/cloud-services');
   });
 

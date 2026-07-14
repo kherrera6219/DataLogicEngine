@@ -56,8 +56,6 @@ async def _run(args: argparse.Namespace) -> int:
         raise RuntimeError("OPENAI_API_KEY is required for --provider openai")
     if provider == "google" and not (os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")):
         raise RuntimeError("GOOGLE_API_KEY or GEMINI_API_KEY is required for --provider google")
-    if provider == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
-        raise RuntimeError("ANTHROPIC_API_KEY is required for --provider anthropic")
 
     from app import create_app
     from backend.llm_gateway.gateway import GatewayRequest, LLMGateway
@@ -180,7 +178,7 @@ async def _run(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--provider", default="openai", choices=["openai", "google", "anthropic"])
+    parser.add_argument("--provider", default="openai", choices=["openai", "google"])
     parser.add_argument("--model", default=None)
     parser.add_argument("--query", default=DEFAULT_QUERY)
     parser.add_argument("--max-tokens", type=int, default=256)

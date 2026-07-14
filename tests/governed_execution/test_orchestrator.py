@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from types import SimpleNamespace
 from typing import Any
 
@@ -162,6 +163,18 @@ class _RefinementGateway(_Gateway):
             "answer": answer,
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
         }
+
+
+class _SlowGateway(_Gateway):
+    async def _direct_llm_call(self, provider, model, messages, temperature, max_tokens):
+        self.provider_calls += 1
+        await asyncio.sleep(30)
+        return {"ok": True, "answer": "late answer", "usage": {}}
+
+
+class _PersistenceFailureGateway(_Gateway):
+    async def _create_trace_run(self, payload, *args):
+        return False
 
 
 class _DMRFResult:
@@ -453,3 +466,64 @@ async def test_simulation_stops_at_recorded_phase10_boundary(monkeypatch):
         "persistence",
     ]
     assert result.stages[1].status.value == "failed"
+
+
+@pytest.mark.asyncio
+async def test_active_request_cancellation_stops_provider_and_finalizes_trace(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+    from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
+    gateway = _SlowGateway()
+    request = _request(mode=GovernedMode.STANDARD, request_id="cancel-request-123")
+    task = asyncio.create_task(_orchestrator(gateway).execute(request))
+    for _ in range(200):
+        if gateway.provider_calls:
+            break
+        await asyncio.sleep(0.005)
+
+    assert CANCELLATION_REGISTRY.cancel(request.request_id) is True
+    result = await asyncio.wait_for(task, timeout=2)
+
+    assert result.failure.kind is GovernedFailureKind.CANCELLED
+    assert result.failure.code == "REQUEST_CANCELLED"
+    assert gateway.provider_calls == 1
+    assert gateway.persisted[-1]["failure"]["kind"] == "cancelled"
+
+
+@pytest.mark.asyncio
+async def test_request_wide_deadline_cancels_slow_provider_and_finalizes(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
+    monkeypatch.setenv("GOVERNED_REQUEST_DEADLINE_SECONDS", "1")
+    gateway = _SlowGateway()
+    result = await _orchestrator(gateway).execute(
+        _request(mode=GovernedMode.STANDARD, constraints={"deadline_seconds": 1})
+    )
+
+    assert result.failure.kind is GovernedFailureKind.TIMEOUT
+    assert result.failure.code == "REQUEST_DEADLINE_EXCEEDED"
+    assert gateway.persisted[-1]["failure"]["kind"] == "timeout"
+
+
+@pytest.mark.asyncio
+async def test_provider_success_is_not_released_when_trace_persistence_fails(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
+            [],
+        ),
+    )
+    result = await _orchestrator(_PersistenceFailureGateway()).execute(
+        _request(mode=GovernedMode.STANDARD)
+    )
+
+    assert result.ok is False
+    assert result.answer == ""
+    assert result.failure.code == "TRACE_PERSISTENCE_FAILURE"
+    assert result.failure.details["provider_succeeded"] is True

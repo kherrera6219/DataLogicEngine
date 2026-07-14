@@ -1,0 +1,21 @@
+{
+  "schema_version": "dle-phase-artifacts.v1",
+  "phase": 7,
+  "date": "2026-07-13",
+  "artifacts": [
+    "config/provider_manifest.v1.json",
+    "frontend/lib/provider-manifest.generated.ts",
+    "docs/PROVIDER_MODEL_SUPPORT.md",
+    "docs/PROVIDER_COST_QUOTA_POLICY.md",
+    "docs/LOCAL_USAGE_LEDGER_CONTRACT.md",
+    "backend/llm_gateway/providers/openai.py",
+    "backend/llm_gateway/providers/google.py",
+    "backend/llm_gateway/provider_errors.py",
+    "backend/llm_gateway/provider_budget.py",
+    "backend/governed_execution/cancellation.py",
+    "backend/desktop/offline_queue.py",
+    "migrations/versions/d3e4f5a6b7c8_add_provider_usage_privacy_ledger.py",
+    "tests/unit/test_provider_execution_phase7.py",
+    "tests/unit/test_provider_manifest_phase7.py"
+  ]
+}

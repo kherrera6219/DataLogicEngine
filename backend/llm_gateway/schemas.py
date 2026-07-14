@@ -26,6 +26,7 @@ class GatewayChatRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     messages: List[Message] = Field(..., min_length=1)
+    request_id: Optional[str] = Field(None, min_length=8, max_length=128)
     provider: Optional[str] = None
     model: Optional[str] = Field(None, min_length=1)
     mode: Literal[
@@ -59,7 +60,7 @@ class APIKeyCreate(BaseModel):
 
 class ProviderCreate(BaseModel):
     name: str = Field(..., min_length=1)
-    provider_type: Literal["openai", "azure", "anthropic", "google", "custom"]
+    provider_type: Literal["openai", "google"]
     endpoint: Optional[str] = None
     model_id: Optional[str] = None
     api_key: Optional[str] = None

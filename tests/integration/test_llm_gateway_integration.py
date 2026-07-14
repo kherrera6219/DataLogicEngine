@@ -10,11 +10,14 @@ def mock_db():
 
 @pytest.fixture
 def gateway(mock_db):
-    return LLMGateway(db_session=mock_db)
+    LLMGateway._circuit_breakers.clear()
+    instance = LLMGateway(db_session=mock_db)
+    yield instance
+    LLMGateway._circuit_breakers.clear()
 
 @pytest.mark.asyncio
-async def test_gateway_failover(gateway, mock_db):
-    """Test that gateway fails over to second provider if first fails."""
+async def test_gateway_does_not_cross_provider_failover(gateway, mock_db):
+    """A standard request may not silently spend against a second provider."""
     
     # Mock eligible providers
     provider1 = MagicMock()
@@ -22,30 +25,29 @@ async def test_gateway_failover(gateway, mock_db):
     provider1.name = "Primary"
     provider1.provider_type = "openai"
     provider1.priority = 1
-    provider1.model_id = "gpt-4"
+    provider1.model_id = "gpt-5.5"
+    provider1.max_retries = 3
+    provider1.timeout_seconds = 30
     
     provider2 = MagicMock()
     provider2.id = uuid.uuid4()
     provider2.name = "Secondary"
     provider2.provider_type = "google"
     provider2.priority = 2
-    provider2.model_id = "gemini-pro"
+    provider2.model_id = "gemini-3.1-pro-preview"
     
     with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider1, provider2])), \
          patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
          patch.object(gateway, '_record_usage', AsyncMock()), \
          patch.object(gateway, '_save_chat_message', AsyncMock()):
         
-        # Provider 1 fails (3 retries)
         mock_sdk1 = AsyncMock()
-        mock_sdk1.complete.side_effect = Exception("API Down")
+        mock_sdk1.complete.side_effect = ConnectionError("network down")
         
         # Provider 2 succeeds
         mock_sdk2 = AsyncMock()
         mock_sdk2.complete.return_value = MagicMock(text="Secondary Response", usage={"prompt_tokens": 10, "completion_tokens": 20})
         
-        # _create_sdk_provider is called inside the retry loop (max_retries=3)
-        # So it's called 3 times for provider1, then 1 time for provider2
         mock_create_sdk.side_effect = [mock_sdk1, mock_sdk1, mock_sdk1, mock_sdk2]
         
         request = GatewayRequest(
@@ -55,13 +57,13 @@ async def test_gateway_failover(gateway, mock_db):
         
         response = await gateway.process(request)
         
-        assert response.ok is True
-        assert response.content == "Secondary Response"
-        assert response.provider_used == "google"
-        assert mock_create_sdk.call_count == 4
+        assert response.ok is False
+        assert response.provider_used == "openai"
+        assert mock_create_sdk.call_count == 1
+        assert mock_sdk2.complete.await_count == 0
 
 @pytest.mark.asyncio
-async def test_operator_google_default_replaces_legacy_ollama_request(gateway, monkeypatch):
+async def test_legacy_ollama_request_is_not_silently_rewritten(gateway, monkeypatch):
     monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
 
     provider = MagicMock()
@@ -95,9 +97,9 @@ async def test_operator_google_default_replaces_legacy_ollama_request(gateway, m
             )
         )
 
-    assert eligible.await_args.args[0] == "google"
-    assert response.provider_used == "google"
-    assert response.model_used == "gemini-3.1-pro-preview"
+    assert eligible.await_args.args[0] == "ollama"
+    assert response.ok is False
+    mock_create_sdk.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_circuit_breaker_logic():
@@ -131,10 +133,12 @@ async def test_gateway_circuit_breaker_integration(gateway, mock_db):
     """Test that gateway respects an open circuit breaker."""
     
     provider1 = MagicMock(id=uuid.uuid4(), name="Primary", provider_type="openai", priority=1)
-    provider2 = MagicMock(id=uuid.uuid4(), name="Secondary", provider_type="google", priority=2)
+    provider1.model_id = "gpt-5.5"
+    provider1.max_retries = 1
+    provider1.timeout_seconds = 30
     
     # Manually open circuit for provider 1
-    cb1 = gateway._get_circuit_breaker(str(provider1.id))
+    cb1 = gateway._get_circuit_breaker("openai:gpt-5.5")
     cb1.record_failure()
     cb1.record_failure()
     cb1.record_failure()
@@ -142,7 +146,7 @@ async def test_gateway_circuit_breaker_integration(gateway, mock_db):
     cb1.record_failure() # Threshold is 5 by default
     assert cb1.state == "OPEN"
     
-    with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider1, provider2])), \
+    with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider1])), \
          patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
          patch.object(gateway, '_record_usage', AsyncMock()), \
          patch.object(gateway, '_save_chat_message', AsyncMock()):
@@ -154,16 +158,18 @@ async def test_gateway_circuit_breaker_integration(gateway, mock_db):
         request = GatewayRequest(messages=[{"role": "user", "content": "Hello"}], run_ukg_pipeline=False)
         response = await gateway.process(request)
         
-        assert response.ok is True
-        assert response.provider_used == "google"
-        # Should NOT have called create_sdk for provider 1
-        mock_create_sdk.assert_called_once()
+        assert response.ok is False
+        assert response.provider_used == "none"
+        mock_create_sdk.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_gateway_usage_tracking(gateway, mock_db):
     """Test that gateway records usage information."""
     
     provider = MagicMock(id=uuid.uuid4(), name="Primary", provider_type="openai", priority=1)
+    provider.model_id = "gpt-5.5"
+    provider.max_retries = 1
+    provider.timeout_seconds = 30
     
     with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider])), \
          patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
@@ -179,11 +185,11 @@ async def test_gateway_usage_tracking(gateway, mock_db):
         
         mock_usage.assert_called_once()
         args = mock_usage.call_args[0]
-        # order: provider_id, user_id, api_key_id, run_id, model, tokens_in, tokens_out, latency_ms, success
+        # order includes provider type, session, and full ledger metadata.
         assert args[0] == provider.id
-        assert args[5] == 50 # tokens_in
-        assert args[6] == 100 # tokens_out
-        assert args[8] is True # success
+        assert args[7] == 50 # tokens_in
+        assert args[8] == 100 # tokens_out
+        assert args[10] is True # success
 
 
 @pytest.mark.asyncio
@@ -193,7 +199,7 @@ async def test_gateway_respects_provider_retry_configuration(gateway, mock_db):
     provider.id = uuid.uuid4()
     provider.name = "Primary"
     provider.provider_type = "openai"
-    provider.model_id = "gpt-4"
+    provider.model_id = "gpt-5.5"
     provider.max_retries = 2
     provider.timeout_seconds = 30
 
@@ -203,11 +209,12 @@ async def test_gateway_respects_provider_retry_configuration(gateway, mock_db):
          patch.object(gateway, '_save_chat_message', AsyncMock()):
 
         failing_sdk = AsyncMock()
-        failing_sdk.complete.side_effect = Exception("API Down")
+        failing_sdk.complete.side_effect = ConnectionError("network down")
         mock_create_sdk.return_value = failing_sdk
 
         request = GatewayRequest(
             messages=[{"role": "user", "content": "retry test"}],
+            mode="enhanced",
             run_ukg_pipeline=False,
         )
         response = await gateway.process(request)
@@ -223,7 +230,7 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
     provider.id = uuid.uuid4()
     provider.name = "TimeoutProvider"
     provider.provider_type = "openai"
-    provider.model_id = "gpt-4"
+    provider.model_id = "gpt-5.5"
     provider.max_retries = 1
     provider.timeout_seconds = 1
 
@@ -249,7 +256,7 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
         assert response.ok is False
         assert "request failed" in (response.error or "").lower()
         assert mock_usage.call_count >= 1
-        assert mock_usage.call_args[0][8] is False
+        assert mock_usage.call_args[0][10] is False
 
 
 
@@ -267,7 +274,7 @@ async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_reques
         provider.id = uuid.uuid4()
         provider.name = "DirectProvider"
         provider.provider_type = "openai"
-        provider.model_id = "gpt-4"
+        provider.model_id = "gpt-5.5"
         provider.max_retries = 1
         provider.timeout_seconds = 30
 
@@ -295,7 +302,7 @@ async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_reques
         assert run is not None
         assert run.input_message == "Persist direct trace"
         assert run.final_answer == "Direct trace response"
-        assert run.model_name == "gpt-4"
+        assert run.model_name == "gpt-5.5"
         assert run.user_id is None
         stages = run.stages.order_by(TraceStage.layer_index).all()
         assert [stage.name for stage in stages] == [
@@ -355,7 +362,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
             str(run_id),
             "anonymous",
             "not-a-session-uuid",
-            "gpt-4",
+            "gpt-5.5",
         )
 
         run = db.session.get(TraceRun, run_id)
@@ -370,7 +377,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
         assert run.data_snapshot["provider_used"] == "google"
         assert run.coordinate17_id is not None
         assert run.to_dict()["provider_used"] == "google"
-        assert run.to_dict()["model_name"] == "gpt-4"
+        assert run.to_dict()["model_name"] == "gpt-5.5"
         assert run.stages.count() == 1
         assert run.stages.first().status == "completed"
 
@@ -440,7 +447,7 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
             response = await gateway.process(
                 GatewayRequest(
                     messages=[{"role": "user", "content": "Persist failed trace"}],
-                    model="gpt-4",
+                    model="gpt-5.5",
                     run_ukg_pipeline=False,
                 )
             )
@@ -451,6 +458,6 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
         assert run is not None
         assert run.status == "provider_failure"
         assert run.input_message == "Persist failed trace"
-        assert run.model_name == "gpt-4"
+        assert run.model_name == "gpt-5.5"
         assert run.data_snapshot["failure"]["message"] == "No active providers found"
         assert "output_validation" not in [stage.name for stage in run.stages.all()]

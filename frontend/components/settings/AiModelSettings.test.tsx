@@ -76,6 +76,9 @@ vi.mock('lucide-react', () => ({
   Save: () => <span>Save</span>,
   Power: () => <span>Power</span>,
   History: () => <span>History</span>,
+  ShieldCheck: () => <span>Shield</span>,
+  Download: () => <span>Download</span>,
+  Trash2: () => <span>Trash</span>,
 }));
 
 import { request } from '@/lib/api';
@@ -173,12 +176,12 @@ describe('AiModelSettings', () => {
     render(<AiModelSettings />);
 
     await waitFor(() => {
-      expect(screen.getByText('Key saved')).toBeInTheDocument();
+      expect(screen.getByText('Stored')).toBeInTheDocument();
     });
 
     expect(screen.queryByText('API key set')).not.toBeInTheDocument();
-    expect(screen.queryByText('Key verified')).not.toBeInTheDocument();
-    expect(screen.getByText('Key saved').closest('[data-testid="badge"]')).toHaveAttribute(
+    expect(screen.queryByText('Available')).not.toBeInTheDocument();
+    expect(screen.getByText('Stored').closest('[data-testid="badge"]')).toHaveAttribute(
       'data-variant',
       'secondary'
     );
@@ -186,11 +189,11 @@ describe('AiModelSettings', () => {
 
   it('maps verified keys to the verified status only when validation has succeeded', () => {
     expect(getProviderStatus({ id: 'g1', name: 'Google', type: 'google', has_api_key: true }, false)).toEqual({
-      label: 'Key saved',
+      label: 'Stored',
       variant: 'secondary',
     });
     expect(getProviderStatus({ id: 'g1', name: 'Google', type: 'google', has_api_key: true }, true)).toEqual({
-      label: 'Key verified',
+      label: 'Available',
       variant: 'success',
     });
   });
@@ -212,7 +215,7 @@ describe('AiModelSettings', () => {
     });
 
     expect(screen.queryByText('API key set')).not.toBeInTheDocument();
-    expect(screen.queryByText('Key verified')).not.toBeInTheDocument();
+    expect(screen.queryByText('Available')).not.toBeInTheDocument();
   });
 
   it('should initialize with default values', async () => {

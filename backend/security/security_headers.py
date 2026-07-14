@@ -99,7 +99,7 @@ class SecurityHeadersMiddleware:
             f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
-            "connect-src 'self' https://api.openai.com https://*.openai.azure.com",
+            "connect-src 'self'",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",

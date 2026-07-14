@@ -11,6 +11,7 @@ multimodal_api, compliance_api, feature_flags, knowledge_api,
 notifications.
 """
 
+import io
 import json
 import os
 
@@ -359,6 +360,25 @@ class TestMultimodalRoutes:
         resp = client.post("/api/v1/multimodal/document/process")
         # Missing file → 400 or 415
         assert resp.status_code in (400, 415)
+
+    def test_audio_transcription_fails_closed_without_governed_adapter(self, app, client):
+        _login(client, app)
+        resp = client.post(
+            "/api/v1/multimodal/audio/transcribe",
+            data={"file": (io.BytesIO(b"RIFF" + b"\x00" * 32), "sample.wav")},
+            content_type="multipart/form-data",
+        )
+        assert resp.status_code == 501
+        assert resp.get_json()["code"] == "AUDIO_CAPABILITY_UNAVAILABLE"
+
+    def test_speech_synthesis_fails_closed_without_governed_adapter(self, app, client):
+        _login(client, app)
+        resp = client.post(
+            "/api/v1/multimodal/audio/synthesize",
+            json={"text": "hello", "voice": "alloy"},
+        )
+        assert resp.status_code == 501
+        assert resp.get_json()["code"] == "AUDIO_CAPABILITY_UNAVAILABLE"
 
 
 # ====================================================================

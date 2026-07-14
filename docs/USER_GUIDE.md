@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Product Operations |
@@ -85,7 +85,11 @@ the local desktop trust boundary.
 4. Enter API key.
 5. Select `Save Key` or `Save Model`.
 6. Select `Test Connection` or `Test Model`.
-7. If the test fails, inspect the returned reason such as `invalid_api_key`, `rate_limited`, `invalid_model`, or `network_error`.
+7. Read the exact state: `not configured`, `stored`, `validating`, `available`,
+   `limited`, `invalid`, or `unavailable`. A saved key is only `stored` until a
+   bounded live test proves availability.
+8. If the test fails, use the specific reason: invalid key, unauthorized/invalid
+   model, quota/rate/billing, network/outage, or timeout.
 
 **Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.5`) or **Google** (`gemini-3.1-pro-preview`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
 
@@ -95,8 +99,13 @@ the local desktop trust boundary.
 2. Enter a prompt.
 3. Attach supported files where available.
 4. Send the request.
-5. Review the answer.
-6. Follow run/session links to inspect trace details.
+5. Review the external-data-category and current budget disclosure. If the
+   80-percent warning threshold is crossed, confirm before resubmitting; a hard
+   ceiling cannot be bypassed from the app.
+6. Use **Cancel request** to cancel an active client request. The request keeps
+   one stable request/trace identity and finalizes as cancelled.
+7. Review the answer.
+8. Follow run/session links to inspect trace details.
 
 Behind the scenes, governed requests pass through the single `governed.v1`
 path. The trace shows real sources/evidence, claims, citations, validators,
@@ -181,6 +190,23 @@ MCP connector behavior depends on configured scopes, credentials, external servi
 4. Review AI processing/history preferences where available.
 5. Review notification preferences where available.
 
+### 11. Review provider usage and offline replay
+
+1. Open `/settings` and select the API Gateway/provider panel.
+2. Review session/day/month call and token limits, remaining allowance, and
+   pricing status. `Unknown` means no trusted price metadata is configured; it
+   never means free.
+3. Review recent content-free egress categories and provider attempts.
+4. Export the redacted ledger when owner review evidence is needed.
+5. Reset it only through the explicit owner confirmation flow.
+6. If replay is enabled, review or delete queued items. Only network,
+   provider-outage, and timeout failures are eligible. A message is shown as
+   queued only after encrypted durable storage succeeds.
+
+The current SSE route delivers the fully governed response in buffered chunks;
+it is not presented as native token streaming. Native governed streaming is a
+Phase 8 qualification item.
+
 ## Understanding local-first privacy
 
 Local-first means application data is stored locally by default in desktop/VM mode. It does not mean data never leaves the machine.
@@ -215,6 +241,12 @@ Review `docs/PRIVACY_POLICY.md` for details.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
+
+## Change notes for v2.9.0
+
+1. Added exact provider states, preflight budget/egress disclosure, request
+   cancellation, owner usage-ledger controls, transient-only replay, and truthful
+   buffered-delivery guidance.
 
 ## Change notes for v2.7.0
 

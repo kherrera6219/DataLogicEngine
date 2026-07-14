@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.1.0 |
+| Document version | v4.2.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -17,8 +17,8 @@ Define the current logical and runtime architecture of DataLogicEngine for engin
 This version reflects the current code-backed architecture: an isolated
 application factory and owned runtime, the Phase 5 `governed.v1` execution
 contract, one backend-owned causal orchestrator, app-owned data services,
-frontend trace review, Phase 6 typed evidence-quality decisions, and
-release-governed validation.
+frontend trace review, Phase 6 typed evidence-quality decisions, Phase 7 bounded
+provider execution/privacy accounting, and release-governed validation.
 
 ## Audience
 
@@ -441,8 +441,9 @@ Key files:
 The LLM Gateway (`backend/llm_gateway/`) is the provider boundary inside the
 canonical orchestrator. `LLMGateway.execute()` accepts `GovernedRequest` and
 owns the single orchestrator entry; `process()` only converts older gateway
-callers/results. Provider selection retains circuit-breaker and rate-limit-aware
-handling inside a request-wide provider-call bound.
+callers/results. Provider selection returns exactly one supported provider/model.
+Deadline, cancellation, typed failure/retry, circuit, call/token/spend,
+egress-ledger, and replay policy stay inside the request-wide governed bound.
 
 ### Provider routing
 
@@ -453,14 +454,15 @@ invoking the provider boundary. The provider-only lifecycle is:
 GovernedExecutionOrchestrator
   -> construct approved provider messages
   -> LLMGateway bounded provider method
-  -> _get_eligible_providers()   (DB first, env var fallback)
-  -> for each provider:
-      -> CircuitBreaker.allow_request()?
-      -> provider.chat() / provider.complete()
-      -> on success: return GatewayResponse(ok=True)
-      -> on failure: classify (retryable vs. rate-limit vs. fatal)
-      -> retry loop with backoff (only for retryable non-rate-limit errors)
-  -> if all providers exhausted: _error_response()
+  -> _get_eligible_providers()   (DB first, supported env fallback)
+  -> select exactly one OpenAI or Google provider/model
+  -> enforce request/session/day/month call, token, and known-spend budgets
+  -> CircuitBreaker.can_execute()?
+  -> backend async provider.complete()
+  -> persist content-free attempt/egress ledger record
+  -> on success: return only after ledger persistence
+  -> on failure: typed retry/replay/status policy inside remaining deadline
+  -> on terminal failure: finalize governed trace and typed error
 ```
 
 ### Circuit breaker
@@ -469,34 +471,37 @@ The circuit breaker is **class-level** (`LLMGateway._circuit_breakers: dict[str,
 
 - `failure_threshold = 5` — circuit opens after 5 counted failures.
 - `recovery_timeout = 60` — circuit resets after 60 seconds.
-- Rate-limit (429) responses do **not** increment the failure counter — the provider is healthy, just throttled.
+- Rate-limit/quota/billing/auth/model/policy failures do not represent a network
+  outage. Only network, provider-outage, timeout, and unknown transport failures
+  affect circuit state.
 
-### Rate-limit handling (Sprint 5f — `7c27a64c`)
+### Typed failure and replay handling
 
-`_is_rate_limit_error(error)` detects the following in the lowercased error string: `"429"`, `"rate limit"`, `"rate_limit"`, `"quota exceeded"`, `"insufficient_quota"`, `"billing"`.
+Provider exceptions and responses normalize to invalid key, unauthorized model,
+invalid model, quota exhausted, billing suspended, rate limited, network,
+provider outage, timeout, policy block, malformed response, cancellation,
+persistence, internal, or unknown. Retry occurs only for a typed idempotent
+transient failure, consumes the same provider-call budget, honors bounded
+`Retry-After` when available, and never switches silently to the other provider.
 
-When a rate-limit is detected:
-
-1. The request is **not** retried (no backoff loop).
-2. `cb.record_failure()` is **not** called (circuit state unchanged).
-3. `gateway_chat()` in `api.py` returns `HTTP 429` with `{code: "RATE_LIMITED"}` directly, **before** the offline queue check.
-4. The frontend (`ChatInterface.tsx`) catches `ApiError` with `status === 429` and displays "The AI provider is currently rate limited."
-
-Previously, rate-limit errors cascaded: 429 → retry 3× → circuit failure counter → circuit opens → all providers skipped → offline queue → 202 "queued for replay". This cascade is now prevented.
+Only `network`, `provider_outage`, and `timeout` are replayable. The Windows
+production offline queue requires DPAPI, bounds items/bytes/expiry, deduplicates
+by request identity, and re-runs current policy and budget checks at replay.
 
 ### API key encryption
 
-Provider API keys are stored Fernet-encrypted in the `llm_provider` SQL table. The encryption key is derived from `SESSION_SECRET`:
-
-```python
-fernet_key = base64.urlsafe_b64encode(hashlib.sha256(SESSION_SECRET.encode()).digest())
-```
-
-`SESSION_SECRET` is **stable across restarts** in the packaged Electron app: `loadOrCreatePlainSecretFile()` in `frontend/electron/main.ts` creates `{userData}/secrets/session_secret.secret` (32-byte hex) once on first run and passes the file **path** as `SESSION_SECRET_FILE` to the backend. If decryption fails (e.g., database migrated without the original secret), `LLMProvider.get_api_key()` logs a WARNING with a re-save instruction rather than silently returning `None`.
+New provider API keys are DPAPI-protected in the `llm_provider` SQL table on
+Windows. Desktop production fails closed if DPAPI is unavailable. Legacy Fernet
+values remain readable for migration and nonproduction/test fallback; keys are
+never serialized through provider, status, ledger, trace, or export responses.
 
 ### Model selection
 
-The stored `LLMProvider.model_id` (set by the user in Settings → API Configuration) is used by default. The frontend (`frontend/lib/api/system_chat.ts`) only includes `provider`/`model` fields when the caller explicitly supplies them, so the backend always reads from DB. Default models are defined in `backend/llm_gateway/model_defaults.py`:
+The stored `LLMProvider.model_id` (set by the user in Settings → API
+Configuration) is used by default. The frontend includes `provider`/`model` only
+when explicitly selected. Defaults are generated from
+`config/provider_manifest.v1.json` through
+`backend/llm_gateway/provider_manifest.py`:
 
 | Provider | Default model |
 |---|---|
@@ -506,9 +511,9 @@ The stored `LLMProvider.model_id` (set by the user in Settings → API Configura
 ### Cloud model selection
 
 When a governed request reaches the provider boundary, it uses the caller-pinned
-provider/model when policy permits, the owner's saved preference, or the first
-eligible active provider. A completed provider-backed answer is served by one
-selected cloud model:
+provider/model when policy permits, the owner's saved preference/default, or one
+deterministically selected supported active provider. A request receives exactly
+one provider/model selection and no cross-provider failover:
 
 | Provider type | Model |
 |---|---|
@@ -525,10 +530,14 @@ provider call.
 - `backend/governed_execution/` — canonical contracts, orchestration, retrieval,
   prompt construction, validation, and trace persistence
 - `backend/llm_gateway/gateway.py` — `execute()` adapter/orchestrator entry,
-  bounded provider handling, eligibility, error classification, circuit breaker
-- `backend/llm_gateway/api.py` — Flask routes, `gateway_chat()` with 429 early-return
-- `backend/llm_gateway/model_defaults.py` — default model IDs per provider
-- `models.py` — `LLMProvider.get_api_key()` / `set_api_key()` Fernet encryption
+  bounded provider handling, eligibility, error classification, circuit breaker,
+  and usage persistence
+- `backend/llm_gateway/providers/` — backend-owned async OpenAI/Google adapters
+- `backend/llm_gateway/provider_budget.py` — server-owned budget policy
+- `backend/llm_gateway/provider_errors.py` — typed retry/replay/failure policy
+- `backend/llm_gateway/api.py` — gateway, cancellation, queue, status, and ledger routes
+- `config/provider_manifest.v1.json` — provider/model capability authority
+- `models.py` — DPAPI-first provider credential and usage-ledger storage
 
 ---
 
@@ -741,6 +750,14 @@ Then inspect these implementation files:
 11. `backend/storage/connection_manager.py`
 12. `frontend/components/Chat/LiveTracePanel.tsx`
 13. `.github/workflows/ci.yml`
+
+## Change notes for v4.2.0
+
+1. Replaced legacy multi-provider/Fernet routing detail with the Phase 7
+   generated manifest, one selected provider, backend async adapters, typed
+   failure/replay, DPAPI-first secrets, and usage/budget architecture.
+2. Recorded that successful output is released only after durable content-free
+   attempt persistence and current SSE remains buffered.
 
 ## Change notes for v4.0.0
 

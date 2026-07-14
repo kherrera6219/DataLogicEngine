@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.1.0 |
+| Document version | v4.2.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -14,8 +14,9 @@
 
 Provide source-of-truth API contract guidance for DataLogicEngine REST
 endpoints. This version records the Phase 5 `governed.v1` answer contract, one
-backend-owned causal orchestrator, Phase 6 evidence-quality records, explicit
-result/failure state, and stable trace identity.
+backend-owned causal orchestrator, Phase 6 evidence-quality records, and Phase 7
+provider manifest, deadline/cancellation, failure, budget, egress-ledger, and
+offline-replay contracts.
 
 ## Audience
 
@@ -263,7 +264,10 @@ Primary prefix: `/api/v1/gateway`.
 ### Chat completion
 
 - **POST** `/chat`
-  - Send a chat request. The `provider` and `model` fields are **optional** — when omitted the backend reads the configured `LLMProvider.model_id` from the database.
+  - Send a chat request. The `provider` and `model` fields are optional; when
+    omitted the backend selects the active stored provider record. Exactly one
+    supported provider/model is selected and there is no cross-provider
+    failover.
   - Body:
     ```json
     {
@@ -273,7 +277,11 @@ Primary prefix: `/api/v1/gateway`.
       "mode": "standard",
       "constraints": {},
       "provider": "openai",
-      "model": "gpt-5.5"
+      "model": "gpt-5.5",
+      "request_id": "client-generated-uuid",
+      "meta": {
+        "budget_warning_confirmed": false
+      }
     }
     ```
     `provider` and `model` may be omitted; the backend falls back to the stored
@@ -324,14 +332,22 @@ Primary prefix: `/api/v1/gateway`.
     probability. It is null unless every named `dle-confidence.v1` component is
     measured. Clients must display `confidence_measurement.explanation` and must
     not replace null with a default.
-  - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
+  - **202 Accepted** — a failed request was stored for replay only when the
+    queue is enabled and the classified failure is `network`,
+    `provider_outage`, or `timeout`:
     ```json
     {
       "queued": true,
       "run_id": "optional-run-uuid"
     }
     ```
-  - **429 Too Many Requests** — provider is rate-limited; the request was NOT queued (Sprint 5f):
+  - Typed failures use the following stable HTTP mapping. Non-replayable failures
+    are never queued: invalid key `401`, billing suspended `402`, unauthorized
+    model or policy block `403`, warning confirmation/cancellation `409`, invalid
+    model `422`, quota/rate/hard-budget limit `429`, malformed provider response
+    `502`, network/outage `503`, timeout `504`, and persistence/internal failure
+    `500`.
+  - Example **429 Too Many Requests** — provider is rate-limited and not queued:
     ```json
     {
       "error": "Provider rate limited — please wait a moment and try again.",
@@ -342,18 +358,50 @@ Primary prefix: `/api/v1/gateway`.
     }
     ```
     The frontend displays a "rate limited" message and does not retry automatically.
-  - **503 Service Unavailable** — a typed policy/provider/validation/internal or
-    capability-unavailable failure. The body includes `contract_version`,
-    `status`, `failure`, and `run_id` when the request was admitted.
+  - Failure bodies include `contract_version`, `status`, typed `failure`, and
+    `run_id` when the request was admitted. Renderers must not infer retry or
+    replay from HTTP status alone; use the typed failure contract.
 
   Implementation: `backend/llm_gateway/api.py` → `gateway_chat()`.
 
 ### Streaming chat
 
-- **POST** `/stream`
+- **POST** `/chat/stream`
   - Uses the same governed orchestrator and stable run ID. The current transport
-    chunks the completed governed response; native provider token streaming is
-    later gateway work and may not introduce a second execution path.
+    chunks the completed governed response. Every SSE event includes
+    `delivery_mode: "buffered"`; native governed provider-token delivery is
+    Phase 8 work and may not introduce a second execution path.
+
+### Cancellation
+
+- **POST** `/requests/{request_id}/cancel`
+  - Owner/session-only cancellation for an active client-visible request ID.
+  - Returns **202** with `CANCELLATION_REQUESTED`, or **404** with
+    `REQUEST_NOT_ACTIVE`. The backend finalizes the governed trace as cancelled;
+    the renderer cannot extend the server deadline.
+
+### Offline queue
+
+- **GET** `/offline-queue` lists redacted queue metadata.
+- **POST** `/offline-queue` accepts a chat payload only with failure class
+  `network`, `provider_outage`, or `timeout` and returns **202** after durable
+  encrypted storage. Disabled/oversized queues return **409**.
+- **DELETE** `/offline-queue/{item_id}` removes one item.
+- **POST** `/offline-queue/replay` re-runs current policy and budget checks before
+  execution. Auth, validation, policy, persistence, cancellation, and internal
+  failures are not replayable.
+
+### Provider usage ledger
+
+- **GET** `/usage-ledger?days=30&session_id=...` returns
+  `provider-usage-ledger.v1`, configured limits, remaining allowance, daily and
+  monthly totals, pricing status, provider aggregates, and up to 100 recent
+  content-free attempt records.
+- **GET** `/usage-ledger/export` exports the redacted owner review document.
+- **DELETE** `/usage-ledger` is owner/admin-only and requires exact JSON
+  confirmation `RESET_PROVIDER_USAGE_LEDGER`.
+- The ledger excludes credentials and prompt/response content. Unknown prices
+  remain unknown and are still controlled by call/token ceilings.
 
 ### Provider key management
 
@@ -1006,6 +1054,14 @@ A technical reviewer should validate this document against these files:
 12. `frontend/lib/api/` — frontend API clients and CSRF handling.
 13. `tests/contract/` — canonical API contract tests.
 14. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v4.2.0
+
+1. Added the Phase 7 request ID/cancellation, explicit failure-to-HTTP mapping,
+   transient-only encrypted replay, buffered SSE label, and local usage-ledger
+   contracts.
+2. Documented one selected supported provider without silent cross-provider
+   failover and server-owned warning/hard-budget behavior.
 
 ## Change notes for v4.0.0
 

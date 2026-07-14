@@ -9,11 +9,13 @@ export interface Message {
 
 export interface ChatRequest {
   messages: Message[];
+  request_id?: string;
   run_ukg_pipeline?: boolean;
   mode?: string;
   session_id?: string;
   provider?: string;
   model?: string;
+  meta?: Record<string, unknown>;
 }
 
 export interface ChatResponse {

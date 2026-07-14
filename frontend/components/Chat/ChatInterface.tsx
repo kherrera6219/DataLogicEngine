@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus, Search, Calendar,
-  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User
+  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User, X
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
@@ -39,9 +39,28 @@ type GatewayTracePayload = {
   audit_trail?: ChatMessage['auditTrail'];
   provider_used?: string | null;
   model_used?: string | null;
+  failure?: {
+    kind?: string;
+    details?: {
+      provider_failure?: { class?: string };
+    };
+  } | null;
 };
 
 type ChatTraceFields = Pick<ChatMessage, 'runId' | 'providerUsed' | 'modelUsed' | 'auditTrail'>;
+
+type ProviderBudgetSnapshot = {
+  limits: {
+    daily_calls: number;
+    monthly_calls: number;
+    daily_tokens: number;
+    monthly_tokens: number;
+  };
+  daily: { calls: number; tokens_total: number };
+  monthly: { calls: number; tokens_total: number; unknown_price_calls: number };
+  remaining: { daily_calls: number; monthly_calls: number; daily_tokens: number; monthly_tokens: number };
+  pricing_status: 'available' | 'unknown';
+};
 
 function extractGatewayTraceFields(payload?: GatewayTracePayload | null): Partial<ChatTraceFields> {
   if (!payload) return {};
@@ -59,6 +78,21 @@ function getGatewayErrorPayload(error: unknown): GatewayTracePayload | undefined
     return undefined;
   }
   return error.payload as GatewayTracePayload;
+}
+
+function replayableFailureClass(
+  error: unknown,
+  payload?: GatewayTracePayload,
+): 'network' | 'provider_outage' | 'timeout' | null {
+  const classified = payload?.failure?.details?.provider_failure?.class;
+  if (classified === 'network' || classified === 'provider_outage' || classified === 'timeout') {
+    return classified;
+  }
+  if (payload?.failure?.kind === 'timeout') return 'timeout';
+  if (!(error instanceof ApiError) && error instanceof Error && /failed to fetch|network|reachable/i.test(error.message)) {
+    return 'network';
+  }
+  return null;
 }
 
 function formatMessageTimestamp(value?: string): string {
@@ -90,6 +124,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
+  const [providerBudget, setProviderBudget] = useState<ProviderBudgetSnapshot | null>(null);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -137,6 +173,16 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     fetchSessions();
   }, []);
 
+  useEffect(() => {
+    request<ProviderBudgetSnapshot>('/gateway/usage-ledger?days=30')
+      .then((result) => setProviderBudget(
+        result?.daily && result?.monthly && result?.limits && result?.remaining
+          ? result
+          : null
+      ))
+      .catch(() => setProviderBudget(null));
+  }, []);
+
   // Auto-select first session when sessions are loaded (render-time derivation).
   if (sessions.length > 0 && !currentSessionId) {
     setCurrentSessionId(sessions[0].id);
@@ -176,6 +222,20 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
     if (!normalizedInput || isLoading) return;
 
+    const budgetRatios = providerBudget
+      ? [
+          providerBudget.daily.calls / Math.max(1, providerBudget.limits.daily_calls),
+          providerBudget.monthly.calls / Math.max(1, providerBudget.limits.monthly_calls),
+          providerBudget.daily.tokens_total / Math.max(1, providerBudget.limits.daily_tokens),
+          providerBudget.monthly.tokens_total / Math.max(1, providerBudget.limits.monthly_tokens),
+        ]
+      : [];
+    const budgetWarningRequired = Math.max(0, ...budgetRatios) >= 0.8;
+    const budgetWarningConfirmed = budgetWarningRequired
+      ? window.confirm('Provider usage has crossed an 80% warning threshold. Send this governed request within the remaining server limit?')
+      : false;
+    if (budgetWarningRequired && !budgetWarningConfirmed) return;
+
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -186,14 +246,18 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
     setIsLoading(true);
+    const requestId = crypto.randomUUID();
+    setActiveRequestId(requestId);
 
     try {
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: [{ role: 'user', content: userMsg.content }],
+        request_id: requestId,
         mode: mode,
         session_id: currentSessionId ?? undefined,
-        run_ukg_pipeline: true
+        run_ukg_pipeline: true,
+        meta: { budget_warning_confirmed: budgetWarningConfirmed },
       });
       
       // If the API returns a direct response (not just via WS)
@@ -226,8 +290,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       }
       
       // Refresh session list in case a new session was created
-      const sessionData = await api.chat.listSessions();
+      const sessionData = await api.chat.listSessions().catch(() => ({ sessions: [] }));
       setSessions(sessionData.sessions || []);
+      setActiveRequestId(null);
 
     } catch (error) {
       reportClientError(error, {
@@ -235,6 +300,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         action: 'sendMessage',
       });
       const errorPayload = getGatewayErrorPayload(error);
+      const failureClass = replayableFailureClass(error, errorPayload);
 
       // Rate-limit errors from the gateway (HTTP 429) must not be silently
       // queued offline — the provider is reachable, just throttled.  Show the
@@ -250,33 +316,53 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         };
         setMessages(prev => [...prev, rateLimitMsg]);
         setIsLoading(false);
+        setActiveRequestId(null);
         return;
       }
 
-      // For other errors, queue offline and show a generic message.
-      await request('/gateway/offline-queue', {
-        method: 'POST',
-        body: JSON.stringify({
-          reason: 'renderer_send_failure',
-          payload: {
-            messages: [{ role: 'user', content: userMsg.content }],
-            mode,
-            session_id: currentSessionId ?? undefined,
-            run_ukg_pipeline: true,
-          },
-        }),
-      }).catch(() => undefined);
+      let queuedLocally = false;
+      if (failureClass) {
+        queuedLocally = await request('/gateway/offline-queue', {
+          method: 'POST',
+          body: JSON.stringify({
+            failure_class: failureClass,
+            payload: {
+              request_id: requestId,
+              messages: [{ role: 'user', content: userMsg.content }],
+              mode,
+              session_id: currentSessionId ?? undefined,
+              run_ukg_pipeline: true,
+            },
+          }),
+        }).then(() => true).catch(() => false);
+      }
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
-        finalAnswer: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
+        content: queuedLocally
+          ? 'Your request could not be completed and was added to the encrypted local replay queue.'
+          : failureClass
+            ? 'Your request could not be completed. Encrypted replay is disabled or unavailable, so it was not queued.'
+            : 'Your request could not be completed. This failure is not safe to replay automatically.',
+        finalAnswer: queuedLocally
+          ? 'Your request could not be completed and was added to the encrypted local replay queue.'
+          : failureClass
+            ? 'Your request could not be completed. Encrypted replay is disabled or unavailable, so it was not queued.'
+            : 'Your request could not be completed. This failure is not safe to replay automatically.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         ...extractGatewayTraceFields(errorPayload),
       };
       setMessages(prev => [...prev, errorMsg]);
       setIsLoading(false);
+      setActiveRequestId(null);
     }
+  };
+
+  const handleCancel = async () => {
+    if (!activeRequestId) return;
+    await request(`/gateway/requests/${activeRequestId}/cancel`, { method: 'POST' })
+      .then(() => toast('Cancellation requested.', 'info', 2500))
+      .catch(() => toast('The request already finished or could not be cancelled.', 'warning', 3000));
   };
 
   const handleNewChat = () => {
@@ -587,15 +673,21 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                 </div>
                 <Button 
                   className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 h-8 px-4 text-xs font-bold gap-2 rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
-                  onClick={handleSend}
-                  disabled={isLoading}
+                  onClick={() => void (isLoading ? handleCancel() : handleSend())}
+                  aria-label={isLoading ? 'Cancel active request' : 'Send message'}
                 >
-                  {isLoading ? '...' : 'Send'} <ArrowRight className="h-3 w-3" />
+                  {isLoading ? 'Cancel' : 'Send'} {isLoading ? <X className="h-3 w-3" /> : <ArrowRight className="h-3 w-3" />}
                 </Button>
             </div>
             
             <p className="max-w-4xl mx-auto mt-2 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
-              AI requests require internet access and may send your prompt, attachments, and selected context to the configured provider. Verify generated responses before using them for critical decisions.
+              External data preflight: this request sends your prompt and may include attachments, selected retrieved text, persona context, and tool results. {mode === 'quad' ? 'Enhanced mode permits at most 2 counted provider attempts.' : 'Standard chat permits 1 counted provider attempt.'}
+            </p>
+            <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
+              {providerBudget
+                ? `Today: ${providerBudget.daily.calls}/${providerBudget.limits.daily_calls} calls and ${providerBudget.daily.tokens_total.toLocaleString()}/${providerBudget.limits.daily_tokens.toLocaleString()} tokens. ${providerBudget.remaining.daily_calls} calls remain. Pricing is ${providerBudget.pricing_status}; unknown price is never represented as zero.`
+                : 'Usage budget is unavailable in the renderer; the server still fails closed if its durable budget ledger cannot be read.'}
+              {' '}Verify generated responses before critical use.
             </p>
 
              <div className="max-w-4xl mx-auto mt-4">

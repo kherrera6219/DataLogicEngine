@@ -1,16 +1,12 @@
 """
 Natural Language to 17-Axis Coordinate Mapper
 
-This module provides AI-powered mapping from natural language queries
-to the 17-axis coordinate system used by UKG/USKD.
-
-Uses OpenAI integration to analyze queries and extract coordinate values
-for each of the 17 axes.
+This module provides deterministic mapping from natural-language queries to the
+17-axis coordinate system used by UKG/USKD. Provider-assisted mapping must enter
+the canonical governed orchestrator; this utility never calls a provider.
 """
 
 import logging
-import json
-import os
 from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
@@ -121,10 +117,6 @@ class NLCoordinateMapper:
             config: Configuration dictionary
         """
         self.config = config or {}
-        self.openai_client = None
-        
-        self._initialize_openai()
-        
         self.cache = {}
         
         self.stats = {
@@ -134,20 +126,6 @@ class NLCoordinateMapper:
         }
         
         logger.info(f"[{datetime.now()}] NLCoordinateMapper initialized")
-    
-    def _initialize_openai(self) -> None:
-        """Initialize OpenAI client if available."""
-        try:
-            from openai import OpenAI
-            api_key = os.environ.get('OPENAI_API_KEY')
-            
-            if api_key:
-                self.openai_client = OpenAI(api_key=api_key)
-                logger.info("OpenAI client initialized successfully")
-            else:
-                logger.warning("OPENAI_API_KEY not found. AI mapping will use fallback method.")
-        except ImportError:
-            logger.warning("OpenAI package not available. Using fallback mapping.")
     
     def map_query(self, query: str, use_ai: bool = True) -> Dict[str, Any]:
         """
@@ -178,25 +156,11 @@ class NLCoordinateMapper:
             'mapped_at': start_time.isoformat()
         }
         
-        if use_ai and self.openai_client:
-            try:
-                ai_result = self._map_with_ai(query)
-                result['coordinates'] = ai_result['coordinates']
-                result['axis_values'] = ai_result['axis_values']
-                result['confidence'] = ai_result['confidence']
-                result['mapping_method'] = 'ai'
-                self.stats['ai_calls'] += 1
-            except Exception as e:
-                logger.warning(f"AI mapping failed, using fallback: {e}")
-                fallback = self._map_with_keywords(query)
-                result['coordinates'] = fallback['coordinates']
-                result['axis_values'] = fallback['axis_values']
-                result['confidence'] = fallback['confidence']
-        else:
-            fallback = self._map_with_keywords(query)
-            result['coordinates'] = fallback['coordinates']
-            result['axis_values'] = fallback['axis_values']
-            result['confidence'] = fallback['confidence']
+        del use_ai  # Compatibility argument; provider work is not allowed here.
+        fallback = self._map_with_keywords(query)
+        result['coordinates'] = fallback['coordinates']
+        result['axis_values'] = fallback['axis_values']
+        result['confidence'] = fallback['confidence']
         
         result['processing_duration_ms'] = (datetime.now(UTC) - start_time).total_seconds() * 1000
         
@@ -206,89 +170,6 @@ class NLCoordinateMapper:
         logger.info(f"[{datetime.now()}] Query mapped with confidence {result['confidence']:.2f}")
         
         return result
-    
-    def _map_with_ai(self, query: str) -> Dict[str, Any]:
-        """
-        Map query using OpenAI.
-        
-        Args:
-            query: The query to map
-            
-        Returns:
-            AI-generated mapping
-        """
-        system_prompt = """You are a knowledge coordinate mapper for a 17-axis knowledge system.
-        
-Given a query, extract relevant information for each of the 17 axes:
-1. Temporal - time/dates
-2. Spatial - locations
-3. Semantic - concepts/definitions
-4. Procedural - processes/methods
-5. Analytical - data/analysis
-6. Normative - policies/standards
-7. Risk/Impact - risks/consequences
-8. Performance - metrics/KPIs
-9. Expertise - expert domains
-10. Ethical - ethical concerns
-11. Regulatory - laws/regulations
-12. Compliance - internal policies
-13. Simulation - scenarios/what-ifs
-14. AI-Generated - AI/ML aspects
-15. Cultural/Social - social factors
-16. Innovation - new technologies
-17. Learning - improvement needs
-
-For each axis, provide:
-- relevance: float 0-1 (how relevant this axis is to the query)
-- value: extracted information or null if not applicable
-- confidence: float 0-1 (confidence in extraction)
-
-Respond in JSON format with structure:
-{
-    "axes": {
-        "1": {"relevance": 0.8, "value": "2025 deadline", "confidence": 0.9},
-        ...
-    },
-    "overall_confidence": 0.85
-}"""
-
-        user_prompt = f"Map this query to the 17-axis coordinate system:\n\n{query}"
-        
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.3
-        )
-        
-        content = response.choices[0].message.content
-        parsed = json.loads(content)
-        
-        coordinates = {}
-        axis_values = {}
-        
-        axes_data = parsed.get('axes', {})
-        for axis_num in range(1, 18):
-            axis_key = str(axis_num)
-            if axis_key in axes_data:
-                axis_info = axes_data[axis_key]
-                coordinates[axis_num] = axis_info.get('relevance', 0.0)
-                if axis_info.get('value'):
-                    axis_values[axis_num] = {
-                        'value': axis_info['value'],
-                        'confidence': axis_info.get('confidence', 0.7)
-                    }
-            else:
-                coordinates[axis_num] = 0.0
-        
-        return {
-            'coordinates': coordinates,
-            'axis_values': axis_values,
-            'confidence': parsed.get('overall_confidence', 0.7)
-        }
     
     def _map_with_keywords(self, query: str) -> Dict[str, Any]:
         """

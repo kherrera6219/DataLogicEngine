@@ -26,21 +26,22 @@ def test_database_manager_prefers_app_owned_jre(tmp_path, monkeypatch):
 def test_network_state_reports_online_with_cloud_provider(monkeypatch):
     NetworkState._last_checked = None
     NetworkState._last_result = {}
-    for env_name in ["ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+    for env_name in ["GOOGLE_API_KEY", "GEMINI_API_KEY"]:
         monkeypatch.delenv(env_name, raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(list))
 
     status = NetworkState.check(force=True)
 
-    assert status["state"] == "ONLINE"
+    assert status["state"] == "CONFIGURED"
+    assert status["provider_status"] == "stored"
     assert status["active_provider"] == "openai"
 
 
 def test_network_state_reports_offline_without_provider(monkeypatch):
     NetworkState._last_checked = None
     NetworkState._last_result = {}
-    for env_name in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+    for env_name in ["OPENAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY"]:
         monkeypatch.delenv(env_name, raising=False)
     monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(list))
 
@@ -55,7 +56,7 @@ def test_network_state_includes_db_configured_providers(monkeypatch):
     even when no matching *_API_KEY environment variable is present."""
     NetworkState._last_checked = None
     NetworkState._last_result = {}
-    for env_name in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+    for env_name in ["OPENAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY"]:
         monkeypatch.delenv(env_name, raising=False)
     monkeypatch.delenv("LOCAL_SLM_ENDPOINT", raising=False)
     monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
@@ -63,7 +64,7 @@ def test_network_state_includes_db_configured_providers(monkeypatch):
 
     status = NetworkState.check(force=True)
 
-    assert status["state"] == "ONLINE"
+    assert status["state"] == "CONFIGURED"
     assert "openai" in status["details"]["configured_providers"]
     assert status["active_provider"] == "openai"
 
@@ -85,7 +86,7 @@ def test_desktop_offline_queue_lifecycle(tmp_path, monkeypatch):
     queue_path = tmp_path / "offline_queue.json"
     monkeypatch.setenv("DATALOGIC_OFFLINE_QUEUE_PATH", str(queue_path))
 
-    item = enqueue_chat_request({"messages": [{"role": "user", "content": "hello"}]}, reason="test")
+    item = enqueue_chat_request({"messages": [{"role": "user", "content": "hello"}]}, reason="network")
     queue = list_queue()
 
     assert queue["counts"]["pending"] == 1

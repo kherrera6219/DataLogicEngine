@@ -95,99 +95,19 @@ class RAGService:
     
     def _default_embedding(self, text: str) -> List[float]:
         """
-        Generate embedding using strict 3-Layer Failover Strategy.
-        
-        Provider order follows LLM_DEFAULT_PROVIDER / AI_PROVIDER. The selected
-        cloud provider is tried first, followed by the alternate cloud provider
-        only when no operator default is configured, then local HuggingFace.
+        Generate a local deterministic projection without provider egress.
+
+        Cloud embeddings are never implicit. A workflow that needs them must
+        inject an explicitly budgeted and disclosed provider function.
         """
         cache_key = self._embedding_cache_key(text)
         cached_embedding = self._get_cached_embedding(cache_key)
         if cached_embedding is not None:
             return cached_embedding
 
-        errors = []
-        preferred_provider = (
-            os.environ.get("LLM_DEFAULT_PROVIDER")
-            or os.environ.get("AI_PROVIDER")
-            or ""
-        ).strip().lower()
-        if preferred_provider == "gemini":
-            preferred_provider = "google"
-        
-        if preferred_provider != "google":
-            try:
-                openai_key = os.environ.get('OPENAI_API_KEY')
-                if openai_key:
-                    import openai
-                    client = openai.OpenAI(api_key=openai_key)
-                    try:
-                        response = client.embeddings.create(
-                            model="text-embedding-3-small",
-                            input=text
-                        )
-                        embedding = response.data[0].embedding
-                        self._set_cached_embedding(cache_key, embedding)
-                        return embedding
-                    finally:
-                        close_client = getattr(client, "close", None)
-                        if callable(close_client):
-                            close_client()
-            except Exception as e:
-                errors.append(f"OpenAI Failed: {str(e)}")
-                logger.warning(f"Embedding OpenAI attempt failed: {e}")
-
-        # --- Layer 2: Google Gemini ---
-        try:
-            google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
-            if google_key:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=google_key)
-                try:
-                    embedding_model = os.environ.get(
-                        "GOOGLE_EMBEDDING_MODEL",
-                        "gemini-embedding-2",
-                    )
-                    result = client.models.embed_content(
-                        model=embedding_model,
-                        contents=text,
-                        config=types.EmbedContentConfig(output_dimensionality=768),
-                    )
-                    embedding = list(result.embeddings[0].values)
-                    self._set_cached_embedding(cache_key, embedding)
-                    return embedding
-                finally:
-                    close_client = getattr(client, "close", None)
-                    if callable(close_client):
-                        close_client()
-        except Exception as e:
-            errors.append(f"Google Failed: {str(e)}")
-            logger.warning(f"Embedding Google attempt failed: {e}")
-
-        # --- Layer 3: Local HuggingFace ---
-        try:
-            from sentence_transformers import SentenceTransformer
-            if not hasattr(self, '_hf_model'):
-                # Load efficient local model
-                self._hf_model = SentenceTransformer('all-MiniLM-L6-v2')
-            embedding = self._hf_model.encode(text).tolist()
-            self._set_cached_embedding(cache_key, embedding)
-            return embedding
-        except Exception as e:
-            errors.append(f"Local Failed: {str(e)}")
-            logger.error(f"Embedding Layer 3 (Local) failed: {e}")
-            
-        # --- Failed All Layers ---
-        logger.error(f"All Embedding Layers Failed: {errors}")
-        env = os.environ.get("FLASK_ENV", "").lower()
-        allow_mock_embeddings = os.environ.get("ALLOW_MOCK_EMBEDDINGS", "false").lower() == "true"
-        if allow_mock_embeddings or env in {"development", "testing"}:
-            # Development/testing fallback only.
-            embedding = self._mock_embedding(text)
-            self._set_cached_embedding(cache_key, embedding)
-            return embedding
-        raise RuntimeError("All embedding providers failed in production mode")
+        embedding = self._deterministic_embedding(text)
+        self._set_cached_embedding(cache_key, embedding)
+        return embedding
 
     @staticmethod
     def _embedding_cache_key(text: str) -> str:
@@ -237,14 +157,17 @@ class RAGService:
         except Exception as exc:
             logger.debug("Embedding Redis cache set failed for %s: %s", cache_key, exc)
     
-    def _mock_embedding(self, text: str) -> List[float]:
-        """Generate mock embedding for testing (384 dimensions like MiniLM)."""
+    def _deterministic_embedding(self, text: str) -> List[float]:
+        """Generate a stable 384-dimension local projection."""
         hash_bytes = hashlib.sha256(text.encode()).digest()
         embedding = []
         for i in range(384):
             byte_idx = i % len(hash_bytes)
             embedding.append((hash_bytes[byte_idx] - 128) / 128.0)
         return embedding
+
+    # Test compatibility alias; production code uses the explicit name above.
+    _mock_embedding = _deterministic_embedding
     
     def set_embedding_provider(self, provider):
         """Set the embedding provider function."""

@@ -3,7 +3,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import sys
-import os
 import logging
 
 from backend.services.analytics_service import AnalyticsService
@@ -133,8 +132,7 @@ def test_rag_chunk_text_fallback():
         service.chunk_text(text)
         mock_basic.assert_called_with(text, 512, 50)
 
-def test_rag_default_embedding_failover():
-    # Test Layer 3 (Local/HF) if others fail
+def test_rag_default_embedding_is_deterministic_and_has_no_hidden_clients():
     service = RAGService()
     
     # Mock imports failure for OpenAI and Google, but success for sentence_transformers
@@ -149,8 +147,11 @@ def test_rag_default_embedding_failover():
         'google.genai': None,
         'sentence_transformers': mock_st_module
     }):
-        emb = service._default_embedding("test")
-        assert emb == [0.1, 0.2]
+        first = service._default_embedding("test")
+        second = service._default_embedding("test")
+        assert first == second
+        assert len(first) == 384
+        mock_st_module.SentenceTransformer.assert_not_called()
 
 def test_rag_embedding_total_failover():
     # Test Layer 4 (Mock fallback). The service fails closed in production and
@@ -274,54 +275,30 @@ async def test_video_service_analyze():
 
 
 # --- Audio Service Tests ---
-from backend.services.audio_service import AudioService
+from backend.services.audio_service import AudioCapabilityUnavailable, AudioService
 
 @pytest.mark.asyncio
-async def test_audio_service_transcribe_openai():
-    mock_client = MagicMock()
-    mock_client.audio.transcriptions.create.return_value.text = "OpenAI Transcript"
-    
-    with patch('backend.services.audio_service.OpenAI') as mock_openai_cls:
-        mock_openai_cls.return_value = mock_client
-        
-        service = AudioService(api_key="sk-fake")
-        transcript = await service.transcribe(b"audio", "test.wav")
-        assert transcript == "OpenAI Transcript"
+async def test_audio_service_requires_governed_transcription_adapter():
+    service = AudioService(api_key="ignored")
+    with pytest.raises(AudioCapabilityUnavailable):
+        await service.transcribe(b"audio", "test.wav")
 
 @pytest.mark.asyncio
-async def test_audio_service_transcribe_google_failover():
-    # OpenAI fails (client init failure or other)
-    # Mock os.getenv to return None for OPENAI_API_KEY initially
-    
-    mock_response = MagicMock()
-    mock_response.text = "Gemini Transcript"
-    
-    mock_genai_client = MagicMock()
-    mock_genai_client.models.generate_content.return_value = mock_response
-    
-    # We patch OpenAI to raise error or return None, and patch Google
-    with patch('backend.services.audio_service.OpenAI', side_effect=Exception("OpenAI Down")):
-        with patch.dict(os.environ, {"GOOGLE_API_KEY": "fake_google_key", "OPENAI_API_KEY": ""}):
-            # Mock google.genai
-            mock_genai = MagicMock()
-            mock_genai.genai = mock_genai # Handle "from google import genai" if resolved via attr
-            mock_genai.Client.return_value = mock_genai_client
-            
-            with patch.dict(sys.modules, {'google': mock_genai, 'google.genai': mock_genai}):
-                 service = AudioService(api_key=None)
-                 transcript = await service.transcribe(b"audio", "test.wav")
-                 
-                 # It should fall back to Gemini
-                 assert transcript == "Gemini Transcript"
+async def test_audio_service_uses_only_injected_governed_transcription_adapter():
+    calls = []
+
+    async def transcriber(audio: bytes, filename: str) -> str:
+        calls.append((audio, filename))
+        return "Governed transcript"
+
+    service = AudioService(transcriber=transcriber)
+    transcript = await service.transcribe(b"audio", "test.wav")
+
+    assert transcript == "Governed transcript"
+    assert calls == [(b"audio", "test.wav")]
 
 @pytest.mark.asyncio
 async def test_audio_service_synthesize():
-    mock_client = MagicMock()
-    mock_client.audio.speech.create.return_value.content = b"audio_content"
-    
-    with patch('backend.services.audio_service.OpenAI') as mock_openai_cls:
-        mock_openai_cls.return_value = mock_client
-        service = AudioService(api_key="sk-fake")
-        
-        audio = await service.synthesize("Hello")
-        assert audio == b"audio_content"
+    service = AudioService(synthesizer=lambda text, voice: b"audio_content")
+    audio = await service.synthesize("Hello")
+    assert audio == b"audio_content"

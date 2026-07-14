@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Brain, CheckCircle2, Eye, FlaskConical, RefreshCw, Save, Power, History } from 'lucide-react';
+import { Brain, CheckCircle2, Download, Eye, FlaskConical, RefreshCw, Save, Power, History, ShieldCheck, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { request } from '@/lib/api';
+import {
+  CONFIGURABLE_PROVIDER_TYPES,
+  MODEL_LIBRARY,
+} from '@/lib/provider-manifest.generated';
 import { useToast } from '@/components/ui/use-toast';
 
 interface ProviderOption {
@@ -17,6 +21,7 @@ interface ProviderOption {
   model?: string;
   is_default?: boolean;
   has_api_key?: boolean;
+  status?: 'not_configured' | 'stored' | 'validating' | 'available' | 'limited' | 'invalid' | 'unavailable';
 }
 
 interface SaveKeyResponse {
@@ -29,15 +34,50 @@ interface SaveKeyResponse {
   };
 }
 
-// The app uses one user-selected cloud model: OpenAI gpt-5.5 or Google gemini-3.1-pro-preview.
-const MODEL_LIBRARY: Record<string, string[]> = {
-  openai: ['gpt-5.5'],
-  google: ['gemini-3.1-pro-preview'],
-};
-const CONFIGURABLE_PROVIDER_TYPES = ['openai', 'google'];
-
 function isConfigurableProviderType(providerType: string | undefined): boolean {
   return CONFIGURABLE_PROVIDER_TYPES.includes((providerType || '').toLowerCase());
+}
+
+interface UsageWindow {
+  calls: number;
+  tokens_total: number;
+  known_estimated_cost_usd: number | null;
+  unknown_price_calls: number;
+}
+
+interface UsageLedger {
+  schema_version: 'provider-usage-ledger.v1';
+  generated_at: string;
+  limits: {
+    daily_calls: number;
+    monthly_calls: number;
+    daily_tokens: number;
+    monthly_tokens: number;
+    monthly_spend_usd: number | null;
+  };
+  remaining: {
+    daily_calls: number;
+    monthly_calls: number;
+    daily_tokens: number;
+    monthly_tokens: number;
+    monthly_spend_usd: number | null;
+  };
+  daily: UsageWindow;
+  monthly: UsageWindow;
+  pricing_status: 'available' | 'unknown';
+  entries: Array<{
+    id: string;
+    provider: string;
+    model?: string | null;
+    purpose: string;
+    status: string;
+    disclosed_categories: string[];
+    created_at?: string | null;
+  }>;
+}
+
+function formatCount(value: number | undefined): string {
+  return new Intl.NumberFormat().format(Number(value || 0));
 }
 
 export function getProviderStatus(entry: ProviderOption, verified: boolean): {
@@ -48,15 +88,20 @@ export function getProviderStatus(entry: ProviderOption, verified: boolean): {
     return { label: 'Unsupported legacy provider', variant: 'outline' };
   }
 
-  if (verified) {
-    return { label: 'Key verified', variant: 'success' };
-  }
-
-  if (entry.has_api_key) {
-    return { label: 'Key saved', variant: 'secondary' };
-  }
-
-  return { label: 'API key missing', variant: 'outline' };
+  const status = verified ? 'available' : (entry.status || (entry.has_api_key ? 'stored' : 'not_configured'));
+  const labels: Record<string, string> = {
+    not_configured: 'Not configured',
+    stored: 'Stored',
+    validating: 'Validating',
+    available: 'Available',
+    limited: 'Limited',
+    invalid: 'Invalid',
+    unavailable: 'Unavailable',
+  };
+  return {
+    label: labels[status] || 'Unavailable',
+    variant: status === 'available' ? 'success' : (status === 'stored' || status === 'validating' ? 'secondary' : 'outline'),
+  };
 }
 
 function formatError(error: unknown): string {
@@ -77,6 +122,9 @@ export function AiModelSettings() {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [verifiedProviders, setVerifiedProviders] = useState<Record<string, boolean>>({});
+  const [usageLedger, setUsageLedger] = useState<UsageLedger | null>(null);
+  const [loadingLedger, setLoadingLedger] = useState(true);
+  const [resettingLedger, setResettingLedger] = useState(false);
 
   // User AI preference controls
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -124,6 +172,37 @@ export function AiModelSettings() {
     }
 
     void loadProviders();
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
+
+  const loadUsageLedger = async () => {
+    setLoadingLedger(true);
+    try {
+      const result = await request<UsageLedger>('/gateway/usage-ledger?days=30');
+      setUsageLedger(result?.schema_version === 'provider-usage-ledger.v1' ? result : null);
+    } catch (error) {
+      toast(`Failed to load provider usage: ${formatError(error)}`, 'error');
+    } finally {
+      setLoadingLedger(false);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    request<UsageLedger>('/gateway/usage-ledger?days=30')
+      .then((result) => {
+        if (!cancelled) {
+          setUsageLedger(result?.schema_version === 'provider-usage-ledger.v1' ? result : null);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) toast(`Failed to load provider usage: ${formatError(error)}`, 'error');
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingLedger(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -188,6 +267,7 @@ export function AiModelSettings() {
         type: providerType,
         model: effectiveModel,
         has_api_key: true,
+        status: 'stored',
       };
 
       if (index >= 0) {
@@ -260,6 +340,39 @@ export function AiModelSettings() {
     }
   };
 
+  const handleExportLedger = async () => {
+    try {
+      const exported = await request<UsageLedger & { export_notice?: string }>('/gateway/usage-ledger/export?days=366');
+      const blob = new Blob([JSON.stringify(exported, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `datalogic-provider-usage-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      toast('Redacted provider usage ledger exported.', 'success');
+    } catch (error) {
+      toast(`Failed to export provider usage: ${formatError(error)}`, 'error');
+    }
+  };
+
+  const handleResetLedger = async () => {
+    if (!window.confirm('Reset the local provider usage and privacy ledger? This cannot be undone.')) return;
+    setResettingLedger(true);
+    try {
+      await request('/gateway/usage-ledger', {
+        method: 'DELETE',
+        body: JSON.stringify({ confirmation: 'RESET_PROVIDER_USAGE_LEDGER' }),
+      });
+      await loadUsageLedger();
+      toast('Provider usage ledger reset.', 'success');
+    } catch (error) {
+      toast(`Failed to reset provider usage: ${formatError(error)}`, 'error');
+    } finally {
+      setResettingLedger(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -269,7 +382,7 @@ export function AiModelSettings() {
   }
 
   return (
-    <div className="space-y-6" aria-busy={loading || saving || testing || savingPrefs}>
+    <div className="space-y-6" aria-busy={loading || saving || testing || savingPrefs || loadingLedger || resettingLedger}>
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Brain className="h-5 w-5 text-blue-500" />
@@ -446,8 +559,8 @@ export function AiModelSettings() {
               >
                 {selectedProviderVerified && <CheckCircle2 className="h-4 w-4" />}
                 {selectedProviderVerified
-                  ? `Provider key verified for ${selectedProvider.type}.`
-                  : `Provider key saved for ${selectedProvider.type}. Use Test Model to validate it.`}
+                  ? `${selectedProvider.type} is available for the selected model.`
+                  : `${selectedProvider.type} credentials are stored. Use Test Model to validate availability.`}
               </div>
             )}
 
@@ -459,6 +572,90 @@ export function AiModelSettings() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            Provider Usage and Privacy Ledger
+          </CardTitle>
+          <CardDescription>
+            Review server-enforced call/token ceilings and content-free external-provider egress records. Prompts, responses, and credentials are never stored in this ledger.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!usageLedger && !loadingLedger && (
+            <p className="text-sm text-muted-foreground">Usage ledger is unavailable. Provider calls fail closed when budget accounting cannot be read.</p>
+          )}
+          {usageLedger && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-lg border p-3">
+                  <p className="text-xs text-muted-foreground">Calls today</p>
+                  <p className="text-lg font-semibold">{formatCount(usageLedger.daily.calls)} / {formatCount(usageLedger.limits.daily_calls)}</p>
+                  <p className="text-xs text-muted-foreground">{formatCount(usageLedger.remaining.daily_calls)} remaining</p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-xs text-muted-foreground">Tokens this month</p>
+                  <p className="text-lg font-semibold">{formatCount(usageLedger.monthly.tokens_total)} / {formatCount(usageLedger.limits.monthly_tokens)}</p>
+                  <p className="text-xs text-muted-foreground">{formatCount(usageLedger.remaining.monthly_tokens)} remaining</p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-xs text-muted-foreground">Estimated spend this month</p>
+                  <p className="text-lg font-semibold">
+                    {usageLedger.monthly.known_estimated_cost_usd === null
+                      ? 'Unknown'
+                      : `$${usageLedger.monthly.known_estimated_cost_usd.toFixed(4)}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {usageLedger.limits.monthly_spend_usd === null
+                      ? 'No owner ceiling configured'
+                      : `$${usageLedger.limits.monthly_spend_usd.toFixed(2)} ceiling`}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-xs text-muted-foreground">Pricing coverage</p>
+                  <p className="text-lg font-semibold capitalize">{usageLedger.pricing_status}</p>
+                  <p className="text-xs text-muted-foreground">{formatCount(usageLedger.monthly.unknown_price_calls)} calls with unknown price</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Recent external disclosures</h3>
+                {usageLedger.entries.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No provider calls are recorded for this period.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {usageLedger.entries.slice(0, 5).map((entry) => (
+                      <div key={entry.id} className="rounded-lg border p-3 text-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-semibold">{entry.provider} / {entry.model || 'unknown model'}</span>
+                          <Badge variant="outline">{entry.status}</Badge>
+                        </div>
+                        <p className="mt-1 text-muted-foreground">
+                          Purpose: {entry.purpose}. Disclosed categories: {entry.disclosed_categories.join(', ') || 'none recorded'}.
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => void loadUsageLedger()} disabled={loadingLedger} aria-label="Refresh provider usage ledger">
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loadingLedger ? 'animate-spin' : ''}`} /> Refresh
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => void handleExportLedger()} aria-label="Export provider usage ledger">
+              <Download className="h-3.5 w-3.5 mr-1.5" /> Export redacted JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => void handleResetLedger()} disabled={resettingLedger} aria-label="Reset provider usage ledger">
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" /> {resettingLedger ? 'Resetting...' : 'Reset ledger'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -606,32 +606,53 @@ class LLMProvider(db.Model):
             'id': str(self.id),
             'name': self.name,
             'provider_type': self.provider_type,
+            'model': self.model_id,
             'is_active': self.is_active,
             'is_default': self.is_default,
             'has_api_key': self.api_key_encrypted is not None,
+            'status': str((self.config or {}).get('availability_status') or ('stored' if self.api_key_encrypted else 'not_configured')),
+            'status_checked_at': (self.config or {}).get('availability_checked_at'),
         }
         return result
 
 
 class LLMProviderUsage(db.Model):
-    """Usage tracking for LLM providers."""
+    """Secret-free provider egress, usage, retry, and privacy ledger."""
     __tablename__ = 'llm_provider_usage'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (
+        Index('ix_llm_provider_usage_run_stage', 'run_id', 'request_stage'),
+        Index('ix_llm_provider_usage_session_created', 'session_id', 'created_at'),
+        Index('ix_llm_provider_usage_status_created', 'status', 'created_at'),
+        {'extend_existing': True},
+    )
 
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    provider_id = db.Column(UUID(as_uuid=True), db.ForeignKey('llm_providers.id'), nullable=False)
+    provider_id = db.Column(UUID(as_uuid=True), db.ForeignKey('llm_providers.id'), nullable=True)
+    provider_type = db.Column(db.String(32), nullable=False, default='unknown')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     api_key_id = db.Column(UUID(as_uuid=True), db.ForeignKey('external_api_keys.id'), nullable=True)
     run_id = db.Column(UUID(as_uuid=True), nullable=True)
+    session_id = db.Column(db.String(255), nullable=True)
     model = db.Column(db.String(100), nullable=True)
+    purpose = db.Column(db.String(64), nullable=False, default='answer')
+    request_stage = db.Column(db.String(64), nullable=False, default='provider_execution')
+    attempt_number = db.Column(db.Integer, nullable=False, default=1)
+    retry_index = db.Column(db.Integer, nullable=False, default=0)
     tokens_in = db.Column(db.Integer, default=0)
     tokens_out = db.Column(db.Integer, default=0)
     latency_ms = db.Column(db.Integer, nullable=True)
     estimated_cost_usd = db.Column(db.Float, nullable=True)
+    pricing_status = db.Column(db.String(32), nullable=False, default='unknown')
+    status = db.Column(db.String(32), nullable=False, default='completed')
     success = db.Column(db.Boolean, default=True)
+    error_class = db.Column(db.String(64), nullable=True)
     error_code = db.Column(db.String(100), nullable=True)
     error_message = db.Column(db.Text, nullable=True)
+    disclosed_categories = db.Column(JSON, nullable=False, default=list)
+    idempotency_key = db.Column(db.String(128), nullable=True)
+    started_at = db.Column(db.DateTime, nullable=True)
+    ended_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 

@@ -47,7 +47,7 @@ export default function AboutPage() {
                       <CardTitle>LLM Gateway</CardTitle>
                    </CardHeader>
                    <CardContent className="text-gray-600 dark:text-gray-300">
-                      A standardized interface for configured AI providers such as OpenAI, Anthropic, Google Gemini/Vertex AI, and Azure OpenAI to support chat, trace metadata, and provider usage inspection.
+                      A governed interface for the supported OpenAI and Google providers, with bounded calls, cancellation, trace metadata, privacy disclosures, and local usage inspection.
                    </CardContent>
                 </Card>
             </div>

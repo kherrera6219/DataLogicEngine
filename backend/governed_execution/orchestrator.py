@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from contextvars import ContextVar
 from datetime import UTC, datetime
 import logging
+import os
+import time
 from typing import Any, Callable
 
 from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
@@ -19,6 +22,7 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
+from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
 from backend.governed_execution.prompt import build_provider_messages, build_refinement_messages
 from backend.governed_execution.quality import (
     calculate_confidence,
@@ -28,6 +32,11 @@ from backend.governed_execution.quality import (
 from backend.governed_execution.retrieval import retrieve_evidence
 from backend.governed_execution.validation import validate_output
 from backend.llm_gateway.latency_metrics import record_ai_request
+from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
+from backend.llm_gateway.provider_errors import (
+    ProviderFailureClass,
+    classify_provider_failure,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -70,9 +79,58 @@ class GovernedExecutionOrchestrator:
 
         context = GovernedContext(request=request)
         token = _ACTIVE_TRACE.set(context.trace_id)
+        server_deadline = self._bounded_int(
+            os.environ.get("GOVERNED_REQUEST_DEADLINE_SECONDS"), 120, 5, 300
+        )
+        requested_deadline = self._bounded_int(
+            request.constraints.get("deadline_seconds"), server_deadline, 1, server_deadline
+        )
+        context.deadline_at_monotonic = time.monotonic() + requested_deadline
+        request.metadata["deadline_seconds"] = requested_deadline
+        context.cancellation_entry = CANCELLATION_REGISTRY.register(
+            request.request_id, context.trace_id
+        )
+        execution_task: asyncio.Task[GovernedResult] | None = None
+        cancellation_task: asyncio.Task[bool] | None = None
         try:
-            return await self._execute(context)
+            execution_task = asyncio.create_task(self._execute(context))
+            cancellation_task = asyncio.create_task(context.cancellation_entry.event.wait())
+            async with asyncio.timeout(requested_deadline):
+                done, _ = await asyncio.wait(
+                    {execution_task, cancellation_task},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+                if cancellation_task in done:
+                    execution_task.cancel()
+                    with suppress(asyncio.CancelledError):
+                        await execution_task
+                    return await self._failure(
+                        context,
+                        kind=GovernedFailureKind.CANCELLED,
+                        code="REQUEST_CANCELLED",
+                        message="Request cancelled",
+                        stage=context.stages[-1].name if context.stages else "admission",
+                    )
+                cancellation_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await cancellation_task
+                return await execution_task
+        except TimeoutError:
+            if execution_task is not None:
+                execution_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await execution_task
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.TIMEOUT,
+                code="REQUEST_DEADLINE_EXCEEDED",
+                message=f"Request exceeded its {requested_deadline}s deadline",
+                stage=context.stages[-1].name if context.stages else "admission",
+                details={"deadline_seconds": requested_deadline},
+            )
         except asyncio.CancelledError:
+            if execution_task is not None:
+                execution_task.cancel()
             return await self._failure(
                 context,
                 kind=GovernedFailureKind.CANCELLED,
@@ -91,6 +149,9 @@ class GovernedExecutionOrchestrator:
                 details={"error_type": type(exc).__name__},
             )
         finally:
+            if cancellation_task is not None:
+                cancellation_task.cancel()
+            CANCELLATION_REGISTRY.unregister(context.cancellation_entry)
             _ACTIVE_TRACE.reset(token)
 
     async def _execute(self, context: GovernedContext) -> GovernedResult:
@@ -451,10 +512,11 @@ class GovernedExecutionOrchestrator:
             return await self._failure(
                 context,
                 kind=GovernedFailureKind.PROVIDER_FAILURE,
-                code="PROVIDER_FAILURE",
+                code=str((provider_result.get("failure") or {}).get("code") or "PROVIDER_FAILURE"),
                 message=self.gateway._public_error_message(provider_result.get("error")),
                 stage="provider_execution",
                 retryable=bool(provider_result.get("retryable")),
+                details={"provider_failure": provider_result.get("failure") or {}},
             )
         self._finish(
             context,
@@ -569,10 +631,11 @@ class GovernedExecutionOrchestrator:
                 return await self._failure(
                     context,
                     kind=GovernedFailureKind.PROVIDER_FAILURE,
-                    code="PROVIDER_REFINEMENT_FAILURE",
+                    code=str((refined_result.get("failure") or {}).get("code") or "PROVIDER_REFINEMENT_FAILURE"),
                     message=self.gateway._public_error_message(refined_result.get("error")),
                     stage="refinement_1",
                     retryable=bool(refined_result.get("retryable")),
+                    details={"provider_failure": refined_result.get("failure") or {}},
                 )
             refined_validation = validate_output(
                 str(refined_result.get("answer") or ""),
@@ -665,15 +728,17 @@ class GovernedExecutionOrchestrator:
             warnings=context.warnings,
             metadata=self._metadata(context, provider_result=provider_result, validation=validation),
         )
-        await self._persist(context, result)
+        if not await self._persist(context, result):
+            self._apply_persistence_failure(context, result)
         if request.session_id:
-            await self.gateway._save_chat_message(
-                request.session_id,
-                request.user_id,
-                "assistant",
-                result.answer,
-                context.trace_id,
-            )
+            if result.ok:
+                await self.gateway._save_chat_message(
+                    request.session_id,
+                    request.user_id,
+                    "assistant",
+                    result.answer,
+                    context.trace_id,
+                )
         return result
 
     async def _execute_provider(
@@ -688,13 +753,6 @@ class GovernedExecutionOrchestrator:
             or request.metadata.get("allowed_providers")
         )
         allowed_models = self.gateway._normalize_allowlist(request.metadata.get("allowed_models"))
-
-        operator_default = self.gateway._preferred_env_provider()
-        if operator_default and str(request.provider or "").lower() in {"local_slm", "ollama", "vllm"}:
-            request.provider = operator_default
-            request.model = None
-        if operator_default and not request.provider:
-            request.provider = operator_default
 
         store_history = True
         if request.user_id:
@@ -728,34 +786,78 @@ class GovernedExecutionOrchestrator:
                 context.query,
             )
 
-        max_calls = self._bounded_int(request.constraints.get("max_provider_calls"), 4, 1, 10)
+        budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
+        max_calls = budget_policy.request_call_limit(request.mode, request.constraints)
         attempts: list[dict[str, Any]] = []
-        last_error = "All providers failed to generate a response"
+        last_error = "Provider failed to generate a response"
+        last_failure = classify_provider_failure(last_error)
         started = datetime.now(UTC)
+        purpose = "refinement" if context.refinement_cycles else "answer"
+        disclosed_categories = self._disclosed_categories(context)
 
         for provider_record in providers:
             if context.provider_call_count >= max_calls:
                 break
-            circuit = self.gateway._get_circuit_breaker(str(provider_record.id))
-            if not circuit.can_execute():
-                attempts.append({"provider": provider_record.name, "status": "circuit_open"})
-                continue
             model = self.gateway._resolve_model(request, provider_record)
+            provider_type = str(getattr(provider_record, "provider_type", "unknown"))
+            circuit = self.gateway._get_circuit_breaker(f"{provider_type}:{model}")
+            if not circuit.can_execute():
+                attempts.append({"provider": provider_type, "model": model, "status": "circuit_open"})
+                last_error = "Provider circuit is open"
+                last_failure = classify_provider_failure("provider outage: circuit open")
+                continue
             if allowed_models and model.strip().lower() not in allowed_models:
                 attempts.append({"provider": provider_record.name, "model": model, "status": "policy_skipped"})
                 continue
-            request.metadata["last_provider_used"] = getattr(provider_record, "provider_type", None)
+            request.metadata["last_provider_used"] = provider_type
             request.metadata["last_model_used"] = model
             timeout_seconds = self.gateway._provider_timeout_seconds(provider_record)
-            max_retries = min(
+            max_attempts = min(
                 self.gateway._provider_max_retries(provider_record),
                 max_calls - context.provider_call_count,
             )
-            for retry_index in range(max_retries):
+            for retry_index in range(max_attempts):
+                estimated_input_tokens = max(
+                    1,
+                    sum(len(str(message.get("content") or "")) for message in context.provider_messages) // 4,
+                )
+                budget = budget_policy.evaluate(
+                    context=context,
+                    projected_input_tokens=estimated_input_tokens,
+                    projected_output_tokens=request.max_tokens,
+                    projected_cost_usd=self.gateway._governance.estimate_cost_usd(
+                        model,
+                        estimated_input_tokens,
+                        request.max_tokens,
+                    ),
+                )
+                request.metadata["provider_budget"] = {
+                    "code": budget.code,
+                    "usage": budget.usage,
+                    "limits": budget.limits,
+                    "warning_threshold_crossed": budget.warning_threshold_crossed,
+                }
+                if not budget.allowed:
+                    return {
+                        "ok": False,
+                        "error": budget.message,
+                        "retryable": False,
+                        "attempts": attempts,
+                        "failure": {
+                            "class": ProviderFailureClass.POLICY_BLOCK.value,
+                            "code": budget.code,
+                            "replayable": False,
+                        },
+                    }
+
                 context.provider_call_count += 1
                 attempt_started = datetime.now(UTC)
+                provider = None
                 try:
                     provider = self.gateway._create_sdk_provider(provider_record)
+                    remaining = self._remaining_seconds(context)
+                    if remaining <= 0:
+                        raise TimeoutError("Request deadline exceeded before provider call")
                     provider_output = await asyncio.wait_for(
                         self.gateway._direct_llm_call(
                             provider,
@@ -764,14 +866,26 @@ class GovernedExecutionOrchestrator:
                             request.temperature,
                             request.max_tokens,
                         ),
-                        timeout=timeout_seconds,
+                        timeout=min(float(timeout_seconds), remaining),
                     )
-                except TimeoutError:
-                    provider_output = {"ok": False, "error": f"Provider request timed out after {timeout_seconds}s", "retryable": True}
+                except TimeoutError as exc:
+                    provider_output = {
+                        "ok": False,
+                        "error": f"Provider request timed out after {timeout_seconds}s",
+                        "exception": exc,
+                    }
                 except Exception as exc:
-                    provider_output = {"ok": False, "error": str(exc), "retryable": True}
+                    provider_output = {"ok": False, "error": str(exc), "exception": exc}
+                finally:
+                    close_provider = getattr(provider, "close", None)
+                    if callable(close_provider):
+                        try:
+                            await close_provider()
+                        except Exception:
+                            logger.debug("Provider client close failed", exc_info=True)
 
                 duration_ms = max(0, int((datetime.now(UTC) - attempt_started).total_seconds() * 1000))
+                context.provider_latency_ms += duration_ms
                 if provider_output.get("ok"):
                     circuit.record_success()
                     usage = provider_output.get("usage") if isinstance(provider_output.get("usage"), dict) else {}
@@ -779,10 +893,11 @@ class GovernedExecutionOrchestrator:
                     tokens_out = int(usage.get("completion_tokens", 0) or 0)
                     cost = self.gateway._governance.estimate_cost_usd(model, tokens_in, tokens_out)
                     usage["estimated_cost_usd"] = cost
+                    usage["pricing_status"] = "available" if cost is not None else "unknown"
                     usage["latency_ms"] = max(0, int((datetime.now(UTC) - started).total_seconds() * 1000))
                     attempts.append(
                         {
-                            "provider": getattr(provider_record, "provider_type", "unknown"),
+                            "provider": provider_type,
                             "model": model,
                             "call_index": context.provider_call_count,
                             "retry_index": retry_index,
@@ -791,84 +906,139 @@ class GovernedExecutionOrchestrator:
                         }
                     )
                     record_ai_request(
-                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        provider=provider_type,
                         duration_ms=duration_ms,
                         success=True,
                     )
-                    await self.gateway._record_usage(
+                    persisted = await self.gateway._record_usage(
                         provider_record.id,
+                        provider_type,
                         request.user_id,
                         request.api_key_id,
                         context.trace_id,
+                        request.session_id,
                         model,
                         tokens_in,
                         tokens_out,
                         duration_ms,
                         True,
                         estimated_cost_usd=cost,
+                        purpose=purpose,
+                        request_stage="refinement_1" if purpose == "refinement" else "provider_execution",
+                        attempt_number=context.provider_call_count,
+                        retry_index=retry_index,
+                        status="completed",
+                        disclosed_categories=disclosed_categories,
+                        idempotency_key=f"{request.request_id}:{purpose}:{context.provider_call_count}",
+                        started_at=attempt_started,
+                        ended_at=datetime.now(UTC),
                     )
+                    if persisted is False:
+                        return {
+                            "ok": False,
+                            "error": "Provider usage ledger persistence failed",
+                            "retryable": False,
+                            "attempts": attempts,
+                            "failure": {
+                                "class": ProviderFailureClass.PERSISTENCE.value,
+                                "code": "PROVIDER_LEDGER_PERSISTENCE_FAILED",
+                                "replayable": False,
+                            },
+                        }
                     self._audit_success(context, provider_record, model, usage)
                     return {
                         "ok": True,
                         "answer": provider_output.get("answer", ""),
                         "usage": usage,
-                        "provider_used": getattr(provider_record, "provider_type", "unknown"),
+                        "provider_used": provider_type,
                         "model_used": model,
                         "attempts": attempts,
                     }
 
                 last_error = str(provider_output.get("error") or "Provider request failed")
-                rate_limited = self.gateway._is_rate_limit_error(last_error)
-                retryable = not rate_limited and (
-                    bool(provider_output.get("retryable"))
-                    or self.gateway._is_retryable_error(last_error)
+                last_failure = classify_provider_failure(
+                    provider_output.get("exception") or last_error
                 )
+                retryable = last_failure.retryable
                 attempts.append(
                     {
-                        "provider": getattr(provider_record, "provider_type", "unknown"),
+                        "provider": provider_type,
                         "model": model,
                         "call_index": context.provider_call_count,
                         "retry_index": retry_index,
                         "status": "failed",
                         "retryable": retryable,
-                        "rate_limited": rate_limited,
+                        "failure_class": last_failure.failure_class.value,
                         "duration_ms": duration_ms,
                     }
                 )
-                if not rate_limited:
+                if last_failure.failure_class in {
+                    ProviderFailureClass.NETWORK,
+                    ProviderFailureClass.PROVIDER_OUTAGE,
+                    ProviderFailureClass.TIMEOUT,
+                    ProviderFailureClass.UNKNOWN,
+                }:
                     circuit.record_failure()
                 record_ai_request(
-                    provider=getattr(provider_record, "provider_type", "unknown"),
+                    provider=provider_type,
                     duration_ms=duration_ms,
                     success=False,
                 )
-                if retry_index + 1 < max_retries and retryable:
-                    await self.gateway._retry_backoff_sleep(retry_index)
-                    continue
-                await self.gateway._record_usage(
+                persisted = await self.gateway._record_usage(
                     provider_record.id,
+                    provider_type,
                     request.user_id,
                     request.api_key_id,
                     context.trace_id,
+                    request.session_id,
                     model,
                     0,
                     0,
                     duration_ms,
                     False,
+                    purpose=purpose,
+                    request_stage="refinement_1" if purpose == "refinement" else "provider_execution",
+                    attempt_number=context.provider_call_count,
+                    retry_index=retry_index,
+                    status="failed",
+                    error_class=last_failure.failure_class.value,
                     error_code="PROVIDER_FAILURE",
                     error_message=last_error,
+                    disclosed_categories=disclosed_categories,
+                    idempotency_key=f"{request.request_id}:{purpose}:{context.provider_call_count}",
+                    started_at=attempt_started,
+                    ended_at=datetime.now(UTC),
                 )
-                if rate_limited:
+                if persisted is False:
                     return {
                         "ok": False,
-                        "error": last_error,
+                        "error": "Provider usage ledger persistence failed",
                         "retryable": False,
                         "attempts": attempts,
+                        "failure": {
+                            "class": ProviderFailureClass.PERSISTENCE.value,
+                            "code": "PROVIDER_LEDGER_PERSISTENCE_FAILED",
+                            "replayable": False,
+                        },
                     }
+                if retry_index + 1 < max_attempts and retryable:
+                    delay = last_failure.retry_after_seconds
+                    if delay is None:
+                        delay = min(4.0, 0.5 * (2**retry_index))
+                    remaining = self._remaining_seconds(context)
+                    if remaining > delay:
+                        await asyncio.sleep(delay)
+                        continue
                 break
 
         self._audit_failure(context, "PROVIDER_FAILURE", last_error)
-        return {"ok": False, "error": last_error, "retryable": False, "attempts": attempts}
+        return {
+            "ok": False,
+            "error": last_error,
+            "retryable": last_failure.retryable,
+            "attempts": attempts,
+            "failure": last_failure.to_dict(),
+        }
 
     async def _complete_local_review(self, context: GovernedContext) -> GovernedResult:
         stage = self._begin(
@@ -906,7 +1076,8 @@ class GovernedExecutionOrchestrator:
             warnings=context.warnings,
             metadata=self._metadata(context),
         )
-        await self._persist(context, result)
+        if not await self._persist(context, result):
+            self._apply_persistence_failure(context, result)
         return result
 
     async def _cancel(self, context: GovernedContext, stage: str) -> GovernedResult:
@@ -929,6 +1100,18 @@ class GovernedExecutionOrchestrator:
         retryable: bool = False,
         details: dict[str, Any] | None = None,
     ) -> GovernedResult:
+        if context.stages and context.stages[-1].status is GovernedStageStatus.RUNNING:
+            terminal_status = (
+                GovernedStageStatus.CANCELLED
+                if kind in {GovernedFailureKind.CANCELLED, GovernedFailureKind.TIMEOUT}
+                else GovernedStageStatus.FAILED
+            )
+            self._finish(
+                context,
+                context.stages[-1],
+                terminal_status,
+                error_code=code,
+            )
         failure = GovernedFailure(
             kind=kind,
             code=code,
@@ -962,7 +1145,7 @@ class GovernedExecutionOrchestrator:
         await self._persist(context, result)
         return result
 
-    async def _persist(self, context: GovernedContext, result: GovernedResult) -> None:
+    async def _persist(self, context: GovernedContext, result: GovernedResult) -> bool:
         persistence = self._begin(
             context,
             "persistence",
@@ -999,6 +1182,8 @@ class GovernedExecutionOrchestrator:
             if not persisted:
                 raise RuntimeError("governed trace transaction did not commit")
             self._emit(context.trace_id, persistence)
+            result.stages = context.stages
+            return True
         except Exception as exc:
             self._finish(
                 context,
@@ -1008,7 +1193,25 @@ class GovernedExecutionOrchestrator:
                 error_code="TRACE_PERSISTENCE_FAILURE",
             )
             context.warnings.append("trace_persistence_failed")
-        result.stages = context.stages
+            result.stages = context.stages
+            return False
+
+    @staticmethod
+    def _apply_persistence_failure(
+        context: GovernedContext, result: GovernedResult
+    ) -> None:
+        result.ok = False
+        result.status = GovernedFailureKind.INTERNAL_FAILURE.value
+        result.answer = ""
+        result.failure = GovernedFailure(
+            kind=GovernedFailureKind.INTERNAL_FAILURE,
+            code="TRACE_PERSISTENCE_FAILURE",
+            message="Provider result was not released because its governed trace did not persist",
+            stage="persistence",
+            retryable=False,
+            details={"provider_succeeded": True},
+        )
+        result.warnings = context.warnings
 
     def _begin(
         self,
@@ -1102,6 +1305,7 @@ class GovernedExecutionOrchestrator:
 
     @staticmethod
     def _metadata(context: GovernedContext, **extra: Any) -> dict[str, Any]:
+        total_elapsed_ms = max(0, int((time.monotonic() - context.started_monotonic) * 1000))
         return {
             "contract_version": context.request.contract_version,
             "request_id": context.request.request_id,
@@ -1112,6 +1316,10 @@ class GovernedExecutionOrchestrator:
             "truthcore": context.truthcore,
             "policy_decisions": context.policy_decisions,
             "provider_call_count": context.provider_call_count,
+            "provider_latency_ms": context.provider_latency_ms,
+            "orchestration_overhead_ms": max(0, total_elapsed_ms - context.provider_latency_ms),
+            "deadline_seconds": context.request.metadata.get("deadline_seconds"),
+            "provider_budget": context.request.metadata.get("provider_budget"),
             "refinement_cycles": context.refinement_cycles,
             "confidence_measurement": context.confidence_measurement.to_dict()
             if context.confidence_measurement
@@ -1132,6 +1340,25 @@ class GovernedExecutionOrchestrator:
             except Exception:
                 return True
         return bool(value)
+
+    @staticmethod
+    def _remaining_seconds(context: GovernedContext) -> float:
+        if context.deadline_at_monotonic is None:
+            return 300.0
+        return max(0.0, context.deadline_at_monotonic - time.monotonic())
+
+    @staticmethod
+    def _disclosed_categories(context: GovernedContext) -> list[str]:
+        categories = ["user_prompt"]
+        if context.evidence:
+            categories.append("retrieved_text")
+        if context.dsqp:
+            categories.append("persona_content")
+        if context.truthcore:
+            categories.append("truthcore_results")
+        if any(message.get("role") == "assistant" for message in context.provider_messages):
+            categories.append("prior_provider_output")
+        return categories
 
     @staticmethod
     def _bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:

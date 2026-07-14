@@ -1,7 +1,7 @@
 """
 LLM Gateway Package
 
-Provides multi-provider LLM routing with UKG reasoning integration.
+Provides the canonical governed OpenAI/Google provider boundary.
 """
 
 from models import LLMProvider, LLMProviderUsage
@@ -12,15 +12,7 @@ __all__ = [
     # Models
     'LLMProvider',
     'LLMProviderUsage',
-    'ExternalAPIKey',
     # Gateway
     'LLMGateway',
     'gateway_bp',
-    'BaseProvider',
-    'OpenAIProvider',
-    'AzureOpenAIProvider',
-    'AnthropicProvider',
-    'GoogleProvider',
-    'CustomProvider',
-    'get_provider',
 ]

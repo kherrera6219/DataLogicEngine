@@ -36,7 +36,7 @@ export function CloudDisclosureBanner() {
               <ShieldCheck className="h-3 w-3" />
             </p>
             <p className="text-xs text-white/95 font-medium leading-tight">
-              Local data stays on this device, but AI requests may send prompts and selected context to configured providers such as OpenAI, Anthropic, Google Gemini/Vertex AI, or Azure OpenAI.
+              Local data stays in app-owned services on this device, but governed AI requests may send disclosed prompts and selected context to the configured OpenAI or Google provider.
             </p>
           </div>
         </div>

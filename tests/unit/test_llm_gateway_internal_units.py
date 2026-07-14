@@ -23,11 +23,11 @@ sys.modules["models.ChatMessage"] = MagicMock()
 # Now import the module under test
 from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse, LLMGateway
 from backend.llm_gateway.model_defaults import (
-    ANTHROPIC_PRIMARY_MODEL,
     GOOGLE_PRIMARY_MODEL,
     OPENAI_LATEST_MODEL,
     default_model_for_provider,
 )
+from backend.llm_gateway.provider_manifest import SUPPORTED_PROVIDER_TYPES
 
 # Restore global import state to avoid polluting unrelated tests.
 if _original_models_module is not None:
@@ -190,7 +190,6 @@ class TestProviderPreference:
         monkeypatch.setenv("GOOGLE_API_KEY", "google-test-key")
         monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "google")
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
         saved_ollama = SimpleNamespace(
             id="ollama-db",
@@ -227,21 +226,31 @@ class TestProviderPreference:
 class TestModelDefaults:
     def test_provider_defaults_use_current_primary_models(self):
         assert default_model_for_provider("openai") == OPENAI_LATEST_MODEL
-        assert default_model_for_provider("anthropic") == ANTHROPIC_PRIMARY_MODEL
         assert default_model_for_provider("google") == GOOGLE_PRIMARY_MODEL
         assert default_model_for_provider("gemini") == GOOGLE_PRIMARY_MODEL
+        assert SUPPORTED_PROVIDER_TYPES == {"openai", "google"}
 
-    def test_gateway_resolves_missing_model_from_provider_family(self):
+    def test_unknown_provider_fails_closed(self):
         provider = MagicMock()
         provider.provider_type = "anthropic"
         provider.model_id = None
 
-        model = LLMGateway._resolve_model(
-            GatewayRequest(messages=[{"role": "user", "content": "hello"}]),
-            provider,
-        )
+        with pytest.raises(ValueError, match="Unsupported provider"):
+            LLMGateway._resolve_model(
+                GatewayRequest(messages=[{"role": "user", "content": "hello"}]),
+                provider,
+            )
 
-        assert model == ANTHROPIC_PRIMARY_MODEL
+    def test_undeclared_model_fails_closed(self):
+        provider = MagicMock()
+        provider.provider_type = "openai"
+        provider.model_id = "gpt-legacy"
+
+        with pytest.raises(ValueError, match="Unsupported model"):
+            LLMGateway._resolve_model(
+                GatewayRequest(messages=[{"role": "user", "content": "hello"}]),
+                provider,
+            )
 
 class TestGatewayResponse:
     def test_structure(self):

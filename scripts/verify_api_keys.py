@@ -1,272 +1,73 @@
+"""Owner-run live availability checks for the two supported providers."""
+
+from __future__ import annotations
 
 import asyncio
-import os
-import sys
 from dataclasses import dataclass
-from typing import Optional
+import os
+from pathlib import Path
+import sys
 
-import httpx
 from dotenv import load_dotenv
 
-# Load env vars first
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-load_dotenv(".env")
 
-from backend.llm_gateway.model_defaults import (  # noqa: E402
-    ANTHROPIC_PRIMARY_MODEL,
-    GOOGLE_FAST_MODEL,
-    GOOGLE_PRIMARY_MODEL,
-    OPENAI_FAST_MODEL,
-    OPENAI_PRO_MODEL,
-    OPENAI_STANDARD_MODEL,
-)
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+load_dotenv(ROOT / ".env")
+
+from backend.llm_gateway.provider_errors import classify_provider_failure  # noqa: E402
+from backend.llm_gateway.provider_manifest import PROVIDERS  # noqa: E402
+from backend.llm_gateway.providers import GoogleProvider, OpenAIProvider  # noqa: E402
 
 
-def _normalize_env_aliases() -> None:
-    """Normalize common env var aliases used in older local files."""
-    if not os.getenv("ANTHROPIC_API_KEY") and os.getenv("anthropic_API_KEY"):
-        os.environ["ANTHROPIC_API_KEY"] = os.getenv("anthropic_API_KEY", "")
-    if not os.getenv("GOOGLE_API_KEY") and os.getenv("GEMINI_API_KEY"):
-        os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI_API_KEY", "")
-
-
-def _set_status(key_name: str) -> str:
-    return "SET" if os.getenv(key_name) else "MISSING"
-
-
-def _clean_error(err: Exception) -> str:
-    raw = str(err).strip().replace("\n", " ")
-    return raw if len(raw) < 240 else f"{raw[:240]}..."
-
-
-@dataclass
+@dataclass(frozen=True, slots=True)
 class ProviderCheck:
     provider: str
-    ok: bool
-    tested_model: Optional[str] = None
-    detail: str = ""
-    model_sample: str = ""
+    status: str
+    model: str
+    detail: str
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "available"
 
 
-async def check_openai() -> ProviderCheck:
-    api_key = os.getenv("OPENAI_API_KEY")
-    print(f"Checking OpenAI Key: {_set_status('OPENAI_API_KEY')}")
-    if not api_key:
-        return ProviderCheck("OpenAI", False, detail="OPENAI_API_KEY missing.")
+async def _check(provider_id: str) -> ProviderCheck:
+    definition = next(provider for provider in PROVIDERS if provider.id == provider_id)
+    configured = any(os.environ.get(name) for name in definition.api_key_environment)
+    if not configured:
+        return ProviderCheck(provider_id, "not_configured", definition.default_model, "No API key configured")
 
+    adapter = OpenAIProvider() if provider_id == "openai" else GoogleProvider()
     try:
-        from openai import AsyncOpenAI
-    except ImportError:
-        return ProviderCheck("OpenAI", False, detail="openai package not installed.")
-
-    client = AsyncOpenAI(api_key=api_key, timeout=30.0)
-    requested_model = os.getenv("OPENAI_TEST_MODEL", OPENAI_STANDARD_MODEL)
-    candidate_models = [
-        requested_model,
-        OPENAI_STANDARD_MODEL,
-        OPENAI_PRO_MODEL,
-        OPENAI_FAST_MODEL,
-    ]
-
-    visible_models = []
-    try:
-        page = await client.models.list()
-        visible_models = [m.id for m in page.data if m.id.startswith(("gpt-", "o"))][:12]
-    except Exception as e:
-        print(f"   > OpenAI model list warning: {_clean_error(e)}")
-
-    last_error = "No model probe attempted."
-    for model_id in candidate_models:
-        try:
-            await client.responses.create(
-                model=model_id,
-                input="Return exactly: pong",
-                max_output_tokens=16,
-            )
-            return ProviderCheck(
-                "OpenAI",
-                True,
-                tested_model=model_id,
-                detail="Responses API generation succeeded.",
-                model_sample=", ".join(visible_models[:8]),
-            )
-        except Exception as e:
-            last_error = _clean_error(e)
-            if "does not exist" in last_error.lower() or "model_not_found" in last_error.lower():
-                continue
-            if "max_output_tokens" in last_error.lower():
-                # Keep trying fallback models; this check should use >=16.
-                continue
-
-    return ProviderCheck(
-        "OpenAI",
-        False,
-        tested_model=requested_model,
-        detail=f"Generation failed across candidate models. Last error: {last_error}",
-        model_sample=", ".join(visible_models[:8]),
-    )
-
-
-async def check_google() -> ProviderCheck:
-    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    print(
-        "Checking Google/Gemini Key: "
-        f"GEMINI_API_KEY={_set_status('GEMINI_API_KEY')}, GOOGLE_API_KEY={_set_status('GOOGLE_API_KEY')}"
-    )
-    if not api_key:
-        return ProviderCheck("Google Gemini", False, detail="GEMINI_API_KEY/GOOGLE_API_KEY missing.")
-
-    try:
-        from google import genai
-    except ImportError:
-        return ProviderCheck("Google Gemini", False, detail="google-genai package not installed.")
-
-    try:
-        client = genai.Client(api_key=api_key)
-        available = []
-        try:
-            for model in client.models.list():
-                name = getattr(model, "name", "")
-                if "gemini" in name.lower():
-                    available.append(name.replace("models/", ""))
-                if len(available) >= 20:
-                    break
-        except Exception as e:
-            print(f"   > Gemini model list warning: {_clean_error(e)}")
-
-        requested_model = os.getenv("GEMINI_TEST_MODEL", GOOGLE_PRIMARY_MODEL)
-        candidates = [
-            requested_model,
-            GOOGLE_PRIMARY_MODEL,
-            "gemini-3.1-pro-preview",
-            GOOGLE_FAST_MODEL,
-        ]
-
-        last_error = "No model probe attempted."
-        for model_id in candidates:
-            try:
-                client.models.generate_content(
-                    model=model_id,
-                    contents="Reply with one word: pong",
-                )
-                return ProviderCheck(
-                    "Google Gemini",
-                    True,
-                    tested_model=model_id,
-                    detail="generate_content succeeded.",
-                    model_sample=", ".join(available[:8]),
-                )
-            except Exception as e:
-                last_error = _clean_error(e)
-                if "not found" in last_error.lower() or "invalid model" in last_error.lower():
-                    continue
-
-        return ProviderCheck(
-            "Google Gemini",
-            False,
-            tested_model=requested_model,
-            detail=f"Generation failed across candidate models. Last error: {last_error}",
-            model_sample=", ".join(available[:8]),
+        await asyncio.wait_for(
+            adapter.complete(
+                messages=[{"role": "user", "content": "Reply with exactly: pong"}],
+                model=definition.default_model,
+                temperature=0,
+                max_tokens=16,
+            ),
+            timeout=30,
         )
-    except Exception as e:
-        return ProviderCheck("Google Gemini", False, detail=f"Client error: {_clean_error(e)}")
+        return ProviderCheck(provider_id, "available", definition.default_model, "Live generation succeeded")
+    except Exception as exc:
+        failure = classify_provider_failure(exc)
+        limited = failure.failure_class.value in {"rate_limited", "quota_exhausted", "billing_suspended"}
+        invalid = failure.failure_class.value in {"invalid_key", "invalid_model", "unauthorized_model"}
+        status = "limited" if limited else ("invalid" if invalid else "unavailable")
+        return ProviderCheck(provider_id, status, definition.default_model, failure.failure_class.value)
+    finally:
+        await adapter.close()
 
 
-async def check_anthropic() -> ProviderCheck:
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    print(f"Checking Anthropic Key: {_set_status('ANTHROPIC_API_KEY')}")
-    if not api_key:
-        return ProviderCheck("Anthropic", False, detail="ANTHROPIC_API_KEY missing.")
-
-    base_url = os.getenv("ANTHROPIC_BASE_URL", "https://api.anthropic.com").rstrip("/")
-    version = os.getenv("ANTHROPIC_VERSION", "2023-06-01")
-    headers = {
-        "x-api-key": api_key,
-        "anthropic-version": version,
-        "content-type": "application/json",
-    }
-
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        available = []
-        try:
-            list_resp = await client.get(f"{base_url}/v1/models", headers=headers)
-            list_resp.raise_for_status()
-            items = (list_resp.json() or {}).get("data", [])
-            available = [m.get("id", "") for m in items if m.get("id")]
-        except Exception as e:
-            print(f"   > Anthropic model list warning: {_clean_error(e)}")
-
-        requested_model = os.getenv("ANTHROPIC_TEST_MODEL", ANTHROPIC_PRIMARY_MODEL)
-        candidates = [
-            requested_model,
-            ANTHROPIC_PRIMARY_MODEL,
-            "claude-sonnet-4-6",
-            "claude-haiku-4-5",
-        ]
-
-        if available:
-            # Try available models first while preserving preferred order where possible.
-            preferred = [m for m in candidates if m in available]
-            remaining = [m for m in available if m.startswith("claude-")]
-            candidates = preferred + remaining
-
-        last_error = "No model probe attempted."
-        for model_id in candidates:
-            try:
-                payload = {
-                    "model": model_id,
-                    "max_tokens": 32,
-                    "messages": [{"role": "user", "content": "Reply with one word: pong"}],
-                }
-                resp = await client.post(f"{base_url}/v1/messages", headers=headers, json=payload)
-                resp.raise_for_status()
-                return ProviderCheck(
-                    "Anthropic",
-                    True,
-                    tested_model=model_id,
-                    detail="Messages API generation succeeded.",
-                    model_sample=", ".join(available[:8]),
-                )
-            except Exception as e:
-                last_error = _clean_error(e)
-                if "not found" in last_error.lower() or "invalid model" in last_error.lower():
-                    continue
-
-        return ProviderCheck(
-            "Anthropic",
-            False,
-            tested_model=requested_model,
-            detail=f"Generation failed across candidate models. Last error: {last_error}",
-            model_sample=", ".join(available[:8]),
-        )
-
-
-async def main() -> int:
-    _normalize_env_aliases()
-    print("=== Provider API Verification ===\n")
-
-    checks = [
-        await check_openai(),
-        await check_google(),
-        await check_anthropic(),
-    ]
-
-    print("\n=== Summary ===")
-    all_ok = True
-    for result in checks:
-        status = "PASS" if result.ok else "FAIL"
-        print(f"{result.provider}: {status}")
-        if result.tested_model:
-            print(f"  Model: {result.tested_model}")
-        if result.detail:
-            print(f"  Detail: {result.detail}")
-        if result.model_sample:
-            print(f"  Visible models (sample): {result.model_sample}")
-        if not result.ok:
-            all_ok = False
-
-    return 0 if all_ok else 1
+async def _main() -> int:
+    checks = [await _check(provider.id) for provider in PROVIDERS]
+    for check in checks:
+        print(f"{check.provider}: {check.status} ({check.model}) - {check.detail}")
+    configured = [check for check in checks if check.status != "not_configured"]
+    return 0 if configured and all(check.ok for check in configured) else 1
 
 
 if __name__ == "__main__":
-    raise SystemExit(asyncio.run(main()))
+    raise SystemExit(asyncio.run(_main()))

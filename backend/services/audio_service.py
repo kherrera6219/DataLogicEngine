@@ -1,126 +1,75 @@
+"""Governed audio capability boundary.
+
+Phase 7 removes the former direct OpenAI/Google speech calls because they bypassed
+the request budget, privacy ledger, cancellation, and provider manifest. Audio
+remains explicitly unavailable until a governed, separately disclosed audio
+adapter is approved and injected by the application runtime.
 """
-Audio Service - PRODUCTION VERSION
-----------------------------------
-Handles Speech-to-Text (STT) and Text-to-Speech (TTS) operations using OpenAI.
-"""
-import logging
-import os
-from typing import Optional
-from openai import OpenAI
+
+from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
+import inspect
+from typing import Any
+
 from flask import current_app, has_app_context
 from werkzeug.local import LocalProxy
 
-logger = logging.getLogger(__name__)
+
+class AudioCapabilityUnavailable(RuntimeError):
+    """Raised when no approved governed audio adapter is installed."""
+
+
+Transcriber = Callable[[bytes, str], str | Awaitable[str]]
+Synthesizer = Callable[[str, str], bytes | Awaitable[bytes]]
+
 
 class AudioService:
-    """
-    Manages audio processing pipelines using production-grade LLM services.
-    """
-    
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            logger.warning("AudioService: OPENAI_API_KEY not found in environment.")
-        self.client = OpenAI(api_key=self.api_key) if self.api_key else None
-        logger.info("AudioService initialized (PRODUCTION MODE).")
+    """Audio boundary that never creates or owns a provider SDK client."""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        *,
+        transcriber: Transcriber | None = None,
+        synthesizer: Synthesizer | None = None,
+    ) -> None:
+        # ``api_key`` is retained only for constructor compatibility and is
+        # intentionally ignored; credentials belong to the governed gateway.
+        del api_key
+        self._transcriber = transcriber
+        self._synthesizer = synthesizer
+
+    @staticmethod
+    async def _resolve(value: Any) -> Any:
+        return await value if inspect.isawaitable(value) else value
 
     async def transcribe(self, audio_bytes: bytes, filename: str = "audio.wav") -> str:
-        """
-        Convert speech to text (STT) using 3-Layer Failover.
-        Layer 1: OpenAI Whisper (Primary)
-        Layer 2: Google Gemini Flash (Native Audio Support)
-        Layer 3: Error/Mock
-        """
-        errors = []
-        
-        # --- Layer 1: OpenAI Whisper ---
-        try:
-            if not self.client:
-                # Try lazy init
-                self.api_key = os.getenv("OPENAI_API_KEY")
-                if self.api_key:
-                    self.client = OpenAI(api_key=self.api_key)
-            
-            if self.client:
-                from io import BytesIO
-                audio_file = BytesIO(audio_bytes)
-                audio_file.name = filename
-                
-                transcript = self.client.audio.transcriptions.create(
-                    model="whisper-1", 
-                    file=audio_file
-                )
-                logger.info("AudioService: OpenAI Transcription successful.")
-                return transcript.text
-            else:
-                errors.append("OpenAI client not initialized")
-        except Exception as e:
-            logger.warning(f"AudioService: OpenAI Whisper failed: {e}")
-            errors.append(f"OpenAI: {str(e)}")
-
-        # --- Layer 2: Google Gemini (Native Audio) ---
-        try:
-            google_key = os.getenv("GOOGLE_API_KEY")
-            if google_key:
-                from google import genai
-                from google.genai import types
-                from backend.llm_gateway.model_defaults import GOOGLE_LATEST_MODEL
-                client = genai.Client(api_key=google_key)
-
-                # Current Google model supports native audio.
-                model_id = GOOGLE_LATEST_MODEL
-                
-                logger.info("AudioService: Attempting Google Gemini failover for audio...")
-                
-                response = client.models.generate_content(
-                    model=model_id,
-                    contents=[
-                        "Transcribe this audio file exactly.",
-                        types.Part.from_bytes(data=audio_bytes, mime_type="audio/mp3")
-                    ]
-                )
-                
-                if response.text:
-                    logger.info("AudioService: Google Gemini transcription successful.")
-                    return response.text
-            else:
-                errors.append("Google API key not found")
-        except Exception as e:
-            logger.warning(f"AudioService: Google Gemini failed: {e}")
-            errors.append(f"Google: {str(e)}")
-
-        # --- Layer 3: Failure ---
-        logger.error(f"AudioService: All transcription layers failed. Errors: {errors}")
-        return f"[Error: Audio transcription unavailable. Details: {'; '.join(errors)}]"
+        if self._transcriber is None:
+            raise AudioCapabilityUnavailable(
+                "Audio transcription is unavailable until a governed audio adapter is installed"
+            )
+        result = await self._resolve(self._transcriber(audio_bytes, filename))
+        if not isinstance(result, str) or not result.strip():
+            raise AudioCapabilityUnavailable("Governed audio adapter returned no transcript")
+        return result
 
     async def synthesize(self, text: str, voice: str = "alloy") -> bytes:
-        """
-        Convert text to speech (TTS) using OpenAI TTS.
-        """
-        if not self.client:
-            logger.error("AudioService: OpenAI client not initialized.")
-            return b""
-
-        try:
-            logger.info(f"Synthesizing speech for text: {text[:50]}...")
-            
-            response = self.client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=text
+        if self._synthesizer is None:
+            raise AudioCapabilityUnavailable(
+                "Speech synthesis is unavailable until a governed audio adapter is installed"
             )
-            
-            # response.content is the raw bytes
-            return response.content
-        except Exception as e:
-            logger.error(f"AudioService synthesis failed: {e}")
-            return b""
+        result = await self._resolve(self._synthesizer(text, voice))
+        if not isinstance(result, bytes) or not result:
+            raise AudioCapabilityUnavailable("Governed audio adapter returned no audio")
+        return result
+
 
 _fallback_audio_service: AudioService | None = None
 
 
 def get_audio_service() -> AudioService:
-    """Return an audio service owned by the active application."""
+    """Return the audio boundary owned by the active application."""
     if has_app_context():
         service = current_app.extensions.get("dle_audio_service")
         if service is None:

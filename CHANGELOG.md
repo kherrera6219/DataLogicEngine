@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 7 governed provider execution checkpoint**: added one generated
+  OpenAI/Google model manifest, backend-owned async adapters, request-wide
+  deadlines and cancellation, typed provider failures and circuit state,
+  server-enforced call/token/spend budgets, a content-free provider egress/usage
+  ledger, and encrypted bounded offline replay with owner review controls.
+- **Provider execution evidence and policy documents**: added generated
+  provider/model support, cost/quota policy, local usage-ledger contract, and
+  Phase 7 checkpoint evidence. Live rebuilt-installed OpenAI/Google acceptance
+  remains CP7-F and release-blocking.
 - **Phase 6 evidence and quality engineering checkpoint**: added trace-bound
   typed source, evidence, claim, citation, validator, confidence, and convergence
   records; persisted claim/evidence causality; a strict versioned
@@ -37,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
 
 ### Changed
+- **Truthful provider and delivery state**: settings now distinguish stored from
+  available keys, connection tests return typed failure classes, chat discloses
+  external data categories and remaining allowance, and complete-response SSE is
+  labeled `buffered` pending Phase 8 native governed streaming.
+- **Provider ownership boundary**: removed SDK-owned provider implementations,
+  unsupported provider factories/probes, implicit cloud embeddings, and direct
+  audio/coordinate-mapping provider calls. Unsupported audio provider features
+  now return an explicit capability boundary.
 - **One answer-producing path**: built-in chat, gateway chat/stream/replay,
   compatible facades, public TruthCore entry, persona/video callers, and SDK
   clients now enter the canonical boundary or return an explicit later-phase
