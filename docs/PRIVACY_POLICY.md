@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-14 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -131,7 +131,11 @@ not reported available until a bounded live test succeeds.
 
 ## 7. MCP connectors and external tools
 
-If MCP connectors or external tools are configured, DataLogicEngine may send selected request data, tool inputs, scopes, metadata, or retrieved context to those connected services.
+The initial connector contract supports owner-approved local stdio processes.
+Network destinations are rejected pending separate qualification, but a local
+connector may itself process selected request data, tool inputs, metadata, or
+retrieved context. Future network-capable connectors would require an updated
+privacy/egress contract and owner approval.
 
 Connector data handling depends on:
 
@@ -141,7 +145,18 @@ Connector data handling depends on:
 4. local connector configuration;
 5. the external service's own privacy and retention rules.
 
-MCP connector usage should be governed by connector scope controls, audit logs, and admin configuration.
+Registration does not run the connector. Before first use, the owner reviews the
+exact executable/arguments fingerprint, approved file root, and granular scopes.
+Credential values are encrypted with Windows DPAPI and are never returned to the
+renderer. PostgreSQL retains consent, lifecycle, request/result hashes, operation,
+scope, duration, trust, and safe error metadata. Redis live events are
+content-free. Small governed result content may be retained in PostgreSQL and
+large results in the app-owned `mcp-results` object bucket under normal
+retention/export/deletion rules.
+
+All connector output is treated as untrusted and checked for secret disclosure
+and prompt-injection indicators before any later governed workflow may use it.
+Execution-history responses omit retained result content.
 
 ## 8. Trace, audit, and export data
 
@@ -288,6 +303,11 @@ Neo4j, Chroma, required objects, and provenance-linked UnifiedMemory records.
 Shared chunks remain only while another active source references them. Memory
 review/export/delete/compaction/recovery controls are owner-only. Installed
 backup, deletion-remnant, and recovery proof remain release gates.
+
+## Change notes for v2.14.0
+
+1. Documented the Phase 11 local-stdio consent, DPAPI, retention, untrusted-
+   result, and network-disabled privacy boundary.
 
 ## Change notes for v2.13.0
 

@@ -35,9 +35,8 @@ describe('McpHub', () => {
     render(<McpHub />);
     await waitFor(() => expect(screen.getByText('2')).toBeInTheDocument());
     
-    // Find the "Manage Servers" button
-    const manageBtn = screen.getByText('Manage Servers');
+    const manageBtn = screen.getByText('Manage Connectors');
     fireEvent.click(manageBtn);
-    expect(push).toHaveBeenCalledWith('/mcp?tab=server');
+    expect(push).toHaveBeenCalledWith('/admin/mcp/servers');
   });
 });

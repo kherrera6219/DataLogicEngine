@@ -17,19 +17,10 @@ const McpServerConfig = dynamic(
   () => import('@/components/mcp/McpServerConfig').then((module) => ({ default: module.McpServerConfig })),
   { loading: () => <div className="p-6 text-muted-foreground">Loading server config...</div> }
 );
-const McpClientConfig = dynamic(
-  () => import('@/components/mcp/McpClientConfig').then((module) => ({ default: module.McpClientConfig })),
-  { loading: () => <div className="p-6 text-muted-foreground">Loading client tools...</div> }
-);
 const McpAnalytics = dynamic(
   () => import('@/components/mcp/McpAnalytics').then((module) => ({ default: module.McpAnalytics })),
   { loading: () => <div className="p-6 text-muted-foreground">Loading analytics...</div> }
 );
-const McpIntegrationExamples = dynamic(
-  () => import('@/components/mcp/McpIntegrationExamples').then((module) => ({ default: module.McpIntegrationExamples })),
-  { loading: () => <div className="p-6 text-muted-foreground">Loading integration examples...</div> }
-);
-
 function McpPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -62,9 +53,7 @@ function McpPageContent() {
             <TabsList className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-6">
               <TabsTrigger value="hub">Hub Overview</TabsTrigger>
               <TabsTrigger value="server">Server Config</TabsTrigger>
-              <TabsTrigger value="client">Client &amp; Tools</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="integration">Integration</TabsTrigger>
             </TabsList>
 
             <TabsContent value="hub" className="mt-0">
@@ -75,16 +64,8 @@ function McpPageContent() {
               <McpServerConfig />
             </TabsContent>
 
-            <TabsContent value="client" className="mt-0">
-              <McpClientConfig />
-            </TabsContent>
-
             <TabsContent value="analytics" className="mt-0">
               <McpAnalytics />
-            </TabsContent>
-
-            <TabsContent value="integration" className="mt-0">
-              <McpIntegrationExamples />
             </TabsContent>
           </Tabs>
         </div>

@@ -3,14 +3,13 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from flask import Flask
-
 from core.mcp import MCPManager, MCPClient
+from core.mcp.mcp_protocol import MCPError
 
 
 @pytest.mark.asyncio
-async def test_mcp_bidirectional_sampling():
-    """Verify in-memory client-server bidirectional completions sampling works perfectly"""
+async def test_mcp_bidirectional_sampling_fails_closed_without_governed_provider():
+    """Sampling is absent unless an approved governed provider is injected."""
     manager = MCPManager()
     server = manager.create_server(name="TestSamplingServer")
     client = manager.create_client(name="TestSamplingClient")
@@ -27,10 +26,8 @@ async def test_mcp_bidirectional_sampling():
         "modelPreferences": {"model": "local-deterministic"}
     }
     
-    result = await server.sample_completions(params)
-    assert result["role"] == "assistant"
-    assert "content" in result
-    assert "local" in result["metadata"]["provider"]
+    with pytest.raises(MCPError, match="Sampling is not enabled"):
+        await server.sample_completions(params)
 
 
 @pytest.mark.asyncio
@@ -73,7 +70,7 @@ async def test_mcp_realtime_resource_subscriptions():
 
 
 @pytest.mark.asyncio
-async def test_stdio_transport_lifecycle():
+async def test_stdio_transport_lifecycle(tmp_path):
     """Test standard I/O (stdio) subprocess transport and asynchronous JSON-RPC messaging"""
     client = MCPClient(name="TestStdioClient")
     
@@ -87,7 +84,7 @@ async def test_stdio_transport_lifecycle():
         "jsonrpc": "2.0",
         "id": f"{client.client_id}-1",
         "result": {
-            "protocolVersion": "2024-11-05",
+            "protocolVersion": "2025-11-25",
             "serverInfo": {
                 "name": "mock-external-server",
                 "version": "0.1.0"
@@ -109,8 +106,12 @@ async def test_stdio_transport_lifecycle():
     mock_process.stdout.readline = mock_readline
     mock_process.stderr.readline = AsyncMock(return_value=b"")
 
-    with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
-        command = ["npx", "git-server"]
+    executable = tmp_path / "safe-server.exe"
+    executable.write_bytes(b"fixture")
+    guard = MagicMock(status="windows_job_object_attached")
+    with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec, \
+         patch("core.mcp.mcp_client.attach_process_tree_guard", return_value=guard):
+        command = [str(executable), "--stdio"]
         init_result = await client.connect_via_stdio(command)
         
         # Verify execution
@@ -119,13 +120,13 @@ async def test_stdio_transport_lifecycle():
         assert client.connected is True
         
         # Cleanup
-        client.disconnect()
+        await client.disconnect_async()
         assert client.connected is False
         assert client.process is None
 
 
-def test_dynamic_config_manager(tmp_path):
-    """Verify MCP config loading, dynamic servers discovery, and load flow"""
+def test_repository_dynamic_config_is_not_runtime_authority(tmp_path):
+    """Tracked JSON cannot silently register or execute connectors."""
     manager = MCPManager()
     
     mock_config = {
@@ -143,37 +144,18 @@ def test_dynamic_config_manager(tmp_path):
     
     with patch("os.path.join", return_value=str(config_file)), \
          patch("os.path.exists", return_value=True):
-        manager.load_external_config()
-        assert "test-fs" in manager.external_configs
-        assert manager.external_configs["test-fs"]["command"] == "python"
+        assert manager.load_external_config() == {}
+        assert manager.external_configs == {}
 
 
-def test_mcp_routes_admin_endpoints(monkeypatch):
-    """Test administrative dynamic configuration Flask routes"""
-    app = Flask(__name__)
-    app.config["TESTING"] = True
-    
-    # Mock Blueprint imports and routing decorators
-    from backend.routes.mcp_routes import mcp_bp
-    app.register_blueprint(mcp_bp, url_prefix="/api/mcp")
-    
+def test_mcp_config_endpoint_reports_postgresql_authority(authenticated_client, monkeypatch):
+    """The owner sees database-owned connector configuration, not repository JSON."""
     manager = MCPManager()
-    manager.external_configs = {
-        "dummy": {"command": "echo", "args": ["hello"]}
-    }
-    # Mock load_external_config to return the mock configuration
-    manager.load_external_config = MagicMock(return_value=manager.external_configs)
-    
-    with patch("backend.routes.mcp_routes.get_mcp_manager", return_value=manager), \
-         patch("flask_login.utils._get_user", return_value=MagicMock(is_authenticated=True, is_admin=True)):
+    monkeypatch.setattr("backend.routes.mcp_routes.get_mcp_manager", lambda: manager)
 
-        # Re-register blueprint with a mocked authenticated user.
-        test_app = Flask(__name__)
-        test_bp = mcp_bp
-        test_app.register_blueprint(test_bp, url_prefix="/api/mcp")
-        test_client = test_app.test_client()
+    resp = authenticated_client.get("/api/v1/mcp/config")
 
-        resp = test_client.get("/api/mcp/config")
-        assert resp.status_code == 200
-        assert resp.json["success"] is True
-        assert "dummy" in resp.json["config"]
+    assert resp.status_code == 200
+    assert resp.json["success"] is True
+    assert resp.json["authority"] == "postgresql"
+    assert resp.json["repository_config_enabled"] is False

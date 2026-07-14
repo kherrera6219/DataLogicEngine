@@ -3,8 +3,8 @@
 ## Status
 
 - Contract schema: `1.0.0`
-- Captured: `2026-07-14T19:12:36.711740+00:00`
-- PostgreSQL entities covered: **83**
+- Captured: `2026-07-14T20:13:13.349557+00:00`
+- PostgreSQL entities covered: **86**
 - Registry errors: **0**
 - Production object-store authority: **minio**
 - SeaweedFS production selected: **No**
@@ -33,7 +33,7 @@ target gaps are assigned to their owning later production-plan phases.
 | graph_snapshots | minio | graphs/{graph_revision}/{object_id} | neo4j, postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_snapshot_workflow_pending |
 | idempotency_records | postgresql | gateway_idempotency_records.id | redis | authority_store_transaction | reject_duplicate_or_retry_pending_authority_record | implemented |
 | ingestion_jobs_and_corpus_revisions | postgresql | ingestion_jobs.id/ingestion_files.id/ingestion_chunks.id | redis, neo4j, chroma, minio | postgres_job_and_outbox_then_required_materializations | retain_checkpoint_and_resume_only_from_committed_authority | implemented |
-| mcp_metadata | postgresql | mcp_servers/resources/tools/prompts.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
+| mcp_metadata | postgresql | mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id | redis, minio, dpapi_vault | postgres_configuration_consent_and_execution_authority | refuse_start_or_result_use_until_authority_and_artifact_hashes_match | implemented |
 | owner_identity_and_sessions | postgresql | users.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_configuration | postgresql | llm_providers.id | dpapi_vault | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_usage | postgresql | llm_provider_usage.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
@@ -84,6 +84,9 @@ their graph, vector, cache, object, or file materializations.
 | `ka_artifact_links` | `id` |
 | `llm_provider_usage` | `id` |
 | `llm_providers` | `id` |
+| `mcp_consent_grants` | `id` |
+| `mcp_execution_records` | `id` |
+| `mcp_lifecycle_events` | `id` |
 | `mcp_prompts` | `id` |
 | `mcp_resources` | `id` |
 | `mcp_servers` | `id` |

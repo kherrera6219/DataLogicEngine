@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.8.0 |
-| Completed phase | Phase 10 engineering checkpoint - Simulation completion |
-| Next phase | Phase 11 - MCP and connector completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.9.0 |
+| Completed phase | Phase 11 engineering checkpoint - MCP and connector completion |
+| Next phase | Phase 12 - UI workflow, project model, and accessibility completion |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -185,6 +185,16 @@ conditions, and exit gates remain authoritative in the active root plan.
   and explicit Not measured confidence. Fixed-seed output is qualification-only.
 - Final Phase 10 validation reports 2,050 backend tests passed (18 skipped) and
   410 frontend tests passed, plus frontend typecheck/lint/build and Ruff.
+- Phase 11 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-11/`; rebuilt-installed file/network,
+  lifecycle, store, hostile-fixture, and Electron gates remain explicit.
+- ADR-0008 selects MCP `2025-11-25` local stdio. Exact command/scope consent,
+  DPAPI secrets, durable PostgreSQL/Redis/object state, named cancellation,
+  Windows process-tree containment, governed untrusted results, hostile fixture
+  tests, and truthful owner controls are implemented.
+- Final Phase 11 validation reports 2,094 backend tests passed (18 skipped) and
+  411 frontend tests passed, plus frontend typecheck/lint/build, Ruff, migration,
+  schema, and documentation gates.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -323,6 +333,38 @@ progress, evidence-aware results, and safe lifecycle controls.
 - [x] Preserve installed simulation, live-provider, service/materialization, and
       visual acceptance as release gates for the rebuilt application.
 
+## Phase 11 objective - engineering checkpoint complete
+
+Turn MCP into a real, scoped connector/tool subsystem with no caller-controlled
+authority or placeholder production behavior.
+
+## Phase 11 work packages
+
+- [x] Select MCP `2025-11-25` local stdio in ADR-0008; keep REST/JSON-RPC as the
+      authenticated app control plane and remove unsupported transport claims.
+- [x] Derive identity/scope from the server, reject caller authority, and require
+      exact fingerprint plus granular owner consent before start or expansion.
+- [x] Validate absolute executable/arguments/cwd/file roots/environment/scopes/
+      limits, reject shells/package runners and network targets, and DPAPI-wrap
+      credentials without returning values to the renderer.
+- [x] Add a durable stdio loop, Windows Job Object, bounded output/stderr/memory/
+      deadlines, explicit execution cancellation, process-tree stop, and app-exit
+      cleanup.
+- [x] Remove fake default UKG/pillar/KA/graph/simulation/sampling behavior;
+      unsupported features are absent rather than formatted as successful.
+- [x] Persist connector/consent/lifecycle/discovery/execution authority in
+      PostgreSQL, content-free live state in Redis, and large governed results in
+      `mcp-results`.
+- [x] Mark every connector result untrusted, hash/redact/bound it, detect prompt
+      injection, omit content from history, and prevent a direct answer bypass.
+- [x] Replace name-only/obsolete WebSocket UI with exact command, scope,
+      credential, qualification, consent, and lifecycle controls.
+- [x] Add real hostile stdio fixtures for malformed/oversized/delayed output,
+      cancellation, child-process cleanup, command/path/network/scope abuse,
+      secret leakage, ID binding, and prompt-injection output.
+- [x] Preserve installed OS file/network, process/reboot, data-plane, hostile-
+      fixture, backup/restore, and Electron workflow proof as release gates.
+
 ## Phase 3 deferred release gates
 
 | Checkpoint | Required result | Status |
@@ -392,6 +434,13 @@ progress, evidence-aware results, and safe lifecycle controls.
 | CP10-D | Installed UI progress and controls match durable transitions and artifact state | Frontend/API contract tests passed; packaged visual/event parity deferred |
 | CP10-E | Installed result, evidence, validators, trace, S3 artifacts, and approved graph/vector links reconcile | Deterministic/source contracts passed; populated five-service installed proof deferred |
 
+## Phase 11 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP11-C | Installed child process, OS file/network isolation, output, shutdown, crash, and reboot controls pass adversarial tests | Command/path/network/output/cancellation/Job Object source tests pass; installed OS isolation and lifecycle matrix retained |
+| CP11-E | Installed owner workflow passes add, discover, call, cancel, stop, restart, remove, persistence, and visible state | API/UI source contracts pass; rebuilt packaged Electron acceptance retained |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -407,8 +456,8 @@ progress, evidence-aware results, and safe lifecycle controls.
 | 8 | External API Gateway and LLM middleware productization | **Engineering checkpoint complete 2026-07-13; installed gates retained** |
 | 9 | Ingestion, retrieval, graph, and memory completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 10 | Simulation completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
-| 11 | MCP and connector completion | **Active** |
-| 12 | UI workflow, project model, and accessibility completion | Blocked by prior phases |
+| 11 | MCP and connector completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
+| 12 | UI workflow, project model, and accessibility completion | **Active** |
 | 13 | Observability, diagnostics, compliance semantics, and support | Blocked by prior phases |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | Blocked by prior phases |
 | 15 | System qualification and release candidate | Blocked by prior phases |
@@ -432,13 +481,10 @@ progress, evidence-aware results, and safe lifecycle controls.
 
 ## Exact next action
 
-Begin Phase 11 with a live MCP inventory: transports, REST/JSON-RPC/IPC routes,
-server/client registries, tools/resources/prompts/sampling, process launch and
-shutdown, caller-supplied context, scopes/consent, credential storage, network/
-file authority, KA/graph/provider integrations, persistence, UI controls, and
-placeholder behavior. Add failure-first tests for forged identity/scope,
-command/path injection, unauthorized network/file access, oversized or
-malformed output, timeout/cancellation, process-tree cleanup, secret leakage,
-and tool-result prompt injection before changing production behavior. Preserve
-`governed.v1`, `dle-simulation.v1`, every installed Phase 3-10 gate, alert
-389, and the SeaweedFS candidate-only Replacement Control boundary.
+Begin Phase 12 with a route/control/action inventory for Dashboard, Chat,
+Projects, Runs, Trace, Knowledge, Graph, Simulations, MCP, Settings, Privacy,
+Admin, About, first-run, and recovery surfaces. Map every owner job to backend
+authority and state, identify dead/duplicate/project-fragmented workflows, and
+add keyboard, focus, zoom, empty/loading/partial/failure/recovery tests before
+changing navigation or project semantics. Preserve every installed Phase 3-11
+gate, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.

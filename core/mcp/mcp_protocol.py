@@ -71,7 +71,7 @@ class MCPServerInfo:
     """MCP server information"""
     name: str
     version: str
-    protocol_version: str = "2024-11-05"
+    protocol_version: str = "2025-11-25"
     capabilities: MCPCapabilities = field(default_factory=MCPCapabilities)
 
 
@@ -80,7 +80,7 @@ class MCPClientInfo:
     """MCP client information"""
     name: str
     version: str
-    protocol_version: str = "2024-11-05"
+    protocol_version: str = "2025-11-25"
 
 
 @dataclass
@@ -223,10 +223,10 @@ class MCPRequestHandler:
                 id=message.id,
                 error=e.to_dict()
             )
-        except Exception as e:
+        except Exception:
             error = MCPError(
                 MCPErrorCode.INTERNAL_ERROR,
-                str(e)
+                "Internal MCP error"
             )
             return MCPMessage(
                 id=message.id,

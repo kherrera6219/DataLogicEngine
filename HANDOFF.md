@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.8.0 |
-| Completed phase | Phase 10 engineering checkpoint - Simulation completion |
-| Current phase | Phase 11 - MCP and connector completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.9.0 |
+| Completed phase | Phase 11 engineering checkpoint - MCP and connector completion |
+| Current phase | Phase 12 - UI workflow, project model, and accessibility completion |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -326,19 +326,53 @@ rebuilt and installed. Earlier installed gates, alert 389, and final object-stor
 Replacement Control remain open. SeaweedFS is candidate-only and MinIO remains
 the production architecture.
 
+## Phase 11 engineering checkpoint
+
+Phase 11 reached its engineering checkpoint on 2026-07-14. ADR-0008 selects MCP
+`2025-11-25` local stdio as the only external connector transport candidate.
+The REST/JSON-RPC surfaces are an authenticated app control plane, not public MCP
+HTTP transport.
+
+Registration validates one absolute executable, arguments, working folder, file
+roots, environment references, scopes, and limits without executing it. Owner
+consent binds the exact SHA-256 fingerprint and approved scope subset. Caller-
+supplied authority, shells/package runners, network destinations, repository
+hot-start, caller-selected subscriptions, sampling, and fake default UKG/KA/
+graph/simulation behavior are rejected or absent. DPAPI-protected credential
+values never return to the renderer.
+
+The backend owns a durable stdio loop, named execution cancellation, deadlines,
+bounded messages/stderr/memory, and a Windows Job Object with process-tree kill.
+PostgreSQL owns three new connector authority tables plus the expanded server
+definition; Redis carries content-free live state; `mcp-results` holds large
+governed results. Every result is untrusted, hashed, redacted, bounded, and
+prompt-injection checked, and history responses omit stored content.
+
+The owner UI now shows exact command, fingerprint, scopes, file root, consent,
+health, containment, qualification, and start/stop/restart/revoke/delete actions.
+Focused real-process and route/policy coverage passes, and the full validation
+baseline is 2,094 backend tests passed with 18 skipped plus 411 frontend tests,
+typecheck, lint, build, migration/schema, and documentation gates.
+
+CP11-A, CP11-B, and CP11-D pass at the source/engineering boundary. CP11-C source
+adversarial controls pass, but installed OS file isolation and lifecycle remain
+open. CP11-E rebuilt Electron add/discover/call/cancel/stop/restart/remove proof
+remains open. Production connector start fails closed until controlled installed
+qualification records approval. Production/public release remains **NO-GO**.
+
 ## Exact next action
 
-1. Inventory every MCP transport, REST/JSON-RPC/IPC route, registry, lifecycle,
-   process launcher, tool/resource/prompt/sampling path, scope/consent check,
-   credential/network/file authority, persistence path, and visible UI control.
-2. Identify production-visible placeholder, echo, caller-controlled context,
-   direct KA/graph/provider, unbounded output, and unsafe child-process behavior.
-3. Add malicious fixture tests for identity/scope forgery, command/path/network/
-   file escape, malformed or oversized JSON-RPC, timeouts, cancellation,
-   process-tree cleanup, secret redaction, and tool-result prompt injection.
-4. Define the server-owned MCP context, scope, consent, lifecycle, persistence,
-   and governed-result contracts before expanding runtime behavior.
-5. Keep every installed-only Phase 3-10 gate, alert 389, and the SeaweedFS
+1. Inventory Dashboard, Chat, Projects, Runs, Trace, Knowledge, Graph,
+   Simulations, MCP, Settings, Privacy, Admin, About, first-run, and recovery
+   routes, controls, backend actions, empty/loading/failure states, and project
+   identity propagation.
+2. Map each primary owner job to one real backend authority and identify dead,
+   duplicate, disconnected, or contradictory navigation and project semantics.
+3. Add keyboard, focus, zoom, contrast, route-error, partial/offline, recovery,
+   and destructive-confirmation tests before changing shared shell behavior.
+4. Define the canonical project/workspace model and state restoration boundary
+   before migrating pages or persistent identifiers.
+5. Keep every installed-only Phase 3-11 gate, alert 389, and the SeaweedFS
    candidate-only boundary release-blocking until rebuilt installed evidence can
    close them.
 

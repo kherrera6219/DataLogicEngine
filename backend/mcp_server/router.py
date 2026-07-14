@@ -9,6 +9,7 @@ from typing import Dict, Any
 from backend.mcp_server.registry import registry
 from backend.mcp_server.sampling import MCPSamplingService
 from backend.mcp_server.subscriptions import MCPSubscriptionManager
+from backend.mcp_server.policy import SUPPORTED_MCP_PROTOCOL_VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,8 @@ class MCPRouter:
         """Process an incoming JSON-RPC message."""
         if not isinstance(message, dict):
             return self._error(None, -32600, "Invalid Request")
+        if message.get("jsonrpc", "2.0") != "2.0":
+            return self._error(message.get("id"), -32600, "Invalid Request: jsonrpc must be 2.0")
 
         request_id = message.get("id")
         method = message.get("method")
@@ -62,17 +65,18 @@ class MCPRouter:
         # MCP Handshake
         if method == "initialize":
             return self._response(request_id, {
-                "protocolVersion": "0.1.0",
+                "protocolVersion": SUPPORTED_MCP_PROTOCOL_VERSION,
                 "serverInfo": {
                     "name": "DataLogicEngine-UKG",
                     "version": "1.0.0"
                 },
                 "capabilities": {
                     "tools": {},
-                    "resources": {"subscribe": True},
-                    "sampling": {}
                 }
             })
+
+        if not isinstance(execution_context, dict) or not str(execution_context.get("user_id") or "").strip():
+            return self._error(request_id, -32001, "Authenticated server-owned context is required")
 
         # Tool Discovery
         if method == "tools/list":
@@ -102,31 +106,6 @@ class MCPRouter:
             except Exception as e:
                 logger.exception("MCP tools/call failed for tool=%s", name)
                 return self._error(request_id, -32603, _safe_error_message(e))
-
-        if method == "sampling/createMessage":
-            try:
-                return self._response(request_id, await self.sampling_service.create_message(params))
-            except Exception as e:
-                logger.exception("MCP sampling/createMessage failed")
-                return self._error(request_id, -32603, _safe_error_message(e))
-
-        if method == "resources/subscribe":
-            uri = params.get("uri")
-            if not uri:
-                return self._error(request_id, -32602, "Missing required parameter: uri")
-            return self._response(
-                request_id,
-                self.subscription_manager.subscribe(uri, client_id=params.get("clientId")),
-            )
-
-        if method == "resources/unsubscribe":
-            subscription_id = params.get("subscriptionId")
-            if not subscription_id:
-                return self._error(request_id, -32602, "Missing required parameter: subscriptionId")
-            return self._response(
-                request_id,
-                {"unsubscribed": self.subscription_manager.unsubscribe(subscription_id)},
-            )
 
         return self._error(request_id, -32601, f"Method not found: {method}")
 

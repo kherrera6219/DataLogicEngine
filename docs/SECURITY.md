@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
+| Document version | v2.13.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -365,13 +365,28 @@ Security expectations:
 
 MCP connector security controls:
 
-1. connector/server registry access control;
-2. connector credential handling and scope configuration;
-3. scope enforcement;
-4. input/output schema validation;
-5. connector analytics and audit logging;
-6. SSRF/upstream allowlist controls where applicable;
-7. admin-only server management routes.
+1. MCP `2025-11-25` over local stdio is the only selected external connector
+   transport; Streamable HTTP, WebSocket, subscriptions, and sampling are absent.
+2. Registration never executes. It requires an absolute existing executable,
+   no shell/package runner, bounded arguments/environment, an approved working
+   directory/file root, no network destination, and connector-owned scopes.
+3. The owner approves the exact normalized command SHA-256 and a non-empty scope
+   subset. Definition or scope changes invalidate consent.
+4. REST/JSON-RPC identity and scope are server-derived; missing context and
+   caller-supplied principal/scope fields fail closed.
+5. Connector secrets are DPAPI-protected and never serialized to the renderer,
+   Redis, lifecycle history, logs, or public errors.
+6. The backend owns a durable stdio loop and Windows Job Object with kill-on-
+   close and a memory ceiling. Timeout, named cancellation, stop, revoke, app
+   exit, malformed/oversized output, and containment failure terminate safely.
+7. PostgreSQL owns consent/lifecycle/execution state, Redis contains content-free
+   live events, and large governed results use `mcp-results`.
+8. Every result is labeled untrusted, hashed, size-bounded, secret-redacted, and
+   checked for prompt-injection signals. It cannot bypass DMRF, privacy,
+   evidence, validation, or trace controls.
+9. Production start remains disabled until rebuilt-installed Windows file,
+   network, lifecycle, backup/restore, Electron, and hostile-fixture
+   qualification passes. A Job Object is not represented as a file sandbox.
 
 Incident signals:
 
@@ -380,12 +395,17 @@ Incident signals:
 - unexpected upstream target;
 - connector credential or token-source failure;
 - connector latency SLO surge.
+- `MCP_INSTALLED_QUALIFICATION_REQUIRED` or unexpected qualification override;
+- child-process, file-root, or live-state drift;
+- prompt-injection signals in governed connector output.
 
 Relevant implementation:
 
 - `backend/mcp_server/`
 - `backend/routes/mcp_routes.py`
 - `frontend/components/mcp/`
+- `core/mcp/process_containment.py`
+- `docs/adr/ADR-0008-governed-mcp-connector-boundary.md`
 
 ---
 

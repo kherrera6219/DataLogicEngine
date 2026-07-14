@@ -90,8 +90,9 @@ def test_truthmemory_commit_stores_w3c_prov(app, monkeypatch):
         assert event.event_data["w3c_prov"]["entity"]
 
 
-def test_mcp_router_sampling_and_resource_subscription():
+def test_mcp_router_does_not_advertise_sampling_or_resource_subscription():
     router = MCPRouter()
+    execution_context = {"user_id": "server-owned-owner", "scopes": ["mcp:execute"]}
 
     sampling_response = asyncio.run(
         router.handle_message(
@@ -104,10 +105,11 @@ def test_mcp_router_sampling_and_resource_subscription():
                         {"role": "user", "content": {"type": "text", "text": "Summarize the trace."}}
                     ]
                 },
-            }
+            },
+            execution_context=execution_context,
         )
     )
-    assert sampling_response["result"]["content"]["type"] == "text"
+    assert sampling_response["error"]["code"] == -32601
 
     subscribe_response = asyncio.run(
         router.handle_message(
@@ -116,10 +118,11 @@ def test_mcp_router_sampling_and_resource_subscription():
                 "id": 2,
                 "method": "resources/subscribe",
                 "params": {"uri": "dle://memory", "clientId": "client-1"},
-            }
+            },
+            execution_context=execution_context,
         )
     )
-    assert subscribe_response["result"]["uri"] == "dle://memory"
+    assert subscribe_response["error"]["code"] == -32601
 
 
 def test_mcp_subscription_manager_sends_sse_event():

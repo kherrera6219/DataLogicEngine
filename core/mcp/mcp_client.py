@@ -10,7 +10,15 @@ import asyncio
 import uuid
 import json
 import logging
+import inspect
+import os
 from typing import Dict, List, Optional, Any, Callable
+
+from backend.mcp_server.policy import (
+    SUPPORTED_MCP_PROTOCOL_VERSION,
+    redact_sensitive_text,
+)
+from .process_containment import ProcessTreeGuard, attach_process_tree_guard
 
 from .mcp_protocol import (
     MCPMessage, MCPClientInfo, MCPMethod,
@@ -55,6 +63,13 @@ class MCPClient(MCPRequestHandler):
         self.process: Optional[asyncio.subprocess.Process] = None
         self.read_task: Optional[asyncio.Task] = None
         self.stderr_task: Optional[asyncio.Task] = None
+        self.process_guard: Optional[ProcessTreeGuard] = None
+        self._disconnect_task: Optional[asyncio.Task] = None
+        self.request_timeout_seconds = 30
+        self.max_message_bytes = 65_536
+        self.max_stderr_bytes = 16_384
+        self.stderr_bytes_seen = 0
+        self.containment_status = "not_started"
 
         # Register protocol handlers
         self.register_handler(MCPMethod.SAMPLING_CREATE_MESSAGE.value, self._handle_sampling_create_message)
@@ -67,29 +82,77 @@ class MCPClient(MCPRequestHandler):
         self.message_id_counter += 1
         return f"{self.client_id}-{self.message_id_counter}"
 
-    async def connect_via_stdio(self, command: List[str], env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-        """Connect to an external MCP server via standard I/O (stdio) transport"""
-        import os
-        sub_env = dict(os.environ)
-        if env:
-            sub_env.update(env)
+    async def connect_via_stdio(
+        self,
+        command: List[str],
+        env: Optional[Dict[str, str]] = None,
+        *,
+        cwd: Optional[str] = None,
+        limits: Optional[Dict[str, int]] = None,
+    ) -> Dict[str, Any]:
+        """Connect to an owner-approved external server without a shell."""
+        if not command or not os.path.isabs(str(command[0])):
+            raise MCPError(
+                MCPErrorCode.INVALID_PARAMS,
+                "An absolute executable is required",
+                {"reason": "MCP_EXECUTABLE_ABSOLUTE_REQUIRED"},
+            )
+        limits = limits or {}
+        self.request_timeout_seconds = int(limits.get("request_timeout_seconds", 30))
+        self.max_message_bytes = int(limits.get("max_message_bytes", 65_536))
+        self.max_stderr_bytes = int(limits.get("max_stderr_bytes", 16_384))
+        max_process_memory_mb = int(limits.get("max_process_memory_mb", 256))
+        self.stderr_bytes_seen = 0
 
-        # Resolve npx command on Windows
-        exec_cmd = command
-        if os.name == 'nt' and command and command[0] == 'npx':
-            exec_cmd = ['cmd.exe', '/c'] + command
+        # Do not pass the full parent environment to an untrusted connector.
+        inherited_names = (
+            "SystemRoot", "WINDIR", "TEMP", "TMP", "LOCALAPPDATA", "APPDATA", "USERPROFILE"
+        )
+        sub_env = {key: os.environ[key] for key in inherited_names if os.environ.get(key)}
+        sub_env.update({"PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"})
+        if env:
+            sub_env.update({str(key): str(value) for key, value in env.items()})
+
+        creationflags = 0
+        if os.name == "nt":
+            creationflags = getattr(__import__("subprocess"), "CREATE_NEW_PROCESS_GROUP", 0)
 
         try:
             self.process = await asyncio.create_subprocess_exec(
-                *exec_cmd,
+                *command,
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                env=sub_env
+                env=sub_env,
+                cwd=cwd,
+                limit=self.max_message_bytes + 1,
+                creationflags=creationflags,
             )
         except Exception as e:
             logger.error(f"Failed to spawn external MCP server process: {e}")
-            raise MCPError(MCPErrorCode.INTERNAL_ERROR, f"Process spawn failed: {e}")
+            raise MCPError(
+                MCPErrorCode.INTERNAL_ERROR,
+                "Process spawn failed",
+                {"reason": "MCP_PROCESS_SPAWN_FAILED"},
+            ) from e
+
+        try:
+            self.process_guard = attach_process_tree_guard(
+                self.process,
+                max_process_memory_mb=max_process_memory_mb,
+            )
+            self.containment_status = self.process_guard.status
+        except Exception as exc:
+            try:
+                self.process.terminate()
+            except Exception:
+                pass
+            self.process = None
+            raise MCPError(
+                MCPErrorCode.INTERNAL_ERROR,
+                "Process containment could not be established",
+                {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
+            ) from exc
 
         self.connected = True
         
@@ -114,6 +177,18 @@ class MCPClient(MCPRequestHandler):
 
         try:
             response = await self._send_request(init_msg)
+            if response.error:
+                raise MCPError(
+                    response.error.get("code", MCPErrorCode.INTERNAL_ERROR),
+                    response.error.get("message", "Initialization failed"),
+                )
+            negotiated = str((response.result or {}).get("protocolVersion") or "")
+            if negotiated != SUPPORTED_MCP_PROTOCOL_VERSION:
+                raise MCPError(
+                    MCPErrorCode.INVALID_REQUEST,
+                    "Unsupported MCP protocol version",
+                    {"reason": "MCP_PROTOCOL_UNSUPPORTED", "received": negotiated},
+                )
             self.server_info = response.result.get("serverInfo")
             self.server_capabilities = response.result.get("capabilities")
             logger.info(f"Connected via stdio to external MCP server: {self.server_info.get('name') if self.server_info else 'Unknown'}")
@@ -127,7 +202,7 @@ class MCPClient(MCPRequestHandler):
             
             return response.result
         except Exception as e:
-            self.disconnect()
+            await self.disconnect_async()
             raise e
 
     async def _send_request(self, message: MCPMessage) -> MCPMessage:
@@ -140,9 +215,34 @@ class MCPClient(MCPRequestHandler):
             future = loop.create_future()
             self.pending_requests[message.id] = future
             await self._write_message(message)
-            return await future
+            try:
+                return await asyncio.wait_for(future, timeout=self.request_timeout_seconds)
+            except asyncio.CancelledError:
+                self.pending_requests.pop(message.id, None)
+                await self._send_cancel_notification(message.id, "Owner cancelled the operation")
+                raise
+            except TimeoutError as exc:
+                self.pending_requests.pop(message.id, None)
+                await self._send_cancel_notification(message.id, "Request deadline exceeded")
+                raise MCPError(
+                    MCPErrorCode.INTERNAL_ERROR,
+                    "MCP request timed out",
+                    {"reason": "MCP_REQUEST_TIMEOUT"},
+                ) from exc
         
         raise MCPError(MCPErrorCode.INTERNAL_ERROR, "No external subprocess transport active")
+
+    async def _send_cancel_notification(self, request_id: str, reason: str) -> None:
+        """Best-effort MCP cancellation notification without request content."""
+        if not self.connected or not self.process:
+            return
+        try:
+            await self._write_message(MCPMessage(
+                method="notifications/cancelled",
+                params={"requestId": request_id, "reason": reason},
+            ))
+        except Exception:
+            logger.warning("MCP cancellation notification could not be delivered")
 
     async def _read_loop(self):
         """Stdout reading loop for JSON-RPC messages from external server"""
@@ -151,12 +251,26 @@ class MCPClient(MCPRequestHandler):
                 line = await self.process.stdout.readline()
                 if not line:
                     break
-                data = json.loads(line.decode("utf-8").strip())
+                if len(line) > self.max_message_bytes:
+                    raise MCPError(
+                        MCPErrorCode.INVALID_REQUEST,
+                        "MCP message exceeded configured size",
+                        {"reason": "MCP_OUTPUT_LIMIT_EXCEEDED"},
+                    )
+                data = json.loads(line.decode("utf-8", errors="strict").strip())
+                if not isinstance(data, dict) or data.get("jsonrpc", "2.0") != "2.0":
+                    raise MCPError(
+                        MCPErrorCode.INVALID_REQUEST,
+                        "Malformed MCP JSON-RPC message",
+                        {"reason": "MCP_MALFORMED_JSON_RPC"},
+                    )
                 await self._handle_incoming_message(data)
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Error in stdio stdout read loop: {e}")
+                logger.error("MCP stdio reader stopped: %s", type(e).__name__)
+                self._fail_pending(e)
+                break
         self.disconnect()
 
     async def _stderr_loop(self):
@@ -166,8 +280,12 @@ class MCPClient(MCPRequestHandler):
                 line = await self.process.stderr.readline()
                 if not line:
                     break
-                err_msg = line.decode("utf-8", errors="replace").strip()
-                logger.warning(f"[MCP-Server-Stderr] {err_msg}")
+                self.stderr_bytes_seen += len(line)
+                if self.stderr_bytes_seen > self.max_stderr_bytes:
+                    logger.warning("MCP server stderr limit exceeded; remaining stderr is suppressed")
+                    break
+                err_msg = redact_sensitive_text(line.decode("utf-8", errors="replace").strip())
+                logger.warning("[MCP-Server-Stderr] %s", err_msg[:2_000])
             except asyncio.CancelledError:
                 break
             except Exception:
@@ -196,10 +314,20 @@ class MCPClient(MCPRequestHandler):
         if self.process and self.process.stdin:
             try:
                 payload = message.to_json() + "\n"
-                self.process.stdin.write(payload.encode("utf-8"))
+                encoded = payload.encode("utf-8")
+                if len(encoded) > self.max_message_bytes:
+                    raise MCPError(
+                        MCPErrorCode.INVALID_PARAMS,
+                        "MCP request exceeded configured size",
+                        {"reason": "MCP_INPUT_LIMIT_EXCEEDED"},
+                    )
+                write_result = self.process.stdin.write(encoded)
+                if inspect.isawaitable(write_result):
+                    await write_result
                 await self.process.stdin.drain()
             except Exception as e:
-                logger.error(f"Failed to write stdio message: {e}")
+                logger.error("Failed to write stdio message: %s", type(e).__name__)
+                raise
 
     async def initialize(self, server_handler: Any) -> Dict[str, Any]:
         """Initialize connection with an in-memory MCP server"""
@@ -354,11 +482,9 @@ class MCPClient(MCPRequestHandler):
 
         message = MCPMessage(
             id=self._get_next_message_id(),
-            method=MCPMethod.RESOURCES_LIST.value, # Falls back to TOOLS_LIST or standard protocol method
-            method_override=True
+            method=MCPMethod.TOOLS_LIST.value,
+            params={},
         )
-        # Use exact TOOLS_LIST protocol method
-        message.method = MCPMethod.TOOLS_LIST.value
 
         if self.process:
             response = await self._send_request(message)
@@ -461,25 +587,59 @@ class MCPClient(MCPRequestHandler):
 
         return response.result
 
-    def disconnect(self):
-        """Disconnect from the server and terminate subprocesses"""
+    async def _disconnect_impl(self) -> None:
+        """Close pipes, terminate the process tree, and reap the child."""
         self.connected = False
         self.server_info = None
         self.server_capabilities = None
-
-        # Terminate stdio process
-        if self.read_task:
+        current_task = None
+        try:
+            current_task = asyncio.current_task()
+        except RuntimeError:
+            pass
+        if self.read_task and self.read_task is not current_task:
             self.read_task.cancel()
-            self.read_task = None
+        self.read_task = None
         if self.stderr_task:
             self.stderr_task.cancel()
             self.stderr_task = None
-        if self.process:
+        process = self.process
+        guard = self.process_guard
+        self.process = None
+        self.process_guard = None
+        if process:
             try:
-                self.process.terminate()
+                if process.stdin:
+                    close_result = process.stdin.close()
+                    if inspect.isawaitable(close_result):
+                        await close_result
+                    wait_closed = getattr(process.stdin, "wait_closed", None)
+                    if callable(wait_closed):
+                        await wait_closed()
             except Exception:
                 pass
-            self.process = None
+            try:
+                termination = process.terminate()
+                if inspect.isawaitable(termination):
+                    await termination
+            except Exception:
+                pass
+        if guard:
+            try:
+                guard.close()
+            except Exception:
+                pass
+        if process:
+            try:
+                await asyncio.wait_for(process.wait(), timeout=5)
+            except Exception:
+                transport = getattr(process, "_transport", None)
+                if transport is not None:
+                    try:
+                        transport.close()
+                    except Exception:
+                        pass
+        self.containment_status = "stopped"
 
         # Clean pending requests futures
         for fut in list(self.pending_requests.values()):
@@ -489,6 +649,36 @@ class MCPClient(MCPRequestHandler):
 
         logger.info("Disconnected from MCP server and terminated all active subprocesses")
 
+    async def disconnect_async(self) -> None:
+        task = self._disconnect_task
+        current = asyncio.current_task()
+        if task is None:
+            task = asyncio.create_task(self._disconnect_impl())
+            self._disconnect_task = task
+        if task is not current:
+            await task
+
+    def disconnect(self):
+        """Begin disconnect immediately; async owners should await disconnect_async."""
+        self.connected = False
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            if self.process is None:
+                self.server_info = None
+                self.server_capabilities = None
+                self.containment_status = "stopped"
+                return
+            raise RuntimeError("MCP process disconnect requires its owning runtime loop")
+        if self._disconnect_task is None:
+            self._disconnect_task = loop.create_task(self._disconnect_impl())
+
+    def _fail_pending(self, error: Exception) -> None:
+        for future in list(self.pending_requests.values()):
+            if not future.done():
+                future.set_exception(error)
+        self.pending_requests.clear()
+
     def get_client_info(self) -> Dict[str, Any]:
         """Get client information"""
         return {
@@ -497,7 +687,8 @@ class MCPClient(MCPRequestHandler):
             "version": self.version,
             "connected": self.connected,
             "server_info": self.server_info,
-            "server_capabilities": self.server_capabilities
+            "server_capabilities": self.server_capabilities,
+            "containment_status": self.containment_status,
         }
 
     async def _handle_sampling_create_message(self, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -505,9 +696,15 @@ class MCPClient(MCPRequestHandler):
         try:
             from backend.mcp_server.sampling import sampling_service  # inversion:ok — lazy optional sampling backend
             return await sampling_service.create_message(params)
+        except MCPError:
+            raise
         except Exception as e:
             logger.error(f"Sampling createMessage failed: {e}")
-            raise MCPError(MCPErrorCode.INTERNAL_ERROR, f"Sampling failed: {e}")
+            raise MCPError(
+                MCPErrorCode.INTERNAL_ERROR,
+                "Sampling failed",
+                {"reason": "MCP_SAMPLING_FAILED"},
+            ) from e
 
     async def _handle_resources_updated(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle notifications/resources/updated notification from server"""

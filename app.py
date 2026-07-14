@@ -1291,6 +1291,7 @@ def _configure_application(
         DLE_REQUIRED_SERVICES=os.environ.get("DLE_REQUIRED_SERVICES", required_default),
         DLE_DATA_PLANE_DRIVER=data_plane_driver,
         DLE_DATA_PLANE_PROFILE=data_plane_profile,
+        DLE_MCP_CONNECTORS_QUALIFIED=_env_bool("DLE_MCP_CONNECTORS_QUALIFIED"),
         DLE_DATA_PLANE_LOCK_PATH=os.environ.get(
             "DLE_DATA_PLANE_LOCK_PATH",
             str(Path(__file__).resolve().parent / "deploy" / "internal-data-plane.candidate-lock.json"),
@@ -1826,6 +1827,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 graph_store.close()
             except Exception:
                 logger.exception("Graph client shutdown failed")
+        mcp_manager = app.extensions.get("dle_mcp_manager")
+        if mcp_manager is not None:
+            try:
+                mcp_manager.shutdown()
+            except Exception:
+                logger.exception("MCP runtime shutdown failed")
         try:
             with app.app_context():
                 db.session.remove()

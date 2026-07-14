@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.4.0 |
+| Document version | v4.5.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -887,23 +887,47 @@ Representative routes:
 
 ## 10. MCP Routes (`/mcp`)
 
-Model Context Protocol management.
+Governed local Model Context Protocol connector management.
 
 Primary prefix: `/api/v1/mcp`.
 Legacy alias: `/api/mcp` with deprecation headers.
 
-Representative capabilities:
+The supported external transport candidate is MCP `2025-11-25` over local
+stdio. These REST routes are the authenticated DataLogicEngine control plane;
+they do not expose MCP Streamable HTTP or WebSocket transport.
 
-1. MCP connector registry.
-2. connector/server credential and scope configuration.
-3. MCP server configuration.
-4. MCP analytics per connector/server.
-5. Tool listing and execution metadata.
+Representative routes:
 
-Representative route:
+- **GET/POST** `/servers`
+  - List PostgreSQL-owned connectors or validate/register one without executing.
+- **GET/DELETE** `/servers/{server_id}`
+  - Read renderer-safe configuration or stop/remove one connector.
+- **POST/DELETE** `/servers/{server_id}/consent`
+  - Approve the exact SHA-256 command fingerprint and a scope subset, or revoke
+    authority and stop the process.
+- **POST** `/servers/{server_id}/start|stop|restart`
+  - Control one consented stdio process. Production start additionally requires
+    recorded installed qualification.
+- **GET** `/servers/{server_id}/lifecycle`
+  - Read bounded durable lifecycle history.
+- **GET** `/servers/{server_id}/executions`
+  - Read durable content-free execution history.
+- **POST** `/servers/{server_id}/executions/{execution_id}/cancel`
+  - Cancel one running operation owned by the authenticated principal.
+- **GET** `/servers/{server_id}/tools|resources|prompts`
+  - List live-discovered, server-bound capabilities.
+- **POST** `/servers/{server_id}/tools/{tool_id}/call`
+- **GET** `/servers/{server_id}/resources/{resource_id}`
+- **POST** `/servers/{server_id}/prompts/{prompt_id}/get`
+  - Use a capability only after exact consent and scope checks; responses are
+    untrusted, bounded, redacted, hashed, and durably recorded.
+- **GET** `/config`
+  - Return renderer-safe PostgreSQL authority and runtime IDs.
 
-- **GET** `/servers/<server_id>/tools`
-  - List tools exposed by a specific MCP server.
+Repository config updates, setup-default, caller-selected subscriptions, MCP
+sampling, network-capable connectors, and automatic package-runner startup are
+not supported. Execution history omits stored result content; large content is
+retained in the `mcp-results` object bucket.
 
 ---
 

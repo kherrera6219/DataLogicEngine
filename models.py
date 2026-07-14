@@ -2446,7 +2446,18 @@ class MCPServer(db.Model):
     version = db.Column(db.String(32), default='1.0.0')
     description = db.Column(db.Text)
     status = db.Column(db.String(20), default='inactive')  # active, inactive, error
-    protocol_version = db.Column(db.String(32), default='2024-11-05')
+    protocol_version = db.Column(db.String(32), default='2025-11-25')
+    transport = db.Column(db.String(32), nullable=False, default='stdio')
+    enabled = db.Column(db.Boolean, nullable=False, default=False)
+    consent_state = db.Column(db.String(32), nullable=False, default='pending')
+    requested_scopes = db.Column(db.JSON)
+    approved_scopes = db.Column(db.JSON)
+    command_fingerprint = db.Column(db.String(64), index=True)
+    containment_status = db.Column(db.String(32), nullable=False, default='not_qualified')
+    health_status = db.Column(db.String(32), nullable=False, default='not_started')
+    last_error_code = db.Column(db.String(100))
+    last_error_message = db.Column(db.String(500))
+    config_revision = db.Column(db.Integer, nullable=False, default=1)
 
     # Capabilities
     supports_resources = db.Column(db.Boolean, default=True)
@@ -2457,6 +2468,8 @@ class MCPServer(db.Model):
     # Configuration
     config = db.Column(db.JSON)
     server_metadata = db.Column(db.JSON)
+    # DPAPI ciphertext only. This field is intentionally never serialized.
+    credential_blobs = db.Column(db.JSON)
 
     # Stats
     total_requests = db.Column(db.Integer, default=0)
@@ -2473,6 +2486,9 @@ class MCPServer(db.Model):
     resources = db.relationship('MCPResource', backref='server', lazy='dynamic', cascade='all, delete-orphan')
     tools = db.relationship('MCPTool', backref='server', lazy='dynamic', cascade='all, delete-orphan')
     prompts = db.relationship('MCPPrompt', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+    consent_grants = db.relationship('MCPConsentGrant', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+    lifecycle_events = db.relationship('MCPLifecycleEvent', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+    executions = db.relationship('MCPExecutionRecord', backref='server', lazy='dynamic', cascade='all, delete-orphan')
 
     def to_dict(self):
         """Convert server to dictionary"""
@@ -2484,6 +2500,17 @@ class MCPServer(db.Model):
             'description': self.description,
             'status': self.status,
             'protocol_version': self.protocol_version,
+            'transport': self.transport,
+            'enabled': self.enabled,
+            'consent_state': self.consent_state,
+            'requested_scopes': sorted(self.requested_scopes or []),
+            'approved_scopes': sorted(self.approved_scopes or []),
+            'command_fingerprint': self.command_fingerprint,
+            'containment_status': self.containment_status,
+            'health_status': self.health_status,
+            'last_error_code': self.last_error_code,
+            'last_error_message': self.last_error_message,
+            'config_revision': self.config_revision,
             'capabilities': {
                 'resources': self.supports_resources,
                 'tools': self.supports_tools,
@@ -2491,7 +2518,7 @@ class MCPServer(db.Model):
                 'logging': self.supports_logging
             }
         ,
-            'config': self.config,
+            'config': self._renderer_safe_config(),
             'metadata': self.server_metadata,
             'stats': {
                 'total_requests': self.total_requests,
@@ -2503,6 +2530,21 @@ class MCPServer(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'last_active': self.last_active.isoformat() if self.last_active else None
         }
+
+    def _renderer_safe_config(self) -> dict:
+        """Return exact non-secret launch policy without env values or DPAPI blobs."""
+        config = self.config if isinstance(self.config, dict) else {}
+        safe_keys = {
+            'schema_version', 'name', 'transport', 'protocol_version', 'command',
+            'args', 'cwd', 'file_roots', 'network_destinations',
+            'requested_scopes', 'limits',
+        }
+        safe = {key: config.get(key) for key in safe_keys if key in config}
+        env = config.get('env') if isinstance(config.get('env'), dict) else {}
+        credential_env = config.get('credential_env') if isinstance(config.get('credential_env'), dict) else {}
+        safe['env_keys'] = sorted(env)
+        safe['credential_keys'] = sorted(credential_env)
+        return safe
 
 
 class MCPResource(db.Model):
@@ -3348,6 +3390,126 @@ class UserAIPreferences(db.Model):
             'preferred_model': self.preferred_model,
             'ai_processing_enabled': self.ai_processing_enabled,
             'store_chat_history': self.store_chat_history,
+        }
+
+
+class MCPConsentGrant(db.Model):
+    """Owner approval for one exact connector command and scope fingerprint."""
+
+    __tablename__ = 'mcp_consent_grants'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id', ondelete='CASCADE'), nullable=False)
+    principal_id = db.Column(db.String(64), nullable=False, index=True)
+    command_fingerprint = db.Column(db.String(64), nullable=False, index=True)
+    requested_scopes = db.Column(db.JSON, nullable=False)
+    approved_scopes = db.Column(db.JSON, nullable=False)
+    status = db.Column(db.String(32), nullable=False, default='approved')
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    approved_at = db.Column(db.DateTime)
+    revoked_at = db.Column(db.DateTime)
+
+    __table_args__ = (
+        Index('ix_mcp_consent_server_status', 'server_id', 'status'),
+    )
+
+    def to_dict(self) -> dict:
+        return {
+            'id': str(self.id),
+            'server_id': self.server_id,
+            'principal_id': self.principal_id,
+            'command_fingerprint': self.command_fingerprint,
+            'requested_scopes': sorted(self.requested_scopes or []),
+            'approved_scopes': sorted(self.approved_scopes or []),
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'approved_at': self.approved_at.isoformat() if self.approved_at else None,
+            'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
+        }
+
+
+class MCPLifecycleEvent(db.Model):
+    """Content-free durable MCP configuration and process lifecycle record."""
+
+    __tablename__ = 'mcp_lifecycle_events'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id', ondelete='CASCADE'), nullable=False)
+    principal_id = db.Column(db.String(64), nullable=False, index=True)
+    event_type = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(32), nullable=False)
+    details = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+
+    __table_args__ = (
+        Index('ix_mcp_lifecycle_server_created', 'server_id', 'created_at'),
+    )
+
+    def to_dict(self) -> dict:
+        return {
+            'id': str(self.id),
+            'server_id': self.server_id,
+            'principal_id': self.principal_id,
+            'event_type': self.event_type,
+            'status': self.status,
+            'details': self.details or {},
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class MCPExecutionRecord(db.Model):
+    """Content-bounded durable MCP tool/resource/prompt execution ledger."""
+
+    __tablename__ = 'mcp_execution_records'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    execution_id = db.Column(db.String(36), nullable=False, unique=True, index=True, default=lambda: str(uuid.uuid4()))
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id', ondelete='CASCADE'), nullable=False)
+    tool_id = db.Column(db.Integer, db.ForeignKey('mcp_tools.id', ondelete='SET NULL'))
+    principal_id = db.Column(db.String(64), nullable=False, index=True)
+    operation = db.Column(db.String(128), nullable=False)
+    status = db.Column(db.String(32), nullable=False, default='running')
+    required_scopes = db.Column(db.JSON)
+    request_sha256 = db.Column(db.String(64), nullable=False)
+    result_sha256 = db.Column(db.String(64))
+    result_size_bytes = db.Column(db.BigInteger)
+    result_content = db.Column(db.Text)
+    result_trust = db.Column(db.String(64))
+    artifact_object_key = db.Column(db.String(1024))
+    prompt_injection_risk = db.Column(db.Boolean, nullable=False, default=False)
+    error_code = db.Column(db.String(100))
+    error_message = db.Column(db.String(500))
+    duration_ms = db.Column(db.Integer)
+    trace_id = db.Column(db.String(36), index=True)
+    started_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    completed_at = db.Column(db.DateTime)
+
+    __table_args__ = (
+        Index('ix_mcp_execution_server_status', 'server_id', 'status'),
+        Index('ix_mcp_execution_server_started', 'server_id', 'started_at'),
+    )
+
+    def to_dict(self) -> dict:
+        return {
+            'execution_id': self.execution_id,
+            'server_id': self.server_id,
+            'tool_id': self.tool_id,
+            'principal_id': self.principal_id,
+            'operation': self.operation,
+            'status': self.status,
+            'required_scopes': sorted(self.required_scopes or []),
+            'request_sha256': self.request_sha256,
+            'result_sha256': self.result_sha256,
+            'result_size_bytes': self.result_size_bytes,
+            'result_trust': self.result_trust,
+            'artifact_object_key': self.artifact_object_key,
+            'prompt_injection_risk': self.prompt_injection_risk,
+            'error_code': self.error_code,
+            'error_message': self.error_message,
+            'duration_ms': self.duration_ms,
+            'trace_id': self.trace_id,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
         }
 
 

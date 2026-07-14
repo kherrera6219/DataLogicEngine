@@ -1,9 +1,6 @@
 {
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\software\\DataLogicEngine\\data"],
-      "env": {}
-    }
-  }
+  "schema_version": "retired-mcp-config.v1",
+  "authority": "postgresql",
+  "mcpServers": {},
+  "note": "Repository configuration is not executed. Register and approve connectors in the owner control plane."
 }

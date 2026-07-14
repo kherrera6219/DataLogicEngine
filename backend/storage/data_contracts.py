@@ -125,6 +125,9 @@ POSTGRES_ENTITY_KEYS: Mapping[str, str] = MappingProxyType(
         "llm_provider_usage": "id",
         "llm_providers": "id",
         "mcp_prompts": "id",
+        "mcp_consent_grants": "id",
+        "mcp_execution_records": "id",
+        "mcp_lifecycle_events": "id",
         "mcp_resources": "id",
         "mcp_servers": "id",
         "mcp_tools": "id",
@@ -409,7 +412,11 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     _contract(
         "mcp_metadata",
         StoreAuthority.POSTGRESQL,
-        "mcp_servers/resources/tools/prompts.id",
+        "mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id",
+        materializations=(StoreAuthority.REDIS, StoreAuthority.MINIO, StoreAuthority.DPAPI_VAULT),
+        transaction="postgres_configuration_consent_and_execution_authority",
+        compensation="refuse_start_or_result_use_until_authority_and_artifact_hashes_match",
+        retention="connector_audit_policy",
     ),
     _contract(
         "service_credentials",

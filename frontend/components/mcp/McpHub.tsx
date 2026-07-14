@@ -93,32 +93,32 @@ export function McpHub() {
 
       <section>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="hover:bg-white/5 transition-colors border-white/10 cursor-pointer group" onClick={() => router.push('/mcp?tab=server')}>
+          <Card className="hover:bg-white/5 transition-colors border-white/10 cursor-pointer group" onClick={() => router.push('/admin/mcp/servers')}>
             <CardContent className="pt-6 flex flex-col items-center text-center space-y-4">
               <div className="p-4 rounded-full bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
                 <Server className="h-8 w-8 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Configure MCP Servers</h3>
-                <p className="text-sm text-gray-400 mt-2">Inspect server status, tools, resources, and prompts from live endpoints.</p>
+                <h3 className="text-lg font-bold text-white">Manage MCP Connectors</h3>
+                <p className="text-sm text-gray-400 mt-2">Register exact local commands, review granular access, and control their lifecycle.</p>
               </div>
-              <Button variant="outline" className="w-full border-white/10 hover:bg-white/10" onClick={(e) => { e.stopPropagation(); router.push('/mcp?tab=server'); }}>
-                Manage Servers <ExternalLink className="ml-2 h-4 w-4" />
+              <Button variant="outline" className="w-full border-white/10 hover:bg-white/10" onClick={(e) => { e.stopPropagation(); router.push('/admin/mcp/servers'); }}>
+                Manage Connectors <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:bg-white/5 transition-colors border-white/10 cursor-pointer group" onClick={() => router.push('/mcp?tab=client')}>
+          <Card className="hover:bg-white/5 transition-colors border-white/10 cursor-pointer group" onClick={() => router.push('/mcp?tab=server')}>
             <CardContent className="pt-6 flex flex-col items-center text-center space-y-4">
               <div className="p-4 rounded-full bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
                 <Zap className="h-8 w-8 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Connect MCP Clients</h3>
-                <p className="text-sm text-gray-400 mt-2">Create or remove server connections and search tool coverage.</p>
+                <h3 className="text-lg font-bold text-white">Inspect Discovered Capabilities</h3>
+                <p className="text-sm text-gray-400 mt-2">Review tools, resources, and prompts reported by approved running connectors.</p>
               </div>
-              <Button variant="outline" className="w-full border-white/10 hover:bg-white/10" onClick={(e) => { e.stopPropagation(); router.push('/mcp?tab=client'); }}>
-                Connect Clients <ExternalLink className="ml-2 h-4 w-4" />
+              <Button variant="outline" className="w-full border-white/10 hover:bg-white/10" onClick={(e) => { e.stopPropagation(); router.push('/mcp?tab=server'); }}>
+                Inspect Inventory <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.0 |
+| Document version | v2.15.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -700,6 +700,49 @@ Relevant files:
 - `frontend/app/simulations/page.tsx`
 - `migrations/versions/d9e0f1a2b3c4_add_durable_simulation_authority.py`
 - `reports/production-readiness/2026/phase-10/`
+
+## Incident 22: MCP consent, containment, or execution failure
+
+**Trigger:** fingerprint mismatch, missing/expanded scope, unexpected command or
+root, Redis live-state failure, timeout/cancellation race, malformed/oversized
+JSON-RPC, prompt-injection signal, child-process leak, or production qualification
+refusal.
+
+1. Stop or revoke the connector. Record only connector ID, fingerprint, scope,
+   execution ID, safe error code, lifecycle event, and correlation ID; do not
+   copy arguments, result content, stderr, or credentials into support evidence.
+2. Compare the displayed executable, arguments, working folder, file roots,
+   limits, and fingerprint to the owner-approved version. Do not reapprove an
+   unexplained change.
+3. Confirm MCP version `2025-11-25`, stdio transport, no shell/package runner,
+   no network destinations, and connector-owned granular scopes.
+4. Confirm the DPAPI credential response contains names/references only. Rotate
+   and reregister if plaintext appeared in a renderer, log, support bundle, or
+   history response.
+5. Review PostgreSQL lifecycle/execution authority and content-free Redis state.
+   Reconcile any running record left by a crashed process before restart.
+6. For large results, verify the `mcp-results` key and SHA-256. Treat all output
+   as untrusted and quarantine prompt-injection indicators from answer paths.
+7. On cancellation/timeout/stop/app exit, verify the connector and every spawned
+   child are gone. A surviving process is release-blocking.
+8. Do not set `DLE_MCP_CONNECTORS_QUALIFIED=true` manually. If production start
+   is refused, run the rebuilt-installed qualification matrix and let its
+   controlled result set the gate.
+9. Rerun `tests/mcp`, MCP route tests, full backend/frontend tests, and installed
+   add/discover/call/cancel/stop/restart/remove acceptance before re-enabling.
+
+Relevant files:
+
+- `backend/mcp_server/`
+- `backend/routes/mcp_routes.py`
+- `core/mcp/`
+- `docs/MCP_INTEGRATION.md`
+- `reports/production-readiness/2026/phase-11/`
+
+## Change notes for v2.15.0
+
+1. Added Phase 11 MCP consent, DPAPI, live-state, result, cancellation,
+   containment, and production-qualification incident response.
 
 ## Change notes for v2.14.0
 

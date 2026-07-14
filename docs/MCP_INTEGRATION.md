@@ -1,514 +1,245 @@
-# Model Context Protocol (MCP) Integration
+# Model Context Protocol Connector Integration
 
 ## Document metadata
 
 | Field | Value |
 |---|---|
-| Document version | v1.3.0 |
-| Last updated | 2026-07-13 |
-| Status | Active |
-| Owner | Platform Engineering + Connector Governance |
-| Review cadence | Every 30 days |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-14 |
+| Status | Phase 11 engineering checkpoint; installed production qualification open |
+| Owner | Platform Engineering and Security |
+| Decision record | `docs/adr/ADR-0008-governed-mcp-connector-boundary.md` |
 
-## Overview
+## Current contract
 
-DataLogicEngine includes a Model Context Protocol-style connector and tool layer for governed access to resources, tools, prompts, server configuration, connector metrics, and UKG/knowledge-system capabilities.
+DataLogicEngine supports owner-approved local MCP servers as governed external
+connectors. The selected production candidate contract is deliberately narrow:
 
-Current UI surfaces:
+- MCP protocol version `2025-11-25`;
+- local standard input/output (`stdio`) transport;
+- one exact absolute executable with no shell or package runner;
+- explicit working folder, file roots, scopes, limits, and consent fingerprint;
+- app-owned process lifecycle and Windows Job Object containment;
+- PostgreSQL authority, content-free Redis live state, and the `mcp-results`
+  object bucket for large results;
+- all connector output labeled untrusted and held outside answer authority until
+  normal policy, privacy, evidence, validation, and trace controls accept it.
 
-1. `/mcp` — MCP hub with server, client, analytics, and examples tabs.
-2. `/admin/mcp` — admin console entry.
-3. `/admin/mcp/servers` — server registry management.
+This checkpoint does not approve external MCP connectors for the production
+release. Production start fails with `MCP_INSTALLED_QUALIFICATION_REQUIRED`
+until the rebuilt-installed Windows process, file, network, lifecycle, Electron,
+backup/restore, and adversarial acceptance matrix records qualification.
 
-Current API surfaces:
+## Supported and absent capabilities
 
-1. canonical API: `/api/v1/mcp/*`;
-2. compatibility alias: `/api/mcp/*`, redirected/mapped to the canonical family where applicable.
+| Capability | Current status |
+|---|---|
+| Local stdio connector | Implemented and source-qualified |
+| Exact command/scoped owner consent | Implemented |
+| Tools, resources, and prompts reported by a running server | Implemented with partial-discovery state |
+| Tool/resource/prompt results | Governed, hashed, bounded, redacted, and durably recorded |
+| Explicit cancellation | Implemented for a server-owned running execution ID |
+| Streamable HTTP or WebSocket MCP server | Not supported |
+| Caller-selected resource subscriptions/SSE | Not supported; retired endpoints return 410 or JSON-RPC method-not-found |
+| MCP sampling | Not advertised; requests fail closed because no approved governed provider path is exposed |
+| Automatic repository configuration or hot start | Retired; `config/mcp_servers.json` is not an authority |
+| Default UKG, pillar, graph, KA, or simulation connector | Removed; no placeholder default is registered |
+| Network-capable stdio connector | Rejected pending a separately qualified network containment contract |
 
-## What is MCP?
+The REST API is the authenticated DataLogicEngine control plane. It is not a
+claim that DataLogicEngine exposes the MCP Streamable HTTP transport.
 
-Model Context Protocol (MCP) is an open protocol that standardizes how applications provide context to LLMs. It enables:
+## Trust and authority model
 
-- **Resources**: Exposing data and content (knowledge graph stats, pillars, algorithms)
-- **Tools**: Providing executable functions (query execution, algorithm invocation)
-- **Prompts**: Sharing reusable prompt templates (expert persona, regulatory analysis)
-- **Sampling**: Allowing LLM completions (future enhancement)
+### Identity and scope
 
-## Architecture
+REST and JSON-RPC identity is derived from the authenticated server session or
+desktop boundary. Caller-provided `user_id`, tenant, principal, role, or scope
+fields are rejected. Missing execution context fails closed.
 
-### Core Components
+Connector scopes use this form:
 
-1. **MCP Protocol Layer** (`core/mcp/mcp_protocol.py`)
-   - Message types and structures
-   - Error handling
-   - Base protocol implementation
-
-2. **MCP Server** (`core/mcp/mcp_server.py`)
-   - Serves resources, tools, and prompts
-   - Handles client connections
-   - Manages subscriptions
-
-3. **MCP Client** (`core/mcp/mcp_client.py`)
-   - Connects to MCP servers
-   - Consumes resources and tools
-   - Manages server communication
-
-4. **MCP Manager** (`core/mcp/mcp_manager.py`)
-   - Central registry for servers and clients
-   - Orchestrates connections
-   - Integrates with AppOrchestrator
-
-5. **Database Models** (`models.py`)
-   - MCPServer: Server configurations
-   - MCPResource: Resource definitions
-   - MCPTool: Tool specifications
-   - MCPPrompt: Prompt templates
-
-6. **API Endpoints** (`backend/routes/mcp_routes.py`)
-   - REST API for MCP management
-   - Server/client CRUD operations
-   - Resource/tool/prompt access
-
-7. **Frontend Console** (`frontend/app/mcp/page.tsx`)
-   - Web UI for MCP management
-   - Server monitoring
-   - Tool execution interface
-
-## Features
-
-### Default UKG MCP Server
-
-The DataLogicEngine automatically creates a default MCP server named **"DataLogicEngine-UKG"** that exposes:
-
-#### Resources
-
-1. **Knowledge Graph Statistics** (`ukg://graph/stats`)
-   - Current graph metrics
-   - Node and edge counts
-   - System health
-
-2. **Knowledge Pillars** (`ukg://pillars`)
-   - List of knowledge pillars
-   - Identity, Technology, Healthcare, Finance, etc.
-
-3. **Knowledge Algorithms** (`ukg://algorithms`)
-   - Available KA implementations
-   - 56+ specialized algorithms
-
-#### Tools
-
-1. **query_knowledge_graph**
-   - Execute natural language queries against UKG
-   - Returns simulation results
-   - Integrates with SimulationEngine
-
-2. **execute_knowledge_algorithm**
-   - Run specific knowledge algorithms
-   - Parameterized execution
-   - Direct KA invocation
-
-#### Prompts
-
-1. **regulatory_analysis**
-   - Template for regulatory compliance analysis
-   - Supports GDPR, HIPAA, SOX, etc.
-   - Generates structured queries
-
-2. **expert_persona**
-   - Expert domain simulation template
-   - Multi-domain support
-   - Integrates with Persona System
-
-## Usage
-
-### Accessing the MCP Console
-
-1. Navigate to `/mcp` in the product shell.
-2. Use `/admin/mcp` and `/admin/mcp/servers` for owner/admin server management.
-3. The MCP surfaces provide:
-   - Server management
-   - Resource browsing
-   - Tool execution
-   - Prompt generation
-   - Statistics dashboard
-
-### Creating a New MCP Server
-
-```python
-from core.mcp import MCPManager
-
-# Initialize manager
-manager = MCPManager()
-
-# Create server
-server = manager.create_server(
-    name="My-Custom-Server",
-    version="1.0.0",
-    description="Custom MCP server for specialized tasks"
-)
-
-# Register a resource
-async def get_custom_data(params):
-    return "Custom data response"
-
-server.register_resource(
-    uri="custom://data",
-    name="Custom Data",
-    handler=get_custom_data,
-    description="Custom data resource"
-)
-
-# Register a tool
-async def custom_tool(arguments):
-    query = arguments.get("query")
-    return f"Processed: {query}"
-
-server.register_tool(
-    name="custom_processor",
-    description="Processes custom queries",
-    input_schema={
-        "type": "object",
-        "properties": {
-            "query": {"type": "string"}
-        },
-        "required": ["query"]
-    },
-    handler=custom_tool
-)
+```text
+connector:<connector-name>:read
+connector:<connector-name>:write
+connector:<connector-name>:execute
 ```
 
-### Using the MCP Client
-
-```python
-from core.mcp import MCPManager, MCPClient
-
-manager = MCPManager()
-
-# Create client
-client = manager.create_client(name="DataLogicEngine")
-
-# Get server
-server = manager.get_server_by_name("DataLogicEngine-UKG")
-
-# Connect client to server
-await manager.connect_client_to_server(client.client_id, server.server_id)
-
-# List resources
-resources = await client.list_resources(server)
-
-# Call a tool
-result = await client.call_tool(
-    server,
-    "query_knowledge_graph",
-    {"query": "What are the healthcare regulations?"}
-)
-```
-
-### REST API Examples
-
-#### List Servers
-
-```bash
-GET /api/v1/mcp/servers
-```
-
-Response:
-```json
-{
-  "success": true,
-  "servers": [
-    {
-      "server_id": "uuid",
-      "name": "DataLogicEngine-UKG",
-      "version": "1.0.0",
-      "status": "active",
-      "capabilities": {
-        "resources": true,
-        "tools": true,
-        "prompts": true
-      }
-    }
-  ]
-}
-```
-
-#### Call a Tool
-
-```bash
-POST /api/v1/mcp/servers/{server_id}/tools/{tool_id}/call
-Content-Type: application/json
-
-{
-  "arguments": {
-    "query": "Healthcare compliance requirements"
-  }
-}
-```
-
-#### Get a Prompt
-
-```bash
-POST /api/v1/mcp/servers/{server_id}/prompts/{prompt_id}/get
-Content-Type: application/json
-
-{
-  "arguments": {
-    "framework": "GDPR",
-    "domain": "Healthcare"
-  }
-}
-```
-
-## Integration with DataLogicEngine Components
-
-### AppOrchestrator Integration
-
-The MCP Manager is automatically initialized within the AppOrchestrator:
-
-```python
-class AppOrchestrator:
-    def __init__(self, config):
-        # ... other initialization
-        self.mcp_manager = None
-        self._initialize_mcp()
-
-    def _initialize_mcp(self):
-        self.mcp_manager = MCPManager(app_orchestrator=self)
-        self.mcp_manager.setup_default_servers()
-```
-
-### Knowledge Algorithm Integration
-
-MCP tools can execute knowledge algorithms:
-
-```python
-# Tool: execute_knowledge_algorithm
-async def execute_algorithm(arguments):
-    algorithm_name = arguments.get("algorithm")
-    params = arguments.get("params", {})
-
-    if self.app_orchestrator and self.app_orchestrator.ka_loader:
-        ka_instance = self.app_orchestrator.ka_loader.get_algorithm(algorithm_name)
-        result = await ka_instance.execute(params)
-        return result
-```
-
-### Simulation Engine Integration
-
-MCP queries are processed through the simulation engine:
-
-```python
-async def query_graph(arguments):
-    query = arguments.get("query")
-
-    if self.app_orchestrator and self.app_orchestrator.simulation_engine:
-        result = await self.app_orchestrator.process_request(
-            user_query=query,
-            simulation_params=arguments.get("context", {})
-        )
-        return result
-```
-
-## Database Schema
-
-### MCPServer Table
-
-```sql
-CREATE TABLE mcp_servers (
-    id INTEGER PRIMARY KEY,
-    server_id VARCHAR(64) UNIQUE NOT NULL,
-    name VARCHAR(128) NOT NULL,
-    version VARCHAR(32) DEFAULT '1.0.0',
-    description TEXT,
-    status VARCHAR(20) DEFAULT 'inactive',
-    protocol_version VARCHAR(32) DEFAULT '2024-11-05',
-    supports_resources BOOLEAN DEFAULT TRUE,
-    supports_tools BOOLEAN DEFAULT TRUE,
-    supports_prompts BOOLEAN DEFAULT TRUE,
-    supports_logging BOOLEAN DEFAULT TRUE,
-    config JSON,
-    metadata JSON,
-    total_requests INTEGER DEFAULT 0,
-    successful_requests INTEGER DEFAULT 0,
-    failed_requests INTEGER DEFAULT 0,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    last_active TIMESTAMP
-);
-```
-
-### MCPResource Table
-
-```sql
-CREATE TABLE mcp_resources (
-    id INTEGER PRIMARY KEY,
-    server_id INTEGER REFERENCES mcp_servers(id),
-    uri VARCHAR(256) NOT NULL,
-    name VARCHAR(128) NOT NULL,
-    description TEXT,
-    mime_type VARCHAR(64),
-    metadata JSON,
-    access_count INTEGER DEFAULT 0,
-    last_accessed TIMESTAMP,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-```
-
-### MCPTool Table
-
-```sql
-CREATE TABLE mcp_tools (
-    id INTEGER PRIMARY KEY,
-    server_id INTEGER REFERENCES mcp_servers(id),
-    name VARCHAR(128) NOT NULL,
-    description TEXT NOT NULL,
-    input_schema JSON NOT NULL,
-    metadata JSON,
-    execution_count INTEGER DEFAULT 0,
-    success_count INTEGER DEFAULT 0,
-    failure_count INTEGER DEFAULT 0,
-    last_executed TIMESTAMP,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-```
-
-### MCPPrompt Table
-
-```sql
-CREATE TABLE mcp_prompts (
-    id INTEGER PRIMARY KEY,
-    server_id INTEGER REFERENCES mcp_servers(id),
-    name VARCHAR(128) NOT NULL,
-    description TEXT NOT NULL,
-    arguments JSON,
-    metadata JSON,
-    usage_count INTEGER DEFAULT 0,
-    last_used TIMESTAMP,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-```
-
-## Configuration
-
-### Environment Variables
-
-```bash
-# MCP Configuration (optional)
-MCP_ENABLED=true
-MCP_DEFAULT_SERVER_NAME=DataLogicEngine-UKG
-MCP_PROTOCOL_VERSION=2024-11-05
-```
-
-### Config.py Integration
-
-```python
-# MCP settings
-MCP_ENABLED = os.environ.get('MCP_ENABLED', 'true').lower() == 'true'
-MCP_DEFAULT_SERVER_NAME = os.environ.get('MCP_DEFAULT_SERVER_NAME', 'DataLogicEngine-UKG')
-MCP_PROTOCOL_VERSION = os.environ.get('MCP_PROTOCOL_VERSION', '2024-11-05')
-```
-
-## Security Considerations
-
-1. **Authentication**: MCP inventory/configuration and owner operations use the desktop/session boundary; external keys are accepted only where explicitly designed.
-2. **Authorization and scopes**: REST and JSON-RPC execution context is server-owned. Caller-supplied user, tenant, role, admin, or scope fields are rejected. Missing scope context fails closed; external keys receive only scopes present in their permissions.
-3. **Owner operations**: setup-default, dynamic server start/stop, config writes, and delete operations are owner/admin-style actions under the current single-owner desktop model.
-4. **Input Validation**: JSON schema validation is required for tool arguments.
-5. **Error Handling**: error responses must avoid sensitive exception disclosure.
-6. **Rate Limiting**: production web/cloud deployments should keep MCP endpoints behind the same rate/resource controls as other API routes.
-
-The current JSON-RPC method inventory is generated into the Phase 1 route
-manifest. `initialize`, list operations, and tool calls all execute with the
-authenticated server principal rather than request-body identity claims.
-
-## Performance
-
-- **Async Operations**: All MCP operations use asyncio for non-blocking execution
-- **Database Indexing**: Indexes on `server_id`, `uri`, `name` fields
-- **Caching**: Consider implementing caching for frequently accessed resources
-- **Connection Pooling**: SQLAlchemy connection pooling enabled
-
-## Monitoring and Logging
-
-### Statistics Endpoint
-
-```bash
-GET /api/v1/mcp/stats
-```
-
-Returns:
-- Total servers
-- Active servers
-- Total resources, tools, prompts
-- Request success/failure rates
-
-### Logging
-
-All MCP operations are logged:
-- Server creation/deletion
-- Client connections
-- Tool executions
-- Resource accesses
-- Errors and exceptions
-
-## Future Enhancements
-
-MCP future items are consolidated in the root `TODO.md`. Keep implementation decisions there so completed connector credential, scope, contract, and metrics work is not restated as future work in this integration reference.
-
-## Troubleshooting
-
-### Server Not Appearing in Console
-
-1. Check database connection
-2. Verify server was created successfully
-3. Check browser console for errors
-4. Refresh the page
-
-### Tool Execution Fails
-
-1. Verify tool arguments match schema
-2. Check server logs for errors
-3. Ensure AppOrchestrator is initialized
-4. Verify database connection
-
-### Frontend Not Loading
-
-1. Ensure the frontend is running (`npm --prefix frontend run dev`) or the packaged Electron shell is active.
-2. Check axios configuration
-3. Verify API endpoints are accessible
-4. Check browser console for errors
-
-## References
-
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [MCP GitHub Repository](https://github.com/modelcontextprotocol)
-- DataLogicEngine Architecture Documentation
-- Universal Knowledge Graph Documentation
-
-## Support
-
-For issues or questions:
-1. Check the logs in `logs/` directory
-2. Review this documentation
-3. Consult ARCHITECTURE.md for system overview
-4. Follow the escalation path in `docs/OPERATIONAL_RUNBOOKS.md`
-
-## Change notes for v1.3.0
-
-1. Documented server-owned MCP identity/scope context and fail-closed missing-scope behavior.
-2. Corrected owner/admin authentication language after external API keys were excluded from the admin decorator.
-
-## Change notes for v1.2.0
-
-1. Removed the remaining historical OAuth wording from future-work guidance and aligned it to credential, scope, contract, and metrics governance.
-2. Replaced the generic support contact with the operational runbook escalation path.
-
-## Change notes for v1.1.0
-
-1. Added document metadata for active-doc governance.
-2. Updated UI paths from the obsolete `/mcp-console` reference to `/mcp`, `/admin/mcp`, and `/admin/mcp/servers`.
-3. Updated REST examples to the canonical `/api/v1/mcp/*` API family while noting the legacy alias.
-4. Updated security guidance to match the current API decorator and connector-scope model.
+Wildcards and scopes owned by another connector are rejected. The owner may
+approve a non-empty subset of the requested scopes. A command/configuration
+fingerprint change makes prior consent stale and prevents start.
+
+### Command and capability policy
+
+Registration validates before persistence and never starts the process. The
+policy requires:
+
+1. an absolute existing executable;
+2. no PowerShell, command shell, script host, package runner, or shell control
+   characters;
+3. an absolute existing working folder inside an approved file root;
+4. bounded arguments, environment, file roots, and resource limits;
+5. secret environment variables expressed only as DPAPI credential references;
+6. no network destinations under the current qualification;
+7. granular connector-owned scopes.
+
+The exact normalized definition is SHA-256 fingerprinted. The owner UI displays
+the executable, arguments, file root, fingerprint, and requested access before
+approval.
+
+### Credentials
+
+Credential values are accepted only during registration, protected with Windows
+DPAPI, and stored as ciphertext in PostgreSQL. Renderer-safe responses contain
+credential environment names and reference names only. Plaintext is resolved
+inside the backend immediately before process creation and is never returned to
+the renderer, ledger, Redis event, or log.
+
+### Process lifecycle
+
+The backend owns a durable asyncio loop for stdio readers across Flask requests.
+Each connector is attached to a Windows Job Object with kill-on-close and a
+process-memory ceiling. Start fails if containment cannot be established.
+Timeout, malformed JSON-RPC, oversized output, stderr bounds, application exit,
+stop, revoke, and process-tree termination are failure-first paths.
+
+Named calls bind the durable `execution_id` to the running coroutine. An owner
+cancellation cancels that operation, sends `notifications/cancelled` on a
+best-effort basis, and persists terminal `cancelled` state. Timeout follows the
+same bounded cancellation path.
+
+Declared file roots are a policy and consent boundary. Installed production
+qualification must still prove the final OS-level file-isolation mechanism; the
+source checkpoint does not represent the Job Object as a filesystem sandbox.
+
+## Result governance
+
+Connector content is serialized into `mcp-result.v1` with:
+
+- SHA-256 and byte length;
+- `untrusted_connector_output` trust label;
+- bounded content/preview;
+- secret redaction;
+- prompt-injection indicators;
+- durable operation, scope, principal, duration, error, and trace metadata.
+
+Results up to 64 KiB may be stored in the PostgreSQL execution record. Larger
+results are stored in the required `mcp-results` object bucket with integrity
+metadata and only the object key/hash retained in PostgreSQL. Execution-history
+responses intentionally omit stored result content.
+
+MCP output has no direct answer-producing path. A later governed request may use
+connector evidence only through the standard DMRF, privacy, evidence, validator,
+and trace boundary; the connector cannot mark its own output trusted.
+
+## Persistence map
+
+| Store | Responsibility |
+|---|---|
+| PostgreSQL `mcp_servers` | Validated renderer-safe definition, health, capabilities, consent state, command fingerprint |
+| PostgreSQL `mcp_consent_grants` | Principal, exact fingerprint, requested/approved scopes, approval/revocation lifecycle |
+| PostgreSQL `mcp_lifecycle_events` | Registered, approved, denied, started, stopped, revoked, and failure state |
+| PostgreSQL `mcp_execution_records` | Server-owned request hash, required scopes, result hash/reference, trust, injection signal, error, duration, trace |
+| PostgreSQL MCP tool/resource/prompt tables | Live discovered capability inventory and required scopes |
+| Redis `mcp:live:*` | Content-free ephemeral lifecycle/execution state and bounded event stream |
+| Object bucket `mcp-results` | Large governed result artifacts |
+
+PostgreSQL remains authoritative. Redis can be rebuilt and never contains tool
+arguments, result content, secrets, or credentials.
+
+## Owner workflow
+
+Use `/admin/mcp/servers`:
+
+1. Register a connector with its absolute executable, one argument per line,
+   working folder, approved file root, read/write request, and optional protected
+   credential.
+2. Review the exact rendered command, SHA-256 fingerprint, and each requested
+   scope. Registration alone does not execute anything.
+3. Approve only required scopes.
+4. Start the connector. The backend negotiates the exact protocol version and
+   discovers only capabilities the server reports.
+5. Inspect health and discovered tools/resources/prompts in the MCP hub.
+6. Stop, restart, revoke, or delete from the owner control surface. Revocation
+   stops the process and clears approved scopes.
+
+Production builds keep Start disabled in the backend until installed connector
+qualification is recorded. Do not hand-set
+`DLE_MCP_CONNECTORS_QUALIFIED=true`; the installed qualification controller is
+the authority for that value.
+
+## REST control-plane routes
+
+Primary prefix: `/api/v1/mcp`.
+
+| Method and route | Purpose |
+|---|---|
+| `GET /servers` | List PostgreSQL-owned definitions plus current in-process runtime inventory |
+| `POST /servers` | Validate and register without executing |
+| `GET /servers/{server_id}` | Renderer-safe detail |
+| `DELETE /servers/{server_id}` | Stop and remove one connector |
+| `POST /servers/{server_id}/consent` | Approve exact fingerprint and scope subset |
+| `DELETE /servers/{server_id}/consent` | Revoke authority and stop |
+| `POST /servers/{server_id}/start` | Start only after consent, fingerprint, credential, containment, and production-qualification checks |
+| `POST /servers/{server_id}/stop` | Stop and reap the process tree |
+| `POST /servers/{server_id}/restart` | Re-run the start checks after stop |
+| `GET /servers/{server_id}/lifecycle` | Read bounded durable lifecycle history |
+| `GET /servers/{server_id}/executions` | Read content-free durable execution history |
+| `POST /servers/{server_id}/executions/{execution_id}/cancel` | Cancel one owned running operation |
+| `GET /servers/{server_id}/tools` | List live discovered tools |
+| `POST /servers/{server_id}/tools/{tool_id}/call` | Execute a server-bound tool under consent and scopes |
+| `GET /servers/{server_id}/resources` | List live discovered resources |
+| `GET /servers/{server_id}/resources/{resource_id}` | Read a server-bound resource under consent and scopes |
+| `GET /servers/{server_id}/prompts` | List live discovered prompts |
+| `POST /servers/{server_id}/prompts/{prompt_id}/get` | Resolve a server-bound prompt under consent and scopes |
+| `GET /stats` | Live registry/runtime counts |
+| `GET /config` | Renderer-safe PostgreSQL authority view |
+
+Repository configuration updates, setup-default, and caller-selected
+subscription endpoints are retired and return 410.
+
+## Failure codes
+
+Important stable codes include:
+
+- `MCP_EXPLICIT_CONSENT_REQUIRED`;
+- `MCP_CONSENT_FINGERPRINT_MISMATCH`;
+- `MCP_CONSENT_SCOPE_DENIED`;
+- `MCP_SCOPE_DENIED`;
+- `MCP_CALLER_CONTEXT_REJECTED`;
+- `MCP_EXECUTABLE_*`, `MCP_ARGUMENT_REJECTED`, and `MCP_CWD_*`;
+- `MCP_NETWORK_CONNECTORS_NOT_QUALIFIED`;
+- `MCP_PROCESS_CONTAINMENT_FAILED`;
+- `MCP_OUTPUT_LIMIT_EXCEEDED` and `MCP_MALFORMED_JSON_RPC`;
+- `MCP_REQUEST_TIMEOUT` and `MCP_EXECUTION_CANCELLED`;
+- `MCP_REDIS_LIVE_STATE_UNAVAILABLE`;
+- `MCP_INSTALLED_QUALIFICATION_REQUIRED`.
+
+Public responses are generic and stable. Raw exceptions, stderr, arguments,
+secret values, and result content do not appear in lifecycle/history errors.
+
+## Qualification evidence and remaining gates
+
+Source evidence is under `reports/production-readiness/2026/phase-11/`. Tests use
+a real hostile stdio fixture for discovery, call, prompt/resource behavior,
+delay, cancellation, malformed JSON-RPC, oversized output, and a spawned child
+process. Policy tests cover command/path/argument/environment/network/scope
+abuse, DPAPI serialization, caller-context forgery, ID binding, result injection,
+and durable store behavior.
+
+Still required against the rebuilt installed application:
+
+1. OS-level file isolation and unauthorized file/network probes;
+2. owner UI add/discover/call/cancel/stop/restart/remove acceptance;
+3. backend/Electron crash, app exit, reboot, and orphan-process recovery;
+4. real PostgreSQL/Redis/object-store restart and backup/restore parity;
+5. packaged secret/log/support-bundle inspection;
+6. visual/accessibility acceptance and malicious connector corpus execution.
+
+## Protocol references
+
+- MCP 2025-11-25 transports: <https://modelcontextprotocol.io/specification/2025-11-25/basic/transports>
+- MCP authorization: <https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization>
+- MCP security guidance: <https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices>
+- MCP changelog: <https://modelcontextprotocol.io/specification/2025-11-25/changelog>
+- Sampling/roots/logging deprecation proposal: <https://modelcontextprotocol.io/seps/2577-deprecate-roots-sampling-and-logging>

@@ -7,7 +7,7 @@
   "managed_backup_required_before_destructive_migration": true,
   "legacy_create_all_is_production_coordinator": false,
   "alembic": {
-    "revision_count": 21,
+    "revision_count": 24,
     "revisions": [
       {
         "revision": "000000000001",
@@ -92,6 +92,13 @@
         ]
       },
       {
+        "revision": "c8d9e0f1a2b3",
+        "file": "c8d9e0f1a2b3_add_durable_ingestion_authority.py",
+        "down_revisions": [
+          "b7c8d9e0f1a2"
+        ]
+      },
+      {
         "revision": "d1e2f3a4b5c6",
         "file": "d1e2f3a4b5c6_add_auditbundle_columns_to_trace_runs.py",
         "down_revisions": [
@@ -110,6 +117,20 @@
         "file": "d6e7f8a9b0c1_drop_oauth_accounts_table.py",
         "down_revisions": [
           "c5d6e7f8a9b0"
+        ]
+      },
+      {
+        "revision": "d9e0f1a2b3c4",
+        "file": "d9e0f1a2b3c4_add_durable_simulation_authority.py",
+        "down_revisions": [
+          "c8d9e0f1a2b3"
+        ]
+      },
+      {
+        "revision": "e0f1a2b3c4d5",
+        "file": "e0f1a2b3c4d5_add_mcp_connector_authority.py",
+        "down_revisions": [
+          "d9e0f1a2b3c4"
         ]
       },
       {
@@ -159,7 +180,7 @@
       "000000000001"
     ],
     "heads": [
-      "b7c8d9e0f1a2"
+      "e0f1a2b3c4d5"
     ],
     "linear_order": [
       "000000000001",
@@ -182,14 +203,17 @@
       "e4f5a6b7c8d9",
       "f5a6b7c8d9e0",
       "a6b7c8d9e0f1",
-      "b7c8d9e0f1a2"
+      "b7c8d9e0f1a2",
+      "c8d9e0f1a2b3",
+      "d9e0f1a2b3c4",
+      "e0f1a2b3c4d5"
     ],
     "errors": []
   },
   "surfaces": [
     {
       "key": "postgresql",
-      "target_version": "alembic:b7c8d9e0f1a2",
+      "target_version": "alembic:d9e0f1a2b3c4",
       "version_probe": "SELECT version_num FROM alembic_version",
       "forward_migration": "transactional Alembic upgrade through the single revision head",
       "rollback_policy": "revision-specific downgrade only after verified coordinated backup",
@@ -234,7 +258,7 @@
     },
     {
       "key": "local_json_memory",
-      "target_version": "unified-memory.v1",
+      "target_version": "unified-memory.v2",
       "version_probe": "read and validate root JSON version field before loading vertices or edges",
       "forward_migration": "write migrated graph to a temporary path and atomically replace after validation",
       "rollback_policy": "retain and restore the last valid versioned JSON graph",
@@ -277,5 +301,5 @@
     "supported_prior_release_upgrade_qualified": false,
     "downgrade_against_newer_data_allowed": false
   },
-  "captured_at": "2026-07-14T08:34:48.008650+00:00"
+  "captured_at": "2026-07-14T20:13:11.040318+00:00"
 }

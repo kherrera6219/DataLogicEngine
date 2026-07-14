@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -42,7 +42,7 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **Phase 10 simulation engineering is complete and Phase 11 is active,
+Current status: **Phase 11 MCP connector engineering is complete and Phase 12 is active,
 but signed production release remains NO-GO until retained installed, security,
 provider, recovery, accessibility, signing, and independent-review evidence is
 complete.**
@@ -74,6 +74,10 @@ complete.**
 17. One `dle-simulation.v1` authority with exact call/token/tool/time/cost
     budgets, durable lifecycle records, verified restart checkpoints, required
     S3 artifacts, evidence-aware validation, and truthful Simulation UI.
+18. One MCP `2025-11-25` local-stdio connector boundary with exact fingerprint/
+    scope consent, DPAPI credentials, durable PostgreSQL authority, content-free
+    Redis live state, governed object-backed results, cancellation, Windows Job
+    Object containment, hostile fixtures, and truthful owner controls.
 
 ### Remaining release blockers before signed production distribution
 
@@ -94,6 +98,9 @@ complete.**
 11. Phase 10 installed live-provider budget, restart/cancellation, Redis event,
     PostgreSQL/S3/Neo4j/Chroma reconciliation, artifact, result-validity, and
     packaged Simulation UI acceptance.
+12. Phase 11 rebuilt-installed file/network containment, lifecycle/reboot,
+    PostgreSQL/Redis/object backup/restore, hostile connector, and Electron
+    add/discover/call/cancel/stop/restart/remove acceptance.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -106,9 +113,9 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 | Architecture | Ready for review | `docs/ARCHITECTURE.md`, diagram set, DMRF/Truth Engine files. |
 | API contract | Engineering checkpoint complete | `dle-gateway.v1`, OpenAPI compatibility diff, native/compatible contract tests, SDK and examples parity. |
 | Security | Ready with release caveats | Security tests, runtime precheck, desktop auth tests, secret validation, signing evidence. |
-| Data/storage | Phase 10 engineering checkpoint complete | 83 PostgreSQL entities, 31 logical contracts, eight object buckets, migration head `d9e0f1a2b3c4`; installed populated reconciliation remains gated. |
-| Testing | Strong | Phase 10 baseline: 2,050 backend passed/18 skipped and 410 frontend passed, plus contract/parity/security/governance/build checks. |
-| Frontend/product | Simulation and knowledge lifecycle controls complete; later workflows remain | Gateway, ingestion, Graph, memory, and Simulation controls are tested; installed visual truth and Phases 11-13 remain. |
+| Data/storage | Phase 11 engineering checkpoint complete | 86 PostgreSQL entities, 31 logical contracts, nine object buckets, migration head `e0f1a2b3c4d5`; installed populated reconciliation remains gated. |
+| Testing | Strong | Phase 11 baseline: 2,094 backend passed/18 skipped and 411 frontend passed, plus MCP hostile-process, contract, parity, security, governance, and build checks. |
+| Frontend/product | Connector, simulation, and knowledge lifecycle controls complete; later workflows remain | Gateway, ingestion, Graph, memory, Simulation, and MCP controls are tested; installed visual truth and Phases 12-13 remain. |
 | Desktop packaging | Strong but signing-dependent | backend rebuild, NSIS governance, installer integrity, packaging smoke, installer-mode install/uninstall smoke, signed artifact verification. |
 | Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
 | Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |

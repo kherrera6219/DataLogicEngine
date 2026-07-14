@@ -7,6 +7,8 @@ tools, and prompts to LLM applications.
 
 import uuid
 import inspect
+import hashlib
+import json
 import time
 from typing import Dict, List, Optional, Any, Callable
 import logging
@@ -281,7 +283,9 @@ class MCPServer(MCPRequestHandler):
                         details={
                             'server': self.name,
                             'tool': tool_name,
-                            'arguments': str(arguments),
+                            'arguments_sha256': hashlib.sha256(
+                                json.dumps(arguments, sort_keys=True, default=str).encode('utf-8')
+                            ).hexdigest(),
                             'status': 'success'
                         },
                         ip_address='127.0.0.1'
@@ -308,17 +312,19 @@ class MCPServer(MCPRequestHandler):
                         details={
                             'server': self.name,
                             'tool': tool_name,
-                            'arguments': str(arguments),
+                            'arguments_sha256': hashlib.sha256(
+                                json.dumps(arguments, sort_keys=True, default=str).encode('utf-8')
+                            ).hexdigest(),
                             'status': 'failure',
-                            'error': str(e)
+                            'error_code': type(e).__name__,
                         },
                         ip_address='127.0.0.1'
                     )
             except Exception:
                 pass
 
-            logger.error(f"Tool execution error ({tool_name}): {e}")
-            raise MCPError(MCPErrorCode.TOOL_EXECUTION_ERROR, f"Tool execution failed: {str(e)}")
+            logger.error("Tool execution error (%s): %s", tool_name, type(e).__name__)
+            raise MCPError(MCPErrorCode.TOOL_EXECUTION_ERROR, "Tool execution failed") from e
         finally:
             record_connector_execution(
                 tool_name=tool_name,

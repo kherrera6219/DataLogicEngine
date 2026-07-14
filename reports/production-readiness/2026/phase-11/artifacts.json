@@ -1,0 +1,18 @@
+{
+  "phase": 11,
+  "date": "2026-07-14",
+  "artifacts": [
+    "docs/adr/ADR-0008-governed-mcp-connector-boundary.md",
+    "migrations/versions/e0f1a2b3c4d5_add_mcp_connector_authority.py",
+    "backend/mcp_server/policy.py",
+    "backend/mcp_server/credential_store.py",
+    "backend/mcp_server/live_state.py",
+    "core/mcp/runtime_loop.py",
+    "core/mcp/process_containment.py",
+    "tests/mcp",
+    "tests/fixtures/mcp",
+    "reports/production-readiness/2026/phase-11"
+  ],
+  "contains_raw_secrets": false,
+  "contains_user_content": false
+}

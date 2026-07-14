@@ -6,17 +6,39 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from flask import Blueprint, Response, current_app, has_app_context, jsonify, g, request, stream_with_context
+from flask import Blueprint, current_app, has_app_context, jsonify, g, request
 from datetime import datetime, UTC
 import asyncio
+import hashlib
+import json
 import logging
+import os
 import time
+import uuid
 
 from extensions import db
-from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
+from models import (
+    MCPConsentGrant,
+    MCPExecutionRecord,
+    MCPLifecycleEvent,
+    MCPServer as MCPServerModel,
+    MCPResource,
+    MCPTool,
+    MCPPrompt,
+)
 from core.mcp import MCPManager
 from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
 from backend.mcp_server.router import MCPRouter
+from backend.mcp_server.credential_store import (
+    protect_connector_credentials,
+    resolve_connector_credentials,
+)
+from backend.mcp_server.policy import (
+    MCPPolicyError,
+    govern_connector_result,
+    validate_stdio_definition,
+)
+from backend.mcp_server.live_state import MCPLiveStateUnavailable, RedisMCPLiveState
 from backend.mcp_server.scope_enforcement import (
     ScopeEnforcementError,
     enforce_scopes,
@@ -97,6 +119,162 @@ def get_fallback_mcp_manager():
 
 def _mcp_error(message, status=500):
     return jsonify({'success': False, 'error': message}), status
+
+
+def _principal_id() -> str:
+    principal = get_authenticated_principal()
+    value = str(getattr(principal, "id", "") or "").strip()
+    if not value:
+        raise MCPPolicyError("MCP_PRINCIPAL_REQUIRED", "Authenticated principal is required")
+    return value
+
+
+def _live_state() -> RedisMCPLiveState | None:
+    """Return the content-free Redis mirror when the data plane requires it."""
+    required = bool(
+        current_app.config.get("DLE_USE_REDIS")
+        or current_app.config.get("DLE_PRODUCTION_MODE")
+    )
+    if not required:
+        return None
+    coordinator = current_app.extensions.get("dle_mcp_live_state")
+    if coordinator is None:
+        redis_url = str(
+            current_app.config.get("REDIS_URL")
+            or os.environ.get("REDIS_URL")
+            or ""
+        ).strip()
+        if not redis_url:
+            raise MCPPolicyError(
+                "MCP_REDIS_LIVE_STATE_UNAVAILABLE",
+                "Required MCP live state is unavailable",
+            )
+        try:
+            coordinator = RedisMCPLiveState.from_url(redis_url)
+        except MCPLiveStateUnavailable as exc:
+            raise MCPPolicyError(
+                "MCP_REDIS_LIVE_STATE_UNAVAILABLE",
+                "Required MCP live state is unavailable",
+            ) from exc
+        current_app.extensions["dle_mcp_live_state"] = coordinator
+    return coordinator
+
+
+def _publish_execution_state(server: MCPServerModel, execution: MCPExecutionRecord) -> None:
+    try:
+        coordinator = _live_state()
+        if coordinator is not None:
+            coordinator.record_execution(server.server_id, execution.execution_id, execution.status)
+    except (MCPPolicyError, MCPLiveStateUnavailable):
+        logger.warning(
+            "MCP execution live-state publication failed after the authoritative commit: %s",
+            execution.execution_id,
+        )
+
+
+def _publish_lifecycle_state(server: MCPServerModel, event: MCPLifecycleEvent) -> None:
+    try:
+        coordinator = _live_state()
+        if coordinator is not None:
+            coordinator.record_lifecycle(server.server_id, event.event_type, event.status)
+    except (MCPPolicyError, MCPLiveStateUnavailable):
+        logger.warning(
+            "MCP lifecycle live-state publication failed after the authoritative commit: %s",
+            event.event_type,
+        )
+
+
+def _lifecycle(
+    server: MCPServerModel,
+    event_type: str,
+    status: str,
+    *,
+    details: dict | None = None,
+) -> MCPLifecycleEvent:
+    event = MCPLifecycleEvent(
+        server_id=server.id,
+        principal_id=_principal_id(),
+        event_type=event_type,
+        status=status,
+        details=details or {},
+    )
+    db.session.add(event)
+    return event
+
+
+def _active_consent(server: MCPServerModel) -> MCPConsentGrant | None:
+    return MCPConsentGrant.query.filter_by(
+        server_id=server.id,
+        command_fingerprint=server.command_fingerprint,
+        status="approved",
+    ).order_by(MCPConsentGrant.approved_at.desc()).first()
+
+
+def _canonical_sha256(value) -> str:
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _policy_error(exc: MCPPolicyError, *, status: int = 400):
+    return jsonify({
+        "success": False,
+        "error": exc.public_message,
+        "code": exc.code,
+    }), status
+
+
+def _required_scope_for_operation(server: MCPServerModel, operation_name: str) -> list[str]:
+    action = "write" if _tool_uses_write_scope(operation_name) else "read"
+    return ["mcp:execute", f"connector:{server.name.lower()}:{action}"]
+
+
+def _sync_discovery(server: MCPServerModel, discovery: dict) -> None:
+    """Replace materialized discovery rows from one live handshake."""
+    MCPResource.query.filter_by(server_id=server.id).delete(synchronize_session=False)
+    MCPTool.query.filter_by(server_id=server.id).delete(synchronize_session=False)
+    MCPPrompt.query.filter_by(server_id=server.id).delete(synchronize_session=False)
+
+    for raw in discovery.get("resources", []):
+        if not isinstance(raw, dict) or not raw.get("uri") or not raw.get("name"):
+            continue
+        db.session.add(MCPResource(
+            server_id=server.id,
+            uri=str(raw["uri"])[:256],
+            name=str(raw["name"])[:128],
+            description=str(raw.get("description") or "")[:2_000],
+            mime_type=str(raw.get("mimeType") or "application/octet-stream")[:64],
+            resource_metadata={
+                "required_scopes": _required_scope_for_operation(server, "read_resource"),
+                "source": "live_discovery",
+            },
+        ))
+    for raw in discovery.get("tools", []):
+        if not isinstance(raw, dict) or not raw.get("name"):
+            continue
+        name = str(raw["name"])[:128]
+        db.session.add(MCPTool(
+            server_id=server.id,
+            name=name,
+            description=str(raw.get("description") or "MCP tool")[:2_000],
+            input_schema=raw.get("inputSchema") if isinstance(raw.get("inputSchema"), dict) else {"type": "object"},
+            tool_metadata={
+                "required_scopes": _required_scope_for_operation(server, name),
+                "source": "live_discovery",
+            },
+        ))
+    for raw in discovery.get("prompts", []):
+        if not isinstance(raw, dict) or not raw.get("name"):
+            continue
+        db.session.add(MCPPrompt(
+            server_id=server.id,
+            name=str(raw["name"])[:128],
+            description=str(raw.get("description") or "MCP prompt")[:2_000],
+            arguments=raw.get("arguments") if isinstance(raw.get("arguments"), list) else [],
+            prompt_metadata={
+                "required_scopes": _required_scope_for_operation(server, "read_prompt"),
+                "source": "live_discovery",
+            },
+        ))
 
 
 def _tool_uses_write_scope(tool_name: str) -> bool:
@@ -197,18 +375,13 @@ def mcp_rpc():
 @mcp_bp.route('/subscriptions/stream/<client_id>', methods=['GET'])
 @api_session_login_required
 def mcp_subscription_stream(client_id):
-    """SSE stream for MCP resource subscription notifications."""
-    from backend.mcp_server.subscriptions import get_subscription_manager
-
-    return Response(
-        stream_with_context(get_subscription_manager().stream(client_id)),
-        mimetype='text/event-stream',
-        headers={
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'X-Accel-Buffering': 'no',
-        },
-    )
+    """Reject the retired caller-selected subscription stream."""
+    del client_id
+    return jsonify({
+        'success': False,
+        'error': 'MCP subscriptions are not supported by the production transport set',
+        'code': 'MCP_SUBSCRIPTIONS_UNSUPPORTED',
+    }), 410
 
 
 # Server Management Endpoints
@@ -241,11 +414,11 @@ def list_servers():
 @mcp_bp.route('/servers', methods=['POST'])
 @api_admin_required
 def create_server():
-    """Create a new MCP server"""
+    """Register a validated stdio connector without executing it."""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
 
-        name = data.get('name')
+        name = str(data.get('name') or '').strip()
         version = data.get('version', '1.0.0')
         description = data.get('description', '')
 
@@ -255,38 +428,68 @@ def create_server():
                 'error': 'Server name is required'
             }), 400
 
-        # Create runtime server
-        manager = get_mcp_manager()
-        server = manager.create_server(
-            name=name,
-            version=version,
-            description=description
+        if MCPServerModel.query.filter_by(name=name).first():
+            return jsonify({
+                'success': False,
+                'error': 'A connector with this name already exists',
+                'code': 'MCP_NAME_CONFLICT',
+            }), 409
+
+        raw_definition = data.get('config') if isinstance(data.get('config'), dict) else data
+        validated = validate_stdio_definition(name, raw_definition)
+        definition = validated['definition']
+        credential_blobs = protect_connector_credentials(
+            definition.get('credential_env', {}),
+            data.get('credentials'),
         )
 
-        # Save to database
         db_server = MCPServerModel(
-            server_id=server.server_id,
+            server_id=str(uuid.uuid4()),
             name=name,
             version=version,
             description=description,
-            status='active',
-            supports_resources=True,
-            supports_tools=True,
-            supports_prompts=True,
-            supports_logging=True,
-            config=data.get('config', {}),
-            metadata=data.get('metadata', {})
+            status='inactive',
+            protocol_version=definition['protocol_version'],
+            transport=definition['transport'],
+            enabled=False,
+            consent_state='pending',
+            requested_scopes=definition['requested_scopes'],
+            approved_scopes=[],
+            command_fingerprint=validated['fingerprint'],
+            containment_status='windows_job_object_pending_installed_qualification',
+            health_status='not_started',
+            supports_resources=False,
+            supports_tools=False,
+            supports_prompts=False,
+            supports_logging=False,
+            config=definition,
+            credential_blobs=credential_blobs,
+            server_metadata=data.get('metadata', {}),
         )
         db.session.add(db_server)
+        db.session.flush()
+        event = _lifecycle(
+            db_server,
+            'registered',
+            'pending_consent',
+            details={
+                'command_fingerprint': validated['fingerprint'],
+                'requested_scopes': definition['requested_scopes'],
+            },
+        )
         db.session.commit()
+        _publish_lifecycle_state(db_server, event)
 
-        logger.info(f"Created MCP server: {name}")
+        logger.info("Registered MCP connector pending consent: %s", name)
 
         return jsonify({
             'success': True,
             'server': db_server.to_dict()
         }), 201
 
+    except MCPPolicyError as exc:
+        db.session.rollback()
+        return _policy_error(exc)
     except Exception:
         logger.exception("Error creating server")
         db.session.rollback()
@@ -324,6 +527,163 @@ def get_server(server_id):
         return _mcp_error('MCP server details are unavailable', 500)
 
 
+@mcp_bp.route('/servers/<server_id>/consent', methods=['POST'])
+@api_admin_required
+def approve_server_consent(server_id):
+    """Approve the exact visible command fingerprint and granular scopes."""
+    try:
+        server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not server:
+            return _mcp_error('Server not found', 404)
+        data = request.get_json(silent=True) or {}
+        fingerprint = str(data.get('command_fingerprint') or '')
+        if not fingerprint or fingerprint != server.command_fingerprint:
+            return jsonify({
+                'success': False,
+                'error': 'The connector command changed; review the current command before approval',
+                'code': 'MCP_CONSENT_FINGERPRINT_MISMATCH',
+            }), 409
+        approved_scopes = sorted(set(str(scope).strip().lower() for scope in data.get('approved_scopes', [])))
+        requested_scopes = set(str(scope).lower() for scope in (server.requested_scopes or []))
+        if not approved_scopes or not set(approved_scopes) <= requested_scopes:
+            return jsonify({
+                'success': False,
+                'error': 'Approved scopes must be a non-empty subset of requested scopes',
+                'code': 'MCP_CONSENT_SCOPE_INVALID',
+            }), 400
+
+        now = datetime.now(UTC)
+        for grant in MCPConsentGrant.query.filter_by(server_id=server.id, status='approved').all():
+            grant.status = 'superseded'
+            grant.revoked_at = now
+        grant = MCPConsentGrant(
+            server_id=server.id,
+            principal_id=_principal_id(),
+            command_fingerprint=fingerprint,
+            requested_scopes=sorted(requested_scopes),
+            approved_scopes=approved_scopes,
+            status='approved',
+            approved_at=now,
+        )
+        db.session.add(grant)
+        server.consent_state = 'approved'
+        server.approved_scopes = approved_scopes
+        event = _lifecycle(
+            server,
+            'consent_approved',
+            'approved',
+            details={
+                'command_fingerprint': fingerprint,
+                'approved_scopes': approved_scopes,
+            },
+        )
+        db.session.commit()
+        _publish_lifecycle_state(server, event)
+        return jsonify({'success': True, 'server': server.to_dict(), 'consent': grant.to_dict()}), 200
+    except Exception:
+        db.session.rollback()
+        logger.exception('MCP consent approval failed')
+        return _mcp_error('MCP consent could not be recorded', 500)
+
+
+@mcp_bp.route('/servers/<server_id>/consent', methods=['DELETE'])
+@api_admin_required
+def revoke_server_consent(server_id):
+    """Revoke connector authority and stop any active process."""
+    try:
+        server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not server:
+            return _mcp_error('Server not found', 404)
+        try:
+            get_mcp_manager().stop_external_server_sync(server.server_id)
+        except Exception:
+            logger.exception('MCP connector stop during consent revoke failed')
+        now = datetime.now(UTC)
+        for grant in MCPConsentGrant.query.filter_by(server_id=server.id, status='approved').all():
+            grant.status = 'revoked'
+            grant.revoked_at = now
+        server.consent_state = 'revoked'
+        server.approved_scopes = []
+        server.enabled = False
+        server.status = 'inactive'
+        server.health_status = 'stopped'
+        event = _lifecycle(server, 'consent_revoked', 'revoked')
+        db.session.commit()
+        _publish_lifecycle_state(server, event)
+        return jsonify({'success': True, 'server': server.to_dict()}), 200
+    except Exception:
+        db.session.rollback()
+        logger.exception('MCP consent revocation failed')
+        return _mcp_error('MCP consent could not be revoked', 500)
+
+
+@mcp_bp.route('/servers/<server_id>/lifecycle', methods=['GET'])
+@api_session_login_required
+def list_server_lifecycle(server_id):
+    server = MCPServerModel.query.filter_by(server_id=server_id).first()
+    if not server:
+        return _mcp_error('Server not found', 404)
+    events = MCPLifecycleEvent.query.filter_by(server_id=server.id).order_by(
+        MCPLifecycleEvent.created_at.desc()
+    ).limit(200).all()
+    return jsonify({'success': True, 'events': [event.to_dict() for event in events]}), 200
+
+
+@mcp_bp.route('/servers/<server_id>/executions', methods=['GET'])
+@api_session_login_required
+def list_server_executions(server_id):
+    server = MCPServerModel.query.filter_by(server_id=server_id).first()
+    if not server:
+        return _mcp_error('Server not found', 404)
+    records = MCPExecutionRecord.query.filter_by(server_id=server.id).order_by(
+        MCPExecutionRecord.started_at.desc()
+    ).limit(200).all()
+    return jsonify({'success': True, 'executions': [record.to_dict() for record in records]}), 200
+
+
+@mcp_bp.route('/servers/<server_id>/executions/<execution_id>/cancel', methods=['POST'])
+@api_login_required
+def cancel_server_execution(server_id, execution_id):
+    """Cancel one owned in-flight external connector operation."""
+    server = MCPServerModel.query.filter_by(server_id=server_id).first()
+    if not server:
+        return _mcp_error('Server not found', 404)
+    execution = MCPExecutionRecord.query.filter_by(
+        execution_id=execution_id,
+        server_id=server.id,
+    ).first()
+    if not execution or execution.principal_id != _principal_id():
+        return _mcp_error('Execution not found', 404)
+    if execution.status != 'running':
+        return jsonify({
+            'success': False,
+            'error': 'Only a running execution can be cancelled',
+            'code': 'MCP_EXECUTION_NOT_RUNNING',
+        }), 409
+    if not get_mcp_manager().cancel_external_operation(execution.execution_id):
+        return jsonify({
+            'success': False,
+            'error': 'The execution already finished or cannot be cancelled',
+            'code': 'MCP_EXECUTION_CANCEL_RACE',
+        }), 409
+
+    execution.status = 'cancelled'
+    execution.error_code = 'MCP_EXECUTION_CANCELLED'
+    execution.error_message = 'MCP execution was cancelled by the owner'
+    execution.completed_at = datetime.now(UTC)
+    server.total_requests += 1
+    server.failed_requests += 1
+    if execution.tool_id:
+        tool = MCPTool.query.filter_by(id=execution.tool_id, server_id=server.id).first()
+        if tool:
+            tool.execution_count += 1
+            tool.failure_count += 1
+            tool.last_executed = datetime.now(UTC)
+    db.session.commit()
+    _publish_execution_state(server, execution)
+    return jsonify({'success': True, 'execution': execution.to_dict()}), 200
+
+
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
 @api_admin_required
 def delete_server(server_id):
@@ -340,6 +700,8 @@ def delete_server(server_id):
         # Remove from runtime
         manager = get_mcp_manager()
         manager.remove_server(server_id)
+        if server_id in manager.external_clients:
+            manager.stop_external_server_sync(server_id)
 
         # Delete from database
         db.session.delete(db_server)
@@ -392,39 +754,112 @@ def list_resources(server_id):
 def read_resource(server_id, resource_id):
     """Read a specific resource"""
     try:
-        resource = MCPResource.query.get(resource_id)
+        db_server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not db_server:
+            return jsonify({'success': False, 'error': 'Server not found'}), 404
+        resource = MCPResource.query.filter_by(id=resource_id, server_id=db_server.id).first()
 
         if not resource:
             return jsonify({
                 'success': False,
                 'error': 'Resource not found'
             }), 404
+        consent = _active_consent(db_server)
+        required_scopes = (resource.resource_metadata or {}).get('required_scopes') or _required_scope_for_operation(
+            db_server, 'read_resource'
+        )
+        approved = set(str(scope).lower() for scope in ((consent.approved_scopes if consent else []) or []))
+        connector_requirements = {
+            str(scope).lower() for scope in required_scopes if str(scope).lower() != 'mcp:execute'
+        }
+        if consent is None or not connector_requirements <= approved:
+            return jsonify({
+                'success': False,
+                'error': 'Connector consent does not authorize this resource',
+                'code': 'MCP_CONSENT_SCOPE_DENIED',
+            }), 403
+        if db_server.status != 'active':
+            return jsonify({
+                'success': False,
+                'error': 'Server is not running',
+                'code': 'MCP_SERVER_NOT_RUNNING',
+            }), 409
 
-        # Update access stats
-        resource.access_count += 1
-        resource.last_accessed = datetime.now(UTC)
-        db.session.commit()
-
-        # Get runtime server and read resource
         manager = get_mcp_manager()
         server = manager.get_server(server_id)
-
-        if server:
-            try:
-                # Use shared event loop for async operations
+        started = time.perf_counter()
+        execution = MCPExecutionRecord(
+            server_id=db_server.id,
+            principal_id=_principal_id(),
+            operation=f'resources/read:{resource.uri}',
+            status='running',
+            required_scopes=sorted(required_scopes),
+            request_sha256=_canonical_sha256({'uri': resource.uri}),
+        )
+        db.session.add(execution)
+        db.session.flush()
+        db.session.commit()
+        _publish_execution_state(db_server, execution)
+        try:
+            if server is not None:
                 content = run_async(server._handle_resources_read({'uri': resource.uri}))
+            elif server_id in manager.external_clients:
+                timeout = float((db_server.config or {}).get('limits', {}).get('request_timeout_seconds', 30))
+                content = manager.read_external_resource_sync(
+                    server_id,
+                    resource.uri,
+                    timeout=timeout + 2,
+                    operation_id=execution.execution_id,
+                )
+            else:
+                raise MCPPolicyError('MCP_SERVER_NOT_RUNNING', 'Server is not running')
+            max_bytes = int((db_server.config or {}).get('limits', {}).get('max_message_bytes', 65_536))
+            governed = govern_connector_result(content, max_bytes=max_bytes)
+            duration_ms = round((time.perf_counter() - started) * 1000.0)
+            execution.status = 'completed'
+            execution.result_sha256 = governed['sha256']
+            execution.result_size_bytes = governed['size_bytes']
+            execution.result_content = governed['content'] if governed['size_bytes'] <= 65_536 else None
+            execution.result_trust = governed['trust']
+            execution.prompt_injection_risk = governed['prompt_injection_risk']
+            execution.duration_ms = duration_ms
+            execution.completed_at = datetime.now(UTC)
+            resource.access_count += 1
+            resource.last_accessed = datetime.now(UTC)
+            db_server.total_requests += 1
+            db_server.successful_requests += 1
+            db.session.commit()
+            _publish_execution_state(db_server, execution)
+            return jsonify({
+                'success': True,
+                'resource': resource.to_dict(),
+                'execution': execution.to_dict(),
+                'result': governed,
+            }), 200
+        except Exception as exc:
+            db.session.refresh(execution)
+            if execution.status == 'cancelled':
                 return jsonify({
-                    'success': True,
-                    'resource': resource.to_dict(),
-                    'content': content
-                }), 200
-            except Exception:
-                logger.exception("Error reading resource content")
-
-        return jsonify({
-            'success': True,
-            'resource': resource.to_dict()
-        }), 200
+                    'success': False,
+                    'error': 'MCP resource read was cancelled',
+                    'code': 'MCP_EXECUTION_CANCELLED',
+                    'execution_id': execution.execution_id,
+                }), 409
+            execution.status = 'failed'
+            execution.error_code = str(getattr(exc, 'code', None) or 'MCP_RESOURCE_READ_FAILED')[:100]
+            execution.error_message = 'MCP resource read failed'
+            execution.duration_ms = round((time.perf_counter() - started) * 1000.0)
+            execution.completed_at = datetime.now(UTC)
+            db_server.failed_requests += 1
+            db.session.commit()
+            _publish_execution_state(db_server, execution)
+            logger.error('MCP resource read failed: %s', type(exc).__name__)
+            return jsonify({
+                'success': False,
+                'error': 'MCP resource read failed',
+                'code': str(execution.error_code),
+                'execution_id': execution.execution_id,
+            }), 500
 
     except Exception:
         logger.exception("Error reading resource")
@@ -465,7 +900,10 @@ def list_tools(server_id):
 def call_tool(server_id, tool_id):
     """Call a tool"""
     try:
-        tool = MCPTool.query.get(tool_id)
+        db_server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not db_server:
+            return jsonify({'success': False, 'error': 'Server not found'}), 404
+        tool = MCPTool.query.filter_by(id=tool_id, server_id=db_server.id).first()
 
         if not tool:
             return jsonify({
@@ -483,11 +921,42 @@ def call_tool(server_id, tool_id):
                 'code': 'MCP_CALLER_CONTEXT_REJECTED',
             }), 400
         arguments = data.get('arguments', {})
-        connector_id = infer_connector_id(tool.name)
+        if not isinstance(arguments, dict):
+            return jsonify({
+                'success': False,
+                'error': 'Tool arguments must be an object',
+                'code': 'MCP_ARGUMENTS_INVALID',
+            }), 400
+        connector_id = db_server.name.lower()
+
+        consent = _active_consent(db_server)
+        if consent is None or db_server.consent_state != 'approved':
+            return jsonify({
+                'success': False,
+                'error': 'Connector consent is required',
+                'code': 'MCP_EXPLICIT_CONSENT_REQUIRED',
+            }), 409
+        if db_server.status != 'active':
+            return jsonify({
+                'success': False,
+                'error': 'Server is not running',
+                'code': 'MCP_SERVER_NOT_RUNNING',
+            }), 409
 
         execution_context_raw = _build_tool_execution_context()
         execution_context = parse_execution_context(execution_context_raw)
         required_scopes = _required_tool_scopes(tool)
+        approved = set(str(scope).lower() for scope in (consent.approved_scopes or []))
+        connector_requirements = {
+            str(scope).lower() for scope in required_scopes if str(scope).lower() != 'mcp:execute'
+        }
+        if not connector_requirements <= approved:
+            return jsonify({
+                'success': False,
+                'error': 'The tool requires scopes that were not approved',
+                'code': 'MCP_CONSENT_SCOPE_DENIED',
+                'required_scopes': sorted(required_scopes),
+            }), 403
         try:
             enforce_scopes(
                 tool_name=tool.name,
@@ -504,30 +973,80 @@ def call_tool(server_id, tool_id):
                 'required_scopes': sorted(required_scopes),
             }), 403
 
-        # Get runtime server and call tool
         manager = get_mcp_manager()
         server = manager.get_server(server_id)
-
-        if not server:
-            return jsonify({
-                'success': False,
-                'error': 'Server not running'
-            }), 500
-
         started = time.perf_counter()
+        execution = MCPExecutionRecord(
+            server_id=db_server.id,
+            tool_id=tool.id,
+            principal_id=_principal_id(),
+            operation=f'tools/call:{tool.name}',
+            status='running',
+            required_scopes=sorted(required_scopes),
+            request_sha256=_canonical_sha256({'name': tool.name, 'arguments': arguments}),
+            trace_id=str(getattr(g, 'correlation_id', '') or '')[:36] or None,
+        )
+        db.session.add(execution)
+        db.session.flush()
+        db.session.commit()
+        _publish_execution_state(db_server, execution)
         try:
-            result = run_async(server._handle_tools_call({
-                'name': tool.name,
-                'arguments': arguments,
-                'context': execution_context_raw,
-            }))
-            duration_ms = (time.perf_counter() - started) * 1000.0
+            if server is not None:
+                result = run_async(server._handle_tools_call({
+                    'name': tool.name,
+                    'arguments': arguments,
+                    'context': execution_context_raw,
+                }))
+            elif server_id in manager.external_clients:
+                timeout = float((db_server.config or {}).get('limits', {}).get('request_timeout_seconds', 30))
+                result = manager.call_external_tool_sync(
+                    server_id,
+                    tool.name,
+                    arguments,
+                    timeout=timeout + 2,
+                    operation_id=execution.execution_id,
+                )
+            else:
+                raise MCPPolicyError('MCP_SERVER_NOT_RUNNING', 'Server is not running')
 
-            # Update tool stats
+            duration_ms = (time.perf_counter() - started) * 1000.0
+            max_bytes = int((db_server.config or {}).get('limits', {}).get('max_message_bytes', 65_536))
+            governed = govern_connector_result(result, max_bytes=max_bytes)
+
+            execution.status = 'completed'
+            execution.result_sha256 = governed['sha256']
+            execution.result_size_bytes = governed['size_bytes']
+            execution.result_trust = governed['trust']
+            execution.prompt_injection_risk = governed['prompt_injection_risk']
+            execution.duration_ms = round(duration_ms)
+            execution.completed_at = datetime.now(UTC)
+            if governed['size_bytes'] <= 65_536:
+                execution.result_content = governed['content']
+            else:
+                from backend.storage.object_store import get_object_store
+
+                object_key = f"executions/{execution.execution_id}/result.txt"
+                get_object_store().put(
+                    'mcp-results',
+                    object_key,
+                    governed['content'].encode('utf-8'),
+                    content_type='text/plain; charset=utf-8',
+                    metadata={
+                        'sha256': governed['sha256'],
+                        'schema_version': governed['schema_version'],
+                        'trust': governed['trust'],
+                    },
+                )
+                execution.artifact_object_key = object_key
+
             tool.execution_count += 1
             tool.success_count += 1
             tool.last_executed = datetime.now(UTC)
+            db_server.total_requests += 1
+            db_server.successful_requests += 1
+            db_server.last_active = datetime.now(UTC)
             db.session.commit()
+            _publish_execution_state(db_server, execution)
             record_connector_execution(
                 tool_name=tool.name,
                 connector_id=connector_id,
@@ -537,20 +1056,50 @@ def call_tool(server_id, tool_id):
 
             return jsonify({
                 'success': True,
-                'result': result,
+                'execution': execution.to_dict(),
+                'result': governed,
                 'metrics': {
                     'connector_id': connector_id,
                     'latency_ms': round(duration_ms, 2),
                 },
             }), 200
 
-        except Exception:
+        except Exception as exc:
+            db.session.refresh(execution)
+            if execution.status == 'cancelled':
+                record_connector_execution(
+                    tool_name=tool.name,
+                    connector_id=connector_id,
+                    duration_ms=(time.perf_counter() - started) * 1000.0,
+                    success=False,
+                )
+                return jsonify({
+                    'success': False,
+                    'error': 'MCP tool execution was cancelled',
+                    'code': 'MCP_EXECUTION_CANCELLED',
+                    'execution_id': execution.execution_id,
+                }), 409
             duration_ms = (time.perf_counter() - started) * 1000.0
-            # Update failure stats
+            error_data = getattr(exc, 'data', None)
+            error_code = getattr(exc, 'code', None)
+            if isinstance(exc, MCPPolicyError):
+                error_code = exc.code
+            elif isinstance(error_data, dict) and error_data.get('reason'):
+                error_code = error_data['reason']
+            execution.status = 'failed'
+            execution.error_code = str(error_code or 'MCP_TOOL_EXECUTION_FAILED')[:100]
+            execution.error_message = 'MCP tool execution failed'
+            execution.duration_ms = round(duration_ms)
+            execution.completed_at = datetime.now(UTC)
             tool.execution_count += 1
             tool.failure_count += 1
             tool.last_executed = datetime.now(UTC)
+            db_server.total_requests += 1
+            db_server.failed_requests += 1
+            db_server.last_error_code = execution.error_code
+            db_server.last_error_message = execution.error_message
             db.session.commit()
+            _publish_execution_state(db_server, execution)
             record_connector_execution(
                 tool_name=tool.name,
                 connector_id=connector_id,
@@ -558,8 +1107,14 @@ def call_tool(server_id, tool_id):
                 success=False,
             )
 
-            logger.exception("Error calling tool")
-            return _mcp_error('MCP tool execution failed', 500)
+            logger.error("Error calling MCP tool: %s", type(exc).__name__)
+            status = 409 if execution.error_code == 'MCP_SERVER_NOT_RUNNING' else 500
+            return jsonify({
+                'success': False,
+                'error': 'MCP tool execution failed',
+                'code': execution.error_code,
+                'execution_id': execution.execution_id,
+            }), status
 
     except Exception:
         logger.exception("Error in tool call endpoint")
@@ -600,7 +1155,10 @@ def list_prompts(server_id):
 def get_prompt(server_id, prompt_id):
     """Get a prompt template"""
     try:
-        prompt = MCPPrompt.query.get(prompt_id)
+        db_server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not db_server:
+            return jsonify({'success': False, 'error': 'Server not found'}), 404
+        prompt = MCPPrompt.query.filter_by(id=prompt_id, server_id=db_server.id).first()
 
         if not prompt:
             return jsonify({
@@ -608,38 +1166,112 @@ def get_prompt(server_id, prompt_id):
                 'error': 'Prompt not found'
             }), 404
 
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         arguments = data.get('arguments', {})
+        if not isinstance(arguments, dict):
+            return jsonify({'success': False, 'error': 'Prompt arguments must be an object'}), 400
 
-        # Get runtime server and get prompt
-        manager = get_mcp_manager()
-        server = manager.get_server(server_id)
-
-        if not server:
+        consent = _active_consent(db_server)
+        required_scopes = (prompt.prompt_metadata or {}).get('required_scopes') or _required_scope_for_operation(
+            db_server, 'read_prompt'
+        )
+        approved = set(str(scope).lower() for scope in ((consent.approved_scopes if consent else []) or []))
+        connector_requirements = {
+            str(scope).lower() for scope in required_scopes if str(scope).lower() != 'mcp:execute'
+        }
+        if consent is None or not connector_requirements <= approved:
             return jsonify({
                 'success': False,
-                'error': 'Server not running'
-            }), 500
+                'error': 'Connector consent does not authorize this prompt',
+                'code': 'MCP_CONSENT_SCOPE_DENIED',
+            }), 403
+        if db_server.status != 'active':
+            return jsonify({
+                'success': False,
+                'error': 'Server is not running',
+                'code': 'MCP_SERVER_NOT_RUNNING',
+            }), 409
 
+        manager = get_mcp_manager()
+        server = manager.get_server(server_id)
+        started = time.perf_counter()
+        execution = MCPExecutionRecord(
+            server_id=db_server.id,
+            principal_id=_principal_id(),
+            operation=f'prompts/get:{prompt.name}',
+            status='running',
+            required_scopes=sorted(required_scopes),
+            request_sha256=_canonical_sha256({'name': prompt.name, 'arguments': arguments}),
+        )
+        db.session.add(execution)
+        db.session.flush()
+        db.session.commit()
+        _publish_execution_state(db_server, execution)
         try:
-            result = run_async(server._handle_prompts_get({
-                'name': prompt.name,
-                'arguments': arguments
-            }))
-
-            # Update prompt stats
+            if server is not None:
+                result = run_async(server._handle_prompts_get({
+                    'name': prompt.name,
+                    'arguments': arguments,
+                }))
+            elif server_id in manager.external_clients:
+                timeout = float((db_server.config or {}).get('limits', {}).get('request_timeout_seconds', 30))
+                result = manager.get_external_prompt_sync(
+                    server_id,
+                    prompt.name,
+                    arguments,
+                    timeout=timeout + 2,
+                    operation_id=execution.execution_id,
+                )
+            else:
+                raise MCPPolicyError('MCP_SERVER_NOT_RUNNING', 'Server is not running')
+            max_bytes = int((db_server.config or {}).get('limits', {}).get('max_message_bytes', 65_536))
+            governed = govern_connector_result(result, max_bytes=max_bytes)
+            execution.status = 'completed'
+            execution.result_sha256 = governed['sha256']
+            execution.result_size_bytes = governed['size_bytes']
+            execution.result_content = governed['content'] if governed['size_bytes'] <= 65_536 else None
+            execution.result_trust = governed['trust']
+            execution.prompt_injection_risk = governed['prompt_injection_risk']
+            execution.duration_ms = round((time.perf_counter() - started) * 1000.0)
+            execution.completed_at = datetime.now(UTC)
             prompt.usage_count += 1
             prompt.last_used = datetime.now(UTC)
+            db_server.total_requests += 1
+            db_server.successful_requests += 1
             db.session.commit()
+            _publish_execution_state(db_server, execution)
 
             return jsonify({
                 'success': True,
-                'prompt': result
+                'prompt': prompt.to_dict(),
+                'execution': execution.to_dict(),
+                'result': governed,
             }), 200
 
-        except Exception:
-            logger.exception("Error getting prompt")
-            return _mcp_error('MCP prompt is unavailable', 500)
+        except Exception as exc:
+            db.session.refresh(execution)
+            if execution.status == 'cancelled':
+                return jsonify({
+                    'success': False,
+                    'error': 'MCP prompt request was cancelled',
+                    'code': 'MCP_EXECUTION_CANCELLED',
+                    'execution_id': execution.execution_id,
+                }), 409
+            execution.status = 'failed'
+            execution.error_code = str(getattr(exc, 'code', None) or 'MCP_PROMPT_GET_FAILED')[:100]
+            execution.error_message = 'MCP prompt is unavailable'
+            execution.duration_ms = round((time.perf_counter() - started) * 1000.0)
+            execution.completed_at = datetime.now(UTC)
+            db_server.failed_requests += 1
+            db.session.commit()
+            _publish_execution_state(db_server, execution)
+            logger.error("Error getting prompt: %s", type(exc).__name__)
+            return jsonify({
+                'success': False,
+                'error': 'MCP prompt is unavailable',
+                'code': execution.error_code,
+                'execution_id': execution.execution_id,
+            }), 500
 
     except Exception:
         logger.exception("Error in get prompt endpoint")
@@ -745,34 +1377,12 @@ def get_stats():
 @mcp_bp.route('/setup-default', methods=['POST'])
 @api_admin_required
 def setup_default_servers():
-    """Set up default MCP servers"""
-    try:
-        manager = get_mcp_manager()
-        server = manager.setup_default_servers()
-
-        # Save to database if not exists
-        db_server = MCPServerModel.query.filter_by(server_id=server.server_id).first()
-        if not db_server:
-            db_server = MCPServerModel(
-                server_id=server.server_id,
-                name=server.name,
-                version=server.version,
-                description=server.description,
-                status='active'
-            )
-            db.session.add(db_server)
-            db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Default servers set up successfully',
-            'server': db_server.to_dict()
-        }), 200
-
-    except Exception:
-        logger.exception("Error setting up default servers")
-        db.session.rollback()
-        return _mcp_error('Default MCP servers could not be set up', 500)
+    """Retired placeholder registration path."""
+    return jsonify({
+        'success': False,
+        'error': 'Placeholder default MCP servers were removed; register a real connector for explicit review',
+        'code': 'MCP_DEFAULT_PLACEHOLDERS_REMOVED',
+    }), 410
 
 
 @mcp_bp.route('/console', methods=['POST'])
@@ -810,14 +1420,16 @@ def mcp_console():
 @mcp_bp.route('/config', methods=['GET'])
 @api_admin_required
 def get_external_config():
-    """Retrieve external MCP servers configuration"""
+    """Return PostgreSQL-owned, renderer-safe connector configuration."""
     try:
         manager = get_mcp_manager()
-        config = manager.load_external_config()
+        servers = MCPServerModel.query.order_by(MCPServerModel.name.asc()).all()
         return jsonify({
             'success': True,
-            'config': config,
-            'active_servers': list(manager.external_clients.keys())
+            'servers': [server.to_dict() for server in servers],
+            'active_servers': list(manager.external_clients.keys()),
+            'authority': 'postgresql',
+            'repository_config_enabled': False,
         }), 200
     except Exception:
         logger.exception("Error getting external config")
@@ -827,84 +1439,146 @@ def get_external_config():
 @mcp_bp.route('/config', methods=['POST'])
 @api_admin_required
 def update_external_config():
-    """Update external MCP servers configuration and dynamically hot-reload"""
-    try:
-        data = request.get_json() or {}
-        new_config = data.get("config", {})
-        
-        import json
-        from pathlib import Path
-        config_path = Path(current_app.root_path).parent / 'config' / 'mcp_servers.json'
-        
-        # Save config
-        with open(config_path, 'w', encoding='utf-8') as f:
-            json.dump({"mcpServers": new_config}, f, indent=2)
-            
-        # Hot-reload all external servers
-        manager = get_mcp_manager()
-        run_async(manager.start_external_servers())
-        
-        return jsonify({
-            'success': True,
-            'message': 'Configuration updated and dynamic servers reloaded',
-            'active_servers': list(manager.external_clients.keys())
-        }), 200
-    except Exception:
-        logger.exception("Error updating external config")
-        return _mcp_error('MCP external configuration could not be updated', 500)
+    """Reject the retired repository JSON/hot-reload authority."""
+    return jsonify({
+        'success': False,
+        'error': 'Repository MCP configuration and automatic hot-reload are retired; register one connector for review',
+        'code': 'MCP_CONFIG_FILE_RETIRED',
+    }), 410
 
 
-@mcp_bp.route('/servers/<name>/start', methods=['POST'])
+@mcp_bp.route('/servers/<server_id>/start', methods=['POST'])
 @api_admin_required
-def start_dynamic_server(name):
-    """Start a specific configured dynamic MCP server"""
+def start_dynamic_server(server_id):
+    """Start one exact approved connector on the durable runtime loop."""
     try:
-        manager = get_mcp_manager()
-        manager.load_external_config()
-        
-        if name not in manager.external_configs:
+        server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not server:
             return _mcp_error('Server configuration not found', 404)
-            
-        if name in manager.external_clients:
-            return jsonify({'success': True, 'message': f"Server '{name}' is already running"}), 200
-            
-        config = manager.external_configs[name]
-        command = [config["command"]] + config.get("args", [])
-        env = config.get("env", {})
-        
-        client = manager.create_client(name=f"ExternalClient-{name}")
-        run_async(client.connect_via_stdio(command, env))
-        manager.external_clients[name] = client
-        manager.client_connections[client.client_id] = f"external-{name}"
-        
+        consent = _active_consent(server)
+        if consent is None or server.consent_state != 'approved':
+            return jsonify({
+                'success': False,
+                'error': 'Explicit consent for the current command is required',
+                'code': 'MCP_EXPLICIT_CONSENT_REQUIRED',
+            }), 409
+
+        validated = validate_stdio_definition(server.name, server.config or {})
+        if (
+            current_app.config.get('DLE_PRODUCTION_MODE')
+            and not current_app.config.get('TESTING')
+            and not current_app.config.get('DLE_MCP_CONNECTORS_QUALIFIED')
+        ):
+            return jsonify({
+                'success': False,
+                'error': 'Installed Windows connector qualification is required before production start',
+                'code': 'MCP_INSTALLED_QUALIFICATION_REQUIRED',
+            }), 503
+        if validated['fingerprint'] != server.command_fingerprint:
+            server.consent_state = 'stale'
+            server.approved_scopes = []
+            event = _lifecycle(server, 'start_denied', 'fingerprint_mismatch')
+            db.session.commit()
+            _publish_lifecycle_state(server, event)
+            return jsonify({
+                'success': False,
+                'error': 'The connector definition changed and must be approved again',
+                'code': 'MCP_CONSENT_FINGERPRINT_MISMATCH',
+            }), 409
+        resolved_env = resolve_connector_credentials(
+            validated['definition'].get('credential_env', {}),
+            server.credential_blobs,
+        )
+        manager = get_mcp_manager()
+        if server_id in manager.external_clients:
+            return jsonify({'success': True, 'message': f"Server '{server.name}' is already running", 'server': server.to_dict()}), 200
+        runtime = manager.start_external_server_sync(
+            server_id,
+            validated['definition'],
+            resolved_env,
+        )
+        discovery = runtime.get('discovery', {})
+        _sync_discovery(server, discovery)
+        capabilities = (runtime.get('initialized') or {}).get('capabilities') or {}
+        server.supports_tools = 'tools' in capabilities
+        server.supports_resources = 'resources' in capabilities
+        server.supports_prompts = 'prompts' in capabilities
+        server.supports_logging = False
+        server.status = 'active'
+        server.enabled = True
+        server.health_status = 'degraded' if discovery.get('errors') else 'healthy'
+        server.containment_status = runtime.get('client', {}).get('containment_status', 'unknown')
+        server.last_error_code = 'MCP_PARTIAL_DISCOVERY' if discovery.get('errors') else None
+        server.last_error_message = 'One or more capabilities could not be discovered' if discovery.get('errors') else None
+        server.last_active = datetime.now(UTC)
+        event = _lifecycle(
+            server,
+            'started',
+            server.health_status,
+            details={
+                'containment_status': server.containment_status,
+                'discovered_tools': len(discovery.get('tools', [])),
+                'discovered_resources': len(discovery.get('resources', [])),
+                'discovered_prompts': len(discovery.get('prompts', [])),
+                'partial_discovery_errors': discovery.get('errors', []),
+            },
+        )
+        db.session.commit()
+        _publish_lifecycle_state(server, event)
         return jsonify({
             'success': True,
-            'message': f"Dynamic server '{name}' started successfully",
-            'server': client.get_client_info()
+            'message': f"Dynamic server '{server.name}' started successfully",
+            'server': server.to_dict(),
+            'discovery': discovery,
         }), 200
+    except MCPPolicyError as exc:
+        db.session.rollback()
+        return _policy_error(exc, status=409)
     except Exception:
         logger.exception("Error starting dynamic server")
+        db.session.rollback()
         return _mcp_error('MCP dynamic server could not be started', 500)
 
 
-@mcp_bp.route('/servers/<name>/stop', methods=['POST'])
+@mcp_bp.route('/servers/<server_id>/stop', methods=['POST'])
 @api_admin_required
-def stop_dynamic_server(name):
+def stop_dynamic_server(server_id):
     """Stop a specific active dynamic MCP server"""
     try:
+        server = MCPServerModel.query.filter_by(server_id=server_id).first()
+        if not server:
+            return _mcp_error('Server configuration not found', 404)
         manager = get_mcp_manager()
-        
-        if name not in manager.external_clients:
+        if server_id not in manager.external_clients:
             return _mcp_error('Dynamic server is not running', 404)
-            
-        client = manager.external_clients.pop(name)
-        client.disconnect()
-        manager.remove_client(client.client_id)
-        
+        manager.stop_external_server_sync(server_id)
+        server.status = 'inactive'
+        server.enabled = False
+        server.health_status = 'stopped'
+        server.containment_status = 'stopped'
+        event = _lifecycle(server, 'stopped', 'stopped')
+        db.session.commit()
+        _publish_lifecycle_state(server, event)
         return jsonify({
             'success': True,
-            'message': f"Dynamic server '{name}' stopped successfully"
+            'message': f"Dynamic server '{server.name}' stopped successfully",
+            'server': server.to_dict(),
         }), 200
     except Exception:
         logger.exception("Error stopping dynamic server")
+        db.session.rollback()
         return _mcp_error('MCP dynamic server could not be stopped', 500)
+
+
+@mcp_bp.route('/servers/<server_id>/restart', methods=['POST'])
+@api_admin_required
+def restart_dynamic_server(server_id):
+    """Restart through the same consent and fingerprint checks as start."""
+    manager = get_mcp_manager()
+    if server_id in manager.external_clients:
+        try:
+            manager.stop_external_server_sync(server_id)
+        except Exception:
+            logger.exception('MCP connector restart stop failed')
+            return _mcp_error('MCP dynamic server could not be restarted', 500)
+    return start_dynamic_server(server_id)

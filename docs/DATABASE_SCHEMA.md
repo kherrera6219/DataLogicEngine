@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.7.0 |
+| Document version | v3.8.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -23,7 +23,8 @@ Phase 8 adds client-key lifecycle metadata plus
 `gateway_virtual_models`. Phase 9 adds `ingestion_jobs`, `ingestion_files`,
 `ingestion_chunks`, and `ingestion_attempts`. Phase 10 adds durable simulation
 steps, events, provider calls, evidence, checkpoints, and artifacts. Alembic head
-`d9e0f1a2b3c4` is authoritative.
+`d9e0f1a2b3c4` is authoritative. Phase 11 adds MCP consent grants, lifecycle
+events, and execution records; Alembic head `e0f1a2b3c4d5` is authoritative.
 
 ## Audience
 
@@ -79,7 +80,7 @@ those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
 `deliverables`, `graphs`, `evaluation-data`, `trace-exports`, `gateway-results`,
-and `knowledge-sources`. The authority registry assigns one authority to 83
+`knowledge-sources`, and `mcp-results`. The authority registry assigns one authority to 86
 PostgreSQL entities and 31 logical
 data classes. PostgreSQL is the logical authority for graph nodes/relationships
 and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
@@ -91,10 +92,23 @@ materialization-state record. A required artifact or index is not marked
 complete until the destination confirms the same revision/hash.
 
 Production startup runs a fail-closed migration coordinator before stores and
-workers. The 23-revision Alembic chain has base `000000000001` and head
-`d9e0f1a2b3c4`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
+workers. The 24-revision Alembic chain has base `000000000001` and head
+`e0f1a2b3c4d5`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
 memory also carry version probes and ledger entries. See
 `docs/MIGRATION_SUPPORT_MATRIX.md` for the supported-upgrade limits.
+
+### Phase 11 MCP authorities
+
+| Entity | Authority and retained data |
+|---|---|
+| `mcp_servers` | Validated renderer-safe config, exact command fingerprint, consent/health/containment/capability state; DPAPI ciphertext is never serialized |
+| `mcp_consent_grants` | Principal, fingerprint, requested/approved scopes, approval/revocation state and time |
+| `mcp_lifecycle_events` | Content-free registered/approved/started/stopped/revoked/failure history |
+| `mcp_execution_records` | Server-owned operation, principal, required scopes, request/result hashes, result size/reference/trust, injection flag, safe error, duration, trace, terminal state |
+
+Redis `mcp:live:*` contains only expiring lifecycle/execution state and a bounded
+event stream. Result content over 64 KiB uses `mcp-results`; history responses
+omit retained result content.
 
 DataLogicEngine is not a single-database application. It uses a multi-store data architecture where each store has a distinct role.
 
@@ -740,6 +754,11 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.8.0
+
+1. Added MCP consent, lifecycle, and execution authorities, migration head
+   `e0f1a2b3c4d5`, the `mcp-results` bucket, and the 86-entity boundary.
 
 ## Change notes for v3.7.0
 

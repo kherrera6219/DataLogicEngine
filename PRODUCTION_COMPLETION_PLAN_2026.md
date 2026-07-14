@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.8.0 |
+| Document version | v1.9.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,25 +18,23 @@
 
 ### Current execution checkpoint
 
-Phase 10 reached its engineering checkpoint on 2026-07-14. ADR-0007 selects the
-backend multi-agent workflow as the sole user-triggered simulation authority
-under `dle-simulation.v1`; production entry points no longer instantiate
-core/FROST or legacy engines. Quick/standard/deep plans declare exact 4/5/7
-provider-call ceilings, and a simulation-only adapter enforces call, token,
-tool, cost, deadline, cancellation, pause, and content-free attempt-ledger
-limits without recursively invoking `governed.v1`.
+Phase 11 reached its engineering checkpoint on 2026-07-14. ADR-0008 selects MCP
+`2025-11-25` over local stdio as the only external connector transport candidate.
+Registration validates but does not execute one exact absolute command. Owner
+consent binds its SHA-256 fingerprint and granular scope subset; DPAPI protects
+credentials; caller-provided authority, shells/package runners, network targets,
+repository hot-start, subscriptions, sampling, and placeholder UKG/KA/graph
+defaults fail closed or are absent.
 
-PostgreSQL owns simulation sessions, steps, events, calls, evidence, checkpoints,
-artifacts, controls, and terminal state. Redis carries content-free queue, lease,
-control, and progress data. Required transcript/result objects reconcile through
-`simulation-artifacts`; approved live measured summaries and relationships may
-materialize to Chroma and Neo4j. Fixed-seed mode is deterministic and
-qualification-only; live mode resolves one configured supported provider and
-fails closed on pricing/admission uncertainty. The Simulation Monitor exposes
-preflight budget/provider truth, durable progress, supported lifecycle controls,
-artifacts/results, and explicit Not measured confidence. Phase 11 is now active.
+The backend owns a durable stdio loop, explicit timeout/cancellation, and a
+Windows Job Object that terminates the process tree. PostgreSQL owns connector,
+consent, discovery, lifecycle, and execution state; Redis carries content-free
+live events; large governed results use `mcp-results`. Every result is untrusted,
+bounded, hashed, redacted, and prompt-injection checked before any later governed
+path may use it. The owner UI exposes exact authority and lifecycle controls.
+Phase 12 is now active.
 
-This checkpoint is not the full Phase 10 production exit gate and does not
+This checkpoint is not the full Phase 11 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
@@ -47,7 +45,9 @@ TLS/firewall, backup/restore, UI, failure/load/soak, two-machine acceptance, and
 Phase 9 installed restart/recovery, hostile-corpus, populated cross-store,
 causal-retrieval, deletion, and Knowledge/Graph acceptance, plus Phase 10
 installed live-provider budget, restart, event/UI, artifact/materialization, and
-result-validity acceptance remain open gates
+result-validity acceptance, plus Phase 11 installed file/network isolation,
+process/reboot recovery, data-plane backup/restore, hostile fixture, and Electron
+add/discover/call/cancel/stop/restart/remove acceptance remain open gates
 that can only close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -3874,22 +3874,21 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 11** from the committed Phase 10 engineering checkpoint. Inventory
-every MCP transport, REST/JSON-RPC/IPC route, server/client registry, lifecycle,
-process launcher, tool/resource/prompt/sampling path, caller-controlled context,
-scope/consent check, credential store, network/file authority, KA/graph/provider
-integration, persistence surface, and visible MCP control. Identify every fake,
-echo, unavailable, unbounded, or direct-bypass behavior before implementation.
+Start **Phase 12** from the committed Phase 11 engineering checkpoint. Inventory
+Dashboard, Chat, Projects, Runs, Trace, Knowledge, Graph, Simulations, MCP,
+Settings, Privacy, Admin, About, first-run, and recovery routes. Map every visible
+control to its backend authority, project/workspace identity, state restoration,
+empty/loading/partial/failure/recovery behavior, and keyboard/focus/zoom/contrast
+contract before changing shared navigation or project semantics.
 
-Add malicious MCP fixture tests for forged identity/scope, command/path
-injection, unauthorized network/file access, oversized and malformed JSON-RPC,
-timeout/cancellation, child-process cleanup, secret redaction, and tool-result
-prompt injection. Define server-owned execution context, granular scopes,
-consent, lifecycle, persistence, and governed-result contracts before expanding
-production registration.
+Add failure-first UI/API tests for dead/duplicate actions, project identity loss,
+stale or contradictory status, route errors, partial/offline state, destructive
+confirmation, keyboard-only operation, focus restoration, high zoom, and
+screen-reader names. Define one coherent project/workspace and primary-job model
+before migrating persistent identifiers or removing legacy pages.
 
 Preserve the one `governed.v1` orchestrator, `dle-simulation.v1`, and
-versioned client boundary, all installed-only Phase 3-10 gates, Dependabot alert
+versioned client boundary, all installed-only Phase 3-11 gates, Dependabot alert
 389, and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 11 must not treat mocked MCP fixtures as installed connector or
-child-process acceptance.
+blockers. Phase 12 must not treat component tests as packaged visual,
+accessibility, or human acceptance.

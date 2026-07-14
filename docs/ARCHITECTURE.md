@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.4.0 |
+| Document version | v4.5.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -93,6 +93,30 @@ after an ambiguous uncheckpointed provider call. Numeric confidence exists only
 when cited evidence and explicit validators support it; otherwise the API and UI
 report Not measured.
 
+### Phase 11 governed MCP connector architecture
+
+ADR-0008 selects MCP `2025-11-25` over local stdio as the only external
+connector transport candidate. The authenticated REST/JSON-RPC layer is an
+app control plane, not a public MCP HTTP transport. Registration validates one
+absolute executable, arguments, working folder, file roots, environment/
+credential references, granular scopes, and limits without starting it. Owner
+consent binds an exact SHA-256 fingerprint and scope subset; any definition
+change invalidates authority.
+
+The backend owns a durable asyncio loop and Windows Job Object with kill-on-
+close and a memory ceiling. Named execution IDs support timeout and explicit
+cancellation. PostgreSQL owns connector definition, consent, discovery,
+lifecycle, and execution records; Redis mirrors content-free live state; large
+governed results use the required `mcp-results` object bucket. Connector output
+is untrusted, bounded, hashed, redacted, and checked for prompt-injection signals
+before any later governed workflow can treat it as evidence.
+
+Streamable HTTP, WebSocket, network-capable connectors, caller-selected
+subscriptions, sampling, repository hot-start, and default UKG/KA/graph tools are
+absent. Production process start is qualification-gated. Installed OS file
+isolation, lifecycle/Electron acceptance, and backup/restore remain open; a
+Windows Job Object is not represented as a filesystem sandbox.
+
 ### Phase 3 internal data-plane checkpoint
 
 The application now has one app-owned rootless Podman delivery profile for the
@@ -141,7 +165,8 @@ The major architecture planes are:
    TruthCore/KA preflight, prompt construction, validation, and trace truth.
 5. **Truth Engine plane** — TruthGate and the canonical TruthCore adapter;
    legacy private workflow helpers do not own a public answer path.
-6. **Data and memory plane** — SQL, Redis, Neo4j, ChromaDB, local object store, USKD NetworkX graph, UnifiedMemory, TruthMemory.
+6. **Data and memory plane** — PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3
+   object storage, USKD NetworkX working graph, UnifiedMemory, and TruthMemory.
 7. **Governance plane** — tests, CI, release gates, trace export integrity, docs/versioning, compliance and audit controls.
 
 ## High-level component map

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
+| Document version | v3.2.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Operations |
@@ -201,13 +201,25 @@ acceptance remains gated until the rebuilt application is qualified.
 
 ### 9. Manage MCP connectors
 
-1. Open `/mcp` or `/admin/mcp/servers`.
-2. Review registered servers.
-3. Add or remove servers where permitted.
-4. Validate scopes and tool contract behavior.
-5. Review connector health/latency signals where available.
+1. Open `/admin/mcp/servers` and select **Register connector**.
+2. Enter the connector name, absolute executable path, arguments (one per line),
+   working folder, and approved file root. Registration validates and stores the
+   definition but does not run it.
+3. Request read access and add write access only if the connector needs it.
+   Network-capable connectors are not currently supported.
+4. If a credential is required, enter its environment variable, reference name,
+   and value. The value is DPAPI-encrypted and will not appear again.
+5. Review the exact command, SHA-256 fingerprint, file root, and every requested
+   scope. Select **Approve exact command** only when they match your intent.
+6. Select **Start**. Open `/mcp` to inspect only the tools, resources, and prompts
+   actually discovered from the running connector.
+7. Use **Stop**, **Restart**, **Revoke**, or **Delete** as needed. Revocation
+   stops the process and removes approved scopes.
 
-MCP connector behavior depends on configured scopes, credentials, external service availability, and admin policy.
+Connector results are untrusted data. A prompt-injection warning or scope,
+timeout, output-size, malformed-protocol, containment, or qualification error is
+a safety stop, not a prompt to bypass the control. Production Start remains
+blocked until the installed Windows connector qualification passes.
 
 ### 10. Run storage checks and lifecycle actions
 
@@ -363,6 +375,11 @@ trace and source ingestion settings. Empty, loading, partial, rebuilding,
 offline, and failed states are distinct. Settings -> Memory lets the owner review
 working versus validated memory, include/exclude working recall, export, delete,
 compact, and recover the integrity-protected memory file.
+
+## Change notes for v3.2.0
+
+1. Replaced the generic MCP workflow with exact-command registration, scope/
+   fingerprint consent, DPAPI credential, lifecycle, and qualification guidance.
 
 ## Change notes for v3.1.0
 

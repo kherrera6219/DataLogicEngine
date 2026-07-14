@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 11 governed MCP connector engineering checkpoint**: selected MCP
+  `2025-11-25` local stdio in ADR-0008; added exact executable/argument/cwd/file-
+  root/limit validation, SHA-256 fingerprint and granular owner consent, DPAPI
+  credential references, durable stdio lifecycle, Windows Job Object process-
+  tree containment, timeout and named cancellation, PostgreSQL connector/
+  consent/lifecycle/execution authority, content-free Redis live state, and the
+  required `mcp-results` bucket for large governed output.
+- **Failure-first connector and owner controls**: removed fake default UKG/
+  pillar/KA/graph/simulation and echo-sampling paths, retired repository hot-
+  start and obsolete WebSocket/subscription claims, marked all output untrusted
+  with hashing/redaction/prompt-injection checks, added hostile real-process
+  fixtures, and replaced name-only registration with exact authority/consent/
+  health/containment/lifecycle UI. Installed MCP qualification remains
+  release-blocking.
 - **Phase 9 durable knowledge-lifecycle engineering checkpoint**: added bounded
   app-owned file/folder acquisition; path, content, archive, decompression, and
   parser defenses; PostgreSQL ingestion job/file/chunk/attempt authority; Redis

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product and Platform Engineering |
@@ -124,8 +124,8 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Storage operations | Live | local storage status and lifecycle controls. |
 | Notifications | Live | user preferences loaded and persisted through user notification API. |
 | Admin dashboard | Live | backend-backed admin data (system metrics, provider status, compliance). |
-| MCP admin registry | Live | stats/list/add/delete flows (single authenticated owner). |
-| Connector safety | Live | scope checks, SSRF/upstream guardrails, schema validation, telemetry. |
+| MCP admin registry | Phase 11 engineering checkpoint | exact local command registration, fingerprint/scope consent, start/stop/restart/revoke/delete, health/containment/qualification truth; installed Electron acceptance pending. |
+| Connector safety | Phase 11 engineering checkpoint | server-owned context, DPAPI credentials, command/path/network policy, cancellation, Windows Job Object, governed results, durable PostgreSQL/Redis/object state; installed OS isolation pending. |
 | Observability | Live | `/metrics`, route metrics, AI/connector latency signals, DMRF/Truth signals where enabled. |
 | Data/integrity gates | Live | schema parity, runtime precheck, docs validation, lockfile/environment governance. |
 | Trace export authenticity | Live | hashes, optional HMAC signature, optional encrypted export envelope. |

@@ -1,4 +1,9 @@
-"""MCP sampling/createMessage support for local and configured providers."""
+"""MCP sampling adapter.
+
+Sampling is not advertised by the production MCP surface. It is accepted only
+when an application-owned approved provider adapter is explicitly injected; a
+missing provider fails closed instead of fabricating a local completion.
+"""
 
 from __future__ import annotations
 
@@ -7,9 +12,11 @@ from typing import Any
 from flask import current_app, has_app_context
 from werkzeug.local import LocalProxy
 
+from core.mcp.mcp_protocol import MCPError, MCPErrorCode
+
 
 class MCPSamplingService:
-    """Create deterministic local completions unless an external provider is supplied."""
+    """Use an explicitly injected governed provider or reject sampling."""
 
     def __init__(self, provider: Any | None = None):
         self.provider = provider
@@ -18,12 +25,21 @@ class MCPSamplingService:
         messages = params.get("messages") if isinstance(params.get("messages"), list) else []
         prompt = self._prompt_from_messages(messages)
         model_preferences = params.get("modelPreferences") if isinstance(params.get("modelPreferences"), dict) else {}
-        model = model_preferences.get("model") or params.get("model") or "local-deterministic"
+        model = model_preferences.get("model") or params.get("model")
 
-        if self.provider:
-            completion = await self._call_provider(prompt, model=model, params=params)
-        else:
-            completion = self._local_completion(prompt)
+        if not self.provider:
+            raise MCPError(
+                MCPErrorCode.METHOD_NOT_FOUND,
+                "Sampling is not enabled",
+                data={"reason": "MCP_SAMPLING_DISABLED"},
+            )
+        if not model:
+            raise MCPError(
+                MCPErrorCode.INVALID_PARAMS,
+                "An approved model is required",
+                data={"reason": "MCP_SAMPLING_MODEL_REQUIRED"},
+            )
+        completion = await self._call_provider(prompt, model=model, params=params)
 
         return {
             "role": "assistant",
@@ -34,7 +50,7 @@ class MCPSamplingService:
             "model": model,
             "stopReason": "endTurn",
             "metadata": {
-                "provider": "external" if self.provider else "local",
+                "provider": "governed",
                 "created_at": datetime.now(UTC).isoformat(),
             },
         }
@@ -52,12 +68,6 @@ class MCPSamplingService:
                 parts.append(content)
         return "\n".join(part for part in parts if part).strip()
 
-    @staticmethod
-    def _local_completion(prompt: str) -> str:
-        if not prompt:
-            return "No prompt content was supplied."
-        return f"Local MCP sampling response: {prompt[:500]}"
-
     async def _call_provider(self, prompt: str, *, model: str, params: dict[str, Any]) -> str:
         if hasattr(self.provider, "complete"):
             result = self.provider.complete(prompt=prompt, model=model, **params)
@@ -69,7 +79,11 @@ class MCPSamplingService:
             if hasattr(result, "__await__"):
                 result = await result
             return str(result)
-        return self._local_completion(prompt)
+        raise MCPError(
+            MCPErrorCode.INTERNAL_ERROR,
+            "Configured sampling provider is invalid",
+            data={"reason": "MCP_SAMPLING_PROVIDER_INVALID"},
+        )
 
 
 _fallback_sampling_service: MCPSamplingService | None = None

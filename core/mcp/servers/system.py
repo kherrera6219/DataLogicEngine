@@ -7,8 +7,8 @@ Provides essential system capabilities to the MCP ecosystem:
 3. System Information
 """
 
-import os
 import logging
+from pathlib import Path
 
 from core.mcp.mcp_server import MCPServer
 from core.mcp.mcp_protocol import MCPError, MCPErrorCode
@@ -22,11 +22,22 @@ class SystemServer(MCPServer):
 
     def __init__(self, name="System", version="1.0.0", root_dir: str = None):
         super().__init__(name, version, description="System utilities (File System, Search)")
-        # Default restricted root to current working directory
-        self.root_dir = os.path.abspath(root_dir or os.getcwd())
-        if not os.path.exists(self.root_dir):
+        # Default restricted root to current working directory.
+        self.root_dir = Path(root_dir or Path.cwd()).resolve(strict=True)
+        if not self.root_dir.exists():
             logger.warning(f"SystemServer root dir does not exist: {self.root_dir}")
         self._register_tools()
+
+    def _resolve_path(self, raw_path: str) -> Path:
+        candidate = Path(raw_path)
+        if not candidate.is_absolute():
+            candidate = self.root_dir / candidate
+        try:
+            resolved = candidate.resolve(strict=True)
+            resolved.relative_to(self.root_dir)
+        except (OSError, ValueError) as exc:
+            raise MCPError(MCPErrorCode.INVALID_PARAMS, "Access denied: Path outside allowed root") from exc
+        return resolved
         
     def _register_tools(self):
         """Register system tools"""
@@ -39,19 +50,13 @@ class SystemServer(MCPServer):
                 raise MCPError(MCPErrorCode.INVALID_PARAMS, "Missing 'path'")
             
             # Security check: Ensure path is within root_dir
-            abs_path = os.path.abspath(os.path.join(self.root_dir, path))
-            if not abs_path.startswith(self.root_dir):
-                 raise MCPError(MCPErrorCode.INVALID_PARAMS, "Access denied: Path outside allowed root")
-            
-            if not os.path.exists(abs_path):
-                 raise MCPError(MCPErrorCode.INTERNAL_ERROR, "File not found")
-                 
-            if not os.path.isfile(abs_path):
+            abs_path = self._resolve_path(path)
+            if not abs_path.is_file():
                  raise MCPError(MCPErrorCode.INVALID_PARAMS, "Path is not a file")
             
             # Read content
             try:
-                with open(abs_path, 'r', encoding='utf-8') as f:
+                with abs_path.open('r', encoding='utf-8') as f:
                     content = f.read()
                 return content
             except UnicodeDecodeError:
@@ -69,30 +74,28 @@ class SystemServer(MCPServer):
                 },
                 "required": ["path"]
             },
-            handler=read_file
+            handler=read_file,
+            metadata={
+                "connector": "filesystem",
+                "required_scopes": ["mcp:execute", "connector:filesystem:read"],
+            },
         )
 
         async def list_directory(arguments):
             path = arguments.get("path", ".")
             
             # Security check
-            abs_path = os.path.abspath(os.path.join(self.root_dir, path))
-            if not abs_path.startswith(self.root_dir):
-                 raise MCPError(MCPErrorCode.INVALID_PARAMS, "Access denied: Path outside allowed root")
-            
-            if not os.path.exists(abs_path):
-                 raise MCPError(MCPErrorCode.INTERNAL_ERROR, "Directory not found")
-                 
-            if not os.path.isdir(abs_path):
+            abs_path = self._resolve_path(path)
+            if not abs_path.is_dir():
                  raise MCPError(MCPErrorCode.INVALID_PARAMS, "Path is not a directory")
             
             try:
                 items = []
-                for entry in os.scandir(abs_path):
+                for entry in abs_path.iterdir():
                     items.append({
                         "name": entry.name,
                         "is_dir": entry.is_dir(),
-                        "size": entry.stat().st_size if entry.is_file() else 0
+                        "size": entry.stat().st_size if entry.is_file() else 0,
                     })
                 return items
             except Exception as e:
@@ -107,44 +110,10 @@ class SystemServer(MCPServer):
                     "path": {"type": "string", "description": "Relative path to directory"}
                 }
             },
-            handler=list_directory
-        )
-
-        # --- Web Tools ---
-        
-        async def web_search(arguments):
-            query = arguments.get("query")
-            
-            if not query:
-                raise MCPError(MCPErrorCode.INVALID_PARAMS, "Missing 'query'")
-                
-            # Mock implementation calling a placeholder or public API
-            # Ideally, use DuckDuckGo or Google Custom Search API if configured
-            try:
-                # Placeholder for actual implementation check
-                api_key = os.environ.get("SEARCH_API_KEY")
-                if not api_key:
-                    return f"Simulation: Performed web search for '{query}'. (API Key not configured)"
-                
-                # If we had an API key, we would make a request here
-                # response = requests.get(...)
-                return f"Simulation: Real search disabled. Query: {query}"
-                
-            except Exception as e:
-                logger.error(f"Search error: {e}")
-                return f"Search failed: {str(e)}"
-
-        self.register_tool(
-            name="web_search",
-            description="Search the web for information",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Search query"},
-                    "limit": {"type": "integer", "description": "Max results"}
-                },
-                "required": ["query"]
+            handler=list_directory,
+            metadata={
+                "connector": "filesystem",
+                "required_scopes": ["mcp:execute", "connector:filesystem:read"],
             },
-            handler=web_search
         )
 

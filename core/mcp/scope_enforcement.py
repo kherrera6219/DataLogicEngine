@@ -111,7 +111,7 @@ def enforce_scopes(
     tool_name: str,
     required_scopes: Iterable[str],
     context: ExecutionContext,
-    permissive_on_missing_context: bool = True,
+    permissive_on_missing_context: bool = False,
 ) -> None:
     """Enforce required scopes for an MCP tool call."""
     required = [scope for scope in normalize_scopes(required_scopes) if scope]

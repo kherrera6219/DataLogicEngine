@@ -1,0 +1,33 @@
+{
+  "phase": 11,
+  "date": "2026-07-14",
+  "status": "engineering_checkpoint_complete_installed_gates_open",
+  "backend": {
+    "passed": 2094,
+    "skipped": 18,
+    "warnings": 19
+  },
+  "frontend": {
+    "files_passed": 83,
+    "tests_passed": 411,
+    "lint_errors": 0,
+    "lint_warnings": 1,
+    "typecheck": "passed",
+    "production_build": "passed",
+    "static_routes": 30
+  },
+  "focused": {
+    "phase11_passed": 60,
+    "mcp_route_warnings_as_errors_passed": 49
+  },
+  "schema": {
+    "alembic_revisions": 24,
+    "head": "e0f1a2b3c4d5",
+    "postgres_entities": 86,
+    "logical_contracts": 31,
+    "required_object_buckets": 9,
+    "classified_routes": 481,
+    "unclassified_routes": 0
+  },
+  "release_decision": "no_go"
+}

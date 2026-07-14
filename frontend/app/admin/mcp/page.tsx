@@ -90,7 +90,7 @@ export default function MCPDashboard() {
             <Link href="/admin/mcp/servers">
                 <Button>
                     <Server className="w-4 h-4 mr-2" />
-                    Manage Servers
+                    Manage Connectors
                 </Button>
             </Link>
         </div>
@@ -99,7 +99,7 @@ export default function MCPDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Servers</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Connectors</CardTitle>
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -138,13 +138,13 @@ export default function MCPDashboard() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Connections</CardTitle>
+            <CardTitle className="text-sm font-medium">Runtime Links</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.active_connections || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Active client sessions
+              Active connector runtimes
             </p>
           </CardContent>
         </Card>
@@ -183,7 +183,7 @@ export default function MCPDashboard() {
                  <Link href="/admin/mcp/servers">
                     <Button variant="outline" className="w-full justify-start">
                         <Server className="mr-2 h-4 w-4" />
-                        View Server Registry
+                        View Connector Registry
                     </Button>
                 </Link>
                 <Button

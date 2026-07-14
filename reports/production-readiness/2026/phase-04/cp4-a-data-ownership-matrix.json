@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "postgresql_entity_count": 83,
+  "postgresql_entity_count": 86,
   "postgresql_entities": [
     {
       "table": "ai_audit_events",
@@ -100,6 +100,18 @@
     },
     {
       "table": "llm_providers",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_consent_grants",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_execution_records",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "mcp_lifecycle_events",
       "stable_id_field": "id"
     },
     {
@@ -548,13 +560,17 @@
     {
       "key": "mcp_metadata",
       "authority": "postgresql",
-      "stable_id": "mcp_servers/resources/tools/prompts.id",
+      "stable_id": "mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id",
       "schema_version": "mcp_metadata.v1",
       "source_revision": "postgresql:monotonic_revision",
-      "materializations": [],
-      "transaction_boundary": "authority_store_transaction",
-      "compensating_action": "mark_partial_and_retry_from_authority",
-      "retention_class": "policy_required",
+      "materializations": [
+        "redis",
+        "minio",
+        "dpapi_vault"
+      ],
+      "transaction_boundary": "postgres_configuration_consent_and_execution_authority",
+      "compensating_action": "refuse_start_or_result_use_until_authority_and_artifact_hashes_match",
+      "retention_class": "connector_audit_policy",
       "implementation_status": "implemented",
       "notes": ""
     },
@@ -802,5 +818,5 @@
     "supported_prior_release_upgrade_qualified": false,
     "at_rest_production_qualified": false
   },
-  "captured_at": "2026-07-14T19:12:36.711740+00:00"
+  "captured_at": "2026-07-14T20:13:13.349557+00:00"
 }

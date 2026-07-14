@@ -72,19 +72,26 @@ def test_mcp_router_paths(monkeypatch):
     assert missing_method["error"]["code"] == -32600
 
     initialized = asyncio.run(router.handle_message({"id": 1, "method": "initialize"}))
-    assert initialized["result"]["protocolVersion"] == "0.1.0"
+    assert initialized["result"]["protocolVersion"] == "2025-11-25"
 
-    tools = asyncio.run(router.handle_message({"id": 2, "method": "tools/list"}))
+    context = {"user_id": "owner", "scopes": ["*"]}
+    tools = asyncio.run(router.handle_message({"id": 2, "method": "tools/list"}, execution_context=context))
     assert tools["result"]["tools"] == [{"name": "t1"}]
 
     call_result = asyncio.run(
-        router.handle_message({"id": 3, "method": "tools/call", "params": {"name": "tool", "arguments": {}}})
+        router.handle_message(
+            {"id": 3, "method": "tools/call", "params": {"name": "tool", "arguments": {}}},
+            execution_context=context,
+        )
     )
     assert call_result["result"]["content"][0]["text"] == "{'message': 'done'}"
 
     mock_registry.execute_tool.side_effect = RuntimeError("execution failed")
     call_error = asyncio.run(
-        router.handle_message({"id": 4, "method": "tools/call", "params": {"name": "tool", "arguments": {}}})
+        router.handle_message(
+            {"id": 4, "method": "tools/call", "params": {"name": "tool", "arguments": {}}},
+            execution_context=context,
+        )
     )
     assert call_error["error"]["code"] == -32603
     assert call_error["error"]["message"] == "execution failed"
@@ -92,12 +99,17 @@ def test_mcp_router_paths(monkeypatch):
     # Sensitive/internal errors should be sanitized before returning to clients.
     mock_registry.execute_tool.side_effect = RuntimeError("database password leaked in traceback")
     sanitized_error = asyncio.run(
-        router.handle_message({"id": 6, "method": "tools/call", "params": {"name": "tool", "arguments": {}}})
+        router.handle_message(
+            {"id": 6, "method": "tools/call", "params": {"name": "tool", "arguments": {}}},
+            execution_context=context,
+        )
     )
     assert sanitized_error["error"]["code"] == -32603
     assert sanitized_error["error"]["message"] == "Tool execution failed"
 
-    unknown = asyncio.run(router.handle_message({"id": 5, "method": "unknown/method"}))
+    unknown = asyncio.run(
+        router.handle_message({"id": 5, "method": "unknown/method"}, execution_context=context)
+    )
     assert unknown["error"]["code"] == -32601
 
 

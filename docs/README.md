@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.20.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.21.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -21,16 +21,16 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 7 engineering complete for CP7-A
-through CP7-E and CP7-G, with live installed OpenAI/Google acceptance under
-CP7-F deferred to the rebuilt candidate. Phase 8 external API Gateway and LLM
-middleware productization is active.
+The current execution checkpoint is Phase 11 MCP connector engineering complete.
+ADR-0008 selects an exact-consent local stdio boundary; rebuilt-installed MCP
+file/network/lifecycle/Electron acceptance remains deferred. Phase 12 UI
+workflow, project model, desktop-state, and accessibility completion is active.
 Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
 
-That program now contains 19 phases (0-18). Phase 8 productizes the external API
-gateway and governed LLM middleware contract. Phase 16 replaces the accumulated
+That program now contains 19 phases (0-18). Phases 8-11 productize the external
+gateway, knowledge, simulation, and MCP connector contracts. Phase 16 replaces the accumulated
 documentation with a 30-or-fewer controlled hand-maintained production set plus
 generated contracts/evidence and a professional/Microsoft review dossier; Phase
 17 performs final authority consolidation and release lock. Documents listed

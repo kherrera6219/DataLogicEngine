@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.3.0 |
+| Document version | v3.4.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
@@ -108,7 +108,7 @@ Ask a question
 | `/knowledge` | knowledge record review and graph-adjacent surfaces. |
 | `/simulations` | simulation lifecycle monitoring. |
 | `/truth-engine` | Truth Engine monitoring and system state. |
-| `/mcp` | MCP ecosystem hub and integration UI. |
+| `/mcp` | Live connector counts and discovered tool/resource/prompt inventory. |
 | `/settings`, `/settings/privacy` | provider, model, storage, privacy, theme, notifications, and preferences. |
 | `/profile` | user profile and account context. |
 
@@ -119,7 +119,7 @@ Ask a question
 | `/admin` | single-owner admin dashboard. |
 | `/admin/compliance` | compliance dashboard. |
 | `/admin/mcp` | MCP status and governance. |
-| `/admin/mcp/servers` | MCP server registry management. |
+| `/admin/mcp/servers` | Exact local command registration, scope/fingerprint consent, qualification state, and connector lifecycle. |
 
 ---
 
