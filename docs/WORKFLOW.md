@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.3.0 |
+| Document version | v3.4.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -59,9 +59,11 @@ authenticated user/client request
   -> GovernedResult with stable trace_id
 ```
 
-`standard`, `enhanced`, `local_review`, and `simulation` are the supported modes.
-`simulation` currently fails explicitly at the Phase 10 capability boundary
-immediately after admission. `local_review` does not claim a provider answer.
+`standard`, `enhanced`, `local_review`, and `simulation` are recognized modes.
+`simulation` on the ordinary answer contract returns
+`SIMULATION_DURABLE_JOB_REQUIRED` immediately after admission and directs the
+caller to `/api/v1/simulations`; debate turns execute only through that durable
+workflow. `local_review` does not claim a provider answer.
 Compatibility values `chat`, `trace`, and `explain` map to `standard`; `quad`
 maps to `enhanced`. The deprecated `run_ukg_pipeline` flag cannot bypass this
 workflow.
@@ -75,7 +77,7 @@ flowchart TD
     A[Authenticated request] --> B[GovernedRequest governed.v1]
     B --> C[Admission and cancellation]
     C --> D{Simulation mode?}
-    D -- Yes --> X[Phase 10 capability-unavailable result]
+    D -- Yes --> X[Require durable simulation session API]
     D -- No --> E[DMRF policy, gate, tier, and axes]
     E --> F{Allowed?}
     F -- No --> Y[Policy-blocked result]
@@ -91,6 +93,19 @@ flowchart TD
     M --> N[GovernedResult and stable trace ID]
     X --> M
     Y --> M
+```
+
+The durable simulation workflow is separate but applies the same policy,
+privacy, timeout, cancellation, egress, validation, and stable-error taxonomy:
+
+```text
+versioned scenario -> preflight plan and budget -> draft -> durable queue
+  -> policy admission and evidence retrieval
+  -> simulation-only bounded provider adapter
+  -> persisted call and verified checkpoint after every completed turn
+  -> explicit evidence validators and confidence or Not measured
+  -> required transcript/result object materialization
+  -> completed result only after required artifacts agree
 ```
 
 ---
@@ -134,7 +149,7 @@ Possible outcomes:
 | Outcome | Meaning |
 |---|---|
 | Blocked | InjectionDefense or TruthGate prevented unsafe or invalid processing. |
-| Capability unavailable | A later-phase mode such as simulation is explicitly unavailable; no answer is fabricated. |
+| Capability unavailable | An unsupported or disabled later-phase capability is explicit; no answer is fabricated. |
 | Failed | Provider, validation, or internal execution failed; later stages are absent. |
 | Cancelled | Execution stopped and no additional provider/tool calls occur. |
 | Abstained | Required evidence remained insufficient or contradicted after the bounded refinement cycle. |
@@ -189,6 +204,11 @@ automatically replayed because provider spend may already have occurred.
    deterministic diversity/budgets, and records all source decisions.
 7. Validated output may promote memory under ADR-0006; provider output never
    becomes trusted memory merely because it was generated.
+
+## Change notes for v3.4.0
+
+1. Added the durable simulation lifecycle and replaced the retired Phase 10
+   unavailable boundary with the explicit durable-session redirect.
 
 ## Change notes for v3.3.0
 

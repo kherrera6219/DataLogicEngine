@@ -264,7 +264,7 @@ async def test_trace_preserves_long_failure_status_and_unmeasured_confidence(app
         "answer": "",
         "failure": {
             "kind": "capability_unavailable",
-            "code": "SIMULATION_PHASE10_BOUNDARY",
+            "code": "SIMULATION_DURABLE_JOB_REQUIRED",
             "message": "Simulation is not connected",
             "stage": "simulation",
         },
@@ -289,4 +289,4 @@ async def test_trace_preserves_long_failure_status_and_unmeasured_confidence(app
         run = db.session.get(TraceRun, run_id)
         assert run.status == "capability_unavailable"
         assert run.confidence is None
-        assert run.data_snapshot["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+        assert run.data_snapshot["failure"]["code"] == "SIMULATION_DURABLE_JOB_REQUIRED"

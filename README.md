@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-9 engineering checkpoints are complete; Phase 10 simulation completion is active. Phase 9 now provides secure app-owned acquisition, durable PostgreSQL/Redis ingestion jobs, revisioned PostgreSQL/Neo4j/Chroma/S3 reconciliation, causal retrieval, governed memory promotion, and truthful Knowledge/Graph controls. Installed causal-retrieval/UI proof, OpenAI/Google quality and provider acceptance, private/two-machine gateway acceptance, blinded human acceptance, clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, later subsystem/UI completion, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 9 evidence`](reports/production-readiness/2026/phase-09/summary.md).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-10 engineering checkpoints are complete; Phase 11 MCP and connector completion is active. Phase 10 now provides one versioned simulation authority, exact provider budgets, durable steps/events/calls/evidence/checkpoints/artifacts, safe lifecycle controls, deterministic qualification mode, bounded live mode, and truthful Simulation Monitor state. Installed simulation/provider/service/UI proof, causal-retrieval/UI proof, OpenAI/Google quality and provider acceptance, private/two-machine gateway acceptance, blinded human acceptance, clean signed-install/upgrade/recovery qualification, independent reviews, final object-store selection, later subsystem/UI completion, accessibility, signing, and release evidence remain open, so production/public release is **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 10 evidence`](reports/production-readiness/2026/phase-10/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,7 +64,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 10 selection and completion of one durable, budgeted simulation architecture
+- Phase 11 completion of a real scoped MCP and connector subsystem
+- Deferred rebuilt-installed Phase 10 simulation, provider, artifact, and UI acceptance
 - Deferred rebuilt-installed Phase 9 causal retrieval and Knowledge/Graph acceptance
 - Deferred installed OpenAI/Google provider, corpus, and blinded-human acceptance
 - Deferred clean-installed data-plane, gateway, upgrade/recovery, and independent review gates
@@ -829,9 +830,9 @@ npm --prefix frontend audit --audit-level=high
 | Horizon | Focus |
 | --- | --- |
 | Completed foundation | Phases 0-7: scope and trust boundaries, internal data plane, canonical governed path, evidence validity, and governed provider behavior. |
-| Completed product and knowledge checkpoints | Phases 8-9: versioned gateway and SDKs; secure durable ingestion; cross-store reconciliation; causal retrieval; graph use; memory authority; and truthful desktop controls. Installed acceptance remains gated. |
-| Active subsystem | Phase 10: select and complete one bounded, durable simulation architecture. |
-| Later subsystems and UX | Phases 11-13: complete MCP, every frontend workflow, accessibility, observability, diagnostics, and support. |
+| Completed product, knowledge, and simulation checkpoints | Phases 8-10: versioned gateway and SDKs; secure durable ingestion; cross-store reconciliation; causal retrieval; memory authority; and one bounded durable simulation workflow. Installed acceptance remains gated. |
+| Active subsystem | Phase 11: complete a real, server-authorized, scoped MCP and connector subsystem. |
+| Later subsystems and UX | Phases 12-13: complete every frontend workflow, accessibility, observability, diagnostics, and support. |
 | Release | Phases 14-18: deterministic signed packaging, installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 
 ## Getting Help

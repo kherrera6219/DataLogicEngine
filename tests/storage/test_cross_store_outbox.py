@@ -237,3 +237,74 @@ def test_required_object_artifact_is_queued_without_direct_cross_store_write(mon
         assert event.operation == "put_object"
         assert event.payload["bucket"] == "simulation-artifacts"
         assert event.payload["metadata"]["run_id"] == "run-1"
+
+
+def test_simulation_artifact_hash_mismatch_cannot_complete_session(monkeypatch):
+    app = _app()
+    app.config["DLE_DATA_PLANE_DRIVER"] = "podman"
+
+    class _ObjectStore:
+        def __init__(self):
+            self.objects = {}
+
+        def create_bucket(self, _bucket):
+            return True
+
+        def put(self, bucket, key, body, **_kwargs):
+            self.objects[(bucket, key)] = body
+            return key
+
+        def exists(self, bucket, key):
+            return (bucket, key) in self.objects
+
+        def get(self, bucket, key):
+            return self.objects[(bucket, key)]
+
+    with app.app_context():
+        db.create_all()
+        import backend.storage as storage_package
+        from models import SimulationArtifact, SimulationSession, User
+
+        monkeypatch.setattr(storage_package, "get_object_store", _ObjectStore)
+        user = User(username="simulation-hash", _email="simulation-hash@local", active=True)
+        db.session.add(user)
+        db.session.flush()
+        simulation = SimulationSession(
+            session_id="00000000-0000-0000-0000-000000000010",
+            user_id=user.id,
+            parameters={"query": "hash mismatch"},
+            status="materialization_pending",
+            artifact_state="materialization_pending",
+        )
+        db.session.add(simulation)
+        reference = persist_object_artifact(
+            entity_type="simulation_artifact",
+            entity_id=f"{simulation.session_id}:result",
+            bucket="simulation-artifacts",
+            key=f"simulations/{simulation.session_id}/result.json",
+            body={"schema_version": "simulation-result.v1", "status": "completed"},
+            schema_version="simulation-result.v1",
+            content_type="application/json",
+            commit=False,
+        )
+        db.session.add(
+            SimulationArtifact(
+                session_id=simulation.session_id,
+                artifact_type="result",
+                schema_version="simulation-result.v1",
+                revision="0" * 64,
+                object_key=reference["key"],
+                sha256="0" * 64,
+                size_bytes=reference["size_bytes"],
+                state="pending",
+                metadata_json={"bucket": reference["bucket"]},
+            )
+        )
+        db.session.commit()
+
+        result = CrossStoreMaterializationDispatcher(db.session).run_once()
+
+        assert result == {"claimed": 1, "succeeded": 0, "failed": 1}
+        db.session.refresh(simulation)
+        assert simulation.status == "materialization_pending"
+        assert SimulationArtifact.query.one().state == "pending"

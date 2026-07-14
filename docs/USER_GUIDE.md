@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Operations |
@@ -174,10 +174,24 @@ Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store,
 ### 7. Run simulations
 
 1. Open `/simulations`.
-2. Create or select a scenario.
-3. Run the simulation.
-4. Review status and results.
-5. Open trace/run details where links are available.
+2. Select **New Simulation**, enter a scenario, choose Quick, Standard, or Deep,
+   and choose Live or Fixed-seed local qualification mode.
+3. Run **Preflight** and review the maximum provider calls, token/tool ceiling,
+   provider availability, pricing/estimated-cost state, and admission result.
+   Unknown price is not zero; a blocked preflight cannot be run.
+4. Create the draft, then use **Run**. The list shows durable current/total
+   progress and continues polling if live events are unavailable.
+5. Use **Pause**, **Resume**, **Cancel**, or **Retry** only when the corresponding
+   control is shown. Retry is refused after an ambiguous uncheckpointed provider
+   call.
+6. Review the conclusion, validation status, and artifact state. **Confidence:
+   Not measured** means the required explicit evidence validators did not
+   support a numeric value; it is not an error and must not be interpreted as
+   zero confidence.
+
+Fixed-seed mode is for deterministic qualification, does not call an external
+provider, and never establishes production result quality. Installed live-mode
+acceptance remains gated until the rebuilt application is qualified.
 
 ### 8. Use Truth Engine monitoring
 
@@ -349,6 +363,11 @@ trace and source ingestion settings. Empty, loading, partial, rebuilding,
 offline, and failed states are distinct. Settings -> Memory lets the owner review
 working versus validated memory, include/exclude working recall, export, delete,
 compact, and recover the integrity-protected memory file.
+
+## Change notes for v3.1.0
+
+1. Added scenario depth/mode, preflight admission, durable lifecycle controls,
+   artifact review, fixed-seed qualification, and Not measured guidance.
 
 ## Change notes for v3.0.0
 

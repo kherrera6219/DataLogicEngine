@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.3.0 |
+| Document version | v4.4.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -945,14 +945,39 @@ Legacy alias: `/api/simulations` with deprecation headers.
 
 Representative routes:
 
+- **POST** `/simulations/preflight`
+  - Validate the versioned scenario and return its immutable revision, exact
+    provider/tool/token ceiling, estimated-cost/pricing truth, provider state,
+    admission result, and blocking code without making a provider call.
 - **POST** `/simulations`
-  - Create a new simulation session.
+  - Create a `dle-simulation.v1` draft from the validated scenario.
 - **GET** `/simulations`
-  - List simulation sessions where enabled.
-- **POST** `/simulation/run`
-  - Enters `governed.v1` simulation mode and currently returns an explicit
-    capability-unavailable result after admission. It does not run retrieval,
-    DSQP, KAs, provider, or tools until Phase 10 implements the bounded workflow.
+  - List the authenticated owner's durable simulation sessions.
+- **GET** `/simulations/{session_id}`
+  - Return owned session, plan, budget, progress, result, error, and artifact
+    state.
+- **POST** `/simulations/{session_id}/run`
+  - Queue a draft for durable bounded execution and return HTTP 202.
+- **GET** `/simulations/{session_id}/events?after={sequence}&limit={count}`
+  - Return ordered persisted progress events using a monotonic cursor.
+- **POST** `/simulations/{session_id}/pause`
+- **POST** `/simulations/{session_id}/resume`
+- **POST** `/simulations/{session_id}/retry`
+- **POST** `/simulations/{session_id}/cancel`
+  - Apply only lifecycle operations supported by the current durable state.
+
+Quick, standard, and deep plans declare exact 4, 5, and 7 provider-call
+ceilings. Live mode fails closed when its provider, pricing, governance, or cost
+admission cannot be established. Fixed-seed local mode is deterministic,
+zero-cost, and qualification-only; it never produces measured confidence.
+Session states are `draft`, `queued`, `running`, `paused`,
+`materialization_pending`, `completed`, `failed`, `cancelled`, or
+`timeout`.
+
+Sending `mode=simulation` to the ordinary `governed.v1` answer endpoint does
+not execute debate turns. It returns
+`SIMULATION_DURABLE_JOB_REQUIRED` and directs the caller to this durable API,
+preventing a second or recursive simulation path.
 
 ---
 
@@ -1156,6 +1181,11 @@ A technical reviewer should validate this document against these files:
 12. `frontend/lib/api/` — frontend API clients and CSRF handling.
 13. `tests/contract/` — canonical API contract tests.
 14. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v4.4.0
+
+1. Documented the `dle-simulation.v1` preflight, draft/run, event, lifecycle,
+   budget, result, and direct-answer redirect contracts.
 
 ## Change notes for v4.2.0
 

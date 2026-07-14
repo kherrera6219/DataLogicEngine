@@ -24,12 +24,12 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_alembic_revision_graph_has_one_ordered_base_and_head():
     graph = inventory_alembic_revisions(ROOT / "migrations" / "versions")
 
-    assert len(graph["revisions"]) == 22
+    assert len(graph["revisions"]) == 23
     assert graph["bases"] == ["000000000001"]
-    assert graph["heads"] == ["c8d9e0f1a2b3"]
+    assert graph["heads"] == ["d9e0f1a2b3c4"]
     assert graph["errors"] == []
     assert graph["linear_order"][0] == "000000000001"
-    assert graph["linear_order"][-1] == "c8d9e0f1a2b3"
+    assert graph["linear_order"][-1] == "d9e0f1a2b3c4"
 
 
 def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
@@ -47,7 +47,7 @@ def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
         current = db.session.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
 
     assert set(models.db.metadata.tables) <= tables
-    assert current == "c8d9e0f1a2b3"
+    assert current == "d9e0f1a2b3c4"
 
 
 def test_every_retained_store_has_a_version_and_migration_disposition():

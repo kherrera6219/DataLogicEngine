@@ -1,62 +1,11 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from werkzeug.security import generate_password_hash
-
-from app import app as flask_app, db
-from extensions import limiter
 
 
 @pytest.fixture
-def app():
-    flask_app.config['TESTING'] = True
-    flask_app.config['RATELIMIT_ENABLED'] = False
-
-    from limits.storage.memory import MemoryStorage
-    limiter._storage = MemoryStorage()
-    limiter.enabled = False
-
-    with flask_app.app_context():
-        db.create_all()
-        try:
-            from models import SimulationSession, User
-
-            SimulationSession.query.delete()
-            user = User.query.filter_by(username="testuser").first()
-            if user is None:
-                # `role`/`is_admin` columns were removed under single-mode
-                # (auth-deprecation Phase E-2c) — do not pass them to the
-                # constructor or it raises and the user is never created.
-                user = User(
-                    username="testuser",
-                    _email="test@example.com",
-                    password_hash=generate_password_hash("SecureTest789$#@"),
-                )
-                db.session.add(user)
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        yield flask_app
-        db.session.remove()
-
-
-@pytest.fixture
-def client(app):
-    with app.test_client() as test_client:
-        yield test_client
-
-
-@pytest.fixture
-def session_authenticated_client(client, monkeypatch):
-    mock_user = MagicMock()
-    mock_user.id = 1
-    mock_user.username = "testuser"
-    mock_user.email = "test@example.com"
-    mock_user.is_authenticated = True
-    mock_user.is_admin = False
-    mock_user.role = "user"
-    monkeypatch.setattr("flask_login.utils._get_user", lambda: mock_user)
-    return client
+def session_authenticated_client(authenticated_client):
+    return authenticated_client
 
 
 def test_canonical_v1_auth_failures_are_json_401s(client):
@@ -169,18 +118,31 @@ def test_canonical_v1_simulation_create_missing_parameters_returns_400(session_a
     assert error_msg == "Missing parameters" or body.get("message") == "Missing parameters"
 
 
-def test_simulation_step_rejects_placeholder_execution(session_authenticated_client):
+def test_simulation_create_rejects_missing_scenario_query(session_authenticated_client):
     create_response = session_authenticated_client.post(
         "/api/v1/simulations",
         json={"name": "Missing scenario", "parameters": {"mode": "standard"}},
     )
-    assert create_response.status_code == 201
-    session_id = create_response.get_json()["data"]["session_id"]
+    assert create_response.status_code == 422
+    body = create_response.get_json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
 
-    run_response = session_authenticated_client.post(f"/api/v1/simulations/{session_id}/step")
-    assert run_response.status_code == 422
-    body = run_response.get_json()
-    assert body["error"]["message"] == "Simulation query is required"
+
+def test_simulation_preflight_declares_hard_budget(session_authenticated_client):
+    response = session_authenticated_client.post(
+        "/api/v1/simulations/preflight",
+        json={"query": "Evaluate this scenario", "depth": "deep", "seed": 42},
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["scenario"]["contract_version"] == "dle-simulation.v1"
+    assert data["scenario_revision"]
+    assert data["plan"]["engine"] == "multi-agent-debate"
+    assert data["plan"]["max_provider_calls"] == 7
+    assert data["budget"]["max_total_tokens"] == 10_000
+    assert data["budget"]["estimated_cost_usd"] is None
+    assert data["budget"]["pricing_status"] == "unknown"
 
 
 def test_canonical_v1_simulation_routes_expose_phase10_boundary(session_authenticated_client):
@@ -197,6 +159,9 @@ def test_canonical_v1_simulation_routes_expose_phase10_boundary(session_authenti
     create_body = create_response.get_json()
     assert create_body["success"] is True
     session_id = create_body["data"]["session_id"]
+    assert create_body["data"]["contract_version"] == "dle-simulation.v1"
+    assert create_body["data"]["plan"]["max_provider_calls"] == 5
+    assert create_body["data"]["scenario_revision"]
 
     list_response = session_authenticated_client.get("/api/v1/simulations")
     assert list_response.status_code == 200
@@ -204,20 +169,37 @@ def test_canonical_v1_simulation_routes_expose_phase10_boundary(session_authenti
     assert list_body["success"] is True
     assert any(item["session_id"] == session_id for item in list_body["data"])
 
-    run_response = session_authenticated_client.post(f"/api/v1/simulations/{session_id}/run")
-    assert run_response.status_code == 503
-    run_body = run_response.get_json()
-    assert run_body["success"] is False
-    assert run_body["error"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
-    assert run_body["error"]["details"]["contract_version"] == "governed.v1"
+    runner = MagicMock()
+    runner.live_state.return_value = None
+    with patch(
+        "backend.simulation.jobs.get_simulation_job_runner",
+        return_value=runner,
+    ):
+        run_response = session_authenticated_client.post(
+            f"/api/v1/simulations/{session_id}/run"
+        )
+        get_response = session_authenticated_client.get(
+            f"/api/v1/simulations/{session_id}"
+        )
 
-    get_response = session_authenticated_client.get(f"/api/v1/simulations/{session_id}")
+    assert run_response.status_code == 202
+    run_body = run_response.get_json()
+    assert run_body["success"] is True
+    assert run_body["data"]["status"] == "queued"
+    runner.submit.assert_called_once_with(session_id)
     assert get_response.status_code == 200
     get_body = get_response.get_json()
     assert get_body["success"] is True
     assert get_body["data"]["session_id"] == session_id
-    assert get_body["data"]["status"] == "deferred"
-    assert (
-        get_body["data"]["results"]["governed_boundary"]["failure"]["code"]
-        == "SIMULATION_PHASE10_BOUNDARY"
-    )
+    assert get_body["data"]["status"] == "queued"
+
+    with patch(
+        "backend.simulation.jobs.get_simulation_job_runner",
+        return_value=runner,
+    ):
+        cancel_response = session_authenticated_client.post(
+            f"/api/v1/simulations/{session_id}/cancel"
+        )
+    assert cancel_response.status_code == 202
+    assert cancel_response.get_json()["data"]["status"] == "cancelled"
+    runner.request_cancel.assert_called_once()

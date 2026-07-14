@@ -4,9 +4,9 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.0.0 |
-| Last updated | 2026-07-13 |
-| Status | Active Phase 7 engineering contract |
+| Document version | v1.1.0 |
+| Last updated | 2026-07-14 |
+| Status | Active provider and simulation budget contract |
 | Owner | Local application owner |
 
 ## Purpose
@@ -22,7 +22,9 @@ display or lower an allowance but cannot raise a hard ceiling.
 | Standard chat | 1 | One answer call. |
 | Enhanced chat | 2 | One answer call plus at most one bounded refinement/validation call. |
 | Local review / deterministic DSQP | 0 | No provider answer call. |
-| Simulation | Unavailable | Phase 10 must add an explicit scenario budget before execution. |
+| Simulation quick | 4 | Two participant turns, one critique, and one synthesis. |
+| Simulation standard | 5 | Three participant turns, one critique, and one synthesis. |
+| Simulation deep | 7 | Three participant turns, three critiques, and one synthesis. |
 
 Retries and refinement consume the same request allowance. Retry is permitted
 only for a typed idempotent transient failure and honors bounded provider retry
@@ -72,6 +74,12 @@ owner-reviewed rates before use. This example deliberately makes no price claim.
 Missing, malformed, stale, or unmatched metadata produces `pricing_status:
 unknown`; the UI must show **Unknown**, not `$0`. Call/token ceilings still
 apply. A spend ceiling is enforced only for calls whose estimate is known.
+
+Simulation live-mode preflight is stricter: if an explicit scenario cost ceiling
+is present and model pricing is unknown, admission fails before any provider
+call. The preflight estimate uses the immutable plan's maximum provider calls
+and token ceilings. Fixed-seed local qualification mode has no provider egress
+and reports estimated cost `0` with qualification-only status.
 
 ## Evidence and release boundary
 

@@ -56,4 +56,4 @@ def test_simulation_turns_cannot_recursively_call_gateway():
 
     assert "gateway.process(" not in source
     assert "generate_simulation_turn" in source
-    assert "SIMULATION_PHASE10_BOUNDARY" in source
+    assert "checkpoint_callback" in source

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.7.0 |
+| Document version | v1.8.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,19 +18,25 @@
 
 ### Current execution checkpoint
 
-Phase 9 reached its engineering checkpoint on 2026-07-14. Secure app-owned
-acquisition now precedes parsing; PostgreSQL owns durable ingestion jobs, files,
-chunks, attempts, checkpoints, and source revisions; Redis carries content-free
-coordination/events; and the eighth required S3 bucket, `knowledge-sources`,
-retains approved original and normalized artifacts. Required PostgreSQL, Neo4j,
-Chroma, and object revisions reconcile through scan/repair/update/delete paths.
-Canonical retrieval validates authority, permissions, retention, hashes,
-defense, embedding, revision, diversity, and budgets and records causal source
-decisions. ADR-0006 establishes UnifiedMemory v2 trust/promotion and owner
-lifecycle controls. Knowledge, Graph, ingestion, memory, and run-detail UI
-surfaces now report real state. Phase 10 is now active.
+Phase 10 reached its engineering checkpoint on 2026-07-14. ADR-0007 selects the
+backend multi-agent workflow as the sole user-triggered simulation authority
+under `dle-simulation.v1`; production entry points no longer instantiate
+core/FROST or legacy engines. Quick/standard/deep plans declare exact 4/5/7
+provider-call ceilings, and a simulation-only adapter enforces call, token,
+tool, cost, deadline, cancellation, pause, and content-free attempt-ledger
+limits without recursively invoking `governed.v1`.
 
-This checkpoint is not the full Phase 9 production exit gate and does not
+PostgreSQL owns simulation sessions, steps, events, calls, evidence, checkpoints,
+artifacts, controls, and terminal state. Redis carries content-free queue, lease,
+control, and progress data. Required transcript/result objects reconcile through
+`simulation-artifacts`; approved live measured summaries and relationships may
+materialize to Chroma and Neo4j. Fixed-seed mode is deterministic and
+qualification-only; live mode resolves one configured supported provider and
+fails closed on pricing/admission uncertainty. The Simulation Monitor exposes
+preflight budget/provider truth, durable progress, supported lifecycle controls,
+artifacts/results, and explicit Not measured confidence. Phase 11 is now active.
+
+This checkpoint is not the full Phase 10 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
@@ -39,7 +45,9 @@ trace proof, installed OpenAI/Google corpus results, live Phase 7 provider
 acceptance, signed blinded human acceptance, and Phase 8 same-host/private,
 TLS/firewall, backup/restore, UI, failure/load/soak, two-machine acceptance, and
 Phase 9 installed restart/recovery, hostile-corpus, populated cross-store,
-causal-retrieval, deletion, and Knowledge/Graph acceptance remain open gates
+causal-retrieval, deletion, and Knowledge/Graph acceptance, plus Phase 10
+installed live-provider budget, restart, event/UI, artifact/materialization, and
+result-validity acceptance remain open gates
 that can only close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -2264,6 +2272,23 @@ order, progress event parity, pause/resume, cancellation, restart recovery,
 artifact presence in MinIO, graph links in Neo4j, and zero recursive invocation
 of the full governed pipeline from individual debate turns.
 
+### Engineering checkpoint status - complete 2026-07-14
+
+CP10-A through CP10-E pass at the source/engineering boundary. ADR-0007 records
+the sole runtime authority; `dle-simulation.v1` and the exact 4/5/7 call plans
+are versioned; budgets fail closed; restart resumes only from verified
+checkpoints; persisted progress events match the frontend contract; and numeric
+confidence is emitted only from explicit cited evidence validators. Full
+validation passed 2,050 backend tests with 18 skipped, all 410 frontend tests,
+frontend typecheck/lint/build, and Ruff. Evidence is under
+`reports/production-readiness/2026/phase-10/`.
+
+The installed exit gate is intentionally retained. The rebuilt application must
+still prove owner-configured live-provider ceilings, pause/cancel/restart and
+ambiguous-call recovery, Redis event delivery, PostgreSQL/S3/Neo4j/Chroma
+reconciliation, object hashes, installed UI parity, and trace/result validity.
+Deterministic fixtures and source tests are not installed acceptance.
+
 ### Exit gate
 
 A simulation runs from the installed app with a known bounded budget, durable
@@ -3849,16 +3874,22 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 10** from the committed Phase 9 engineering checkpoint. Inventory
-and compare the live multi-agent debate and FROST implementations, all routes,
-callers, and Simulation UI controls, provider recursion/budget paths,
-PostgreSQL/Redis/Neo4j/Chroma/S3 persistence, progress delivery, and pause/
-resume/cancel/retry/restart behavior. Add failure-first duplicate-authority,
-recursive-governance, budget, cancellation, partial-persistence, restart, and
-fixed-seed determinism tests before selecting one authoritative engine in an ADR.
+Start **Phase 11** from the committed Phase 10 engineering checkpoint. Inventory
+every MCP transport, REST/JSON-RPC/IPC route, server/client registry, lifecycle,
+process launcher, tool/resource/prompt/sampling path, caller-controlled context,
+scope/consent check, credential store, network/file authority, KA/graph/provider
+integration, persistence surface, and visible MCP control. Identify every fake,
+echo, unavailable, unbounded, or direct-bypass behavior before implementation.
 
-Preserve the one `governed.v1` orchestrator and versioned client boundary, all
-installed-only Phase 3-9 gates, Dependabot alert 389, and the SeaweedFS
-candidate-only Replacement Control boundary as release blockers. Phase 10 must
-not treat deterministic source fixtures as installed live-provider or packaged
-simulation acceptance.
+Add malicious MCP fixture tests for forged identity/scope, command/path
+injection, unauthorized network/file access, oversized and malformed JSON-RPC,
+timeout/cancellation, child-process cleanup, secret redaction, and tool-result
+prompt injection. Define server-owned execution context, granular scopes,
+consent, lifecycle, persistence, and governed-result contracts before expanding
+production registration.
+
+Preserve the one `governed.v1` orchestrator, `dle-simulation.v1`, and
+versioned client boundary, all installed-only Phase 3-10 gates, Dependabot alert
+389, and the SeaweedFS candidate-only Replacement Control boundary as release
+blockers. Phase 11 must not treat mocked MCP fixtures as installed connector or
+child-process acceptance.

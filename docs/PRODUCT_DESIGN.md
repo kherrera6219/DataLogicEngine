@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.3.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
 | Review cadence | Every 30 days |
@@ -271,8 +271,9 @@ Design guardrail: heavy visualization and admin surfaces should not degrade firs
 7. Error state: API error boundary and page-level empty/error states.
 8. Governed execution state: `contract_version`, `status`, `trace_id`, actual
    stages, source IDs, claims, nullable confidence, warnings, and typed failure.
-9. Simulation state: unavailable until Phase 10; the UI must not imply that
-   personas, providers, tools, or convergence ran.
+9. Simulation state: immutable scenario revision, exact call/token/tool/cost
+   preflight, provider/pricing/admission truth, durable lifecycle and progress,
+   artifact state, explicit evidence validation, and nullable confidence.
 10. Provider execution state: stable client request ID, selected provider/model,
     current call/token allowance, disclosed categories, cancellation state,
     explicit failure class, queue persistence result, and `delivery_mode`.
@@ -352,7 +353,8 @@ Known current caveats:
 5. graph/vector/object-store views depend on local data services and ingestion state.
 6. confidence remains null whenever required `dle-confidence.v1` inputs are not
    measured; installed provider calibration remains CP6-F;
-7. simulation returns an explicit Phase 10 capability boundary;
+7. direct answer-mode simulation redirects to the durable session contract; the
+   Simulation Monitor exposes only supported lifecycle operations;
 8. installed OpenAI/Gemini trace proof remains CP5-E and release-blocking.
 9. signed-installed same-host and private two-machine Client Gateway acceptance
    remains Phase 8 release-blocking; the private profile stays disabled.
@@ -367,6 +369,11 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v3.3.0
+
+1. Added simulation preflight, provider/budget truth, durable progress,
+   lifecycle controls, artifacts, results, and nullable-confidence UX state.
 
 ## Change notes for v3.2.0
 

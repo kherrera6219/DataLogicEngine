@@ -1,27 +1,34 @@
 """
 Multi-Agent Simulation Engine
 
-Gateway-path multi-agent counterfactual simulation using real LLM calls.
+Authoritative multi-agent counterfactual simulation using bounded provider calls.
 This is the backend-layer engine for running adversarial multi-persona
 debates and synthesizing conclusions through the LLM gateway.
 
-Distinct from core/simulation/simulation_engine.py, which is the full
-FROST 10-layer simulation engine used by the live reasoning pipeline.
-This engine handles the narrower use case: user-triggered simulation
-routes that run an adversarial debate via LLM.
+The older engines under ``core/simulation`` are compatibility-only and are not
+production entry points. This engine owns user-triggered simulation execution.
 """
 
 import logging
 import uuid
 import asyncio
-from typing import Dict, List, Any
+import inspect
+import json
+from typing import Dict, List, Any, Optional
 from datetime import datetime
+
+from backend.simulation.contracts import (
+    SIMULATION_CONTRACT_VERSION,
+    SIMULATION_ENGINE_ID,
+    SIMULATION_ENGINE_VERSION,
+    SimulationPlan,
+)
 
 logger = logging.getLogger(__name__)
 
 class SimulationEvent:
     """A discrete event within a simulation timeline."""
-    def __init__(self, step: int, agent: str, action: str, content: str, impact_score: float):
+    def __init__(self, step: int, agent: str, action: str, content: str, impact_score: Optional[float] = None):
         self.step = step
         self.agent = agent
         self.action = action  # e.g., "ARGUE", "REBUT", "AGREE", "SYNTHESIZE"
@@ -39,6 +46,16 @@ class SimulationEvent:
             'timestamp': self.timestamp.isoformat()
         }
 
+    @classmethod
+    def from_dict(cls, payload: Dict[str, Any]) -> "SimulationEvent":
+        return cls(
+            int(payload.get("step") or 0),
+            str(payload.get("agent") or "unknown"),
+            str(payload.get("action") or "UNKNOWN"),
+            str(payload.get("content") or ""),
+            payload.get("impact_score"),
+        )
+
 class SimulationResult:
     """The final outcome of a simulation run."""
     def __init__(self, simulation_id: str):
@@ -47,8 +64,14 @@ class SimulationResult:
         self.events: List[SimulationEvent] = []
         self.consensus_reached = False
         self.final_conclusion = ""
-        self.confidence_score = 0.0
-        self.metadata = {}
+        self.confidence_score: Optional[float] = None
+        self.validation = {"status": "not_measured", "validators": []}
+        self.budget: Dict[str, Any] = {}
+        self.metadata = {
+            "contract_version": SIMULATION_CONTRACT_VERSION,
+            "engine": SIMULATION_ENGINE_ID,
+            "engine_version": SIMULATION_ENGINE_VERSION,
+        }
 
     def add_event(self, event: SimulationEvent):
         self.events.append(event)
@@ -60,6 +83,8 @@ class SimulationResult:
             'consensus_reached': self.consensus_reached,
             'final_conclusion': self.final_conclusion,
             'confidence_score': self.confidence_score,
+            'validation': self.validation,
+            'budget': self.budget,
             'event_count': len(self.events),
             'events': [e.to_dict() for e in self.events],
             'metadata': self.metadata
@@ -67,11 +92,10 @@ class SimulationResult:
 
 class MultiAgentSimulationEngine:
     """
-    Orchestrates multi-agent counterfactual simulations using real LLM gateway calls.
+    Orchestrates multi-agent counterfactual simulations using bounded provider calls.
 
     Runs an adversarial multi-persona debate loop and synthesizes a conclusion.
-    Not the same as the FROST 10-layer engine in core/simulation/simulation_engine.py —
-    this engine handles user-triggered simulation routes only.
+    This is the sole production engine for user-triggered simulation routes.
 
     Architecture:
     1. Scenario Contextualization (Axis Mapping)
@@ -92,9 +116,19 @@ class MultiAgentSimulationEngine:
         self.active_simulations = {}
         self.max_concurrent_simulations = max_concurrent_simulations
         self.simulation_count = 0
-        self.logger.info(f"MultiAgentSimulationEngine v2.0 initialized (PRODUCTION MODE, max concurrent: {max_concurrent_simulations}).")
+        self.logger.info(
+            "MultiAgentSimulationEngine v%s initialized (max concurrent: %s).",
+            SIMULATION_ENGINE_VERSION,
+            max_concurrent_simulations,
+        )
 
-    def create_simulation(self, query: str, context: Dict[str, Any]) -> str:
+    def create_simulation(
+        self,
+        query: str,
+        context: Dict[str, Any],
+        *,
+        simulation_id: str | None = None,
+    ) -> str:
         """
         Initialize a new simulation session with input validation and rate limiting.
 
@@ -123,7 +157,9 @@ class MultiAgentSimulationEngine:
         sanitized_query = query.strip()
 
         try:
-            sim_id = str(uuid.uuid4())
+            sim_id = str(simulation_id or uuid.uuid4())
+            if sim_id in self.active_simulations:
+                raise ValueError("Simulation id is already active")
             self.active_simulations[sim_id] = {
                 "id": sim_id,
                 "query": sanitized_query,
@@ -149,7 +185,7 @@ class MultiAgentSimulationEngine:
         adapter = self.llm_gateway
         if adapter is None or not hasattr(adapter, "generate_simulation_turn"):
             raise RuntimeError(
-                "SIMULATION_PHASE10_BOUNDARY: bounded simulation provider adapter is unavailable"
+                "SIMULATION_PROVIDER_ADAPTER_UNAVAILABLE: bounded provider adapter is unavailable"
             )
         content = await adapter.generate_simulation_turn(
             prompt=prompt,
@@ -160,7 +196,16 @@ class MultiAgentSimulationEngine:
             raise RuntimeError("Simulation provider adapter returned an empty response")
         return str(content)
 
-    async def run_simulation(self, simulation_id: str, depth: str = "standard", timeout: int = 300) -> Dict[str, Any]:
+    async def run_simulation(
+        self,
+        simulation_id: str,
+        depth: str = "standard",
+        timeout: int = 300,
+        *,
+        resume_state: Dict[str, Any] | None = None,
+        checkpoint_callback=None,
+        plan: SimulationPlan | None = None,
+    ) -> Dict[str, Any]:
         """
         Execute the simulation loop with real LLM calls.
 
@@ -171,57 +216,155 @@ class MultiAgentSimulationEngine:
         if simulation_id not in self.active_simulations:
             raise ValueError(f"Simulation {simulation_id} not found.")
 
-        if depth not in ["quick", "standard", "deep"]:
-            raise ValueError(f"Invalid depth '{depth}'. Must be 'quick', 'standard', or 'deep'.")
+        plan = plan or SimulationPlan.for_depth(depth)
 
         sim_data = self.active_simulations[simulation_id]
         result = SimulationResult(simulation_id)
         result.status = "running"
+        state = dict(resume_state or {})
+        for event_payload in state.get("events") or []:
+            if isinstance(event_payload, dict):
+                result.add_event(SimulationEvent.from_dict(event_payload))
+
+        async def checkpoint(step_key: str) -> None:
+            if checkpoint_callback is None:
+                return
+            state["events"] = [event.to_dict() for event in result.events]
+            payload = checkpoint_callback(step_key, dict(state))
+            if inspect.isawaitable(payload):
+                await payload
 
         try:
             async with asyncio.timeout(timeout):
                 query = sim_data['query']
+                supplied_evidence = list(
+                    (sim_data.get("context") or {}).get("_simulation_evidence") or []
+                )
+                participant_specs = {
+                    str(item.get("id")): item
+                    for item in (
+                        (sim_data.get("context") or {}).get("_simulation_participants") or []
+                    )
+                    if isinstance(item, dict) and item.get("id")
+                }
+                scenario_context = {
+                    key: value
+                    for key, value in (sim_data.get("context") or {}).items()
+                    if not str(key).startswith("_simulation_")
+                }
+                scenario_context_block = json.dumps(
+                    scenario_context,
+                    sort_keys=True,
+                    default=str,
+                )
+                evidence_block = "\n".join(
+                    f"[{item.get('citation_label')}] {item.get('text')}"
+                    for item in supplied_evidence
+                    if isinstance(item, dict)
+                )
 
-                context_prompt = f"Analyze this query and identify relevant knowledge domains: {query}"
-                context_analysis = await self._call_llm(context_prompt, "Orchestrator")
-                result.add_event(SimulationEvent(1, "Orchestrator", "CONTEXTUALIZE", context_analysis, 0.9))
+                context_analysis = str(state.get("context_analysis") or "")
+                if not context_analysis:
+                    context_prompt = (
+                        "Analyze this query and identify relevant knowledge domains. "
+                        "Use only supplied evidence for factual claims and retain citation labels "
+                        "in the form [S1]. State when evidence is insufficient.\n\n"
+                        f"Query: {query}\n\nScenario context:\n"
+                        f"{scenario_context_block or '{}'}\n\nSupplied evidence:\n"
+                        f"{evidence_block or 'None'}"
+                    )
+                    context_analysis = await self._call_llm(context_prompt, "Orchestrator")
+                    state["context_analysis"] = context_analysis
+                    result.add_event(
+                        SimulationEvent(1, "Orchestrator", "CONTEXTUALIZE", context_analysis)
+                    )
+                    await checkpoint("contextualize")
 
-                personas = ["Knowledge_Expert", "Regulatory_Advisor", "Sector_Specialist"]
-                result.add_event(SimulationEvent(2, "Orchestrator", "SELECT_AGENTS", f"Selected: {personas}", 0.9))
+                personas = list(plan.participants)
+                if not any(event.action == "SELECT_AGENTS" for event in result.events):
+                    result.add_event(
+                        SimulationEvent(2, "Orchestrator", "SELECT_AGENTS", f"Selected: {personas}")
+                    )
                 result.metadata['personas'] = personas
 
-                turns = 2 if depth == "quick" else (3 if depth == "standard" else 5)
-                debate_history = []
+                turns = plan.debate_turns
+                debate_history = [str(value) for value in state.get("debate_history") or []]
 
-                for i in range(turns):
+                for i in range(len(debate_history), turns):
                     agent = personas[i % len(personas)]
+                    participant = participant_specs.get(agent) or {}
+                    participant_context = "\n".join(
+                        part
+                        for part in (
+                            (
+                                f"Assigned role: {participant.get('role')}"
+                                if participant.get("role")
+                                else ""
+                            ),
+                            (
+                                f"Perspective: {participant.get('perspective')}"
+                                if participant.get("perspective")
+                                else ""
+                            ),
+                        )
+                        if part
+                    )
                     history_context = "\n".join([f"{e.agent}: {e.content}" for e in result.events[-3:]])
                     debate_prompt = f"""Previous discussion:
 {history_context}
 
 As {agent}, provide your expert perspective on: {query}
+{participant_context}
 Consider the previous arguments and either support, refute, or extend them."""
 
                     argument = await self._call_llm(debate_prompt, agent)
                     debate_history.append(argument)
 
-                    impact_score = min(0.95, 0.7 + (len(argument) / 1000) + (i * 0.05))
-                    result.add_event(SimulationEvent(3+i, agent, "ARGUE", argument, impact_score))
+                    result.add_event(SimulationEvent(3+i, agent, "ARGUE", argument))
+                    state["debate_history"] = list(debate_history)
+                    await checkpoint(f"debate_{i + 1}")
 
                 synthesis_prompt = f"""Based on this multi-expert debate about '{query}':
 
 {chr(10).join([f'{i+1}. {arg}' for i, arg in enumerate(debate_history)])}
 
-Provide a synthesized conclusion that integrates all perspectives."""
+Provide a synthesized conclusion that integrates all perspectives. Preserve any
+supplied evidence labels such as [S1] beside the claims they support. Do not add
+labels or factual claims that were not present in the debate."""
 
-                synthesis = await self._call_llm(synthesis_prompt, "Synthesizer")
+                synthesis = str(state.get("final_conclusion") or "")
+                if not synthesis:
+                    synthesis = await self._call_llm(synthesis_prompt, "Synthesizer")
+                    state["final_conclusion"] = synthesis
+                    result.add_event(
+                        SimulationEvent(3 + turns, "Synthesizer", "SYNTHESIZE", synthesis)
+                    )
+                    await checkpoint("synthesis")
                 result.final_conclusion = synthesis
                 result.consensus_reached = True
 
-                result.confidence_score = min(0.95, 0.75 + (len(debate_history) * 0.05))
+                usage_snapshot = getattr(self.llm_gateway, "usage_snapshot", None)
+                result.budget = (
+                    usage_snapshot()
+                    if callable(usage_snapshot)
+                    else {
+                        "provider_calls_used": plan.max_provider_calls,
+                        "max_provider_calls": plan.max_provider_calls,
+                        "tokens_in": None,
+                        "tokens_out": None,
+                        "max_total_tokens": None,
+                        "estimated_cost_usd": None,
+                        "pricing_status": "not_measured",
+                    }
+                )
+                result.metadata["plan"] = plan.to_dict()
                 result.status = "completed"
 
-                self.logger.info(f"Simulation {simulation_id} completed successfully with {turns} LLM calls.")
+                self.logger.info(
+                    "Simulation %s completed successfully with %s provider calls.",
+                    simulation_id,
+                    plan.max_provider_calls,
+                )
                 return result.to_dict()
 
         except asyncio.TimeoutError:

@@ -228,13 +228,76 @@ export interface PillarLevel {
 }
 
 export interface SimulationSession {
-  uid: string;
-  name: string;
-  status: "active" | "completed" | "failed";
+  session_id: string;
+  name?: string | null;
+  status: "draft" | "queued" | "running" | "paused" | "materialization_pending" | "completed" | "failed" | "cancelled" | "timeout";
   progress?: number;
   created_at: string;
   current_step: number;
-  user_id: string;
+  total_steps?: number | null;
+  user_id: number;
+  parameters?: Record<string, unknown> | null;
+  results?: {
+    status?: string;
+    final_conclusion?: string;
+    confidence_score?: number | null;
+    validation?: { status?: string; reason?: string };
+    budget?: SimulationBudget;
+    artifacts?: Array<{ type: string; state: string }>;
+  } | null;
+  plan?: SimulationPlan;
+  budget?: SimulationBudget;
+  scenario_revision?: string | null;
+  provider_call_count?: number;
+  artifact_state?: string;
+  last_error_code?: string | null;
+  last_error_message?: string | null;
+}
+
+export interface SimulationPlan {
+  contract_version: string;
+  engine: string;
+  engine_version: string;
+  depth: "quick" | "standard" | "deep";
+  debate_turns: number;
+  participants: string[];
+  max_provider_calls: number;
+  max_tokens_per_call: number;
+  max_output_tokens: number;
+}
+
+export interface SimulationBudget {
+  max_provider_calls: number;
+  max_total_tokens: number;
+  max_output_tokens?: number;
+  max_tool_calls?: number;
+  max_cost_usd?: number | null;
+  estimated_cost_usd?: number | null;
+  pricing_status?: string;
+  provider_status?: string;
+  admissible?: boolean;
+  blocking_code?: string | null;
+  provider_calls_used?: number;
+  tokens_in?: number;
+  tokens_out?: number;
+}
+
+export interface SimulationPreflight {
+  scenario: Record<string, unknown>;
+  scenario_revision: string;
+  plan: SimulationPlan;
+  budget: SimulationBudget;
+}
+
+export interface SimulationEvent {
+  sequence: number;
+  event_type: string;
+  status: string;
+  step_key?: string | null;
+  current_step?: number | null;
+  total_steps?: number | null;
+  details: Record<string, unknown>;
+  created_at: string;
 }
 
 export type KnowledgePillar = PillarLevel;

@@ -10,7 +10,6 @@ from core.graph.graph_manager import GraphManager
 from core.memory.structured_memory_manager import StructuredMemoryManager 
 from core.system.united_system_manager import UnitedSystemManager
 from core.engine.ka_engine import KAEngine
-from core.simulation.simulation_engine import SimulationEngine
 from core.simulation.location_context_engine import LocationContextEngine
 from core.self_evolving.sekre_engine import SekreEngine
 
@@ -184,9 +183,9 @@ class SystemInitializer:
         self.location_context_engine = LocationContextEngine(self.config, self.gm, self.usm)
         self.usm.register_component("location_context_engine", self.location_context_engine)
         
-        # 6. Create Simulation Engine
-        self.simulation_engine = SimulationEngine(self.config, self.gm, self.smm, self.ka_engine)
-        self.usm.register_component("simulation_engine", self.simulation_engine)
+        # Phase 10 removed the duplicate core simulation runtime authority.
+        # Durable simulations are owned by backend.simulation.jobs.
+        self.simulation_engine = None
         
         # 7. Create SEKRE Engine (Self-Evolving Knowledge Refinement Engine)
         self.sekre_engine = SekreEngine(self.config, self.gm, self.smm, self.usm, None)  # No simulation validator yet

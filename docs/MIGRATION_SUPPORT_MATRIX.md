@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Last updated | 2026-07-14 |
 | Status | Active engineering contract; installed-release qualification pending |
 | Owner | Platform Engineering |
@@ -21,7 +21,7 @@ helpers and are not production migration paths.
 
 | Surface | Current target | Current-version result | Prior 0.1.1 result |
 |---|---|---|---|
-| PostgreSQL | Alembic `c8d9e0f1a2b3` | Phase 9 22-revision source migration chain is linear and adds durable ingestion authority; rebuilt current-version migration/restore remains to be rerun | Populated upgrade not yet qualified |
+| PostgreSQL | Alembic `d9e0f1a2b3c4` | Phase 10 23-revision source migration chain is linear and adds durable simulation authority; rebuilt current-version migration/restore remains to be rerun | Populated upgrade not yet qualified |
 | Redis | `dle.redis.v1` | Durable export, restore, and version ledger passed | Adoption/migration not yet qualified |
 | Neo4j | `dle.neo4j.v1` | Logical restore, schema marker, and parity passed | Adoption/migration not yet qualified |
 | ChromaDB | `dle.chroma.v1` | Collection restore and record parity passed | Rebuild/adoption not yet qualified |

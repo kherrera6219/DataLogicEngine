@@ -12,10 +12,10 @@ import { io, Socket } from "socket.io-client";
 // Types
 export interface SimulationProgress {
   simulation_id: string;
-  step: number;
+  current_step: number;
   total_steps: number;
-  status: "running" | "completed" | "failed";
-  message?: string;
+  status: "queued" | "running" | "paused" | "materialization_pending" | "completed" | "failed" | "cancelled";
+  step_key?: string;
 }
 
 export interface Notification {

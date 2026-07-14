@@ -1,8 +1,8 @@
 # End-to-End Governed Request Lifecycle
 
 > **Document metadata**
-> - Document version: v2.0.0
-> - Last reviewed: 2026-07-13
+> - Document version: v2.1.0
+> - Last reviewed: 2026-07-14
 > - Status: Active architecture review map
 > - Owner: Platform Architecture
 > - Contract: `governed.v1`
@@ -11,8 +11,8 @@
 
 This is the reviewer-facing walkthrough for the Phase 5 canonical request path.
 It shows the one backend-owned causal lifecycle used by built-in chat and
-approved answer clients, the exact trace boundary, and the capabilities that are
-deliberately deferred.
+approved answer clients and the exact trace boundary. Answer-mode simulation is
+redirected to the separate durable `dle-simulation.v1` session API.
 
 A governed request is not prompt to model to answer. It is an authenticated,
 policy-controlled, source-aware, bounded execution that returns an explicit
@@ -39,7 +39,7 @@ flowchart TD
     T --> R["GovernedRequest governed.v1"]
     R --> A["Admission, recursion guard, cancellation, mode check"]
     A --> SIM{"Simulation mode?"}
-    SIM -- Yes --> SB["Phase 10 capability-unavailable stage"]
+    SIM -- Yes --> SB["Require dle-simulation.v1 durable session API"]
     SIM -- No --> D["DMRF injection defense, TruthGate, tier, 17-axis route"]
     D --> ALLOW{"Policy allows?"}
     ALLOW -- No --> BLOCK["Typed policy-block result"]
@@ -102,7 +102,7 @@ flowchart LR
     PF["Provider failure"] --> NV["No completed validation stage"]
     C["Cancellation"] --> NC["No additional provider or tool calls"]
     I["Internal failure"] --> STOP["Stop later stages"]
-    S["Simulation request"] --> B["Stop after admission at Phase 10 boundary"]
+    S["Answer-mode simulation request"] --> B["Return SIMULATION_DURABLE_JOB_REQUIRED"]
     NP --> TRACE["Persist only actual stages"]
     NV --> TRACE
     NC --> TRACE
@@ -122,7 +122,7 @@ capability decision is not relabeled as a network failure.
 | `standard` | Full bounded governed lifecycle with the standard required KA set. |
 | `enhanced` | Full bounded lifecycle with the approved deeper KA preflight set. |
 | `local_review` | Local retrieval/review path; it does not claim a provider answer. |
-| `simulation` | Explicit Phase 10 capability-unavailable result immediately after admission. |
+| `simulation` | Ordinary answer path returns `SIMULATION_DURABLE_JOB_REQUIRED`; debate turns run only through the durable simulation API. |
 
 Compatibility values `chat`, `trace`, and `explain` map to `standard`; `quad`
 maps to `enhanced`. `run_ukg_pipeline=false` is deprecated and cannot bypass

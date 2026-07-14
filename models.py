@@ -355,6 +355,23 @@ class SimulationSession(db.Model):
     started_at: Optional[datetime] = db.Column(db.DateTime)
     completed_at: Optional[datetime] = db.Column(db.DateTime)
     results: Optional[Dict] = db.Column(JSON)
+    contract_version: str = db.Column(db.String(32), nullable=False, default='dle-simulation.v1')
+    engine_id: str = db.Column(db.String(64), nullable=False, default='multi-agent-debate')
+    engine_version: str = db.Column(db.String(32), nullable=False, default='3.0.0')
+    scenario_revision: Optional[str] = db.Column(db.String(64))
+    seed: int = db.Column(db.Integer, nullable=False, default=0)
+    plan: Optional[Dict] = db.Column(JSON)
+    budget: Optional[Dict] = db.Column(JSON)
+    provider_call_count: int = db.Column(db.Integer, nullable=False, default=0)
+    tool_call_count: int = db.Column(db.Integer, nullable=False, default=0)
+    checkpoint_sequence: int = db.Column(db.Integer, nullable=False, default=0)
+    revision: int = db.Column(db.Integer, nullable=False, default=1)
+    trace_id: Optional[str] = db.Column(db.String(36))
+    last_error_code: Optional[str] = db.Column(db.String(100))
+    last_error_message: Optional[str] = db.Column(db.String(500))
+    pause_requested_at: Optional[datetime] = db.Column(db.DateTime)
+    cancellation_requested_at: Optional[datetime] = db.Column(db.DateTime)
+    artifact_state: str = db.Column(db.String(32), nullable=False, default='pending')
 
     user = db.relationship('User', backref=db.backref('simulations', lazy='dynamic'))
 
@@ -373,11 +390,173 @@ class SimulationSession(db.Model):
             'started_at': self.started_at.isoformat() if self.started_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
             'parameters': self.parameters,
-            'results': self.results
+            'results': self.results,
+            'contract_version': self.contract_version,
+            'engine_id': self.engine_id,
+            'engine_version': self.engine_version,
+            'scenario_revision': self.scenario_revision,
+            'seed': self.seed,
+            'plan': self.plan or {},
+            'budget': self.budget or {},
+            'provider_call_count': self.provider_call_count,
+            'tool_call_count': self.tool_call_count,
+            'checkpoint_sequence': self.checkpoint_sequence,
+            'revision': self.revision,
+            'trace_id': self.trace_id,
+            'last_error_code': self.last_error_code,
+            'last_error_message': self.last_error_message,
+            'pause_requested_at': self.pause_requested_at.isoformat() if self.pause_requested_at else None,
+            'cancellation_requested_at': self.cancellation_requested_at.isoformat() if self.cancellation_requested_at else None,
+            'artifact_state': self.artifact_state,
         }
 
     def __repr__(self) -> str:
         return f'<SimulationSession {self.session_id}>'
+
+
+class SimulationStep(db.Model):
+    """Durable, retryable workflow step for one simulation revision."""
+
+    __tablename__ = 'simulation_steps'
+    __table_args__ = (
+        db.UniqueConstraint('session_id', 'sequence', 'attempt_number', name='uq_simulation_step_attempt'),
+        Index('ix_simulation_steps_session_status', 'session_id', 'status'),
+        Index('ix_simulation_steps_session_sequence', 'session_id', 'sequence'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    step_key = db.Column(db.String(64), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+    attempt_number = db.Column(db.Integer, nullable=False, default=1)
+    status = db.Column(db.String(32), nullable=False, default='pending')
+    input_hash = db.Column(db.String(64), nullable=False)
+    output_hash = db.Column(db.String(64))
+    output_summary = db.Column(db.Text)
+    validation = db.Column(JSON)
+    started_at = db.Column(db.DateTime)
+    completed_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+
+
+class SimulationEventRecord(db.Model):
+    """Content-free durable progress/audit event."""
+
+    __tablename__ = 'simulation_events'
+    __table_args__ = (
+        db.UniqueConstraint('session_id', 'sequence', name='uq_simulation_event_sequence'),
+        Index('ix_simulation_events_session_created', 'session_id', 'created_at'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+    event_type = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(32), nullable=False)
+    step_key = db.Column(db.String(64))
+    progress_current = db.Column(db.Integer)
+    progress_total = db.Column(db.Integer)
+    details = db.Column(JSON)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+
+
+class SimulationProviderCall(db.Model):
+    """Secret/content-free provider attempt ledger for a simulation turn."""
+
+    __tablename__ = 'simulation_provider_calls'
+    __table_args__ = (
+        db.UniqueConstraint(
+            'session_id',
+            'call_index',
+            'attempt_number',
+            name='uq_simulation_provider_call_attempt',
+        ),
+        Index('ix_simulation_provider_calls_session_status', 'session_id', 'status'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    step_id = db.Column(UUID(as_uuid=True), db.ForeignKey('simulation_steps.id', ondelete='SET NULL'))
+    call_index = db.Column(db.Integer, nullable=False)
+    attempt_number = db.Column(db.Integer, nullable=False, default=1)
+    purpose = db.Column(db.String(64), nullable=False)
+    persona_id = db.Column(db.String(64))
+    provider_type = db.Column(db.String(32), nullable=False)
+    model = db.Column(db.String(128), nullable=False)
+    status = db.Column(db.String(32), nullable=False)
+    tokens_in = db.Column(db.Integer, nullable=False, default=0)
+    tokens_out = db.Column(db.Integer, nullable=False, default=0)
+    estimated_cost_usd = db.Column(db.Numeric(12, 8))
+    pricing_status = db.Column(db.String(32), nullable=False, default='unknown')
+    disclosed_categories = db.Column(JSON)
+    latency_ms = db.Column(db.Integer)
+    error_code = db.Column(db.String(100))
+    started_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    completed_at = db.Column(db.DateTime)
+
+
+class SimulationEvidenceRecord(db.Model):
+    """Stable evidence/provenance reference used by a simulation validator."""
+
+    __tablename__ = 'simulation_evidence'
+    __table_args__ = (
+        Index('ix_simulation_evidence_session_step', 'session_id', 'step_id'),
+        Index('ix_simulation_evidence_source', 'source_uid', 'source_revision'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    step_id = db.Column(UUID(as_uuid=True), db.ForeignKey('simulation_steps.id', ondelete='CASCADE'))
+    evidence_type = db.Column(db.String(64), nullable=False)
+    source_uid = db.Column(db.String(255), nullable=False)
+    source_revision = db.Column(db.String(64), nullable=False)
+    content_hash = db.Column(db.String(64), nullable=False)
+    summary = db.Column(db.Text)
+    validation_state = db.Column(db.String(32), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+
+
+class SimulationCheckpoint(db.Model):
+    """Restart/pause checkpoint anchored to an immutable state hash."""
+
+    __tablename__ = 'simulation_checkpoints'
+    __table_args__ = (
+        db.UniqueConstraint('session_id', 'sequence', name='uq_simulation_checkpoint_sequence'),
+        Index('ix_simulation_checkpoints_session_created', 'session_id', 'created_at'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+    step_key = db.Column(db.String(64))
+    state_hash = db.Column(db.String(64), nullable=False)
+    state = db.Column(JSON, nullable=False)
+    object_key = db.Column(db.String(1024))
+    object_hash = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+
+
+class SimulationArtifact(db.Model):
+    """PostgreSQL reference to a required simulation object-store artifact."""
+
+    __tablename__ = 'simulation_artifacts'
+    __table_args__ = (
+        db.UniqueConstraint('session_id', 'artifact_type', 'revision', name='uq_simulation_artifact_revision'),
+        Index('ix_simulation_artifacts_session_state', 'session_id', 'state'),
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(db.String(36), db.ForeignKey('simulation_sessions.session_id', ondelete='CASCADE'), nullable=False)
+    artifact_type = db.Column(db.String(64), nullable=False)
+    schema_version = db.Column(db.String(64), nullable=False)
+    revision = db.Column(db.String(64), nullable=False)
+    object_key = db.Column(db.String(1024), nullable=False)
+    sha256 = db.Column(db.String(64), nullable=False)
+    size_bytes = db.Column(db.BigInteger, nullable=False)
+    state = db.Column(db.String(32), nullable=False, default='pending')
+    metadata_json = db.Column(JSON)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    verified_at = db.Column(db.DateTime)
 
 
 class KnowledgeGraphNode(db.Model):

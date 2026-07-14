@@ -67,13 +67,9 @@ def init_truth_engine(db_session):
     from backend.truth_engine.truth_memory.manager import TruthMemoryManager
     from backend.truth_engine.truth_link.bus import TruthLinkBus
 
+    # Simulation is a separate Phase 10 bounded workflow. TruthCore must not
+    # instantiate a legacy simulation engine or create a second execution path.
     simulation_engine = None
-    try:
-        from core.simulation.legacy_simulation_engine import create_simulation_engine
-        simulation_engine = create_simulation_engine()
-        logger.info("SimulationEngine created for TruthCore integration")
-    except Exception as e:
-        logger.warning("Could not create SimulationEngine: %s", e)
 
     from backend.knowledge_algorithms.ka_master_controller import get_controller
     ka_controller = get_controller()

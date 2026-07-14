@@ -444,7 +444,7 @@ async def test_cancellation_stops_before_routing_and_provider(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_simulation_stops_at_recorded_phase10_boundary(monkeypatch):
+async def test_simulation_redirects_to_durable_job_contract(monkeypatch):
     import backend.governed_execution.orchestrator as module
 
     def unexpected_retrieval(*args, **kwargs):
@@ -456,13 +456,13 @@ async def test_simulation_stops_at_recorded_phase10_boundary(monkeypatch):
         _request(mode=GovernedMode.SIMULATION)
     )
 
-    assert result.failure.kind is GovernedFailureKind.CAPABILITY_UNAVAILABLE
-    assert result.failure.code == "SIMULATION_PHASE10_BOUNDARY"
-    assert result.failure.stage == "simulation_boundary"
+    assert result.failure.kind is GovernedFailureKind.VALIDATION_FAILURE
+    assert result.failure.code == "SIMULATION_DURABLE_JOB_REQUIRED"
+    assert result.failure.stage == "simulation_job_contract"
     assert gateway.provider_calls == 0
     assert [stage.name for stage in result.stages] == [
         "admission",
-        "simulation_boundary",
+        "simulation_job_contract",
         "persistence",
     ]
     assert result.stages[1].status.value == "failed"

@@ -89,6 +89,18 @@ def _dispose_stray_sqlalchemy_engines() -> None:
                 pass
 
 
+def _stop_test_background_workers() -> None:
+    """Drain fixture-owned workers before rebinding or deleting SQLite."""
+    for extension_name in (
+        "dle_gateway_job_runner",
+        "dle_ingestion_job_runner",
+        "dle_simulation_job_runner",
+    ):
+        runner = flask_app.extensions.pop(extension_name, None)
+        if runner is not None:
+            runner.stop()
+
+
 @pytest.fixture
 def app():
     """Provide app fixture for tests that need app context."""
@@ -123,6 +135,7 @@ def app():
             return None
 
     with flask_app.app_context():
+        _stop_test_background_workers()
         _dispose_sqlalchemy_engines()
         if TEST_DB_PATH.exists():
             TEST_DB_PATH.unlink()
@@ -131,6 +144,7 @@ def app():
         drop_all_test_tables()
         db.create_all()
         yield flask_app
+        _stop_test_background_workers()
         drop_all_test_tables()
         _dispose_sqlalchemy_engines()
         if TEST_DB_PATH.exists():

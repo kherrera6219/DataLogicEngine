@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.3.0 |
+| Document version | v4.4.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -54,7 +54,11 @@ execution, validation, and transactional trace persistence.
 `LLMGateway.execute()` remains the canonical gateway entry. `process()` is a thin
 compatibility adapter. The public TruthCore entry is also an adapter, and SDK
 0.6 is a service client rather than a second reasoning implementation.
-Simulation returns an explicit Phase 10 capability boundary after admission.
+Direct answer-mode simulation returns `SIMULATION_DURABLE_JOB_REQUIRED` after
+admission and points to the separate durable simulation API. ADR-0007 selects
+the backend multi-agent engine as the sole user-triggered authority; core/FROST
+and legacy engines are reference-only and are absent from production entry
+points.
 
 The Phase 6 contract adds typed `SourceRecord`, trace-bound `EvidenceRecord`,
 stable claim offsets, persisted claim/evidence relationships, citations,
@@ -67,6 +71,27 @@ TruthCore's production preflight publishes `truthcore-preflight.v1` state and
 failure transitions and can execute only production-enabled KA catalog entries.
 Experimental and placeholder KAs are disabled in governed production traces.
 Legacy hash-vector DRL output is not a production convergence signal.
+
+### Phase 10 durable simulation architecture
+
+`dle-simulation.v1` owns versioned scenarios, participants, corpus references,
+plans, budgets, expected artifacts, and results. Quick, standard, and deep plans
+declare exact 4/5/7 provider-call ceilings. The simulation adapter exposes only
+`generate_simulation_turn`; it cannot call the full governed pipeline and
+enforces call/token/tool/cost/deadline/cancellation/pause limits.
+
+PostgreSQL is authoritative for sessions, steps, events, provider attempts,
+evidence, checkpoints, artifact records, controls, and terminal state. Redis is
+content-free coordination and progress only. Required transcript/result objects
+use the `simulation-artifacts` authority. Approved live measured summaries may
+be indexed in Chroma and relationships in Neo4j; deterministic fixed-seed
+qualification results are not promoted as measured knowledge.
+
+Every completed provider turn has a durable usage record and verified checkpoint
+before the next turn. Restart resumes only from verified state and fails safely
+after an ambiguous uncheckpointed provider call. Numeric confidence exists only
+when cited evidence and explicit validators support it; otherwise the API and UI
+report Not measured.
 
 ### Phase 3 internal data-plane checkpoint
 
@@ -794,6 +819,12 @@ Then inspect these implementation files:
 11. `backend/storage/connection_manager.py`
 12. `frontend/components/Chat/LiveTracePanel.tsx`
 13. `.github/workflows/ci.yml`
+
+## Change notes for v4.4.0
+
+1. Added ADR-0007's sole simulation authority, exact plan budgets, non-recursive
+   adapter, durable store responsibilities, verified restart, and confidence
+   truth boundary.
 
 ## Change notes for v4.2.0
 

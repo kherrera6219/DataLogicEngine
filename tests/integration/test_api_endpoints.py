@@ -142,7 +142,7 @@ class TestSimulationEndpoints:
         assert response.headers["Deprecation"] == "true"
 
     def test_run_simulation(self, authenticated_client):
-        """Test running a simulation."""
+        """Legacy run requests queue the authoritative durable workflow."""
         # Create simulation first
         create_response = authenticated_client.post('/api/simulations', json={
             'name': 'Run Test',
@@ -154,13 +154,16 @@ class TestSimulationEndpoints:
         sim_data = create_response.get_json()
         session_id = sim_data["data"]["session_id"]
 
-        # Run simulation
-        response = authenticated_client.post(f'/api/simulations/{session_id}/run')
+        # Isolate the background worker from this fixture's in-memory database;
+        # durable execution itself is covered by the Phase 10 authority tests.
+        with patch("backend.simulation.jobs.get_simulation_job_runner") as get_runner:
+            response = authenticated_client.post(f'/api/simulations/{session_id}/run')
 
-        assert response.status_code == 503
+        assert response.status_code == 202
         body = response.get_json()
-        assert body["success"] is False
-        assert body["error"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+        assert body["success"] is True
+        assert body["data"]["status"] == "queued"
+        get_runner.return_value.submit.assert_called_once_with(session_id)
         assert response.headers["Deprecation"] == "true"
 
     def test_get_simulation_results(self, authenticated_client):
@@ -175,21 +178,22 @@ class TestSimulationEndpoints:
         sim_data = create_response.get_json()
         session_id = sim_data["data"]["session_id"]
 
-        run_response = authenticated_client.post(f'/api/simulations/{session_id}/run')
-        assert run_response.status_code == 503
+        with patch("backend.simulation.jobs.get_simulation_job_runner") as get_runner:
+            get_runner.return_value.live_state.return_value = None
+            run_response = authenticated_client.post(f'/api/simulations/{session_id}/run')
+            assert run_response.status_code == 202
 
-        # Get results
-        response = authenticated_client.get(f'/api/simulations/{session_id}')
+            # A queued job exposes durable status immediately while the worker
+            # continues asynchronously.
+            response = authenticated_client.get(f'/api/simulations/{session_id}')
 
         assert response.status_code == 200
         body = response.get_json()
         assert body["success"] is True
         assert body["data"]["session_id"] == session_id
-        assert body["data"]["status"] == "deferred"
-        assert (
-            body["data"]["results"]["governed_boundary"]["failure"]["code"]
-            == "SIMULATION_PHASE10_BOUNDARY"
-        )
+        assert body["data"]["status"] == "queued"
+        assert body["data"]["results"] == {}
+        get_runner.return_value.reconcile_artifacts.assert_called_once()
         assert response.headers["Deprecation"] == "true"
 
 
@@ -243,7 +247,7 @@ class TestPersonaEndpoints:
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
         assert response.status_code == 503
-        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+        assert response.get_json()["failure"]["code"] == "SIMULATION_DURABLE_JOB_REQUIRED"
 
     def test_query_sector_expert(self, authenticated_client):
         """Test querying sector expert persona."""
@@ -257,7 +261,7 @@ class TestPersonaEndpoints:
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
         assert response.status_code == 503
-        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+        assert response.get_json()["failure"]["code"] == "SIMULATION_DURABLE_JOB_REQUIRED"
 
     def test_query_regulatory_expert(self, authenticated_client):
         """Test querying regulatory expert persona."""
@@ -271,7 +275,7 @@ class TestPersonaEndpoints:
 
         # Accept 200 for success, 302 for redirect, 400 for validation, 404 if not found, 500 for internal errors
         assert response.status_code == 503
-        assert response.get_json()["failure"]["code"] == "SIMULATION_PHASE10_BOUNDARY"
+        assert response.get_json()["failure"]["code"] == "SIMULATION_DURABLE_JOB_REQUIRED"
 
     def test_list_persona_types(self, authenticated_client):
         """Test listing available persona types."""

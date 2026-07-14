@@ -205,6 +205,50 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
             source_file.object_sha256 = hashlib.sha256(body).hexdigest()
             source_file.object_status = "ready"
         session.add(source_file)
+    elif event.entity_type == "simulation_artifact":
+        from datetime import UTC, datetime
+        from sqlalchemy.orm import object_session
+
+        from models import SimulationArtifact, SimulationSession
+
+        session = object_session(event)
+        artifact = (
+            session.query(SimulationArtifact).filter_by(object_key=key).one_or_none()
+            if session is not None
+            else None
+        )
+        if artifact is None:
+            raise MaterializationDeliveryError("simulation_artifact_missing")
+        if (
+            artifact.sha256 != expected_body_hash
+            or artifact.revision != expected_body_hash
+            or event.source_revision != f"sha256:{expected_body_hash}"
+        ):
+            raise MaterializationDeliveryError("simulation_artifact_hash_mismatch")
+        artifact.state = "ready"
+        artifact.verified_at = datetime.now(UTC)
+        metadata_json = dict(artifact.metadata_json or {})
+        metadata_json["bucket"] = bucket
+        artifact.metadata_json = metadata_json
+        pending = session.query(SimulationArtifact).filter(
+            SimulationArtifact.session_id == artifact.session_id,
+            SimulationArtifact.id != artifact.id,
+            SimulationArtifact.state != "ready",
+        ).first()
+        if pending is None:
+            simulation = session.query(SimulationSession).filter_by(
+                session_id=artifact.session_id
+            ).one_or_none()
+            if simulation is not None and simulation.status == "materialization_pending":
+                simulation.status = "completed"
+                simulation.artifact_state = "ready"
+                results = dict(simulation.results or {})
+                results["status"] = "completed"
+                for reference in results.get("artifacts") or []:
+                    reference["state"] = "ready"
+                simulation.results = results
+                session.add(simulation)
+        session.add(artifact)
     if spooled_body_path is not None:
         spooled_body_path.unlink(missing_ok=True)
     return event.source_revision

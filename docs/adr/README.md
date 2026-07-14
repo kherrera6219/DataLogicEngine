@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -28,6 +28,7 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 | `ADR-0004-seaweedfs-replacement-qualification.md` | SeaweedFS candidate replacement qualification | Proposed / candidate only |
 | `ADR-0005-external-gateway-boundary.md` | External principal, network profile, virtual-model, and compatibility boundary | Accepted / Phase 8 implementation |
 | `ADR-0006-memory-authority-and-trust-boundary.md` | Memory authority, trust-state, lifecycle, and migration boundary | Accepted / Phase 9 implementation |
+| `ADR-0007-authoritative-simulation-engine.md` | Multi-agent debate authority, bounded provider adapter, durable lifecycle, and FROST component boundary | Accepted / Phase 10 engineering selection |
 
 ---
 
@@ -100,6 +101,11 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.10.0
+
+1. Added ADR-0007 selecting one backend multi-agent simulation workflow and
+   limiting FROST to a possible checkpoint implementation.
 
 ## Change notes for v2.9.0
 

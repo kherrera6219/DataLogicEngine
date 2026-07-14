@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.7.0 |
-| Completed phase | Phase 9 engineering checkpoint - Ingestion, retrieval, graph, and memory completion |
-| Current phase | Phase 10 - Simulation completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.8.0 |
+| Completed phase | Phase 10 engineering checkpoint - Simulation completion |
+| Current phase | Phase 11 - MCP and connector completion |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -290,23 +290,55 @@ Knowledge/Graph truth. Earlier installed gates, alert 389, and final object-stor
 Replacement Control also remain open; SeaweedFS is still candidate-only and
 MinIO remains the production architecture.
 
-Phase 10 is active. It must select one simulation engine and make provider use,
-budgets, persistence, progress, cancellation, restart, evidence, confidence, and
-desktop behavior bounded and truthful.
+## Phase 10 engineering checkpoint
+
+Phase 10 reached its engineering checkpoint on 2026-07-14. ADR-0007 selects
+`backend/simulation/multi_agent_engine.py` as the sole user-triggered runtime
+authority under `dle-simulation.v1`; production entry points no longer
+instantiate the core/FROST or legacy engines.
+
+Versioned quick/standard/deep plans declare exact 4/5/7 provider-call ceilings.
+The simulation-specific adapter has no full-pipeline process/execute method and
+enforces provider-call, token, cost, deadline, cancellation, and pause limits.
+Live mode resolves one configured supported provider and fails closed when
+pricing/admission cannot be established. Fixed-seed mode is stable across
+session IDs and is explicitly qualification-only.
+
+PostgreSQL owns sessions, steps, events, calls, evidence, checkpoints, artifacts,
+controls, and terminal status. Redis carries only content-free queue, lease,
+control, and progress state. Required transcript and result artifacts reconcile
+through `simulation-artifacts`; approved live measured summaries and
+relationships may materialize to Chroma and Neo4j. Restart resumes only from a
+verified checkpoint and blocks unsafe retry after an ambiguous uncheckpointed
+provider call.
+
+The Simulation Monitor now displays preflight call/token/tool/cost ceilings,
+provider/pricing/admission state, durable progress, run/pause/resume/retry/
+cancel, result/artifact state, and explicit Not measured confidence when
+evidence validators do not support a numeric measure. Final validation passed
+2,050 backend tests with 18 skipped and all 410 frontend tests, plus frontend
+typecheck/lint/build and Ruff. Evidence is under
+`reports/production-readiness/2026/phase-10/`.
+
+Installed CP10 live-provider, restart, event/UI, five-service materialization,
+artifact, and visual proof remain release-blocking until the application is
+rebuilt and installed. Earlier installed gates, alert 389, and final object-store
+Replacement Control remain open. SeaweedFS is candidate-only and MinIO remains
+the production architecture.
 
 ## Exact next action
 
-1. Inventory and compare the live multi-agent debate and FROST implementations,
-   all simulation routes/callers/UI controls, provider recursion/budget paths,
-   persistence stores, progress events, and lifecycle operations.
-2. Add failure-first tests for duplicate authority, recursive governed calls,
-   budget overflow, cancellation, partial persistence, restart, and fixed-seed
-   determinism.
-3. Select the authoritative engine in an ADR; archive or disable duplicate
-   runtime entry points before expanding the selected implementation.
-4. Define versioned scenario, participant, event, call, evidence, checkpoint,
-   artifact, and result contracts and one bounded simulation provider adapter.
-5. Keep every installed-only Phase 3-9 gate, alert 389, and the SeaweedFS
+1. Inventory every MCP transport, REST/JSON-RPC/IPC route, registry, lifecycle,
+   process launcher, tool/resource/prompt/sampling path, scope/consent check,
+   credential/network/file authority, persistence path, and visible UI control.
+2. Identify production-visible placeholder, echo, caller-controlled context,
+   direct KA/graph/provider, unbounded output, and unsafe child-process behavior.
+3. Add malicious fixture tests for identity/scope forgery, command/path/network/
+   file escape, malformed or oversized JSON-RPC, timeouts, cancellation,
+   process-tree cleanup, secret redaction, and tool-result prompt injection.
+4. Define the server-owned MCP context, scope, consent, lifecycle, persistence,
+   and governed-result contracts before expanding runtime behavior.
+5. Keep every installed-only Phase 3-10 gate, alert 389, and the SeaweedFS
    candidate-only boundary release-blocking until rebuilt installed evidence can
    close them.
 

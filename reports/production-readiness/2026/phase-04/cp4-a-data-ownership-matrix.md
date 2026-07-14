@@ -3,8 +3,8 @@
 ## Status
 
 - Contract schema: `1.0.0`
-- Captured: `2026-07-14T01:22:48.120703+00:00`
-- PostgreSQL entities covered: **67**
+- Captured: `2026-07-14T19:12:36.711740+00:00`
+- PostgreSQL entities covered: **83**
 - Registry errors: **0**
 - Production object-store authority: **minio**
 - SeaweedFS production selected: **No**
@@ -20,7 +20,7 @@ target gaps are assigned to their owning later production-plan phases.
 | Data class | Authority | Stable ID | Materializations | Transaction boundary | Compensation | Status |
 |---|---|---|---|---|---|---|
 | admission_counters | redis | admission:{principal_id}:{window}:{policy_revision} | none | authority_store_transaction | fail_closed_when_counter_state_is_unavailable | implemented |
-| asynchronous_jobs_and_results | postgresql | job.id | redis | authority_store_transaction | requeue_only_from_committed_authority_state | durable_job_and_result_tables_missing |
+| asynchronous_jobs_and_results | postgresql | gateway_async_runs.id | redis, minio | authority_store_transaction | requeue_only_from_committed_authority_state | implemented |
 | audit_artifact_bundles | minio | audit-logs/{run_id}.json | postgresql | postgres_outbox_then_required_object_put | keep_audit_commit_incomplete_and_retry_object_put | implemented |
 | chat_transcripts | postgresql | chat_sessions.id/chat_messages.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | coordinated_backup_manifest | local_filesystem | backup_id:manifest_schema_version | minio | maintenance_mode_multi_store_checkpoint | discard_incomplete_backup_and_resume_only_after_visible_failure | current_version_engineering_qualified_release_authorization_deferred |
@@ -31,22 +31,25 @@ target gaps are assigned to their owning later production-plan phases.
 | gateway_audit_events | postgresql | ai_audit_events.id | minio | authority_store_transaction | keep_request_incomplete_until_audit_bundle_is_verified | implemented |
 | graph_nodes_and_relationships | postgresql | ukg_knowledge_nodes.uid/ukg_knowledge_edges.source_node_id:type:target_node_id | neo4j | postgres_outbox_then_idempotent_neo4j_merge | retain_outbox_pending_and_report_graph_degraded | implemented |
 | graph_snapshots | minio | graphs/{graph_revision}/{object_id} | neo4j, postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_snapshot_workflow_pending |
-| idempotency_records | postgresql | idempotency_record.id | redis | authority_store_transaction | reject_duplicate_or_retry_pending_authority_record | durable_target_table_missing |
+| idempotency_records | postgresql | gateway_idempotency_records.id | redis | authority_store_transaction | reject_duplicate_or_retry_pending_authority_record | implemented |
+| ingestion_jobs_and_corpus_revisions | postgresql | ingestion_jobs.id/ingestion_files.id/ingestion_chunks.id | redis, neo4j, chroma, minio | postgres_job_and_outbox_then_required_materializations | retain_checkpoint_and_resume_only_from_committed_authority | implemented |
 | mcp_metadata | postgresql | mcp_servers/resources/tools/prompts.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | owner_identity_and_sessions | postgresql | users.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_configuration | postgresql | llm_providers.id | dpapi_vault | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_usage | postgresql | llm_provider_usage.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | retained_configuration | local_json | configuration_file:schema_version | dpapi_vault | validated_atomic_file_replace | retain_last_valid_configuration | implemented |
+| retained_gateway_job_results | minio | gateway-results/jobs/{job_id}/result.enc | postgresql | postgres_job_then_required_object_put | keep_result_pending_until_ciphertext_hash_verifies | implemented |
 | routing_policies | postgresql | model_routing_policies.id | redis | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | runtime_cache | redis | cache_namespace:key:source_revision | none | authority_store_transaction | invalidate_and_recompute_from_authority | implemented |
 | service_credentials | dpapi_vault | installation_id:credential_schema_version | none | dpapi_encrypt_then_atomic_file_replace | retain_previous_vault_and_refuse_service_start | implemented |
 | simulation_artifacts | minio | simulation-artifacts/{snapshot_id}.json | postgresql | postgres_outbox_then_required_object_put | mark_simulation_artifact_pending_and_retry | implemented |
+| simulation_execution_state | postgresql | simulation_sessions.session_id/simulation_steps.id | redis, neo4j, chroma, minio | postgres_step_checkpoint_then_required_artifact_materialization | resume_only_from_verified_checkpoint_and_remaining_budget | durable_authority_implemented_engine_execution_in_progress |
 | trace_exports | minio | trace-exports/{export_id} | postgresql | postgres_outbox_then_required_object_put | keep_trace_export_pending_and_retry | bucket_contract_implemented_workflow_migration_pending |
 | trace_records | postgresql | trace_runs.run_id | minio | authority_store_transaction | mark_trace_artifact_pending_and_reconcile | implemented |
 | truthlink_events | postgresql | truth_link_messages.id | redis | postgres_outbox_then_redis_stream_publish | replay_unpublished_event_from_postgresql | implemented |
-| unified_memory_graph | local_json | vertex.vertex_id/edge.source_id:target_id:edge_type | postgresql | atomic_file_replace | retain_previous_file_and_rebuild_from_last_valid_revision | legacy_retained_authority_pending_phase_9_consolidation |
+| unified_memory_graph | local_json | vertex.vertex_id/edge.source_id:target_id:edge_type | postgresql | atomic_file_replace | retain_previous_file_and_rebuild_from_last_valid_revision | versioned_session_working_memory_not_trusted_knowledge_authority |
 | vector_embeddings | postgresql | source_type:source_id:embedding_model:source_revision | chroma | postgres_outbox_then_idempotent_chroma_upsert | retain_source_revision_pending_and_rebuild_collection_entry | implemented |
-| virtual_models | postgresql | virtual_model.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | target_table_missing_phase_8_dependency |
+| virtual_models | postgresql | gateway_virtual_models.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 
 ## PostgreSQL physical entities
 
@@ -71,6 +74,13 @@ their graph, vector, cache, object, or file materializations.
 | `external_api_keys` | `id` |
 | `feature_flag_audit_events` | `id` |
 | `feature_flags` | `id` |
+| `gateway_async_runs` | `id` |
+| `gateway_idempotency_records` | `id` |
+| `gateway_virtual_models` | `id` |
+| `ingestion_attempts` | `id` |
+| `ingestion_chunks` | `id` |
+| `ingestion_files` | `id` |
+| `ingestion_jobs` | `id` |
 | `ka_artifact_links` | `id` |
 | `llm_provider_usage` | `id` |
 | `llm_providers` | `id` |
@@ -83,10 +93,17 @@ their graph, vector, cache, object, or file materializations.
 | `password_history` | `id` |
 | `persona_evidence_links` | `id` |
 | `prompt_templates` | `id` |
+| `simulation_artifacts` | `id` |
+| `simulation_checkpoints` | `id` |
+| `simulation_events` | `id` |
+| `simulation_evidence` | `id` |
+| `simulation_provider_calls` | `id` |
 | `simulation_sessions` | `id` |
+| `simulation_steps` | `id` |
 | `stage_artifact_links` | `id` |
 | `trace_artifacts` | `artifact_id` |
 | `trace_axis_vectors` | `vector_id` |
+| `trace_citations` | `citation_id` |
 | `trace_claims` | `claim_id` |
 | `trace_evidence` | `evidence_id` |
 | `trace_exports` | `export_id` |
@@ -94,10 +111,12 @@ their graph, vector, cache, object, or file materializations.
 | `trace_memory_events` | `event_id` |
 | `trace_personas` | `persona_id` |
 | `trace_policy_decisions` | `decision_id` |
+| `trace_quality_decisions` | `decision_id` |
 | `trace_runs` | `run_id` |
 | `trace_spans` | `span_id` |
 | `trace_stage_logs` | `log_id` |
 | `trace_stages` | `stage_id` |
+| `trace_validators` | `validator_id` |
 | `truth_artifacts` | `id` |
 | `truth_audit_events` | `id` |
 | `truth_budgets` | `id` |
@@ -126,15 +145,13 @@ their graph, vector, cache, object, or file materializations.
 
 ## Open implementation gaps exposed by the contract
 
-- `asynchronous_jobs_and_results`: `durable_job_and_result_tables_missing`.
 - `coordinated_backup_manifest`: `current_version_engineering_qualified_release_authorization_deferred`.
 - `deliverables`: `object_write_implemented_durable_index_incomplete`.
 - `evaluation_data`: `bucket_created_workflow_contract_pending`.
 - `graph_snapshots`: `bucket_created_snapshot_workflow_pending`.
-- `idempotency_records`: `durable_target_table_missing`.
+- `simulation_execution_state`: `durable_authority_implemented_engine_execution_in_progress`.
 - `trace_exports`: `bucket_contract_implemented_workflow_migration_pending`.
-- `unified_memory_graph`: `legacy_retained_authority_pending_phase_9_consolidation`.
-- `virtual_models`: `target_table_missing_phase_8_dependency`.
+- `unified_memory_graph`: `versioned_session_working_memory_not_trusted_knowledge_authority`.
 
 ## Required cross-store envelope
 

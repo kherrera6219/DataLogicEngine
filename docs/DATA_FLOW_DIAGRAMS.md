@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
+| Document version | v3.3.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -86,7 +86,7 @@ flowchart TD
     A[Authenticated prompt/action] --> B[GovernedRequest governed.v1]
     B --> C[Admission and cancellation]
     C --> D{Simulation?}
-    D -- Yes --> X[Phase 10 unavailable result]
+    D -- Yes --> X[Require dle-simulation.v1 durable session API]
     D -- No --> E[DMRF defense, TruthGate, tier, axes]
     E --> F{Allowed?}
     F -- No --> Y[Policy-blocked result]
@@ -105,6 +105,12 @@ flowchart TD
 Every mode uses the same trace ID from request admission through persisted run,
 stage, evidence, claim, KA, persona, policy, API, and UI state. The SDK consumes
 the service result and does not add or reconstruct execution stages.
+
+Durable simulation sessions then use the separate Phase 10 authority:
+`scenario/preflight -> PostgreSQL job -> Redis coordination -> bounded
+simulation-only provider -> verified checkpoints -> required S3 artifacts ->
+validated result`. Neo4j/Chroma receive only approved live measured
+materializations.
 
 ---
 

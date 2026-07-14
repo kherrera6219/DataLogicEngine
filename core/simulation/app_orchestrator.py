@@ -10,7 +10,6 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Import core components
-from core.simulation.simulation_engine import SimulationEngine
 from core.simulation.location_context_engine import LocationContextEngine
 
 class AppOrchestrator:
@@ -62,12 +61,9 @@ class AppOrchestrator:
                 db_manager=self.db_manager
             )
             
-            self.simulation_engine = SimulationEngine(
-                ka_engine=self.ka_engine,
-                memory_manager=self.memory_manager,
-                graph_manager=self.graph_manager,
-                db_manager=self.db_manager
-            )
+            # Phase 10 removed this duplicate in-process simulation authority.
+            # Callers must create a durable session through /api/v1/simulations.
+            self.simulation_engine = None
             
             self.logging.info(f"[{datetime.now()}] UKG system components initialized successfully")
             
@@ -98,7 +94,8 @@ class AppOrchestrator:
         if not self.simulation_engine:
             return {
                 'status': 'error',
-                'message': 'Simulation Engine not available',
+                'code': 'SIMULATION_DURABLE_JOB_REQUIRED',
+                'message': 'Use the durable simulation API at /api/v1/simulations',
                 'timestamp': datetime.now().isoformat()
             }
         

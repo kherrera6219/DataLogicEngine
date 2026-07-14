@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.7.0 |
-| Completed phase | Phase 9 engineering checkpoint - Ingestion, retrieval, graph, and memory completion |
-| Next phase | Phase 10 - Simulation completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.8.0 |
+| Completed phase | Phase 10 engineering checkpoint - Simulation completion |
+| Next phase | Phase 11 - MCP and connector completion |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -165,6 +165,26 @@ conditions, and exit gates remain authoritative in the active root plan.
   labels. Final Phase 9 validation reports 2,033 backend tests passed (18
   skipped) and 407 frontend tests passed, plus frontend typecheck/lint/build,
   Ruff, and Python compilation.
+- Phase 10 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-10/`; rebuilt-installed simulation,
+  live-provider, service, and artifact proof remain explicit release gates.
+- ADR-0007 selects `backend/simulation/multi_agent_engine.py` as the sole
+  user-triggered authority under `dle-simulation.v1`. Core/FROST and legacy
+  engines are reference-only and no production entry point instantiates them.
+- Quick, standard, and deep plans declare exact 4/5/7 provider-call ceilings.
+  One simulation-only adapter enforces call, token, cost, timeout, cancellation,
+  pause, and content-free attempt-ledger limits without recursively invoking
+  `governed.v1`.
+- PostgreSQL now owns sessions, steps, events, provider calls, evidence,
+  checkpoints, artifacts, cancellation, and terminal state; Redis is
+  content-free coordination; required transcript/result objects use the
+  `simulation-artifacts` authority. Live measured summaries/relationships are
+  eligible for Chroma/Neo4j materialization.
+- The desktop Simulation Monitor exposes preflight provider/call/token/tool/cost
+  admission, real progress, run/pause/resume/retry/cancel, artifacts, results,
+  and explicit Not measured confidence. Fixed-seed output is qualification-only.
+- Final Phase 10 validation reports 2,050 backend tests passed (18 skipped) and
+  410 frontend tests passed, plus frontend typecheck/lint/build and Ruff.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -279,6 +299,30 @@ useful to governed responses.
 - [x] Preserve rebuilt-installed CP9-D and Knowledge/Graph visual acceptance as
       release gates; source tests are not represented as installed evidence.
 
+## Phase 10 objective - engineering checkpoint complete
+
+Select one simulation authority and deliver bounded provider use, durable
+progress, evidence-aware results, and safe lifecycle controls.
+
+## Phase 10 work packages
+
+- [x] Compare multi-agent debate and FROST/core implementations and select the
+      backend multi-agent workflow in ADR-0007.
+- [x] Define `dle-simulation.v1` scenarios, participants, plans, budgets,
+      artifacts, results, events, calls, evidence, and checkpoints.
+- [x] Enforce exact call/token/tool/time/cost budgets through a non-recursive
+      simulation-only provider adapter and fail closed on unknown live pricing.
+- [x] Persist authoritative lifecycle state in PostgreSQL, use Redis only for
+      content-free coordination, and reconcile required S3 artifacts.
+- [x] Implement fixed-seed and bounded live modes, real progress, pause/resume/
+      cancel/retry/restart behavior, and safe ambiguous-call recovery.
+- [x] Derive confidence only from explicit cited evidence and validators;
+      qualification fixtures remain Not measured.
+- [x] Replace the unavailable Simulation UI with supported preflight, lifecycle,
+      result, artifact, and truthful confidence controls.
+- [x] Preserve installed simulation, live-provider, service/materialization, and
+      visual acceptance as release gates for the rebuilt application.
+
 ## Phase 3 deferred release gates
 
 | Checkpoint | Required result | Status |
@@ -339,6 +383,15 @@ useful to governed responses.
 | CP9-D | Source changes alter citations, validation, or answer behavior | Source-level causal retrieval tests passed; rebuilt installed E2E proof remains release-blocking |
 | CP9-E | Source deletion reconciles every store and memory layer | Reference-aware cross-store and memory deletion tests passed; installed lifecycle drill deferred |
 
+## Phase 10 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP10-B | Installed live-provider run proves declared provider/token/tool/cost ceilings | Source budget and failure-first tests passed; owner-configured installed provider proof deferred |
+| CP10-C | Rebuilt app restart resumes from a verified checkpoint or terminates safely without duplicate calls | Restart/checkpoint tests passed; packaged lifecycle drill deferred |
+| CP10-D | Installed UI progress and controls match durable transitions and artifact state | Frontend/API contract tests passed; packaged visual/event parity deferred |
+| CP10-E | Installed result, evidence, validators, trace, S3 artifacts, and approved graph/vector links reconcile | Deterministic/source contracts passed; populated five-service installed proof deferred |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -353,8 +406,8 @@ useful to governed responses.
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Engineering checkpoint complete 2026-07-13; installed CP7-F retained** |
 | 8 | External API Gateway and LLM middleware productization | **Engineering checkpoint complete 2026-07-13; installed gates retained** |
 | 9 | Ingestion, retrieval, graph, and memory completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
-| 10 | Simulation completion | **Active** |
-| 11 | MCP and connector completion | Blocked by prior phases |
+| 10 | Simulation completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
+| 11 | MCP and connector completion | **Active** |
 | 12 | UI workflow, project model, and accessibility completion | Blocked by prior phases |
 | 13 | Observability, diagnostics, compliance semantics, and support | Blocked by prior phases |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | Blocked by prior phases |
@@ -379,11 +432,13 @@ useful to governed responses.
 
 ## Exact next action
 
-Begin Phase 10 with a live comparison of the multi-agent debate and FROST
-simulation implementations, every simulation route/caller/UI control, provider
-recursion and budget path, PostgreSQL/Redis/Neo4j/Chroma/S3 persistence, and
-pause/resume/cancel/retry/restart behavior. Add failure-first authority,
-recursion, budget, cancellation, persistence, and deterministic-seed tests;
-then select one engine in an ADR before extending runtime behavior. Preserve
-`governed.v1`, every installed Phase 3-9 gate, alert 389, and the SeaweedFS
-candidate-only Replacement Control boundary.
+Begin Phase 11 with a live MCP inventory: transports, REST/JSON-RPC/IPC routes,
+server/client registries, tools/resources/prompts/sampling, process launch and
+shutdown, caller-supplied context, scopes/consent, credential storage, network/
+file authority, KA/graph/provider integrations, persistence, UI controls, and
+placeholder behavior. Add failure-first tests for forged identity/scope,
+command/path injection, unauthorized network/file access, oversized or
+malformed output, timeout/cancellation, process-tree cleanup, secret leakage,
+and tool-result prompt injection before changing production behavior. Preserve
+`governed.v1`, `dle-simulation.v1`, every installed Phase 3-10 gate, alert
+389, and the SeaweedFS candidate-only Replacement Control boundary.

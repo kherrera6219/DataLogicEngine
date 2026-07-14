@@ -205,23 +205,30 @@ class GovernedExecutionOrchestrator:
         if request.mode is GovernedMode.SIMULATION:
             boundary = self._begin(
                 context,
-                "simulation_boundary",
-                "capability",
-                {"required_phase": 10},
+                "simulation_job_contract",
+                "contract",
+                {"successor": "/api/v1/simulations"},
             )
             self._finish(
                 context,
                 boundary,
                 GovernedStageStatus.FAILED,
-                outputs={"available": False, "required_phase": 10},
-                error_code="SIMULATION_PHASE10_BOUNDARY",
+                outputs={
+                    "available": True,
+                    "requires_durable_session": True,
+                    "successor": "/api/v1/simulations",
+                },
+                error_code="SIMULATION_DURABLE_JOB_REQUIRED",
             )
             return await self._failure(
                 context,
-                kind=GovernedFailureKind.CAPABILITY_UNAVAILABLE,
-                code="SIMULATION_PHASE10_BOUNDARY",
-                message="Simulation execution remains disabled until the Phase 10 bounded workflow is connected",
-                stage="simulation_boundary",
+                kind=GovernedFailureKind.VALIDATION_FAILURE,
+                code="SIMULATION_DURABLE_JOB_REQUIRED",
+                message=(
+                    "Simulation execution requires the durable simulation session API "
+                    "at /api/v1/simulations"
+                ),
+                stage="simulation_job_contract",
             )
 
         routing_stage = self._begin(

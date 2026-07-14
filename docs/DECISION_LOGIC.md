@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, security reviewers, technical evaluators |
@@ -152,7 +152,9 @@ Decision categories include:
 INPUT: user prompt + context
 
 IF mode == simulation
-  -> stop after admission with capability_unavailable until Phase 10
+  -> stop the ordinary answer path after admission
+  -> return SIMULATION_DURABLE_JOB_REQUIRED
+  -> direct the caller to /api/v1/simulations
 
 ELSE IF category == none and severity below threshold
   -> continue to TruthGate
@@ -319,7 +321,7 @@ IF local_review
   -> perform local review without claiming a provider answer
 
 IF simulation
-  -> explicit Phase 10 capability-unavailable result after admission
+  -> require the separate dle-simulation.v1 durable job contract
 ```
 
 Only executed KAs are persisted. A KA shown in trace must have its real input,

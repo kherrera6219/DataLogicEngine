@@ -61,7 +61,8 @@ async def test_run_simulation_success_quick_depth():
 
     assert result["status"] == "completed"
     assert result["consensus_reached"] is True
-    assert result["event_count"] == 4
+    assert result["event_count"] == 5
+    assert result["events"][-1]["action"] == "SYNTHESIZE"
     assert result["final_conclusion"] == "synthesized conclusion"
     assert sim_id not in engine.active_simulations
 

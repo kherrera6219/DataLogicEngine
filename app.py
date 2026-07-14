@@ -1767,12 +1767,14 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
             app.extensions["dle_audit_logger"].start_log_rotation()
             from backend.ingestion.jobs import get_ingestion_job_runner
             from backend.llm_gateway.jobs import get_gateway_job_runner
+            from backend.simulation.jobs import get_simulation_job_runner
             from backend.storage.materialization_dispatcher import (
                 CrossStoreMaterializationWorker,
             )
 
             get_gateway_job_runner(app)
             get_ingestion_job_runner(app)
+            get_simulation_job_runner(app)
             materializer = CrossStoreMaterializationWorker(app)
             app.extensions["dle_materialization_worker"] = materializer
             materializer.start(_runtime)
@@ -1812,6 +1814,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 ingestion_job_runner.stop()
             except Exception:
                 logger.exception("Ingestion job runner shutdown failed")
+        simulation_job_runner = app.extensions.get("dle_simulation_job_runner")
+        if simulation_job_runner is not None:
+            try:
+                simulation_job_runner.stop()
+            except Exception:
+                logger.exception("Simulation job runner shutdown failed")
         graph_store = app.extensions.get("dle_graph_store")
         if graph_store is not None:
             try:

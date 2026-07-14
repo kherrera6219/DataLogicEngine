@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -643,7 +643,7 @@ Relevant files:
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
 
-## Incident 18: Ingestion job or corpus consistency failure
+## Incident 20: Ingestion job or corpus consistency failure
 
 **Trigger:** a durable ingestion job is stalled/partial, a lease is abandoned,
 or PostgreSQL, Neo4j, Chroma, original-object, and normalized-object revisions do
@@ -662,6 +662,49 @@ not agree.
    versus validated trust before enabling recall.
 7. Escalate any unexplained divergence, path escape, defense bypass, missing
    artifact, or deletion remnant as release-blocking evidence.
+
+## Incident 21: Simulation budget, checkpoint, or artifact failure
+
+**Trigger:** a simulation exceeds its declared plan, progress disagrees with
+persisted events, pause/cancel continues provider work, restart cannot prove the
+last checkpoint, price unknown appears as zero, confidence lacks explicit
+evidence validators, or required transcript/result artifacts do not reconcile.
+
+1. Stop or pause new simulations and capture the session ID, trace ID, scenario
+   revision, plan, budget, event cursor, provider-call metadata, checkpoint
+   hashes, and artifact references. Do not copy prompt/response content into
+   support evidence.
+2. Confirm the engine is `multi-agent-debate`, contract is
+   `dle-simulation.v1`, and the immutable quick/standard/deep call ceiling is
+   4/5/7. Any alternate runtime authority is a release-blocking defect.
+3. Compare persisted steps, events, provider attempts, and checkpoints in
+   sequence. Do not retry an ambiguous provider attempt lacking a verified
+   checkpoint; retain `SIMULATION_INTERRUPTED_RETRY_UNSAFE`.
+4. Confirm Redis contains only content-free queue/lease/control/progress state
+   and PostgreSQL remains lifecycle authority.
+5. Verify required `simulation-artifacts` transcript/result object keys,
+   revisions, and hashes. Keep the session `materialization_pending` until both
+   are ready; repair through the outbox rather than editing terminal state.
+6. Confirm live preflight resolved one supported provider and truthful pricing.
+   Unknown pricing with an explicit cost ceiling must block before egress.
+7. Confirm numeric confidence links to cited evidence and named validators.
+   Fixed-seed qualification must remain Not measured and must not materialize as
+   measured knowledge in Chroma or Neo4j.
+8. Run the Phase 10 authority, route, migration, cross-store, frontend page/API,
+   full backend, and full frontend gates before restoring simulation work.
+
+Relevant files:
+
+- `backend/simulation/`
+- `backend/routes/simulation_routes.py`
+- `frontend/app/simulations/page.tsx`
+- `migrations/versions/d9e0f1a2b3c4_add_durable_simulation_authority.py`
+- `reports/production-readiness/2026/phase-10/`
+
+## Change notes for v2.14.0
+
+1. Added bounded simulation, checkpoint/retry safety, provider-budget truth,
+   evidence/confidence, and required-artifact reconciliation incident handling.
 
 ## Change notes for v2.13.0
 

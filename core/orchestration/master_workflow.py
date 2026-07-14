@@ -324,12 +324,10 @@ class MasterWorkflowOrchestrator:
         except ImportError as e:
             logger.warning(f"Could not import CoordinateParser: {e}")
         
-        try:
-            from core.simulation.simulation_engine import SimulationEngine
-            self.simulation_engine = SimulationEngine(config=self.config.get('simulation', {}))
-            logger.info("SimulationEngine initialized")
-        except ImportError as e:
-            logger.warning(f"Could not import SimulationEngine: {e}")
+        # Phase 10 removed this duplicate simulation entry point. The durable
+        # backend simulation job contract is the sole production authority.
+        self.simulation_engine = None
+        logger.info("Legacy master-workflow simulation path disabled")
         
         # NOTE: the legacy core.persona stub engine was removed during the
         # quad_persona consolidation (it was orphaned demo code). The canonical

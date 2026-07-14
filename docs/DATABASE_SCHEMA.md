@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.6.0 |
+| Document version | v3.7.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,8 +21,9 @@ This document replaces the older PostgreSQL-only framing with the current multi-
 Phase 8 adds client-key lifecycle metadata plus
 `gateway_idempotency_records`, `gateway_async_runs`, and
 `gateway_virtual_models`. Phase 9 adds `ingestion_jobs`, `ingestion_files`,
-`ingestion_chunks`, and `ingestion_attempts`. Alembic head `c8d9e0f1a2b3` is
-authoritative.
+`ingestion_chunks`, and `ingestion_attempts`. Phase 10 adds durable simulation
+steps, events, provider calls, evidence, checkpoints, and artifacts. Alembic head
+`d9e0f1a2b3c4` is authoritative.
 
 ## Audience
 
@@ -78,8 +79,8 @@ those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
 `deliverables`, `graphs`, `evaluation-data`, `trace-exports`, `gateway-results`,
-and `knowledge-sources`. The authority registry assigns one authority to 77
-PostgreSQL entities and 30 logical
+and `knowledge-sources`. The authority registry assigns one authority to 83
+PostgreSQL entities and 31 logical
 data classes. PostgreSQL is the logical authority for graph nodes/relationships
 and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
 materializations. MinIO remains authoritative for declared artifact classes.
@@ -90,8 +91,8 @@ materialization-state record. A required artifact or index is not marked
 complete until the destination confirms the same revision/hash.
 
 Production startup runs a fail-closed migration coordinator before stores and
-workers. The 22-revision Alembic chain has base `000000000001` and head
-`c8d9e0f1a2b3`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
+workers. The 23-revision Alembic chain has base `000000000001` and head
+`d9e0f1a2b3c4`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
 memory also carry version probes and ledger entries. See
 `docs/MIGRATION_SUPPORT_MATRIX.md` for the supported-upgrade limits.
 
@@ -163,6 +164,25 @@ Major SQL domains:
 6. MCP connector/server metadata.
 7. Compliance, privacy, retention, feature flags, and operational records.
 8. Knowledge Algorithm metadata and execution records.
+9. Durable simulation sessions, steps, events, provider calls, evidence,
+   checkpoints, and artifact records.
+
+### Durable simulation authority
+
+| Table | Authority |
+|---|---|
+| `simulation_sessions` | Versioned scenario, plan/budget, progress, controls, aggregate usage, result, error, trace, and artifact state. |
+| `simulation_steps` | Ordered workflow step attempts and bounded output summaries. |
+| `simulation_events` | Monotonic durable lifecycle/progress stream consumed by the API and UI. |
+| `simulation_provider_calls` | Content-free attempt, disclosed-category, token, cost, status, and checkpoint linkage. |
+| `simulation_evidence` | Source/evidence references and explicit validation relationship state. |
+| `simulation_checkpoints` | Verified resumable state hash and sequence after completed calls. |
+| `simulation_artifacts` | Required transcript/result object key, hash, revision, and materialization state. |
+
+Redis never owns scenario content, prompt/response content, evidence, or final
+results. The `simulation-artifacts` bucket owns required large transcript and
+result payloads. Chroma and Neo4j receive only approved live measured
+materializations and remain rebuildable from their authorities.
 
 ### Core identity domain
 
@@ -720,6 +740,11 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.7.0
+
+1. Added six durable simulation child authorities, migration head
+   `d9e0f1a2b3c4`, and the 83-entity/31-contract registry boundary.
 
 ## Change notes for v3.6.0
 

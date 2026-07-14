@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, QA, API integrators |
@@ -98,8 +98,8 @@ sequenceDiagram
     API->>GOV: GovernedRequest(governed.v1)
     GOV->>GOV: Admission, recursion, cancellation, mode checks
     alt Simulation mode
-        GOV->>TRACE: Persist admission + capability-unavailable stage
-        GOV-->>API: Explicit Phase 10 unavailable result + trace_id
+        GOV->>TRACE: Persist admission + simulation-job-contract stage
+        GOV-->>API: SIMULATION_DURABLE_JOB_REQUIRED + trace_id
     else Standard, enhanced, or local review
         GOV->>DMRF: InjectionDefense, TruthGate, tier, 17-axis route
         alt Policy blocked
