@@ -16,6 +16,10 @@ from backend.storage.coordinated_backup import (
     CoordinatedBackupCoordinator,
     CoordinatedBackupError,
 )
+from backend.storage.chroma_security import (
+    safe_create_collection,
+    safe_get_collection,
+)
 from backend.storage.object_snapshot import export_bucket, restore_bucket, verify_snapshot
 
 
@@ -339,7 +343,7 @@ class ChromaCollectionBackupAdapter(_ManagedAdapter):
         )
         for listed in collections:
             name = str(listed if isinstance(listed, str) else listed.name)
-            collection = self.client.get_collection(name=name)
+            collection = safe_get_collection(self.client, name=name)
             collection_dir = destination / hashlib.sha256(name.encode()).hexdigest()[:24]
             collection_dir.mkdir()
             pages = 0
@@ -396,11 +400,12 @@ class ChromaCollectionBackupAdapter(_ManagedAdapter):
         restored = 0
         for item in manifest:
             name = str(item["name"])
-            collection_arguments: dict[str, Any] = {"name": name}
             metadata = dict(item.get("metadata") or {})
-            if metadata:
-                collection_arguments["metadata"] = metadata
-            collection = self.client.create_collection(**collection_arguments)
+            collection = safe_create_collection(
+                self.client,
+                name=name,
+                metadata=metadata,
+            )
             collection_dir = source / hashlib.sha256(name.encode()).hexdigest()[:24]
             for page_number in range(int(item.get("pages", 0))):
                 try:
@@ -433,13 +438,18 @@ class ChromaCollectionBackupAdapter(_ManagedAdapter):
         if result.get("status") != "pass":
             return result
         observed = sum(
-            int(self.client.get_collection(name=(item if isinstance(item, str) else item.name)).count())
+            int(
+                safe_get_collection(
+                    self.client,
+                    name=(item if isinstance(item, str) else item.name),
+                ).count()
+            )
             for item in self.client.list_collections()
         )
         if observed != component.item_count:
             return {"status": "fail", "safe_reason": "chroma_restore_count_mismatch"}
         try:
-            registry = self.client.get_collection(name="dle_schema_registry")
+            registry = safe_get_collection(self.client, name="dle_schema_registry")
             version = (getattr(registry, "metadata", None) or {}).get("schema_version")
         except Exception:
             version = None

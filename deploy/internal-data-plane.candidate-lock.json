@@ -46,6 +46,11 @@
       "image": "docker.io/chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
       "linux_amd64_digest": "sha256:abcce7c335e2dab9f11ef629296f7309b09cb19ae4b34da32ac7e34ff5773140",
       "license": "Apache-2.0",
+      "server_implementation": "rust_single_node_binary",
+      "python_server_advisory_applicable": false,
+      "critical_advisory": "GHSA-f4j7-r4q5-qw2c / CVE-2026-45829",
+      "python_client_mitigation": "explicit_no_embedding_function_and_reject_persisted_embedding_configuration",
+      "patched_upstream_release_available": false,
       "client_compatibility": "pending",
       "production_approved": false
     },

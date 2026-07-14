@@ -27,6 +27,7 @@ from backend.runtime.podman_data_plane import (  # noqa: E402
     PodmanDataPlaneManager,
     REQUIRED_OBJECT_BUCKETS,
 )
+from backend.storage.chroma_security import safe_get_or_create_collection  # noqa: E402
 
 
 DEFAULT_LOCK = REPO_ROOT / "deploy" / "internal-data-plane.candidate-lock.json"
@@ -194,7 +195,7 @@ def _chroma_contract(manager: PodmanDataPlaneManager, run_id: str) -> dict[str, 
         ssl=False,
     )
     collection_name = "dle_phase3_qualification"
-    collection = client.get_or_create_collection(collection_name)
+    collection = safe_get_or_create_collection(client, name=collection_name)
     collection.upsert(
         ids=[run_id],
         documents=["chroma contract fixture"],

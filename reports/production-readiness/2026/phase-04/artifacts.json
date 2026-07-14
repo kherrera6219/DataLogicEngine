@@ -16,6 +16,11 @@
       "path": "phase04_data_lifecycle_qualification.json",
       "size_bytes": 9763,
       "sha256": "c0daa2c93f3ae2e962021d301ef1b360b31bf2d1fd1056e91d32e061d337c5e8"
+    },
+    {
+      "path": "chromadb-critical-advisory-disposition.md",
+      "size_bytes": 2356,
+      "sha256": "0b7bee33f032ea2b89a59394b4ee7fd88bf4c4c1380825812d88fc3522b2ecbf"
     }
   ]
 }

@@ -62,6 +62,7 @@ Replacement Control candidate only. ADR-0004 is Proposed,
 - `cp4-a-data-ownership-matrix.json` / `.md`
 - `cp4-b-migration-inventory.json` / `.md`
 - `phase04_data_lifecycle_qualification.json`
+- `chromadb-critical-advisory-disposition.md`
 - `checks.json`
 - `artifacts.json`
 - `risk-register.md`

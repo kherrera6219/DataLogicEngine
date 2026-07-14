@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.3.0 |
+| Document version | v1.3.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -34,6 +34,15 @@ close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
+
+GitHub Dependabot alert 389 (`GHSA-f4j7-r4q5-qw2c` /
+`CVE-2026-45829`) is an explicit release blocker because no patched ChromaDB
+release exists. The locked service image is the Rust single-node binary, not the
+affected Python server. The Python client is constrained to caller-supplied
+vectors: all collection opens/creates pass `embedding_function=None` and reject
+persisted embedding-function/schema configuration before use. This mitigation
+allows engineering to continue but does not close or dismiss the alert, approve
+ChromaDB for production, or replace independent security review.
 
 ## 1. Purpose
 
@@ -315,7 +324,7 @@ flowchart TD
     Services --> PG["Internal PostgreSQL"]
     Services --> Redis["Internal Redis-compatible service"]
     Services --> Neo4j["Internal Neo4j"]
-    Services --> Chroma["Embedded ChromaDB"]
+    Services --> Chroma["Internal ChromaDB Rust service"]
     Services --> MinIO["Internal MinIO"]
 
     Orchestrator --> PG
@@ -353,7 +362,8 @@ If Docker is not acceptable, Phase 3 must deliver supported native sidecars:
   stream, persistence, and licensing parity;
 - Neo4j Windows ZIP plus a supported bundled JRE;
 - a supported MinIO Windows binary;
-- embedded ChromaDB in the Python backend.
+- the app-managed pinned ChromaDB Rust single-node service, with the Python
+  package used only as a constrained client.
 
 Changing the delivery mechanism does not remove any service responsibility.
 

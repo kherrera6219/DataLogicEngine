@@ -205,7 +205,7 @@ class FakeChroma:
     def list_collections(self):
         return [FakeCollection(), FakeCollection("dle_schema_registry")]
 
-    def get_collection(self, name):
+    def get_collection(self, name, **_kwargs):
         assert name in {"knowledge_nodes", "dle_schema_registry"}
         return FakeCollection(name)
 
@@ -233,12 +233,12 @@ class FakeChromaRestore:
     def list_collections(self):
         return list(self.collections.values())
 
-    def create_collection(self, name, metadata=None):
+    def create_collection(self, name, metadata=None, **_kwargs):
         collection = FakeChromaRestoreCollection(name, metadata or {})
         self.collections[name] = collection
         return collection
 
-    def get_collection(self, name):
+    def get_collection(self, name, **_kwargs):
         return self.collections[name]
 
 

@@ -15,6 +15,8 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
+from backend.storage.chroma_security import safe_get_or_create_collection
+
 logger = logging.getLogger(__name__)
 
 
@@ -183,7 +185,10 @@ class ChromaDBBackend(VectorBackend):
     def _get_collection(self, name: str):
         """Get or create a collection."""
         if name not in self._collections:
-            self._collections[name] = self.client.get_or_create_collection(name=name)
+            self._collections[name] = safe_get_or_create_collection(
+                self.client,
+                name=name,
+            )
         return self._collections[name]
     
     def add_embeddings(
@@ -273,7 +278,7 @@ class ChromaDBBackend(VectorBackend):
     def create_collection(self, collection: str, dimension: int = 1536) -> bool:
         """Create a new collection in ChromaDB."""
         try:
-            self.client.get_or_create_collection(name=collection)
+            safe_get_or_create_collection(self.client, name=collection)
             return True
         except Exception as e:
             logger.error(f"Failed to create collection: {e}")

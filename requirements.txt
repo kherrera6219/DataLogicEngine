@@ -57,10 +57,10 @@ aiohttp==3.14.1
 requests==2.34.2
 
 # RAG and orchestration stack
-chromadb==1.5.9
+chromadb==1.5.9  # no patched release for GHSA-f4j7-r4q5-qw2c; constrained client only, production blocked
 onnxruntime==1.26.0
 tokenizers==0.22.2
-starlette>=1.3.1  # transitive via chromadb->fastapi; pinned to patch CVE-2026-48817/48818/54282/54283 (Chroma server path is unused, but keep the dep patched)
+starlette>=1.3.1  # transitive via chromadb->fastapi; Python FastAPI server is not shipped, but keep the dependency patched
 llama-index==0.14.22
 sentence-transformers==5.5.1
 transformers>=5.0.0

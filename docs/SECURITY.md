@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
+| Document version | v2.10.0 |
 | Last updated | 2026-07-13 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -304,7 +304,7 @@ DataLogicEngine uses multiple data stores with different control requirements.
 | SQLAlchemy DB | auth/principal context, vestigial local-profile scoping columns, migrations, encrypted fields, audit records. |
 | Redis | session/cache/rate-limit/queue isolation and secure configuration. |
 | Neo4j | graph scope, connection security, and local profile/app-context traversal where applicable. |
-| ChromaDB | local path permissions, no unintended external telemetry, collection hygiene. |
+| ChromaDB | Pinned Rust single-node service, loopback/rootless containment, no telemetry, caller-supplied vectors only, and fail-closed rejection of persisted embedding-function/schema configuration. GHSA-f4j7-r4q5-qw2c remains release-blocking until an upstream patch is qualified. |
 | Object store | bucket validation, key normalization, traversal rejection, hashes, metadata sidecars. |
 | USKD NetworkX graph | controlled source loading and runtime memory containment. |
 | UnifiedMemory | local JSON persistence controls and safe recall behavior. |
@@ -495,6 +495,12 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Change notes for v2.10.0
+
+1. Recorded the critical ChromaDB advisory disposition: locked Rust server,
+   constrained Python client, hostile collection-configuration rejection, open
+   Dependabot release blocker, and no production approval without a patch.
 
 ## Change notes for v2.9.0
 

@@ -13,3 +13,4 @@
 | SSD/snapshot secure deletion guarantee | Accepted residual risk with disclosure | Retention expiry and cryptographic erasure where applicable; never claim universal physical erasure |
 | SeaweedFS production selection | Deferred owner decision | Full Replacement Control and explicit final approval; MinIO remains authority |
 | Later Phase 8/9 durable entities/workflows | Assigned to owning phases | Ownership matrix keeps missing job/idempotency/virtual-model and legacy memory consolidation visible |
+| ChromaDB critical code-injection advisory, no patched release | Mitigated for engineering; open release blocker | Locked Rust server is not the affected Python backend; Python client rejects persisted embedding functions/schema; upgrade/replace and adversarially qualify before release |

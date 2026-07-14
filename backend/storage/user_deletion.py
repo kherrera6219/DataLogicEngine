@@ -10,6 +10,8 @@ from typing import Any
 
 from sqlalchemy import delete, or_, select, update
 
+from backend.storage.chroma_security import safe_get_collection
+
 from backend.storage.retention import (
     DeleteResult,
     DeletionSubject,
@@ -208,7 +210,7 @@ class ChromaUserDeletionAdapter:
             filters.append({"tenant_id": str(subject.tenant_id)})
         for listed in self.client.list_collections():
             name = str(listed if isinstance(listed, str) else listed.name)
-            collection = self.client.get_collection(name=name)
+            collection = safe_get_collection(self.client, name=name)
             ids: set[str] = set()
             for where in filters:
                 try:
@@ -222,7 +224,7 @@ class ChromaUserDeletionAdapter:
     def delete(self, subject):
         matches = self._matching_ids(subject)
         for name, ids in matches.items():
-            self.client.get_collection(name=name).delete(ids=sorted(ids))
+            safe_get_collection(self.client, name=name).delete(ids=sorted(ids))
         return DeleteResult(sum(len(ids) for ids in matches.values()))
 
     def remnant_count(self, subject):

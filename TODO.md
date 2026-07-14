@@ -6,7 +6,7 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.1 |
 | Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
 | Next phase | Phase 5 - Canonical governed reasoning path |
 | Release decision | Production/public release: **NO-GO** |
@@ -68,6 +68,10 @@ conditions, and exit gates remain authoritative in the active root plan.
   ACLs, DPAPI-wrapped secrets, and AES-256-GCM portable backups. The current
   machine did not prove BitLocker or installed-root ACL readiness, so production
   authorization remains false.
+- Dependabot alert 389 is a critical ChromaDB advisory with no patched upstream
+  release. The locked service is the non-affected Rust binary, and the Python
+  client now refuses persisted embedding functions/schema before use. The alert
+  remains open and release-blocking; ChromaDB production approval remains false.
 
 ## Phase 5 objective
 
@@ -145,6 +149,9 @@ execution, validation, persistence, trace, and result.
 - [ ] Independent architecture, security, API, usability/accessibility, and operations reviews completed.
 - [ ] Signed, timestamped, reproducible Windows artifacts and verified updates.
 - [ ] Installed-system accessibility, security, failure, recovery, performance, soak, and human-acceptance evidence.
+- [ ] Replace or upgrade ChromaDB when a reviewed patched release exists, rerun
+      client/service adversarial qualification, and close alert 389 only from
+      verified patched evidence.
 
 ## Exact next action
 

@@ -12,6 +12,8 @@ Updated on 2026-07-13:
   `docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md`;
 - replaced the obsolete Linux/single-PostgreSQL recovery text in
   `deploy/DISASTER_RECOVERY.md` with the Windows coordinated recovery contract.
+- added the ChromaDB critical-advisory disposition to the active plan, TODO,
+  handoff, security/threat documents, candidate lock, and Phase 4 evidence.
 
 All documents keep production/public release at NO-GO, preserve MinIO as the
 production architecture, keep SeaweedFS candidate-only, and distinguish the

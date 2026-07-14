@@ -6,7 +6,7 @@
 |---|---|
 | Last updated | 2026-07-13 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.3.1 |
 | Completed phase | Phase 4 engineering checkpoint - Data contracts, migrations, backup, and recovery |
 | Current phase | Phase 5 - Canonical governed reasoning path |
 | Release verdict | Production/public release: **NO-GO** |
@@ -174,6 +174,14 @@ continues. Production/public release remains **NO-GO**.
 SeaweedFS remains candidate-only. ADR-0004 is Proposed,
 `production_authorized=false`, `production_selected=false`, and MinIO remains
 the product-specific production architecture.
+
+GitHub Dependabot alert 389 is open for critical ChromaDB code injection and no
+patched upstream release exists. The locked container is the Rust single-node
+server, so the Python-server path is absent. Every Python-client collection
+open/create explicitly disables server-supplied embedding functions and rejects
+persisted embedding-function/schema configuration. This is an engineering
+mitigation, not production approval: the alert stays release-blocking until a
+reviewed patched release and adversarial installed qualification pass.
 
 ## Current checkpoint
 

@@ -42,7 +42,7 @@ class FakeChromaClient:
         self.collection = collection
         self.deleted = []
 
-    def get_or_create_collection(self, name):
+    def get_or_create_collection(self, name, **_kwargs):
         return self.collection
 
     def delete_collection(self, name):

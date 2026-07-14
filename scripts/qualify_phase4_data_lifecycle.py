@@ -23,6 +23,10 @@ if str(ROOT) not in sys.path:
 from app import create_app  # noqa: E402
 from backend.runtime.podman_data_plane import APP_SERVICE_KEYS  # noqa: E402
 from backend.security.windows_acl import verify_restricted_user_acl  # noqa: E402
+from backend.storage.chroma_security import (  # noqa: E402
+    safe_create_collection,
+    safe_get_collection,
+)
 from backend.storage.data_at_rest import build_at_rest_report  # noqa: E402
 from backend.storage.managed_backup import create_managed_backup  # noqa: E402
 from backend.storage.managed_restore import restore_managed_backup_offline  # noqa: E402
@@ -128,7 +132,8 @@ def _populate(app, run_id: str) -> dict[str, Any]:
                     tenant_id="phase4-tenant",
                     revision=run_id,
                 ).consume()
-            collection = chroma_client.create_collection(
+            collection = safe_create_collection(
+                chroma_client,
                 name=f"phase4_{run_id[:16]}",
                 metadata={"schema_version": "qualification.v1"},
             )
@@ -235,7 +240,10 @@ def _verify_restored(app, expected: dict[str, Any], run_id: str) -> dict[str, An
                     ).single()["count"]
                 )
             chroma_count = int(
-                chroma_client.get_collection(name=expected["collection"]).count()
+                safe_get_collection(
+                    chroma_client,
+                    name=expected["collection"],
+                ).count()
             )
             store = get_object_store()
             object_hash = hashlib.sha256(

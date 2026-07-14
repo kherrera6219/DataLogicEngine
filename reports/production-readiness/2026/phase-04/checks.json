@@ -13,8 +13,8 @@
       "name": "backend_regression",
       "command": "python -m pytest -q --disable-warnings --maxfail=1",
       "exit_code": 0,
-      "result": "1875 passed, 18 skipped",
-      "duration_seconds": 326.50
+      "result": "1880 passed, 18 skipped after Chroma advisory mitigation",
+      "duration_seconds": 333.99
     },
     {
       "name": "frontend_regression",
@@ -59,6 +59,12 @@
       "command": "verify_route_manifest --fail-unclassified; verify_public_error_contracts; verify_secret_storage; verify_electron_security --require-packaged-renderer",
       "exit_code": 0,
       "result": "426 routes and all non-HTTP surfaces classified; zero public-error or secret findings; 19 Electron channels passed against fresh renderer"
+    },
+    {
+      "name": "chroma_critical_advisory_mitigation",
+      "command": "pytest tests/security/test_chroma_advisory_mitigation.py plus complete backend regression; inspect locked image configuration/history",
+      "exit_code": 0,
+      "result": "Rust server verified; hostile client embedding configuration rejected; no direct collection bypasses; full regression passed"
     }
   ]
 }

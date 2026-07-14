@@ -46,10 +46,10 @@ class FakeChroma:
     def list_collections(self):
         return list(self.collections.values())
 
-    def get_collection(self, name):
+    def get_collection(self, name, **_kwargs):
         return self.collections[name]
 
-    def get_or_create_collection(self, name, metadata=None):
+    def get_or_create_collection(self, name, metadata=None, **_kwargs):
         return self.collections.setdefault(name, FakeCollection(name, metadata))
 
 

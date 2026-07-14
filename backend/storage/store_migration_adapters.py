@@ -11,6 +11,11 @@ from typing import Any
 
 from sqlalchemy import inspect, text
 
+from backend.storage.chroma_security import (
+    safe_get_collection,
+    safe_get_or_create_collection,
+)
+
 
 class StoreMigrationError(RuntimeError):
     """Safely reportable store migration adapter failure."""
@@ -127,7 +132,10 @@ class ChromaMigrationAdapter:
     def probe_version(self) -> str | None:
         if self.REGISTRY_COLLECTION not in self._collection_names():
             return None
-        collection = self.client.get_collection(name=self.REGISTRY_COLLECTION)
+        collection = safe_get_collection(
+            self.client,
+            name=self.REGISTRY_COLLECTION,
+        )
         metadata = getattr(collection, "metadata", None) or {}
         value = metadata.get("schema_version")
         return str(value) if value else None
@@ -138,7 +146,8 @@ class ChromaMigrationAdapter:
     def bootstrap(self, target_version: str) -> None:
         if not self.is_empty():
             raise StoreMigrationError("chroma_bootstrap_requires_empty_database")
-        self.client.get_or_create_collection(
+        safe_get_or_create_collection(
+            self.client,
             name=self.REGISTRY_COLLECTION,
             metadata={
                 "schema_version": target_version,
