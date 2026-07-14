@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import os
 from hashlib import sha256
+import json
 from typing import Any
+from datetime import UTC, datetime
 
 from backend.governed_execution.contracts import EvidenceRecord, GovernedRequest, SourceRecord
 
@@ -34,6 +36,15 @@ def retrieve_evidence(
             return [], [f"retrieval_unavailable:{type(exc).__name__}"]
 
     max_items = _bounded_int(request.constraints.get("max_evidence_items"), 8, 1, 20)
+    max_evidence_chars = _bounded_int(
+        request.constraints.get("max_evidence_chars"), 12_000, 1_000, 40_000
+    )
+    max_per_source_kind = _bounded_int(
+        request.constraints.get("max_evidence_per_source_kind"),
+        max(1, (max_items + 1) // 2),
+        1,
+        max_items,
+    )
     per_source = max(1, min(6, max_items // 2 or 1))
     raw: list[tuple[str, dict[str, Any]]] = []
 
@@ -68,6 +79,10 @@ def retrieve_evidence(
     )
     seen: set[str] = set()
     evidence: list[EvidenceRecord] = []
+    selected_by_source_kind: dict[str, int] = {}
+    selected_characters = 0
+    decisions: list[dict[str, Any]] = []
+    request.metadata["_retrieval_decisions"] = decisions
 
     for source_kind, item in sorted(
         raw,
@@ -75,11 +90,10 @@ def retrieve_evidence(
         reverse=True,
     ):
         if not isinstance(item, dict):
+            decisions.append({"source_kind": source_kind, "disposition": "rejected", "reason": "invalid_result"})
             continue
         text = str(item.get("text") or "").strip()
         score = float(item.get("score", 0.0) or 0.0)
-        if not text or score < min_score:
-            continue
         metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
         citation = item.get("citation") if isinstance(item.get("citation"), dict) else {}
         content_hash = str(
@@ -92,15 +106,62 @@ def retrieve_evidence(
         if not source_id:
             stable_key = f"{source_kind}:{origin or 'unknown'}:{content_hash}"
             source_id = f"source_{sha256(stable_key.encode('utf-8')).hexdigest()[:24]}"
+        decision = {
+            "source_id": source_id,
+            "source_kind": source_kind,
+            "score": score,
+        }
+        if not text:
+            decisions.append({**decision, "disposition": "rejected", "reason": "empty_text"})
+            continue
+        if score < min_score:
+            decisions.append({**decision, "disposition": "rejected", "reason": "below_threshold"})
+            continue
         if source_id in seen:
+            decisions.append({**decision, "disposition": "rejected", "reason": "duplicate"})
+            continue
+        if selected_by_source_kind.get(source_kind, 0) >= max_per_source_kind:
+            decisions.append(
+                {**decision, "disposition": "rejected", "reason": "source_diversity_limit"}
+            )
             continue
         lowered = text.lower()
         if any(marker and marker in lowered for marker in suspicious_markers):
             warnings.append(f"suspicious_retrieval_rejected:{source_id}")
+            decisions.append({**decision, "disposition": "rejected", "reason": "content_defense"})
             continue
-        permissions = metadata.get("permissions")
-        if not isinstance(permissions, dict):
-            permissions = {}
+        authority_metadata, authority_reason = _validate_ingestion_authority(
+            request,
+            source_id,
+            text,
+            metadata,
+        )
+        if authority_reason:
+            warnings.append(f"ingestion_source_rejected:{source_id}:{authority_reason}")
+            decisions.append(
+                {**decision, "disposition": "rejected", "reason": authority_reason}
+            )
+            continue
+        metadata = {**metadata, **authority_metadata}
+        if source_id.startswith("ki_") and request.constraints.get("use_graph_context") is True:
+            graph_context, graph_error = _load_graph_context(source_id)
+            if graph_error:
+                warnings.append(f"graph_context_unavailable:{source_id}:{graph_error}")
+                if request.constraints.get("requires_graph_context") is True:
+                    decisions.append(
+                        {**decision, "disposition": "rejected", "reason": "graph_context_required"}
+                    )
+                    continue
+            if graph_context:
+                metadata["graph_context"] = graph_context
+        remaining_characters = max_evidence_chars - selected_characters
+        if remaining_characters <= 0:
+            decisions.append(
+                {**decision, "disposition": "rejected", "reason": "evidence_character_budget"}
+            )
+            continue
+        bounded_text = text[: min(4_000, remaining_characters)]
+        permissions = _json_object(metadata.get("permissions"))
         transformation_chain = metadata.get("transformation_chain")
         if not isinstance(transformation_chain, list):
             transformation_chain = []
@@ -110,7 +171,7 @@ def retrieve_evidence(
             EvidenceRecord(
                 source_id=source_id,
                 citation_label=f"S{len(evidence) + 1}",
-                text=text[:4000],
+                text=bounded_text,
                 source_type=source_type,
                 title=title,
                 score=score,
@@ -123,6 +184,11 @@ def retrieve_evidence(
                     "source_quality_score": metadata.get("source_quality_score"),
                     "freshness_max_age_days": metadata.get("freshness_max_age_days"),
                     "claim_relationship": metadata.get("claim_relationship"),
+                    "source_revision": metadata.get("source_revision"),
+                    "document_uid": metadata.get("document_uid"),
+                    "retention_class": metadata.get("retention_class"),
+                    "retrieval_disposition": "selected",
+                    "graph_context": metadata.get("graph_context"),
                 },
                 source=SourceRecord(
                     source_id=source_id,
@@ -139,11 +205,108 @@ def retrieve_evidence(
                 ),
             )
         )
+        decisions.append({**decision, "disposition": "selected", "reason": "eligible"})
         seen.add(source_id)
+        selected_by_source_kind[source_kind] = selected_by_source_kind.get(source_kind, 0) + 1
+        selected_characters += len(bounded_text)
         if len(evidence) >= max_items:
             break
 
     return evidence, warnings
+
+
+def _load_graph_context(source_id: str) -> tuple[list[dict[str, Any]], str | None]:
+    try:
+        from backend.storage import get_graph_store
+
+        graph_store = get_graph_store()
+        graph_store.connect()
+        return graph_store.get_knowledge_relationships(source_id, limit=12), None
+    except Exception as exc:
+        return [], type(exc).__name__
+
+
+def _json_object(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError):
+            return {}
+    return {}
+
+
+def _validate_ingestion_authority(
+    request: GovernedRequest,
+    source_id: str,
+    text: str,
+    metadata: dict[str, Any],
+) -> tuple[dict[str, Any], str | None]:
+    """Fail closed for ingestion vectors unless PostgreSQL confirms eligibility."""
+    if not source_id.startswith("ki_"):
+        return {}, None
+    try:
+        from flask import has_app_context
+
+        if not has_app_context():
+            return {}, "postgresql_authority_unavailable"
+        from extensions import db
+        from models import IngestionChunk, IngestionFile, IngestionJob
+
+        vector_revision = str(metadata.get("source_revision") or "").strip()
+        if not vector_revision:
+            return {}, "source_revision_missing"
+        candidates = IngestionChunk.query.filter_by(node_uid=source_id).all()
+        for chunk in candidates:
+            if chunk.source_revision != vector_revision:
+                continue
+            source_file = db.session.get(IngestionFile, chunk.file_id)
+            job = db.session.get(IngestionJob, chunk.job_id)
+            if source_file is None or job is None:
+                continue
+            if job.status != "completed":
+                continue
+            if source_file.status not in {"ready", "duplicate"}:
+                continue
+            if (
+                source_file.object_status != "ready"
+                or source_file.normalized_object_status != "ready"
+                or chunk.materialization_state != "ready"
+            ):
+                continue
+            defense = _json_object(source_file.defense_result)
+            if (
+                defense.get("policy_version") != "content-defense.v1"
+                or not defense.get("safe_for_retrieval")
+            ):
+                return {}, "content_defense_not_approved"
+            if sha256(text.encode("utf-8")).hexdigest() != chunk.chunk_sha256:
+                return {}, "content_hash_mismatch"
+            if job.user_id is not None and request.user_id != job.user_id:
+                return {}, "owner_permission_denied"
+            request_tenant = request.metadata.get("tenant_id")
+            if job.tenant_id and str(request_tenant or "") != str(job.tenant_id):
+                return {}, "tenant_permission_denied"
+            source_file.last_retrieved_at = datetime.now(UTC)
+            source_file.last_retrieval_trace_id = str(
+                request.metadata.get("_trace_id") or ""
+            ) or None
+            db.session.flush()
+            return {
+                "source_revision": chunk.source_revision,
+                "document_uid": source_file.document_uid,
+                "retention_class": "ingested_content",
+                "content_defense": defense,
+                "permissions": {
+                    "owner_user_id": job.user_id,
+                    "tenant_id": job.tenant_id,
+                },
+            }, None
+        return {}, "postgresql_revision_not_eligible"
+    except Exception:
+        return {}, "postgresql_authority_unavailable"
 
 
 def _bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:

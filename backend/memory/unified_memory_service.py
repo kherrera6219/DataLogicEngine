@@ -6,10 +6,12 @@ import atexit
 import copy
 from dataclasses import asdict
 from datetime import UTC, datetime
+import hashlib
 import json
 import logging
 import os
 from pathlib import Path
+import shutil
 from typing import Any
 
 import numpy as np
@@ -24,7 +26,7 @@ class UnifiedMemoryService:
     """Wrap StructuredMemoryGraph with local persistence and layer/persona namespacing."""
 
     DEFAULT_PATH = Path("databases/memory/memory_graph.json")
-    SCHEMA_VERSION = 1
+    SCHEMA_VERSION = 2
 
     def __init__(
         self,
@@ -96,7 +98,7 @@ class UnifiedMemoryService:
 
     def export_graph(self) -> dict[str, Any]:
         edges = self.graph.edges.values() if isinstance(self.graph.edges, dict) else self.graph.edges
-        return {
+        payload = {
             "version": self.SCHEMA_VERSION,
             "saved_at": datetime.now(UTC).isoformat(),
             "last_recall_timestamp": self.last_recall_timestamp,
@@ -109,10 +111,15 @@ class UnifiedMemoryService:
                 for edge in edges
             ],
         }
+        payload["integrity_sha256"] = self._payload_sha256(payload)
+        return payload
 
     def load_graph(self, payload: dict[str, Any]) -> None:
         if not isinstance(payload, dict) or payload.get("version") != self.SCHEMA_VERSION:
             raise ValueError("unified_memory_schema_version_incompatible")
+        expected_hash = str(payload.get("integrity_sha256") or "")
+        if not expected_hash or expected_hash != self._payload_sha256(payload):
+            raise ValueError("unified_memory_integrity_invalid")
         self.graph.vertices.clear()
         self.graph.adjacency.clear()
         self.graph.edges = {}
@@ -136,25 +143,57 @@ class UnifiedMemoryService:
         try:
             self.load_graph(json.loads(self.storage_path.read_text(encoding="utf-8")))
         except Exception as exc:  # pylint: disable=broad-except
-            if self.strict:
-                raise
-            logger.warning("Structured memory graph load skipped: %s", exc)
+            backup = self.storage_path.with_suffix(self.storage_path.suffix + ".bak")
+            try:
+                self.load_graph(json.loads(backup.read_text(encoding="utf-8")))
+                self._atomic_write(self.export_graph(), preserve_backup=True)
+                logger.warning("Structured memory graph recovered from verified backup")
+            except Exception:
+                if self.strict:
+                    raise exc
+                logger.warning("Structured memory graph load skipped: %s", exc)
 
     def save(self) -> None:
-        temporary = self.storage_path.with_suffix(self.storage_path.suffix + ".tmp")
         try:
-            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
-            with temporary.open("w", encoding="utf-8", newline="\n") as handle:
-                handle.write(json.dumps(self.export_graph(), sort_keys=True, indent=2) + "\n")
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temporary, self.storage_path)
+            self._atomic_write(self.export_graph(), preserve_backup=False)
         except Exception as exc:  # pylint: disable=broad-except
             if self.strict:
                 raise
             logger.warning("Structured memory graph save skipped: %s", exc)
+
+    def _atomic_write(self, payload: dict[str, Any], *, preserve_backup: bool) -> None:
+        temporary = self.storage_path.with_suffix(self.storage_path.suffix + ".tmp")
+        backup = self.storage_path.with_suffix(self.storage_path.suffix + ".bak")
+        try:
+            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            if self.storage_path.is_file() and not preserve_backup:
+                try:
+                    current = json.loads(self.storage_path.read_text(encoding="utf-8"))
+                    if (
+                        isinstance(current, dict)
+                        and current.get("version") == self.SCHEMA_VERSION
+                        and current.get("integrity_sha256") == self._payload_sha256(current)
+                    ):
+                        shutil.copy2(self.storage_path, backup)
+                except (OSError, ValueError):
+                    pass
+            with temporary.open("w", encoding="utf-8", newline="\n") as handle:
+                handle.write(json.dumps(payload, sort_keys=True, indent=2) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, self.storage_path)
         finally:
             temporary.unlink(missing_ok=True)
+
+    @staticmethod
+    def _payload_sha256(payload: dict[str, Any]) -> str:
+        canonical = dict(payload)
+        canonical.pop("integrity_sha256", None)
+        return hashlib.sha256(
+            json.dumps(canonical, sort_keys=True, separators=(",", ":"), default=str).encode(
+                "utf-8"
+            )
+        ).hexdigest()
 
     def recall(
         self,
@@ -170,6 +209,15 @@ class UnifiedMemoryService:
         context = context or {}
         ranked: list[tuple[float, MemoryVertex]] = []
         for vertex in self.graph.vertices.values():
+            validation_state = str(
+                vertex.metadata.get("validation_state") or "working"
+            )
+            same_working_session = bool(
+                context.get("session_id")
+                and vertex.metadata.get("session_id") == context.get("session_id")
+            )
+            if validation_state != "validated" and not same_working_session:
+                continue
             if layer and vertex.metadata.get("layer") not in {layer, "global", None}:
                 continue
             if persona and vertex.metadata.get("persona") not in {persona, "global", None}:
@@ -201,15 +249,32 @@ class UnifiedMemoryService:
         persona: str = "global",
         metadata: dict[str, Any] | None = None,
         importance: float = 1.0,
+        trusted: bool = False,
+        source_run_id: str | None = None,
+        policy_result: str | None = None,
+        retention_class: str | None = None,
     ) -> MemoryVertex:
         """Persist or strengthen a memory vertex through StructuredMemoryGraph MC(M,I,t)."""
+        if trusted and (not source_run_id or policy_result != "release_authorized"):
+            raise ValueError("trusted_memory_requires_release_authority")
         metadata = {
             **(metadata or {}),
             "layer": layer,
             "persona": persona,
             "source": (metadata or {}).get("source", "unified_memory_service"),
+            "source_run_id": source_run_id,
+            "policy_result": policy_result or "working_only",
+            "validation_state": "validated" if trusted else "working",
+            "retention_class": retention_class or (
+                "validated_reasoning_memory" if trusted else "session_working_memory"
+            ),
         }
-        existing = self._find_existing(content, layer=layer, persona=persona)
+        existing = self._find_existing(
+            content,
+            layer=layer,
+            persona=persona,
+            validation_state=metadata["validation_state"],
+        )
         vertex = self.graph.memory_consolidation(
             {
                 "content": content,
@@ -250,6 +315,10 @@ class UnifiedMemoryService:
                 "session_id": (context or {}).get("session_id"),
                 "confidence": result.get("confidence"),
             },
+            trusted=False,
+            source_run_id=str((context or {}).get("run_id") or "") or None,
+            policy_result="working_only",
+            retention_class="session_working_memory",
         )
 
     def record_release_commit(
@@ -269,6 +338,10 @@ class UnifiedMemoryService:
                 "source": "l10_lane_b",
             },
             importance=1.2,
+            trusted=True,
+            source_run_id=simulation_id,
+            policy_result="release_authorized",
+            retention_class="validated_reasoning_memory",
         )
 
     def checkpoint(self, checkpoint_id: str) -> str:
@@ -293,12 +366,132 @@ class UnifiedMemoryService:
             "storage_path": str(self.storage_path),
         }
 
-    def _find_existing(self, content: str, *, layer: str, persona: str) -> MemoryVertex | None:
+    def review(self, *, include_working: bool = False) -> list[dict[str, Any]]:
+        """Return bounded memory records for owner review without embeddings."""
+        records = []
+        for vertex in sorted(
+            self.graph.vertices.values(), key=lambda item: item.timestamp, reverse=True
+        ):
+            state = str(vertex.metadata.get("validation_state") or "working")
+            if state != "validated" and not include_working:
+                continue
+            records.append(
+                {
+                    "vertex_id": vertex.vertex_id,
+                    "content": vertex.content,
+                    "validation_state": state,
+                    "source_run_id": vertex.metadata.get("source_run_id"),
+                    "policy_result": vertex.metadata.get("policy_result"),
+                    "retention_class": vertex.metadata.get("retention_class"),
+                    "session_id": vertex.metadata.get("session_id"),
+                    "created_at": vertex.timestamp.isoformat(),
+                    "last_accessed": vertex.last_accessed.isoformat(),
+                }
+            )
+        return records
+
+    def delete(self, vertex_id: str) -> bool:
+        """Delete one reviewed memory vertex and every connected edge."""
+        if not self._delete_without_save(vertex_id):
+            return False
+        self.save()
+        return True
+
+    def delete_by_sources(
+        self,
+        *,
+        source_ids: set[str] | None = None,
+        ingestion_id: str | None = None,
+        document_uids: set[str] | None = None,
+    ) -> int:
+        """Delete memories whose recorded provenance references removed sources."""
+        expected_sources = {str(value) for value in (source_ids or set()) if value}
+        expected_documents = {str(value) for value in (document_uids or set()) if value}
+        matched: list[str] = []
+        for vertex in self.graph.vertices.values():
+            metadata = vertex.metadata or {}
+            recorded_sources = {
+                str(value)
+                for key in ("source_ids", "evidence_source_ids")
+                for value in (
+                    metadata.get(key) if isinstance(metadata.get(key), list) else []
+                )
+            }
+            recorded_document = str(metadata.get("document_uid") or "")
+            if (
+                expected_sources.intersection(recorded_sources)
+                or (ingestion_id and str(metadata.get("ingestion_id") or "") == ingestion_id)
+                or (recorded_document and recorded_document in expected_documents)
+            ):
+                matched.append(vertex.vertex_id)
+        for vertex_id in matched:
+            self._delete_without_save(vertex_id)
+        if matched:
+            self.save()
+        return len(matched)
+
+    def _delete_without_save(self, vertex_id: str) -> bool:
+        normalized = str(vertex_id or "").strip()
+        if normalized not in self.graph.vertices:
+            return False
+        self.graph.vertices.pop(normalized, None)
+        self.graph.adjacency.pop(normalized, None)
+        for targets in self.graph.adjacency.values():
+            targets.discard(normalized)
+        edges = self.graph.edges
+        if isinstance(edges, dict):
+            self.graph.edges = {
+                key: edge
+                for key, edge in edges.items()
+                if edge.source_id != normalized and edge.target_id != normalized
+            }
+        else:
+            self.graph.edges = [
+                edge
+                for edge in edges
+                if edge.source_id != normalized and edge.target_id != normalized
+            ]
+        return True
+
+    def compact(self, *, max_working_vertices: int = 500) -> dict[str, int]:
+        """Bound session-working state without deleting validated memories."""
+        limit = max(0, min(10_000, int(max_working_vertices)))
+        working = sorted(
+            (
+                vertex
+                for vertex in self.graph.vertices.values()
+                if vertex.metadata.get("validation_state") != "validated"
+            ),
+            key=lambda item: item.last_accessed,
+            reverse=True,
+        )
+        removed = 0
+        for vertex in working[limit:]:
+            removed += self.delete(vertex.vertex_id)
+        return {"working_before": len(working), "removed": removed, "working_after": len(working) - removed}
+
+    def recover_from_backup(self) -> dict[str, Any]:
+        """Restore only from a schema-compatible, integrity-verified backup."""
+        backup = self.storage_path.with_suffix(self.storage_path.suffix + ".bak")
+        payload = json.loads(backup.read_text(encoding="utf-8"))
+        self.load_graph(payload)
+        self._atomic_write(self.export_graph(), preserve_backup=True)
+        return self.stats()
+
+    def _find_existing(
+        self,
+        content: str,
+        *,
+        layer: str,
+        persona: str,
+        validation_state: str,
+    ) -> MemoryVertex | None:
         for vertex in self.graph.vertices.values():
             if (
                 vertex.content == content
                 and vertex.metadata.get("layer") == layer
                 and vertex.metadata.get("persona") == persona
+                and vertex.metadata.get("validation_state") == validation_state
             ):
                 return vertex
         return None

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.13.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | SRE + Security Operations |
 | Review cadence | Every 30 days |
@@ -642,6 +642,31 @@ Relevant files:
 10. Error rates and latency return to baseline.
 11. New regression test exists when incident exposed a product defect.
 12. Incident report and follow-up actions are recorded.
+
+## Incident 18: Ingestion job or corpus consistency failure
+
+**Trigger:** a durable ingestion job is stalled/partial, a lease is abandoned,
+or PostgreSQL, Neo4j, Chroma, original-object, and normalized-object revisions do
+not agree.
+
+1. Open Settings -> Knowledge Ingestion and inspect per-file/parser/defense/store
+   state; do not mark the source complete manually.
+2. Pause or cancel the job if bytes, parser time, or defense state is unsafe.
+3. Run the consistency scan. Confirm PostgreSQL is the job/corpus authority and
+   Redis contains only coordination state.
+4. Use Retry for a failed committed checkpoint or Repair for a reported store
+   divergence. Do not requeue provider or parser work from an uncommitted state.
+5. Verify the original and normalized `knowledge-sources` objects, hashes,
+   Chroma embedding revision/dimensions, Neo4j revision, and deletion state.
+6. For corrupt UnifiedMemory, use the owner Recover action and review working
+   versus validated trust before enabling recall.
+7. Escalate any unexplained divergence, path escape, defense bypass, missing
+   artifact, or deletion remnant as release-blocking evidence.
+
+## Change notes for v2.13.0
+
+1. Added durable ingestion, cross-store scan/repair, source deletion, and memory
+   corruption/recovery incident handling.
 
 ## Change notes for v2.12.0
 

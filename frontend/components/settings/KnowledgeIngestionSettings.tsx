@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DatabaseZap, FileText, FolderOpen, History, Loader2, RefreshCw, UploadCloud, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { DatabaseZap, FileText, FolderOpen, History, Loader2, Pause, Play, RefreshCw, ShieldCheck, Trash2, UploadCloud, Wrench, Zap } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { IngestionResult, IngestionSupportedTypes } from '@/lib/api/types';
 import type { AsyncIngestionStatus } from '@/lib/api/ingestion';
@@ -35,6 +36,13 @@ export function KnowledgeIngestionSettings() {
   const [recursive, setRecursive] = useState(true);
   const [chunkSize, setChunkSize] = useState(1200);
   const [maxFileMb, setMaxFileMb] = useState(10);
+  const [maxTotalMb, setMaxTotalMb] = useState(100);
+  const [maxFiles, setMaxFiles] = useState(1000);
+  const [maxPages, setMaxPages] = useState(500);
+  const [maxArchiveEntries, setMaxArchiveEntries] = useState(10000);
+  const [maxExpandedMb, setMaxExpandedMb] = useState(100);
+  const [maxArchiveDepth, setMaxArchiveDepth] = useState(1);
+  const [parserTimeoutSeconds, setParserTimeoutSeconds] = useState(60);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +51,7 @@ export function KnowledgeIngestionSettings() {
   const [syncNeo4j, setSyncNeo4j] = useState(false);
   const [asyncId, setAsyncId] = useState<string | null>(null);
   const [asyncStatus, setAsyncStatus] = useState<AsyncIngestionStatus | null>(null);
+  const [consistency, setConsistency] = useState<{ scanned_jobs: number; consistent_jobs: number; divergence_count: number } | null>(null);
   const [activeOperationId, setActiveOperationId] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -62,6 +71,13 @@ export function KnowledgeIngestionSettings() {
       setHistory(items);
       setChunkSize((current) => current || supportedTypes.default_chunk_size);
       setMaxFileMb(Math.max(1, Math.round(supportedTypes.default_max_file_bytes / (1024 * 1024))));
+      setMaxTotalMb(Math.max(1, Math.round(supportedTypes.default_max_total_bytes / (1024 * 1024))));
+      setMaxFiles(Math.max(1, supportedTypes.default_max_files));
+      setMaxPages(Math.max(1, supportedTypes.default_max_pages));
+      setMaxArchiveEntries(Math.max(1, supportedTypes.default_max_archive_entries));
+      setMaxExpandedMb(Math.max(1, Math.round(supportedTypes.default_max_decompressed_bytes / (1024 * 1024))));
+      setMaxArchiveDepth(Math.max(0, supportedTypes.default_max_archive_depth));
+      setParserTimeoutSeconds(Math.max(1, supportedTypes.default_parser_timeout_seconds));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load ingestion status.');
@@ -94,6 +110,13 @@ export function KnowledgeIngestionSettings() {
       recursive,
       chunk_size: Math.max(100, chunkSize || 1200),
       max_file_bytes: Math.max(1, maxFileMb || 10) * 1024 * 1024,
+      max_total_bytes: Math.max(1, maxTotalMb || 100) * 1024 * 1024,
+      max_files: Math.max(1, maxFiles || 1000),
+      max_pages: Math.max(1, maxPages || 500),
+      max_archive_entries: Math.max(1, maxArchiveEntries || 10000),
+      max_decompressed_bytes: Math.max(1, maxExpandedMb || 100) * 1024 * 1024,
+      max_archive_depth: Math.max(0, maxArchiveDepth),
+      parser_timeout_seconds: Math.max(1, parserTimeoutSeconds || 60),
       source_label: sourceLabel.trim() || undefined,
       async_mode: asyncMode,
       sync_neo4j: syncNeo4j,
@@ -137,12 +160,60 @@ export function KnowledgeIngestionSettings() {
   };
 
   const cancelIngestion = async () => {
-    if (!activeOperationId || !window.electronAPI?.cancelDesktopOperation) return;
-    const result = await window.electronAPI.cancelDesktopOperation(activeOperationId);
-    if (result.cancelled) {
-      setActiveOperationId(null);
+    if (asyncId) {
+      const status = await api.ingestion.cancel(asyncId);
+      setAsyncStatus(status);
+      setRunning(false);
       toast('Ingestion cancellation requested.', 'success');
+      return;
     }
+    if (activeOperationId && window.electronAPI?.cancelDesktopOperation) {
+      const result = await window.electronAPI.cancelDesktopOperation(activeOperationId);
+      if (result.cancelled) {
+        setActiveOperationId(null);
+        toast('Ingestion cancellation requested.', 'success');
+      }
+    }
+  };
+
+  const pauseIngestion = async () => {
+    if (!asyncId) return;
+    const status = await api.ingestion.pause(asyncId);
+    setAsyncStatus(status);
+    toast('Ingestion will pause at its next safe checkpoint.', 'success');
+  };
+
+  const resumeIngestion = async () => {
+    if (!asyncId) return;
+    const status = await api.ingestion.resume(asyncId);
+    setAsyncStatus(status);
+    setRunning(true);
+    toast('Ingestion resumed.', 'success');
+  };
+
+  const repairIngestion = async (ingestionId: string) => {
+    await api.ingestion.repair(ingestionId);
+    toast('Failed cross-store writes were requeued where repair was safe.', 'success');
+    void loadHistory();
+  };
+
+  const retryIngestion = async (ingestionId: string) => {
+    await api.ingestion.retry(ingestionId);
+    toast('Ingestion retry queued from its retained app staging copy.', 'success');
+    void loadHistory();
+  };
+
+  const scanConsistency = async () => {
+    const report = await api.ingestion.consistency();
+    setConsistency(report);
+    toast(report.divergence_count ? 'Corpus differences require attention.' : 'Corpus stores are consistent.', report.divergence_count ? 'error' : 'success');
+  };
+
+  const deleteIngestion = async (ingestionId: string) => {
+    if (!window.confirm('Delete this source revision from PostgreSQL, vector, graph, and object storage?')) return;
+    await api.ingestion.remove(ingestionId);
+    toast('Cross-store deletion started.', 'success');
+    void loadHistory();
   };
 
   const chooseIngestionSource = async () => {
@@ -163,7 +234,8 @@ export function KnowledgeIngestionSettings() {
 
   // Poll async ingestion status.
   useEffect(() => {
-    if (!asyncId || asyncStatus?.status !== 'running') {
+    const activeStates = ['queued', 'running', 'materialization_pending', 'deletion_pending'];
+    if (!asyncId || !activeStates.includes(asyncStatus?.status || '')) {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
         pollingRef.current = null;
@@ -174,7 +246,7 @@ export function KnowledgeIngestionSettings() {
       try {
         const status = await api.ingestion.status(asyncId);
         setAsyncStatus(status);
-        if (status.status !== 'running') {
+        if (!activeStates.includes(status.status)) {
           setRunning(false);
           if (status.status === 'completed' && status.result) {
             setLastResult(status.result as IngestionResult);
@@ -227,7 +299,7 @@ export function KnowledgeIngestionSettings() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
               <div className="space-y-2 md:col-span-1">
                 <Label htmlFor="source-label">Source label</Label>
                 <Input
@@ -260,6 +332,57 @@ export function KnowledgeIngestionSettings() {
                   onChange={(event) => setMaxFileMb(Number(event.target.value))}
                   disabled={running}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="max-total-mb">Max job MB</Label>
+                <Input
+                  id="max-total-mb"
+                  type="number"
+                  min={1}
+                  value={maxTotalMb}
+                  onChange={(event) => setMaxTotalMb(Number(event.target.value))}
+                  disabled={running}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="max-files">Max files</Label>
+                <Input
+                  id="max-files"
+                  type="number"
+                  min={1}
+                  value={maxFiles}
+                  onChange={(event) => setMaxFiles(Number(event.target.value))}
+                  disabled={running}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-white/60 p-4 dark:border-white/10 dark:bg-black/20">
+              <div>
+                <div className="text-sm font-medium text-slate-900 dark:text-gray-100">Document safety limits</div>
+                <div className="text-xs text-slate-500 dark:text-gray-400">Large, deeply nested, or slow documents stop safely before indexing.</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+                <div className="space-y-2">
+                  <Label htmlFor="max-pages">Max pages</Label>
+                  <Input id="max-pages" type="number" min={1} value={maxPages} onChange={(event) => setMaxPages(Number(event.target.value))} disabled={running} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="parser-timeout">Parser seconds</Label>
+                  <Input id="parser-timeout" type="number" min={1} max={300} value={parserTimeoutSeconds} onChange={(event) => setParserTimeoutSeconds(Number(event.target.value))} disabled={running} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="archive-entries">Archive items</Label>
+                  <Input id="archive-entries" type="number" min={1} value={maxArchiveEntries} onChange={(event) => setMaxArchiveEntries(Number(event.target.value))} disabled={running} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expanded-size">Expanded MB</Label>
+                  <Input id="expanded-size" type="number" min={1} value={maxExpandedMb} onChange={(event) => setMaxExpandedMb(Number(event.target.value))} disabled={running} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="archive-depth">Archive depth</Label>
+                  <Input id="archive-depth" type="number" min={0} max={3} value={maxArchiveDepth} onChange={(event) => setMaxArchiveDepth(Number(event.target.value))} disabled={running} />
+                </div>
               </div>
             </div>
 
@@ -298,11 +421,21 @@ export function KnowledgeIngestionSettings() {
               </div>
             )}
 
-            {asyncStatus && asyncStatus.status === 'running' && (
+            {asyncStatus && ['queued', 'running', 'materialization_pending', 'deletion_pending', 'paused'].includes(asyncStatus.status) && (
               <Alert>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <AlertTitle>Async ingestion running</AlertTitle>
-                <AlertDescription>Source: {asyncStatus.source}</AlertDescription>
+                {asyncStatus.status === 'paused' ? <Pause className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
+                <AlertTitle>Async ingestion {asyncStatus.status.replaceAll('_', ' ')}</AlertTitle>
+                <AlertDescription>
+                  Source: {asyncStatus.source}. {asyncStatus.files_ingested || 0} files accepted, {asyncStatus.files_rejected || 0} rejected, {asyncStatus.materializations_pending || 0} store updates pending.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {consistency && (
+              <Alert variant={consistency.divergence_count ? 'destructive' : 'default'}>
+                <ShieldCheck className="h-4 w-4" />
+                <AlertTitle>Corpus consistency</AlertTitle>
+                <AlertDescription>{consistency.consistent_jobs}/{consistency.scanned_jobs} jobs consistent; {consistency.divergence_count} differences.</AlertDescription>
               </Alert>
             )}
 
@@ -326,14 +459,27 @@ export function KnowledgeIngestionSettings() {
                 {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                 Start ingestion
               </Button>
-              {activeOperationId && (
+              {(activeOperationId || (asyncId && ['queued', 'running', 'paused'].includes(asyncStatus?.status || ''))) && (
                 <Button variant="outline" onClick={() => void cancelIngestion()} aria-label="Cancel local knowledge ingestion">
                   Cancel ingestion
+                </Button>
+              )}
+              {asyncId && ['queued', 'running'].includes(asyncStatus?.status || '') && (
+                <Button variant="outline" onClick={() => void pauseIngestion()} aria-label="Pause local knowledge ingestion">
+                  <Pause className="mr-2 h-4 w-4" /> Pause
+                </Button>
+              )}
+              {asyncId && asyncStatus?.status === 'paused' && (
+                <Button variant="outline" onClick={() => void resumeIngestion()} aria-label="Resume local knowledge ingestion">
+                  <Play className="mr-2 h-4 w-4" /> Resume
                 </Button>
               )}
               <Button variant="outline" onClick={() => void loadHistory()} disabled={loadingHistory || running} aria-label="Refresh ingestion history">
                 <RefreshCw className={`mr-2 h-4 w-4 ${loadingHistory ? 'animate-spin' : ''}`} />
                 Refresh history
+              </Button>
+              <Button variant="outline" onClick={() => void scanConsistency()} aria-label="Scan corpus consistency">
+                <ShieldCheck className="mr-2 h-4 w-4" /> Scan stores
               </Button>
             </div>
           </CardContent>
@@ -345,7 +491,7 @@ export function KnowledgeIngestionSettings() {
               <FileText className="h-5 w-5 text-emerald-500" />
               Corpus Status
             </CardTitle>
-            <CardDescription>Latest manifest-backed run totals.</CardDescription>
+            <CardDescription>Latest PostgreSQL-authoritative run totals.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {(lastResult || history[0]) ? (
@@ -367,7 +513,9 @@ export function KnowledgeIngestionSettings() {
             )}
             {supported && (
               <div className="text-xs text-slate-500 dark:text-gray-400">
-                Default limit: {formatBytes(supported.default_max_file_bytes)}
+                Defaults: {formatBytes(supported.default_max_file_bytes)} per file,
+                {' '}{formatBytes(supported.default_max_total_bytes)} per job,
+                {' '}{supported.default_max_files} files
               </div>
             )}
           </CardContent>
@@ -381,7 +529,7 @@ export function KnowledgeIngestionSettings() {
               <History className="h-5 w-5 text-slate-500" />
               Ingestion History
             </CardTitle>
-            <CardDescription>Recent local manifest records.</CardDescription>
+            <CardDescription>Recent durable ingestion jobs and cross-store state.</CardDescription>
           </div>
           {loadingHistory && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </CardHeader>
@@ -394,11 +542,54 @@ export function KnowledgeIngestionSettings() {
                   <div className="truncate text-sm font-medium text-slate-900 dark:text-gray-100">{item.source}</div>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  {item.status && <Badge variant="outline">{item.status.replaceAll('_', ' ')}</Badge>}
                   <Badge variant="outline">{item.files_ingested} files</Badge>
                   <Badge variant="outline">{item.chunks_indexed}/{item.chunks_created} indexed</Badge>
                   {item.files_rejected > 0 && <Badge variant="destructive">{item.files_rejected} rejected</Badge>}
+                  {item.materializations_pending ? <Badge variant="destructive">{item.materializations_pending} pending</Badge> : null}
                 </div>
               </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {item.materializations_pending ? (
+                  <Button size="sm" variant="outline" onClick={() => void repairIngestion(item.ingestion_id)} aria-label={`Repair ingestion ${item.ingestion_id}`}>
+                    <Wrench className="mr-2 h-3.5 w-3.5" /> Repair
+                  </Button>
+                ) : null}
+                {['failed', 'cancelled'].includes(item.status || '') && (
+                  <Button size="sm" variant="outline" onClick={() => void retryIngestion(item.ingestion_id)} aria-label={`Retry ingestion ${item.ingestion_id}`}>
+                    <RefreshCw className="mr-2 h-3.5 w-3.5" /> Retry
+                  </Button>
+                )}
+                {!['deletion_pending', 'superseded'].includes(item.status || '') && (
+                  <Button size="sm" variant="outline" onClick={() => void deleteIngestion(item.ingestion_id)} aria-label={`Delete ingestion ${item.ingestion_id}`}>
+                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete source
+                  </Button>
+                )}
+              </div>
+              {item.files?.slice(0, 5).map((file) => (
+                <div key={file.relative_path} className="mt-3 rounded-md border border-slate-200/70 p-3 text-xs dark:border-white/10">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium text-slate-800 dark:text-gray-200">{file.relative_path}</span>
+                    <Badge variant="outline">{file.status.replaceAll('_', ' ')}</Badge>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-slate-500 dark:text-gray-400">
+                    <span>Parser: {file.parser_result?.status || file.error_code || 'pending'}</span>
+                    <span>Defense: {file.defense_result?.disposition || 'pending'}</span>
+                    <span>Original: {file.object_status || 'pending'}</span>
+                    <span>Normalized: {file.normalized_object_status || 'pending'}</span>
+                    <span>Vector: {file.vector_status || 'pending'}</span>
+                    <span>Graph: {file.graph_status || 'pending'}</span>
+                    <span>Embedding: {file.embedding_revision || 'not recorded'}</span>
+                    <span>Last retrieval: {file.last_retrieved_at ? new Date(file.last_retrieved_at).toLocaleString() : 'never'}</span>
+                    {file.last_retrieval_trace_id && (
+                      <Link className="text-blue-600 hover:underline dark:text-blue-400" href={`/runs/view?id=${encodeURIComponent(file.last_retrieval_trace_id)}`}>
+                        View last answer trace
+                      </Link>
+                    )}
+                  </div>
+                  {file.source_revision && <div className="mt-2 truncate font-mono text-[10px] text-slate-400">{file.source_revision}</div>}
+                </div>
+              ))}
               {item.manifest_path && (
                 <div className="mt-2 truncate text-xs text-slate-500 dark:text-gray-400">{item.manifest_path}</div>
               )}

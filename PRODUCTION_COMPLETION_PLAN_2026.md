@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.6.0 |
+| Document version | v1.7.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,25 +18,29 @@
 
 ### Current execution checkpoint
 
-Phase 8 reached its engineering checkpoint on 2026-07-13. The versioned
-`dle-gateway.v1` boundary now provides strict native sync, stage-native governed
-SSE, durable async/status/result/cancel, idempotency, capability and owned-trace
-retrieval, stable errors, and a bounded OpenAI-compatible facade. Copy-once
-client identity, explicit scopes/policy, atomic Redis admission and job
-coordination, PostgreSQL virtual-model/job/idempotency authority, encrypted
-large results in the app-owned S3 service, split desktop administration, SDKs,
-examples, contract-diff CI, ADR-0005, and operational documentation are current.
-Phase 9 is now active.
+Phase 9 reached its engineering checkpoint on 2026-07-14. Secure app-owned
+acquisition now precedes parsing; PostgreSQL owns durable ingestion jobs, files,
+chunks, attempts, checkpoints, and source revisions; Redis carries content-free
+coordination/events; and the eighth required S3 bucket, `knowledge-sources`,
+retains approved original and normalized artifacts. Required PostgreSQL, Neo4j,
+Chroma, and object revisions reconcile through scan/repair/update/delete paths.
+Canonical retrieval validates authority, permissions, retention, hashes,
+defense, embedding, revision, diversity, and budgets and records causal source
+decisions. ADR-0006 establishes UnifiedMemory v2 trust/promotion and owner
+lifecycle controls. Knowledge, Graph, ingestion, memory, and run-detail UI
+surfaces now report real state. Phase 10 is now active.
 
-This checkpoint is not the full Phase 8 production exit gate and does not
+This checkpoint is not the full Phase 9 production exit gate and does not
 change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
 license review, final object-store decision, and real installed OpenAI/Gemini
 trace proof, installed OpenAI/Google corpus results, live Phase 7 provider
 acceptance, signed blinded human acceptance, and Phase 8 same-host/private,
-TLS/firewall, backup/restore, UI, failure/load/soak, and two-machine acceptance
-remain open gates that can only close against the later rebuilt release candidate.
+TLS/firewall, backup/restore, UI, failure/load/soak, two-machine acceptance, and
+Phase 9 installed restart/recovery, hostile-corpus, populated cross-store,
+causal-retrieval, deletion, and Knowledge/Graph acceptance remain open gates
+that can only close against the later rebuilt release candidate.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -2141,6 +2145,38 @@ to governed responses.
 4. Make empty, loading, partial, failed, rebuilding, and offline states distinct.
 5. Add source-to-answer and answer-to-source navigation.
 
+#### 17.6 Current engineering result
+
+The Phase 9 source/engineering checkpoint completed on 2026-07-14:
+
+1. Electron picker capabilities are consumed in the main process and sources
+   are acquired into bounded app-owned staging before parsing. Path/reparse/
+   device/UNC/special-file checks, content signatures, binary rejection, parser
+   limits, archive/decompression limits, and `content-defense.v1` fail closed.
+2. PostgreSQL owns ingestion jobs, files, chunks, attempts, checkpoints, hashes,
+   and revisions; Redis owns content-free queue, lease, state, cancellation, and
+   progress events. The data registry has 77 PostgreSQL entities and 30 logical
+   contracts at Alembic head `c8d9e0f1a2b3`.
+3. `knowledge-sources` is the eighth required object bucket. Original and
+   normalized objects are both required, hashed revisions; PostgreSQL, Neo4j,
+   Chroma, and S3 scan/repair/update/retry/reference-aware deletion paths are
+   implemented.
+4. Retrieval validates authority, permission, retention, hash, defense,
+   embedding revision/dimensions, store revision, diversity, and character
+   budgets; it persists considered, selected, rejected, and graph-context
+   decisions and supplies only validated stable source IDs to `governed.v1`.
+5. ADR-0006 and UnifiedMemory v2 separate working from validated trust, prohibit
+   unvalidated promotion, and add integrity hashes, review, export, deletion,
+   compaction, recovery, source cleanup, and v1 migration.
+6. Knowledge, Graph, ingestion, memory, and run-detail controls expose live
+   progress, consistency, provenance, lifecycle actions, and trace/source links.
+7. Validation passed 2,033 backend tests with 18 skipped and 407 frontend tests,
+   plus frontend typecheck/lint/build, Ruff, and Python compilation.
+
+This is an engineering checkpoint, not installed acceptance. Rebuilt-installed
+restart/recovery, populated-store parity, hostile-corpus, causal-answer,
+deletion, and packaged Knowledge/Graph proof remain explicit CP9 gates.
+
 ### Checkpoints
 
 - **CP9-A - Durable jobs:** ingestion survives backend/Electron restart without
@@ -3813,16 +3849,16 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 9** from the committed Phase 8 engineering checkpoint. Inventory
-the live file/folder acquisition and picker-capability paths, staging/parsers,
-ingestion jobs, PostgreSQL corpus authority, Redis queue/lease/event state,
-Neo4j/Chroma materializations, S3 artifacts, retrieval paths, memory authorities,
-and Knowledge/Graph controls. Add failure-first path/archive/content-defense,
-restart/idempotency, cross-store divergence, retrieval-causality, and delete/
-reingest tests before extending the subsystem.
+Start **Phase 10** from the committed Phase 9 engineering checkpoint. Inventory
+and compare the live multi-agent debate and FROST implementations, all routes,
+callers, and Simulation UI controls, provider recursion/budget paths,
+PostgreSQL/Redis/Neo4j/Chroma/S3 persistence, progress delivery, and pause/
+resume/cancel/retry/restart behavior. Add failure-first duplicate-authority,
+recursive-governance, budget, cancellation, partial-persistence, restart, and
+fixed-seed determinism tests before selecting one authoritative engine in an ADR.
 
 Preserve the one `governed.v1` orchestrator and versioned client boundary, all
-installed-only Phase 3-8 gates, Dependabot alert 389, and the SeaweedFS
-candidate-only Replacement Control boundary as release blockers. Phase 9 must
-not treat source fixtures as installed ingestion, recovery, or causal-retrieval
-proof.
+installed-only Phase 3-9 gates, Dependabot alert 389, and the SeaweedFS
+candidate-only Replacement Control boundary as release blockers. Phase 10 must
+not treat deterministic source fixtures as installed live-provider or packaged
+simulation acceptance.

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.5.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.6.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 60 days |
@@ -20,7 +20,9 @@ This document replaces the older PostgreSQL-only framing with the current multi-
 
 Phase 8 adds client-key lifecycle metadata plus
 `gateway_idempotency_records`, `gateway_async_runs`, and
-`gateway_virtual_models`. Alembic head `b7c8d9e0f1a2` is authoritative.
+`gateway_virtual_models`. Phase 9 adds `ingestion_jobs`, `ingestion_files`,
+`ingestion_chunks`, and `ingestion_attempts`. Alembic head `c8d9e0f1a2b3` is
+authoritative.
 
 ## Audience
 
@@ -75,9 +77,9 @@ substitution when the managed profile is selected. Development mode retains
 those bounded fallbacks explicitly.
 
 The required object buckets are `audit-logs`, `simulation-artifacts`,
-`deliverables`, `graphs`, `evaluation-data`, `trace-exports`, and
-`gateway-results`. The authority registry assigns one authority to 73
-PostgreSQL entities and 29 logical
+`deliverables`, `graphs`, `evaluation-data`, `trace-exports`, `gateway-results`,
+and `knowledge-sources`. The authority registry assigns one authority to 77
+PostgreSQL entities and 30 logical
 data classes. PostgreSQL is the logical authority for graph nodes/relationships
 and vector sources; Neo4j and ChromaDB are rebuildable, revisioned
 materializations. MinIO remains authoritative for declared artifact classes.
@@ -88,8 +90,8 @@ materialization-state record. A required artifact or index is not marked
 complete until the destination confirms the same revision/hash.
 
 Production startup runs a fail-closed migration coordinator before stores and
-workers. The 21-revision Alembic chain has base `000000000001` and head
-`b7c8d9e0f1a2`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
+workers. The 22-revision Alembic chain has base `000000000001` and head
+`c8d9e0f1a2b3`; Redis, Neo4j, ChromaDB, MinIO, retained configuration, and JSON
 memory also carry version probes and ledger entries. See
 `docs/MIGRATION_SUPPORT_MATRIX.md` for the supported-upgrade limits.
 
@@ -539,11 +541,17 @@ graphs
 evaluation-data
 trace-exports
 gateway-results
+knowledge-sources
 ```
 
 `gateway-results` retains only encrypted large asynchronous gateway results.
 PostgreSQL owns the job/reference/hash; Redis owns expiring lease/cancellation
 state. Result bytes are hash-verified before an authorized client can read them.
+
+`knowledge-sources` retains the required hashed original and normalized source
+artifacts. PostgreSQL owns the ingestion job/file/chunk authority and expected
+revisions; Redis never stores source content. Job completion requires both
+objects plus matching Neo4j and Chroma materializations.
 
 Object-store safety controls include:
 
@@ -572,7 +580,7 @@ DataLogicEngine currently has multiple memory systems, each with a different pur
 | Memory system | Implementation | Purpose |
 |---|---|---|
 | USKD memory graph | `backend/storage/uskd_memory_graph.py` | RAM-resident graph memory for fast traversal of knowledge graph structures. |
-| UnifiedMemoryService | `backend/memory/unified_memory_service.py` | Structured reasoning memory with embeddings, vertices, edges, recall, consolidation, and JSON persistence. |
+| UnifiedMemoryService | `backend/memory/unified_memory_service.py` | Version 2 working/validated reasoning memory with source/run identity, trust promotion, integrity hashes, recall, review, deletion, export, compaction, and recovery. |
 | TruthMemory | `backend/truth_engine/truth_memory/manager.py` | Audit-grade session memory: audit chain, cache, metrics, artifacts, explainability, MLflow-style tracking. |
 
 UnifiedMemory persists to:
@@ -586,6 +594,10 @@ Recall scoring considers:
 1. embedding relevance;
 2. temporal importance;
 3. stored importance score.
+
+Working memory is not trusted memory. Promotion requires the recorded source/run,
+policy, validation, and retention state defined by ADR-0006. Version 1 JSON is
+migrated to version 2 and corruption recovery uses the integrity-checked backup.
 
 ## Trace and export architecture
 
@@ -708,6 +720,11 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.6.0
+
+1. Added four durable ingestion authorities, migration head `c8d9e0f1a2b3`,
+   the eighth required bucket, cross-store completion rules, and UnifiedMemory v2.
 
 ## Change notes for v3.3.0
 

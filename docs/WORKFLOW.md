@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.3.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -171,6 +171,29 @@ All transports enter the same workflow after admission:
 
 Stream resume is unavailable in v1. An interrupted running async job is not
 automatically replayed because provider spend may already have occurred.
+
+## Durable knowledge ingestion and retrieval workflow
+
+1. Electron consumes a one-use picker capability and the backend acquires the
+   selected source into bounded app-owned staging.
+2. Path/content/archive/parser defenses approve, sanitize, or reject the source
+   and persist `content-defense.v1`.
+3. PostgreSQL creates the job/file/chunk/attempt authority; Redis publishes only
+   content-free queue, lease, state, cancellation, and progress events.
+4. Original and normalized hashed artifacts are required in `knowledge-sources`;
+   Neo4j and Chroma receive the same expected source revision.
+5. The scanner marks completion only after PostgreSQL, Neo4j, Chroma, original
+   object, and normalized object agree; partial work remains repairable.
+6. Governed retrieval rejects unauthorized, stale, deleted, defense-rejected,
+   hash-mismatched, embedding-mismatched, or incomplete materializations, applies
+   deterministic diversity/budgets, and records all source decisions.
+7. Validated output may promote memory under ADR-0006; provider output never
+   becomes trusted memory merely because it was generated.
+
+## Change notes for v3.3.0
+
+1. Added the Phase 9 acquisition, durable job, cross-store completion, causal
+   retrieval, and validated-memory workflow.
 
 ## Change notes for v3.2.0
 

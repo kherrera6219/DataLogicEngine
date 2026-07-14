@@ -12,10 +12,17 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
     """Build the one request whose inputs match the governed trace."""
 
     request = context.request
-    evidence_lines = [
-        f"[{item.citation_label}] source_id={item.source_id} title={item.title or 'untitled'}\n{item.text}"
-        for item in context.evidence
-    ]
+    evidence_lines = []
+    for item in context.evidence:
+        graph_context = item.metadata.get("graph_context")
+        relationship_context = (
+            "\nRecorded graph relationships: " + _json(graph_context)
+            if isinstance(graph_context, list) and graph_context
+            else ""
+        )
+        evidence_lines.append(
+            f"[{item.citation_label}] source_id={item.source_id} title={item.title or 'untitled'}\n{item.text}{relationship_context}"
+        )
     persona_summary = _persona_summary(context.dsqp)
     workflow_summary = _workflow_summary(context.truthcore)
     routing_summary = {

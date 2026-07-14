@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-07-13 |
+| Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
-| Completed phase | Phase 8 engineering checkpoint - External API Gateway and LLM middleware productization |
-| Current phase | Phase 9 - Ingestion, retrieval, graph, and memory completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.7.0 |
+| Completed phase | Phase 9 engineering checkpoint - Ingestion, retrieval, graph, and memory completion |
+| Current phase | Phase 10 - Simulation completion |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -253,51 +253,60 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
-Phase 8 reached its engineering checkpoint on 2026-07-13. The strict,
-versioned `dle-gateway.v1` boundary provides native sync, stage-native governed
-SSE, durable async/status/result/cancel, durable idempotency, capabilities,
-owned trace retrieval, stable errors, and a bounded OpenAI-compatible facade.
-External clients use copy-once `ukg_` credentials and explicit least-privilege
-scopes; provider secrets and administrative authority stay server-owned.
+Phase 9 reached its engineering checkpoint on 2026-07-14. Electron picker
+authority is consumed by the main process and selected files/folders are copied
+to bounded app-owned staging before parsing. Local/UNC/device/reparse/special
+path checks, content signatures, binary rejection, archive/decompression/page/
+file/byte/time limits, and `content-defense.v1` fail closed before a source is
+approved.
 
-PostgreSQL is authoritative for key lifecycle, virtual models, idempotency,
-durable runs, and result references. Redis performs atomic admission,
-concurrency, worker coordination, and cancellation. Large encrypted job results
-use the app-owned `gateway-results` S3 bucket. The desktop now separates Provider
-Connections from Client Gateway controls. Python SDK 0.7.0, the TypeScript SDK,
-examples, OpenAPI compatibility diff, ADR-0005, and gateway runbooks are current.
+PostgreSQL owns durable ingestion jobs, files, chunks, attempts, checkpoints,
+source hashes, and revisions. Redis carries content-free queue, lease, state,
+cancellation, and progress events. The ownership registry now covers 77
+PostgreSQL entities and 30 logical data contracts, and Alembic head is
+`c8d9e0f1a2b3`. Approved original and normalized artifacts use the eighth
+required S3 bucket, `knowledge-sources`.
 
-Validation passed 1,993 backend tests with 18 skipped, 403 frontend tests, 30
-Python SDK tests, and 5 TypeScript SDK tests, plus frontend typecheck/lint/build,
-Ruff, Python compilation, contract/docs checks, and migration head
-`b7c8d9e0f1a2`. Phase 8 evidence is under
-`reports/production-readiness/2026/phase-08/`.
+Completion requires matching PostgreSQL, Neo4j, Chroma, original-object, and
+normalized-object revisions. Consistency scan/repair, update/retry, and
+reference-aware cross-store and memory deletion are implemented. Retrieval
+validates source authority, permissions, retention, hashes, defense result,
+embedding revision/dimensions, and materialization state; it persists considered,
+selected, rejected, and graph-context decisions with stable trace/source links.
+ADR-0006 defines UnifiedMemory v2 working-versus-validated trust, release-only
+promotion, integrity hashes, review/export/delete/compact/recover, and v1
+migration.
 
-CP8-I and installed portions of CP8-B/C/F/G/J remain explicit release blockers:
-the rebuilt signed application must prove same-host/private Windows behavior,
-real OpenAI/Google interoperability, expanded backup/restore/restart/deletion,
-packaged UI truth, TLS/firewall/certificate state, failure/load/soak budgets, and
-two-machine operation. Private mode stays disabled. No source fixture is
-represented as installed evidence.
+The Knowledge, Graph, ingestion settings, memory settings, and run-detail
+surfaces report live state and actions without hardcoded compliance/pass labels.
+Validation passed 2,033 backend tests with 18 skipped and all 407 frontend tests,
+plus frontend typecheck/lint/build, Ruff, and Python compilation. Evidence is
+under `reports/production-readiness/2026/phase-09/`.
 
-Phase 9 is active. It must make acquisition, ingestion, cross-store indexing,
-retrieval, graph use, and memory durable, secure, reconcilable, and causally
-useful to the same governed path.
+Installed portions of CP9-A/B/C/D/E remain explicit release gates. In particular,
+the rebuilt application must prove restart/recovery, populated cross-store
+parity, hostile-corpus containment, causal answer change, deletion, and packaged
+Knowledge/Graph truth. Earlier installed gates, alert 389, and final object-store
+Replacement Control also remain open; SeaweedFS is still candidate-only and
+MinIO remains the production architecture.
+
+Phase 10 is active. It must select one simulation engine and make provider use,
+budgets, persistence, progress, cancellation, restart, evidence, confidence, and
+desktop behavior bounded and truthful.
 
 ## Exact next action
 
-1. Inventory local file/folder entry points, Electron picker capabilities,
-   staging, parsers, ingestion jobs, corpus records, queue/lease/event state,
-   graph/vector/object writes, retrieval, memory authorities, and Knowledge/
-   Graph controls.
-2. Add failure-first path/archive/content-defense, restart/idempotency,
-   cross-store divergence, retrieval-causality, and delete/reingest tests.
-3. Define the authoritative document/chunk/revision and ingestion-job contracts,
-   then route Neo4j/Chroma/object writes through the existing outbox and
-   reconciliation boundaries.
-4. Complete Phase 9 in plan order: secure acquisition, durable jobs, cross-store
-   indexing, causal retrieval, memory authority, and truthful Knowledge/Graph UI.
-5. Keep every installed-only Phase 3-8 gate, alert 389, and the SeaweedFS
+1. Inventory and compare the live multi-agent debate and FROST implementations,
+   all simulation routes/callers/UI controls, provider recursion/budget paths,
+   persistence stores, progress events, and lifecycle operations.
+2. Add failure-first tests for duplicate authority, recursive governed calls,
+   budget overflow, cancellation, partial persistence, restart, and fixed-seed
+   determinism.
+3. Select the authoritative engine in an ADR; archive or disable duplicate
+   runtime entry points before expanding the selected implementation.
+4. Define versioned scenario, participant, event, call, evidence, checkpoint,
+   artifact, and result contracts and one bounded simulation provider adapter.
+5. Keep every installed-only Phase 3-9 gate, alert 389, and the SeaweedFS
    candidate-only boundary release-blocking until rebuilt installed evidence can
    close them.
 

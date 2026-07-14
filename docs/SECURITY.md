@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.12.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering |
 | Review cadence | Every 30 days |
@@ -524,6 +524,29 @@ A security reviewer should inspect these files in order:
 17. `.github/workflows/release-installer-signing.yml`
 
 ---
+
+## Phase 9 ingestion, retrieval, and memory controls
+
+- Renderer code receives opaque picker capabilities, not durable path authority.
+- The backend copies approved local sources into bounded app-owned staging and
+  rejects UNC/network paths, device/reserved names, links/reparse points,
+  special files, traversal, and outside-root resolution.
+- Content signatures and parser behavior take precedence over file extensions.
+  File/job/page/archive/decompression/depth/time budgets fail closed.
+- `content-defense.v1` records approved, sanitized, or rejected content; unsafe
+  obfuscation that cannot be sanitized is rejected.
+- Redis ingestion messages are content-free. Required original/normalized
+  artifacts are hashed, revisioned, and stored only in the app-owned S3 service.
+- Retrieval checks PostgreSQL authority, permissions, retention, deletion,
+  defense result, hashes, embedding revision/dimensions, and store revisions.
+- UnifiedMemory v2 separates working from validated trust; promotion requires a
+  validated governed run, and integrity/recovery plus source deletion are owner
+  controlled under ADR-0006.
+
+## Change notes for v2.12.0
+
+1. Added secure acquisition, parser/content defense, cross-store retrieval
+   validation, content-free coordination, and memory-poisoning controls.
 
 ## Change notes for v2.11.0
 

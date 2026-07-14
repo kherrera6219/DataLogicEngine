@@ -43,6 +43,7 @@ def test_load_from_records_builds_graph_and_stats():
     assert stats.edge_count == 1
     assert stats.pillar_count == 1
     assert stats.knowledge_node_count == 2
+    assert stats.source_revision.startswith("sha256:")
 
     matches = graph.search("privacy")
     assert [match["uid"] for match in matches] == ["node-1"]

@@ -60,7 +60,14 @@ class RAGService:
         "END PROMPT",
     )
     
-    def __init__(self, vector_store=None, embedding_provider=None):
+    def __init__(
+        self,
+        vector_store=None,
+        embedding_provider=None,
+        *,
+        embedding_revision: str | None = None,
+        embedding_dimensions: int = 384,
+    ):
         """
         Initialize RAG service.
         
@@ -70,6 +77,16 @@ class RAGService:
         """
         self._vector_store = vector_store
         self._embedding_provider = embedding_provider or self._default_embedding
+        self.embedding_revision = str(
+            embedding_revision
+            or os.environ.get("DLE_EMBEDDING_REVISION")
+            or (
+                "local-sha256-projection-v1"
+                if embedding_provider is None
+                else "configured-embedding-provider-v1"
+            )
+        )
+        self.embedding_dimensions = max(1, int(embedding_dimensions))
         self._initialized = False
         self._sentence_splitter = None
         
@@ -161,7 +178,7 @@ class RAGService:
         """Generate a stable 384-dimension local projection."""
         hash_bytes = hashlib.sha256(text.encode()).digest()
         embedding = []
-        for i in range(384):
+        for i in range(self.embedding_dimensions):
             byte_idx = i % len(hash_bytes)
             embedding.append((hash_bytes[byte_idx] - 128) / 128.0)
         return embedding
@@ -519,7 +536,6 @@ class RAGService:
         store = self._get_vector_store()
         if store is None:
             return False
-        
         try:
             embedding = self._embedding_provider(content)
             store.add_embeddings(
@@ -535,6 +551,17 @@ class RAGService:
             return True
         except Exception as e:
             logger.error(f"Failed to ingest knowledge node: {e}")
+            return False
+
+    def delete_knowledge_node(self, node_id: str) -> bool:
+        """Delete one versioned knowledge-node vector by stable identifier."""
+        store = self._get_vector_store()
+        if store is None:
+            return False
+        try:
+            return bool(store.delete(self.COLLECTION_KNOWLEDGE, [str(node_id)]))
+        except Exception as exc:
+            logger.error("Failed to delete knowledge node: %s", exc)
             return False
     
     def search_knowledge(

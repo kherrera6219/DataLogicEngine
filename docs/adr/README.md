@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -27,6 +27,7 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 | `ADR-0003-internal-service-delivery.md` | App-owned pinned OCI containers through rootless Podman Machine/WSL2 | Accepted / Phase 0 CP0-B |
 | `ADR-0004-seaweedfs-replacement-qualification.md` | SeaweedFS candidate replacement qualification | Proposed / candidate only |
 | `ADR-0005-external-gateway-boundary.md` | External principal, network profile, virtual-model, and compatibility boundary | Accepted / Phase 8 implementation |
+| `ADR-0006-memory-authority-and-trust-boundary.md` | Memory authority, trust-state, lifecycle, and migration boundary | Accepted / Phase 9 implementation |
 
 ---
 
@@ -99,6 +100,12 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.9.0
+
+1. Added ADR-0006 for the Phase 9 memory authority and trusted-recall boundary.
+2. Recorded `unified-memory.v2` migration, lifecycle, and corruption-recovery
+   requirements.
 
 ## Change notes for v2.8.0
 

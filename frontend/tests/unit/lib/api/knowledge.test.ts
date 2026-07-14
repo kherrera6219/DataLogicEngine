@@ -57,4 +57,10 @@ describe('knowledge API', () => {
     await knowledge.graph(8);
     expect(apiBase.request).toHaveBeenCalledWith('/graph?axis=8');
   });
+
+  it('requests a bounded graph neighborhood for expansion', async () => {
+    vi.mocked(apiBase.request).mockResolvedValueOnce({ nodes: [], links: [] });
+    await knowledge.graph(undefined, { root: 'node 1', depth: 1 });
+    expect(apiBase.request).toHaveBeenCalledWith('/graph?root=node+1&depth=1');
+  });
 });

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.2.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Audience | Software engineers, architects, security reviewers, technical evaluators |
@@ -313,6 +313,33 @@ flowchart LR
 
 Provider keys and all internal service credentials remain outside the client
 boundary. Private network ingress remains disabled pending qualification.
+
+## DFD-10: Durable knowledge lifecycle
+
+```mermaid
+flowchart LR
+    PICK[Electron picker capability] --> STAGE[Bounded app-owned staging]
+    STAGE --> DEFENSE[Path content archive parser defense]
+    DEFENSE --> PG[(PostgreSQL jobs files chunks attempts revisions)]
+    PG --> REDIS[(Redis content-free queue lease events)]
+    PG --> ORIGINAL[(S3 knowledge-sources original)]
+    PG --> NORMALIZED[(S3 knowledge-sources normalized)]
+    PG --> NEO[(Neo4j revision)]
+    PG --> CHROMA[(Chroma revision)]
+    ORIGINAL --> SCAN[Consistency scanner]
+    NORMALIZED --> SCAN
+    NEO --> SCAN
+    CHROMA --> SCAN
+    PG --> SCAN
+    SCAN --> RETRIEVE[Authority-validated governed retrieval]
+    RETRIEVE --> TRACE[Considered selected rejected cited sources]
+    TRACE --> MEMORY[Validated-only memory promotion]
+```
+
+## Change notes for v3.2.0
+
+1. Added the Phase 9 app-owned acquisition, durable multi-store ingestion,
+   consistency, causal retrieval, trace, and memory-promotion flow.
 
 ## Change notes for v3.1.0
 

@@ -26,7 +26,7 @@ class MigrationSurface:
 MIGRATION_SURFACES: tuple[MigrationSurface, ...] = (
     MigrationSurface(
         key="postgresql",
-        target_version="alembic:b7c8d9e0f1a2",
+        target_version="alembic:c8d9e0f1a2b3",
         version_probe="SELECT version_num FROM alembic_version",
         forward_migration="transactional Alembic upgrade through the single revision head",
         rollback_policy="revision-specific downgrade only after verified coordinated backup",
@@ -71,7 +71,7 @@ MIGRATION_SURFACES: tuple[MigrationSurface, ...] = (
     ),
     MigrationSurface(
         key="local_json_memory",
-        target_version="unified-memory.v1",
+        target_version="unified-memory.v2",
         version_probe="read and validate root JSON version field before loading vertices or edges",
         forward_migration="write migrated graph to a temporary path and atomically replace after validation",
         rollback_policy="retain and restore the last valid versioned JSON graph",

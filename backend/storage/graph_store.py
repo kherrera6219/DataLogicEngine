@@ -110,6 +110,23 @@ class GraphStore:
             logger.error(f"Cypher query failed: {e}")
             return []
 
+    def delete_knowledge_node(self, uid: str) -> bool:
+        """Delete one knowledge node and its relationships by stable UID."""
+        if not self.driver:
+            self.connect()
+        if not self.driver:
+            return False
+        try:
+            with self.driver.session() as session:
+                session.run(
+                    "MATCH (n:KnowledgeNode {uid: $uid}) DETACH DELETE n",
+                    {"uid": str(uid)},
+                ).consume()
+            return True
+        except Exception as exc:
+            logger.error("Neo4j knowledge-node deletion failed: %s", exc)
+            return False
+
     def cached_run_query(
         self,
         query: str,
@@ -236,6 +253,42 @@ class GraphStore:
         params = {"uid": uid, "depth": max(0, int(depth)), "limit": int(limit)}
         runner = self.cached_run_query if cached else self.run_query
         return runner(query, params, cache_key_prefix="subgraph", timeout=300)
+
+    def get_knowledge_relationships(
+        self,
+        uid: str,
+        *,
+        limit: int = 12,
+        cached: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Return bounded, projection-only relationship context for retrieval."""
+        query = """
+        MATCH (center {uid: $uid})-[relationship]-(neighbor)
+        RETURN type(relationship) AS relationship_type,
+               neighbor.uid AS neighbor_uid,
+               coalesce(neighbor.title, neighbor.name, neighbor.label, neighbor.uid) AS neighbor_title,
+               labels(neighbor) AS neighbor_labels
+        ORDER BY relationship_type, neighbor_uid
+        LIMIT $limit
+        """
+        params = {"uid": str(uid), "limit": max(1, min(int(limit), 50))}
+        runner = self.cached_run_query if cached else self.run_query
+        records = runner(
+            query,
+            params,
+            cache_key_prefix="retrieval-relationships",
+            timeout=300,
+        )
+        return [
+            {
+                "relationship_type": str(record.get("relationship_type") or "RELATED_TO"),
+                "neighbor_uid": str(record.get("neighbor_uid") or ""),
+                "neighbor_title": str(record.get("neighbor_title") or ""),
+                "neighbor_labels": [str(value) for value in (record.get("neighbor_labels") or [])],
+            }
+            for record in records
+            if isinstance(record, dict) and record.get("neighbor_uid")
+        ]
 
     def merge_knowledge_node(self, properties: Dict[str, Any]) -> bool:
         """Idempotently merge a KnowledgeNode by uid."""

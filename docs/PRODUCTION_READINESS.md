@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.12.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -42,7 +42,7 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **Phase 8 gateway engineering is complete and Phase 9 is active,
+Current status: **Phase 9 knowledge-lifecycle engineering is complete and Phase 10 is active,
 but signed production release remains NO-GO until retained installed, security,
 provider, recovery, accessibility, signing, and independent-review evidence is
 complete.**
@@ -68,6 +68,9 @@ complete.**
 15. Explicit client scopes and copy-once key lifecycle, Redis atomic admission,
     PostgreSQL virtual-model/job/idempotency authority, encrypted object-backed
     large results, split Client Gateway administration, SDKs, and contract-diff CI.
+16. Secure app-owned source acquisition, durable ingestion authorities,
+    PostgreSQL/Neo4j/Chroma/S3 corpus reconciliation, causal retrieval,
+    UnifiedMemory v2 trust/lifecycle controls, and truthful Knowledge/Graph UI.
 
 ### Remaining release blockers before signed production distribution
 
@@ -83,6 +86,8 @@ complete.**
    packaged UI, failure/load/soak, and privacy/security acceptance.
 9. Closure or explicit time-bounded owner disposition of Dependabot alert 389
    after a reviewed patched ChromaDB release and adversarial qualification.
+10. Phase 9 installed restart/recovery, populated-store parity, hostile-corpus,
+    causal-answer, deletion, and packaged Knowledge/Graph acceptance.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -95,9 +100,9 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 | Architecture | Ready for review | `docs/ARCHITECTURE.md`, diagram set, DMRF/Truth Engine files. |
 | API contract | Engineering checkpoint complete | `dle-gateway.v1`, OpenAPI compatibility diff, native/compatible contract tests, SDK and examples parity. |
 | Security | Ready with release caveats | Security tests, runtime precheck, desktop auth tests, secret validation, signing evidence. |
-| Data/storage | Gateway authority complete; Phase 9 active | 73 PostgreSQL entities, 29 logical contracts, seven object buckets, migration head `b7c8d9e0f1a2`; ingestion/retrieval reconciliation remains Phase 9. |
-| Testing | Strong | Backend/frontend/contract/parity/security/governance/packaging CI. |
-| Frontend/product | Gateway controls complete; later workflows remain | Split Provider Connections/Client Gateway administration is tested; installed visual truth and Phases 9-13 remain. |
+| Data/storage | Phase 9 engineering checkpoint complete | 77 PostgreSQL entities, 30 logical contracts, eight object buckets, migration head `c8d9e0f1a2b3`; installed populated reconciliation remains gated. |
+| Testing | Strong | Phase 9 baseline: 2,033 backend passed/18 skipped and 407 frontend passed, plus contract/parity/security/governance/build checks. |
+| Frontend/product | Knowledge lifecycle controls complete; later workflows remain | Gateway, ingestion, Graph, and memory controls are tested; installed visual truth and Phases 10-13 remain. |
 | Desktop packaging | Strong but signing-dependent | backend rebuild, NSIS governance, installer integrity, packaging smoke, installer-mode install/uninstall smoke, signed artifact verification. |
 | Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
 | Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |

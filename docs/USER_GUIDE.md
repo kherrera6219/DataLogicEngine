@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.9.0 |
-| Last updated | 2026-07-13 |
+| Document version | v3.0.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Operations |
 | Review cadence | Every 30 days |
@@ -334,6 +334,26 @@ Review `docs/PRIVACY_POLICY.md` for details.
 5. `docs/ARCHITECTURE.md`
 6. `docs/SECURITY.md`
 7. `docs/OPERATIONAL_RUNBOOKS.md`
+
+## Phase 9 knowledge lifecycle controls
+
+In Settings -> Knowledge Ingestion, select a file or folder through the desktop
+picker, set file/job/parser safety budgets, and start the durable job. The page
+shows per-file parser and defense outcomes, original/normalized artifact state,
+vector/graph revisions, last retrieval, and overall store consistency. Available
+actions include pause, resume, cancel, retry, delete, consistency scan, and repair.
+
+The Graph page supports live search, axis/filter/camera controls, bounded neighbor
+expansion, details/provenance, JSON export, and links back to the last answer
+trace and source ingestion settings. Empty, loading, partial, rebuilding,
+offline, and failed states are distinct. Settings -> Memory lets the owner review
+working versus validated memory, include/exclude working recall, export, delete,
+compact, and recover the integrity-protected memory file.
+
+## Change notes for v3.0.0
+
+1. Added durable ingestion lifecycle, cross-store consistency/repair, live Graph
+   controls, source/answer navigation, and UnifiedMemory owner workflows.
 
 ## Change notes for v2.6.0
 

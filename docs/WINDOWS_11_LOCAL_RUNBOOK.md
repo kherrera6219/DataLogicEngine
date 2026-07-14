@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.11.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -83,8 +83,9 @@ As of the Phase 4 engineering checkpoint (2026-07-13):
    supervises the complete five-service engineering profile.
 9. The live qualification report passed real operations, restart durability,
    truthful state, and cleanup for all five services and six object buckets.
-   Phase 8 adds the seventh `gateway-results` bucket; rebuilt installed
-   qualification of that expanded contract remains pending.
+   Phase 8 adds the seventh `gateway-results` bucket and Phase 9 adds the eighth
+   `knowledge-sources` bucket; rebuilt installed qualification of that expanded
+   contract remains pending.
 10. Startup now applies a versioned SQL/per-store migration ledger before
     readiness and refuses newer, unsupported, or unversioned populated data.
 11. The desktop creates encrypted signed coordinated backups using a recovery
@@ -242,7 +243,15 @@ graphs
 evaluation-data
 trace-exports
 gateway-results
+knowledge-sources
 ```
+
+`knowledge-sources` holds required hashed original and normalized ingestion
+artifacts. The app-owned staging and artifact-spool roots normally live below
+the runtime root. Development/repair overrides are
+`DATALOGIC_INGESTION_STAGING_ROOT` and
+`DATALOGIC_INGESTION_ARTIFACT_SPOOL_ROOT`; production paths must remain
+app-owned and ACL protected.
 
 Client Gateway setup is owner-administered in Settings. Copy-once `ukg_` keys
 are for approved applications; OpenAI/Google keys remain under Provider
@@ -555,6 +564,11 @@ The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
    store. MinIO remains the documented target pending ADR-0004 acceptance.
 
 ---
+
+## Change notes for v2.11.0
+
+1. Added the eighth knowledge-source bucket, app-owned ingestion staging/spool,
+   durable job/reconciliation operating boundary, and installed Phase 9 gates.
 
 ## Change notes for v2.10.0
 

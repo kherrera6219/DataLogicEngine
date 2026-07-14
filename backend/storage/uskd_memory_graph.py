@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+import hashlib
+import json
 import logging
 from typing import Any, Iterable, Mapping, Optional
 
@@ -26,6 +28,7 @@ class UskdGraphStats:
     pillar_count: int
     knowledge_node_count: int
     last_loaded_at: Optional[str]
+    source_revision: str
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -34,6 +37,7 @@ class UskdGraphStats:
             "pillar_count": self.pillar_count,
             "knowledge_node_count": self.knowledge_node_count,
             "last_loaded_at": self.last_loaded_at,
+            "source_revision": self.source_revision,
         }
 
 
@@ -364,7 +368,27 @@ class UskdMemoryGraph:
             pillar_count=sum(1 for kind in kinds.values() if kind == "pillar"),
             knowledge_node_count=sum(1 for kind in kinds.values() if kind == "knowledge_node"),
             last_loaded_at=self.last_loaded_at.isoformat() if self.last_loaded_at else None,
+            source_revision=self._source_revision(),
         )
+
+    def _source_revision(self) -> str:
+        payload = {
+            "nodes": [
+                [str(uid), attrs]
+                for uid, attrs in sorted(
+                    self.graph.nodes(data=True), key=lambda item: str(item[0])
+                )
+            ],
+            "edges": [
+                [str(source), str(target), attrs]
+                for source, target, attrs in sorted(
+                    self.graph.edges(data=True),
+                    key=lambda item: (str(item[0]), str(item[1])),
+                )
+            ],
+        }
+        encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
 
     @staticmethod
     def _record_to_mapping(record: Any) -> dict[str, Any]:

@@ -6,8 +6,11 @@ import base64
 import hashlib
 import json
 import logging
+import os
+from pathlib import Path
 from threading import Event, Thread
 from typing import Callable
+from uuid import UUID
 
 from backend.storage.outbox import CrossStoreOutbox
 from models import CrossStoreOutboxEvent
@@ -24,6 +27,12 @@ DeliveryHandler = Callable[[CrossStoreOutboxEvent], str]
 
 
 def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
+    if event.operation == "delete_knowledge_node":
+        from backend.services.rag_service import get_rag_service
+
+        if not get_rag_service().delete_knowledge_node(event.entity_id):
+            raise MaterializationDeliveryError("chroma_delete_failed")
+        return event.source_revision
     if event.operation != "upsert_knowledge_node":
         raise MaterializationDeliveryError("chroma_operation_unsupported")
     payload = event.payload or {}
@@ -48,13 +57,17 @@ def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
 
 
 def _neo4j_handler(event: CrossStoreOutboxEvent) -> str:
-    if event.operation != "merge_knowledge_node":
-        raise MaterializationDeliveryError("neo4j_operation_unsupported")
-    payload = event.payload or {}
     from backend.storage import get_graph_store
 
     store = get_graph_store()
     store.connect()
+    if event.operation == "delete_knowledge_node":
+        if not store.delete_knowledge_node(event.entity_id):
+            raise MaterializationDeliveryError("neo4j_delete_failed")
+        return event.source_revision
+    if event.operation != "merge_knowledge_node":
+        raise MaterializationDeliveryError("neo4j_operation_unsupported")
+    payload = event.payload or {}
     properties = dict(payload.get("properties") or {})
     properties.update(
         {
@@ -69,14 +82,45 @@ def _neo4j_handler(event: CrossStoreOutboxEvent) -> str:
 
 
 def _minio_handler(event: CrossStoreOutboxEvent) -> str:
-    if event.operation != "put_object":
-        raise MaterializationDeliveryError("minio_operation_unsupported")
     payload = event.payload or {}
     bucket = str(payload.get("bucket") or "").strip()
     key = str(payload.get("key") or "").strip()
     if not bucket or not key:
         raise MaterializationDeliveryError("minio_object_location_invalid")
-    if isinstance(payload.get("body"), (dict, list)):
+    if event.operation == "delete_object":
+        from backend.storage import get_object_store
+
+        store = get_object_store()
+        if store.exists(bucket, key) and not store.delete(bucket, key):
+            raise MaterializationDeliveryError("minio_object_delete_failed")
+        if store.exists(bucket, key):
+            raise MaterializationDeliveryError("minio_object_delete_verification_failed")
+        if event.entity_type in {"ingestion_file_source", "ingestion_file_normalized"}:
+            from sqlalchemy.orm import object_session
+
+            from models import IngestionFile
+
+            session = object_session(event)
+            source_file = (
+                session.get(IngestionFile, UUID(str(event.entity_id)))
+                if session is not None
+                else None
+            )
+            if source_file is None:
+                raise MaterializationDeliveryError("ingestion_file_source_missing")
+            if event.entity_type == "ingestion_file_normalized":
+                source_file.normalized_object_status = "deleted"
+            else:
+                source_file.object_status = "deleted"
+            session.add(source_file)
+        return event.source_revision
+    if event.operation != "put_object":
+        raise MaterializationDeliveryError("minio_operation_unsupported")
+    spooled_body_path: Path | None = None
+    if payload.get("body_path"):
+        spooled_body_path = _validated_ingestion_spool_path(payload["body_path"])
+        body = spooled_body_path.read_bytes()
+    elif isinstance(payload.get("body"), (dict, list)):
         body = json.dumps(
             payload["body"],
             sort_keys=True,
@@ -137,7 +181,64 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
         event_data["object_store"] = {"bucket": bucket, "key": key, "status": "ready"}
         audit_event.event_data = event_data
         session.add(audit_event)
+    elif event.entity_type in {"ingestion_file_source", "ingestion_file_normalized"}:
+        from sqlalchemy.orm import object_session
+
+        from models import IngestionFile
+
+        session = object_session(event)
+        source_file = (
+            session.get(IngestionFile, UUID(str(event.entity_id)))
+            if session is not None
+            else None
+        )
+        if source_file is None:
+            raise MaterializationDeliveryError("ingestion_file_source_missing")
+        if event.entity_type == "ingestion_file_normalized":
+            source_file.normalized_object_bucket = bucket
+            source_file.normalized_object_key = key
+            source_file.normalized_object_sha256 = hashlib.sha256(body).hexdigest()
+            source_file.normalized_object_status = "ready"
+        else:
+            source_file.object_bucket = bucket
+            source_file.object_key = key
+            source_file.object_sha256 = hashlib.sha256(body).hexdigest()
+            source_file.object_status = "ready"
+        session.add(source_file)
+    if spooled_body_path is not None:
+        spooled_body_path.unlink(missing_ok=True)
     return event.source_revision
+
+
+def _validated_ingestion_spool_path(value: object) -> Path:
+    """Accept only app-owned ingestion artifact spool files."""
+    candidate = Path(str(value)).expanduser().resolve()
+    allowed_roots: list[Path] = []
+    explicit = os.environ.get("DATALOGIC_INGESTION_ARTIFACT_SPOOL_ROOT")
+    if explicit:
+        allowed_roots.append(Path(explicit).expanduser().resolve())
+    try:
+        from flask import current_app, has_app_context
+
+        if has_app_context():
+            runtime = current_app.extensions.get("dle_runtime")
+            runtime_root = getattr(runtime, "runtime_root", None)
+            if runtime_root is not None:
+                allowed_roots.append(
+                    Path(runtime_root).resolve()
+                    / "staging"
+                    / "ingestion"
+                    / "artifact-spool"
+                )
+    except Exception:
+        allowed_roots = allowed_roots
+    if not allowed_roots or not any(
+        candidate == root or root in candidate.parents for root in allowed_roots
+    ):
+        raise MaterializationDeliveryError("ingestion_artifact_spool_path_invalid")
+    if not candidate.is_file():
+        raise MaterializationDeliveryError("ingestion_artifact_spool_file_missing")
+    return candidate
 
 
 def default_delivery_handlers() -> dict[str, DeliveryHandler]:
@@ -227,6 +328,16 @@ class CrossStoreMaterializationWorker:
                     )
                     if outcome["claimed"]:
                         logger.info("Cross-store materialization outcome: %s", outcome)
+                        from backend.ingestion.reconciliation import (
+                            IngestionCorpusReconciler,
+                        )
+
+                        reconciliation = IngestionCorpusReconciler().scan()
+                        if reconciliation["divergence_count"]:
+                            logger.info(
+                                "Ingestion corpus reconciliation pending: %s",
+                                reconciliation["divergence_count"],
+                            )
                 except Exception:
                     db.session.rollback()
                     logger.exception("Cross-store materialization cycle failed")

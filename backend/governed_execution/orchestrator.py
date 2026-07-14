@@ -78,6 +78,7 @@ class GovernedExecutionOrchestrator:
             )
 
         context = GovernedContext(request=request)
+        request.metadata["_trace_id"] = context.trace_id
         token = _ACTIVE_TRACE.set(context.trace_id)
         server_deadline = self._bounded_int(
             os.environ.get("GOVERNED_REQUEST_DEADLINE_SECONDS"), 120, 5, 300
@@ -340,6 +341,7 @@ class GovernedExecutionOrchestrator:
             outputs={
                 "source_ids": [item.source_id for item in context.evidence],
                 "citation_labels": [item.citation_label for item in context.evidence],
+                "decisions": list(request.metadata.get("_retrieval_decisions") or []),
                 "warnings": retrieval_warnings,
             },
             metrics={"retrieval_count": len(context.evidence)},

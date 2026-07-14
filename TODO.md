@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-07-13 |
+| Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.6.0 |
-| Completed phase | Phase 8 engineering checkpoint - External API Gateway and LLM middleware productization |
-| Next phase | Phase 9 - Ingestion, retrieval, graph, and memory completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.7.0 |
+| Completed phase | Phase 9 engineering checkpoint - Ingestion, retrieval, graph, and memory completion |
+| Next phase | Phase 10 - Simulation completion |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -140,6 +140,31 @@ conditions, and exit gates remain authoritative in the active root plan.
   tests, 30 Python SDK tests, and 5 TypeScript SDK tests passed, plus frontend
   typecheck/lint/build, Ruff, compilation, contract-diff, documentation, and the
   21-revision migration head `b7c8d9e0f1a2`.
+- Phase 9 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-09/`; rebuilt-installed causal
+  retrieval and Knowledge/Graph acceptance remain explicit release gates.
+- Electron-selected files and folders are acquired into a bounded app-owned
+  staging area before parsing. Path, reparse/link, device/UNC, special-file,
+  content-signature, archive, decompression, page, file-count, byte, and parser
+  time defenses fail closed and write versioned content-defense results.
+- PostgreSQL now owns durable ingestion jobs, files, chunks, and attempts;
+  Redis carries content-free queue, lease, state, cancellation, and progress
+  events. The registry covers 77 PostgreSQL entities and 30 logical contracts,
+  with migration head `c8d9e0f1a2b3`.
+- Approved original and normalized artifacts use the eighth required bucket,
+  `knowledge-sources`. Completion requires the expected PostgreSQL, Neo4j,
+  Chroma, original-object, and normalized-object revisions; consistency scan,
+  repair, update, retry, and reference-aware deletion are implemented.
+- Retrieval validates authoritative source, permission, retention, hash,
+  defense, embedding, and materialization state; considered/selected/rejected
+  decisions and graph context are traceable. UnifiedMemory v2 separates working
+  from validated trust and adds review, export, deletion, compaction, recovery,
+  integrity hashes, and v1 migration under ADR-0006.
+- Knowledge, Graph, ingestion settings, memory settings, and run-detail pages
+  now expose real state and navigation without synthetic compliance or status
+  labels. Final Phase 9 validation reports 2,033 backend tests passed (18
+  skipped) and 407 frontend tests passed, plus frontend typecheck/lint/build,
+  Ruff, and Python compilation.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -231,6 +256,29 @@ exposing provider credentials.
 - [x] Preserve installed same-host/private, provider, backup/restore, UI visual,
       load/soak, TLS/firewall, and two-machine proof as explicit release gates.
 
+## Phase 9 objective - engineering checkpoint complete
+
+Make local knowledge ingestion durable, secure, reconcilable, and causally
+useful to governed responses.
+
+## Phase 9 work packages
+
+- [x] Acquire picker-authorized local files/folders into bounded app-owned
+      staging and enforce content, path, archive, decompression, and parser
+      defenses before authority is granted.
+- [x] Persist jobs, files, chunks, attempts, checkpoints, and source revisions
+      in PostgreSQL; use Redis only for content-free coordination and events.
+- [x] Persist approved original/normalized artifacts in `knowledge-sources` and
+      reconcile PostgreSQL, Neo4j, Chroma, and both required object revisions.
+- [x] Implement deterministic causal retrieval with authority, permission,
+      retention, defense, embedding, revision, diversity, and budget checks.
+- [x] Define the memory authority/trust boundary in ADR-0006 and add review,
+      export, deletion, compaction, integrity recovery, and source deletion.
+- [x] Replace synthetic Knowledge/Graph state with live progress, consistency,
+      provenance, graph controls, repair actions, and answer/source navigation.
+- [x] Preserve rebuilt-installed CP9-D and Knowledge/Graph visual acceptance as
+      release gates; source tests are not represented as installed evidence.
+
 ## Phase 3 deferred release gates
 
 | Checkpoint | Required result | Status |
@@ -281,6 +329,16 @@ exposing provider credentials.
 | CP8-I | Same-host and private two-machine clients complete real governed Google and OpenAI requests | Deferred to the rebuilt signed application and release-blocking |
 | CP8-J | Installed concurrency, failure, latency, security/privacy, restart, and soak matrix passes | Engineering adversarial coverage passed; full installed load/soak matrix deferred |
 
+## Phase 9 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP9-A | Ingestion survives backend/Electron restart without loss or duplication | PostgreSQL/Redis restart and idempotency tests passed; rebuilt installed lifecycle drill deferred |
+| CP9-B | Corpus scanner reports no unexplained PostgreSQL/Neo4j/Chroma/S3 divergence | Scanner, repair, and required-revision tests passed; installed populated-store proof deferred |
+| CP9-C | Malicious path/archive/content fixtures are contained and reported | Failure-first source tests passed; packaged hostile-corpus acceptance deferred |
+| CP9-D | Source changes alter citations, validation, or answer behavior | Source-level causal retrieval tests passed; rebuilt installed E2E proof remains release-blocking |
+| CP9-E | Source deletion reconciles every store and memory layer | Reference-aware cross-store and memory deletion tests passed; installed lifecycle drill deferred |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -294,8 +352,8 @@ exposing provider credentials.
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | **Engineering checkpoint complete 2026-07-13; installed CP6-F retained** |
 | 7 | Provider execution, latency, privacy, streaming, and offline behavior | **Engineering checkpoint complete 2026-07-13; installed CP7-F retained** |
 | 8 | External API Gateway and LLM middleware productization | **Engineering checkpoint complete 2026-07-13; installed gates retained** |
-| 9 | Ingestion, retrieval, graph, and memory completion | **Active** |
-| 10 | Simulation completion | Blocked by prior phases |
+| 9 | Ingestion, retrieval, graph, and memory completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
+| 10 | Simulation completion | **Active** |
 | 11 | MCP and connector completion | Blocked by prior phases |
 | 12 | UI workflow, project model, and accessibility completion | Blocked by prior phases |
 | 13 | Observability, diagnostics, compliance semantics, and support | Blocked by prior phases |
@@ -321,11 +379,11 @@ exposing provider credentials.
 
 ## Exact next action
 
-Begin Phase 9 with a live inventory of file/folder acquisition, Electron picker
-capabilities, staging/parsers, ingestion jobs, PostgreSQL corpus records,
-Redis queues/leases/events, Neo4j/Chroma materializations, object artifacts,
-retrieval paths, memory authorities, and Knowledge/Graph controls. Add
-failure-first path/archive/content, restart/idempotency, cross-store divergence,
-retrieval-causality, and delete/reingest tests before extending the subsystem.
-Preserve `governed.v1`, the Phase 8 client boundary, every earlier installed
-gate, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.
+Begin Phase 10 with a live comparison of the multi-agent debate and FROST
+simulation implementations, every simulation route/caller/UI control, provider
+recursion and budget path, PostgreSQL/Redis/Neo4j/Chroma/S3 persistence, and
+pause/resume/cancel/retry/restart behavior. Add failure-first authority,
+recursion, budget, cancellation, persistence, and deterministic-seed tests;
+then select one engine in an ADR before extending runtime behavior. Preserve
+`governed.v1`, every installed Phase 3-9 gate, alert 389, and the SeaweedFS
+candidate-only Replacement Control boundary.

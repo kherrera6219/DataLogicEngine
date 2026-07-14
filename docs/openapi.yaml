@@ -7,7 +7,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.3.0
+  version: 3.4.0
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -31,6 +31,8 @@ tags:
     description: Global search and suggestions.
   - name: Ingestion
     description: Local-first knowledge ingestion.
+  - name: Memory
+    description: Owner-only UnifiedMemory review and lifecycle controls.
   - name: Tracing
     description: Run/session trace review and export bundles.
   - name: Operations
@@ -1528,6 +1530,102 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/IngestionStatus"
+
+  /ingestion/history:
+    get:
+      summary: List durable ingestion jobs
+      tags: [Ingestion]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Durable ingestion history with per-store state.
+
+  /ingestion/corpus/consistency:
+    get:
+      summary: Scan required corpus revisions across stores
+      tags: [Ingestion]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: PostgreSQL, Neo4j, Chroma, and object revision report.
+
+  /ingestion/jobs/{ingestion_id}/{action}:
+    post:
+      summary: Apply a durable ingestion lifecycle action
+      description: Action is pause, resume, cancel, retry, repair, or delete.
+      tags: [Ingestion]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: ingestion_id
+          in: path
+          required: true
+          schema: {type: string}
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [pause, resume, cancel, retry, repair, delete]
+      responses:
+        "200":
+          description: Updated durable job or reconciliation state.
+
+  /memory/review:
+    get:
+      summary: Review owner memory by trust state
+      tags: [Memory]
+      security:
+        - sessionCookie: []
+      responses:
+        "200": {description: Working and validated memory review.}
+
+  /memory/export:
+    get:
+      summary: Export integrity-protected owner memory
+      tags: [Memory]
+      security:
+        - sessionCookie: []
+      responses:
+        "200": {description: Versioned memory export.}
+
+  /memory/compact:
+    post:
+      summary: Compact owner memory
+      tags: [Memory]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      responses:
+        "200": {description: Compaction result.}
+
+  /memory/recover:
+    post:
+      summary: Recover owner memory from its integrity-checked backup
+      tags: [Memory]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      responses:
+        "200": {description: Recovery result.}
+
+  /memory/{vertex_id}:
+    delete:
+      summary: Delete one owner memory vertex
+      tags: [Memory]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: vertex_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Deletion result.}
 
   /trace/runs:
     get:

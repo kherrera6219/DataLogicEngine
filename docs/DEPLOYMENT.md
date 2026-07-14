@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.12.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -229,11 +229,18 @@ graphs
 evaluation-data
 trace-exports
 gateway-results
+knowledge-sources
 ```
 
 `gateway-results` contains only encrypted retained large asynchronous gateway
 results. PostgreSQL stores the durable reference and hash; clients never receive
 S3 credentials or direct object-store access.
+
+`knowledge-sources` contains required hashed original and normalized ingestion
+artifacts. PostgreSQL owns job/file/chunk/revision state, Redis contains only
+content-free coordination, and readiness must not mark a job complete until
+Neo4j, Chroma, and both required object revisions match. The staging and artifact
+spool roots must remain below the protected app runtime root in production.
 
 ## 2. Windows VM deployment
 
@@ -512,6 +519,11 @@ Check:
 3. `./databases/objects` availability;
 4. object bucket/key path traversal rejection;
 5. antivirus or filesystem lock contention.
+
+## Change notes for v2.12.0
+
+1. Added the Phase 9 staging/spool, eighth-bucket, durable ingestion authority,
+   and required cross-store completion deployment contract.
 
 ## Change notes for v2.11.0
 

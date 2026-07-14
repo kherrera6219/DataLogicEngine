@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.9.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product and Platform Engineering |
 | Review cadence | Every 30 days |
@@ -116,8 +116,9 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | 17-axis routing | Live | implemented under `core/axes/` and `backend/dmrf/router.py`. |
 | DSQP personas | Live | deterministic/offline structured personas for axes 8-11. |
 | Trace Explorer | Live | run detail review, stages, evidence, claims, personas, metrics, export path. |
-| Knowledge graph | Live | graph and knowledge views, SQL/Neo4j/USKD model support. |
-| Knowledge ingestion | Live | local ingestion APIs, text/binary support, manifests, optional Neo4j sync. |
+| Knowledge graph | Phase 9 engineering checkpoint | live search/filter/axis/camera/expand/export/provenance controls, recorded USKD revision, source/answer links; packaged visual acceptance pending. |
+| Knowledge ingestion | Phase 9 engineering checkpoint | secure app-owned acquisition, durable lifecycle, PostgreSQL/Neo4j/Chroma/S3 reconciliation, repair/update/delete, parser/defense and retrieval state; installed acceptance pending. |
+| Unified memory | Phase 9 engineering checkpoint | v2 working/validated trust, governed promotion, integrity recovery, review/export/delete/compaction; installed retained-data proof pending. |
 | Provider Connections | Live | server-owned OpenAI/Google credential save and bounded live test. |
 | Client Gateway | Phase 8 engineering checkpoint | copy-once keys, scopes/limits, virtual models, sync/SSE/async/cancel, trace reads, SDKs, audit/usage/health, and examples; installed same-host/private acceptance remains open. |
 | Storage operations | Live | local storage status and lifecycle controls. |

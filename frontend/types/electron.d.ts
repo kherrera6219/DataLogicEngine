@@ -123,6 +123,13 @@ export interface DesktopIngestionRequest {
   recursive: boolean;
   chunk_size: number;
   max_file_bytes: number;
+  max_total_bytes: number;
+  max_files: number;
+  max_pages: number;
+  max_archive_entries: number;
+  max_decompressed_bytes: number;
+  max_archive_depth: number;
+  parser_timeout_seconds: number;
   source_label?: string;
   async_mode: boolean;
   sync_neo4j: boolean;

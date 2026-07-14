@@ -2,6 +2,7 @@ import logging
 
 from .admin_routes import admin_bp
 from .api_routes import api_bp
+from .memory_routes import memory_api
 from .auth_routes import auth_bp
 from .ka_routes import ka_bp
 from .knowledge_routes import knowledge_bp
@@ -24,6 +25,7 @@ def register_routes(app):
 
     # Generic API routes (`/api/v1/*`)
     app.register_blueprint(api_bp)
+    app.register_blueprint(memory_api)
 
     # Admin routes (`/api/v1/admin/*`)
     app.register_blueprint(admin_bp)

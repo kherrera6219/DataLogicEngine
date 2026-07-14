@@ -17,7 +17,16 @@ from sqlalchemy import text, select
 
 from extensions import db
 from models import SimulationSession
-from models import Node, Edge, PillarLevel, Sector, Domain
+from models import (
+    Domain,
+    Edge,
+    IngestionChunk,
+    IngestionFile,
+    IngestionJob,
+    Node,
+    PillarLevel,
+    Sector,
+)
 from backend.auth.api_decorators import api_login_required
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.utils.responses import error_response, internal_error
@@ -76,12 +85,22 @@ def api_graph():
     try:
         axis = request.args.get('axis', type=int)
         node_type = request.args.get('nodeType')
+        root_uid = str(request.args.get('root') or '').strip()
+        depth = min(max(request.args.get('depth', 1, type=int) or 1, 0), 3)
         limit = min(max(request.args.get('limit', 100, type=int) or 100, 1), 500)
 
         from backend.storage import get_uskd_memory_graph
 
         memory_graph = get_uskd_memory_graph()
         if memory_graph.graph.number_of_nodes() > 0:
+            scoped_node_ids = None
+            if root_uid:
+                neighborhood = memory_graph.neighborhood(root_uid, depth=depth)
+                scoped_node_ids = {
+                    str(node.get("uid"))
+                    for node in neighborhood.get("nodes", [])
+                    if node.get("uid") is not None
+                }
             pillar_by_node = {}
             for source, target, edge_attrs in memory_graph.graph.edges(data=True):
                 source_attrs = memory_graph.graph.nodes[source]
@@ -112,6 +131,8 @@ def api_graph():
                 if node_type and kind.lower() != node_type.lower():
                     continue
                 node_id = str(uid)
+                if scoped_node_ids is not None and node_id not in scoped_node_ids:
+                    continue
                 label = attrs.get("name") or attrs.get("title") or data.get("name") or data.get("title") or node_id
                 selected_ids.add(node_id)
                 selected_nodes.append({
@@ -127,6 +148,46 @@ def api_graph():
                 })
                 if len(selected_nodes) >= limit:
                     break
+
+            ingestion_node_ids = [
+                node["id"] for node in selected_nodes if str(node["id"]).startswith("ki_")
+            ]
+            if ingestion_node_ids:
+                latest_chunks: dict[str, IngestionChunk] = {}
+                for chunk in IngestionChunk.query.filter(
+                    IngestionChunk.node_uid.in_(ingestion_node_ids)
+                ).order_by(IngestionChunk.created_at.desc()):
+                    latest_chunks.setdefault(chunk.node_uid, chunk)
+                for node in selected_nodes:
+                    chunk = latest_chunks.get(node["id"])
+                    if chunk is None:
+                        continue
+                    source_file = db.session.get(IngestionFile, chunk.file_id)
+                    job = db.session.get(IngestionJob, chunk.job_id)
+                    if source_file is None or job is None:
+                        continue
+                    node["attributes"] = {
+                        **dict(node.get("attributes") or {}),
+                        "ingestion_id": str(job.id),
+                        "source_path": source_file.relative_path,
+                        "document_uid": source_file.document_uid,
+                        "source_revision": chunk.source_revision,
+                        "source_state": source_file.status,
+                        "parser_state": (source_file.parser_result or {}).get("status"),
+                        "defense_state": (source_file.defense_result or {}).get("disposition"),
+                        "defense_policy": (source_file.defense_result or {}).get("policy_version"),
+                        "object_state": source_file.object_status,
+                        "normalized_object_state": source_file.normalized_object_status,
+                        "vector_state": chunk.materialization_state,
+                        "graph_state": chunk.materialization_state,
+                        "embedding_revision": source_file.embedding_revision,
+                        "last_retrieved_at": (
+                            source_file.last_retrieved_at.isoformat()
+                            if source_file.last_retrieved_at
+                            else None
+                        ),
+                        "last_retrieval_trace_id": source_file.last_retrieval_trace_id,
+                    }
 
             selected_edges = []
             for source, target, attrs in memory_graph.graph.edges(data=True):
@@ -151,6 +212,10 @@ def api_graph():
                 "domains": [],
                 "source": "uskd_memory_graph",
                 "stats": memory_graph.stats().to_dict(),
+                "scope": {
+                    "root": root_uid or None,
+                    "depth": depth if root_uid else None,
+                },
             })
         
         node_query = Node.query

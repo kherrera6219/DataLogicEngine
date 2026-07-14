@@ -22,10 +22,10 @@ from backend.storage.store_migration_adapters import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
-POSTGRESQL_TARGET_REVISION = "b7c8d9e0f1a2"
+POSTGRESQL_TARGET_REVISION = "c8d9e0f1a2b3"
 MANAGED_STORE_TARGETS = {
     "chroma": "dle.chroma.v1",
-    "local_json_memory": "unified-memory.v1",
+    "local_json_memory": "unified-memory.v2",
     "minio": "dle.minio.v1",
     "neo4j": "dle.neo4j.v1",
     "postgresql": POSTGRESQL_TARGET_REVISION,

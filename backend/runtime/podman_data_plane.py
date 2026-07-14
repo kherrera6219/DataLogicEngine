@@ -47,6 +47,7 @@ REQUIRED_OBJECT_BUCKETS = (
     "evaluation-data",
     "trace-exports",
     "gateway-results",
+    "knowledge-sources",
 )
 
 

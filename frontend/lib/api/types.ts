@@ -316,12 +316,45 @@ export interface IngestionResult {
   rejected_files: IngestionRejectedFile[];
   chunks: IngestionChunk[];
   manifest_path?: string | null;
+  status?: string;
+  checkpoint?: string;
+  materializations_pending?: number;
+  files?: IngestionFileState[];
+}
+
+export interface IngestionFileState {
+  relative_path: string;
+  status: string;
+  source_revision?: string | null;
+  detected_type?: string | null;
+  parser_result?: { status?: string; detected_type?: string } | null;
+  defense_result?: {
+    policy_version?: string;
+    disposition?: string;
+    safe_for_retrieval?: boolean;
+    categories?: string[];
+  } | null;
+  object_status?: string | null;
+  normalized_object_status?: string | null;
+  embedding_revision?: string | null;
+  vector_status?: string | null;
+  graph_status?: string | null;
+  last_retrieved_at?: string | null;
+  last_retrieval_trace_id?: string | null;
+  error_code?: string | null;
 }
 
 export interface IngestionSupportedTypes {
   extensions: string[];
   default_chunk_size: number;
   default_max_file_bytes: number;
+  default_max_total_bytes: number;
+  default_max_files: number;
+  default_max_pages: number;
+  default_max_archive_entries: number;
+  default_max_decompressed_bytes: number;
+  default_max_archive_depth: number;
+  default_parser_timeout_seconds: number;
 }
 
 export interface AnalyticsOverview {

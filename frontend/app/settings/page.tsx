@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { Suspense, useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,10 @@ const KnowledgeIngestionSettings = dynamic(
   () => import("@/components/settings/KnowledgeIngestionSettings"),
   { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading knowledge ingestion...</div> }
 );
+const MemoryManagementSettings = dynamic(
+  () => import("@/components/settings/MemoryManagementSettings"),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading memory controls...</div> }
+);
 
 interface UserDataSummary {
   account_created?: string;
@@ -75,8 +80,14 @@ const enterpriseThemeOptions = [
   { id: 'high-contrast', label: 'High Contrast' },
 ] as const;
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("general");
+function SettingsPageContent() {
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    requestedTab && ['general', 'notifications', 'providers', 'gateway', 'storage', 'knowledge', 'security', 'ai'].includes(requestedTab)
+      ? requestedTab
+      : 'general',
+  );
   const [summary, setSummary] = useState<UserDataSummary | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { theme, setTheme, resolvedTheme, enterpriseTheme, setEnterpriseTheme } = useTheme();
@@ -395,6 +406,7 @@ export default function SettingsPage() {
                    {/* KNOWLEDGE INGESTION */}
                    <TabsContent value="knowledge" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                       <KnowledgeIngestionSettings />
+                      <div className="mt-6"><MemoryManagementSettings /></div>
                    </TabsContent>
 
                    {/* SECURITY */}
@@ -430,5 +442,13 @@ export default function SettingsPage() {
          </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-muted-foreground">Loading settings…</div>}>
+      <SettingsPageContent />
+    </Suspense>
   );
 }

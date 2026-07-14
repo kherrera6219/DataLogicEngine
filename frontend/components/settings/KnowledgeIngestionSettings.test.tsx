@@ -16,6 +16,13 @@ vi.mock('@/lib/api', () => ({
       supported: vi.fn(),
       history: vi.fn(),
       status: vi.fn(),
+      cancel: vi.fn(),
+      pause: vi.fn(),
+      resume: vi.fn(),
+      retry: vi.fn(),
+      remove: vi.fn(),
+      repair: vi.fn(),
+      consistency: vi.fn(),
     },
   },
 }));
@@ -43,8 +50,21 @@ describe('KnowledgeIngestionSettings', () => {
       extensions: ['.txt', '.md'],
       default_chunk_size: 1200,
       default_max_file_bytes: 10 * 1024 * 1024,
+      default_max_total_bytes: 100 * 1024 * 1024,
+      default_max_files: 1000,
+      default_max_pages: 500,
+      default_max_archive_entries: 10000,
+      default_max_decompressed_bytes: 100 * 1024 * 1024,
+      default_max_archive_depth: 1,
+      default_parser_timeout_seconds: 60,
     });
     vi.mocked(api.ingestion.history).mockResolvedValue([]);
+    vi.mocked(api.ingestion.consistency).mockResolvedValue({
+      scanned_jobs: 0,
+      consistent_jobs: 0,
+      divergence_count: 0,
+      jobs: [],
+    });
     installElectronApi();
   });
 
@@ -97,6 +117,7 @@ describe('KnowledgeIngestionSettings', () => {
       expect(screen.getByRole('button', { name: /start local knowledge ingestion/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /choose local ingestion source/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /refresh ingestion history/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /scan corpus consistency/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /clear local path/i })).toBeInTheDocument();
       expect(screen.getByRole('switch', { name: /recursive folder scan/i })).toBeInTheDocument();
       expect(screen.getByRole('switch', { name: /async mode/i })).toBeInTheDocument();

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.2.0 |
-| Last updated | 2026-07-13 |
+| Document version | v4.3.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -469,6 +469,21 @@ Provider keys remain a separate outbound Provider Connections boundary. Large
 retained job results are encrypted, hash-verified, and materialized into the
 app-owned `gateway-results` S3 bucket; clients never receive object-store
 credentials or direct object URLs.
+
+### Knowledge lifecycle authority
+
+Electron picker capabilities are consumed before the backend acquires a source
+into bounded app-owned staging. PostgreSQL is authoritative for ingestion jobs,
+files, chunks, attempts, hashes, checkpoints, and source revisions. Redis carries
+content-free queue/lease/state/progress data. Neo4j and Chroma are rebuildable
+revisioned materializations. The app-owned `knowledge-sources` S3 bucket is
+authoritative for the required hashed original and normalized artifacts.
+
+A corpus revision is complete only when PostgreSQL, Neo4j, Chroma, and both
+required objects agree. Governed retrieval validates those authorities plus
+permission, retention, defense, embedding, and deletion state before context is
+eligible. ADR-0006 keeps working memory distinct from validated trust and limits
+promotion to validated governed outcomes.
 
 ### Provider routing
 

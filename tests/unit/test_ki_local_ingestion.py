@@ -156,6 +156,23 @@ def test_ingestion_supported_returns_defaults(authenticated_client):
     assert ".pdf" in payload["data"]["extensions"]
     assert ".docx" in payload["data"]["extensions"]
     assert payload["data"]["default_chunk_size"] == 1200
+    assert payload["data"]["default_max_total_bytes"] == 100 * 1024 * 1024
+    assert payload["data"]["default_max_files"] == 1000
+
+
+def test_ingestion_route_rejects_invalid_resource_limits(authenticated_client, tmp_path, monkeypatch):
+    source = tmp_path / "corpus"
+    source.mkdir()
+    (source / "note.txt").write_text("bounded", encoding="utf-8")
+    monkeypatch.setenv("DATALOGIC_INGESTION_ROOT", str(tmp_path))
+
+    response = authenticated_client.post(
+        "/api/v1/ingestion/local",
+        json={"path": str(source), "max_files": 0},
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "Invalid ingestion path"
 
 
 # ---------------------------------------------------------------------------
@@ -243,21 +260,62 @@ def test_unsupported_binary_files_are_rejected(app, tmp_path, monkeypatch):
         assert result.files_ingested == 0
 
 
-def test_pdf_without_processor_rejects_gracefully(app, tmp_path, monkeypatch):
+def test_malformed_pdf_rejects_gracefully(app, tmp_path, monkeypatch):
     monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
     source = tmp_path / "corpus"
     source.mkdir()
     (source / "report.pdf").write_bytes(b"%PDF-fake")
 
     with app.app_context():
-        # No document_processor supplied and monkeypatch the lazy loader to fail.
         service = LocalKnowledgeIngestionService(rag_service=FakeRag())
-        monkeypatch.setattr(service, "_get_document_processor", lambda: None)
         result = service.ingest_path(source)
 
         assert result.files_scanned == 1
         assert result.files_rejected == 1
-        assert "No document processor" in result.rejected_files[0].reason
+        assert result.rejected_files[0].reason == "document_parser_failed"
+
+
+def test_ingestion_stages_source_and_removes_plaintext_staging(app, tmp_path, monkeypatch):
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
+    source = tmp_path / "corpus"
+    source.mkdir()
+    original = source / "source.txt"
+    original.write_text("staged source content", encoding="utf-8")
+    staging_root = tmp_path / "runtime" / "staging" / "ingestion"
+
+    with app.app_context():
+        service = LocalKnowledgeIngestionService(
+            rag_service=FakeRag(),
+            staging_root=staging_root,
+        )
+        result = service.ingest_path(source)
+
+        assert result.files_ingested == 1
+        node = KnowledgeGraphNode.query.first()
+        assert node.node_metadata["source_path"] == "source.txt"
+        assert node.node_metadata["acquisition_relative_path"] == "source.txt"
+        assert node.node_metadata["source_file_sha256"]
+        assert not (staging_root / result.ingestion_id).exists()
+
+
+def test_spoofed_pdf_is_rejected_before_document_parser(app, tmp_path, monkeypatch):
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
+    source = tmp_path / "corpus"
+    source.mkdir()
+    (source / "spoofed.pdf").write_bytes(b"plain text with a pdf extension")
+
+    with app.app_context():
+        service = LocalKnowledgeIngestionService(
+            rag_service=FakeRag(),
+            document_processor=FakeDocumentProcessor(),
+            staging_root=tmp_path / "staging",
+        )
+        result = service.ingest_path(source)
+
+        assert result.files_ingested == 0
+        assert result.files_rejected == 1
+        assert result.rejected_files[0].reason == "content_type_mismatch"
+        assert KnowledgeGraphNode.query.count() == 0
 
 
 # ---------------------------------------------------------------------------
@@ -280,12 +338,12 @@ def test_async_ingestion_returns_id_and_completes(app, tmp_path, monkeypatch):
         assert ingestion_id
         status = service.get_async_status(ingestion_id)
         assert status is not None
-        assert status["status"] in {"running", "materialization_pending"}
+        assert status["status"] in {"queued", "running", "materialization_pending"}
 
         # Wait for background thread to finish (max ~2s).
         for _ in range(20):
             status = service.get_async_status(ingestion_id)
-            if status and status["status"] != "running":
+            if status and status["status"] not in {"queued", "running"}:
                 break
             time.sleep(0.1)
 
@@ -338,7 +396,7 @@ def test_async_route_starts_and_returns_202(authenticated_client, tmp_path, monk
     # Poll until done.
     for _ in range(20):
         status_response = authenticated_client.get(f"/api/v1/ingestion/status/{ingestion_id}")
-        if status_response.get_json()["data"]["status"] != "running":
+        if status_response.get_json()["data"]["status"] not in {"queued", "running"}:
             break
         time.sleep(0.1)
 
@@ -363,7 +421,7 @@ def test_neo4j_sync_flag_reports_durable_outbox_pending(app, tmp_path, monkeypat
 
         for _ in range(20):
             status = service.get_async_status(ingestion_id)
-            if status and status["status"] != "running":
+            if status and status["status"] not in {"queued", "running"}:
                 break
             time.sleep(0.1)
 

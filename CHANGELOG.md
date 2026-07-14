@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 9 durable knowledge-lifecycle engineering checkpoint**: added bounded
+  app-owned file/folder acquisition; path, content, archive, decompression, and
+  parser defenses; PostgreSQL ingestion job/file/chunk/attempt authority; Redis
+  content-free coordination; restart-safe pause/resume/cancel/retry; and the
+  `content-defense.v1` decision contract.
+- **Cross-store corpus authority and causal retrieval**: added the required
+  `knowledge-sources` bucket for hashed original/normalized artifacts,
+  PostgreSQL/Neo4j/Chroma/S3 revision reconciliation and repair, reference-aware
+  update/deletion, embedding/permission/retention validation, deterministic
+  retrieval diversity/budgets, graph context, and persisted source decisions.
+- **Memory and knowledge administration**: added ADR-0006, UnifiedMemory v2
+  working-versus-validated trust, integrity/recovery and owner lifecycle actions,
+  live ingestion and consistency controls, real Graph exploration/export, and
+  source-to-answer/answer-to-source navigation.
 - **Phase 8 external gateway engineering checkpoint**: added the strict,
   versioned `dle-gateway.v1` contract with native sync, stage-native governed
   SSE, durable async/status/result/cancel, durable idempotency, capabilities,
@@ -75,8 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   capability boundary.
 - **Confidence and trace semantics**: unmeasured confidence is null, simulation
   stops at the Phase 10 boundary, and planned-but-unexecuted stages are omitted.
-- **Production completion ledger**: advanced active engineering work to Phase 9
-  while retaining every installed-only Phase 3-8 gate, real-provider/human
+- **Production completion ledger**: advanced active engineering work to Phase 10
+  while retaining every installed-only Phase 3-9 gate, real-provider/human
   acceptance, alert 389, and object-store Replacement Control as explicit
   release blockers.
 - **Storage authority and UI**: production storage adapters now use supervisor-owned PostgreSQL, Redis, Neo4j, Chroma, and S3 endpoints and fail closed when required services or artifact writes are unavailable. The Storage settings page now truthfully presents the internal app-owned data plane instead of editable cloud/external database configuration.

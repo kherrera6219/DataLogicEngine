@@ -1132,6 +1132,205 @@ class GatewayAsyncRun(db.Model):
         }
 
 
+class IngestionJob(db.Model):
+    """PostgreSQL authority for one bounded local ingestion lifecycle."""
+
+    __tablename__ = 'ingestion_jobs'
+    __table_args__ = (
+        Index('ix_ingestion_jobs_status_created', 'status', 'created_at'),
+        Index('ix_ingestion_jobs_user_created', 'user_id', 'created_at'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    tenant_id = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(32), nullable=False, default='queued')
+    source_path = db.Column(db.Text, nullable=False)
+    source_label = db.Column(db.String(200), nullable=True)
+    source_digest = db.Column(db.String(64), nullable=False)
+    recursive = db.Column(db.Boolean, nullable=False, default=True)
+    chunk_size = db.Column(db.Integer, nullable=False)
+    max_file_bytes = db.Column(db.Integer, nullable=False)
+    max_total_bytes = db.Column(db.Integer, nullable=False)
+    max_files = db.Column(db.Integer, nullable=False)
+    max_pages = db.Column(db.Integer, nullable=False, default=500)
+    max_archive_entries = db.Column(db.Integer, nullable=False, default=10000)
+    max_decompressed_bytes = db.Column(db.Integer, nullable=False, default=100 * 1024 * 1024)
+    max_archive_depth = db.Column(db.Integer, nullable=False, default=1)
+    parser_timeout_seconds = db.Column(db.Integer, nullable=False, default=60)
+    files_scanned = db.Column(db.Integer, nullable=False, default=0)
+    files_ingested = db.Column(db.Integer, nullable=False, default=0)
+    files_rejected = db.Column(db.Integer, nullable=False, default=0)
+    chunks_created = db.Column(db.Integer, nullable=False, default=0)
+    chunks_indexed = db.Column(db.Integer, nullable=False, default=0)
+    materializations_pending = db.Column(db.Integer, nullable=False, default=0)
+    cancellation_requested = db.Column(db.Boolean, nullable=False, default=False)
+    pause_requested = db.Column(db.Boolean, nullable=False, default=False)
+    current_checkpoint = db.Column(db.String(80), nullable=False, default='queued')
+    last_error_code = db.Column(db.String(120), nullable=True)
+    last_error_message = db.Column(db.String(240), nullable=True)
+    result_summary = db.Column(JSON, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    def to_status_dict(self) -> Dict[str, Any]:
+        result = dict(self.result_summary or {}) if self.result_summary else None
+        return {
+            'ingestion_id': str(self.id),
+            'status': self.status,
+            'source': self.source_label or self.source_path,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'checkpoint': self.current_checkpoint,
+            'cancellation_requested': bool(self.cancellation_requested),
+            'pause_requested': bool(self.pause_requested),
+            'files_scanned': int(self.files_scanned or 0),
+            'files_ingested': int(self.files_ingested or 0),
+            'files_rejected': int(self.files_rejected or 0),
+            'chunks_created': int(self.chunks_created or 0),
+            'materializations_pending': int(self.materializations_pending or 0),
+            'result': result,
+            'neo4j_sync': result.get('neo4j_sync') if result else None,
+            'error': self.last_error_message,
+            'error_code': self.last_error_code,
+        }
+
+    def to_history_dict(self) -> Dict[str, Any]:
+        payload = dict(self.result_summary or {})
+        payload.setdefault('ingestion_id', str(self.id))
+        payload.setdefault('source', self.source_label or self.source_path)
+        payload['status'] = self.status
+        payload['checkpoint'] = self.current_checkpoint
+        payload['cancellation_requested'] = bool(self.cancellation_requested)
+        payload['pause_requested'] = bool(self.pause_requested)
+        payload['created_at'] = self.created_at.isoformat() if self.created_at else None
+        payload['completed_at'] = self.completed_at.isoformat() if self.completed_at else None
+        return payload
+
+
+class IngestionFile(db.Model):
+    """One acquired or rejected file within an ingestion job."""
+
+    __tablename__ = 'ingestion_files'
+    __table_args__ = (
+        db.UniqueConstraint('job_id', 'relative_path', name='uq_ingestion_file_job_path'),
+        Index('ix_ingestion_files_job_status', 'job_id', 'status'),
+        Index('ix_ingestion_files_document_status', 'document_uid', 'status'),
+        Index('ix_ingestion_files_source_sha', 'source_sha256'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('ingestion_jobs.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    relative_path = db.Column(db.String(1000), nullable=False)
+    source_path = db.Column(db.Text, nullable=False)
+    document_uid = db.Column(db.String(80), nullable=True)
+    source_revision = db.Column(db.String(100), nullable=True)
+    source_sha256 = db.Column(db.String(64), nullable=True)
+    size_bytes = db.Column(db.Integer, nullable=True)
+    detected_type = db.Column(db.String(32), nullable=True)
+    parser_result = db.Column(JSON, nullable=True)
+    defense_result = db.Column(JSON, nullable=True)
+    status = db.Column(db.String(32), nullable=False, default='acquired')
+    error_code = db.Column(db.String(120), nullable=True)
+    content_sha256 = db.Column(db.String(64), nullable=True)
+    chunk_count = db.Column(db.Integer, nullable=False, default=0)
+    object_bucket = db.Column(db.String(100), nullable=True)
+    object_key = db.Column(db.String(500), nullable=True)
+    object_sha256 = db.Column(db.String(64), nullable=True)
+    object_status = db.Column(db.String(24), nullable=True)
+    normalized_object_bucket = db.Column(db.String(100), nullable=True)
+    normalized_object_key = db.Column(db.String(500), nullable=True)
+    normalized_object_sha256 = db.Column(db.String(64), nullable=True)
+    normalized_object_status = db.Column(db.String(24), nullable=True)
+    embedding_revision = db.Column(db.String(255), nullable=True)
+    last_retrieved_at = db.Column(db.DateTime, nullable=True)
+    last_retrieval_trace_id = db.Column(db.String(36), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
+class IngestionChunk(db.Model):
+    """Stable document-scoped chunk and its materialization checkpoint."""
+
+    __tablename__ = 'ingestion_chunks'
+    __table_args__ = (
+        db.UniqueConstraint('file_id', 'chunk_index', name='uq_ingestion_chunk_file_index'),
+        Index('ix_ingestion_chunks_job_materialization', 'job_id', 'materialization_state'),
+        Index('ix_ingestion_chunks_node_uid', 'node_uid'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('ingestion_jobs.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    file_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('ingestion_files.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    node_uid = db.Column(db.String(80), nullable=False)
+    chunk_index = db.Column(db.Integer, nullable=False)
+    chunk_count = db.Column(db.Integer, nullable=False)
+    content_sha256 = db.Column(db.String(64), nullable=False)
+    chunk_sha256 = db.Column(db.String(64), nullable=False)
+    source_revision = db.Column(db.String(255), nullable=False)
+    materialization_state = db.Column(db.String(32), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
+class IngestionAttempt(db.Model):
+    """One durable processing attempt and checkpoint for an ingestion job."""
+
+    __tablename__ = 'ingestion_attempts'
+    __table_args__ = (
+        db.UniqueConstraint('job_id', 'attempt_number', name='uq_ingestion_attempt_number'),
+        Index('ix_ingestion_attempts_job_status', 'job_id', 'status'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('ingestion_jobs.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    attempt_number = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(32), nullable=False, default='running')
+    worker_instance_id = db.Column(db.String(100), nullable=True)
+    checkpoint = db.Column(db.String(80), nullable=False, default='acquisition')
+    error_code = db.Column(db.String(120), nullable=True)
+    error_message = db.Column(db.String(240), nullable=True)
+    started_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+
 class ChatSession(db.Model):
     """A collection of related messages."""
     __tablename__ = 'chat_sessions'

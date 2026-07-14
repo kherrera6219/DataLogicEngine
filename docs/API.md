@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.2.0 |
-| Last updated | 2026-07-13 |
+| Document version | v4.3.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -809,7 +809,9 @@ the canonical path and submits it with a purpose-bound IPC signature. Direct
 renderer requests to the path-bearing desktop operation fail closed.
 
 - **POST** `/local`
-  - Ingest supported local files into chunk-level SQL `KnowledgeGraphNode` records and Chroma `knowledge_nodes` vectors where configured.
+  - Acquire supported local files/folders into bounded app-owned staging, then
+    create durable PostgreSQL job/file/chunk/attempt authority and required
+    Neo4j/Chroma/original-object/normalized-object revisions.
   - Body:
     ```json
     {
@@ -820,12 +822,16 @@ renderer requests to the path-bearing desktop operation fail closed.
       "metadata": {"domain": "policy"}
     }
     ```
-  - Security: outside desktop mode, paths must remain under `DATALOGIC_INGESTION_ROOT` or the process working directory.
+  - Security: desktop picker authority is preferred. Headless development input
+    must be local and within the configured acquisition boundary; UNC/network,
+    device/reserved, link/reparse, special-file, traversal, signature mismatch,
+    archive/decompression, and parser-budget violations fail closed.
 
 ### Async local ingestion
 
 - **POST** `/local/async`
-  - Start ingestion in a background thread and return an `ingestion_id`.
+  - Acquire the source before returning, persist the durable job, enqueue a
+    content-free Redis coordination record, and return an `ingestion_id`.
 
 ### Ingestion status
 
@@ -834,6 +840,31 @@ renderer requests to the path-bearing desktop operation fail closed.
 ### Ingestion history
 
 - **GET** `/history?limit=20`
+
+### Durable lifecycle and reconciliation
+
+- **POST** `/jobs/<ingestion_id>/pause`
+- **POST** `/jobs/<ingestion_id>/resume`
+- **POST** `/jobs/<ingestion_id>/cancel`
+- **POST** `/jobs/<ingestion_id>/retry`
+- **POST** `/jobs/<ingestion_id>/repair`
+- **POST** `/jobs/<ingestion_id>/delete`
+- **GET** `/corpus/consistency`
+
+Status/history responses include per-file parser and defense results, required
+original/normalized artifacts, vector/graph/embedding state, expected revision,
+last retrieval, and consistency/repair information.
+
+### Owner memory lifecycle (`/api/v1/memory`)
+
+- **GET** `/review?include_working=false`
+- **GET** `/export`
+- **POST** `/compact`
+- **POST** `/recover`
+- **DELETE** `/<vertex_id>`
+
+All memory routes require owner/admin authority. Working memory is excluded by
+default and is never represented as validated trust.
 
 ---
 

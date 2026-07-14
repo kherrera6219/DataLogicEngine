@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from sqlalchemy import create_engine, text
 
 from backend.storage.object_store import LocalFileBackend
@@ -156,9 +158,40 @@ def test_local_json_and_retained_configuration_are_versioned_atomically(tmp_path
         validators=(lambda: True,),
     )
 
-    memory.bootstrap("unified-memory.v1")
+    memory.bootstrap("unified-memory.v2")
     config.bootstrap("configuration.v1")
 
-    assert memory.probe_version() == "unified-memory.v1"
+    assert memory.probe_version() == "unified-memory.v2"
     assert config.probe_version() == "configuration.v1"
     assert not list(tmp_path.rglob("*.tmp"))
+
+
+def test_local_json_memory_v1_migrates_to_integrity_checked_working_only_v2(tmp_path):
+    path = tmp_path / "memory" / "memory_graph.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "saved_at": "2026-07-13T00:00:00+00:00",
+                "last_recall_timestamp": None,
+                "vertices": [
+                    {
+                        "vertex_id": "legacy",
+                        "content": "unclassified legacy memory",
+                        "metadata": {},
+                    }
+                ],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    adapter = LocalJsonMemoryMigrationAdapter(path)
+
+    adapter.migrate("unified-memory.v1", "unified-memory.v2")
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert adapter.probe_version() == "unified-memory.v2"
+    assert payload["integrity_sha256"]
+    assert payload["vertices"][0]["metadata"]["validation_state"] == "working"

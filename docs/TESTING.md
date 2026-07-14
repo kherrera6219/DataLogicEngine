@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.9.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Quality Engineering |
 | Review cadence | Every 30 days |
@@ -44,6 +44,10 @@ Current validation posture:
 2. The July 2026 local desktop rebuild validated backend packaging, Electron/NSIS installer generation, installer integrity, NSIS governance, portable packaging smoke, and installer-mode install/uninstall smoke.
 3. Full local pytest counts are release evidence only when regenerated for that release candidate; do not reuse old pass counts as current production evidence.
 4. Required backend coverage gate remains `>=70%` where the coverage suite is invoked.
+5. The Phase 9 engineering checkpoint regenerated the local baseline: 2,033
+   backend tests passed with 18 skipped, 407 frontend tests passed, and frontend
+   typecheck/lint/build, Ruff, and Python compilation passed. This remains source
+   and build evidence, not rebuilt-installed acceptance.
 
 Before external submission, award review, sponsorship review, or production release, regenerate the full local baseline and attach the current date, command, environment, and report artifacts.
 
@@ -398,6 +402,11 @@ A reviewer should inspect these files in order:
 20. `tests/knowledge_algorithms/`
 21. `tests/axes/`
 22. `frontend/tests/`
+
+## Change notes for v2.9.0
+
+1. Recorded the isolated Phase 9 backend/frontend baseline and preserved the
+   distinction between source/build evidence and installed acceptance.
 
 ## Change notes for v2.8.0
 

@@ -113,10 +113,21 @@ def test_graph_endpoint_uses_active_uskd_memory_graph(session_authenticated_clie
     assert nodes["pillar-1"]["pillar"] == "Technology"
     assert nodes["node-1"]["pillar"] == "Technology"
     assert payload["links"][0]["label"] == "HAS_KNOWLEDGE_NODE"
+    assert payload["stats"]["source_revision"].startswith("sha256:")
 
     with patch("backend.storage.get_uskd_memory_graph", return_value=graph):
         axis_response = session_authenticated_client.get("/api/v1/graph?axis=8")
     assert {node["id"] for node in axis_response.get_json()["nodes"]} == {"pillar-1", "node-1"}
+
+    with patch("backend.storage.get_uskd_memory_graph", return_value=graph):
+        expanded = session_authenticated_client.get(
+            "/api/v1/graph?root=node-1&depth=1"
+        )
+    assert {node["id"] for node in expanded.get_json()["nodes"]} == {
+        "pillar-1",
+        "node-1",
+    }
+    assert expanded.get_json()["scope"] == {"root": "node-1", "depth": 1}
 
 
 def test_canonical_v1_retention_policies_authenticated_returns_ok(session_authenticated_client):

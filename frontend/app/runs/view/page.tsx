@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { api, type TraceDetail } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -282,6 +283,11 @@ function TraceDetailContent() {
                         <span>Source: {item.source_type || 'unknown'}</span>
                         <span>KA: {item.ka_that_invoked || 'N/A'}</span>
                         <span>Claims: {item.claims_supported?.length ?? 0}</span>
+                        {item.source_id?.startsWith('ki_') && (
+                          <Link className="text-blue-600 hover:underline dark:text-blue-400" href={`/graph?search=${encodeURIComponent(item.source_id)}`}>
+                            Open source in graph
+                          </Link>
+                        )}
                       </div>
                     </div>
                   ))}

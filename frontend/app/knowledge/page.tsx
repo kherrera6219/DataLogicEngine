@@ -9,6 +9,17 @@ import { Database, Layers } from "lucide-react";
 
 export default function KnowledgePage() {
   const { data: pillars, isLoading, error } = useSWR('knowledge-pillars', api.knowledge.pillars);
+  const { data: graph, isLoading: graphLoading, error: graphError } = useSWR(
+    'knowledge-pillar-counts',
+    () => api.knowledge.graph(),
+  );
+
+  const nodeCountByPillar = (graph?.nodes || []).reduce<Record<string, number>>((counts, node) => {
+    if (node.node_type !== 'pillar' && node.pillar) {
+      counts[node.pillar] = (counts[node.pillar] || 0) + 1;
+    }
+    return counts;
+  }, {});
 
   return (
     <div className="min-h-full bg-background text-foreground font-sans">
@@ -30,13 +41,21 @@ export default function KnowledgePage() {
         <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
           <p className="text-slate-500 dark:text-gray-400 max-w-3xl text-sm leading-relaxed">
             The Universal Knowledge Graph is organized into hierarchical pillars.
-            Each pillar contains interconnected domain nodes verified by the Truth Engine.
+            Counts and states below reflect the graph records currently available to this application.
           </p>
 
           {error && (
             <Card className="border-red-500/30 bg-red-500/10" role="alert">
               <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
                 {error instanceof Error ? error.message : 'Failed to load the Knowledge Graph pillars.'}
+              </CardContent>
+            </Card>
+          )}
+
+          {graphError && (
+            <Card className="border-amber-500/30 bg-amber-500/10" role="status">
+              <CardContent className="p-4 text-sm text-amber-700 dark:text-amber-300">
+                Pillar definitions are available, but live graph counts could not be loaded.
               </CardContent>
             </Card>
           )}
@@ -77,7 +96,7 @@ export default function KnowledgePage() {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-xl text-slate-900 dark:text-gray-100 group-hover:text-blue-400 transition-colors">{pillar.name}</CardTitle>
                     <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20 text-[10px] font-bold uppercase">
-                      Active
+                      Defined
                     </Badge>
                   </div>
                   <CardDescription className="text-slate-500 dark:text-gray-500">{pillar.description || 'Core knowledge pillar.'}</CardDescription>
@@ -86,9 +105,11 @@ export default function KnowledgePage() {
                   <div className="flex justify-between items-end mt-4">
                     <div>
                       <div className="text-3xl font-bold tracking-tighter text-slate-900 dark:text-gray-100">
-                        --
+                        {graphLoading ? '…' : graphError ? 'Unavailable' : (nodeCountByPillar[pillar.name] || 0)}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-muted-foreground uppercase font-medium mt-1 tracking-wider">Nodes</div>
+                      <div className="text-xs text-slate-500 dark:text-muted-foreground uppercase font-medium mt-1 tracking-wider">
+                        {graphError ? 'Graph state' : 'Visible nodes'}
+                      </div>
                     </div>
                     <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform border border-blue-500/20">
                       <Layers className="h-6 w-6" />

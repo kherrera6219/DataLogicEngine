@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.13.0 |
+| Last updated | 2026-07-14 |
 | Effective date | 2026-05-30 |
 | Status | Active |
 | Owner | Privacy + Security Engineering |
@@ -273,6 +273,26 @@ privacy@datalogicengine.com
 ```
 
 Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Phase 9 local knowledge handling
+
+Desktop-selected sources are copied into an app-owned staging area before
+parsing; renderer code does not retain unrestricted filesystem authority. The
+local data plane may retain the approved original, normalized content, chunks,
+hashes, defense outcome, graph/vector materializations, retrieval decisions,
+and last-retrieval state. Original and normalized payloads reside in the
+`knowledge-sources` object bucket; Redis coordination contains no source text.
+
+Deleting a source initiates reference-aware reconciliation across PostgreSQL,
+Neo4j, Chroma, required objects, and provenance-linked UnifiedMemory records.
+Shared chunks remain only while another active source references them. Memory
+review/export/delete/compaction/recovery controls are owner-only. Installed
+backup, deletion-remnant, and recovery proof remain release gates.
+
+## Change notes for v2.13.0
+
+1. Added the app-owned acquisition, original/normalized artifact, retrieval
+   decision, memory trust, and reference-aware deletion privacy contract.
 
 ## Change notes for v2.12.0
 

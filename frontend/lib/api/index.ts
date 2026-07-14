@@ -8,6 +8,7 @@ import { compliance } from './compliance';
 import { ingestion } from './ingestion';
 import { request } from './client';
 import { gateway } from './gateway';
+import { memory } from './memory';
 
 export { API_BASE, ApiError, buildApiUrl, request } from './client';
 export * from './types';
@@ -23,6 +24,7 @@ export const api = {
   mcp,
   compliance,
   gateway,
+  memory,
   system: {
     health: () => request<{ status?: string } | string>('/health')
       .then((payload) => typeof payload === 'string' ? payload : payload.status || 'degraded')

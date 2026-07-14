@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -253,20 +254,48 @@ class LocalJsonMemoryMigrationAdapter:
             version = int(target_version.rsplit(".v", 1)[1])
         except (IndexError, ValueError) as exc:
             raise StoreMigrationError("local_json_memory_target_invalid") from exc
-        self._atomic_write(
-            {
+        payload = {
                 "version": version,
                 "saved_at": datetime.now(UTC).isoformat(),
                 "last_recall_timestamp": None,
                 "vertices": [],
                 "edges": [],
             }
-        )
+        if version >= 2:
+            payload["integrity_sha256"] = self._integrity(payload)
+        self._atomic_write(payload)
 
     def migrate(self, current_version: str, target_version: str) -> None:
-        raise StoreMigrationError(
-            f"local_json_memory_migration_path_not_implemented:{current_version}:{target_version}"
-        )
+        if current_version != "unified-memory.v1" or target_version != "unified-memory.v2":
+            raise StoreMigrationError(
+                f"local_json_memory_migration_path_not_implemented:{current_version}:{target_version}"
+            )
+        payload = self._payload()
+        if payload is None or payload.get("version") != 1:
+            raise StoreMigrationError("local_json_memory_v1_source_invalid")
+        for vertex in payload.get("vertices", []):
+            if not isinstance(vertex, dict):
+                continue
+            metadata = vertex.get("metadata") if isinstance(vertex.get("metadata"), dict) else {}
+            metadata.setdefault("validation_state", "working")
+            metadata.setdefault("policy_result", "legacy_working_only")
+            metadata.setdefault("retention_class", "session_working_memory")
+            metadata.setdefault("source_run_id", None)
+            vertex["metadata"] = metadata
+        payload["version"] = 2
+        payload["saved_at"] = datetime.now(UTC).isoformat()
+        payload["integrity_sha256"] = self._integrity(payload)
+        self._atomic_write(payload)
+
+    @staticmethod
+    def _integrity(payload: dict[str, Any]) -> str:
+        canonical = dict(payload)
+        canonical.pop("integrity_sha256", None)
+        return hashlib.sha256(
+            json.dumps(canonical, sort_keys=True, separators=(",", ":"), default=str).encode(
+                "utf-8"
+            )
+        ).hexdigest()
 
     def _atomic_write(self, payload: dict[str, Any]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
