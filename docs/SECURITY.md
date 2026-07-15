@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.15.0 |
+| Document version | v2.16.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -34,6 +34,16 @@ disabled for updates, and environment settings cannot bypass the signed-update
 qualification gates. The approved publisher, managed/hardware credential
 boundary, final signed binaries, legal authority, and installed adversarial
 update results remain release blockers.
+
+Phase 15 separates unsigned candidate qualification from production signing.
+The packaged candidate carries `production_authorized=false`; production mode
+cannot be selected through the candidate artifact. The release payload gate
+rejects app source, tests, caches, stale Electron tests, and missing runtime
+assets. The clean candidate passes that gate, while its signature inventory
+correctly remains failed until the approved publisher signs every final app-owned
+binary. A packaged-runtime probe also proved production startup fails closed when
+protected-volume readiness cannot be verified.
+
 ## Audience
 
 1. Security engineers

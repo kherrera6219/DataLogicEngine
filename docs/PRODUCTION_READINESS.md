@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.16.0 |
+| Document version | v2.17.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -42,10 +42,11 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **Phase 14 packaging/dependency/signing/supply-chain engineering
-is complete and Phase 15 installed-system qualification is active, but signed
-production release remains NO-GO until retained installed, security, provider,
-recovery, accessibility, soak, signing, legal, and review evidence is complete.**
+Current status: **Phase 15 release-candidate engineering is complete and Phase
+16 controlled-document replacement is active, but signed production release
+remains NO-GO until retained installed, security, provider, recovery,
+accessibility, soak, signing, legal, pilot, and independent-review evidence is
+complete.**
 
 ### Ready / substantially implemented
 
@@ -86,6 +87,13 @@ recovery, accessibility, soak, signing, legal, and review evidence is complete.*
     inputs, versioned Windows artifacts, immutable workflow references,
     fail-closed signing/update/distribution policy, SBOM/content inventory/
     release-manifest/attestation gates, and legacy installer exclusion.
+21. Candidate/production workflow separation, a clean 299,129,416-byte unsigned
+    qualification installer, zero payload-leakage findings across the 6,151-file
+    backend, and a packaged-runtime probe that fails closed when protected-volume
+    readiness cannot be proved.
+22. Two same-commit GitHub candidate builds complete successfully with matching
+    file counts; their differing normalized hashes truthfully retain the byte-
+    reproducibility gate.
 
 ### Remaining release blockers before signed production distribution
 
@@ -119,6 +127,10 @@ recovery, accessibility, soak, signing, legal, and review evidence is complete.*
     publisher/signing boundary, adversarial signed updates, final SBOM/provenance/
     AV/license evidence, ten legal/authority actions, approved notices, and full
     legacy reachability proof.
+16. Phase 15 CP15-A through CP15-H signed clean lifecycle/Windows matrix,
+    five-service/provider functionality, fault recovery, performance/24/72-hour
+    soak, security/privacy, accessibility/document walkthrough, two-machine
+    human pilot, and gateway interoperability against one exact RC artifact.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -435,6 +447,13 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 ```
 
 ---
+
+## Change notes for v2.17.0
+
+1. Recorded the Phase 15 release-candidate engineering checkpoint, clean payload
+   and integrity evidence, candidate/production authority separation, and the
+   protected-volume fail-closed runtime result while retaining CP15-A through
+   CP15-H as signed/installed/manual release gates.
 
 ## Change notes for v2.15.0
 

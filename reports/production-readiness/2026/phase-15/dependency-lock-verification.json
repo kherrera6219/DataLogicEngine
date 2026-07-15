@@ -1,0 +1,98 @@
+{
+  "schema_version": "dle.dependency-lock-verification.v1",
+  "generated_at": "2026-07-15T05:52:39.604228+00:00",
+  "authority": {
+    "schema_version": "dle.dependency-authority.v1",
+    "python": {
+      "reviewed_direct_source": "requirements.txt",
+      "release_lock": "requirements.lock",
+      "lock_generator": "uv 0.9.26",
+      "python_version": "3.11",
+      "universal_resolution": true,
+      "hashes_required": true,
+      "pyproject_runtime_dependencies": false,
+      "uv_project_lock": false
+    },
+    "node": {
+      "manifest": "frontend/package.json",
+      "release_lock": "frontend/package-lock.json",
+      "lockfile_version": 3,
+      "install_command": "npm ci",
+      "release_build_node_major": 24,
+      "electron": {
+        "package_version": "43.1.1",
+        "chromium_version": "150.0.7871.114",
+        "embedded_node_version": "24.18.0",
+        "official_release_metadata": "https://releases.electronjs.org/release/v43.1.1",
+        "reviewed_at": "2026-07-14"
+      }
+    }
+  },
+  "findings": [
+    {
+      "level": "OK",
+      "message": "Dependency authority schema is valid."
+    },
+    {
+      "level": "OK",
+      "message": "requirements.txt contains 81 exact direct pins."
+    },
+    {
+      "level": "OK",
+      "message": "requirements.lock matches the reviewed requirements.txt hash."
+    },
+    {
+      "level": "OK",
+      "message": "requirements.lock contains no insecure http:// sources."
+    },
+    {
+      "level": "OK",
+      "message": "Every reviewed Python direct pin is present in requirements.lock."
+    },
+    {
+      "level": "OK",
+      "message": "All 315 locked Python packages carry SHA-256 hashes."
+    },
+    {
+      "level": "OK",
+      "message": "No contradictory root uv.lock is present."
+    },
+    {
+      "level": "OK",
+      "message": "pyproject.toml correctly delegates runtime dependencies to the release lock."
+    },
+    {
+      "level": "OK",
+      "message": "package-lock.json lockfileVersion is 3."
+    },
+    {
+      "level": "OK",
+      "message": "Node name matches package.json and package-lock.json."
+    },
+    {
+      "level": "OK",
+      "message": "Node version matches package.json and package-lock.json."
+    },
+    {
+      "level": "OK",
+      "message": "Node dependencies matches the lock root."
+    },
+    {
+      "level": "OK",
+      "message": "Node devDependencies matches the lock root."
+    },
+    {
+      "level": "OK",
+      "message": "Electron release runtime is locked to reviewed version 43.1.1."
+    },
+    {
+      "level": "OK",
+      "message": "package-lock.json contains no insecure http:// dependency URLs."
+    }
+  ],
+  "summary": {
+    "ok": 15,
+    "error": 0,
+    "warn": 0
+  }
+}

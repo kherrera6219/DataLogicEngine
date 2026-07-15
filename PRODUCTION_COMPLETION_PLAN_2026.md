@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.13.0 |
+| Document version | v1.14.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -64,6 +64,30 @@ excluded. The canonical rebuilt/signed artifact, two-build repeatability,
 installed lifecycle/update matrix, publisher/signing boundary, final supply-
 chain evidence, legal authority, notices, and broad legacy reachability remain
 release-blocking. Phase 15 system qualification is now active.
+
+Phase 15 reached its release-candidate engineering checkpoint on 2026-07-14.
+Commit `f2e4174f` freezes candidate inputs, separates unsigned qualification
+builds from production signing, and packages a candidate-only release-channel
+policy that cannot authorize production. A clean CPython 3.11.14 environment
+reproduced the 315-package hash lock. The canonical local candidate passed
+version, lock, workflow-pin, installer-integrity, and payload checks; its backend
+contains 6,151 files with zero forbidden source/test/cache or stale Electron-test
+findings. The invalid first build remains negative evidence because a drifted
+developer environment leaked tests, caches, and source into the payload.
+
+Two independent GitHub candidate builds from the frozen commit completed, but
+their backend, portable, and installer hashes differ despite identical file
+counts. The comparison exposes nondeterministic PyInstaller/Python archive and
+Electron/NSIS content, so CP14-B repeatability remains open.
+
+The packaged runtime probe reached the frozen backend and then failed closed at
+the at-rest-protection gate because this workstation could not prove protected-
+volume readiness. The candidate remains unsigned, and clean install/upgrade/
+repair/rollback/uninstall, supported Windows, providers, five-service workflows,
+failure recovery, accessibility, gateway, independent review, human pilot, and
+24/72-hour evidence remain retained CP15-A through CP15-H release gates. Phase
+16 documentation replacement is active without representing those installed
+gates as passed.
 
 This checkpoint does not close the installed production exit gates for Phases
 3-13 and does not change the overall release verdict from **NO-GO**. The
@@ -3964,17 +3988,17 @@ exit gate.
 
 ## 32. Immediate next action
 
-Begin **Phase 15** by freezing the 4.3.0 release-candidate inputs and producing
-the clean canonical backend, portable application, and versioned NSIS installer
-through the release workflow. Run the two-build normalized-content comparison
-before any installed qualification claim.
+Begin **Phase 16** by inventorying every root and `docs/**` Markdown file,
+assigning its controlled document class and old-to-new disposition, and
+establishing the 30-or-fewer hand-maintained canonical set plus generated
+documentation bill of materials. Build the controlled vocabulary, document
+header, ownership, and approval rules before merging or archiving content.
 
-Execute the clean install, repair, supported 0.1.1 upgrade, rollback, uninstall
-data-choice, non-default path, non-ASCII user, long path, standard-user, and
-elevation matrix. Then run the retained Phase 3-14 service, migration, recovery,
-provider, gateway, knowledge, simulation, MCP, UI/accessibility, observability,
-redaction, failure, support, performance, update, signature, SBOM/provenance,
-and soak gates against that exact candidate.
+Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
+signed, provider, five-service, failure, Windows, accessibility, gateway,
+independent-review, human-pilot, and 24/72-hour evidence as release blockers.
+Documentation work may proceed, but it cannot convert source or unsigned
+qualification evidence into installed production acceptance.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
 alert 389, all independent-review requirements, and the SeaweedFS candidate-

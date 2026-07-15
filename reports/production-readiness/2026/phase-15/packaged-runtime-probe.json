@@ -1,0 +1,33 @@
+{
+  "schema_version": "dle.phase15-packaged-runtime-probe.v1",
+  "generated_at": "2026-07-15T06:16:41.544Z",
+  "source_commit": "f2e4174f363f4af26e2af5428abb75ebd51e0b1d",
+  "artifact": {
+    "name": "DataLogicEngine Setup 4.3.0.exe",
+    "sha256": "5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620",
+    "signed": false,
+    "release_channel": "candidate",
+    "production_authorized": false
+  },
+  "probe": {
+    "surface": "frontend/dist/win-unpacked/DataLogicEngine Desktop.exe",
+    "electron_started": true,
+    "frozen_backend_started": true,
+    "core_ready": false,
+    "terminal_error": "startup_failed:paths_and_acl",
+    "safe_detail": "at_rest_protection_not_ready",
+    "expected_fail_closed_boundary": true
+  },
+  "environment": {
+    "windows_volume_protection_verified": false,
+    "administrative_bitlocker_probe_available": false,
+    "clean_profile": false,
+    "installed_nsis_lifecycle": false
+  },
+  "status": "blocked_expected_environment_gate",
+  "release_gate_closed": false,
+  "notes": [
+    "The candidate reached packaged backend startup and did not silently fall back.",
+    "This result cannot substitute for signed clean-machine protected-volume qualification."
+  ]
+}

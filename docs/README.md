@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.25.0 |
+| Document version | v2.26.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,16 +21,23 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 14 packaging, signing, updates,
-dependency, and supply-chain engineering complete, with Phase 15 installed-
-system qualification active. Product 4.3.0 has one version authority; Python
-uses a generated 315-package hash lock; Node/Electron inputs are exact; Windows
-artifacts are versioned; workflows are immutable; and signing, update, SBOM,
-manifest, attestation, legal, and legacy controls fail closed.
+The current execution checkpoint is Phase 15 release-candidate engineering
+complete, with Phase 16 controlled-document replacement active. Product 4.3.0
+has one version and lock authority; candidate and production release modes are
+separate; the 299,129,416-byte local candidate passes integrity and payload
+checks; and its 6,151-file backend contains no forbidden source/test/cache or
+stale Electron-test payload. The first drifted build is retained only as negative
+evidence.
 
-The canonical rebuilt/signed installer, installed lifecycle/update/Windows
-matrix, final supply-chain dossier, publisher/distribution authority, and every
-retained Phase 3-14 installed gate remain open. ADR-0009 keeps the truthful
+Two independent GitHub candidate builds completed with matching file counts but
+different backend, portable, and installer hashes. Reproducibility remains a
+release gate; the comparison is not treated as a pass.
+
+The candidate is unsigned and its packaged backend correctly refuses production
+startup when protected-volume readiness cannot be proved. The signed installer,
+installed lifecycle/update/Windows and five-service/provider matrices, final
+supply-chain dossier, publisher/distribution authority, accessibility/manual
+acceptance, pilot, and 24/72-hour soaks remain open. ADR-0009 keeps the truthful
 Session Library model; ADR-0008's installed MCP acceptance remains deferred.
 Production/public release remains **NO-GO**.
 

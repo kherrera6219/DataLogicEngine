@@ -5,15 +5,19 @@ administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
 > DataLogicEngine is available for local engineering evaluation and architecture
-> validation. Phases 0-2 and the Phase 3-14 engineering checkpoints are complete;
-> Phase 15 installed-system qualification is active. Phase 14 establishes product
-> 4.3.0 authority, a 315-package hashed Python lock, exact Node/Electron inputs,
-> versioned Windows artifacts, immutable workflows, fail-closed signing/update/
-> distribution policy, SBOM/release-manifest/attestation gates, and legacy-path
-> exclusion. The rebuilt signed installer, installed lifecycle/update matrix,
-> legal authority, object-store decision, independent reviews, and all retained
-> installed gates remain open, so production/public release is **NO-GO**. Follow
-> [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 14 evidence`](reports/production-readiness/2026/phase-14/summary.md).
+> validation. Phases 0-2 and the Phase 3-15 engineering checkpoints are complete;
+> Phase 16 controlled-document replacement is active. Phase 15 freezes clean
+> 4.3.0 candidate inputs, separates unsigned qualification from production
+> signing, and produces a 299,129,416-byte integrity-verified candidate whose
+> backend payload has 6,151 files and zero source/test/cache leakage findings.
+> The packaged backend correctly refuses startup when protected-volume readiness
+> cannot be proved. Two clean GitHub builds have equal file counts but differing
+> payload hashes, so byte reproducibility is also still open. The signed installer,
+> clean lifecycle/Windows/provider/five-
+> service matrices, legal authority, object-store decision, independent reviews,
+> human pilot, and 24/72-hour soaks remain open, so production/public release is
+> **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md),
+> [`TODO.md`](TODO.md), and the [`Phase 15 evidence`](reports/production-readiness/2026/phase-15/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -73,7 +77,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 15 clean 4.3.0 release-candidate build, installed lifecycle, Windows matrix, retained system gates, and release qualification
+- Phase 16 controlled 30-or-fewer production-document set, documentation BOM/crosswalk, and professional/Microsoft review dossier
+- Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
 - Deferred rebuilt-installed Phase 11 MCP containment, lifecycle, stores, and Electron acceptance
@@ -852,7 +857,8 @@ npm --prefix frontend audit --audit-level=high
 | --- | --- |
 | Completed foundation | Phases 0-7: scope and trust boundaries, internal data plane, canonical governed path, evidence validity, and governed provider behavior. |
 | Completed product, UI, and operations checkpoints | Phases 8-13: gateway/SDKs, ingestion/retrieval/memory, simulation, MCP, truthful UI/accessibility automation, and source-level observability/diagnostics/support/compliance semantics. Installed acceptance remains gated. |
-| Active subsystem | Phase 15: clean release-candidate build and complete installed-system qualification. |
+| Completed release-candidate checkpoint | Phase 15: clean candidate freeze, payload/integrity qualification, and fail-closed packaged-runtime probe; installed/signed gates retained. |
+| Active subsystem | Phase 16: controlled documentation replacement, bill of materials, crosswalk, and professional review dossier. |
 | Retained installed subsystem gates | Phase 12 workflow/visual/NVDA plus Phase 13 correlation/failure/redaction/support/soak acceptance. |
 | Release | Phases 15-18: installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 

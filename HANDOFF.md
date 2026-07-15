@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.13.0 |
-| Completed phase | Phase 14 engineering checkpoint - packaging, signing, updates, dependencies, and supply chain |
-| Current phase | Phase 15 - system qualification and release candidate |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.14.0 |
+| Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
+| Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -441,18 +441,50 @@ update-trust tests, frontend typecheck/Electron build, and npm audit. Evidence
 and the retained CP14-A through CP14-H rows are under
 reports/production-readiness/2026/phase-14/.
 
+## Phase 15 release-candidate engineering checkpoint
+
+Commit `f2e4174f` freezes the 4.3.0 candidate inputs. Candidate mode and
+production mode are separate workflow authorities: candidate builds are
+unsigned qualification artifacts, while production requires the approved
+release channel, ownership, legal/distribution, trust, signing, and signature
+gates. The packaged candidate carries `production_authorized=false` and a
+qualification-only data-plane profile.
+
+The clean CPython 3.11.14 build satisfied the full hash lock and produced a
+299,129,416-byte installer with SHA-256
+`5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620`.
+Installer integrity passed. The frozen backend has 6,151 files and 513,329,279
+bytes; the payload verifier found zero forbidden source/test/cache trees, stale
+Electron tests, or missing required runtime assets. The first drifted build is
+retained as negative evidence because it leaked developer tests, caches, source,
+and stale compiled tests and therefore is not a release candidate.
+
+Two independent GitHub builds from the same frozen commit succeeded with equal
+backend/portable file counts, but their normalized hashes differ. Byte
+repeatability is not proved; CP14-B remains open with the exact comparison in
+`github-candidate-reproducibility.json`.
+
+The portable application reached the frozen backend. Startup then failed closed
+at `at_rest_protection_not_ready` because the current workstation could not
+prove protected-volume readiness. The candidate is unsigned by design and the
+signature inventory correctly fails. This is not an installed/signed phase exit:
+CP15-A through CP15-H remain open for the clean lifecycle and Windows matrix,
+real five-service/provider workflows, fault/recovery matrix, performance/soak,
+security/privacy, accessibility/document walkthrough, human pilot, and gateway
+interoperability. Evidence is under
+`reports/production-readiness/2026/phase-15/`.
+
 ## Exact next action
 
-1. Freeze product 4.3.0 release inputs at a clean candidate commit.
-2. Build the canonical backend, portable app, and versioned NSIS installer only
-   through the release workflow, then compare two normalized clean builds.
-3. Execute the clean install, repair, 0.1.1 retained-data upgrade, rollback,
-   uninstall data choices, path/user/elevation, and supported Windows matrix.
-4. Run every retained Phase 3-14 service, recovery, provider, gateway, knowledge,
-   simulation, MCP, UI/accessibility, observability, security, failure, update,
-   signing, supply-chain, object-store, and soak gate against that candidate.
-5. Preserve production signing/distribution NO-GO, alert 389, automatic-update
-   disablement, and SeaweedFS candidate-only status until evidence closes them.
+1. Inventory every root and `docs/**` Markdown file and assign one Phase 16
+   document class and old-to-new disposition.
+2. Establish the controlled header, vocabulary, ownership, approval, archive,
+   and generated-document rules and select the 30-or-fewer hand-maintained set.
+3. Generate the documentation bill of materials and crosswalk before merging,
+   archiving, or deleting any prior authority.
+4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+   389, automatic-update disablement, and SeaweedFS candidate-only status until
+   their required installed and independent evidence exists.
 
 ## Phase rules
 

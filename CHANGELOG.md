@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 15 release-candidate engineering checkpoint**: froze product 4.3.0
+  candidate inputs in `f2e4174f`, separated unsigned qualification from
+  production signing/authority, added a candidate-only release-channel policy,
+  and made backend builds use the exact locked Python environment.
+- **Clean candidate payload controls**: added a release payload verifier, removed
+  developer source/test/cache and stale compiled Electron tests from packaged
+  output, excluded unused local ML stacks, and refreshed dependency/build
+  boundaries. The canonical local candidate passes integrity and reports 6,151
+  backend files with zero leakage or required-asset findings.
+- **Truthful packaged-runtime result**: retained the invalid drifted build as
+  negative evidence, recorded the unsigned signature failure, and proved the
+  packaged backend fails closed when Windows protected-volume readiness cannot
+  be established. Signed installed CP15-A through CP15-H evidence remains open.
 - **Phase 14 packaging and supply-chain engineering checkpoint**: established
   product 4.3.0 and Windows 4.3.0.0 authority across Python, Electron, UI,
   support, migrations, artifacts, and release manifests; added an 81-direct-pin/

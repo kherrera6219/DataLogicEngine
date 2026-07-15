@@ -1,0 +1,31 @@
+{
+  "schema_version": "dle.release-reproducibility-comparison.v1",
+  "generated_at": "2026-07-15T06:25:11.218677+00:00",
+  "status": "fail",
+  "comparisons": [
+    {
+      "label": "backend",
+      "first_normalized_sha256": "c08e6c1162c837383c26e3d0ead6e29b303dcd7cb2c084775768e3de3cbdec0a",
+      "second_normalized_sha256": "f0377f7fbe891fa9707c3f1babf98bf2676b6ca8437376e50796537a922569b9",
+      "first_file_count": 6155,
+      "second_file_count": 6155,
+      "matched": false
+    },
+    {
+      "label": "installer",
+      "first_normalized_sha256": "b4cc65e549e8618629d8bd45a47bc504a58cca8b74fd50c491fcfc48253ace09",
+      "second_normalized_sha256": "67de11858f4c1ffa15fcc1dd9cc606259ac4988575c89c412bba55547af9ca08",
+      "first_file_count": 1,
+      "second_file_count": 1,
+      "matched": false
+    },
+    {
+      "label": "portable",
+      "first_normalized_sha256": "f9e22d3b3d6243121225c6a8484a94185c9fea923dea59283455c256a2f72d23",
+      "second_normalized_sha256": "8e323d1bfda37a0e427f853c150386a52a5dfd5dc5433c21fa4c4037602cf00d",
+      "first_file_count": 6233,
+      "second_file_count": 6233,
+      "matched": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "dle.phase15-github-candidate-builds.v1",
+  "generated_at": "2026-07-15T06:25:11.218677+00:00",
+  "source_commit": "f2e4174f363f4af26e2af5428abb75ebd51e0b1d",
+  "release_mode": "candidate",
+  "production_signing_job_expected": "skipped",
+  "runs": [
+    {
+      "database_id": 29393458241,
+      "url": "https://github.com/kherrera6219/DataLogicEngine/actions/runs/29393458241",
+      "conclusion": "success",
+      "installer_bytes": 299350829,
+      "installer_sha256": "21bdd3d51c153a30a2c67b03ed4f4c6db3be26f99a0ec3486b91f0f9ed68f2fe",
+      "backend_file_count": 6155,
+      "portable_file_count": 6233
+    },
+    {
+      "database_id": 29393459452,
+      "url": "https://github.com/kherrera6219/DataLogicEngine/actions/runs/29393459452",
+      "conclusion": "success",
+      "installer_bytes": 299350973,
+      "installer_sha256": "94514b1bcfe7c6e499d1e2d545a20eac15de9faa0a538ff6e86f7c4fc4c6e2a2",
+      "backend_file_count": 6155,
+      "portable_file_count": 6233
+    }
+  ],
+  "same_file_counts": true,
+  "byte_reproducible": false,
+  "comparison_report": "github-candidate-reproducibility.json",
+  "status": "builds_passed_reproducibility_failed"
+}

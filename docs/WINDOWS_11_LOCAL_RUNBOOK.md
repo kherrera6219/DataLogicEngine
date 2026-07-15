@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
+| Document version | v2.13.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -61,7 +61,7 @@ ChromaDB, and MinIO and refuses fallback when any required service is absent.
 
 ## Current state
 
-The current cumulative engineering state through Phase 14 includes:
+The current cumulative engineering state through Phase 15 includes:
 
 1. `create_app()` produces isolated application instances; importing `app.py`
    performs no application construction or resource startup.
@@ -102,8 +102,18 @@ lock, exact Node/Electron 43.1.1 inputs, Windows file-version resources,
 versioned NSIS artifact identity, immutable workflow inputs, SBOM/content
 inventories, release manifests, attestation verification, fail-closed publisher/
 update/distribution policy, and legacy installer payload exclusion. The canonical
-rebuilt and signed installer plus the full installed lifecycle remain Phase 15
-gates; no current local artifact is production evidence.
+signed installer plus the full installed lifecycle remain retained Phase 15
+gates; the current local artifact is qualification evidence, not production
+evidence.
+
+Phase 15 now has a clean unsigned qualification candidate. Its installer
+integrity and payload gates pass, and the frozen backend contains no forbidden
+source/test/cache or stale Electron-test payload. A portable launch reached the
+frozen backend but stopped at `at_rest_protection_not_ready` because this
+workstation could not prove protected-volume readiness. This is the required
+fail-closed behavior. Repeat installed qualification only on a clean supported
+Windows machine with the protected-volume, elevation, signing, and test-data
+prerequisites recorded in the Phase 15 matrix.
 
 
 ```powershell

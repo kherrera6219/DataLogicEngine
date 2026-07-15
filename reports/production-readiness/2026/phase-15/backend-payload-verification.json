@@ -1,0 +1,26 @@
+{
+  "schema_version": "dle.release-payload-verification.v1",
+  "generated_at": "2026-07-15T06:06:24.221935+00:00",
+  "status": "pass",
+  "summary": {
+    "backend_file_count": 6151,
+    "backend_size_bytes": 513329279,
+    "electron_compiled_file_count": 5,
+    "issue_count": 0
+  },
+  "required_backend_files": [
+    "DataLogic_Backend.exe",
+    "_internal/config/product-versions.json",
+    "_internal/config/provider_manifest.v1.json",
+    "_internal/deploy/internal-data-plane.candidate-lock.json",
+    "_internal/migrations/alembic.ini",
+    "_internal/core/data/ka_registry.json",
+    "_internal/backend/dsqp/templates/default.json",
+    "_internal/backend/knowledge_algorithms/ka_registry.yaml",
+    "_internal/backend/security/prompts/defense_supervisor.txt",
+    "_internal/backend/api/specs/ukg_api_v3_2.yaml",
+    "_internal/core/persona/quad/config/quad_config.yaml",
+    "_internal/docs/evaluation/AI_SYSTEM_CARD.md"
+  ],
+  "issues": []
+}

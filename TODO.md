@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.13.0 |
-| Completed phase | Phase 14 engineering checkpoint - packaging, signing, updates, dependencies, and supply chain |
-| Current phase | Phase 15 - system qualification and release candidate |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.14.0 |
+| Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
+| Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -17,6 +17,25 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- Phase 15 reached its release-candidate engineering checkpoint on 2026-07-14.
+  Evidence is under `reports/production-readiness/2026/phase-15/`; CP15-A
+  through CP15-H remain installed/signed/manual release gates.
+- Commit `f2e4174f` freezes candidate inputs and separates unsigned candidate
+  qualification from production signing and distribution authority.
+- The canonical candidate installer is 299,129,416 bytes with SHA-256
+  `5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620`;
+  installer integrity, exact lock, version, workflow pins, and payload gates pass.
+- The frozen backend contains 6,151 files and 513,329,279 bytes with zero
+  forbidden source/test/cache, stale Electron test, or required-asset findings.
+- The invalid drifted first build remains negative evidence. It contained 10,331
+  backend files and a 1,330,613,366-byte portable tree, including developer
+  source/tests/caches, and is not a release candidate.
+- The packaged runtime reached the frozen backend and correctly failed closed at
+  `at_rest_protection_not_ready` because this machine could not prove protected-
+  volume readiness. The unsigned signature inventory also correctly fails.
+- Two independent GitHub candidate builds succeeded with equal file counts, but
+  backend, portable, and installer hashes differ. CP14-B reproducibility remains
+  open; exact differing-file evidence is in the Phase 15 comparison report.
 - Phase 14 reached its engineering checkpoint on 2026-07-14. Evidence is under
   `reports/production-readiness/2026/phase-14/`; the final installed/signed exit
   rows are retained for Phase 15 rather than misreported complete.
@@ -508,6 +527,21 @@ authority or placeholder production behavior.
 
 Details: `reports/production-readiness/2026/phase-14/deferred-gates.md`.
 
+## Phase 15 retained release gates
+
+| Checkpoint | Engineering checkpoint evidence | Open closure evidence |
+|---|---|---|
+| CP15-A | Candidate inputs frozen; integrity and payload checks pass | Signed clean install, repair, upgrade, rollback, uninstall, reboot, sleep/resume, collision, and Windows matrix |
+| CP15-B | Packaged backend reached the production startup gates | Real installed five-service workflows, both providers, offline mode, MCP, simulation, and durable-effect proof |
+| CP15-C | Protected-storage and signature boundaries fail closed | Complete installed service/provider/gateway/content/resource fault and recovery matrix |
+| CP15-D | Release build and short source-level resource checks exist | Ratified hardware budgets, concurrency/load proof, 24-hour stress, and 72-hour idle/normal-use soak |
+| CP15-E | Payload leakage gate passes; unsigned state is explicit | Final RC security/privacy/network/egress/malware/license/penetration and independent review |
+| CP15-F | Source accessibility and documentation gates exist | Packaged visual/scaling/high-contrast, manual keyboard/NVDA, and clean-document walkthrough |
+| CP15-G | Pilot protocol exists | Named multi-day pilot on two clean non-development Windows machines with signed acceptance |
+| CP15-H | Gateway contracts and source tests pass | Signed-RC same-host/private client native, SSE, async/cancel, SDK, TLS/firewall, recovery, and UI acceptance |
+
+Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -527,8 +561,8 @@ Details: `reports/production-readiness/2026/phase-14/deferred-gates.md`.
 | 12 | UI workflow, Session Library, and accessibility completion | **Engineering checkpoint complete 2026-07-14; installed/manual gates retained** |
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
-| 15 | System qualification and release candidate | **Active** |
-| 16 | Production documentation replacement and professional review dossier | Blocked by prior phases |
+| 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
+| 16 | Production documentation replacement and professional review dossier | **Active** |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 
@@ -548,13 +582,11 @@ Details: `reports/production-readiness/2026/phase-14/deferred-gates.md`.
 
 ## Exact next action
 
-Begin Phase 15 by freezing the 4.3.0 release-candidate inputs and building the
-canonical backend, portable app, and versioned NSIS installer through the clean
-release path. Compare two clean normalized content inventories, then execute the
-complete install/repair/0.1.1-upgrade/rollback/uninstall and supported-Windows
-matrix against that exact candidate.
+Begin Phase 16 with a complete root and `docs/**` Markdown inventory. Assign one
+controlled document class and old-to-new disposition to every file, define the
+canonical 30-or-fewer hand-maintained set, and generate the documentation bill
+of materials and crosswalk before any archive/delete pass.
 
-Run every retained Phase 3-14 installed, provider, gateway, recovery, security,
-accessibility, failure, update, signing, supply-chain, object-store, and soak
-gate. Preserve alert 389, legal/distribution NO-GO, automatic-update disablement,
-and SeaweedFS candidate-only status until their required evidence exists.
+Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
+alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS
+candidate-only status until their required evidence exists.

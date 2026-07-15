@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -34,6 +34,22 @@ local Latest artifact is stale 0.1.1 evidence and must not be installed or cited
 as the release candidate. Production signing, automatic updates, service
 redistribution, legal authority, and the final object-store choice remain blocked
 until the Phase 15 installed candidate and owner/independent evidence close them.
+
+## Phase 15 candidate boundary
+
+`config/release-channel.json` is a packaged release input. The current value is
+`candidate` with `data_plane_profile=qualification` and
+`production_authorized=false`. This lets an unsigned candidate exercise
+qualification provisioning without weakening the production gate. The release
+workflow accepts candidate builds for structural and reproducibility evidence;
+only production mode may request signing, and production mode also requires the
+approved release channel, ownership, legal/distribution, and trust authorities.
+
+The canonical local candidate passes installer integrity and payload checks. Its
+packaged backend reached startup and then correctly refused production because
+this workstation could not prove protected-volume readiness. It is not an
+installable production release, and its unsigned artifacts must not be published
+or described as approved production binaries.
 
 ## Audience
 
