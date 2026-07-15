@@ -87,6 +87,7 @@ not current product or operating authority.
 - `docs/DOCUMENTATION_CROSSWALK.md` - complete file disposition inventory.
 - `docs/GENERATED_STRUCTURE.md` and `docs/FILE_INVENTORY.csv` - repository inventory.
 - `docs/openapi.yaml` - API schema where applicable.
+- `docs/generated/PRODUCTION_CONTRACT_INDEX.md` - generated product, provider, service, route, environment, and installer parity view.
 - `docs/adr/README.md` - historical ADR index; current decisions are consolidated into canonical architecture documents.
 - `reports/production-readiness/2026/` - phase and release evidence.
 

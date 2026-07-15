@@ -83,8 +83,9 @@ Phase 15 has a release-candidate engineering checkpoint with CP15-A through
 CP15-H open. Phase 16 has CP16-F replacement closure complete with 72/72 source
 hashes retained, zero active legacy sources, and zero unmigrated links. Its
 signed/manual/independent/external exits and CP16-G exact-artifact binding remain
-open. Phase 17 CP17-A through CP17-D are active; CP17-E and Phase 18 remain
-blocked until the signed installed prerequisites close.
+open. Phase 17 CP17-A through CP17-D pass with 47/47 historical dispositions,
+10/10 generated-truth checks, and zero active documentation warnings/errors.
+CP17-E and Phase 18 remain blocked until the signed installed prerequisites close.
 
 ## Finding policy
 

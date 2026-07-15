@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T09:20:50.143934+00:00",
+  "generated_at": "2026-07-15T09:32:50.853469+00:00",
   "authority_version": "2026.07.15-approved2",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 154,
+    "markdown_file_count": 153,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -15,8 +15,8 @@
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
       "authoritative": 34,
-      "generated": 5,
-      "historical": 115
+      "generated": 6,
+      "historical": 113
     }
   },
   "unclassified": [],
@@ -95,6 +95,22 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -111,6 +127,14 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/audits/DataLogicEngine_Complete_Audit_Plan_v2.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -119,10 +143,58 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/DataLogicEngine_Routes_Audit.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/DataLogicEngine_Routes_Audit.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/audits/README.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
       "target": "docs/archive/audits/README.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/ROOT_CLEANUP_REVIEW_2026-07-06.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/ROOT_CLEANUP_REVIEW_2026-07-06.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
@@ -823,6 +895,14 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/whitepapers/README.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/whitepapers/README.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/whitepapers/UKG_Grok_Whitepaper.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -831,10 +911,26 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/whitepapers/UKG_Grok_Whitepaper__active-through-2026-07-15.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/whitepapers/UKG_Grok_Whitepaper__active-through-2026-07-15.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/whitepapers/UKG_Workflow_Architecture.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
       "target": "docs/archive/whitepapers/UKG_Workflow_Architecture.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/whitepapers/UKG_Workflow_Architecture__active-through-2026-07-15.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/whitepapers/UKG_Workflow_Architecture__active-through-2026-07-15.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
@@ -887,34 +983,10 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
-      "path": "docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "path": "docs/archive/wireframes/README__active-through-2026-07-15.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
-      "target": "docs/archive/phase-16/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "target": "docs/archive/wireframes/README__active-through-2026-07-15.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
@@ -925,14 +997,6 @@
       "target": "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md",
       "cap_counted": false,
       "basis": "normative legal or temporary program authority outside the final canonical cap"
-    },
-    {
-      "path": "docs/audits/DataLogicEngine_Routes_Audit.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/audits/DataLogicEngine_Routes_Audit.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
       "path": "docs/DATA_ARCHITECTURE.md",
@@ -973,6 +1037,14 @@
       "target": "docs/evaluation/AI_SYSTEM_CARD.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/generated/PRODUCTION_CONTRACT_INDEX.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "generated replacement",
+      "target": "docs/generated/PRODUCTION_CONTRACT_INDEX.md",
+      "cap_counted": false,
+      "basis": "generated companion artifact"
     },
     {
       "path": "docs/GENERATED_STRUCTURE.md",
@@ -1079,28 +1151,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/REPO_AUDIT_LOG.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/REPO_AUDIT_LOG.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
       "path": "docs/REQUIREMENTS_TRACEABILITY.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/REQUIREMENTS_TRACEABILITY.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/ROOT_CLEANUP_REVIEW_2026-07-06.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/ROOT_CLEANUP_REVIEW_2026-07-06.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
       "path": "docs/SECURITY_ARCHITECTURE.md",
@@ -1119,28 +1175,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
       "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
       "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
@@ -1167,46 +1207,6 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/whitepapers/ARCHITECTURE_BLUEPRINT.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/whitepapers/ARCHITECTURE_BLUEPRINT.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/whitepapers/README.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/whitepapers/README.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/whitepapers/UKG_Grok_Whitepaper.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/whitepapers/UKG_Grok_Whitepaper.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/whitepapers/UKG_Workflow_Architecture.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/whitepapers/UKG_Workflow_Architecture.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/wireframes/README.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/wireframes/README.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
       "path": "HANDOFF.md",
       "document_class": "engineering_maintenance",
       "disposition": "authoritative input",
@@ -1229,14 +1229,6 @@
       "target": "README.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "REPO_AUDIT_LOG.md",
-      "document_class": "historical_research",
-      "disposition": "historical archive",
-      "target": "docs/archive/phase-16/root/REPO_AUDIT_LOG.md",
-      "cap_counted": false,
-      "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
       "path": "SECURITY.md",

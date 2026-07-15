@@ -57,7 +57,8 @@
     "docs/GENERATED_STRUCTURE.md",
     "docs/DOCUMENTATION_BOM.md",
     "docs/DOCUMENTATION_CROSSWALK.md",
-    "docs/adr/README.md"
+    "docs/adr/README.md",
+    "docs/generated/PRODUCTION_CONTRACT_INDEX.md"
   ],
   "cap_exempt_authoritative_inputs": [
     "CODE_OF_CONDUCT.md",

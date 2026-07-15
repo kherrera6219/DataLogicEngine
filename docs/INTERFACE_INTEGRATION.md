@@ -151,3 +151,8 @@ the engineering checkpoint. Signed-installed same-host/private two-machine
 acceptance, TLS/firewall/certificate lifecycle, provider/five-service recovery,
 load/soak, backup/restore, UI administration, and independent security/API review
 remain release gates. Production/public release is **NO-GO**.
+
+The generated `docs/generated/PRODUCTION_CONTRACT_INDEX.md` is the parity view
+for product/API versions, provider/model IDs, internal service candidates, live
+route counts, environment keys, and installer artifact naming. Hand-maintained
+tables must not override that generated authority.

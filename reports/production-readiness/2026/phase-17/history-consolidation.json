@@ -1,0 +1,441 @@
+{
+  "schema_version": "dle.phase17-history-consolidation.v1",
+  "generated_at": "2026-07-15T09:25:53.570357+00:00",
+  "status": "pass",
+  "source_commit": "fdb003647b2f5c2331efc3b1a51c9b7b2347c2c6",
+  "summary": {
+    "record_count": 47,
+    "move_count": 17,
+    "identical_duplicate_count": 29,
+    "pointer_delete_count": 1,
+    "verified_count": 47,
+    "active_historical_count": 0
+  },
+  "records": [
+    {
+      "source": "REPO_AUDIT_LOG.md",
+      "action": "move",
+      "destination": "docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md",
+      "retained_at": "docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md",
+      "sha256": "ec48c640c7d410445a071504c6a76d34f4b6835ce465b78a72208147a9b6a5b4",
+      "git_blob": "c54b9d471063d4f2dab4283bae1051cc007d8aad",
+      "byte_count": 179861
+    },
+    {
+      "source": "docs/REPO_AUDIT_LOG.md",
+      "action": "delete_duplicate_pointer",
+      "destination": null,
+      "retained_at": "docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md",
+      "sha256": "9c7974fda261b20706fc8fd5bffb41aa9609cc46052b3073bc68a56053a56dc6",
+      "git_blob": "e45810704b3fb212632ec98ca766aeb33fa88be2",
+      "byte_count": 370
+    },
+    {
+      "source": "docs/ROOT_CLEANUP_REVIEW_2026-07-06.md",
+      "action": "move",
+      "destination": "docs/archive/audits/ROOT_CLEANUP_REVIEW_2026-07-06.md",
+      "retained_at": "docs/archive/audits/ROOT_CLEANUP_REVIEW_2026-07-06.md",
+      "sha256": "4f963f58c488091209033b01670f2cbe5a9eed5259532a52c8c6488b07cfa8ef",
+      "git_blob": "f05e15eaea604a113d6fb29fbac6ea0542bec289",
+      "byte_count": 4248
+    },
+    {
+      "source": "docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
+      "action": "move",
+      "destination": "docs/archive/audits/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
+      "retained_at": "docs/archive/audits/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
+      "sha256": "5f653fa4741291bea1c982f522424b9240e69cbd898bba0bf3c4f8df2faddd40",
+      "git_blob": "a643419519512635514b160919c91f43e2a44d69",
+      "byte_count": 4271
+    },
+    {
+      "source": "docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
+      "action": "move",
+      "destination": "docs/archive/audits/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
+      "retained_at": "docs/archive/audits/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
+      "sha256": "3a4906c7b0ff179bbd3dedc7480398769003c0ed54a658c4cae9ab970bb3328a",
+      "git_blob": "b728501ef3a7d1c3af7ab36d6b936c08dcf1bea1",
+      "byte_count": 8608
+    },
+    {
+      "source": "docs/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "action": "move",
+      "destination": "docs/archive/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "retained_at": "docs/archive/audits/AUDITS_MARKDOWN_REVIEW_2026-07-06.md",
+      "sha256": "072436a5f0f3518224bd64b3e850f80f3e689525d325b42c101436428e313075",
+      "git_blob": "5850eb07bc66664fad366113a4642b25d597c810",
+      "byte_count": 3839
+    },
+    {
+      "source": "docs/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
+      "action": "move",
+      "destination": "docs/archive/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
+      "retained_at": "docs/archive/audits/DataLogicEngine_Audit_Slice_Findings_Report_2026-07-06.md",
+      "sha256": "4d61c55bde9a08eb4b9a12aa11dfdf53fc1a232c739a0b54686d090af2a2a181",
+      "git_blob": "34abba7d68f0f3ebe7f0b35a98a0174f6be57703",
+      "byte_count": 17167
+    },
+    {
+      "source": "docs/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
+      "action": "move",
+      "destination": "docs/archive/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
+      "retained_at": "docs/archive/audits/DataLogicEngine_Chat_Data_Path_QC_2026-07-10.md",
+      "sha256": "42ce00a0183d2c812e0f21e07b1b9f0bcb0f9a6bafe30ae65ab42ff8f8cf920f",
+      "git_blob": "3125cbf1a7aaa7da00bd8f8180f5176237a0d676",
+      "byte_count": 3723
+    },
+    {
+      "source": "docs/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "action": "move",
+      "destination": "docs/archive/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "retained_at": "docs/archive/audits/DataLogicEngine_Cross_System_Data_Path_QC_2026-07-10.md",
+      "sha256": "e2544c28ecc09205bd83ed2e73cb5765a7759c0bff95bd72b79b77b682a461e1",
+      "git_blob": "f99649e9190ec5bf61cb2ec1da571df967fb6453",
+      "byte_count": 8201
+    },
+    {
+      "source": "docs/audits/DataLogicEngine_Routes_Audit.md",
+      "action": "move",
+      "destination": "docs/archive/audits/DataLogicEngine_Routes_Audit.md",
+      "retained_at": "docs/archive/audits/DataLogicEngine_Routes_Audit.md",
+      "sha256": "b41cb97a4f60f7edd5b93b10a0087cab595bf5d5b8193487250735c4996396ce",
+      "git_blob": "25ceab8610ff5d3fbab3f2f463bf55c5cf8713dc",
+      "byte_count": 26464
+    },
+    {
+      "source": "docs/whitepapers/4D_Database_Solution Metadata acquation knowleagde graph.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/4D_Database_Solution Metadata acquation knowleagde graph.pdf",
+      "sha256": "d141578f66fc98def5188c48b8ddd80c6e5b183f347216fe59e47870667fa8d4",
+      "git_blob": "ccbef014a4dd16766d902ca3fef4962b8279fdbb",
+      "byte_count": 293190
+    },
+    {
+      "source": "docs/whitepapers/Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf",
+      "sha256": "f065527ec0e1b827adfd0457232f27edaf4dd02ed9f0b7f9cca33b8c550742e5",
+      "git_blob": "4b3baee9407d6f51a7772e121c2c2a18a07c0366",
+      "byte_count": 404266
+    },
+    {
+      "source": "docs/whitepapers/analysis of layered nested simulated database - Monica AI Chat.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/analysis of layered nested simulated database - Monica AI Chat.pdf",
+      "sha256": "a0e3ada71ffc89c2571272b3c42e8253fb6f6ef2ee6f2133881e616811de8031",
+      "git_blob": "d2c9a48c28d7957eb8eb4c8e3ff62e05cd561b76",
+      "byte_count": 3556446
+    },
+    {
+      "source": "docs/whitepapers/ARCHITECTURE_BLUEPRINT.md",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/ARCHITECTURE_BLUEPRINT.md",
+      "sha256": "d1e53f85f8ab8903cb69a0419a3fdb3ec39ca023d8f4178a007f1b8277c93db2",
+      "git_blob": "846fe7e896db8bc69fc42325b8d82fc703dd9ea7",
+      "byte_count": 2736
+    },
+    {
+      "source": "docs/whitepapers/Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
+      "sha256": "3cb82cd4a27972b69c1aa4010db5287dc30f296ed5cef91be34981d02a203c02",
+      "git_blob": "aa19ff53b168c346d0139f102f769fa852faf0c8",
+      "byte_count": 187260
+    },
+    {
+      "source": "docs/whitepapers/Full-Stack Chatbot with UKG Overlay \u2013 Developer Blueprint.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Full-Stack Chatbot with UKG Overlay \u2013 Developer Blueprint.pdf",
+      "sha256": "45aa7d434bfdb3b39f6a815eafc005056e1ba1b7ce6d78efcad89c8848b6fa79",
+      "git_blob": "632ee78444b7d661c94d35512b31ffa3a35679e4",
+      "byte_count": 155908
+    },
+    {
+      "source": "docs/whitepapers/Gap Analysis_ UKG_USKD White Paper vs. Full Technical Design Documentation.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Gap Analysis_ UKG_USKD White Paper vs. Full Technical Design Documentation.pdf",
+      "sha256": "fd39cdec49ca400651d459a02eab036c8afe3ceaf08acb483a85d4d20badc735",
+      "git_blob": "a23b660b3e6a7e0d064bb415d23019dd90260634",
+      "byte_count": 79335
+    },
+    {
+      "source": "docs/whitepapers/I._thesis_mathematical_foundations_for_universal_knowledge_database_systems.pdf",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/I._thesis_mathematical_foundations_for_universal_knowledge_database_systems.pdf",
+      "retained_at": "docs/archive/whitepapers/I._thesis_mathematical_foundations_for_universal_knowledge_database_systems.pdf",
+      "sha256": "ffdf00fc00dc509a1fd8549213c79c50b3b051875d5d6dfffa882a9166f37038",
+      "git_blob": "20bb5b92288670bffe85a405cd43a5f4cc5bbf33",
+      "byte_count": 6154561
+    },
+    {
+      "source": "docs/whitepapers/Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
+      "sha256": "27f5258ebfca9f8c641357c354baec3f083da2c71213b4dbda1823b1b6984bd9",
+      "git_blob": "df1eba082aa6172ccdccae9b4ec263a5eaade59f",
+      "byte_count": 307610
+    },
+    {
+      "source": "docs/whitepapers/Integration of Knowledge Algorithms (KAs) into the UKG_USKD Architecture.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Integration of Knowledge Algorithms (KAs) into the UKG_USKD Architecture.pdf",
+      "sha256": "beabb171e9b6503c78ddab0b0c7881babf24e2b1226dd9d9f13baf633e7d76ce",
+      "git_blob": "c167893cebe18239e4d580884a8ad9b6e7ce2616",
+      "byte_count": 172912
+    },
+    {
+      "source": "docs/whitepapers/Mathematical Formulation of the Quad Persona System in the 17\u2011Axis Architecture.pdf",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/Mathematical Formulation of the Quad Persona System in the 17\u2011Axis Architecture.pdf",
+      "retained_at": "docs/archive/whitepapers/Mathematical Formulation of the Quad Persona System in the 17\u2011Axis Architecture.pdf",
+      "sha256": "97ac6d193a7e77453e492dd833f667fe4cadd7e5db54f174fbf22e669a64c153",
+      "git_blob": "04f3b6bf9306a3958ef43143c313cdd88ca57e3e",
+      "byte_count": 119872
+    },
+    {
+      "source": "docs/whitepapers/Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Knowledge_Mapping.pdf",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Knowledge_Mapping.pdf",
+      "retained_at": "docs/archive/whitepapers/Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Knowledge_Mapping.pdf",
+      "sha256": "d6f619718150771db58dfdd94127e35d66c04d3c369ebbda938aff9766940c9d",
+      "git_blob": "b5e81ca3901a25ebcc0a21d90eb44183f3e7e071",
+      "byte_count": 194118
+    },
+    {
+      "source": "docs/whitepapers/Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf",
+      "sha256": "b0fbc85c2f17af95727dbb24487691a6257677835b2cf7a9c1139beb4f13e965",
+      "git_blob": "f8e8644e95c4039a9f29c174c41e6f68de6fd106",
+      "byte_count": 325678
+    },
+    {
+      "source": "docs/whitepapers/Modular Design for UKG\u2019s 12-Step Workflow and 17-Axis System.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Modular Design for UKG\u2019s 12-Step Workflow and 17-Axis System.pdf",
+      "sha256": "33fd2ca8817dfb660e9369aabb72ab3237def0ac5d7c94b6d11ea6401fb80612",
+      "git_blob": "375e5fbff72eb5931a8b4efd5a461c256e651c91",
+      "byte_count": 54351
+    },
+    {
+      "source": "docs/whitepapers/Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
+      "sha256": "7ba321c2a137186063b0453e7ca9d7e06eb6b26905bc9cb85d5bdd3b57545fe8",
+      "git_blob": "b0a1f3469cc10822f7286add9511211cebb48fda",
+      "byte_count": 156606
+    },
+    {
+      "source": "docs/whitepapers/Nested Simulated Memory Architecture ofUSKD 10-Layer Technical Documentation.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Nested Simulated Memory Architecture ofUSKD 10-Layer Technical Documentation.pdf",
+      "sha256": "b6b7bcb9a8c7d74a58f92e90381816f999e7625e64994aae618cdeb1da5ef720",
+      "git_blob": "0b36cdd372afce954f48347db009a036eff57cc4",
+      "byte_count": 231504
+    },
+    {
+      "source": "docs/whitepapers/README.md",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/README.md",
+      "retained_at": "docs/archive/whitepapers/README.md",
+      "sha256": "390dc825040fa74b5092f03056f472042e6805be4f36fe07799f079308ddfc29",
+      "git_blob": "4b5083e1e05613c2fd9cb86c0dfe451516b91be9",
+      "byte_count": 1360
+    },
+    {
+      "source": "docs/whitepapers/The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf",
+      "sha256": "f1b86fd81a6cd7607697b63adee90da177a7ceba98a5d09bad18000e290026c9",
+      "git_blob": "b819b1927f37c0e7f89d12a4df70dcf598ee07e9",
+      "byte_count": 3839801
+    },
+    {
+      "source": "docs/whitepapers/The_17_Axis_System__Comprehensive_Technical_Architecture.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/The_17_Axis_System__Comprehensive_Technical_Architecture.pdf",
+      "sha256": "480d122491edc7b730c6ca0ab087a511f37e6a188fe03ec5f4c2e4ae9987b59f",
+      "git_blob": "4014c1848109669f11ebb76a38fc4fa99844f755",
+      "byte_count": 4110361
+    },
+    {
+      "source": "docs/whitepapers/UKG_17_Axis_Mathematical_Framework_v3.md.docx",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/UKG_17_Axis_Mathematical_Framework_v3.md.docx",
+      "retained_at": "docs/archive/whitepapers/UKG_17_Axis_Mathematical_Framework_v3.md.docx",
+      "sha256": "d574d508b746c8bbcccd99278cb6520c39af83e64708474f562063067838d0e3",
+      "git_blob": "7a99e9aca3baeedfbc4d57350e907228bad52c66",
+      "byte_count": 2374738
+    },
+    {
+      "source": "docs/whitepapers/UKG_Grok_Whitepaper.md",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/UKG_Grok_Whitepaper__active-through-2026-07-15.md",
+      "retained_at": "docs/archive/whitepapers/UKG_Grok_Whitepaper__active-through-2026-07-15.md",
+      "sha256": "64ca78462a8b508db0713a1f63a0ce25abc17b8b0685aac3a721c7bcbe3158b2",
+      "git_blob": "4f5c5cb042ccb5be69f8b8bd35037cedc107d6a6",
+      "byte_count": 331921
+    },
+    {
+      "source": "docs/whitepapers/UKG_USKD Deep Architecture and Compliance System \u2013 Supplementary White Paper Part 2.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/UKG_USKD Deep Architecture and Compliance System \u2013 Supplementary White Paper Part 2.pdf",
+      "sha256": "ac60e61ea4da937f056293ad2e4259dbedb03f3a7641e5927d90e61ac8046d2c",
+      "git_blob": "74133063813f80c0c6f44d3d629696e003cb25d0",
+      "byte_count": 377058
+    },
+    {
+      "source": "docs/whitepapers/UKG_Workflow_Architecture.md",
+      "action": "move",
+      "destination": "docs/archive/whitepapers/UKG_Workflow_Architecture__active-through-2026-07-15.md",
+      "retained_at": "docs/archive/whitepapers/UKG_Workflow_Architecture__active-through-2026-07-15.md",
+      "sha256": "ee3d2791707aba8bddb360f66cc2b14bda4a2f0710b926d797e0eda960896683",
+      "git_blob": "888a54e27d4dad45d94824b3490f5bbb1d776e98",
+      "byte_count": 1106650
+    },
+    {
+      "source": "docs/whitepapers/ukg_yaml_v2_all_documents.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/ukg_yaml_v2_all_documents.pdf",
+      "sha256": "9dfa2b5ca013547803a49f271488498eca290f494da72076eadbe39ed4dd2b81",
+      "git_blob": "83d4bf2236ea6e3e0cb057b657c1c38b5e6b7cf1",
+      "byte_count": 263450
+    },
+    {
+      "source": "docs/whitepapers/Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "sha256": "751d170d26c13ce814806e1ce28d0c9ecb4b8716011fb956132d12b25e237425",
+      "git_blob": "e53117a9af55719b28e6ef4a37abb39b73f7c52c",
+      "byte_count": 114153
+    },
+    {
+      "source": "docs/whitepapers/Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
+      "sha256": "aca4b953fe88fa54b61ad0daec1398740fb8e262c70b0e579df3be71a9eba23e",
+      "git_blob": "d9097da946e964c5e1c88c1d05a9f69188f12834",
+      "byte_count": 83642
+    },
+    {
+      "source": "docs/whitepapers/Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "sha256": "f6c72025d614f0592555850fc37c79401c15e82d49bd49498d40ff2a13dbfe3c",
+      "git_blob": "bafbe7e11d7e8d7da413a3a283cc788c9340bc17",
+      "byte_count": 264120
+    },
+    {
+      "source": "docs/whitepapers/Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) \u2013 Technical White  (1).pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) \u2013 Technical White  (1).pdf",
+      "sha256": "19c8fedb7fcd1e357feaa220b9a3cb0f4a8d77144f64334653f1d45d3580111e",
+      "git_blob": "65a797da3d721ea6058c6fc28c00076108408b40",
+      "byte_count": 329522
+    },
+    {
+      "source": "docs/whitepapers/Universal Knowledge Graph (UKG) Application Design & Development Guide.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Knowledge Graph (UKG) Application Design & Development Guide.pdf",
+      "sha256": "2ab640edbd26574ee99445880e1f5581c636af5e45e0f17e7ff22da49f97cf65",
+      "git_blob": "6933a06a0742925a05999af43cebfd0e44711a87",
+      "byte_count": 294100
+    },
+    {
+      "source": "docs/whitepapers/Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
+      "sha256": "188344a101f33559030e7209ea523890619e1385b2a0c12a69cae91cc357074a",
+      "git_blob": "d7845ea86a729c53491533b9d195a10f981646e3",
+      "byte_count": 279570
+    },
+    {
+      "source": "docs/whitepapers/Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
+      "sha256": "5256426cbc62f53802b79f0de0c966ccb9f77e01f39a43404b3749b23da4a647",
+      "git_blob": "86eee60665335d1ab271719cd8ca98c78ba99428",
+      "byte_count": 307507
+    },
+    {
+      "source": "docs/whitepapers/Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
+      "sha256": "29b8b20350673cc9df0065134323dcec94855fe84d2ae8ff52e56826ec253e8a",
+      "git_blob": "abde6a6a3cf0b51c05a3341c140dc01fb24fd120",
+      "byte_count": 376677
+    },
+    {
+      "source": "docs/whitepapers/Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
+      "sha256": "ef86721119731e2fcfa18bf6fb6851da0d57c87debdf32d1e923562264bd4b98",
+      "git_blob": "08e86ba3605ee86c5a0cb643405a3fc12a76c00d",
+      "byte_count": 142510
+    },
+    {
+      "source": "docs/whitepapers/Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf",
+      "sha256": "009e113622da20884d8377212f734603a8cbe70eec35abb82b88283d3295d20a",
+      "git_blob": "08a2837496e741cfa8d24b52e791f42ba78d0179",
+      "byte_count": 345791
+    },
+    {
+      "source": "docs/whitepapers/Universal_Knowledge_Framework_-_Enhanced_Design_System.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal_Knowledge_Framework_-_Enhanced_Design_System.pdf",
+      "sha256": "2b2d784d2440d848332a2457924178d2a067020f4849b00325f1cd0298e7ed94",
+      "git_blob": "605e5eeaf3a3765bd3ad724e87bb66a227b5d574",
+      "byte_count": 255242
+    },
+    {
+      "source": "docs/whitepapers/Universal_Knowledge_Graph_(UKG)_Mathematical_Framework_Conversion.pdf",
+      "action": "remove_byte_identical_duplicate",
+      "destination": null,
+      "retained_at": "docs/archive/whitepapers/Universal_Knowledge_Graph_(UKG)_Mathematical_Framework_Conversion.pdf",
+      "sha256": "1ce6c4d650796caeea285ba83f0bd8417ef706f9a080ea5c8cac2d757b5586b0",
+      "git_blob": "dc60cdd98d984bdec5ae79fc96b1965259108f65",
+      "byte_count": 693399
+    },
+    {
+      "source": "docs/wireframes/README.md",
+      "action": "move",
+      "destination": "docs/archive/wireframes/README__active-through-2026-07-15.md",
+      "retained_at": "docs/archive/wireframes/README__active-through-2026-07-15.md",
+      "sha256": "cf49bd9585759aaa1234e3e7c5363ad9b4bf71cc2209495196bdb2f89fe1d94c",
+      "git_blob": "96acc73064e82a4bfc4cd44fd58ac9e41474d1a0",
+      "byte_count": 852
+    }
+  ],
+  "errors": [],
+  "verified_at": "2026-07-15T09:33:00.009645+00:00"
+}

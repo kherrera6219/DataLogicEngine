@@ -134,8 +134,15 @@ def validate_headings(lines: list[str]) -> list[str]:
     warnings: list[str] = []
     h1_count = 0
     prev_level = 0
+    in_fence = False
     
     for idx, line in enumerate(lines, start=1):
+        stripped = line.lstrip()
+        if stripped.startswith(("```", "~~~")):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
         if line.startswith("#"):
             parts = line.split(" ", 1)
             hashes = parts[0]

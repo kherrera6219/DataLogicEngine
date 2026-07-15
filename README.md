@@ -30,6 +30,9 @@ administration, audit, observability, and validation application.
 > controls across the exact 154-file inventory. CP16-G signed-artifact binding
 > and the installed/manual/external exits remain retained. Phase 17 authority,
 > archive, generated-parity, and zero-warning consolidation is active.
+> CP17-A through CP17-D now pass with 47/47 historical dispositions, a 10/10
+> generated truth gate, 38 active maintained Markdown files, and zero document
+> errors or warnings. CP17-E remains tied to the signed clean-installed RC.
 > The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
 > backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
 > passes 2,177 backend tests and the full hashed Windows dependency install.
@@ -120,8 +123,8 @@ Current production-completion focus:
   active legacy sources, zero unmigrated links, and 18/18 routed target reviews
 - Approved and executed 154-file disposition crosswalk: exactly 30 canonical
   targets with verified headers and zero unclassified or duplicate routes
-- Phase 17 active-authority, historical-archive, generated-parity, and zero-
-  warning documentation lock; clean installed walkthrough retained
+- Completed Phase 17 CP17-A through CP17-D active-authority, historical-archive,
+  generated-parity, and zero-warning documentation lock; CP17-E retained
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance

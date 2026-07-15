@@ -157,6 +157,7 @@ eligible for production support.
 ## Current status
 
 Product 4.3.0 has engineering checkpoints through Phase 15, completed CP16-F
-documentation replacement, and active Phase 17 consolidation. The unsigned candidate, differing independent build
+documentation replacement, and completed CP17-A through CP17-D consolidation.
+CP17-E remains an exact signed clean-installed walkthrough. The unsigned candidate, differing independent build
 hashes, installed/manual/independent gates, legal/signing/object-store decisions,
 and alert 389 keep production/public release at **NO-GO**.

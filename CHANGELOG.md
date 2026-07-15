@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 17 CP17-A through CP17-D documentation lock**: consolidated 47
+  historical records with retained hashes/Git identity, removed 29 active byte-
+  identical duplicates, generated one production contract index from product,
+  provider, service, route, OpenAPI, environment, and installer authorities, and
+  added a 10-check truth gate. Active documentation now validates with zero
+  errors and zero warnings; CP17-E remains a signed clean-installed walkthrough.
 - **Phase 16 CP16-F replacement closure**: froze SHA-256 and Git blob identity
   for all 72 approved merge sources, migrated active links, verified retained
   sections across all 18 routed canonical targets, authorized the controlled
@@ -270,7 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   model/table (migration `d6e7f8a9b0c1_drop_oauth_accounts_table`), removed
   `backend/security/tenant_rls.py`, and retired dead security modules and
   one-off audit scripts. `tenant_id` columns are kept as vestigial. See
-  [`REPO_AUDIT_LOG.md`](REPO_AUDIT_LOG.md) for the full v2.0 audit record.
+  [`REPO_AUDIT_LOG.md`](docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md) for the full v2.0 audit record.
 - **Local Ollama LLMs + 6-tier escalation engine → single cloud model**: removed
   the local-model tier chain (`escalation_config.py`, `complexity_classifier.py`,
   `tier_availability.py`), the `backend/local_model_acceleration/` keepalive +

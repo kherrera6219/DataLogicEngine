@@ -153,7 +153,11 @@ verification reports 72/72 retained hashes, zero active legacy sources, zero
 unmigrated active links, all 30 controlled headers, and the exact 154-file
 inventory with zero unclassified or duplicate routes. CP16-G remains retained
 for the exact signed installed release candidate. Phase 17 CP17-A through CP17-D
-are active; CP17-E remains a signed-installed clean-machine walkthrough.
+passed on 2026-07-15: the active authority is consolidated, 47/47 historical
+dispositions are verified, generated parity passes 10/10 checks against 484 live
+Flask routes and the product/provider/service/OpenAPI/environment/installer
+authorities, and active documentation has zero errors or warnings. CP17-E
+remains a signed-installed clean-machine walkthrough.
 
 The 2026-07-15 CI/security maintenance checkpoint repaired the failing release
 gates without changing the Phase 16 sequence or the production **NO-GO** verdict.
@@ -4078,13 +4082,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 17 CP17-A through CP17-D** by enforcing one active authority,
-moving already-classified historical material under the archive, proving
-generated-contract parity, and making the documentation gate pass with zero
-errors and zero warnings. Retain CP16-G and CP17-E until the exact signed
-installed release candidate exists and a clean-machine documentation-only
-walkthrough can be performed. Do not imply that document consolidation closes
-installed/manual/external release gates.
+Resolve the data-plane release blockers next: qualify the current ChromaDB
+upgrade/replacement against alert 389 and complete the final object-store
+Replacement Control with contract parity, durability, backup/restore, security,
+licensing, Windows delivery, migration/rollback, and the recorded owner decision.
+Then rebuild the exact signed release candidate, bind CP16-G, execute CP17-E, and
+run the retained installed/manual/external gates. Do not imply that document
+consolidation closes installed/manual/external release gates.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

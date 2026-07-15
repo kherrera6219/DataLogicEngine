@@ -18,8 +18,8 @@
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
-| Completed phase | Phase 16 CP16-F replacement closure; CP16-G exact-artifact binding retained |
-| Current phase | Phase 17 - documentation consolidation and release lock |
+| Completed phase | Phase 17 CP17-A through CP17-D; CP17-E clean-installed walkthrough retained |
+| Current phase | Replacement Control and data-plane release-blocker closure |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -28,6 +28,15 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- Phase 17 CP17-A through CP17-D passed on 2026-07-15. The active documentation
+  validator now discovers 38 maintained Markdown files with zero errors and zero
+  warnings. The history gate verifies 47/47 dispositions: 17 controlled moves,
+  29 removals of byte-identical active duplicates whose archive hashes match,
+  and one obsolete audit-log pointer retained by Git identity. The generated
+  truth gate passes 10/10 checks across product/installer versions, providers,
+  five service candidates, 484 live Flask routes, OpenAPI, 48 environment keys,
+  documentation authority, traceability, and both archive closures. CP17-E
+  remains retained for the exact signed clean-installed RC.
 - Phase 16 CP16-F replacement closure passed on 2026-07-15. All 72 approved
   merge sources were hash-frozen with Git blob identity, reviewed against all 18
   routed canonical targets, and archived under `docs/archive/phase-16/`. The
@@ -645,7 +654,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
-| 17 | Documentation consolidation and release lock | **CP17-A through CP17-D active; CP17-E retained for clean signed installed walkthrough** |
+| 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -664,11 +673,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Execute Phase 17 CP17-A through CP17-D: remove remaining duplicate active
-authority, move already-classified historical material into the archive, prove
-generated-contract parity, and make the documentation gate pass with zero
-errors and zero warnings. Retain CP16-G and CP17-E for the exact signed installed
-release candidate and clean-machine documentation-only walkthrough.
+Resolve the two data-plane release blockers before rebuilding the signed RC:
+qualify the current ChromaDB replacement/upgrade path against alert 389 and
+complete final object-store Replacement Control, including contract parity,
+durability, backup/restore, security, licensing, Windows delivery, migration,
+rollback, and the recorded owner decision. Then bind CP16-G/CP17-E and execute
+the retained installed gates against that exact artifact.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS

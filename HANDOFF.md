@@ -18,8 +18,8 @@
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
-| Completed phase | Phase 16 CP16-F replacement closure; CP16-G exact-artifact binding retained |
-| Current phase | Phase 17 - documentation consolidation and release lock |
+| Completed phase | Phase 17 CP17-A through CP17-D; CP17-E clean-installed walkthrough retained |
+| Current phase | Replacement Control and data-plane release-blocker closure |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -582,6 +582,24 @@ installed/manual/external exit gates from CP16-B through CP16-E remain retained.
 
 Evidence is under `reports/production-readiness/2026/phase-16/`.
 
+## Phase 17 CP17-A through CP17-D consolidation checkpoint
+
+Phase 17 authority, history, generated-parity, and clean-document checkpoints
+passed on 2026-07-15. Active validation discovers 38 maintained Markdown files
+and reports zero broken references and zero heading/style warnings. The history
+gate verifies all 47 controlled actions: 17 unique moves, 29 removals of active
+byte-identical duplicates with matching retained archive hashes, and the obsolete
+audit-log pointer retained by Git blob identity.
+
+The generated production contract index binds product/Windows/installer identity,
+the OpenAI/Google provider/model allowlist, all five service candidates and
+digests, 484 live Flask routes with zero unclassified, OpenAPI, 48 tracked
+environment keys, and installer naming. The combined documentation truth gate
+passes 10/10 checks. CP17-E remains retained for a new evaluator using only the
+exact signed clean-installed RC and active documents.
+
+Evidence is under `reports/production-readiness/2026/phase-17/`.
+
 ## CI/security maintenance checkpoint - 2026-07-15
 
 The failing GitHub dependency, backend, governance, Bandit, and Cosign jobs were
@@ -622,13 +640,15 @@ findings; Dependabot alert 389 remains open and critical. CP16-F may resume. See
 
 ## Exact next action
 
-1. Execute Phase 17 CP17-A through CP17-D: one active authority, controlled
-   historical archives, generated parity, and zero documentation errors/warnings.
-2. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
+1. Qualify the current ChromaDB upgrade/replacement against alert 389 and run its
+   adversarial client/service compatibility gate.
+2. Complete the object-store Replacement Control and record the final owner/ADR
+   decision before rebuilding the signed RC.
+3. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
    a clean-machine documentation-only walkthrough can be performed.
-3. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
+4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
-4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 
