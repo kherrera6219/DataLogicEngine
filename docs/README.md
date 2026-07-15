@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.21.0 |
+| Document version | v2.23.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,10 +21,15 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 11 MCP connector engineering complete.
-ADR-0008 selects an exact-consent local stdio boundary; rebuilt-installed MCP
-file/network/lifecycle/Electron acceptance remains deferred. Phase 12 UI
-workflow, project model, desktop-state, and accessibility completion is active.
+The current execution checkpoint is Phase 12 UI engineering complete and Phase
+13 observability/diagnostics/compliance/support active. ADR-0009 selects the truthful Session Library
+over an implied independent Project model. The live production-source control
+inventory reports zero enabled controls without an obvious action; all 27 routes
+are axe-clean and ten keyboard/app-readiness workflows pass. Real installed
+handler-to-durable-effect, packaged visual/scaling/high-contrast, and NVDA proof
+remain open release gates.
+ADR-0008's rebuilt-installed MCP file/network/lifecycle/Electron acceptance also
+remains deferred.
 Production/public release remains **NO-GO**.
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.

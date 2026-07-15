@@ -23,6 +23,21 @@ const defaultRoutes = [
   '/settings',
   '/settings/privacy',
   '/admin/mcp/servers',
+  '/admin/mcp',
+  '/admin/compliance',
+  '/algorithms',
+  '/analytics',
+  '/graph',
+  '/knowledge',
+  '/mcp',
+  '/profile',
+  '/projects',
+  '/projects/view?id=a11y-session',
+  '/runs',
+  '/runs/view?id=a11y-run',
+  '/simulations',
+  '/tools/history',
+  '/truth-engine',
 ];
 
 function normalizeRoute(route) {

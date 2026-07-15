@@ -29,6 +29,11 @@ def get_activity():
     """
     limit = request.args.get('limit', 10, type=int)
     activity = AnalyticsService.get_recent_activity(limit=limit)
+    if activity is None:
+        return jsonify({
+            'success': False,
+            'error': 'Activity analytics are unavailable',
+        }), 503
     return jsonify({
         'success': True,
         'data': activity
@@ -53,6 +58,11 @@ def get_mcp_stats():
     Get MCP-specific statistics.
     """
     stats = AnalyticsService.get_mcp_stats()
+    if stats is None:
+        return jsonify({
+            'success': False,
+            'error': 'MCP analytics are unavailable',
+        }), 503
     return jsonify({
         'success': True,
         'data': stats

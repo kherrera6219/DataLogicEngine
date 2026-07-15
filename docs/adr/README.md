@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
+| Document version | v2.12.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -30,6 +30,7 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 | `ADR-0006-memory-authority-and-trust-boundary.md` | Memory authority, trust-state, lifecycle, and migration boundary | Accepted / Phase 9 implementation |
 | `ADR-0007-authoritative-simulation-engine.md` | Multi-agent debate authority, bounded provider adapter, durable lifecycle, and FROST component boundary | Accepted / Phase 10 engineering selection |
 | `ADR-0008-governed-mcp-connector-boundary.md` | MCP 2025-11-25 stdio, exact consent, Windows containment, durable authority, and governed-result boundary | Accepted / Phase 11 engineering selection |
+| `ADR-0009-session-library-product-model.md` | Session Library over an implied independent Project/workspace model | Accepted / Phase 12 product semantics |
 
 ---
 
@@ -102,6 +103,10 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.12.0
+
+1. Added ADR-0009 selecting the truthful Session Library product model.
 
 ## Change notes for v2.11.0
 

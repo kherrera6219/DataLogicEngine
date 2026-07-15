@@ -14,6 +14,7 @@ import pytest
 from core.mcp.mcp_client import MCPClient
 from core.mcp.mcp_manager import MCPManager
 from core.mcp.mcp_protocol import MCPError
+from core.mcp.process_containment import _descendant_process_ids
 
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "mcp_stdio_fixture.py"
@@ -87,6 +88,10 @@ def _windows_process_is_active(pid: int) -> bool:
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
     kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
     kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+    kernel32.GetExitCodeProcess.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
     handle = kernel32.OpenProcess(0x1000, False, pid)
     if not handle:
         return False
@@ -106,13 +111,29 @@ async def test_job_object_stop_terminates_spawned_child_process_tree():
     result = await client.call_tool(name="spawn_child", arguments={})
     child_pid = int(result["content"][0]["text"])
     assert _windows_process_is_active(child_pid)
+    assert client.process is not None
+    assert child_pid in _descendant_process_ids(client.process.pid)
 
-    await client.disconnect_async()
-    deadline = time.monotonic() + 5
-    while time.monotonic() < deadline and _windows_process_is_active(child_pid):
-        await asyncio.sleep(0.05)
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    kernel32.WaitForSingleObject.restype = wintypes.DWORD
+    kernel32.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+    kernel32.GetExitCodeProcess.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
+    child_handle = kernel32.OpenProcess(0x00100000 | 0x1000, False, child_pid)
+    assert child_handle
 
-    assert _windows_process_is_active(child_pid) is False
+    try:
+        await client.disconnect_async()
+        assert kernel32.WaitForSingleObject(child_handle, 5_000) == 0
+        exit_code = wintypes.DWORD()
+        assert kernel32.GetExitCodeProcess(child_handle, ctypes.byref(exit_code))
+        assert exit_code.value != 259
+    finally:
+        kernel32.CloseHandle(child_handle)
 
 
 def test_manager_runtime_loop_keeps_stdio_readers_alive_across_requests():

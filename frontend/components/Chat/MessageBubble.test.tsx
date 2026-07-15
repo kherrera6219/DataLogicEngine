@@ -93,7 +93,7 @@ describe('MessageBubble', () => {
     });
   });
 
-  it('should expose safety and utility controls for assistant messages', () => {
+  it('exposes the supported copy action without placeholder response actions', () => {
     const message = {
       id: '5',
       role: 'assistant' as const,
@@ -104,7 +104,7 @@ describe('MessageBubble', () => {
     render(<MessageBubble message={message as ChatMessage} />);
 
     expect(screen.getByRole('button', { name: /copy response to clipboard/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /regenerate response/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /report harmful content/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /regenerate response/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /report harmful content/i })).not.toBeInTheDocument();
   });
 });

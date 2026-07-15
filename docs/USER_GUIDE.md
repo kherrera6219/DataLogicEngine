@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.2.0 |
+| Document version | v3.4.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Operations |
@@ -14,7 +14,7 @@
 
 Provide task-focused instructions for day-to-day use of DataLogicEngine by analysts, operators, admins, pilot users, and technical evaluators.
 
-This guide reflects the current local-first product: dashboard, chat, projects, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, and admin workflows.
+This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, and admin workflows.
 
 ## Audience
 
@@ -248,9 +248,18 @@ blocked until the installed Windows connector qualification passes.
 3. Review recent content-free egress categories and provider attempts.
 4. Export the redacted ledger when owner review evidence is needed.
 5. Reset it only through the explicit owner confirmation flow.
-6. If replay is enabled, review or delete queued items. Only network,
-   provider-outage, and timeout failures are eligible. A message is shown as
-   queued only after encrypted durable storage succeeds.
+6. Open `/chat` and select **Review Offline Replay Queue**.
+7. Review the redacted request metadata, queue status, failure class, creation
+   and expiry time, and attempt count. Prompt or response content is never shown
+   in this review surface.
+8. Use **Export redacted metadata** when queue evidence is needed.
+9. Use **Replay** only for a pending item after confirming the action. Replay
+   re-enters the governed provider path and re-applies current policy and budget
+   controls; it is not a direct resend around those controls.
+10. Delete an individual item or use **Clear queue** with confirmation when the
+    retained request should not be replayed. Only network, provider-outage, and
+    timeout failures are eligible. A message is shown as queued only after
+    encrypted durable storage succeeds.
 
 The SSE route emits live governed stage events. Provider answer text is released
 only after validation as `validated_output` chunks; it is not raw provider-token
@@ -275,7 +284,9 @@ Review `docs/PRIVACY_POLICY.md` for details.
 1. Dashboard loads without route errors.
 2. Provider test succeeds after key setup.
 3. Chat returns provider response after key setup.
-4. Projects list and detail pages show session data.
+4. Session Library list and detail pages show durable chat-session data. The
+   retained `/projects` route name is compatibility-only and does not represent
+   an independent project/workspace model.
 5. Runs and trace detail pages render successfully.
 6. Storage status panel returns service state.
 7. Privacy page shows export/delete controls.
@@ -285,11 +296,20 @@ Review `docs/PRIVACY_POLICY.md` for details.
 
 ## Known limitations
 
-1. Manual NVDA accessibility evidence remains open in `TODO.md`; automated WCAG, keyboard navigation, failure-mode, and export/delete evidence is tracked under `reports/app-readiness/`.
+1. Manual NVDA accessibility evidence remains open in `TODO.md`; all 27
+   production routes pass the automated axe sweep and ten keyboard/app-readiness
+   workflows pass, with evidence tracked under `reports/app-readiness/`.
 2. `/register` redirects to `/dashboard` in the current local-first build.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
+
+## Change notes for v3.4.0
+
+1. Documented the truthful Session Library model and the owner-visible offline
+   replay review, redacted export, governed replay, delete, and clear workflow.
+2. Recorded the Phase 12 automated accessibility and browser-workflow baseline
+   without presenting it as manual assistive-technology acceptance.
 
 ## Change notes for v2.9.0
 

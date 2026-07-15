@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-23T04:57:16.804Z",
+  "generated_at": "2026-07-14T23:49:26.627Z",
   "evidence": [
     {
       "name": "data export flow",
@@ -30,6 +30,11 @@
       "name": "auth failure E2E",
       "status": "passed",
       "details": "401 response from export endpoint leaves the privacy page stable with visible error feedback."
+    },
+    {
+      "name": "offline replay queue",
+      "status": "passed",
+      "details": "Redacted queue metadata is reviewable and exportable; replay invokes the policy-enforced backend lifecycle."
     }
   ]
 }

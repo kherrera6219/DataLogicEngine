@@ -1,0 +1,20 @@
+{
+  "schema_version": "phase-checks.v1",
+  "phase": 12,
+  "generated_at": "2026-07-15T00:03:06Z",
+  "status": "engineering_checkpoint_complete",
+  "checks": {
+    "backend": { "passed": 2097, "skipped": 18, "warnings": 19 },
+    "frontend": { "files": 83, "passed": 412 },
+    "app_readiness": { "passed": 10 },
+    "axe_routes": { "passed": 27, "violations": 0 },
+    "ui_controls": { "pages": 27, "total": 194, "wired_or_targeted": 191, "literally_disabled": 3, "enabled_without_action": 0 },
+    "lint": "pass_with_one_preexisting_warning",
+    "typecheck": "pass",
+    "build": "pass",
+    "ruff": "pass",
+    "python_compile": "pass",
+    "docs_references": { "errors": 0, "historical_warnings": 41 }
+  },
+  "installed_acceptance": false
+}

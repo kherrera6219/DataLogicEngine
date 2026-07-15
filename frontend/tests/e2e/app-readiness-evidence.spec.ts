@@ -113,6 +113,22 @@ async function mockBaseApi(page: Page) {
     }
 
     if (path === '/gateway/sessions') return route.fulfill(jsonResponse({ sessions: [] }));
+    if (path === '/gateway/offline-queue') {
+      return route.fulfill(jsonResponse({
+        items: [{
+          id: 'queue-e2e-12345678',
+          status: 'pending',
+          failure_class: 'network',
+          created_at: '2026-07-14T10:00:00Z',
+          expires_at: '2026-07-17T10:00:00Z',
+          attempts: 0,
+          payload_bytes: 128,
+          encrypted: true,
+        }],
+        counts: { pending: 1 },
+        snapshot_at: '2026-07-14T10:01:00Z',
+      }));
+    }
     if (path === '/pillars' || path === '/nodes' || path === '/edges') return route.fulfill(jsonResponse([]));
     if (path.startsWith('/trace/runs')) return route.fulfill(jsonResponse({ runs: [] }));
     if (path === '/simulations') return route.fulfill(jsonResponse([]));
@@ -231,5 +247,40 @@ test.describe('Application readiness evidence', () => {
     await expect(page.getByText(/failed to export data/i)).toBeVisible();
     await expect(page.getByRole('heading', { name: /privacy & data management/i })).toBeVisible();
     record('auth failure E2E', '401 response from export endpoint leaves the privacy page stable with visible error feedback.');
+  });
+
+  test('offline queue metadata can be reviewed, exported, and replayed through policy', async ({ page }) => {
+    let replayRequested = false;
+    await page.route('**/api/v1/gateway/offline-queue/replay', async (route) => {
+      replayRequested = true;
+      await route.fulfill(jsonResponse({
+        replayed: 1,
+        results: [{ id: 'queue-e2e-12345678', status: 'completed' }],
+        queue: {
+          items: [],
+          counts: { completed: 1 },
+          snapshot_at: '2026-07-14T10:02:00Z',
+        },
+      }));
+    });
+
+    await page.goto('/chat', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: /review offline replay queue, 1 pending/i }).click();
+    await expect(page.getByText(/queue-e2e-12345678/i)).toBeVisible();
+    await expect(page.getByText(/encrypted payload/i)).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /export redacted metadata/i }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/^datalogic-offline-queue-.*\.json$/);
+
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toMatch(/current policy and budget checks/i);
+      await dialog.accept();
+    });
+    await page.getByRole('button', { name: /replay pending/i }).click();
+    await expect.poll(() => replayRequested).toBe(true);
+    await expect(page.getByText(/offline replay queue is empty/i)).toBeVisible();
+    record('offline replay queue', 'Redacted queue metadata is reviewable and exportable; replay invokes the policy-enforced backend lifecycle.');
   });
 });

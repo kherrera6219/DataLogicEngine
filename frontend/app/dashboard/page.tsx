@@ -4,7 +4,7 @@ import React from 'react';
 import Link from "next/link";
 import {
   MessageSquare, Upload, Key, Activity,
-  ArrowRight, Clock, Settings, BarChart3, Mail, TrendingUp, Cpu, Lock, Unlock
+  Clock, Settings, BarChart3, Mail, TrendingUp, Cpu, Lock, Unlock
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -109,7 +109,9 @@ export default function DashboardPage() {
                  </span>
               </div>
               <div className="text-xs text-gray-400 font-mono opacity-60">
-                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {overview?.timestamp
+                  ? `UPDATED ${new Date(overview.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                  : 'NOT UPDATED'}
               </div>
            </div>
         </div>
@@ -146,7 +148,7 @@ export default function DashboardPage() {
                  { 
                    label: 'Daily API Requests', 
                    value: overview?.api_requests_24h?.toLocaleString() || '--', 
-                   trend: '+12%', 
+                   badge: null,
                    icon: Activity, 
                    color: 'text-blue-400', 
                    bg: 'bg-blue-500/10', 
@@ -155,7 +157,7 @@ export default function DashboardPage() {
                  { 
                    label: 'Knowledge Graph Size', 
                    value: overview?.kg_size_display || '--', 
-                   status: `${overview?.kg_nodes?.toLocaleString() || 0} Nodes`, 
+                   badge: `${overview?.kg_nodes?.toLocaleString() || 0} Nodes`,
                    icon: BarChart3, // Changed from Database
                    color: 'text-purple-400', 
                    bg: 'bg-purple-500/10', 
@@ -164,7 +166,7 @@ export default function DashboardPage() {
                  { 
                    label: 'Compliance Status', 
                    value: overview?.compliance_status || 'Unavailable',
-                   score: overview?.compliance_score || '--', 
+                   badge: overview?.compliance_score || 'Not measured',
                    icon: Settings, // Changed from ShieldCheck
                    color: 'text-green-400', 
                    bg: 'bg-green-500/10', 
@@ -180,9 +182,11 @@ export default function DashboardPage() {
                            <div className={`p-3 rounded-xl ${m.bg} ${m.color}`}>
                               <m.icon className="h-6 w-6" />
                            </div>
-                           <Badge variant="outline" className={`${m.bg} ${m.color} ${m.border} backdrop-blur-md`}>
-                              {m.trend || m.status || m.score}
-                           </Badge>
+                           {m.badge && (
+                             <Badge variant="outline" className={`${m.bg} ${m.color} ${m.border} backdrop-blur-md`}>
+                               {m.badge}
+                             </Badge>
+                           )}
                         </div>
                         <div className="text-4xl font-semibold tracking-tight relative z-10">{m.value}</div>
                         <div className="text-sm text-gray-400 mt-1 font-medium relative z-10">{m.label}</div>
@@ -200,22 +204,20 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
                        <Clock className="h-5 w-5 text-gray-500" /> Recent Activity
                     </h3>
-                    <Button variant="ghost" size="sm" className="text-xs text-blue-400 hover:text-white">View All</Button>
                  </div>
                  
                  <div className="space-y-3">
                     {activity.map((item, i) => {
                        const Icon = getActivityIcon(item.type);
                        return (
-                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:border-[#404040] hover:bg-[#202020] transition-all group cursor-pointer reveal-hover">
+                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a]">
                            <div className={`p-2.5 rounded-lg bg-white/5 ${getActivityColor(item.type)} bg-opacity-10 ring-1 ring-white/5`}>
                               <Icon className="h-5 w-5" />
                            </div>
                            <div className="flex-1">
-                              <div className="font-medium text-gray-200 group-hover:text-white transition-colors text-base-fluent">{item.title}</div>
+                              <div className="font-medium text-gray-200 text-base-fluent">{item.title}</div>
                               <div className="text-xs text-gray-500 mt-0.5">{item.time}</div>
                            </div>
-                           <ArrowRight className="h-4 w-4 text-gray-600 group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                         </div>
                        );
                     })}
@@ -237,12 +239,12 @@ export default function DashboardPage() {
                  
                  <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-1 shadow-lg">
                     {trendingTopics.map(([topic, count], i) => (
-                      <div key={topic} className="flex items-center justify-between p-3 rounded-lg hover:bg-[#252525] transition-colors group cursor-pointer">
+                      <div key={topic} className="flex items-center justify-between p-3 rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="text-xs font-mono text-gray-600 bg-black/30 px-1.5 py-0.5 rounded">#{i + 1}</div>
-                          <div className="text-sm text-gray-300 group-hover:text-blue-400 transition-colors font-medium">{topic}</div>
+                          <div className="text-sm text-gray-300 font-medium">{topic}</div>
                         </div>
-                        <div className="text-xs text-gray-600 group-hover:text-gray-400">{count}</div>
+                        <div className="text-xs text-gray-300">{count}</div>
                       </div>
                     ))}
                     {trendingTopics.length === 0 && !loading && (
@@ -269,7 +271,7 @@ export default function DashboardPage() {
                               <div key={m.model} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-md bg-black/20 hover:bg-black/30 transition-colors">
                                  <div className="flex items-center gap-2">
                                     <span className="font-mono font-semibold text-violet-400">{m.label}</span>
-                                    <span className="text-gray-500 font-mono">{m.model}</span>
+                                    <span className="text-gray-300 font-mono">{m.model}</span>
                                  </div>
                                  {configured
                                     ? <Unlock className="h-3 w-3 text-green-400" />
@@ -279,7 +281,7 @@ export default function DashboardPage() {
                           })}
                        </div>
                        <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between">
-                          <span className="text-xs text-gray-600">Save an OpenAI or Google key to enable</span>
+                          <span className="text-xs text-gray-300">Save an OpenAI or Google key to enable</span>
                           <Link href="/settings">
                              <Button size="sm" variant="ghost" className="h-6 text-xs text-blue-400 hover:text-white px-2 py-0">
                                 <Settings className="h-3 w-3 mr-1" /> Configure

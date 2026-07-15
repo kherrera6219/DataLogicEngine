@@ -208,7 +208,11 @@ def list_queue(*, include_payload: bool = False) -> dict[str, Any]:
     for item in public_items:
         status = str(item.get("status") or "unknown")
         counts[status] = counts.get(status, 0) + 1
-    return {"items": public_items, "counts": counts}
+    return {
+        "items": public_items,
+        "counts": counts,
+        "snapshot_at": datetime.now(UTC).isoformat(),
+    }
 
 
 def mark_item(

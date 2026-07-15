@@ -69,9 +69,6 @@ vi.mock('./DetailedResponseView', () => ({
 vi.mock('./TraceVisualizer', () => ({
   TraceVisualizer: () => <div data-testid="trace-visualizer">Visualizer</div>
 }));
-vi.mock('./AdvancedControls', () => ({
-  AdvancedControls: () => <div data-testid="advanced-controls">Controls</div>
-}));
 
 describe('ChatInterface', () => {
   const renderChatInterface = () =>
@@ -403,12 +400,13 @@ describe('ChatInterface', () => {
     });
   });
 
-  it('should display advanced controls when available', async () => {
+  it('links settings and does not expose unsupported chat controls', async () => {
     renderChatInterface();
-    
-    await waitFor(() => {
-      const controls = screen.queryByTestId('advanced-controls');
-      expect(controls).toBeTruthy();
-    });
+
+    const settings = await screen.findByRole('link', { name: /settings/i });
+    expect(settings).toHaveAttribute('href', '/settings');
+    expect(screen.queryByText('Advanced Configuration')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Clear All' })).not.toBeInTheDocument();
   });
 });

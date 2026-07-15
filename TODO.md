@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.9.0 |
-| Completed phase | Phase 11 engineering checkpoint - MCP and connector completion |
-| Next phase | Phase 12 - UI workflow, project model, and accessibility completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.11.0 |
+| Completed phase | Phase 12 engineering checkpoint - UI workflow, Session Library, and accessibility automation |
+| Current phase | Phase 13 - observability, diagnostics, compliance semantics, and support |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -441,6 +441,14 @@ authority or placeholder production behavior.
 | CP11-C | Installed child process, OS file/network isolation, output, shutdown, crash, and reboot controls pass adversarial tests | Command/path/network/output/cancellation/Job Object source tests pass; installed OS isolation and lifecycle matrix retained |
 | CP11-E | Installed owner workflow passes add, discover, call, cancel, stop, restart, remove, persistence, and visible state | API/UI source contracts pass; rebuilt packaged Electron acceptance retained |
 
+## Phase 12 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP12-C | All primary workflows pass against rebuilt installed Electron and real internal services/stores | Source/API/component/browser contracts pass; installed durable-effect matrix retained |
+| CP12-E | Accessibility automation plus packaged visual/scaling/high-contrast checks pass | All 27 routes axe-clean and keyboard/app-readiness 10/10; installed display/visual matrix retained |
+| CP12-F | Manual NVDA checklist completes without a release blocker | Deferred to rebuilt release-candidate UI |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -457,8 +465,8 @@ authority or placeholder production behavior.
 | 9 | Ingestion, retrieval, graph, and memory completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 10 | Simulation completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 11 | MCP and connector completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
-| 12 | UI workflow, project model, and accessibility completion | **Active** |
-| 13 | Observability, diagnostics, compliance semantics, and support | Blocked by prior phases |
+| 12 | UI workflow, Session Library, and accessibility completion | **Engineering checkpoint complete 2026-07-14; installed/manual gates retained** |
+| 13 | Observability, diagnostics, compliance semantics, and support | **Active** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | Blocked by prior phases |
 | 15 | System qualification and release candidate | Blocked by prior phases |
 | 16 | Production documentation replacement and professional review dossier | Blocked by prior phases |
@@ -481,10 +489,9 @@ authority or placeholder production behavior.
 
 ## Exact next action
 
-Begin Phase 12 with a route/control/action inventory for Dashboard, Chat,
-Projects, Runs, Trace, Knowledge, Graph, Simulations, MCP, Settings, Privacy,
-Admin, About, first-run, and recovery surfaces. Map every owner job to backend
-authority and state, identify dead/duplicate/project-fragmented workflows, and
-add keyboard, focus, zoom, empty/loading/partial/failure/recovery tests before
-changing navigation or project semantics. Preserve every installed Phase 3-11
-gate, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.
+Begin Phase 13 with a live inventory of structured logs, correlation IDs,
+metrics, diagnostics routes/UI, error types and broad catches, support bundles,
+compliance-status resolvers, and operational runbooks. Classify authority,
+sensitivity, retention, and fail behavior; then add correlation and forbidden-
+field/redaction tests before implementation. Preserve installed Phase 3-12
+gates, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.

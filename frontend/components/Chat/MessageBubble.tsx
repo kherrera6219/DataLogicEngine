@@ -103,17 +103,6 @@ export function MessageBubble({ message, isThinking }: Props) {
                     )}
                   </div>
                   
-                  {/* Human-in-the-Loop Controls (Req 2 & 9) */}
-                  <div className="flex items-center gap-2">
-                    <button type="button" className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors" aria-label="Regenerate response" title="Regenerate">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-                       <span className="sr-only">Regenerate</span>
-                    </button>
-                    <button type="button" className="text-xs flex items-center gap-1 text-slate-500 dark:text-gray-500 hover:text-red-400 transition-colors" aria-label="Report harmful content" title="Report">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
-                       <span className="sr-only">Report</span>
-                    </button>
-                  </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground leading-relaxed">

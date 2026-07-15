@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.12.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product and Platform Engineering |
@@ -98,7 +98,7 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Enterprise AI | `/chat` | governed AI interaction surface. |
 | Trace Explorer | `/runs`, `/runs/view` | run review, evidence, stages, personas, trace details. |
 | Graph / Knowledge | `/graph`, `/knowledge` | graph exploration, nodes, edges, coordinate context. |
-| Projects | `/projects`, `/projects/view` | project/session organization. |
+| Session Library | `/projects`, `/projects/view` | durable chat-session history and detail; paths are retained compatibility routes, not an independent Project model. |
 | Simulations | `/simulations` | scenario simulation and status tracking. |
 | Truth Engine | `/truth-engine` | Truth Engine monitoring and review. |
 | MCP Hub | `/mcp`, `/admin/mcp`, `/admin/mcp/servers` | connector/server registry and governance. |
@@ -110,7 +110,7 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 
 | Area | Status | Notes |
 |---|---|---|
-| Chat and AI workflows | Live | backend-backed sessions, provider/model configuration, trace metadata where enabled. |
+| Chat and AI workflows | Phase 12 engineering checkpoint | backend-backed sessions, provider/model configuration, trace metadata, truthful usage state, and owner-visible encrypted offline replay review/export/replay/delete/clear; installed durable-effect acceptance remains open. |
 | DMRF control plane | Live | injection defense, TruthGate, tiering, axis routing, DSQP, TruthCore plan, evidence/convergence, memory/eventing. |
 | Truth Engine | Live | TruthGate, TruthCore, TruthMemory, TruthLink modules and APIs. |
 | 17-axis routing | Live | implemented under `core/axes/` and `backend/dmrf/router.py`. |
@@ -123,10 +123,10 @@ This model is designed to reduce vendor custody of customer data and avoid the v
 | Client Gateway | Phase 8 engineering checkpoint | copy-once keys, scopes/limits, virtual models, sync/SSE/async/cancel, trace reads, SDKs, audit/usage/health, and examples; installed same-host/private acceptance remains open. |
 | Storage operations | Live | local storage status and lifecycle controls. |
 | Notifications | Live | user preferences loaded and persisted through user notification API. |
-| Admin dashboard | Live | backend-backed admin data (system metrics, provider status, compliance). |
+| Admin dashboard | Live | backend-backed system metrics and provider status; compliance labels describe configured mappings and are not certification claims. |
 | MCP admin registry | Phase 11 engineering checkpoint | exact local command registration, fingerprint/scope consent, start/stop/restart/revoke/delete, health/containment/qualification truth; installed Electron acceptance pending. |
 | Connector safety | Phase 11 engineering checkpoint | server-owned context, DPAPI credentials, command/path/network policy, cancellation, Windows Job Object, governed results, durable PostgreSQL/Redis/object state; installed OS isolation pending. |
-| Observability | Live | `/metrics`, route metrics, AI/connector latency signals, DMRF/Truth signals where enabled. |
+| Observability | Phase 13 active | local metrics and logging foundations exist; end-to-end correlation, redaction, diagnostics, support-bundle, retention, and compliance-semantics qualification is active. |
 | Data/integrity gates | Live | schema parity, runtime precheck, docs validation, lockfile/environment governance. |
 | Trace export authenticity | Live | hashes, optional HMAC signature, optional encrypted export envelope. |
 | Desktop local-auth | Live | loopback/Electron policy, install secret, nonce/HMAC, timestamp skew. |
@@ -228,6 +228,13 @@ A product reviewer should inspect:
 6. `docs/SECURITY.md`
 7. `docs/PRIVACY_POLICY.md`
 8. `docs/PRODUCTION_READINESS.md`
+
+## Change notes for v2.12.0
+
+1. Recorded the Phase 12 Session Library, offline replay, UI-control truth, and
+   accessibility engineering checkpoint without closing installed acceptance.
+2. Reclassified observability as active Phase 13 work and clarified that
+   compliance status represents configured mappings, not certification.
 
 ## Change notes for v2.8.0
 

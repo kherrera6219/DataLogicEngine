@@ -9,5 +9,5 @@ export default function ProjectsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <RouteErrorFallback error={error} reset={reset} moduleName="Projects" />;
+  return <RouteErrorFallback error={error} reset={reset} moduleName="Sessions" />;
 }

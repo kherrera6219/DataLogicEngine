@@ -66,6 +66,16 @@ class TestAnalyticsEndpoints:
         assert data['success'] is True
         assert data['data'][0]['event'] == 'trace_completed'
 
+    @patch('backend.routes.analytics_routes.AnalyticsService.get_recent_activity')
+    def test_analytics_activity_reports_unavailable_instead_of_empty(self, mock_get_recent_activity, session_authenticated_client):
+        mock_get_recent_activity.return_value = None
+        response = session_authenticated_client.get('/api/v1/analytics/activity')
+        assert response.status_code == 503
+        assert response.get_json() == {
+            'success': False,
+            'error': 'An internal error occurred. Please try again later.',
+        }
+
     @patch('backend.routes.analytics_routes.AnalyticsService.get_trends')
     def test_analytics_trends_authenticated(self, mock_get_trends, session_authenticated_client):
         mock_get_trends.return_value = {
@@ -88,6 +98,16 @@ class TestAnalyticsEndpoints:
         data = response.get_json()
         assert data['success'] is True
         assert data['data']['connectors'] == 3
+
+    @patch('backend.routes.analytics_routes.AnalyticsService.get_mcp_stats')
+    def test_analytics_mcp_reports_unavailable_instead_of_zeroes(self, mock_get_mcp_stats, session_authenticated_client):
+        mock_get_mcp_stats.return_value = None
+        response = session_authenticated_client.get('/api/v1/analytics/mcp')
+        assert response.status_code == 503
+        assert response.get_json() == {
+            'success': False,
+            'error': 'An internal error occurred. Please try again later.',
+        }
 
 
 class TestAnalyticsDataIntegrity:

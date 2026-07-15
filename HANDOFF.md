@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.9.0 |
-| Completed phase | Phase 11 engineering checkpoint - MCP and connector completion |
-| Current phase | Phase 12 - UI workflow, project model, and accessibility completion |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.11.0 |
+| Completed phase | Phase 12 engineering checkpoint - UI workflow, Session Library, and accessibility automation |
+| Current phase | Phase 13 - observability, diagnostics, compliance semantics, and support |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -360,21 +360,37 @@ open. CP11-E rebuilt Electron add/discover/call/cancel/stop/restart/remove proof
 remains open. Production connector start fails closed until controlled installed
 qualification records approval. Production/public release remains **NO-GO**.
 
+## Phase 12 engineering checkpoint
+
+The final production-source inventory covers 27 pages and 194 control
+instances: 191 are wired/targeted, three are literally disabled with a reason,
+17 expose conditional or literal disabled state, and zero enabled controls lack
+an obvious static action. ADR-0009 selects the durable Session Library over an
+independent Project model while retaining `/projects` as a compatibility path.
+
+The phase removed actionless advanced chat configuration, export/clear,
+response, project, and profile controls; added a real validation-report export;
+removed the fabricated dashboard trend; added source timestamps; and changed
+analytics failures from fabricated zeroes to unavailable state. Compliance
+registry rows now say Configured rather than Active. Owner-visible encrypted
+offline queue review/export/replay/delete/clear is implemented. All 27 routes are
+axe-clean and ten app-readiness/keyboard workflows pass. Full validation passes
+2,097 backend and 412 frontend tests. Evidence is under
+`reports/production-readiness/2026/phase-12/`.
+
+CP12-C installed workflows/store effects, packaged visual/scaling/high-contrast
+checks, and CP12-F manual NVDA acceptance remain open release gates.
+
 ## Exact next action
 
-1. Inventory Dashboard, Chat, Projects, Runs, Trace, Knowledge, Graph,
-   Simulations, MCP, Settings, Privacy, Admin, About, first-run, and recovery
-   routes, controls, backend actions, empty/loading/failure states, and project
-   identity propagation.
-2. Map each primary owner job to one real backend authority and identify dead,
-   duplicate, disconnected, or contradictory navigation and project semantics.
-3. Add keyboard, focus, zoom, contrast, route-error, partial/offline, recovery,
-   and destructive-confirmation tests before changing shared shell behavior.
-4. Define the canonical project/workspace model and state restoration boundary
-   before migrating pages or persistent identifiers.
-5. Keep every installed-only Phase 3-11 gate, alert 389, and the SeaweedFS
-   candidate-only boundary release-blocking until rebuilt installed evidence can
-   close them.
+1. Begin Phase 13 with a live inventory of structured logs, correlation IDs,
+   metrics, diagnostics APIs/UI, error taxonomies, broad catches, compliance
+   status resolvers, support-bundle code, and operational runbooks.
+2. Classify authority, sensitivity, retention, and fail behavior before edits.
+3. Add forbidden-field/redaction and cross-component correlation tests first.
+4. Build explicit owner support-bundle preview/export with canary-secret tests.
+5. Preserve every installed-only Phase 3-12 gate, alert 389, and the SeaweedFS
+   candidate-only boundary as release blockers.
 
 ## Phase rules
 

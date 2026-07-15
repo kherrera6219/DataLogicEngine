@@ -9,7 +9,6 @@ import {
   Building,
   Stethoscope,
   Download,
-  Share2,
   Users
 } from "lucide-react";
 import { ChatMessage, PersonaOutput, ValidationMetric } from './types';
@@ -59,6 +58,24 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
   const consensus = personas.length
     ? personas.reduce((sum, persona) => sum + toPercent(persona.confidence), 0) / personas.length
     : null;
+
+  const downloadValidationReport = () => {
+    const report = {
+      schema_version: 'dle-validation-report.v1',
+      message_id: message.id,
+      response_timestamp: message.timestamp,
+      metrics,
+      personas,
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    const safeId = message.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+    anchor.href = url;
+    anchor.download = `validation-report-${safeId}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (!personas.length && !metrics.length) {
     return (
@@ -165,11 +182,14 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2" aria-label="Download validation report">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2"
+          aria-label="Download validation report"
+          onClick={downloadValidationReport}
+        >
           <Download className="h-3 w-3" aria-hidden="true" /> Report
-        </Button>
-        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2" aria-label="Share validation details">
-          <Share2 className="h-3 w-3" aria-hidden="true" /> Share
         </Button>
       </div>
     </div>

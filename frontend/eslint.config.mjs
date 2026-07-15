@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
     "storybook-static/**",
     "test-results/**",
     "playwright-report/**",
+    "playwright-report-*/**",
     "*.log",
     "*.txt",
     "lint-results.json",

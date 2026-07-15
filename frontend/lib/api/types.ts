@@ -433,6 +433,7 @@ export interface AnalyticsOverview {
 }
 
 export interface McpStats {
+  timestamp?: string;
   time_series: { time: string; requests: number; responses: number; errors: number }[];
   top_tools: { name: string; calls: number; percent: number }[];
   server_health: { name: string; status: string; latency: number }[];

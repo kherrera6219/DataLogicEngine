@@ -1,0 +1,1985 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-15T00:05:21.635778+00:00",
+  "review_status": "initial allowed-state classification; installed behavior verification assigned by feature ledger",
+  "summary": {
+    "pages": 27,
+    "controls": 194,
+    "without_obvious_handler_or_target": 3,
+    "enabled_without_obvious_action": 0,
+    "disabled_controls": 3,
+    "controls_with_disabled_state": 17,
+    "wired_or_targeted_controls": 191
+  },
+  "pages": [
+    "frontend\\app\\(auth)\\login\\page.tsx",
+    "frontend\\app\\(auth)\\register\\page.tsx",
+    "frontend\\app\\about\\ai-limitations\\page.tsx",
+    "frontend\\app\\about\\cloud-services\\page.tsx",
+    "frontend\\app\\about\\page.tsx",
+    "frontend\\app\\admin\\compliance\\page.tsx",
+    "frontend\\app\\admin\\mcp\\page.tsx",
+    "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+    "frontend\\app\\algorithms\\page.tsx",
+    "frontend\\app\\analytics\\page.tsx",
+    "frontend\\app\\chat\\page.tsx",
+    "frontend\\app\\dashboard\\page.tsx",
+    "frontend\\app\\graph\\page.tsx",
+    "frontend\\app\\knowledge\\page.tsx",
+    "frontend\\app\\legal\\privacy\\page.tsx",
+    "frontend\\app\\mcp\\page.tsx",
+    "frontend\\app\\page.tsx",
+    "frontend\\app\\profile\\page.tsx",
+    "frontend\\app\\projects\\page.tsx",
+    "frontend\\app\\projects\\view\\page.tsx",
+    "frontend\\app\\runs\\page.tsx",
+    "frontend\\app\\runs\\view\\page.tsx",
+    "frontend\\app\\settings\\page.tsx",
+    "frontend\\app\\settings\\privacy\\page.tsx",
+    "frontend\\app\\simulations\\page.tsx",
+    "frontend\\app\\tools\\history\\page.tsx",
+    "frontend\\app\\truth-engine\\page.tsx"
+  ],
+  "controls": [
+    {
+      "file": "frontend\\app\\global-error.tsx",
+      "line": 61,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\global-error.tsx",
+      "line": 67,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\layout.tsx",
+      "line": 44,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\layout.tsx",
+      "line": 79,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\layout.tsx",
+      "line": 81,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\layout.tsx",
+      "line": 83,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\not-found.tsx",
+      "line": 20,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\page.tsx",
+      "line": 111,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\about\\page.tsx",
+      "line": 86,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\about\\page.tsx",
+      "line": 89,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\about\\ai-limitations\\page.tsx",
+      "line": 92,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\compliance\\page.tsx",
+      "line": 38,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\compliance\\page.tsx",
+      "line": 63,
+      "element": "select",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\compliance\\page.tsx",
+      "line": 75,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 77,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 90,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 91,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 183,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 184,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 189,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 208,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\page.tsx",
+      "line": 233,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 169,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 176,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 177,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 211,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 212,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 213,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 214,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 215,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 216,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 232,
+      "element": "textarea",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 235,
+      "element": "input",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 241,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 241,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 251,
+      "element": "input",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 254,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "line": 254,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 132,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 133,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 137,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 138,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 285,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 286,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 249,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 287,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 297,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 331,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 332,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 333,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 365,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 413,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 422,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 430,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 438,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 439,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 445,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\graph\\page.tsx",
+      "line": 446,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\legal\\privacy\\page.tsx",
+      "line": 12,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\legal\\privacy\\page.tsx",
+      "line": 13,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\legal\\privacy\\page.tsx",
+      "line": 135,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\mcp\\page.tsx",
+      "line": 35,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\mcp\\page.tsx",
+      "line": 36,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\projects\\page.tsx",
+      "line": 110,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\projects\\page.tsx",
+      "line": 154,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\projects\\page.tsx",
+      "line": 196,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\projects\\view\\page.tsx",
+      "line": 14,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\runs\\page.tsx",
+      "line": 123,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\runs\\page.tsx",
+      "line": 124,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\runs\\page.tsx",
+      "line": 127,
+      "element": "Button",
+      "has_obvious_handler_or_target": false,
+      "has_disabled_state": true,
+      "disabled_literal": true,
+      "classification": "disabled",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\runs\\view\\page.tsx",
+      "line": 211,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\runs\\view\\page.tsx",
+      "line": 287,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 175,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 244,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 252,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 277,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 305,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 428,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\page.tsx",
+      "line": 429,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\privacy\\page.tsx",
+      "line": 106,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\privacy\\page.tsx",
+      "line": 130,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\privacy\\page.tsx",
+      "line": 173,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\settings\\privacy\\page.tsx",
+      "line": 182,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 175,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 204,
+      "element": "textarea",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 270,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 271,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 275,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 403,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 408,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 413,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 418,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\simulations\\page.tsx",
+      "line": 423,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\tools\\history\\page.tsx",
+      "line": 75,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\tools\\history\\page.tsx",
+      "line": 147,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\app\\truth-engine\\page.tsx",
+      "line": 166,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\CloudDisclosureBanner.tsx",
+      "line": 45,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\CloudDisclosureBanner.tsx",
+      "line": 51,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\CloudDisclosureBanner.tsx",
+      "line": 56,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\ConfirmationDialog.tsx",
+      "line": 90,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\ConfirmationDialog.tsx",
+      "line": 93,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\DesktopStatus.tsx",
+      "line": 80,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\DesktopStatus.tsx",
+      "line": 122,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\NavBar.tsx",
+      "line": 57,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\NavBar.tsx",
+      "line": 73,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\NavBar.tsx",
+      "line": 102,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\NavBar.tsx",
+      "line": 112,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\PlaceholderPage.tsx",
+      "line": 26,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\PlaceholderPage.tsx",
+      "line": 29,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\ThemeToggle.tsx",
+      "line": 18,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 486,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 512,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 545,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 546,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 613,
+      "element": "textarea",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 637,
+      "element": "input",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 645,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 654,
+      "element": "Button",
+      "has_obvious_handler_or_target": false,
+      "has_disabled_state": true,
+      "disabled_literal": true,
+      "classification": "disabled",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 664,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatInterface.tsx",
+      "line": 674,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatTracePanel.tsx",
+      "line": 77,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatTracePanel.tsx",
+      "line": 162,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatTracePanel.tsx",
+      "line": 163,
+      "element": "a",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\ChatTracePanel.tsx",
+      "line": 169,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\DetailedResponseView.tsx",
+      "line": 185,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\LiveTracePanel.tsx",
+      "line": 221,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\MessageBubble.tsx",
+      "line": 112,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 204,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 251,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 271,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 274,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 277,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Chat\\OfflineQueueManager.tsx",
+      "line": 280,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\CommandBar.tsx",
+      "line": 46,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\CommandBar.tsx",
+      "line": 90,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\CommandBar.tsx",
+      "line": 103,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Dashboard\\CommandBar.tsx",
+      "line": 107,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\Graph\\AxisSelector.tsx",
+      "line": 34,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\layout\\AppSidebar.tsx",
+      "line": 26,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\layout\\AppSidebar.tsx",
+      "line": 134,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpHub.tsx",
+      "line": 63,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpHub.tsx",
+      "line": 105,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpHub.tsx",
+      "line": 120,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpHub.tsx",
+      "line": 135,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpServerConfig.tsx",
+      "line": 153,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpServerConfig.tsx",
+      "line": 256,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\mcp\\McpServerConfig.tsx",
+      "line": 326,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\projects\\ProjectDetail.tsx",
+      "line": 81,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 414,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 433,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 444,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 528,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 540,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 544,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 647,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 650,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\AiModelSettings.tsx",
+      "line": 653,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ApiOverlayConfig.tsx",
+      "line": 204,
+      "element": "button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ApiOverlayConfig.tsx",
+      "line": 206,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ApiOverlayConfig.tsx",
+      "line": 207,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 189,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 202,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 203,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 226,
+      "element": "Button",
+      "has_obvious_handler_or_target": false,
+      "has_disabled_state": true,
+      "disabled_literal": true,
+      "classification": "disabled",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 237,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 250,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 251,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 252,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 253,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\ClientGatewayConfig.tsx",
+      "line": 278,
+      "element": "input",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 335,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 378,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 407,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 415,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 534,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": true,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\DatabaseSettings.tsx",
+      "line": 543,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 293,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 296,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 458,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 463,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 468,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 473,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 477,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 481,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 554,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 559,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 564,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\KnowledgeIngestionSettings.tsx",
+      "line": 585,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 103,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 104,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 105,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 106,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 128,
+      "element": "Link",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    },
+    {
+      "file": "frontend\\components\\settings\\MemoryManagementSettings.tsx",
+      "line": 131,
+      "element": "Button",
+      "has_obvious_handler_or_target": true,
+      "has_disabled_state": false,
+      "disabled_literal": false,
+      "classification": "partial",
+      "classification_basis": "static JSX heuristic; installed workflow verification required"
+    }
+  ]
+}

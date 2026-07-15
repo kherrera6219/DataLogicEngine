@@ -123,7 +123,7 @@ describe('frontend app surfaces', () => {
     expect(screen.getByTestId('route-error-knowledge base')).toHaveTextContent('Knowledge Base:route failed');
     expect(screen.getByTestId('route-error-mcp')).toHaveTextContent('MCP:route failed');
     expect(screen.getByTestId('route-error-profile')).toHaveTextContent('Profile:route failed');
-    expect(screen.getByTestId('route-error-projects')).toHaveTextContent('Projects:route failed');
+    expect(screen.getByTestId('route-error-sessions')).toHaveTextContent('Sessions:route failed');
     expect(screen.getByTestId('route-error-runs')).toHaveTextContent('Runs:route failed');
     expect(screen.getByTestId('route-error-settings')).toHaveTextContent('Settings:route failed');
     expect(screen.getByTestId('route-error-simulations')).toHaveTextContent('Simulations:route failed');

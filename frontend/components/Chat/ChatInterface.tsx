@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +25,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
-import { AdvancedControls } from './AdvancedControls';
 import { ChatTracePanel } from './ChatTracePanel';
+import { OfflineQueueManager } from './OfflineQueueManager';
 
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
@@ -528,12 +529,6 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             </div>
          </ScrollArea>
          
-         <div className="p-4 border-t border-white/5">
-            <div className="flex justify-between">
-               <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5">Export</Button>
-               <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5">Clear All</Button>
-            </div>
-         </div>
       </aside>
 
       {/* ðŸ’¬ Main Chat Area */}
@@ -543,17 +538,22 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
                <Target className="h-4 w-4 text-blue-500" /> UKG Enterprise AI Assistant
             </h1>
-            <div className="flex items-center gap-3">
+             <div className="flex items-center gap-3">
                <span className="text-xs text-slate-600 dark:text-gray-400">
                  {currentSessionId ? `Session ${currentSessionId.slice(0, 8)}` : 'No active session'}
                </span>
-               <Button variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
-                  <Settings className="h-3.5 w-3.5" /> Settings
+               <Button asChild variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
+                  <Link href="/settings"><Settings className="h-3.5 w-3.5" /> Settings</Link>
                </Button>
-               <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-200/70 dark:hover:bg-white/5 relative group">
-                  <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] group-hover:shadow-[0_0_15px_rgba(34,197,94,0.8)] transition-all"></span>
-               </Button>
-            </div>
+                <span
+                 className="flex h-8 items-center gap-2 rounded-md border border-slate-300/70 px-2 text-[10px] text-slate-600 dark:border-white/10 dark:text-gray-400"
+                 title={providerBudget ? 'The durable provider usage ledger is available.' : 'Provider usage status is unavailable.'}
+               >
+                 <span className={`h-2 w-2 rounded-full ${providerBudget ? 'bg-green-500' : 'bg-amber-500'}`} aria-hidden="true" />
+                  {providerBudget ? 'Usage available' : 'Usage unavailable'}
+                </span>
+                <OfflineQueueManager />
+             </div>
          </div>
 
          {/* Messages */}
@@ -655,8 +655,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                     variant="ghost" 
                     size="icon" 
                     className="h-8 w-8 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-lg"
-                    onClick={() => toast("Voice input is not available in this deployment.", "info", 3000)}
-                    aria-label="Start voice input"
+                    disabled
+                    title="Voice input is not available in this deployment."
+                    aria-label="Voice input unavailable"
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
@@ -669,7 +670,6 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                   >
                     <Zap className="h-4 w-4" />
                   </Button>
-                  <AdvancedControls />
                 </div>
                 <Button 
                   className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 h-8 px-4 text-xs font-bold gap-2 rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105"

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.4.0 |
+| Document version | v3.6.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Design and Frontend Engineering |
@@ -15,9 +15,10 @@
 Define the current UX architecture, route model, interaction patterns, design guardrails, and reviewer experience for DataLogicEngine.
 
 This version aligns the product design with the Phase 5 `governed.v1`
-lifecycle, explicit execution/failure states, stable trace identity, and the
-Phase 6 evidence/confidence boundary and Phase 7 provider state, disclosure,
-budget, cancellation, ledger, and replay truth.
+lifecycle, explicit execution/failure states, stable trace identity, the Phase
+6 evidence/confidence boundary, the Phase 7 provider state and disclosure
+contract, and the Phase 12 truthful Session Library, offline replay, control,
+and accessibility checkpoint.
 
 ## Audience
 
@@ -143,7 +144,8 @@ Ask a question
 2. Ask domain question.
 3. Use uploads/knowledge context where available.
 4. Inspect trace when confidence or evidence matters.
-5. Save or review session under Projects.
+5. Review durable chat history in the Session Library. ADR-0009 does not define
+   independent project/workspace files, notes, or lifecycle.
 6. Export trace/data where needed.
 
 ### Admin/operator journey
@@ -277,6 +279,10 @@ Design guardrail: heavy visualization and admin surfaces should not degrade firs
 10. Provider execution state: stable client request ID, selected provider/model,
     current call/token allowance, disclosed categories, cancellation state,
     explicit failure class, queue persistence result, and `delivery_mode`.
+11. Offline replay state: redacted item metadata, pending/replaying/failed state,
+    transient failure class, created/expiry timestamps, attempt count, current
+    snapshot time, and confirmed replay/delete/clear actions. Replay re-enters
+    the governed provider path and re-applies current policy and budgets.
 
 ---
 
@@ -289,10 +295,14 @@ Current accessibility expectations:
 3. keyboard-accessible navigation;
 4. loading and empty states;
 5. readable dark and light themes;
-6. automated accessibility checks;
+6. automated accessibility checks across every production route;
 7. manual screen-reader evidence before final production distribution.
 
-Accessibility release caveat: manual NVDA or equivalent assistive-technology evidence remains required before final public release claims.
+The Phase 12 baseline records zero axe violations across all 27 production
+routes and ten passing keyboard/app-readiness browser workflows. Manual NVDA or
+equivalent assistive-technology evidence, packaged high-contrast/scaling review,
+and installed visual acceptance remain required before final public release
+claims.
 
 ---
 
@@ -369,6 +379,15 @@ Known current caveats:
 4. Chat lacks provider response: verify provider key/model in Settings and provider test result.
 5. Trace page empty: generate a run first and confirm backend trace API is reachable.
 6. Settings storage panel missing values: validate local data services and absent-backend empty states.
+
+## Change notes for v3.6.0
+
+1. Defined the durable Session Library as the supported history model and
+   removed the implied independent Project/workspace product model.
+2. Added owner-visible offline queue review, redacted export, governed replay,
+   delete, clear, and truthful lifecycle states.
+3. Recorded the 27-route axe and ten-workflow browser baseline while retaining
+   the manual and installed accessibility release gates.
 
 ## Change notes for v3.3.0
 

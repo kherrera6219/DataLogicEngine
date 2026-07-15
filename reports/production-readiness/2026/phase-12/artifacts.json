@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase-artifacts.v1",
+  "phase": 12,
+  "artifacts": [
+    "inventory.md",
+    "runtime/ui-controls.json",
+    "summary.md",
+    "validation.md",
+    "checkpoint-matrix.md",
+    "deferred-gates.md",
+    "risk-register.md",
+    "rollback.md",
+    "docs-reviewed.md",
+    "checks.json",
+    "../../../app-readiness/a11y-ci-report.json",
+    "../../../app-readiness/keyboard-navigation-report.json",
+    "../../../app-readiness/playwright-app-readiness-report.json"
+  ]
+}

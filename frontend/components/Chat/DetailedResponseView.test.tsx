@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { DetailedResponseView } from './DetailedResponseView';
 import { ChatMessage } from './types';
 
@@ -50,10 +50,21 @@ describe('DetailedResponseView', () => {
     expect(screen.getByText('No validation telemetry is available for this response yet.')).toBeInTheDocument();
   });
 
-  it('should expose report and share actions with accessible names', () => {
+  it('downloads the validation report and omits unsupported sharing', () => {
+    const createObjectURL = vi.fn(() => 'blob:validation-report');
+    const revokeObjectURL = vi.fn();
+    Object.defineProperty(URL, 'createObjectURL', { value: createObjectURL, configurable: true });
+    Object.defineProperty(URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+
     render(<DetailedResponseView message={mockMessage} />);
-    expect(screen.getByRole('button', { name: /download validation report/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /share validation details/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /download validation report/i }));
+
+    expect(createObjectURL).toHaveBeenCalledOnce();
+    expect(click).toHaveBeenCalledOnce();
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:validation-report');
+    expect(screen.queryByRole('button', { name: /share validation details/i })).not.toBeInTheDocument();
+    click.mockRestore();
   });
 
   it('should render persona icon branches for multiple persona types', () => {

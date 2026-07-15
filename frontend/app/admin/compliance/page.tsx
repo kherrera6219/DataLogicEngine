@@ -88,15 +88,15 @@ export default function ComplianceDashboard() {
           </CardContent>
         </Card>
 
-        {/* Standards Status (Planned) */}
+        {/* Configured standards */}
         <Card>
           <CardHeader>
              <div className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 text-green-600" />
-                <CardTitle>Active Standards</CardTitle>
+                <CardTitle>Configured Standards</CardTitle>
              </div>
              <CardDescription>
-                Live monitoring of compliance frameworks.
+                Standards returned by the current compliance registry. Presence is not certification.
              </CardDescription>
           </CardHeader>
           <CardContent>
@@ -112,11 +112,11 @@ export default function ComplianceDashboard() {
                         (standards as Record<string, unknown>[]).map((child: Record<string, unknown>, idx: number) => (
                             <div key={(child.uid as string) || `fallback-${idx}`} className="flex justify-between items-center p-2 rounded-md border">
                                <span className="font-medium">{(child.name || child.id) as string}</span>
-                               <Badge variant="outline">Active</Badge>
+                               <Badge variant="outline">Configured</Badge>
                             </div>
                         ))
                     ) : (
-                        <div className="text-sm text-muted-foreground">No active standards configured.</div>
+                        <div className="text-sm text-muted-foreground">No standards are configured.</div>
                     )}
                  </div>
              )}

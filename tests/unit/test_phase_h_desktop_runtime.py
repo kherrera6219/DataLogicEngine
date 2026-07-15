@@ -91,6 +91,7 @@ def test_desktop_offline_queue_lifecycle(tmp_path, monkeypatch):
 
     assert queue["counts"]["pending"] == 1
     assert queue["items"][0]["id"] == item["id"]
+    assert queue["snapshot_at"]
 
     mark_item(item["id"], "completed", response={"run_id": "run-1"})
     queue = list_queue()

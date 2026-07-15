@@ -11,7 +11,7 @@ export default function ProjectDetailQueryPage() {
   if (!id) {
     return (
       <div className="p-8 text-sm text-muted-foreground">
-        Missing project ID. Return to <Link href="/projects" className="underline">Projects</Link>.
+        Missing session ID. Return to the <Link href="/projects" className="underline">Session Library</Link>.
       </div>
     );
   }

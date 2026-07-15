@@ -134,7 +134,7 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    App[frontend/app] --> Routes[Dashboard / Chat / Projects / Runs / Graph / Settings / Admin]
+    App[frontend/app] --> Routes[Dashboard / Chat / Session Library / Runs / Graph / Settings / Admin]
     Routes --> Components[frontend/components]
     Components --> Api[frontend/lib/api]
     Components --> Runtime[frontend/lib/runtime]

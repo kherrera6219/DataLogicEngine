@@ -81,7 +81,7 @@ flowchart TD
         Dashboard[/dashboard\nSystem overview]
         Chat[/chat\nEnterprise AI]
         MCP[/mcp\nMCP Hub]
-        Projects[/projects\nProject management]
+        Projects[/projects\nSession Library compatibility route]
         Admin[/admin\nAdmin + Compliance]
         Settings[/settings\nUser/runtime settings]
     end
@@ -248,7 +248,7 @@ This is important because the frontend product surface is wrapped with:
 user-facing surfaces into sections:
 
 ```text
-Workspace:       Dashboard, Enterprise AI, Projects, Simulations, MCP Hub
+Workspace:       Dashboard, Enterprise AI, Session Library, Simulations, MCP Hub
 Knowledge:       Knowledge Base, Knowledge Graph, Algorithms
 Trace & Review:  Trace Explorer, Truth Engine, Analytics
 System:          Admin*, Compliance*, Settings

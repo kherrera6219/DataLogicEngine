@@ -4,8 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft, MessageSquare, Upload, Download, Trash2,
-  MoreHorizontal, Plus, Search, UserCircle2, Bot
+  ArrowLeft, MessageSquare, Search, UserCircle2, Bot
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -85,23 +84,15 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
           <div>
             <h1 className="text-sm font-bold tracking-wide flex items-center gap-2">
               {title}
-              <Badge variant="outline" className="text-[10px] bg-blue-900/10 text-blue-400 border-blue-500/30">Active</Badge>
+              <Badge variant="outline" className="text-[10px] bg-blue-900/10 text-blue-400 border-blue-500/30">Session record</Badge>
             </h1>
             <div className="text-[10px] text-gray-400 font-mono">ID: {id} • Last synced {relativeDate(messages[messages.length - 1]?.timestamp)}</div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-8 border-white/10 text-gray-400 hover:text-white gap-2" aria-label="Upload files to session">
-            <Upload className="h-3 w-3" aria-hidden="true" /> Upload Files
-          </Button>
-          <Button size="sm" className="h-8 bg-blue-600 hover:bg-blue-700 font-bold gap-2" aria-label="Create new note">
-            <Plus className="h-3 w-3" aria-hidden="true" /> New Note
-          </Button>
-        </div>
       </div>
 
       <div className="flex-1 flex">
-        <main className="flex-1 p-6" role="main" aria-label="Project session detail">
+        <main className="flex-1 p-6" role="main" aria-label="Chat session detail">
           <div className="flex items-center justify-between mb-6">
             <div className="relative w-64">
               <Search className="absolute left-2 top-2.5 h-3 w-3 text-gray-500" aria-hidden="true" />
@@ -132,12 +123,11 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
                     <th className="p-3 font-medium">Role</th>
                     <th className="p-3 font-medium">Message Preview</th>
                     <th className="p-3 font-medium">Timestamp</th>
-                    <th className="p-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {filteredMessages.map((message) => (
-                    <tr key={message.id} className="hover:bg-white/5 transition-colors group cursor-pointer">
+                    <tr key={message.id} className="hover:bg-white/5 transition-colors">
                       <td className="p-3 text-center">
                         {message.role === 'assistant' ? (
                           <Bot className="h-4 w-4 text-blue-400" />
@@ -148,19 +138,6 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
                       <td className="p-3 font-medium text-gray-200 capitalize">{message.role}</td>
                       <td className="p-3 text-gray-300 max-w-[520px] truncate">{message.content}</td>
                       <td className="p-3 text-gray-500">{relativeDate(message.timestamp)}</td>
-                      <td className="p-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white" aria-label={`Download message ${message.id}`}>
-                            <Download className="h-3 w-3" aria-hidden="true" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-red-900/30 text-gray-400 hover:text-red-400" aria-label={`Delete message ${message.id}`}>
-                            <Trash2 className="h-3 w-3" aria-hidden="true" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10 text-gray-400 hover:text-white" aria-label={`More actions for message ${message.id}`}>
-                            <MoreHorizontal className="h-3 w-3" aria-hidden="true" />
-                          </Button>
-                        </div>
-                      </td>
                     </tr>
                   ))}
                 </tbody>

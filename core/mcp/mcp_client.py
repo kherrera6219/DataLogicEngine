@@ -607,6 +607,11 @@ class MCPClient(MCPRequestHandler):
         guard = self.process_guard
         self.process = None
         self.process_guard = None
+        if guard:
+            try:
+                guard.capture_descendants()
+            except Exception as exc:
+                logger.warning("MCP descendant capture before shutdown failed: %s", exc)
         if process:
             try:
                 if process.stdin:
@@ -618,15 +623,16 @@ class MCPClient(MCPRequestHandler):
                         await wait_closed()
             except Exception:
                 pass
+        if guard:
+            try:
+                guard.close()
+            except Exception as exc:
+                logger.error("MCP process-tree containment shutdown failed: %s", exc)
+        if process:
             try:
                 termination = process.terminate()
                 if inspect.isawaitable(termination):
                     await termination
-            except Exception:
-                pass
-        if guard:
-            try:
-                guard.close()
             except Exception:
                 pass
         if process:

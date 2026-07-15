@@ -38,6 +38,7 @@ export default function ProjectsPage() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastLoadedAt, setLastLoadedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +48,7 @@ export default function ProjectsPage() {
         if (cancelled) return;
         setSessions(response.sessions || []);
         setMessageCounts({});
+        setLastLoadedAt(new Date());
       })
       .catch((err) => {
         if (cancelled) return;
@@ -101,8 +103,8 @@ export default function ProjectsPage() {
             <Folder className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-gray-100 tracking-tight">Projects</h1>
-            <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">Chat Session Workspace</div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-gray-100 tracking-tight">Session Library</h1>
+            <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">Durable Chat Session History</div>
           </div>
         </div>
         <Button
@@ -118,7 +120,7 @@ export default function ProjectsPage() {
           <div className="relative w-96">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 dark:text-gray-500" />
             <Input
-              aria-label="Search projects"
+              aria-label="Search sessions"
               placeholder="Search sessions..."
               className="pl-9 bg-white dark:bg-black/20 border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-black/40 focus:bg-slate-50 dark:focus:bg-black/50 transition-colors h-9 text-sm"
               value={query}
@@ -131,11 +133,11 @@ export default function ProjectsPage() {
         </div>
 
         {loading && (
-          <div className="text-sm text-muted-foreground">Loading workspaces...</div>
+          <div className="text-sm text-muted-foreground">Loading sessions...</div>
         )}
 
         {!loading && error && (
-          <div className="text-sm text-red-600 dark:text-red-400">Failed to load projects: {error}</div>
+          <div className="text-sm text-red-600 dark:text-red-400">Failed to load sessions: {error}</div>
         )}
 
         {!loading && !error && (
@@ -199,7 +201,7 @@ export default function ProjectsPage() {
               <div className="h-16 w-16 rounded-full bg-white/70 dark:bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-500 shadow-xl group-hover:shadow-blue-500/10 border border-slate-200 dark:border-white/5 group-hover:border-blue-500/20">
                 <Plus className="h-8 w-8" />
               </div>
-              <div className="font-bold text-sm tracking-wide uppercase">New Workspace</div>
+              <div className="font-bold text-sm tracking-wide uppercase">New Session</div>
               <div className="text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">OPEN CHAT</div>
             </button>
           </div>
@@ -218,7 +220,7 @@ export default function ProjectsPage() {
           </div>
         </div>
         <div className="flex gap-4">
-          <span>LATEST_SYNC: {new Date().toLocaleTimeString()}</span>
+          <span>LAST_LOADED: {lastLoadedAt ? lastLoadedAt.toLocaleTimeString() : 'NOT LOADED'}</span>
           <span>MODE: LOCAL</span>
         </div>
       </div>

@@ -133,7 +133,7 @@ class AnalyticsService:
             return activities[:limit]
         except Exception as e:
             logging.error(f"Analytics: Error getting recent activity: {str(e)}")
-            return []
+            return None
 
     @staticmethod
     def get_mcp_stats():
@@ -178,6 +178,7 @@ class AnalyticsService:
                 })
 
             return {
+                "timestamp": datetime.now(UTC).isoformat(),
                 "time_series": [
                     {
                         "time": "Now",
@@ -196,13 +197,4 @@ class AnalyticsService:
             }
         except Exception as e:
             logging.error(f"Analytics: Error getting MCP stats: {str(e)}")
-            return {
-                "time_series": [{"time": "Now", "requests": 0, "responses": 0, "errors": 0}],
-                "top_tools": [],
-                "server_health": [],
-                "error_stats": [
-                    {"name": "Failed", "value": 0, "colorCode": "#ef4444"},
-                    {"name": "Successful", "value": 0, "colorCode": "#10b981"},
-                    {"name": "Pending", "value": 0, "colorCode": "#f59e0b"},
-                ]
-            }
+            return None

@@ -155,7 +155,7 @@ export function AppSidebar() {
          <SectionLabel label="Workspace" isCollapsed={isCollapsed} />
          <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" isActive={isActive('/dashboard')} isCollapsed={isCollapsed} />
          <SidebarItem icon={MessageSquare} label="Enterprise AI" href="/chat" isActive={isActive('/chat')} isCollapsed={isCollapsed} />
-         <SidebarItem icon={Folder} label="Projects" href="/projects" isActive={isActive('/projects')} isCollapsed={isCollapsed} />
+         <SidebarItem icon={Folder} label="Sessions" href="/projects" isActive={isActive('/projects')} isCollapsed={isCollapsed} />
          <SidebarItem icon={FlaskConical} label="Simulations" href="/simulations" isActive={isActive('/simulations')} isCollapsed={isCollapsed} />
          <SidebarItem icon={Database} label="MCP Hub" href="/mcp" isActive={isActive('/mcp')} isCollapsed={isCollapsed} />
 

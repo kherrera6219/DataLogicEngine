@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-22T22:58:30.245Z",
+  "generated_at": "2026-07-14T23:48:23.245Z",
   "base_url": "http://127.0.0.1:3200",
   "routes": [
     "/",
@@ -13,9 +13,24 @@
     "/chat",
     "/settings",
     "/settings/privacy",
-    "/admin/mcp/servers"
+    "/admin/mcp/servers",
+    "/admin/mcp",
+    "/admin/compliance",
+    "/algorithms",
+    "/analytics",
+    "/graph",
+    "/knowledge",
+    "/mcp",
+    "/profile",
+    "/projects",
+    "/projects/view?id=a11y-session",
+    "/runs",
+    "/runs/view?id=a11y-run",
+    "/simulations",
+    "/tools/history",
+    "/truth-engine"
   ],
-  "total_routes": 12,
+  "total_routes": 27,
   "total_violations": 0,
   "results": [
     {
@@ -98,6 +113,111 @@
     {
       "route": "/admin/mcp/servers",
       "url": "http://127.0.0.1:3200/admin/mcp/servers",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/admin/mcp",
+      "url": "http://127.0.0.1:3200/admin/mcp",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/admin/compliance",
+      "url": "http://127.0.0.1:3200/admin/compliance",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/algorithms",
+      "url": "http://127.0.0.1:3200/algorithms",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/analytics",
+      "url": "http://127.0.0.1:3200/analytics",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/graph",
+      "url": "http://127.0.0.1:3200/graph",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/knowledge",
+      "url": "http://127.0.0.1:3200/knowledge",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/mcp",
+      "url": "http://127.0.0.1:3200/mcp",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/profile",
+      "url": "http://127.0.0.1:3200/profile",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/projects",
+      "url": "http://127.0.0.1:3200/projects",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/projects/view?id=a11y-session",
+      "url": "http://127.0.0.1:3200/projects/view?id=a11y-session",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/runs",
+      "url": "http://127.0.0.1:3200/runs",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/runs/view?id=a11y-run",
+      "url": "http://127.0.0.1:3200/runs/view?id=a11y-run",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/simulations",
+      "url": "http://127.0.0.1:3200/simulations",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/tools/history",
+      "url": "http://127.0.0.1:3200/tools/history",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/truth-engine",
+      "url": "http://127.0.0.1:3200/truth-engine",
       "status": 200,
       "violation_count": 0,
       "violations": []

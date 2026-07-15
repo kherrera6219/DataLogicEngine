@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.9.0 |
+| Document version | v1.11.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,7 +18,7 @@
 
 ### Current execution checkpoint
 
-Phase 11 reached its engineering checkpoint on 2026-07-14. ADR-0008 selects MCP
+Phase 12 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
 Registration validates but does not execute one exact absolute command. Owner
 consent binds its SHA-256 fingerprint and granular scope subset; DPAPI protects
@@ -32,10 +32,21 @@ consent, discovery, lifecycle, and execution state; Redis carries content-free
 live events; large governed results use `mcp-results`. Every result is untrusted,
 bounded, hashed, redacted, and prompt-injection checked before any later governed
 path may use it. The owner UI exposes exact authority and lifecycle controls.
-Phase 12 is now active.
+ADR-0009 selects the durable Session Library instead of
+an implied independent Project/workspace model. The improved production-source
+inventory covers 27 pages and 194 control instances with zero enabled controls
+without an obvious action. Hardcoded dashboard
+trend, optimistic compliance/project/analytics state, and actionless advanced
+configuration/chat/project/profile/response controls were removed or replaced
+with real state and actions. The encrypted offline queue now supports owner
+review, redacted export, governed replay, delete, and clear. All 27 routes pass
+axe and ten browser keyboard/app-readiness workflows pass. Phase 13 is now
+active. Real installed handler-to-durable-effect, packaged visual/scaling/high-
+contrast, and NVDA proof remain open release gates.
 
-This checkpoint is not the full Phase 11 production exit gate and does not
-change the overall release verdict from **NO-GO**. The supported 0.1.1 retained-
+This checkpoint does not close the installed production exit gates for Phases
+3-12 and does not change the overall release verdict from **NO-GO**. The
+supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
 license review, final object-store decision, and real installed OpenAI/Gemini
@@ -49,6 +60,8 @@ result-validity acceptance, plus Phase 11 installed file/network isolation,
 process/reboot recovery, data-plane backup/restore, hostile fixture, and Electron
 add/discover/call/cancel/stop/restart/remove acceptance remain open gates
 that can only close against the later rebuilt release candidate.
+Phase 12 installed real-service/store workflow reconciliation, Windows scaling/
+high-contrast/visual checks, and manual NVDA acceptance likewise remain open.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -2424,8 +2437,9 @@ Complete and test at minimum:
 
 #### 20.3 Product semantics
 
-1. Decide whether Projects are independent durable workspaces or chat-session
-   aliases. Implement the selected model or rename the feature.
+1. **Selected 2026-07-14 by ADR-0009:** the initial product uses the durable
+   Session Library over chat-session authority; `/projects` remains a
+   compatibility route and no independent Project/workspace model is claimed.
 2. Replace hardcoded dashboard trends, pass badges, health counts, compliance
    labels, and status text with sourced data and timestamps.
 3. Show `not measured`, `not configured`, `degraded`, `partial`, and `unsupported`
@@ -2496,6 +2510,28 @@ The Electron E2E run must use the packaged backend and full internal data plane.
 For every control, assert both the visible result and the durable backend/store
 effect. Complete the manual keyboard, Windows scaling, high-contrast, and NVDA
 checklists on the release-candidate UI.
+
+### Engineering checkpoint completed 2026-07-14
+
+1. The production-source inventory covers 27 pages and 194 controls: 191 are
+   wired/targeted, three are literally disabled, and zero enabled controls lack
+   an obvious action. The zero-no-op result is an automated gate.
+2. ADR-0009 selects the durable Session Library and retains `/projects` only as
+   a compatibility route. Unsupported independent-workspace controls are absent.
+3. Fabricated dashboard, analytics, project, compliance, and profile state was
+   removed or replaced by sourced timestamps and explicit unavailable state.
+4. The built-in chat exposes encrypted offline queue review, redacted metadata
+   export, current-policy replay, single deletion, and confirmed clear.
+5. Axe passes all 27 production routes; ten app-readiness/keyboard workflows,
+   including queue review/export/replay, pass.
+6. Full validation passes 2,097 backend tests with 18 skipped and 412 frontend
+   tests, plus lint, typecheck, build, Ruff, compilation, and documentation gates.
+7. Full regression also hardened Windows MCP shutdown: descendants are captured
+   before stdin close and breakaway children are explicitly terminated.
+
+This is an engineering checkpoint. CP12-C real installed workflow/store effects,
+the packaged visual/scaling/high-contrast portion of CP12-E, and CP12-F manual
+NVDA acceptance remain release blockers.
 
 ### Exit gate
 
@@ -3874,21 +3910,18 @@ exit gate.
 
 ## 32. Immediate next action
 
-Start **Phase 12** from the committed Phase 11 engineering checkpoint. Inventory
-Dashboard, Chat, Projects, Runs, Trace, Knowledge, Graph, Simulations, MCP,
-Settings, Privacy, Admin, About, first-run, and recovery routes. Map every visible
-control to its backend authority, project/workspace identity, state restoration,
-empty/loading/partial/failure/recovery behavior, and keyboard/focus/zoom/contrast
-contract before changing shared navigation or project semantics.
+Begin **Phase 13** with a live inventory of structured logs, correlation IDs,
+metrics, diagnostics routes/UI, error taxonomies, broad exception fallbacks,
+support-bundle generation, compliance-status resolvers, and operational
+runbooks. Classify each surface by authority, sensitivity, retention, and
+fail-closed/fail-soft behavior before changing code.
 
-Add failure-first UI/API tests for dead/duplicate actions, project identity loss,
-stale or contradictory status, route errors, partial/offline state, destructive
-confirmation, keyboard-only operation, focus restoration, high zoom, and
-screen-reader names. Define one coherent project/workspace and primary-job model
-before migrating persistent identifiers or removing legacy pages.
+Start with correlation propagation and forbidden-field/redaction tests, then
+build the explicit owner support-bundle preview/export workflow required by
+Phase 13. Retain external telemetry as disabled by default.
 
 Preserve the one `governed.v1` orchestrator, `dle-simulation.v1`, and
 versioned client boundary, all installed-only Phase 3-11 gates, Dependabot alert
 389, and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 12 must not treat component tests as packaged visual,
-accessibility, or human acceptance.
+blockers. Phase 13 must preserve Phase 12's installed workflow, packaged visual/
+scaling/high-contrast, and manual NVDA gates.

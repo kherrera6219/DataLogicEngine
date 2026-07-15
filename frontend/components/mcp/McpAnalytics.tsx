@@ -60,7 +60,10 @@ export function McpAnalytics() {
        <div className="flex justify-between items-center">
           <div>
              <h2 className="text-2xl font-bold text-white">MCP Performance Analytics</h2>
-             <p className="text-gray-400">Real-time monitoring and health status</p>
+             <p className="text-gray-400">
+               Current persisted counters and process metrics
+               {data.timestamp ? ` · updated ${new Date(data.timestamp).toLocaleString()}` : ' · update time unavailable'}
+             </p>
           </div>
        </div>
 
@@ -151,7 +154,7 @@ export function McpAnalytics() {
                 <CardHeader className="bg-white/5 border-b border-white/10 pb-4">
                    <CardTitle className="text-lg flex justify-between">
                       <span>Error Analysis</span>
-                      <span className="text-sm font-normal text-red-400">Real-time stats</span>
+                      <span className="text-sm font-normal text-red-400">Current snapshot</span>
                    </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">

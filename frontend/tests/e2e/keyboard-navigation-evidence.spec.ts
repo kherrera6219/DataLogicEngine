@@ -95,6 +95,9 @@ async function mockApi(page: Page) {
     }
     if (path === '/storage/databases/autostart') return route.fulfill(jsonResponse({ enabled: true }));
     if (path === '/storage/cloud-config') return route.fulfill(jsonResponse({ success: true, cloud_config: {} }));
+    if (path === '/gateway/offline-queue') {
+      return route.fulfill(jsonResponse({ items: [], counts: {}, snapshot_at: '2026-07-14T10:01:00Z' }));
+    }
 
     return route.fulfill(jsonResponse({ success: true }));
   });
@@ -144,7 +147,7 @@ test.describe('Keyboard navigation evidence', () => {
 
     const storage = page.getByRole('tab', { name: /^storage$/i });
     await focusAndActivate(page, storage);
-    await expect(page.getByRole('heading', { name: /database connections/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /internal data plane/i })).toBeVisible();
 
     const aiModels = page.getByRole('tab', { name: /ai models/i });
     await focusAndActivate(page, aiModels);
