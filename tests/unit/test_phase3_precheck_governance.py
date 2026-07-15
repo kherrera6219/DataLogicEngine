@@ -1,6 +1,17 @@
 from scripts import runtime_precheck, verify_lockfiles
 
 
+def test_dependency_source_hash_is_line_ending_independent(tmp_path):
+    lf_source = tmp_path / "requirements-lf.txt"
+    crlf_source = tmp_path / "requirements-crlf.txt"
+    lf_source.write_bytes(b"Flask==3.1.3\nrequests==2.34.2\n")
+    crlf_source.write_bytes(b"Flask==3.1.3\r\nrequests==2.34.2\r\n")
+
+    assert verify_lockfiles._source_sha256(lf_source) == verify_lockfiles._source_sha256(
+        crlf_source
+    )
+
+
 def test_runtime_precheck_blocks_production_auto_create_schema(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
     monkeypatch.setenv("FLASK_ENV", "production")

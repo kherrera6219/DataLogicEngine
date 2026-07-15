@@ -16,6 +16,13 @@ LOCK = ROOT / "requirements.lock"
 AUTHORITY = ROOT / "config" / "dependency-authority.json"
 
 
+def _source_sha256(path: Path) -> str:
+    """Hash dependency authority with platform-independent line endings."""
+
+    canonical = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def main() -> int:
     authority = json.loads(AUTHORITY.read_text(encoding="utf-8"))["python"]
     required_generator = str(authority["lock_generator"])
@@ -46,7 +53,7 @@ def main() -> int:
         str(authority["python_version"]),
     ]
     subprocess.run(command, cwd=ROOT, check=True)
-    source_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
+    source_hash = _source_sha256(SOURCE)
     text = LOCK.read_text(encoding="utf-8")
     lines = text.splitlines()
     insert_at = 2 if len(lines) >= 2 else len(lines)

@@ -58,6 +58,21 @@ def test_service_url_removes_credentials_and_query_values():
     assert sanitized == "redis://127.0.0.1:6379/0"
 
 
+def test_http_probe_rejects_non_loopback_or_non_http_targets(monkeypatch):
+    def unexpected_network_call(*_args, **_kwargs):
+        raise AssertionError("untrusted support probe reached the network")
+
+    monkeypatch.setattr(bundle.urllib.request, "urlopen", unexpected_network_call)
+
+    for target in ("https://example.com/health", "file:///etc/passwd"):
+        result = bundle.probe_http_endpoint(target)
+        assert result == {
+            "ok": False,
+            "status_code": None,
+            "error": "endpoint_not_loopback_http",
+        }
+
+
 def test_preview_creates_no_archive_and_exposes_only_redacted_inventory(tmp_path):
     _seed_sensitive_files(tmp_path)
     preview = bundle.SupportBundleBuilder(tmp_path).preview(

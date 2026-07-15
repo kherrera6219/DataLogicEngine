@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-15 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -30,6 +30,9 @@ administration, audit, observability, and validation application.
 > engineering/assurance content set is complete with installed/manual evidence
 > retained; CP16-D/CP16-E external-review content is complete with policy and
 > reviewer acceptance retained, and CP16-F replacement closure is active.
+> The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
+> backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
+> passes 2,177 backend tests and the full hashed Windows dependency install.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -102,6 +105,9 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
+- Replacement GitHub Actions verification for the 2026-07-15 CI/security repair;
+  the ChromaDB no-fix advisory remains release-blocking despite its documented
+  audit suppression
 - Phase 16 CP16-F source replacement, link migration, retained-evidence verification, and archive proposal after all 30 canonical targets were created
 - Approved 154-file disposition crosswalk: exactly 30 existing canonical targets with verified headers, zero unclassified files, and no archive/delete action until full link/content/evidence verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification

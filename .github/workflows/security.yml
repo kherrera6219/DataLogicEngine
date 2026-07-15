@@ -33,8 +33,15 @@ jobs:
       # torch.jit.script on any input — not reachable. Accepted-risk suppression;
       # revisit when an upstream fix ships. See TODO.md "CI And Security Evidence".
       # CVE-2026-12243: nltk path traversal, no patch available for 3.9.x yet.
+      # PYSEC-2026-311 / GHSA-f4j7-r4q5-qw2c: no patched ChromaDB release exists.
+      # The app rejects persisted embedding functions and does not expose the
+      # vulnerable Python server path, but production release remains blocked
+      # until a patched candidate passes adversarial installed qualification.
       run: |
-        pip-audit -r requirements.lock --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
+        pip-audit -r requirements.lock --desc --format json --output pip-audit-report.json \
+          --ignore-vuln CVE-2025-3000 \
+          --ignore-vuln CVE-2026-12243 \
+          --ignore-vuln PYSEC-2026-311
 
     - name: Upload dependency scan report
       if: always()
@@ -280,8 +287,6 @@ jobs:
       uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
 
     - name: Sign SBOM artifacts (keyless OIDC)
-      env:
-        COSIGN_EXPERIMENTAL: "1"
       run: |
         set -euo pipefail
         cosign version
@@ -289,35 +294,27 @@ jobs:
         test -f sbom-frontend.json
         test -f sbom-services.json
         cosign sign-blob --yes sbom-backend.json \
-          --output-signature sbom-backend.json.sig \
-          --output-certificate sbom-backend.json.pem
+          --bundle sbom-backend.sigstore.json
         cosign sign-blob --yes sbom-frontend.json \
-          --output-signature sbom-frontend.json.sig \
-          --output-certificate sbom-frontend.json.pem
+          --bundle sbom-frontend.sigstore.json
         cosign sign-blob --yes sbom-services.json \
-          --output-signature sbom-services.json.sig \
-          --output-certificate sbom-services.json.pem
+          --bundle sbom-services.sigstore.json
 
     - name: Verify SBOM signatures
-      env:
-        COSIGN_EXPERIMENTAL: "1"
       run: |
         set -euo pipefail
         IDENTITY='^https://github.com/kherrera6219/DataLogicEngine/.github/workflows/security.yml@refs/heads/main$'
         ISSUER='https://token.actions.githubusercontent.com'
         cosign verify-blob sbom-backend.json \
-          --signature sbom-backend.json.sig \
-          --certificate sbom-backend.json.pem \
+          --bundle sbom-backend.sigstore.json \
           --certificate-identity-regexp "$IDENTITY" \
           --certificate-oidc-issuer "$ISSUER"
         cosign verify-blob sbom-frontend.json \
-          --signature sbom-frontend.json.sig \
-          --certificate sbom-frontend.json.pem \
+          --bundle sbom-frontend.sigstore.json \
           --certificate-identity-regexp "$IDENTITY" \
           --certificate-oidc-issuer "$ISSUER"
         cosign verify-blob sbom-services.json \
-          --signature sbom-services.json.sig \
-          --certificate sbom-services.json.pem \
+          --bundle sbom-services.sigstore.json \
           --certificate-identity-regexp "$IDENTITY" \
           --certificate-oidc-issuer "$ISSUER"
 
@@ -326,12 +323,9 @@ jobs:
       with:
         name: sbom-signatures
         path: |
-          sbom-backend.json.sig
-          sbom-backend.json.pem
-          sbom-frontend.json.sig
-          sbom-frontend.json.pem
-          sbom-services.json.sig
-          sbom-services.json.pem
+          sbom-backend.sigstore.json
+          sbom-frontend.sigstore.json
+          sbom-services.sigstore.json
         if-no-files-found: error
 
   crash-reporting-probe:

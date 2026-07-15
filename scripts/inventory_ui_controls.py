@@ -33,8 +33,8 @@ def main(argv: list[str] | None = None) -> int:
             if not name.endswith(".tsx") or name.endswith((".test.tsx", ".spec.tsx")):
                 continue
             path = base / name
-            relative = str(path.relative_to(ROOT))
-            if relative.startswith("frontend\\components\\ui\\"):
+            relative = path.relative_to(ROOT).as_posix()
+            if relative.startswith("frontend/components/ui/"):
                 continue
             if path.name == "page.tsx":
                 pages.append(relative)

@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-15 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.19.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -562,6 +562,24 @@ all 30 controlled headers pass. The submission/external-review verifier passes
 3/3 records and eight focused tests pass. External policy, signed artifact,
 legal/distribution, reviewer, and acceptance gates remain open. No source was
 moved, archived, or deleted. CP16-F replacement closure is active.
+
+## CI/security maintenance checkpoint - 2026-07-15
+
+The failing GitHub dependency, backend, governance, Bandit, and Cosign jobs were
+reproduced and repaired. The Python authority adds Flask async support and moves
+Pillow, Starlette, and Transformers to reviewed fixed versions; the generated
+lock hashes canonical LF content so Windows checkout line endings cannot create
+false governance drift. Cosign v3 now emits and verifies Sigstore bundles.
+Bandit exceptions are narrowly documented for validated loopback-only calls, and
+cross-platform Windows path/session/bootstrap/UI inventory tests are corrected.
+
+A clean short-path Windows environment installed all 315 hash-locked packages
+and passed `pip check`. The full backend result is 2,177 passed and 18 skipped;
+the dependency audit reports zero unignored findings; Ruff, Bandit, lock,
+workflow-pin, frontend lint, and frontend typecheck gates pass. The ChromaDB
+advisory remains a documented no-fix CI ignore and an open production release
+blocker. Phase 16 CP16-F remains the exact next plan action after this repair is
+pushed and the replacement GitHub runs are observed.
 
 ## Exact next action
 

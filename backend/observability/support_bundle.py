@@ -19,9 +19,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from backend.product_version import PRODUCT_VERSION
-from urllib.parse import urlsplit, urlunsplit
 
 from backend.observability.redaction import redact_text, redact_value
 
@@ -301,9 +301,25 @@ def http_probe_snapshot() -> dict[str, Any]:
 
 
 def probe_http_endpoint(url: str, timeout_seconds: int = 5) -> dict[str, Any]:
+    parsed = urlsplit(url)
+    if (
+        parsed.scheme != "http"
+        or (parsed.hostname or "").lower() not in {"127.0.0.1", "localhost", "::1"}
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        return {
+            "ok": False,
+            "status_code": None,
+            "error": "endpoint_not_loopback_http",
+        }
     request = urllib.request.Request(url=url, method="GET")
     try:
-        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:  # noqa: S310
+        # The target has been restricted to loopback HTTP above.
+        with urllib.request.urlopen(  # noqa: S310  # nosec B310
+            request,
+            timeout=timeout_seconds,
+        ) as response:
             body = response.read().decode("utf-8", errors="replace")
             return {
                 "ok": True,

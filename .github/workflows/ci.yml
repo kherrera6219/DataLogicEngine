@@ -41,8 +41,13 @@ jobs:
       # patched release) is suppressed: torch is transitive and the app never
       # calls torch.jit.script. Keep in sync with security.yml. See TODO.md.
       # CVE-2026-12243 (nltk path traversal, no patch available for 3.9.x yet)
+      # PYSEC-2026-311 / GHSA-f4j7-r4q5-qw2c has no patched ChromaDB release;
+      # constrained deployment is documented and production remains blocked.
       run: |
-        pip-audit -r requirements.lock --desc --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
+        pip-audit -r requirements.lock --desc \
+          --ignore-vuln CVE-2025-3000 \
+          --ignore-vuln CVE-2026-12243 \
+          --ignore-vuln PYSEC-2026-311
 
     - name: Run smoke bootstrap check
       run: |

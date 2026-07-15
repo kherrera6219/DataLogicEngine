@@ -1,15 +1,28 @@
+import base64
 from types import SimpleNamespace
 
 from tests.conftest import seed_login_session
 
 
-def test_session_cookie_security_defaults(monkeypatch):
+def test_session_cookie_security_defaults(monkeypatch, tmp_path):
     monkeypatch.setenv("FLASK_ENV", "production")
     monkeypatch.setenv("SECRET_KEY", "test-secret")
     monkeypatch.setenv("SESSION_SECRET", "test-session-secret")
     monkeypatch.setenv("SESSION_COOKIE_SECURE", "true")
     monkeypatch.setenv("CORS_ORIGINS", "https://localhost:3000")
     monkeypatch.setenv("ALLOW_PLAINTEXT_PROD_SECRETS", "true")
+    monkeypatch.setattr(
+        "backend.runtime.data_plane_delivery.encrypt_data",
+        lambda value: base64.b64encode(value.encode()).decode(),
+    )
+    monkeypatch.setattr(
+        "backend.runtime.data_plane_delivery.decrypt_data",
+        lambda value: base64.b64decode(value.encode()).decode(),
+    )
+    monkeypatch.setattr(
+        "backend.runtime.data_plane_delivery.ensure_restricted_user_acl",
+        lambda *_args, **_kwargs: True,
+    )
 
     from app import create_app
 
@@ -21,6 +34,7 @@ def test_session_cookie_security_defaults(monkeypatch):
                 "DLE_START_MANAGED_SERVICES": False,
                 "DLE_REQUIRED_SERVICES": "",
                 "DLE_DATA_PLANE_PROFILE": "qualification",
+                "DLE_RUNTIME_ROOT": str(tmp_path),
             },
         start_runtime=False,
     )

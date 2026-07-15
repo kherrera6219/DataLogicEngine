@@ -365,7 +365,11 @@ class ConnectionManager:
                     f"http://{self.config.vector.host}:"
                     f"{self.config.vector.port}/api/v2/heartbeat"
                 )
-                with urllib.request.urlopen(url, timeout=3) as response:  # noqa: S310 - loopback only
+                # The app-owned data-plane configuration fixes this endpoint to loopback.
+                with urllib.request.urlopen(  # noqa: S310  # nosec B310
+                    url,
+                    timeout=3,
+                ) as response:
                     payload = json.loads(response.read().decode("utf-8"))
                 return "nanosecond heartbeat" in payload
             from backend.storage.vector_store import ChromaDBBackend

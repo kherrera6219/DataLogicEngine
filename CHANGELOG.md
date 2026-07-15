@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-15 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **CI/security gate repair**: added Flask async runtime support; upgraded the
+  vulnerable Pillow, Starlette, and Transformers pins; regenerated the 315-
+  package hash lock with cross-platform source hashing; migrated Cosign v3 SBOM
+  signing to Sigstore bundles; removed new Bandit findings; and corrected Linux/
+  Windows policy, session, desktop-bootstrap, and UI-inventory test assumptions.
+  Clean Windows lock installation, dependency audit, governance, lint/typecheck,
+  and 2,177 backend tests pass. The unpatched ChromaDB advisory remains an
+  explicit production release blocker.
 - **Phase 16 CP16-D/CP16-E external-review content checkpoint**: completed the
   30-document canonical set with professional review, Microsoft submission, and
   independent review records; selected the traditional MSI/EXE Store route for

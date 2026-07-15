@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.16.0 |
-| Last updated | 2026-07-14 |
+| Document version | v2.17.0 |
+| Last updated | 2026-07-15 |
 | Status | Active |
 | Owner | Security Engineering |
 | Review cadence | Every 30 days |
@@ -43,6 +43,25 @@ assets. The clean candidate passes that gate, while its signature inventory
 correctly remains failed until the approved publisher signs every final app-owned
 binary. A packaged-runtime probe also proved production startup fails closed when
 protected-volume readiness cannot be verified.
+
+### 2026-07-15 CI security-gate maintenance
+
+The exact Python release authority includes Flask async support and reviewed
+Pillow 12.3.0, Starlette 1.3.1, and Transformers 5.13.0 pins. Lock authority is
+hashed after canonical line-ending normalization so Windows checkouts cannot
+create false stale-lock failures. The dependency gate has zero unignored known
+vulnerabilities; `PYSEC-2026-311` is documented as a no-fixed-release ChromaDB
+exception solely to keep the scan operational. It does not close Dependabot
+alert 389 or authorize production use.
+
+Cosign v3 SBOM signing and verification use Sigstore bundles. Bandit exceptions
+are restricted to paths whose code validates loopback HTTP before opening a
+connection or to fixed internal container/runtime values. External schemes,
+hosts, credential-bearing URLs, Windows path ambiguity, and unauthorized desktop
+bootstrap mutations fail closed. Clean Windows lock installation, `pip check`,
+the full backend suite, Ruff, Bandit, dependency audit, lock governance, workflow-
+pin governance, and frontend lint/typecheck pass locally; GitHub-hosted reruns
+remain the authoritative CI result for the pushed commit.
 
 ## Audience
 
@@ -628,6 +647,13 @@ A security reviewer should inspect these files in order:
 
 Installed cross-process/store correlation, the full failure-injection matrix,
 all-output/no-egress canaries, and 24/72-hour soaks remain release-blocking.
+
+## Change notes for v2.17.0
+
+1. Recorded dependency, Cosign v3 bundle, Bandit, loopback URL, cross-platform
+   policy/session/bootstrap, and line-ending-independent lock-gate maintenance.
+2. Preserved the ChromaDB advisory as a release blocker while documenting the
+   narrow no-fixed-release scan exception.
 
 ## Change notes for v2.14.0
 

@@ -195,7 +195,8 @@ class PodmanDataPlaneManager:
         if inspected is None:
             raise PodmanDataPlaneError("postgresql_backup_service_missing")
         self._assert_owned_container(spec, inspected)
-        remote = "/tmp/dle-coordinated-backup.dump"
+        # This path exists only in the private, memory-backed container tmpfs.
+        remote = "/tmp/dle-coordinated-backup.dump"  # nosec B108
         command = (
             "PGPASSWORD=$(cat /run/secrets/postgres-password) "
             "pg_dump --username=dle_migration --dbname=datalogic "
@@ -232,7 +233,8 @@ class PodmanDataPlaneManager:
         if inspected is None:
             raise PodmanDataPlaneError("postgresql_restore_service_missing")
         self._assert_owned_container(spec, inspected)
-        remote = "/tmp/dle-coordinated-restore.dump"
+        # This path exists only in the private, memory-backed container tmpfs.
+        remote = "/tmp/dle-coordinated-restore.dump"  # nosec B108
         command = (
             "PGPASSWORD=$(cat /run/secrets/postgres-password) "
             "pg_restore --username=dle_migration --dbname=datalogic "
@@ -501,7 +503,8 @@ class PodmanDataPlaneManager:
                  ("POSTGRES_DB", "datalogic"),
                  ("POSTGRES_PASSWORD_FILE", "/run/secrets/postgres-password"),
                  ("POSTGRES_INITDB_ARGS", "--auth-host=scram-sha-256 --auth-local=scram-sha-256"),),
-                ("/var/run/postgresql:rw,noexec,nosuid,nodev,size=16777216,mode=0777", "/tmp:rw,noexec,nosuid,nodev,size=67108864,mode=1777"),
+                # Explicit private container tmpfs mounts; never host temporary paths.
+                ("/var/run/postgresql:rw,noexec,nosuid,nodev,size=16777216,mode=0777", "/tmp:rw,noexec,nosuid,nodev,size=67108864,mode=1777"),  # nosec B108
                 (),
             ),
             "redis": ServiceRuntimeSpec(
@@ -511,7 +514,7 @@ class PodmanDataPlaneManager:
                 redis.memory_bytes, redis.cpus, redis.pids_limit, "999:999",
                 ((f"{self.prefix}-redis-data", "/data"),),
                 ((f"{self.prefix}-redis-config", "redis.conf", "mount"),),
-                (), ("/tmp:rw,noexec,nosuid,nodev,size=33554432",),
+                (), ("/tmp:rw,noexec,nosuid,nodev,size=33554432",),  # nosec B108
                 ("redis-server", "/run/secrets/redis.conf"),
             ),
             "neo4j": ServiceRuntimeSpec(
@@ -527,9 +530,10 @@ class PodmanDataPlaneManager:
                 (("NEO4J_server_memory_heap_initial__size", "384m"),
                  ("NEO4J_server_memory_heap_max__size", "768m"),
                  ("NEO4J_server_memory_pagecache_size", "384m"),
-                 ("NEO4J_server_default__listen__address", "0.0.0.0"),
+                 # The host publish remains loopback-only; this is the isolated container listener.
+                 ("NEO4J_server_default__listen__address", "0.0.0.0"),  # nosec B104
                  ("NEO4J_dbms_usage__report_enabled", "false"),),
-                ("/tmp:rw,nosuid,nodev,size=268435456",), (),
+                ("/tmp:rw,nosuid,nodev,size=268435456",), (),  # nosec B108
             ),
             "chroma": ServiceRuntimeSpec(
                 "chroma", "chromadb", chroma.container_name,
@@ -539,7 +543,7 @@ class PodmanDataPlaneManager:
                 ((f"{self.prefix}-chroma-data", "/data"),), (),
                 (("IS_PERSISTENT", "TRUE"), ("PERSIST_DIRECTORY", "/data"),
                  ("ANONYMIZED_TELEMETRY", "FALSE"), ("ALLOW_RESET", "FALSE"),),
-                ("/tmp:rw,noexec,nosuid,nodev,size=134217728",), (),
+                ("/tmp:rw,noexec,nosuid,nodev,size=134217728",), (),  # nosec B108
             ),
             "minio": ServiceRuntimeSpec(
                 "minio", "object_store_candidate", object_store.container_name,
@@ -548,7 +552,7 @@ class PodmanDataPlaneManager:
                 object_store.memory_bytes, object_store.cpus, object_store.pids_limit, "1000:1000",
                 ((f"{self.prefix}-object-data", "/data"),),
                 ((f"{self.prefix}-object-s3-config", "dle-s3.json", "mount"),), (),
-                ("/tmp:rw,noexec,nosuid,nodev,size=67108864",),
+                ("/tmp:rw,noexec,nosuid,nodev,size=67108864",),  # nosec B108
                 ("mini", "-dir=/data", f"-bucket={','.join(REQUIRED_OBJECT_BUCKETS)}",
                  "-s3.config=/run/secrets/dle-s3.json", "-master.telemetry=false",
                  "-webdav=false", "-admin.ui=false", "-filer.exposeDirectoryData=false",
@@ -803,7 +807,11 @@ class PodmanDataPlaneManager:
         if service == "chroma":
             url = f"http://{settings['chroma_host']}:{settings['chroma_port']}/api/v2/heartbeat"
             try:
-                with urllib.request.urlopen(url, timeout=3) as response:  # noqa: S310 - loopback only
+                # connection_settings fixes this service endpoint to loopback.
+                with urllib.request.urlopen(  # noqa: S310  # nosec B310
+                    url,
+                    timeout=3,
+                ) as response:
                     payload = json.loads(response.read().decode("utf-8"))
                 if "nanosecond heartbeat" not in payload:
                     raise PodmanDataPlaneError("chroma_heartbeat_invalid")

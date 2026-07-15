@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-15 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-18 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -27,6 +27,13 @@ Phase 15 and Phase 16 documentation construction show substantial implemented
 controls, but the exact signed installed release, reproducibility, legal,
 security, accessibility, human, independent, and operational acceptance gates
 are incomplete. Critical dependency alert 389 remains open.
+
+The 2026-07-15 CI/security maintenance checkpoint passes locally: a clean
+short-path Windows environment installs the complete hash lock with no broken
+requirements, the dependency audit has zero unignored findings, and 2,177
+backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
+These maintenance results do not substitute for the signed installed release
+evidence or close alert 389.
 
 ## Candidate identity
 
@@ -74,7 +81,8 @@ Phases 0-2 are complete at their defined source/foundation boundaries. Phases
 3-14 have engineering checkpoints with named installed/manual exit gates retained.
 Phase 15 has a release-candidate engineering checkpoint with CP15-A through
 CP15-H open. Phase 16 has CP16-A complete, CP16-B and CP16-C content checkpoints
-with signed/manual/independent gates retained, and CP16-D through CP16-G open.
+with signed/manual/independent gates retained, CP16-D/CP16-E content complete with
+external gates retained, and CP16-F active. CP16-G remains open.
 Phases 17-18 remain blocked until prerequisite closure.
 
 ## Finding policy

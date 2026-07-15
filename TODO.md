@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-15 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.19.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release decision | Production/public release: **NO-GO** |
@@ -28,6 +28,13 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- The 2026-07-15 CI/security maintenance checkpoint repaired the dependency,
+  backend, governance, code-security, and Cosign artifact-signing failures.
+  A clean short-path Windows environment installed all 315 hash-locked packages
+  with no broken requirements; `pip-audit` reports zero unignored findings;
+  Ruff, Bandit, workflow-pin, lock, frontend lint/typecheck, and 2,177 backend
+  tests pass. The documented ChromaDB no-fix ignore preserves CI visibility but
+  does not close alert 389 or change production/public release from **NO-GO**.
 - Phase 16 CP16-A is owner-approved and complete. The information architecture
   inventories all 134 root and `docs/**` Markdown files with zero unclassified
   files and zero duplicate merge routes.
@@ -619,7 +626,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
-| 16 | Production documentation replacement and professional review dossier | **CP16-A complete; CP16-B content checkpoint complete with signed-RC walkthrough retained; CP16-C active** |
+| 16 | Production documentation replacement and professional review dossier | **CP16-A complete; CP16-B/CP16-C content checkpoints complete with retained exit gates; CP16-D/CP16-E content complete; CP16-F active** |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 

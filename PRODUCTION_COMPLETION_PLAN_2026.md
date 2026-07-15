@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.19.0 |
+| Document version | v1.20.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -146,6 +146,20 @@ route as the qualification choice, not submission approval. Partner Center,
 policy/WACK, signed artifact, reviewer assignment/findings, legal/distribution,
 and external acceptance remain not evaluated or release blocked. CP16-F
 replacement closure is active; archive/delete authorization remains false.
+
+The 2026-07-15 CI/security maintenance checkpoint repaired the failing release
+gates without changing the Phase 16 sequence or the production **NO-GO** verdict.
+The exact Python authority now includes Flask async support and patched Pillow,
+Starlette, and Transformers versions; the generated lock uses a line-ending-
+independent source hash; Cosign v3 signs and verifies SBOM Sigstore bundles; and
+new Bandit findings are removed or narrowly constrained to loopback-only calls.
+Cross-platform policy, session, anonymous-mutation, and UI-inventory tests now
+represent Windows paths and desktop bootstrap authority consistently. A clean
+short-path Windows environment installed all 315 hash-locked packages with no
+broken requirements, the dependency audit had zero unignored findings, and the
+full backend suite passed 2,177 tests with 18 skipped. The unpatched ChromaDB
+advisory remains explicitly ignored only for CI report continuity and remains a
+production release blocker pending the existing qualification requirements.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until

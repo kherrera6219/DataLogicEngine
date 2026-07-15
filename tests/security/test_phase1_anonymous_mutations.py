@@ -40,6 +40,14 @@ ANONYMOUS_DENIAL_CASES = [
     ("/graphql", {"query": "mutation { createSimulation(input: {}) { success } }"}),
 ]
 
+# These two endpoints intentionally start the signed, local Windows desktop
+# bootstrap exchange before a Flask-Login session exists. Empty/non-desktop
+# requests must still fail closed with a client error.
+SIGNED_DESKTOP_BOOTSTRAP_ENDPOINTS = {
+    "auth_api.desktop_auth_challenge",
+    "auth_api.desktop_auto_login",
+}
+
 
 @pytest.mark.parametrize(("path", "payload"), ANONYMOUS_DENIAL_CASES)
 def test_anonymous_mutation_is_denied_before_validation(client, path, payload):
@@ -81,6 +89,12 @@ def test_every_live_mutation_rule_denies_anonymous_access(app, client):
             tested += 1
             path = _sample_route_path(rule.rule)
             response = client.open(path, method=method, json={})
+            if rule.endpoint in SIGNED_DESKTOP_BOOTSTRAP_ENDPOINTS:
+                if not 400 <= response.status_code < 500:
+                    failures.append(
+                        f"{method} {rule.rule} ({rule.endpoint}) -> {response.status_code}"
+                    )
+                continue
             if response.status_code not in {401, 403}:
                 failures.append(
                     f"{method} {rule.rule} ({rule.endpoint}) -> {response.status_code}"

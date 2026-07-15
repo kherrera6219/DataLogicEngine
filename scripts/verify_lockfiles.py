@@ -31,8 +31,11 @@ class Finding:
     message: str
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _source_sha256(path: Path) -> str:
+    """Hash dependency authority with platform-independent line endings."""
+
+    canonical = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def _canonical_name(value: str) -> str:
@@ -103,7 +106,7 @@ def _check_python_lock() -> list[Finding]:
         return findings
     text = PYTHON_LOCK.read_text(encoding="utf-8")
     source_hash_match = re.search(r"(?m)^# source-sha256: ([0-9a-f]{64})$", text)
-    actual_source_hash = _sha256(REQUIREMENTS_SOURCE)
+    actual_source_hash = _source_sha256(REQUIREMENTS_SOURCE)
     if source_hash_match and source_hash_match.group(1) == actual_source_hash:
         findings.append(Finding("OK", "requirements.lock matches the reviewed requirements.txt hash."))
     else:

@@ -11,7 +11,8 @@ from __future__ import annotations
 from copy import deepcopy
 import hashlib
 import json
-from pathlib import Path
+import os
+from pathlib import Path, PureWindowsPath
 import re
 from typing import Any, Mapping
 
@@ -161,10 +162,15 @@ def validate_stdio_definition(name: str, raw_definition: Mapping[str, Any]) -> d
     if not isinstance(command_value, str) or not command_value.strip():
         raise MCPPolicyError("MCP_EXECUTABLE_REQUIRED", "An executable is required")
     command = Path(command_value).expanduser()
-    if not command.is_absolute():
+    windows_command = PureWindowsPath(command_value)
+    windows_absolute = windows_command.is_absolute()
+    if not command.is_absolute() and not windows_absolute:
         raise MCPPolicyError("MCP_EXECUTABLE_ABSOLUTE_REQUIRED", "Executable must be an absolute path")
-    if command.name.lower() in _DENIED_EXECUTABLES:
+    command_name = windows_command.name if windows_absolute else command.name
+    if command_name.lower() in _DENIED_EXECUTABLES:
         raise MCPPolicyError("MCP_EXECUTABLE_DENIED", "Shells and package runners are not allowed")
+    if windows_absolute and os.name != "nt":
+        raise MCPPolicyError("MCP_EXECUTABLE_NOT_FOUND", "Executable does not exist")
     try:
         command = command.resolve(strict=True)
     except OSError as exc:
