@@ -19,6 +19,8 @@ extraResources:
       - "*.rego"
   - from: ../config/release-trust-policy.json
     to: config/release-trust-policy.json
+  - from: ../config/release-channel.json
+    to: config/release-channel.json
 
 win:
   target:

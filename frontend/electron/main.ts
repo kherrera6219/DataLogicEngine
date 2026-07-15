@@ -60,6 +60,12 @@ type PathCapability = {
 
 type JsonRecord = Record<string, unknown>;
 
+type ReleaseChannelPolicy = {
+  channel?: string;
+  data_plane_profile?: string;
+  production_authorized?: boolean;
+};
+
 const ALLOWED_IPC_WEB_ORIGINS = new Set(['http://localhost:3000', 'http://127.0.0.1:3000']);
 const ALLOWED_IPC_APP_HOSTS = new Set(['-', 'dashboard']);
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
@@ -338,6 +344,34 @@ function loadReleaseTrustPolicy(isDev: boolean): ReleaseTrustPolicy | null {
     appendDesktopLog('ERROR', `Release trust policy could not be loaded: ${message}`);
     return null;
   }
+}
+
+function resolveDataPlaneProfile(isDev: boolean): 'qualification' | 'production' | 'blocked' {
+  if (isDev) {
+    return 'qualification';
+  }
+  const policyPath = path.join(process.resourcesPath, 'config', 'release-channel.json');
+  try {
+    const policy = JSON.parse(fs.readFileSync(policyPath, 'utf-8')) as ReleaseChannelPolicy;
+    if (
+      policy.channel === 'production'
+      && policy.data_plane_profile === 'production'
+      && policy.production_authorized === true
+    ) {
+      return 'production';
+    }
+    if (
+      policy.channel === 'candidate'
+      && policy.data_plane_profile === 'qualification'
+      && policy.production_authorized === false
+    ) {
+      return 'qualification';
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    appendDesktopLog('ERROR', `Release channel policy could not be loaded: ${message}`);
+  }
+  return 'blocked';
 }
 
 function configureAutoUpdater(isDev: boolean): void {
@@ -1081,6 +1115,7 @@ function startBackend() {
     SESSION_SECRET: sessionSecret,
     ENCRYPTION_KEK_SECRET: encryptionKekSecret,
     DLE_RUNTIME_ROOT: runtimeDir,
+    DLE_DATA_PLANE_PROFILE: resolveDataPlaneProfile(isDev),
     LOG_FILE: path.join(runtimeDir, 'logs', 'app.log'),
     DATALOGIC_STORAGE_SETTINGS_PATH: path.join(runtimeDir, 'settings.json'),
     AUTO_CREATE_SCHEMA: 'False',
@@ -1088,6 +1123,9 @@ function startBackend() {
     HF_HOME: path.join(runtimeDir, 'cache', 'huggingface'),
     TRANSFORMERS_CACHE: path.join(runtimeDir, 'cache', 'huggingface'),
     NLTK_DATA: path.join(runtimeDir, 'cache', 'nltk_data'),
+    DLE_TRUTHGATE_POLICY: isDev
+      ? path.join(rootDir, 'policies', 'truthgate.rego')
+      : path.join(process.resourcesPath, 'policies', 'truthgate.rego'),
   };
   if (isDev) {
     env.DATABASE_URL = `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\/g, '/')}`;

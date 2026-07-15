@@ -7,9 +7,17 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: Exact product version declared by config/product-versions.json
+        description: Product version, optionally followed by an rc suffix for candidate builds
         required: true
         type: string
+      release_mode:
+        description: Candidate builds produce qualification artifacts; production requires all authorities and signing
+        required: true
+        default: candidate
+        type: choice
+        options:
+          - candidate
+          - production
 
 permissions:
   contents: read
@@ -21,6 +29,8 @@ jobs:
   build-installer:
     name: Build Windows Installer
     runs-on: windows-latest
+    outputs:
+      release_mode: ${{ steps.release-mode.outputs.value }}
 
     steps:
     - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -37,6 +47,24 @@ jobs:
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
+    - name: Resolve release mode
+      id: release-mode
+      env:
+        REQUESTED_RELEASE_MODE: ${{ inputs.release_mode }}
+      run: |
+        $mode = if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+          [string]$env:REQUESTED_RELEASE_MODE
+        } elseif ($env:GITHUB_REF_NAME -match '-rc[.-][0-9]+$') {
+          'candidate'
+        } else {
+          'production'
+        }
+        if ($mode -notin @('candidate', 'production')) {
+          throw "Unsupported release mode '$mode'."
+        }
+        "value=$mode" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        "DLE_RELEASE_MODE=$mode" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
     - name: Validate release source authority
       env:
         RELEASE_VERSION: ${{ inputs.release_version }}
@@ -48,8 +76,12 @@ jobs:
         python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_release.json
         python scripts/verify_workflow_pins.py --json-report reports/workflow_pin_report_release.json
         python scripts/verify_legacy_retirement.py --report reports/legacy_retirement_report_release.json
-        python scripts/verify_release_ownership.py --require-release-ready --report reports/distribution_authority_release.json
-        python scripts/verify_release_trust_policy.py --require-signing --require-updates --require-distribution --report reports/release_trust_policy_release.json
+        python scripts/verify_release_ownership.py --report reports/distribution_authority_release.json
+        python scripts/verify_release_trust_policy.py --report reports/release_trust_policy_release.json
+        if ($env:DLE_RELEASE_MODE -eq 'production') {
+          python scripts/verify_release_ownership.py --require-release-ready --report reports/distribution_authority_release.json
+          python scripts/verify_release_trust_policy.py --require-signing --require-updates --require-distribution --report reports/release_trust_policy_release.json
+        }
         $authority = Get-Content config/product-versions.json -Raw | ConvertFrom-Json
         $expectedVersion = [string]$authority.product.version
         $requestedVersion = if ($env:GITHUB_REF -like 'refs/tags/*') {
@@ -57,8 +89,22 @@ jobs:
         } else {
           [string]$env:RELEASE_VERSION
         }
-        if ($requestedVersion -ne $expectedVersion) {
+        $requestedProductVersion = ($requestedVersion -split '-', 2)[0]
+        if ($requestedProductVersion -ne $expectedVersion) {
           throw "Release version '$requestedVersion' does not match product authority '$expectedVersion'."
+        }
+        if ($env:DLE_RELEASE_MODE -eq 'production' -and $requestedVersion -ne $expectedVersion) {
+          throw "Production release version '$requestedVersion' must exactly match '$expectedVersion'."
+        }
+        if ($env:DLE_RELEASE_MODE -eq 'candidate' -and $requestedVersion -notmatch "^$([regex]::Escape($expectedVersion))(-rc[.-][0-9]+)?$") {
+          throw "Candidate release version '$requestedVersion' must be '$expectedVersion' or an rc suffix of it."
+        }
+        $channel = Get-Content config/release-channel.json -Raw | ConvertFrom-Json
+        if ($env:DLE_RELEASE_MODE -eq 'candidate' -and ($channel.channel -ne 'candidate' -or $channel.data_plane_profile -ne 'qualification' -or $channel.production_authorized -ne $false)) {
+          throw "Candidate builds require the fail-closed qualification release channel."
+        }
+        if ($env:DLE_RELEASE_MODE -eq 'production' -and ($channel.channel -ne 'production' -or $channel.data_plane_profile -ne 'production' -or $channel.production_authorized -ne $true)) {
+          throw "Production builds require an explicitly authorized production release channel."
         }
 
     - name: Install frontend dependencies
@@ -77,6 +123,7 @@ jobs:
     - name: Verify versioned installer integrity
       run: |
         python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_release.json
+        python scripts/verify_release_payload.py --report reports/release_payload_report_release.json
 
     - name: Generate release SBOMs and normalized content inventory
       run: |
@@ -114,12 +161,14 @@ jobs:
           reports/distribution_authority_release.json
           reports/release_trust_policy_release.json
           reports/installer_integrity_release.json
+          reports/release_payload_report_release.json
           reports/release/
         if-no-files-found: error
 
   sign-installer:
     name: Sign Installer Artifacts
     needs: build-installer
+    if: needs.build-installer.outputs.release_mode == 'production'
     runs-on: windows-latest
 
     steps:

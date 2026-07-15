@@ -1,0 +1,6 @@
+{
+  "schema_version": "dle.release-channel.v1",
+  "channel": "candidate",
+  "data_plane_profile": "qualification",
+  "production_authorized": false
+}

@@ -22,6 +22,7 @@ BUILD_INPUTS = (
     "config/product-versions.json",
     "config/dependency-authority.json",
     "config/release-trust-policy.json",
+    "config/release-channel.json",
     "config/legacy-retirement.json",
     "requirements.txt",
     "requirements.lock",
@@ -143,6 +144,7 @@ def build_manifest(root: Path) -> dict[str, Any]:
     product = _json(root / "config" / "product-versions.json")
     dependencies = _json(root / "config" / "dependency-authority.json")
     trust = _json(root / "config" / "release-trust-policy.json")
+    release_channel = _json(root / "config" / "release-channel.json")
     service_lock = _json(root / "deploy" / "internal-data-plane.candidate-lock.json")
     npm_lock = _json(root / "frontend" / "package-lock.json")
     python_versions = _python_lock_versions(root / "requirements.lock")
@@ -187,6 +189,12 @@ def build_manifest(root: Path) -> dict[str, Any]:
         release_blockers.append("signed_updates_not_qualified")
     if trust.get("distribution", {}).get("authority_approved") is not True:
         release_blockers.append("distribution_authority_not_approved")
+    if (
+        release_channel.get("channel") != "production"
+        or release_channel.get("data_plane_profile") != "production"
+        or release_channel.get("production_authorized") is not True
+    ):
+        release_blockers.append("release_channel_is_candidate_only")
     if service_lock.get("production_provisioning_authorized") is not True:
         release_blockers.append("internal_data_plane_is_candidate_only")
     if service_lock.get("architecture_change_authorized") is not True:
@@ -217,6 +225,7 @@ def build_manifest(root: Path) -> dict[str, Any]:
             "product_versions": "config/product-versions.json",
             "dependencies": "config/dependency-authority.json",
             "release_trust": "config/release-trust-policy.json",
+            "release_channel": "config/release-channel.json",
             "legacy_retirement": "config/legacy-retirement.json",
             "internal_data_plane": "deploy/internal-data-plane.candidate-lock.json",
         },

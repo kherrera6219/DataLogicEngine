@@ -12,5 +12,6 @@
     "moduleResolution": "node",
     "types": ["node", "electron"]
   },
-  "include": ["**/*"]
+  "include": ["**/*"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }

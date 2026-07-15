@@ -118,6 +118,7 @@ enc_err.txt
 # Build caches
 .next/
 .venv/
+.venv*/
 
 # Replit
 .replit

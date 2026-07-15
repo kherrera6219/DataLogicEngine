@@ -7,7 +7,12 @@ def build():
     print("--- Starting DataLogic_Backend Build ---")
 
     version_gate = subprocess.run(
-        [sys.executable, "scripts/verify_product_versions.py"],
+        [
+            sys.executable,
+            "scripts/verify_product_versions.py",
+            "--report",
+            "build/product-version-parity.json",
+        ],
         check=False,
     )
     if version_gate.returncode != 0:

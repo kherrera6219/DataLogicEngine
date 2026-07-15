@@ -3,7 +3,7 @@
 import os
 import sys
 
-from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules, copy_metadata
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
 block_cipher = None
 
@@ -15,22 +15,49 @@ _SDK_PATH = os.path.abspath(os.path.join('sdk', 'UKG_Python_SDK'))
 if _SDK_PATH not in sys.path:
     sys.path.insert(0, _SDK_PATH)
 
+
+def runtime_submodule(name):
+    """Exclude package test suites from dynamic runtime collection."""
+    return not any(part.lower() in {"test", "tests", "testing"} for part in name.split("."))
+
+
+def chroma_runtime_submodule(name):
+    """Keep Chroma client internals while excluding server/developer entry points."""
+    return runtime_submodule(name) and not name.startswith(("chromadb.cli", "chromadb.server"))
+
+
+def runtime_data(entries):
+    """Remove test/cache/source-only package data from the frozen payload."""
+    output = []
+    for entry in entries:
+        destination = entry[0].replace("\\", "/")
+        parts = {part.lower() for part in destination.split("/")}
+        if parts.intersection({"test", "tests", "testing", "__pycache__"}):
+            continue
+        if destination.endswith((".py", ".pyc")) and not destination.startswith("migrations/"):
+            continue
+        output.append(entry)
+    return output
+
 a = Analysis(
     ['main.py'],
     pathex=[_SDK_PATH],
-    binaries=collect_dynamic_libs('onnxruntime') + collect_dynamic_libs('tokenizers'),
+    binaries=[],
     datas=[
-        ('backend', 'backend'),
-        ('core', 'core'),
         ('config/product-versions.json', 'config'),
-        # static/ is produced by the frontend build; skip when absent (CI packaging smoke).
-        *([('static', 'static')] if os.path.isdir('static') else []),
+        ('config/provider_manifest.v1.json', 'config'),
+        ('deploy/internal-data-plane.candidate-lock.json', 'deploy'),
+        ('migrations', 'migrations'),
 
-        ('extensions.py', '.'),
-        ('models.py', '.'),
         ('core/data', 'core/data'),
         ('backend/dsqp/templates', 'backend/dsqp/templates'),
-    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb') + collect_data_files('llama_index') + collect_data_files('onnxruntime') + collect_data_files('tokenizers') + copy_metadata('tiktoken') + copy_metadata('onnxruntime') + copy_metadata('tokenizers'),
+        ('backend/knowledge_algorithms/config', 'backend/knowledge_algorithms/config'),
+        ('backend/knowledge_algorithms/ka_registry.yaml', 'backend/knowledge_algorithms'),
+        ('backend/security/prompts', 'backend/security/prompts'),
+        ('backend/api/specs', 'backend/api/specs'),
+        ('core/persona/quad/config', 'core/persona/quad/config'),
+        ('docs/evaluation', 'docs/evaluation'),
+    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + collect_data_files('llama_index', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + copy_metadata('tiktoken'),
     hiddenimports=[
         'flask',
         'flask_sqlalchemy',
@@ -48,22 +75,16 @@ a = Analysis(
         'networkx',
         'pydantic',
         'pydantic_core',
-        'pydantic_settings',
         'sqlalchemy.ext.baked',
         'celery.fixups',
-        'celery.fixups.flask',
         'celery.fixups.django',
         'kombu.transport.redis',
         'eventlet',
-        'eventlet.hubs.epolls',
-        'eventlet.hubs.kqueue',
-        'eventlet.hubs.selects',
         'engineio.async_drivers.threading',
         'simple_websocket',
         'wsproto',
         'h11',
         'dns',
-        'pkg_resources.py2_warn',
         'cv2',
         'web3',
         'eth_account',
@@ -79,22 +100,31 @@ a = Analysis(
         'tiktoken_ext.openai_public',
         'langchain_openai',
         'langchain_community',
-        'sentence_transformers',
-        'transformers',
-        'torch',
         'dotenv',
-        'onnxruntime',
-        'tokenizers',
-    ] + collect_submodules('chromadb') + collect_submodules('onnxruntime') + collect_submodules('tokenizers') + collect_submodules('sentence_transformers') + collect_submodules('ukg_sdk') + collect_submodules('backend.desktop') + collect_submodules('backend.ingestion') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10') + collect_submodules('backend.local_model_acceleration') + collect_submodules('core.self_evolving'),
+    ] + collect_submodules('chromadb', filter=chroma_runtime_submodule) + collect_submodules('ukg_sdk', filter=runtime_submodule) + collect_submodules('backend.desktop', filter=runtime_submodule) + collect_submodules('backend.ingestion', filter=runtime_submodule) + collect_submodules('backend.dsqp', filter=runtime_submodule) + collect_submodules('backend.dmrf', filter=runtime_submodule) + collect_submodules('backend.knowledge_algorithms.l10', filter=runtime_submodule) + collect_submodules('backend.local_model_acceleration', filter=runtime_submodule) + collect_submodules('core.self_evolving', filter=runtime_submodule),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    # The app uses Chroma only as a supervised HTTP client and always supplies
+    # embedding_function=None. Chroma's generic embedding-function registry has
+    # optional imports for this entire local-ML stack; do not freeze those unused
+    # implementations into the production desktop payload.
+    excludes=[
+        'pytest',
+        '_pytest',
+        'sentence_transformers',
+        'transformers',
+        'torch',
+        'sklearn',
+        'onnxruntime',
+        'tokenizers',
+    ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
 )
+a.datas = runtime_data(a.datas)
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(

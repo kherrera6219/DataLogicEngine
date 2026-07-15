@@ -10,9 +10,10 @@ if (-not $RepoRoot) {
 }
 
 $PythonCandidates = @(
+    $env:DLE_BACKEND_BUILD_PYTHON,
     (Join-Path $RepoRoot ".venv311\Scripts\python.exe"),
     (Join-Path $RepoRoot ".venv\Scripts\python.exe")
-)
+) | Where-Object { $_ }
 
 $BackendPython = $null
 foreach ($Candidate in $PythonCandidates) {
