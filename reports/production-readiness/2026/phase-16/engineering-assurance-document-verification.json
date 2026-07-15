@@ -1,10 +1,10 @@
 {
   "schema_version": "dle.engineering-assurance-document-verification.v1",
-  "generated_at": "2026-07-15T07:13:49.296934+00:00",
+  "generated_at": "2026-07-15T07:21:25.629653+00:00",
   "authority_version": "2026.07.14-approved1",
   "status": "pass",
-  "target_count": 7,
-  "verified_count": 7,
+  "target_count": 12,
+  "verified_count": 12,
   "archive_delete_authorized": false,
   "errors": [],
   "documents": [
@@ -93,6 +93,53 @@
         "docs/TESTING.md",
         "docs/diagrams/08_testing_validation_and_release_governance.md",
         "docs/evaluation/HUMAN_REVIEW_RUBRIC.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
+        "docs/adr/ADR-0007-authoritative-simulation-engine.md",
+        "docs/diagrams/03_ai_reasoning_sequence.md",
+        "docs/diagrams/04_17_axis_coordinate_model.md",
+        "docs/diagrams/05_truth_engine_architecture.md",
+        "docs/diagrams/10_dsqp_persona_construction_architecture.md",
+        "docs/ip/dsqp_technical_disclosure.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
+      "status": "not_evaluated",
+      "sources": [],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "status": "not_evaluated",
+      "sources": [],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/SLSA_LEVEL_3_ATTESTATION.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/RELEASE_READINESS_RECORD.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/RELEASE_CHECKLIST.md"
       ],
       "missing_markers": [],
       "errors": []

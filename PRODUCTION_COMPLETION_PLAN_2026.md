@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.17.0 |
+| Document version | v1.18.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -130,6 +130,13 @@ and prohibited-claim checks pass. The inventory is now 146 Markdown files with
 22 existing and eight planned canonical targets. CP16-C remains active for the
 KA/TruthCore, privacy impact, accessibility, third-party, and release-readiness
 assurance records.
+
+The second CP16-C content batch adds those five assurance/release records and
+passes the expanded 12-target engineering/assurance verifier. The inventory is
+now 151 Markdown files with 27 existing and three planned canonical targets.
+CP16-C content construction is complete; exact signed-installed, provider/model,
+manual accessibility, privacy/legal, supply-chain, independent, pilot, and soak
+evidence remains retained. CP16-D/CP16-E external-review content is active.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -3477,10 +3484,11 @@ adapted, not applicable, or independently assessed. Initial references are:
   walkthrough retained:** an unfamiliar supported user can install,
   configure, use, recover, update, and uninstall the signed RC using only the
   public/user/operations documents.
-- **CP16-C - Engineering and assurance set - active:** requirements, architecture, data,
+- **CP16-C - Engineering and assurance set - content checkpoint complete
+  2026-07-14; installed/manual/independent evidence retained:** requirements, architecture, data,
   interfaces, security/privacy, AI/KA, accessibility, V&V, supply chain, and
   release records are internally consistent and evidence-linked.
-- **CP16-D - Microsoft dossier:** the selected distribution route, current policy
+- **CP16-D - Microsoft dossier - active:** the selected distribution route, current policy
   checklist, applicable WACK/certification evidence, metadata/assets, privacy,
   declarations, and reviewer notes are complete and truthful.
 - **CP16-E - Professional review:** independent reviewers can reproduce their
@@ -4037,13 +4045,12 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 16 CP16-C** with the KA/TruthCore validation dossier, privacy
-impact assessment, accessibility conformance report, third-party software index,
-and release-readiness record. Bind every claim to generated/source evidence and
-retain not-evaluated/release-blocked status where installed, manual, legal, or
-independent proof is absent. Then proceed to CP16-D/CP16-E external-review
-records. Retain the CP16-B signed-RC walkthrough and do not archive/delete any
-source until its target, evidence retention, and full link scan pass.
+Continue **Phase 16 CP16-D/CP16-E** by creating the professional review index,
+Microsoft submission dossier, and independent review record. Mark external
+policy/certification, WACK, reviewer assignment/findings, legal/distribution,
+signed-artifact, and acceptance rows `not_evaluated` or `release_blocked` until
+real evidence exists; do not imply Microsoft or independent approval. Retain all
+signed/manual/installed gates and do not archive/delete any source yet.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

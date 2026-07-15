@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.29.0 |
+| Document version | v2.30.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -53,14 +53,14 @@ below remain transitional authorities only until the Phase 16 old-to-new
 crosswalk records their merge, generated replacement, archive, or deletion.
 
 The Phase 16 inventory is generated from `config/documentation-authority.json`:
-all 146 root and documentation-tree Markdown files have one owner-approved
+all 151 root and documentation-tree Markdown files have one owner-approved
 disposition, and the selected canonical set is exactly 30 hand-maintained
-documents (22 existing, eight planned). All 22 existing canonical documents pass
+documents (27 existing, three planned). All 27 existing canonical documents pass
 the controlled-header verifier. See `docs/DOCUMENTATION_BOM.md` and
 `docs/DOCUMENTATION_CROSSWALK.md`. CP16-A and the CP16-B content checkpoint are
-complete; the first CP16-C engineering/assurance content batch is complete and
-CP16-C remains active. The signed-RC CP16-B walkthrough is retained. The approval
-authorizes no archive or deletion until target content and links pass.
+complete; CP16-C content construction is complete with signed/manual/independent
+evidence retained, and CP16-D/CP16-E external-review content is active. The
+approval authorizes no archive or deletion until target content and links pass.
 
 ---
 
@@ -74,8 +74,9 @@ authorizes no archive or deletion until target content and links pass.
 | Architect | `docs/ARCHITECTURE.md`, `docs/DATA_ARCHITECTURE.md`, `docs/INTERFACE_INTEGRATION.md`, `docs/SECURITY_ARCHITECTURE.md` |
 | API integrator | `docs/INTERFACE_INTEGRATION.md`, `docs/openapi.yaml` |
 | Security reviewer | root `SECURITY.md`, `docs/SECURITY_ARCHITECTURE.md`, `docs/PRIVACY_AI_NOTICE.md` |
+| AI/privacy/accessibility assurance | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`, `docs/PRIVACY_IMPACT_ASSESSMENT.md`, `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` |
 | Operator / SRE | `docs/INSTALLATION_GUIDE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` |
-| Release reviewer | `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`, `docs/RELEASE_CHECKLIST.md` |
+| Release reviewer | `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`, `docs/THIRD_PARTY_SOFTWARE_INDEX.md`, `docs/RELEASE_READINESS_RECORD.md` |
 | Documentation owner | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` |
 
 ---
@@ -150,6 +151,11 @@ authorizes no archive or deletion until target content and links pass.
 |---|---|
 | `docs/REQUIREMENTS_TRACEABILITY.md` | Canonical requirement-to-implementation/test/evidence/release-disposition matrix. |
 | `docs/VERIFICATION_VALIDATION_REPORT.md` | Canonical V&V levels, current evidence, retained installed/manual gates, and release decision. |
+| `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | Canonical KA classification/invariants, DSQP/TruthCore/evidence, evaluation, and human-review dossier. |
+| `docs/PRIVACY_IMPACT_ASSESSMENT.md` | Canonical data inventory, privacy flows/risks/controls, and required deployment/legal approvals. |
+| `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | Canonical automated evidence, manual protocol, findings, and truthful non-conformance status. |
+| `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | Canonical dependency/service/SBOM/license/notices/redistribution index and open legal gate. |
+| `docs/RELEASE_READINESS_RECORD.md` | Canonical candidate identity, gate status, final evidence bundle, and go-no-go decision. |
 | `docs/TESTING.md` | Test architecture, quality gates, validation commands. |
 | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | Canonical deployment operations, service lifecycle, backup/recovery, gateway, connector, diagnostics, and incidents. |
 | `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` | Transitional sources retained pending CP16-F evidence/link review. |

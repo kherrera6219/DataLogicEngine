@@ -38,11 +38,11 @@
 | `DLE-ASR-001` | `docs/REQUIREMENTS_TRACEABILITY.md` | `assurance_release_external` | Quality Engineering | existing |
 | `DLE-ASR-002` | `docs/VERIFICATION_VALIDATION_REPORT.md` | `assurance_release_external` | Quality Engineering | existing |
 | `DLE-ASR-003` | `docs/evaluation/AI_SYSTEM_CARD.md` | `assurance_release_external` | AI Assurance | existing |
-| `DLE-ASR-004` | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | `assurance_release_external` | AI Assurance | planned |
-| `DLE-ASR-005` | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | `assurance_release_external` | Privacy Engineering | planned |
-| `DLE-ASR-006` | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | Accessibility Review | planned |
-| `DLE-ASR-007` | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | `assurance_release_external` | Release Engineering | planned |
-| `DLE-ASR-008` | `docs/RELEASE_READINESS_RECORD.md` | `assurance_release_external` | Release Authority | planned |
+| `DLE-ASR-004` | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | `assurance_release_external` | AI Assurance | existing |
+| `DLE-ASR-005` | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | `assurance_release_external` | Privacy Engineering | existing |
+| `DLE-ASR-006` | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | Accessibility Review | existing |
+| `DLE-ASR-007` | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | `assurance_release_external` | Release Engineering | existing |
+| `DLE-ASR-008` | `docs/RELEASE_READINESS_RECORD.md` | `assurance_release_external` | Release Authority | existing |
 | `DLE-EXT-001` | `docs/PROFESSIONAL_REVIEW_INDEX.md` | `assurance_release_external` | External Review Coordinator | planned |
 | `DLE-EXT-002` | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | `assurance_release_external` | Distribution Owner | planned |
 | `DLE-EXT-003` | `docs/INDEPENDENT_REVIEW_RECORD.md` | `assurance_release_external` | External Review Coordinator | planned |

@@ -147,6 +147,68 @@ TARGETS = {
             "Production/public release is **NO-GO**",
         },
     },
+    "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": {
+        "sources": {
+            "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
+            "docs/ip/dsqp_technical_disclosure.md",
+            "docs/diagrams/03_ai_reasoning_sequence.md",
+            "docs/diagrams/04_17_axis_coordinate_model.md",
+            "docs/diagrams/05_truth_engine_architecture.md",
+            "docs/diagrams/10_dsqp_persona_construction_architecture.md",
+            "docs/adr/ADR-0007-authoritative-simulation-engine.md",
+        },
+        "markers": {
+            "live registry contains 125 KAs",
+            "enabled 11",
+            "TruthCore and evidence model",
+            "Phase 6 checkpoint evidence",
+            "Evaluation protocol",
+            "Human review",
+        },
+    },
+    "docs/PRIVACY_IMPACT_ASSESSMENT.md": {
+        "sources": set(),
+        "markers": {
+            "Assessment status and scope",
+            "Data inventory",
+            "Data flows and recipients",
+            "Retention and deletion",
+            "Risk assessment",
+            "Required approvals before production",
+        },
+    },
+    "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md": {
+        "sources": set(),
+        "markers": {
+            "not a VPAT",
+            "Current automated evidence",
+            "28 production routes",
+            "Manual NVDA protocol",
+            "No WCAG level",
+        },
+    },
+    "docs/THIRD_PARTY_SOFTWARE_INDEX.md": {
+        "sources": {"docs/SLSA_LEVEL_3_ATTESTATION.md"},
+        "markers": {
+            "Dependency authorities",
+            "SBOM and inventory set",
+            "81 direct pins",
+            "315 hash-locked packages",
+            "alert 389",
+            "Notice and redistribution approval gate",
+        },
+    },
+    "docs/RELEASE_READINESS_RECORD.md": {
+        "sources": {"docs/RELEASE_CHECKLIST.md"},
+        "markers": {
+            "**Production/public release: NO-GO.**",
+            "Candidate identity",
+            "5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620",
+            "Gate summary",
+            "Required final evidence bundle",
+            "GO authorization template",
+        },
+    },
 }
 PROHIBITED_CLAIMS = {
     "production release is approved",

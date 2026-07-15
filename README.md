@@ -27,7 +27,8 @@ administration, audit, observability, and validation application.
 > Phase 16 controlled-document replacement is active: CP16-A information
 > architecture and the CP16-B product/user content checkpoint are complete, with
 > the signed-RC unfamiliar-user walkthrough retained; the first CP16-C
-> engineering/assurance content batch is complete and CP16-C remains active.
+> engineering/assurance content set is complete with installed/manual evidence
+> retained; CP16-D/CP16-E external-review content is active.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -100,8 +101,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 16 CP16-C assurance/release records and professional/Microsoft review dossier, after CP16-A, CP16-B content, and the first CP16-C engineering/assurance batch
-- Approved 146-file disposition crosswalk: exactly 30 canonical targets, verified headers on all 22 existing targets, zero unclassified files, and no archive/delete action until full link/content verification passes
+- Phase 16 CP16-D/CP16-E professional/Microsoft/independent review records, after CP16-A, CP16-B, and CP16-C content checkpoints
+- Approved 151-file disposition crosswalk: exactly 30 canonical targets, verified headers on all 27 existing targets, zero unclassified files, and no archive/delete action until full link/content verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance

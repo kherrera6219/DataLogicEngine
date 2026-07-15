@@ -13,6 +13,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `COMMERCIAL_LICENSE.md` | `product_public` | authoritative input | `COMMERCIAL_LICENSE.md` | normative legal or temporary program authority outside the final canonical cap |
 | `CONTRIBUTING.md` | `engineering_maintenance` | authoritative input | `CONTRIBUTING.md` | selected canonical document |
 | `DEVELOPMENT.md` | `engineering_maintenance` | merge into docs/SOFTWARE_LIFECYCLE_PLAN.md | `docs/SOFTWARE_LIFECYCLE_PLAN.md` | approved Phase 16 consolidation route |
+| `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | authoritative input | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | selected canonical document |
 | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | `user_admin_support` | authoritative input | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | selected canonical document |
 | `docs/adr/ADR-0001-engineering-governance-baseline.md` | `engineering_maintenance` | merge into docs/ARCHITECTURE.md | `docs/ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/adr/ADR-0002-pq-grpc-transport.md` | `engineering_maintenance` | merge into docs/INTERFACE_INTEGRATION.md | `docs/INTERFACE_INTEGRATION.md` | approved Phase 16 consolidation route |
@@ -104,6 +105,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/INSTALLATION_GUIDE.md` | `user_admin_support` | authoritative input | `docs/INSTALLATION_GUIDE.md` | selected canonical document |
 | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | authoritative input | `docs/INTERFACE_INTEGRATION.md` | selected canonical document |
 | `docs/ip/dsqp_technical_disclosure.md` | `assurance_release_external` | merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | approved Phase 16 consolidation route |
+| `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | `assurance_release_external` | authoritative input | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | selected canonical document |
 | `docs/KNOWLEDGE_ALGORITHM_CATALOG.md` | `assurance_release_external` | merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | approved Phase 16 consolidation route |
 | `docs/LOCAL_USAGE_LEDGER_CONTRACT.md` | `engineering_maintenance` | merge into docs/DATA_ARCHITECTURE.md | `docs/DATA_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | `engineering_maintenance` | authoritative input | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | selected canonical document |
@@ -111,6 +113,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/MIGRATION_SUPPORT_MATRIX.md` | `engineering_maintenance` | merge into docs/DATA_ARCHITECTURE.md | `docs/DATA_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/OPERATIONAL_RUNBOOKS.md` | `user_admin_support` | merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | approved Phase 16 consolidation route |
 | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | authoritative input | `docs/PRIVACY_AI_NOTICE.md` | selected canonical document |
+| `docs/PRIVACY_IMPACT_ASSESSMENT.md` | `assurance_release_external` | authoritative input | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | selected canonical document |
 | `docs/PRIVACY_POLICY.md` | `product_public` | merge into docs/PRIVACY_AI_NOTICE.md | `docs/PRIVACY_AI_NOTICE.md` | approved Phase 16 consolidation route |
 | `docs/PRIVATE_GATEWAY_RUNBOOK.md` | `user_admin_support` | merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | approved Phase 16 consolidation route |
 | `docs/PROCESS_MAP.md` | `engineering_maintenance` | merge into docs/ARCHITECTURE.md | `docs/ARCHITECTURE.md` | approved Phase 16 consolidation route |
@@ -122,6 +125,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/PROVIDER_MODEL_SUPPORT.md` | `assurance_release_external` | merge into docs/evaluation/AI_SYSTEM_CARD.md | `docs/evaluation/AI_SYSTEM_CARD.md` | approved Phase 16 consolidation route |
 | `docs/README.md` | `engineering_maintenance` | generated replacement | `docs/README.md` | generated companion artifact |
 | `docs/RELEASE_CHECKLIST.md` | `assurance_release_external` | merge into docs/RELEASE_READINESS_RECORD.md | `docs/RELEASE_READINESS_RECORD.md` | approved Phase 16 consolidation route |
+| `docs/RELEASE_READINESS_RECORD.md` | `assurance_release_external` | authoritative input | `docs/RELEASE_READINESS_RECORD.md` | selected canonical document |
 | `docs/REPO_AUDIT_LOG.md` | `historical_research` | historical archive | `docs/archive/phase-16/REPO_AUDIT_LOG.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/REQUIREMENTS_TRACEABILITY.md` | `assurance_release_external` | authoritative input | `docs/REQUIREMENTS_TRACEABILITY.md` | selected canonical document |
 | `docs/ROOT_CLEANUP_REVIEW_2026-07-06.md` | `historical_research` | historical archive | `docs/archive/phase-16/ROOT_CLEANUP_REVIEW_2026-07-06.md` | historical audit, research, wireframe, whitepaper, or session material |
@@ -134,6 +138,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/SSL_CONFIGURATION.md` | `engineering_maintenance` | merge into docs/SECURITY_ARCHITECTURE.md | `docs/SECURITY_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | `historical_research` | historical archive | `docs/archive/phase-16/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/TESTING.md` | `assurance_release_external` | merge into docs/VERIFICATION_VALIDATION_REPORT.md | `docs/VERIFICATION_VALIDATION_REPORT.md` | approved Phase 16 consolidation route |
+| `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | `assurance_release_external` | authoritative input | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | selected canonical document |
 | `docs/THREAT_MODEL.md` | `engineering_maintenance` | merge into docs/SECURITY_ARCHITECTURE.md | `docs/SECURITY_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | `historical_research` | historical archive | `docs/archive/phase-16/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | `user_admin_support` | authoritative input | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | selected canonical document |

@@ -567,7 +567,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,6501,.py,2026-07-13 18:32:05 UTC
-CHANGELOG.md,83517,.md,2026-07-15 07:12:53 UTC
+CHANGELOG.md,83911,.md,2026-07-15 07:20:44 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4340,.py,2026-07-15 01:11:17 UTC
@@ -745,6 +745,7 @@ deploy\windows\UKG_Setup.wxs,6480,.wxs,2026-02-07 09:40:30 UTC
 DEVELOPMENT.md,2381,.md,2026-05-22 22:15:29 UTC
 docker-compose.yml,2647,.yml,2026-05-24 23:05:53 UTC
 Dockerfile.cloud,2237,.cloud,2026-07-15 01:18:49 UTC
+docs\ACCESSIBILITY_CONFORMANCE_REPORT.md,6473,.md,2026-07-15 07:17:24 UTC
 docs\ADMINISTRATOR_OPERATIONS_GUIDE.md,11333,.md,2026-07-15 06:55:20 UTC
 docs\adr\ADR-0001-engineering-governance-baseline.md,1789,.md,2026-07-06 18:55:43 UTC
 docs\adr\ADR-0002-pq-grpc-transport.md,1503,.md,2026-07-06 18:55:43 UTC
@@ -867,9 +868,9 @@ docs\diagrams\10_dsqp_persona_construction_architecture.md,9792,.md,2026-07-06 1
 docs\diagrams\11_frontend_product_surface_and_trace_review_map.md,13803,.md,2026-07-14 23:36:14 UTC
 docs\diagrams\12_end_to_end_request_lifecycle.md,6221,.md,2026-07-14 19:11:28 UTC
 docs\DOCS_VERSION.json,334,.json,2026-07-15 03:14:44 UTC
-docs\DOCUMENTATION_BOM.md,4981,.md,2026-07-15 07:13:23 UTC
+docs\DOCUMENTATION_BOM.md,4986,.md,2026-07-15 07:21:08 UTC
 docs\DOCUMENTATION_COVERAGE_MATRIX.md,7258,.md,2026-07-14 08:33:38 UTC
-docs\DOCUMENTATION_CROSSWALK.md,28282,.md,2026-07-15 07:13:23 UTC
+docs\DOCUMENTATION_CROSSWALK.md,29118,.md,2026-07-15 07:21:08 UTC
 docs\DOCUMENTATION_STANDARDS.md,7381,.md,2026-07-06 07:34:43 UTC
 docs\DOCUMENTATION_VERSIONING.md,4241,.md,2026-07-06 07:35:15 UTC
 docs\documents\README.md,872,.md,2026-07-06 19:00:04 UTC
@@ -879,13 +880,14 @@ docs\evaluation\golden_corpus_v1.json,5373,.json,2026-07-14 05:11:18 UTC
 docs\evaluation\HUMAN_REVIEW_RUBRIC.md,1162,.md,2026-07-14 05:11:18 UTC
 docs\evaluation\provider_model_matrix_v1.json,1464,.json,2026-07-14 05:11:18 UTC
 docs\evaluation\QUALITY_EVALUATION.md,1454,.md,2026-07-14 05:11:18 UTC
-docs\FILE_INVENTORY.csv,166015,.csv,2026-07-15 07:02:11 UTC
+docs\FILE_INVENTORY.csv,166689,.csv,2026-07-15 07:13:48 UTC
 docs\FILE_STRUCTURE.md,4638,.md,2026-07-06 07:35:29 UTC
 docs\GATEWAY_COMPATIBILITY.md,4810,.md,2026-07-14 08:27:14 UTC
-docs\GENERATED_STRUCTURE.md,79551,.md,2026-07-15 07:02:11 UTC
+docs\GENERATED_STRUCTURE.md,79554,.md,2026-07-15 07:13:48 UTC
 docs\INSTALLATION_GUIDE.md,8634,.md,2026-07-15 06:54:21 UTC
 docs\INTERFACE_INTEGRATION.md,8496,.md,2026-07-15 07:04:45 UTC
 docs\ip\dsqp_technical_disclosure.md,4476,.md,2026-07-06 19:00:04 UTC
+docs\KA_TRUTHCORE_VALIDATION_DOSSIER.md,7991,.md,2026-07-15 07:15:33 UTC
 docs\KNOWLEDGE_ALGORITHM_CATALOG.md,1314,.md,2026-07-14 05:09:21 UTC
 docs\LOCAL_USAGE_LEDGER_CONTRACT.md,3411,.md,2026-07-14 06:57:30 UTC
 docs\MAINTENANCE_DISASTER_RECOVERY.md,7994,.md,2026-07-15 07:07:17 UTC
@@ -894,6 +896,7 @@ docs\MIGRATION_SUPPORT_MATRIX.md,3077,.md,2026-07-14 20:10:23 UTC
 docs\openapi.yaml,47934,.yaml,2026-07-14 18:11:36 UTC
 docs\OPERATIONAL_RUNBOOKS.md,44488,.md,2026-07-15 00:42:02 UTC
 docs\PRIVACY_AI_NOTICE.md,10933,.md,2026-07-15 06:57:25 UTC
+docs\PRIVACY_IMPACT_ASSESSMENT.md,9315,.md,2026-07-15 07:16:33 UTC
 docs\PRIVACY_POLICY.md,19982,.md,2026-07-15 01:00:13 UTC
 docs\PRIVATE_GATEWAY_RUNBOOK.md,3572,.md,2026-07-14 08:27:14 UTC
 docs\PROCESS_MAP.md,9271,.md,2026-07-13 18:52:31 UTC
@@ -903,8 +906,9 @@ docs\PRODUCT_REQUIREMENTS.md,11701,.md,2026-07-15 06:53:25 UTC
 docs\PRODUCTION_READINESS.md,27305,.md,2026-07-15 06:27:43 UTC
 docs\PROVIDER_COST_QUOTA_POLICY.md,4082,.md,2026-07-14 19:08:28 UTC
 docs\PROVIDER_MODEL_SUPPORT.md,1216,.md,2026-07-14 05:49:55 UTC
-docs\README.md,22834,.md,2026-07-15 07:12:53 UTC
+docs\README.md,23746,.md,2026-07-15 07:20:44 UTC
 docs\RELEASE_CHECKLIST.md,12584,.md,2026-07-15 03:11:08 UTC
+docs\RELEASE_READINESS_RECORD.md,7524,.md,2026-07-15 07:19:11 UTC
 docs\REPO_AUDIT_LOG.md,370,.md,2026-06-25 04:14:47 UTC
 docs\REQUIREMENTS_TRACEABILITY.md,9181,.md,2026-07-15 07:08:13 UTC
 docs\ROOT_CLEANUP_REVIEW_2026-07-06.md,4165,.md,2026-07-13 06:44:43 UTC
@@ -917,6 +921,7 @@ docs\SOFTWARE_LIFECYCLE_PLAN.md,8497,.md,2026-07-15 07:06:32 UTC
 docs\SSL_CONFIGURATION.md,6698,.md,2026-07-06 07:32:08 UTC
 docs\SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md,4209,.md,2026-07-13 06:40:52 UTC
 docs\TESTING.md,18876,.md,2026-07-15 01:03:25 UTC
+docs\THIRD_PARTY_SOFTWARE_INDEX.md,7383,.md,2026-07-15 07:18:20 UTC
 docs\THREAT_MODEL.md,11353,.md,2026-07-14 06:56:28 UTC
 docs\TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md,8510,.md,2026-07-06 07:40:24 UTC
 docs\TROUBLESHOOTING_SUPPORT_GUIDE.md,10035,.md,2026-07-15 06:56:27 UTC
@@ -1325,7 +1330,7 @@ frontend\types\electron.d.ts,4818,.ts,2026-07-14 09:25:11 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,31407,.md,2026-07-15 07:12:39 UTC
+HANDOFF.md,32221,.md,2026-07-15 07:20:44 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1183,.py,2026-07-13 17:57:42 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1362,9 +1367,9 @@ patches\fix-typography.patch,238,.patch,2026-01-30 20:55:32 UTC
 patches\improve-csp.patch,378,.patch,2026-01-30 20:55:29 UTC
 playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
-PRODUCTION_COMPLETION_PLAN_2026.md,218589,.md,2026-07-15 07:12:14 UTC
+PRODUCTION_COMPLETION_PLAN_2026.md,219074,.md,2026-07-15 07:20:44 UTC
 pyproject.toml,1321,.toml,2026-07-15 01:45:17 UTC
-README.md,44474,.md,2026-07-15 07:12:53 UTC
+README.md,44500,.md,2026-07-15 07:20:44 UTC
 REPO_AUDIT_LOG.md,177488,.md,2026-07-14 01:22:36 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,5380,.json,2026-07-15 00:53:36 UTC
@@ -1568,12 +1573,12 @@ reports\production-readiness\2026\phase-15\packaged-runtime-probe.json,1216,.jso
 reports\production-readiness\2026\phase-15\product-version-parity.json,2703,.json,2026-07-15 05:52:39 UTC
 reports\production-readiness\2026\phase-15\summary.md,5223,.md,2026-07-15 06:28:26 UTC
 reports\production-readiness\2026\phase-15\workflow-pin-verification.json,18050,.json,2026-07-15 06:08:50 UTC
-reports\production-readiness\2026\phase-16\document-authority-verification.json,6149,.json,2026-07-15 07:13:24 UTC
-reports\production-readiness\2026\phase-16\document-disposition-inventory.json,48247,.json,2026-07-15 07:13:23 UTC
-reports\production-readiness\2026\phase-16\documentation-bom-verification.json,239,.json,2026-07-15 07:13:23 UTC
-reports\production-readiness\2026\phase-16\engineering-assurance-document-verification.json,3127,.json,2026-07-15 07:13:24 UTC
-reports\production-readiness\2026\phase-16\product-user-document-verification.json,1622,.json,2026-07-15 07:13:24 UTC
-reports\production-readiness\2026\phase-16\summary.md,3360,.md,2026-07-15 07:13:08 UTC
+reports\production-readiness\2026\phase-16\document-authority-verification.json,6284,.json,2026-07-15 07:21:08 UTC
+reports\production-readiness\2026\phase-16\document-disposition-inventory.json,49748,.json,2026-07-15 07:21:08 UTC
+reports\production-readiness\2026\phase-16\documentation-bom-verification.json,239,.json,2026-07-15 07:21:08 UTC
+reports\production-readiness\2026\phase-16\engineering-assurance-document-verification.json,4519,.json,2026-07-15 07:21:09 UTC
+reports\production-readiness\2026\phase-16\product-user-document-verification.json,1622,.json,2026-07-15 07:21:08 UTC
+reports\production-readiness\2026\phase-16\summary.md,3670,.md,2026-07-15 07:20:58 UTC
 reports\release-readiness\local-first-phase1-completion-2026-05-25.md,2381,.md,2026-05-25 04:33:33 UTC
 reports\release-readiness\local-release-evidence-2026-05-23.md,16514,.md,2026-05-28 07:49:02 UTC
 reports\release_governance_report.json,4189,.json,2026-07-14 05:31:25 UTC
@@ -1708,7 +1713,7 @@ scripts\verify_doc_authority.py,5602,.py,2026-07-15 06:45:18 UTC
 scripts\verify_docs_references.py,9104,.py,2026-05-31 01:08:54 UTC
 scripts\verify_documentation_bom.py,4398,.py,2026-07-15 06:45:18 UTC
 scripts\verify_electron_security.py,5107,.py,2026-07-13 18:33:31 UTC
-scripts\verify_engineering_assurance_docs.py,8150,.py,2026-07-15 07:09:59 UTC
+scripts\verify_engineering_assurance_docs.py,10321,.py,2026-07-15 07:19:37 UTC
 scripts\verify_environment_parity.py,6746,.py,2026-07-15 01:18:49 UTC
 scripts\verify_feature_disposition.py,2934,.py,2026-07-13 07:12:06 UTC
 scripts\verify_gemini_integration.py,1005,.py,2026-07-14 06:08:11 UTC
@@ -2016,7 +2021,7 @@ tests\unit\test_defense_supervisor.py,6246,.py,2026-07-02 06:47:45 UTC
 tests\unit\test_deploy_phase1.py,2071,.py,2026-05-23 20:26:55 UTC
 tests\unit\test_desktop_schema_upgrade.py,743,.py,2026-07-11 00:27:06 UTC
 tests\unit\test_dev_doctor.py,3268,.py,2026-04-01 02:31:42 UTC
-tests\unit\test_documentation_authority.py,3142,.py,2026-07-15 07:09:59 UTC
+tests\unit\test_documentation_authority.py,3144,.py,2026-07-15 07:19:37 UTC
 tests\unit\test_dsqp_llm_assisted.py,7294,.py,2026-07-02 06:47:45 UTC
 tests\unit\test_error_taxonomy.py,1870,.py,2026-07-15 00:34:57 UTC
 tests\unit\test_exception_boundary_gate.py,1199,.py,2026-07-15 00:40:12 UTC
@@ -2103,5 +2108,5 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,43670,.md,2026-07-15 07:12:25 UTC
+TODO.md,44208,.md,2026-07-15 07:20:44 UTC
 wsgi.py,772,.py,2026-07-13 17:57:42 UTC

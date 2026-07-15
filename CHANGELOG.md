@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 CP16-C assurance/release content checkpoint**: added the canonical
+  KA/TruthCore validation, privacy impact, accessibility conformance, third-party
+  software, and release-readiness records and expanded engineering/assurance
+  verification to 12 targets. Missing signed-installed, provider/model, manual,
+  legal, independent, pilot, and soak evidence remains explicitly blocked.
 - **Phase 16 first CP16-C engineering/assurance content batch**: created the
   canonical data architecture, interface/integration, security architecture,
   software lifecycle, maintenance/disaster recovery, requirements traceability,

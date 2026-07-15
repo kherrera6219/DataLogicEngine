@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.17.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.18.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -533,16 +533,29 @@ prohibited-claim checks. All 22 controlled headers and seven focused tests pass.
 No source was moved, archived, or deleted. CP16-C remains active for the five
 assurance/release records.
 
+## Phase 16 second CP16-C assurance/release content batch
+
+Five additional canonical targets now exist: KA/TruthCore validation, privacy
+impact assessment, accessibility conformance, third-party software, and release
+readiness. They bind current source/evidence while retaining not-evaluated or
+release-blocked status for absent provider/model, manual accessibility, privacy/
+legal, supply-chain, signed installed, pilot, independent, and soak evidence.
+
+The authority now reports 27 existing and three planned canonical targets and
+151 classified Markdown files. The expanded engineering/assurance verifier
+passes 12/12 targets and all 27 controlled headers pass. CP16-C content
+construction is complete with its installed/manual/independent exit evidence
+retained. No source was moved, archived, or deleted. CP16-D/CP16-E content is active.
+
 ## Exact next action
 
-1. Complete CP16-C with the KA/TruthCore validation dossier, privacy impact
-   assessment, accessibility conformance report, third-party software index, and
-   release-readiness record.
-2. Bind claims to generated/source evidence and preserve truthful open status;
-   do not archive/delete transitional sources yet.
-3. Then build the CP16-D/CP16-E professional, Microsoft, and independent-review
-   records without implying an external approval.
-4. Retain the CP16-B signed-RC unfamiliar-user walkthrough.
+1. Build and verify the CP16-D/CP16-E professional review index, Microsoft
+   submission dossier, and independent review record.
+2. Preserve not-evaluated/release-blocked status for Microsoft policy/WACK,
+   reviewer assignments/findings, legal/distribution, signed artifact, and
+   acceptance until real evidence exists; do not imply external approval.
+3. Do not archive/delete transitional sources yet.
+4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates.
 5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.

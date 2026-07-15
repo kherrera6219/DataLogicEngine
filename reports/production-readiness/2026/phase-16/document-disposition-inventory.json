@@ -1,20 +1,20 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T07:13:48.732032+00:00",
+  "generated_at": "2026-07-15T07:21:25.116715+00:00",
   "authority_version": "2026.07.14-approved1",
   "authority_status": "approved_phase16_information_architecture",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 146,
+    "markdown_file_count": 151,
     "canonical_document_count": 30,
     "canonical_limit": 30,
-    "existing_canonical_count": 22,
-    "planned_canonical_count": 8,
+    "existing_canonical_count": 27,
+    "planned_canonical_count": 3,
     "unclassified_count": 0,
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
-      "authoritative": 26,
+      "authoritative": 31,
       "generated": 5,
       "historical": 43,
       "merge": 72
@@ -62,6 +62,14 @@
       "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
@@ -792,6 +800,14 @@
       "basis": "approved Phase 16 consolidation route"
     },
     {
+      "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
       "document_class": "assurance_release_external",
       "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
@@ -844,6 +860,14 @@
       "document_class": "product_public",
       "disposition": "authoritative input",
       "target": "docs/PRIVACY_AI_NOTICE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
       "cap_counted": true,
       "basis": "selected canonical document"
     },
@@ -934,6 +958,14 @@
       "target": "docs/RELEASE_READINESS_RECORD.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/RELEASE_READINESS_RECORD.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/RELEASE_READINESS_RECORD.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/REPO_AUDIT_LOG.md",
@@ -1030,6 +1062,14 @@
       "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/THREAT_MODEL.md",

@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.document-authority-verification.v1",
-  "generated_at": "2026-07-15T07:13:49.025633+00:00",
+  "generated_at": "2026-07-15T07:21:25.450001+00:00",
   "authority_version": "2026.07.14-approved1",
   "product_version": "4.3.0",
   "status": "pass",
-  "existing_canonical_count": 22,
-  "planned_canonical_count": 8,
-  "controlled_header_pass_count": 22,
+  "existing_canonical_count": 27,
+  "planned_canonical_count": 3,
+  "controlled_header_pass_count": 27,
   "archive_delete_authorized": false,
   "errors": [],
   "documents": [
@@ -189,32 +189,42 @@
     {
       "id": "DLE-ASR-004",
       "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-005",
       "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-006",
       "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-007",
       "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-008",
       "path": "docs/RELEASE_READINESS_RECORD.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-EXT-001",
