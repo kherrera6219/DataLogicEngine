@@ -427,9 +427,9 @@ def run_user_deletion(app, subject: DeletionSubject):
     resources = DeletionResources()
     try:
         if app.config.get("DLE_DATA_PLANE_DRIVER") == "podman":
-            import chromadb
             import redis
             from neo4j import GraphDatabase
+            from backend.storage.chroma_http import ChromaHttpClient
             from backend.storage.object_store import get_object_store
 
             settings = app.extensions["dle_data_plane_manager"].connection_settings()
@@ -448,7 +448,7 @@ def run_user_deletion(app, subject: DeletionSubject):
                     ),
                     "chroma": ChromaUserDeletionAdapter(
                         resources.own(
-                            chromadb.HttpClient(
+                            ChromaHttpClient(
                                 host=settings["chroma_host"],
                                 port=settings["chroma_port"],
                             )

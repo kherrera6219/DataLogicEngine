@@ -612,11 +612,11 @@ def build_managed_backup_coordinator(app, runtime, resources):
     }
     metadata = manager.service_metadata()
 
-    import chromadb
     import redis
     from neo4j import GraphDatabase
     from extensions import db
     from models import CrossStoreOutboxEvent
+    from backend.storage.chroma_http import ChromaHttpClient
     from backend.storage.object_store import get_object_store
 
     redis_client = resources.own(redis.Redis.from_url(settings["redis_url"]))
@@ -627,7 +627,7 @@ def build_managed_backup_coordinator(app, runtime, resources):
         )
     )
     chroma_client = resources.own(
-        chromadb.HttpClient(host=settings["chroma_host"], port=settings["chroma_port"])
+        ChromaHttpClient(host=settings["chroma_host"], port=settings["chroma_port"])
     )
     outstanding = db.session.query(CrossStoreOutboxEvent).filter(
         CrossStoreOutboxEvent.status != "succeeded"

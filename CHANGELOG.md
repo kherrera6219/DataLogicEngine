@@ -26,6 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ChromaDB SDK replacement for critical alert 389**: removed the affected
+  `chromadb` Python package from both dependency authorities and added a
+  restricted loopback-only Chroma v2 HTTP client that accepts only caller-
+  supplied vectors and inert embedding configuration. Eighteen focused
+  regressions, a zero-finding isolated dependency audit, and live five-service
+  collection/query/restart qualification pass; GitHub alert closure awaits the
+  pushed manifest rescan.
+- **Phase 16/17 consolidation integrity repair**: expanded active-document
+  verification from index-only links to every Markdown link and backtick path,
+  migrated 175 retained references to canonical or exact archived targets,
+  rebound KA production metadata and provider generation to their canonical
+  dossiers, restored the exact provider/model table, and isolated lazy test-app
+  runtime ownership. The full suite passes with 2,192 tests and 18 skips.
 - **Phase 17 CP17-A through CP17-D documentation lock**: consolidated 47
   historical records with retained hashes/Git identity, removed 29 active byte-
   identical duplicates, generated one production contract index from product,
@@ -234,7 +247,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Windows object-store concurrency containment**: normalized extended Windows
   path forms before outside-root checks, preserving containment during concurrent
   operations and passing focused and 2,000-operation stress validation.
-- **Critical ChromaDB advisory containment**: verified the locked 1.5.9 service image is the Rust single-node binary rather than the affected Python server, forced every Python-client collection open/create to disable persisted embedding functions, and reject hostile embedding configuration in collection/schema transport data before use. Dependabot alert 389 remains open and production-blocking because no patched upstream release exists.
+- **Critical ChromaDB advisory containment superseded by SDK replacement**:
+  retained the digest-pinned Rust service while removing the vulnerable Python
+  client package and its embedding-function deserialization path.
 - **Five GitHub Actions jobs blocked by an incompatible Python dependency pin**: corrected `tokenizers` from `0.23.1` to `0.22.2`, which satisfies the `transformers>=5.0.0` requirement (`tokenizers<=0.23.0`) and restores dependency installation for Deploy, backend tests, dependency audit, crash-reporting probe, and Windows packaging. The Windows PyInstaller step now fails immediately when any native command exits nonzero instead of continuing into a misleading missing-metadata error. Updated the gateway-router test fixture to model the real limiter exemption decorator, fixing three setup errors that were masked by the earlier dependency failure.
 - **CodeQL exception-detail exposure alerts #593-#596 and #598-#601**: search, retention, audit verification, security, and storage paths now keep detailed exceptions in server logs and return stable client-safe messages. Added regressions proving internal exception sentinels cannot enter service result objects or API JSON.
 - **Dependabot `uv.lock` dismissed-alert cleanup**: GitHub Dependabot reported no open alerts, but five dismissed `fix_started` alerts remained tied to stale `uv.lock` transitive pins. Regenerated the affected lock entries so `mako` is `1.3.12`, `urllib3` is `2.7.0`, and `werkzeug` is `3.1.8`, satisfying the patched versions for the dismissed advisories.
@@ -276,7 +291,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   model/table (migration `d6e7f8a9b0c1_drop_oauth_accounts_table`), removed
   `backend/security/tenant_rls.py`, and retired dead security modules and
   one-off audit scripts. `tenant_id` columns are kept as vestigial. See
-  [`REPO_AUDIT_LOG.md`](docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md) for the full v2.0 audit record.
+  [`docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md`](docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md) for the full v2.0 audit record.
 - **Local Ollama LLMs + 6-tier escalation engine → single cloud model**: removed
   the local-model tier chain (`escalation_config.py`, `complexity_classifier.py`,
   `tier_availability.py`), the `backend/local_model_acceleration/` keepalive +
@@ -324,10 +339,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RAG embedding failover tests** now set `ALLOW_MOCK_EMBEDDINGS=true` when
   exercising the development/testing mock-embedding fallback, matching the
   fail-closed production behaviour of `RAGService._default_embedding`.
-- **Docs**: corrected stale paths in `docs/MCP_INTEGRATION.md`
+- **Docs**: corrected stale paths in `docs/archive/phase-16/MCP_INTEGRATION.md`
   (`backend/mcp_api.py` -> `routes/mcp_routes.py`,
   `frontend/src/pages/MCPConsolePage.js` -> `frontend/app/mcp/page.tsx`); added
-  `docs/REPO_AUDIT_LOG.md` recording the 2026-06-04 audit session and the open
+  `docs/archive/audits/REPO_AUDIT_LOG_through_2026-07-15.md` recording the 2026-06-04 audit session and the open
   backlog for future audits.
 - **Documentation audit refresh**: aligned active README/docs model references
   to the live Google `gemini-3.1-pro-preview` default, replaced the stale
@@ -572,24 +587,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Repository-managed pre-commit hook flow (`.githooks/pre-commit`, `.githooks/README.md`, `scripts/dev/run_precommit_checks.py`).
   - Environment parity and lockfile governance verification scripts (`scripts/verify_environment_parity.py`, `scripts/verify_lockfiles.py`).
   - Governance CI gate (`governance` job) enforcing parity/lockfile checks and pre-commit lint/typecheck policy (`.github/workflows/ci.yml`).
-  - ADR baseline structure (`docs/adr/README.md`, `docs/adr/ADR-0001-engineering-governance-baseline.md`).
+  - ADR baseline structure (`docs/adr/README.md`, `docs/archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md`).
   - Release checklist governance workflow (`.github/workflows/release-checklist.yml`) and PR template (`.github/pull_request_template.md`).
-  - Branch/code-owner policy artifacts (`docs/BRANCH_PROTECTION_POLICY.md`, `.github/CODEOWNERS`).
+  - Branch/code-owner policy artifacts (`docs/archive/phase-16/BRANCH_PROTECTION_POLICY.md`, `.github/CODEOWNERS`).
 
 ### Changed
 - TypeScript governance profile now enforces additional strictness in typecheck gates (`frontend/tsconfig.typecheck.json`) and corresponding override conformance fix (`frontend/components/ui/api-error-boundary.tsx`).
 - Documentation versioning and release governance docs added and linked:
-  - `docs/DOCUMENTATION_VERSIONING.md`
+  - `docs/archive/phase-16/DOCUMENTATION_VERSIONING.md`
   - `docs/DOCS_VERSION.json`
-  - `docs/RELEASE_CHECKLIST.md`
-  - `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+  - `docs/archive/phase-16/RELEASE_CHECKLIST.md`
+  - `docs/archive/phase-16/DOCUMENTATION_COVERAGE_MATRIX.md`
 - Updated active docs and subsystem report to reflect sections 9-11 full completion:
   - `README.md`
   - `docs/README.md`
-  - `docs/TESTING.md`
-  - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+  - `docs/archive/phase-16/TESTING.md`
+  - `docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md`
   - `CONTRIBUTING.md`
-  - `docs/CONTRIBUTING.md`
+  - `docs/archive/phase-16/CONTRIBUTING.md`
 
 ### Testing
 - Section 11 debug/error sweep completed:
@@ -619,7 +634,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows/local runbooks and subsystem report updated for Section 10 status:
   - `README.md`
   - `docs/README.md`
-  - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+  - `docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md`
 
 ### Testing
 - Section 10 debug/error sweep completed:
@@ -652,7 +667,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated testing/docs entrypoints to reflect new required gates:
   - `README.md`
   - `docs/README.md`
-  - `docs/TESTING.md`
+  - `docs/archive/phase-16/TESTING.md`
   - `run_test_suite.py`
 
 ### Testing
@@ -691,9 +706,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated active docs and subsystem review to reflect post-baseline control completion:
   - `README.md`
   - `docs/README.md`
-  - `docs/PRODUCT_OVERVIEW.md`
-  - `docs/PRODUCTION_READINESS.md`
-  - `docs/OPERATIONAL_RUNBOOKS.md`
+  - `docs/archive/phase-16/PRODUCT_OVERVIEW.md`
+  - `docs/archive/phase-16/PRODUCTION_READINESS.md`
+  - `docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md`
 
 ### Testing
 - Debug/error sweep completed:
@@ -740,9 +755,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated docs and subsystem report to reflect Phase 2 completion:
   - `README.md`
   - `docs/README.md`
-  - `docs/PRODUCT_OVERVIEW.md`
-  - `docs/PRODUCTION_READINESS.md`
-  - `docs/OPERATIONAL_RUNBOOKS.md`
+  - `docs/archive/phase-16/PRODUCT_OVERVIEW.md`
+  - `docs/archive/phase-16/PRODUCTION_READINESS.md`
+  - `docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md`
 
 ### Testing
 - Targeted phase hardening/debug sweep completed:
@@ -761,7 +776,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Installer checksum generation and deploy-time installer integrity verification.
 
 ### Changed
-- Updated active documentation set (`README.md`, `docs/README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/PRODUCTION_READINESS.md`, `docs/OPERATIONAL_RUNBOOKS.md`) to reflect the current implementation state as of 2026-02-16.
+- Updated active documentation set (`README.md`, `docs/README.md`, `docs/archive/phase-16/PRODUCT_OVERVIEW.md`, `docs/archive/phase-16/PRODUCTION_READINESS.md`, `docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md`) to reflect the current implementation state as of 2026-02-16.
 
 ### Testing
 - Targeted hardening validation completed:

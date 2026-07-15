@@ -59,10 +59,11 @@ def test_trace_bundle_tamper_detection(monkeypatch):
 
 
 @pytest.fixture
-def crash_client(monkeypatch):
+def crash_client(monkeypatch, tmp_path):
     monkeypatch.setenv("FLASK_ENV", "testing")
     monkeypatch.setenv("SECRET_KEY", "test-secret-key")
     monkeypatch.setenv("SESSION_SECRET", "test-session-secret")
+    monkeypatch.setenv("DLE_RUNTIME_ROOT", str(tmp_path / "crash-runtime"))
     monkeypatch.delenv("SENTRY_DSN", raising=False)
 
     app_module = importlib.import_module("app")

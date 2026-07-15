@@ -15,12 +15,6 @@ import os
 import re
 from pathlib import Path
 
-# Paths to validate for backtick indexes (original index checks)
-DOC_INDEX_FILES = [
-    Path("docs/README.md"),
-    Path("docs/DOCUMENTATION_COVERAGE_MATRIX.md"),
-]
-
 # Capture references in backticks like `docs/FILE.md`, `README.md`
 REF_RE = re.compile(r"`([^`]+)`")
 
@@ -183,22 +177,25 @@ def main() -> int:
             
         lines = content.splitlines()
         
-        # 1. Backtick Index Validation (Legacy checks for index files)
-        if file_path in [ROOT_DIR / p for p in DOC_INDEX_FILES]:
-            for line_no, ref in collect_backtick_refs(lines):
-                if ref.endswith("/*"):
-                    parent = ROOT_DIR / ref[:-2]
-                    if not parent.is_dir():
-                        strict_errors.append(
-                            f"{rel_path}:{line_no}: missing directory for wildcard reference `{ref}`"
-                        )
-                    continue
-                
-                target = ROOT_DIR / ref
-                if not exists_case_sensitive(target):
+        # 1. Backtick reference validation across every active document. Phase 16
+        # consolidation proved that limiting this check to index pages can leave
+        # runtime and assurance documents pointing at moved source files.
+        for line_no, ref in collect_backtick_refs(lines):
+            if "*" in ref:
+                parent_ref = ref.split("*", 1)[0].rstrip("/")
+                parent = ROOT_DIR / parent_ref
+                if not parent.is_dir():
                     strict_errors.append(
-                        f"{rel_path}:{line_no}: missing/casing-incorrect referenced file `{ref}`"
+                        f"{rel_path}:{line_no}: missing directory for wildcard reference `{ref}`"
                     )
+                continue
+
+            path_ref = re.sub(r":\d+(?:-\d+)?$", "", ref)
+            target = ROOT_DIR / path_ref
+            if not exists_case_sensitive(target):
+                strict_errors.append(
+                    f"{rel_path}:{line_no}: missing/casing-incorrect referenced file `{ref}`"
+                )
         
         # 2. Markdown Links Target Validation (Full link verification)
         for line_no, target in collect_markdown_links(lines):

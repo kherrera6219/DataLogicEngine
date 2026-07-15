@@ -54,14 +54,19 @@ conditions, and exit gates remain authoritative in the active root plan.
   version authority and build locally; 2,181 isolated backend tests pass with 18
   skipped. Replacement Security run 29401695782, CI run 29401695732, and Deploy
   run 29401695777 all pass; GitHub reports zero open CodeQL findings. CP16-F may
-  resume, while critical Dependabot alert 389 remains release-blocking.
+  resume.
 - The 2026-07-15 CI/security maintenance checkpoint repaired the dependency,
   backend, governance, code-security, and Cosign artifact-signing failures.
-  A clean short-path Windows environment installed all 315 hash-locked packages
+  A clean short-path Windows environment installed all 315 pre-replacement hash-locked packages
   with no broken requirements; `pip-audit` reports zero unignored findings;
   Ruff, Bandit, workflow-pin, lock, frontend lint/typecheck, and 2,177 backend
-  tests pass. The documented ChromaDB no-fix ignore preserves CI visibility but
-  does not close alert 389 or change production/public release from **NO-GO**.
+  tests pass.
+- The 2026-07-15 Chroma client replacement removes the vulnerable `chromadb`
+  Python SDK from both dependency authorities and uses a restricted loopback-
+  only, caller-vector-only HTTP client. Eighteen focused regressions, the live
+  five-service collection/query/restart gate, and an isolated audit of 266
+  applicable dependencies with zero vulnerabilities pass. GitHub alert 389
+  awaits the pushed manifest rescan; installed-system gates remain open.
 - Phase 16 CP16-A is owner-approved and complete. The information architecture
   inventories all 134 root and `docs/**` Markdown files with zero unclassified
   files and zero duplicate merge routes.
@@ -71,6 +76,11 @@ conditions, and exit gates remain authoritative in the active root plan.
 - The approved disposition totals are 14 authoritative inputs, five generated
   replacements, 43 historical/archive records, and 72 merge routes. No move,
   archive, or deletion is authorized until target and link review passes.
+- The post-consolidation integrity rerun expanded path validation beyond the two
+  documentation indexes, migrated 175 missed active references to canonical or
+  exact archived targets, repaired KA/provider/ADR runtime references, and
+  passed the full suite (2,192 passed, 18 skipped). CP16-F link and retained-
+  evidence verification is now enforced by the closure gate itself.
 - All ten existing canonical documents now carry the required controlled header;
   the authority verifier passes IDs, owners, approver, product version, status,
   and all 13 fields. The two verifiers and five focused unit tests pass.
@@ -191,10 +201,10 @@ conditions, and exit gates remain authoritative in the active root plan.
   ACLs, DPAPI-wrapped secrets, and AES-256-GCM portable backups. The current
   machine did not prove BitLocker or installed-root ACL readiness, so production
   authorization remains false.
-- Dependabot alert 389 is a critical ChromaDB advisory with no patched upstream
-  release. The locked service is the non-affected Rust binary, and the Python
-  client now refuses persisted embedding functions/schema before use. The alert
-  remains open and release-blocking; ChromaDB production approval remains false.
+- Dependabot alert 389 has no patched upstream SDK release, so the vulnerable SDK
+  was removed instead. The digest-pinned Rust service is accessed only through
+  the restricted client described above. Chroma production approval remains
+  false until installed service/security/recovery qualification passes.
 - Phase 5 CP5-A through CP5-D passed on 2026-07-13. Evidence is under
   `reports/production-readiness/2026/phase-05/`; CP5-E remains a deferred
   installed-release blocker.
@@ -667,19 +677,17 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 - [ ] Independent architecture, security, API, usability/accessibility, and operations reviews completed.
 - [ ] Signed, timestamped, reproducible Windows artifacts and verified updates.
 - [ ] Installed-system accessibility, security, failure, recovery, performance, soak, and human-acceptance evidence.
-- [ ] Replace or upgrade ChromaDB when a reviewed patched release exists, rerun
-      client/service adversarial qualification, and close alert 389 only from
-      verified patched evidence.
+- [ ] Verify GitHub closes alert 389 after the vulnerable SDK disappears from
+      `main`; retain the adversarial replacement evidence with the release record.
 
 ## Exact next action
 
-Resolve the two data-plane release blockers before rebuilding the signed RC:
-qualify the current ChromaDB replacement/upgrade path against alert 389 and
-complete final object-store Replacement Control, including contract parity,
+Resolve the remaining data-plane release blocker before rebuilding the signed
+RC: complete final object-store Replacement Control, including contract parity,
 durability, backup/restore, security, licensing, Windows delivery, migration,
 rollback, and the recorded owner decision. Then bind CP16-G/CP17-E and execute
 the retained installed gates against that exact artifact.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
-alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS
+legal/distribution NO-GO, automatic-update disablement, and SeaweedFS
 candidate-only status until their required evidence exists.

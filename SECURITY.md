@@ -16,13 +16,13 @@
 | Confidentiality | Public |
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Supported-version, reporting, threat, or disclosure-process change |
-| Requirements and evidence | `docs/SECURITY.md`, `docs/THREAT_MODEL.md`, and security workflow evidence |
+| Requirements and evidence | `docs/SECURITY_ARCHITECTURE.md`, `docs/SECURITY_ARCHITECTURE.md`, and security workflow evidence |
 
 ## Purpose
 
 Define public vulnerability reporting guidance and summarize DataLogicEngine security posture at a high level.
 
-For detailed internal security architecture, see `docs/SECURITY.md`.
+For detailed internal security architecture, see `docs/SECURITY_ARCHITECTURE.md`.
 
 ---
 
@@ -111,13 +111,13 @@ DataLogicEngine uses a layered security model:
 
 Detailed controls are documented in:
 
-1. `docs/SECURITY.md`
+1. `docs/SECURITY_ARCHITECTURE.md`
 2. `docs/PRIVACY_AI_NOTICE.md`
-3. `docs/SSL_CONFIGURATION.md`
-4. `docs/CIS_BENCHMARKS.md`
-5. `docs/SLSA_LEVEL_3_ATTESTATION.md`
-6. `docs/RELEASE_CHECKLIST.md`
-7. `docs/PRODUCTION_READINESS.md`
+3. `docs/SECURITY_ARCHITECTURE.md`
+4. `docs/SECURITY_ARCHITECTURE.md`
+5. `docs/THIRD_PARTY_SOFTWARE_INDEX.md`
+6. `docs/RELEASE_READINESS_RECORD.md`
+7. `docs/VERIFICATION_VALIDATION_REPORT.md`
 
 ---
 
@@ -142,17 +142,17 @@ Current caveats may include, depending on release mode:
 5. manual accessibility evidence;
 6. final release checklist approval.
 
-See `docs/PRODUCTION_READINESS.md` and `docs/RELEASE_CHECKLIST.md` for current release posture.
+See `docs/VERIFICATION_VALIDATION_REPORT.md` and `docs/RELEASE_READINESS_RECORD.md` for current release posture.
 
 ---
 
 ## Additional resources
 
-1. `docs/SECURITY.md`
+1. `docs/SECURITY_ARCHITECTURE.md`
 2. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
 3. `docs/PRIVACY_AI_NOTICE.md`
-4. `docs/RELEASE_CHECKLIST.md`
-5. `docs/DOCUMENTATION_STANDARDS.md`
+4. `docs/RELEASE_READINESS_RECORD.md`
+5. `docs/SOFTWARE_LIFECYCLE_PLAN.md`
 
 ## Change notes for v2.6.0
 

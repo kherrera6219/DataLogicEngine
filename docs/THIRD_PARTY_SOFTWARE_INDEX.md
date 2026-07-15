@@ -64,7 +64,7 @@ signed candidate; prior/different-hash candidate data is not final evidence.
 
 The current engineering manifest identifies CPython 3.11, PyInstaller 6.18.0,
 Electron 43.1.1, electron-builder 26.8.1, Next.js 16.2.7, PostgreSQL 18.4,
-Redis 8.8.0, Neo4j, ChromaDB 1.5.9, Podman 5.8.2, and the qualification object-
+Redis 8.8.0, Neo4j, the Chroma Rust service 1.5.9, Podman 5.8.2, and the qualification object-
 store candidate set. Exact image versions/digests and license fields are recorded
 in the service candidate lock and release manifest.
 
@@ -102,16 +102,18 @@ malware tools. Findings bind package/version/digest, affected path/reachability,
 severity, advisory, mitigation, owner, expiration, correction, and exact-artifact
 retest. An unavailable upstream fix does not close a finding.
 
-Dependabot alert 389 (`GHSA-f4j7-r4q5-qw2c` / `CVE-2026-45829`) remains critical
-and release-blocking. The current ChromaDB use applies documented mitigations,
-but production approval requires a reviewed patched version/replacement and
-rerun adversarial qualification or a policy-compliant final disposition.
+Dependabot alert 389 (`GHSA-f4j7-r4q5-qw2c` / `CVE-2026-45829`) affected the
+ChromaDB Python SDK. The SDK has been removed from direct and locked transitive
+dependencies and replaced by a restricted loopback-only, caller-vector-only HTTP
+client. The digest-pinned Rust service remains. Focused adversarial tests, live
+five-service compatibility/restart qualification, and an isolated dependency
+audit with zero vulnerabilities pass; GitHub closure awaits manifest rescan.
 
 The 2026-07-15 lock refresh includes Flask async support plus Pillow 12.3.0,
-Starlette 1.3.1, and Transformers 5.13.0. A clean short-path Windows installation
-of all 315 hash-locked packages passes `pip check`, and dependency audit has zero
-unignored findings. The ChromaDB no-fixed-release suppression is scan continuity,
-not risk closure, legal approval, or release authorization.
+Starlette 1.3.1, and Transformers 5.13.0. The post-replacement lock contains 290
+packages and no Chroma Python SDK. An isolated audit examined 266 applicable
+dependencies and found zero vulnerabilities. Installed exact-artifact review,
+legal approval, and release authorization remain separate gates.
 
 ## Notice and redistribution approval gate
 

@@ -34,6 +34,7 @@ DEFAULT_REPORT = (
     / "document-replacement-closure.json"
 )
 LINK_RE = re.compile(r"(\[[^\]]+\]\()([^)]+)(\))")
+BACKTICK_RE = re.compile(r"`([^`]+)`")
 
 
 def _sha256(path: Path) -> str:
@@ -163,17 +164,19 @@ def migrate_links(authority: dict[str, Any], *, root: Path = ROOT) -> dict[str, 
             return f"{match.group(1)}{relative_target}{suffix}{match.group(3)}"
 
         updated = LINK_RE.sub(replace_link, original)
-        # The documentation portal is a strict backtick-based index. Other
-        # documents may name a retired source as historical evidence, so only
-        # rewrite index references here; ordinary navigation is handled by the
-        # Markdown-link migration above.
-        if relative == "docs/README.md":
-            for source, target in sorted(routes.items(), key=lambda item: -len(item[0])):
-                token = f"`{source}`"
-                if token in updated:
-                    count = updated.count(token)
-                    updated = updated.replace(token, f"`{target}`")
-                    changed_refs += count
+        def replace_backtick(match: re.Match[str]) -> str:
+            nonlocal changed_refs
+            value = match.group(1)
+            suffix_match = re.search(r"(:\d+(?:-\d+)?)$", value)
+            suffix = suffix_match.group(1) if suffix_match else ""
+            source = value[: -len(suffix)] if suffix else value
+            target = routes.get(source)
+            if target is None:
+                return match.group(0)
+            changed_refs += 1
+            return f"`{target}{suffix}`"
+
+        updated = BACKTICK_RE.sub(replace_backtick, updated)
         if updated != original:
             path.write_text(updated, encoding="utf-8")
             changed_files += 1
@@ -204,6 +207,18 @@ def _legacy_link_references(
                             "line": line_number,
                             "source": resolved,
                             "target": routes[resolved],
+                        }
+                    )
+            for match in BACKTICK_RE.finditer(line):
+                value = match.group(1).strip()
+                source = re.sub(r":\d+(?:-\d+)?$", "", value)
+                if source in routes:
+                    findings.append(
+                        {
+                            "path": relative,
+                            "line": line_number,
+                            "source": source,
+                            "target": routes[source],
                         }
                     )
     return findings

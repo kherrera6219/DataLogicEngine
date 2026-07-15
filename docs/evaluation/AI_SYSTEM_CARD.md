@@ -59,6 +59,11 @@ is used for a request, and the application does not silently switch providers.
 Native stream capability and buffered renderer delivery are identified
 separately.
 
+| Provider | Supported default model | API contract |
+|---|---|---|
+| OpenAI | `gpt-5.5` | `responses` |
+| Google | `gemini-3.1-pro-preview` | `generate_content` |
+
 Server-owned per-request, session, daily, and monthly call/token ceilings apply.
 Retries and refinements consume the same allowance. At the warning threshold the
 owner must confirm that one request; confirmation cannot exceed a hard ceiling.

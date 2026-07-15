@@ -77,7 +77,7 @@ Key results:
 - Desktop listeners are loopback-only; private exposure stays disabled until Phase 8.
 - Desktop/provider/internal-service secrets use safeStorage/DPAPI and restrictive ACLs; logs/backups exclude secret material.
 - The mandatory backend suite reports 398 passed; frontend API/settings suites report 94 passed total.
-- `docs/THREAT_MODEL.md` and all required Phase 1 references are current.
+- `docs/SECURITY_ARCHITECTURE.md` and all required Phase 1 references are current.
 
 Known non-blocking carry-forward items are recorded in the Phase 1 risk register:
 same-user live-process compromise is an explicit residual threat and encrypted
@@ -186,13 +186,20 @@ SeaweedFS remains candidate-only. ADR-0004 is Proposed,
 `production_authorized=false`, `production_selected=false`, and MinIO remains
 the product-specific production architecture.
 
-GitHub Dependabot alert 389 is open for critical ChromaDB code injection and no
-patched upstream release exists. The locked container is the Rust single-node
-server, so the Python-server path is absent. Every Python-client collection
-open/create explicitly disables server-supplied embedding functions and rejects
-persisted embedding-function/schema configuration. This is an engineering
-mitigation, not production approval: the alert stays release-blocking until a
-reviewed patched release and adversarial installed qualification pass.
+The vulnerable ChromaDB Python SDK identified by Dependabot alert 389 has been
+removed from both dependency authorities. An app-owned restricted Chroma v2 HTTP
+client now permits only loopback endpoints, caller-supplied vectors, and inert
+no-embedding configuration. Eighteen focused regressions, an isolated zero-
+finding dependency audit, and the real five-service collection/query/restart
+qualification pass. GitHub alert closure awaits the pushed manifest rescan;
+installed service/security/recovery approval remains part of the signed RC gate.
+
+The Phase 16/17 integrity follow-up strengthened link verification from two
+indexes to all 39 active Markdown documents, migrated 175 previously missed
+references to canonical or exact archived targets, rebound KA/provider/ADR
+source references, and isolated test runtime ownership. Replacement closure,
+documentation truth, all assurance document gates, and the full backend suite
+pass; the full result is 2,192 passed and 18 skipped.
 
 ## Phase 5 engineering checkpoint
 
@@ -610,13 +617,11 @@ false governance drift. Cosign v3 now emits and verifies Sigstore bundles.
 Bandit exceptions are narrowly documented for validated loopback-only calls, and
 cross-platform Windows path/session/bootstrap/UI inventory tests are corrected.
 
-A clean short-path Windows environment installed all 315 hash-locked packages
+A clean short-path Windows environment installed all 315 pre-replacement hash-locked packages
 and passed `pip check`. The full backend result is 2,177 passed and 18 skipped;
 the dependency audit reports zero unignored findings; Ruff, Bandit, lock,
-workflow-pin, frontend lint, and frontend typecheck gates pass. The ChromaDB
-advisory remains a documented no-fix CI ignore and an open production release
-blocker. Phase 16 CP16-F remains the exact next plan action after this repair is
-pushed and the replacement GitHub runs are observed.
+workflow-pin, frontend lint, and frontend typecheck gates pass. Phase 16 and 17
+documentation consolidation subsequently completed.
 
 The follow-up CodeQL query found 51 medium findings caused by one shared helper
 returning an entire raw exception when it contained an allowed phrase. The
@@ -640,16 +645,16 @@ findings; Dependabot alert 389 remains open and critical. CP16-F may resume. See
 
 ## Exact next action
 
-1. Qualify the current ChromaDB upgrade/replacement against alert 389 and run its
-   adversarial client/service compatibility gate.
+1. Push the completed ChromaDB SDK replacement and verify Dependabot alert 389
+   closes against the replacement dependency manifests.
 2. Complete the object-store Replacement Control and record the final owner/ADR
    decision before rebuilding the signed RC.
 3. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
    a clean-machine documentation-only walkthrough can be performed.
 4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
-5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
-   389, automatic-update disablement, and SeaweedFS candidate-only status until
+5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO,
+   automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 
 ## Phase rules

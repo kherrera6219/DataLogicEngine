@@ -57,11 +57,11 @@ def check_rag_orchestration_packages() -> Check:
     try:
         import importlib.util
 
-        required = ["llama_index", "langchain", "langgraph", "chromadb"]
+        required = ["llama_index", "langchain", "langgraph", "httpx"]
         missing = [name for name in required if importlib.util.find_spec(name) is None]
         if missing:
             return Check("RAG/Orchestration Packages", False, f"Missing packages: {', '.join(missing)}")
-        return Check("RAG/Orchestration Packages", True, "llama-index, langchain, langgraph, and chromadb are installed.")
+        return Check("RAG/Orchestration Packages", True, "llama-index, langchain, langgraph, and the restricted HTTP transport are installed.")
     except Exception as e:
         return Check("RAG/Orchestration Packages", False, str(e))
 

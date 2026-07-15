@@ -1,6 +1,4 @@
 from types import SimpleNamespace
-import json
-import sqlite3
 
 import pytest
 
@@ -123,28 +121,6 @@ def test_chromadb_backend_error_paths(tmp_path):
     backend._client = ErrorClient()
     assert backend.create_collection("docs") is False
     assert backend.delete_collection("docs") is False
-
-
-def test_chromadb_backend_upgrades_legacy_collection_config(tmp_path):
-    chroma_dir = tmp_path / "chroma"
-    chroma_dir.mkdir()
-    database_path = chroma_dir / "chroma.sqlite3"
-    connection = sqlite3.connect(database_path)
-    connection.execute("CREATE TABLE collections (id TEXT PRIMARY KEY, config_json_str TEXT)")
-    connection.execute("INSERT INTO collections VALUES (?, ?)", ("legacy-id", "{}"))
-    connection.commit()
-    connection.close()
-
-    backend = ChromaDBBackend(persist_directory=str(chroma_dir))
-    assert backend._upgrade_legacy_collection_configs() == 1
-
-    connection = sqlite3.connect(database_path)
-    upgraded = connection.execute(
-        "SELECT config_json_str FROM collections WHERE id = ?", ("legacy-id",)
-    ).fetchone()[0]
-    connection.close()
-    assert json.loads(upgraded)["_type"] == "CollectionConfigurationInternal"
-    assert database_path.with_suffix(".pre-config-upgrade.bak").exists()
 
 
 def test_pinecone_backend_happy_path():

@@ -49,9 +49,11 @@
       "server_implementation": "rust_single_node_binary",
       "python_server_advisory_applicable": false,
       "critical_advisory": "GHSA-f4j7-r4q5-qw2c / CVE-2026-45829",
-      "python_client_mitigation": "explicit_no_embedding_function_and_reject_persisted_embedding_configuration",
+      "python_sdk_dependency": false,
+      "client_implementation": "restricted_vector_only_http_v1",
+      "client_security_boundary": "caller_supplied_vectors_only_no_embedding_configuration_deserialization",
       "patched_upstream_release_available": false,
-      "client_compatibility": "pending",
+      "client_compatibility": "passed_2026-07-15_five_service_live_qualification",
       "production_approved": false
     },
     "object_store_candidate": {

@@ -105,10 +105,10 @@ def _populate(app, run_id: str) -> dict[str, Any]:
         )
         db.session.commit()
 
-        import chromadb
         import redis
         from neo4j import GraphDatabase
 
+        from backend.storage.chroma_http import ChromaHttpClient
         from backend.storage import get_object_store
 
         redis_client = redis.Redis.from_url(settings["redis_url"])
@@ -116,7 +116,7 @@ def _populate(app, run_id: str) -> dict[str, Any]:
             settings["neo4j_uri"],
             auth=(settings["neo4j_user"], settings["neo4j_password"]),
         )
-        chroma_client = chromadb.HttpClient(
+        chroma_client = ChromaHttpClient(
             host=settings["chroma_host"],
             port=settings["chroma_port"],
         )
@@ -199,10 +199,10 @@ def _populate(app, run_id: str) -> dict[str, Any]:
 def _verify_restored(app, expected: dict[str, Any], run_id: str) -> dict[str, Any]:
     manager = app.extensions["dle_data_plane_manager"]
     settings = manager.connection_settings()
-    import chromadb
     import redis
     from neo4j import GraphDatabase
 
+    from backend.storage.chroma_http import ChromaHttpClient
     from backend.storage import get_object_store
 
     with app.app_context():
@@ -226,7 +226,7 @@ def _verify_restored(app, expected: dict[str, Any], run_id: str) -> dict[str, An
             settings["neo4j_uri"],
             auth=(settings["neo4j_user"], settings["neo4j_password"]),
         )
-        chroma_client = chromadb.HttpClient(
+        chroma_client = ChromaHttpClient(
             host=settings["chroma_host"],
             port=settings["chroma_port"],
         )

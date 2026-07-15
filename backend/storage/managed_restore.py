@@ -77,10 +77,10 @@ class ManagedRestoreEnvironment:
         self.started = True
 
     def _build_adapters(self, manager, isolated_root: Path) -> dict[str, Any]:
-        import chromadb
         import redis
         from neo4j import GraphDatabase
 
+        from backend.storage.chroma_http import ChromaHttpClient
         from backend.storage.object_store import ObjectStore, S3Backend
 
         settings = manager.connection_settings()
@@ -96,7 +96,7 @@ class ManagedRestoreEnvironment:
             )
         )
         chroma_client = self.resources.own(
-            chromadb.HttpClient(
+            ChromaHttpClient(
                 host=settings["chroma_host"],
                 port=settings["chroma_port"],
             )

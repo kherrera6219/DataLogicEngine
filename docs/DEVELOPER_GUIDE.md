@@ -100,13 +100,13 @@ Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.
 Read these first:
 
 1. `docs/ARCHITECTURE.md`
-2. `docs/API.md`
-3. `docs/DATABASE_SCHEMA.md`
-4. `docs/TESTING.md`
-5. `docs/diagrams/12_end_to_end_request_lifecycle.md`
-6. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
-7. `docs/diagrams/05_truth_engine_architecture.md`
-8. `docs/diagrams/07_data_storage_and_memory_architecture.md`
+2. `docs/INTERFACE_INTEGRATION.md`
+3. `docs/DATA_ARCHITECTURE.md`
+4. `docs/VERIFICATION_VALIDATION_REPORT.md`
+5. `docs/ARCHITECTURE.md`
+6. `docs/ARCHITECTURE.md`
+7. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+8. `docs/DATA_ARCHITECTURE.md`
 
 The current request lifecycle is:
 
@@ -304,7 +304,7 @@ DataLogicEngine/
 4. Malformed canonical API requests should return deterministic validation errors.
 5. Route changes require contract tests.
 6. High-risk route changes require integration and security regression tests.
-7. Update `docs/API.md` when public route behavior changes.
+7. Update `docs/INTERFACE_INTEGRATION.md` when public route behavior changes.
 
 ## Data development rules
 
@@ -313,7 +313,7 @@ DataLogicEngine/
 3. Run schema parity validation after model/migration changes.
 4. Use app-owned storage modes unless architecture explicitly approves a different runtime model.
 5. Object-store keys must not allow absolute paths, null bytes, or traversal.
-6. ChromaDB/Neo4j/USKD/UnifiedMemory changes should update `docs/DATABASE_SCHEMA.md` when behavior changes.
+6. ChromaDB/Neo4j/USKD/UnifiedMemory changes should update `docs/DATA_ARCHITECTURE.md` when behavior changes.
 
 ## Documentation maintenance
 
@@ -356,13 +356,13 @@ Then validate references:
 ## Related documents
 
 1. `docs/ARCHITECTURE.md`
-2. `docs/API.md`
-3. `docs/DATABASE_SCHEMA.md`
-4. `docs/TESTING.md`
+2. `docs/INTERFACE_INTEGRATION.md`
+3. `docs/DATA_ARCHITECTURE.md`
+4. `docs/VERIFICATION_VALIDATION_REPORT.md`
 5. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
-6. `docs/PRODUCTION_READINESS.md`
+6. `docs/VERIFICATION_VALIDATION_REPORT.md`
 7. `docs/INSTALLATION_GUIDE.md`
-8. `docs/ENGINEER_ONBOARDING.md`
+8. `docs/DEVELOPER_GUIDE.md`
 
 ## Change notes for v2.7.0
 

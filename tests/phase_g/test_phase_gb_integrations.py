@@ -112,11 +112,11 @@ def test_trust_gateway_applies_enhanced_model_screening(monkeypatch):
 
 
 def test_pq_grpc_adr_is_indexed():
-    adr = "docs/adr/ADR-0002-pq-grpc-transport.md"
+    adr = "docs/archive/phase-16/adr/ADR-0002-pq-grpc-transport.md"
     with open(adr, encoding="utf-8") as handle:
         text = handle.read()
     with open("docs/adr/README.md", encoding="utf-8") as handle:
         index = handle.read()
 
     assert "Do not add PQ-gRPC as a desktop dependency" in text
-    assert "ADR-0002-pq-grpc-transport.md" in index
+    assert "../archive/phase-16/adr/ADR-0002-pq-grpc-transport.md" in index

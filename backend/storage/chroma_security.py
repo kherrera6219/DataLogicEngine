@@ -1,8 +1,9 @@
-"""Fail-closed Chroma collection access for the unpatched 1.5.9 advisory."""
+"""Fail-closed helpers for the restricted Chroma Rust HTTP contract."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
+import re
 from typing import Any
 
 
@@ -13,14 +14,29 @@ class ChromaCollectionSecurityError(RuntimeError):
 def _reject_embedding_configuration(value: Any) -> None:
     if isinstance(value, Mapping):
         for key, nested in value.items():
-            if key == "embedding_function" and nested not in (None, {}):
-                raise ChromaCollectionSecurityError(
-                    "chroma_server_embedding_configuration_rejected"
-                )
+            normalized = re.sub(r"[^a-z0-9_]", "", str(key).lower())
+            if normalized in {"embedding_function", "embeddingfunction"}:
+                if nested not in (None, {}) and nested != {"type": "unknown"}:
+                    raise ChromaCollectionSecurityError(
+                        "chroma_server_embedding_configuration_rejected"
+                    )
+                continue
+            if normalized in {"trust_remote_code", "trustremotecode"}:
+                if nested not in (None, {}, False):
+                    raise ChromaCollectionSecurityError(
+                        "chroma_server_embedding_configuration_rejected"
+                    )
+                continue
             _reject_embedding_configuration(nested)
     elif isinstance(value, (list, tuple)):
         for nested in value:
             _reject_embedding_configuration(nested)
+    elif isinstance(value, str):
+        normalized = re.sub(r"[^a-z0-9_]", "", value.lower())
+        if "trust_remote_code" in normalized or "trustremotecode" in normalized:
+            raise ChromaCollectionSecurityError(
+                "chroma_server_embedding_configuration_rejected"
+            )
 
 
 def validate_collection_configuration(collection: Any) -> Any:
@@ -28,8 +44,6 @@ def validate_collection_configuration(collection: Any) -> Any:
 
     model = getattr(collection, "_model", None)
     if model is None:
-        if collection.__class__.__module__.startswith("chromadb."):
-            raise ChromaCollectionSecurityError("chroma_collection_model_missing")
         return collection
     _reject_embedding_configuration(getattr(model, "configuration_json", None))
     _reject_embedding_configuration(getattr(model, "serialized_schema", None))

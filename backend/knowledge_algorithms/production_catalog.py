@@ -33,7 +33,7 @@ class KAProductionEntry:
     evidence_requirement: str = "category-specific observed inputs; no inferred factual proof"
     test_reference: str = "tests/knowledge_algorithms/test_production_invariants.py"
     performance_budget_ms: int = 1000
-    documentation_reference: str = "docs/KNOWLEDGE_ALGORITHM_CATALOG.md"
+    documentation_reference: str = "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
 
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)

@@ -113,6 +113,8 @@ def test_locked_chroma_service_is_rust_and_remains_production_disabled():
 
     assert chroma["server_implementation"] == "rust_single_node_binary"
     assert chroma["python_server_advisory_applicable"] is False
+    assert chroma["python_sdk_dependency"] is False
+    assert chroma["client_implementation"] == "restricted_vector_only_http_v1"
     assert chroma["production_approved"] is False
     assert lock["production_provisioning_authorized"] is False
 
@@ -142,3 +144,18 @@ def test_storage_and_qualification_code_cannot_bypass_safe_collection_helpers():
         source = path.read_text(encoding="utf-8")
         for token in forbidden:
             assert token not in source, f"unsafe Chroma collection access in {path}: {token}"
+
+
+def test_vulnerable_chromadb_python_sdk_is_absent_from_release_authority():
+    root = Path(__file__).resolve().parents[2]
+    requirements = (root / "requirements.txt").read_text(encoding="utf-8")
+    lock = (root / "requirements.lock").read_text(encoding="utf-8")
+    source_roots = (root / "backend", root / "scripts")
+
+    assert "chromadb==" not in requirements.lower()
+    assert "\nchromadb==" not in lock.lower()
+    for source_root in source_roots:
+        for path in source_root.rglob("*.py"):
+            source = path.read_text(encoding="utf-8")
+            assert "import chromadb" not in source
+            assert "from chromadb" not in source

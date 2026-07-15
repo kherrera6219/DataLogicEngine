@@ -186,13 +186,12 @@ def _neo4j_contract(manager: PodmanDataPlaneManager, run_id: str) -> dict[str, A
 
 
 def _chroma_contract(manager: PodmanDataPlaneManager, run_id: str) -> dict[str, Any]:
-    import chromadb
+    from backend.storage.chroma_http import ChromaHttpClient
 
     settings = manager.connection_settings()
-    client = chromadb.HttpClient(
+    client = ChromaHttpClient(
         host=settings["chroma_host"],
         port=settings["chroma_port"],
-        ssl=False,
     )
     collection_name = "dle_phase3_qualification"
     collection = safe_get_or_create_collection(client, name=collection_name)

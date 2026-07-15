@@ -140,7 +140,7 @@ TruthCore/KA work, policy decisions, and convergence state that executed.
 
 The supported client contract includes native sync, live governed SSE, durable
 async/status/result/cancel, capabilities, and owned trace summaries. See
-`docs/GATEWAY_COMPATIBILITY.md` for exact behavior.
+`docs/INTERFACE_INTEGRATION.md` for exact behavior.
 
 If the trace shows **Evidence support: Not measured**, one or more required
 source-quality, provenance, freshness, claim-support, or validator inputs was
@@ -412,9 +412,9 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 1. `docs/PRODUCT_REQUIREMENTS.md`
 2. `docs/INSTALLATION_GUIDE.md`
 3. `docs/PRIVACY_AI_NOTICE.md`
-4. `docs/API.md`
+4. `docs/INTERFACE_INTEGRATION.md`
 5. `docs/ARCHITECTURE.md`
-6. `docs/SECURITY.md`
+6. `docs/SECURITY_ARCHITECTURE.md`
 7. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
 
 ## Phase 9 knowledge lifecycle controls

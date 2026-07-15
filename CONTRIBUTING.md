@@ -58,8 +58,8 @@ Before contributing, ensure you have the following installed and configured:
 
 For documentation standards, see:
 
-- [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
-- [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](docs/REQUIREMENTS_TRACEABILITY.md)
+- [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/REQUIREMENTS_TRACEABILITY.md`](docs/REQUIREMENTS_TRACEABILITY.md)
 
 ---
 
@@ -537,12 +537,12 @@ cd frontend && npm run test:e2e
 When adding features, update the following as applicable:
 
 - `README.md` — if the change affects setup, usage, or capabilities
-- `docs/API.md` — for any new or modified API endpoints
+- `docs/INTERFACE_INTEGRATION.md` — for any new or modified API endpoints
 - `docs/ARCHITECTURE.md` — for architectural or structural changes
 - `CHANGELOG.md` — always, under the `Unreleased` section
 - Inline docstrings — always
 
-Full documentation governance is defined in [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md).
+Full documentation governance is defined in [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md).
 
 ---
 

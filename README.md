@@ -116,11 +116,15 @@ Major subsystems in the current local-first desktop build:
 Current production-completion focus:
 
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
-  image follow-up; critical ChromaDB alert 389 remains release-blocking;
-  the ChromaDB no-fix advisory remains release-blocking despite its documented
-  audit suppression
+  image follow-up
+- Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
+  vector-only HTTP client; focused adversarial tests, the live five-service
+  contract/restart qualification, and a zero-finding isolated dependency audit
+  pass. GitHub alert 389 awaits the replacement-manifest rescan
 - Completed Phase 16 CP16-F source replacement: 72/72 retained hashes, zero
-  active legacy sources, zero unmigrated links, and 18/18 routed target reviews
+  active legacy sources, zero unmigrated links, and 18/18 routed target reviews;
+  the strengthened all-document verifier migrated 175 previously missed path
+  references and the full 2,192-test suite passes with 18 skips
 - Approved and executed 154-file disposition crosswalk: exactly 30 canonical
   targets with verified headers and zero unclassified or duplicate routes
 - Completed Phase 17 CP17-A through CP17-D active-authority, historical-archive,
@@ -134,7 +138,7 @@ Current production-completion focus:
 - Deferred installed OpenAI/Google provider, corpus, and blinded-human acceptance
 - Deferred clean-installed data-plane, gateway, upgrade/recovery, and independent review gates
 - Final Replacement Control qualification and owner decision for the object-store implementation
-- Alert 389 replacement/upgrade and adversarial qualification when a patched ChromaDB release exists
+- GitHub verification that alert 389 closed after the vulnerable SDK replacement
 - Installed-system, accessibility, security, signing, and release qualification
 
 What Makes DataLogicEngine Different?
@@ -346,7 +350,7 @@ $env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires the approved publisher, protected signing boundary, and release checklist in [`docs/PRODUCTION_READINESS.md`](docs/VERIFICATION_VALIDATION_REPORT.md).
+`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires the approved publisher, protected signing boundary, and release checklist in [`docs/VERIFICATION_VALIDATION_REPORT.md`](docs/VERIFICATION_VALIDATION_REPORT.md).
 The stale local `Latest` artifact is not a release candidate.
 
 The desktop build produces these root artifacts:
@@ -517,7 +521,7 @@ and deletion workflows remain mediated and audited by DataLogicEngine.
 | USKD NetworkX and other working state | Bounded materialized runtime state loaded from a durable revision; never a silent replacement for a required service |
 | SQLite, JSON, or filesystem fallbacks | Bootstrap, development, staging, or repair only unless a separately approved parity decision changes the contract |
 
-See [`docs/DATABASE_SCHEMA.md`](docs/DATA_ARCHITECTURE.md) for the full data architecture reference.
+See [`docs/DATA_ARCHITECTURE.md`](docs/DATA_ARCHITECTURE.md) for the full data architecture reference.
 
 ## Installation
 
@@ -745,8 +749,8 @@ and claim metadata, warnings, and a typed failure when applicable. Missing
 confidence is returned as null rather than replaced with a plausible default.
 The deprecated `run_ukg_pipeline` field is ignored as a bypass control: every
 accepted answer request remains governed. See
-[`docs/API.md`](docs/INTERFACE_INTEGRATION.md) for the current route documentation and
-[`docs/GATEWAY_COMPATIBILITY.md`](docs/INTERFACE_INTEGRATION.md) for the exact
+[`docs/INTERFACE_INTEGRATION.md`](docs/INTERFACE_INTEGRATION.md) for the current route documentation and
+[`docs/INTERFACE_INTEGRATION.md`](docs/INTERFACE_INTEGRATION.md) for the exact
 compatibility boundary and
 [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) for
 remaining installed acceptance gates.
@@ -840,10 +844,10 @@ gates in the production completion plan.
 Security references:
 
 - [`SECURITY.md`](SECURITY.md)
-- [`docs/SECURITY.md`](docs/SECURITY_ARCHITECTURE.md)
-- [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/evaluation/AI_SYSTEM_CARD.md)
-- [`docs/SDLC_SSDF_MAPPING.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
-- [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/THIRD_PARTY_SOFTWARE_INDEX.md)
+- [`docs/SECURITY_ARCHITECTURE.md`](docs/SECURITY_ARCHITECTURE.md)
+- [`docs/evaluation/AI_SYSTEM_CARD.md`](docs/evaluation/AI_SYSTEM_CARD.md)
+- [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/THIRD_PARTY_SOFTWARE_INDEX.md`](docs/THIRD_PARTY_SOFTWARE_INDEX.md)
 
 **🔒 Report Security Issues Privately:**
 
@@ -913,12 +917,12 @@ npm --prefix frontend audit --audit-level=high
 
 ### Documentation
 
-- **Setup & Configuration**: [`DEVELOPMENT.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md), [`.env.template`](.env.template)
+- **Setup & Configuration**: [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md), [`.env.template`](.env.template)
 - **Production Completion**: [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md)
 - **Design/Implementation Baseline**: [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md)
 - **Installation and Operations**: [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md), [`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md)
-- **Testing**: [`TESTING.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
-- **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- **Testing**: [`docs/VERIFICATION_VALIDATION_REPORT.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
+- **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
 - **Support**: [`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`](docs/TROUBLESHOOTING_SUPPORT_GUIDE.md)
 
 ### Community & Support
@@ -940,10 +944,10 @@ Contributions are welcome when they align with the project license and governanc
 
 Development references:
 
-- [`DEVELOPMENT.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
-- [`TESTING.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
+- [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/VERIFICATION_VALIDATION_REPORT.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
 - [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
-- [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/SOFTWARE_LIFECYCLE_PLAN.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
 
 ## License
 
@@ -962,7 +966,7 @@ Personal, research, and educational use are permitted under the license terms. C
 | `SECURITY.md` | Present |
 | `CONTRIBUTING.md` | Present |
 | `CODE_OF_CONDUCT.md` | Present |
-| `SUPPORT.md` | Present |
+| `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | Present |
 | `CHANGELOG.md` | Present |
 | `.github/CODEOWNERS` | Present |
 | `.github/pull_request_template.md` | Present |

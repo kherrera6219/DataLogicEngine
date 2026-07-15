@@ -93,9 +93,9 @@ def build_managed_migration_coordinator(app, runtime, resources):
         create_engine(migration_url, pool_pre_ping=True)
     )
 
-    import chromadb
     import redis
     from neo4j import GraphDatabase
+    from backend.storage.chroma_http import ChromaHttpClient
 
     redis_client = resources.own(
         redis.Redis.from_url(
@@ -112,7 +112,7 @@ def build_managed_migration_coordinator(app, runtime, resources):
         )
     )
     chroma_client = resources.own(
-        chromadb.HttpClient(
+        ChromaHttpClient(
             host=str(settings["chroma_host"]),
             port=int(settings["chroma_port"]),
         )

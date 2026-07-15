@@ -167,24 +167,30 @@ independent source hash; Cosign v3 signs and verifies SBOM Sigstore bundles; and
 new Bandit findings are removed or narrowly constrained to loopback-only calls.
 Cross-platform policy, session, anonymous-mutation, and UI-inventory tests now
 represent Windows paths and desktop bootstrap authority consistently. A clean
-short-path Windows environment installed all 315 hash-locked packages with no
+  short-path Windows environment installed all 315 pre-replacement hash-locked packages with no
 broken requirements, the dependency audit had zero unignored findings, and the
-full backend suite passed 2,177 tests with 18 skipped. The unpatched ChromaDB
-advisory remains explicitly ignored only for CI report continuity and remains a
-production release blocker pending the existing qualification requirements.
+  full backend suite passed 2,177 tests with 18 skipped.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
 
-GitHub Dependabot alert 389 (`GHSA-f4j7-r4q5-qw2c` /
-`CVE-2026-45829`) is an explicit release blocker because no patched ChromaDB
-release exists. The locked service image is the Rust single-node binary, not the
-affected Python server. The Python client is constrained to caller-supplied
-vectors: all collection opens/creates pass `embedding_function=None` and reject
-persisted embedding-function/schema configuration before use. This mitigation
-allows engineering to continue but does not close or dismiss the alert, approve
-ChromaDB for production, or replace independent security review.
+Because no patched ChromaDB SDK release exists, the 2026-07-15 replacement
+removes the vulnerable Python SDK from both dependency authorities. The locked
+Rust single-node service is now accessed through an app-owned restricted v2 HTTP
+client that allows only loopback endpoints, caller-supplied vectors, and inert
+no-embedding configuration. Eighteen adversarial/contract regressions, an
+isolated zero-finding dependency audit, and a live five-service collection,
+  query, deletion, restart, status, and cleanup qualification pass. GitHub alert
+  389 still requires server-side closure after the replacement manifest is pushed;
+  installed service/security/recovery approval remains a later release gate.
+
+The subsequent consolidation-integrity audit expanded CP16-F verification from
+index-only links to every active Markdown link and backtick path. It migrated
+175 previously missed references to canonical or exact archived targets,
+rebound KA/provider/ADR source references, and passed replacement closure,
+documentation truth, all engineering/assurance document gates, and the complete
+test suite (2,192 passed, 18 skipped).
 
 ## 1. Purpose
 
@@ -788,8 +794,8 @@ into implementation.
 
 ### Documents updated
 
-`README.md`, `TODO.md`, `HANDOFF.md`, `docs/PRODUCT_OVERVIEW.md`,
-`docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`, `docs/DATABASE_SCHEMA.md`, and a new
+`README.md`, `TODO.md`, `HANDOFF.md`, `docs/PRODUCT_REQUIREMENTS.md`,
+`docs/ARCHITECTURE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/DATA_ARCHITECTURE.md`, and a new
 service-delivery ADR, product acceptance charter, requirements traceability
 matrix, feature-disposition matrix, Windows support matrix, responsibility/
 approval matrix, and legal/distribution register.
@@ -897,9 +903,9 @@ show zero open exception-disclosure findings.
 
 ### Documents updated
 
-`docs/SECURITY.md`, `docs/AUTH_DECORATORS.md`, `docs/API.md`,
-`docs/API_VERSIONING.md`, `docs/MCP_INTEGRATION.md`, `docs/PRIVACY_POLICY.md`,
-`docs/OPERATIONAL_RUNBOOKS.md`, and the route manifest.
+`docs/SECURITY_ARCHITECTURE.md`, `docs/INTERFACE_INTEGRATION.md`, `docs/INTERFACE_INTEGRATION.md`,
+`docs/INTERFACE_INTEGRATION.md`, `docs/INTERFACE_INTEGRATION.md`, `docs/PRIVACY_AI_NOTICE.md`,
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, and the route manifest.
 
 ## 10. Phase 2 - Runtime factory, startup, and capability state
 
@@ -1014,9 +1020,9 @@ across every supported Windows session and lifecycle event.
 
 ### Documents updated
 
-`docs/ARCHITECTURE.md`, `docs/PROCESS_MAP.md`, `docs/DEPLOYMENT.md`,
-`docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/API.md`, and
-`docs/OPERATIONAL_RUNBOOKS.md`.
+`docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/INSTALLATION_GUIDE.md`, `docs/INTERFACE_INTEGRATION.md`, and
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`.
 
 ## 11. Phase 3 - Full internal service delivery and supervision
 
@@ -1232,9 +1238,9 @@ deferred independent and failure/recovery gates pass.
 
 ### Documents updated
 
-`docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `docs/DEPLOYMENT.md`,
-`docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/SECURITY.md`,
-`docs/PRIVACY_POLICY.md`, and `docs/OPERATIONAL_RUNBOOKS.md`.
+`docs/ARCHITECTURE.md`, `docs/DATA_ARCHITECTURE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/INSTALLATION_GUIDE.md`, `docs/SECURITY_ARCHITECTURE.md`,
+`docs/PRIVACY_AI_NOTICE.md`, and `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`.
 
 ## 12. Phase 4 - Data contracts, migrations, backup, and recovery
 
@@ -1415,9 +1421,9 @@ deferred. Production/public release remains **NO-GO**.
 
 ### Documents updated
 
-`docs/DATABASE_SCHEMA.md`, `docs/DEPLOYMENT.md`,
-`docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/OPERATIONAL_RUNBOOKS.md`,
-`deploy/DISASTER_RECOVERY.md`, `docs/PRIVACY_POLICY.md`, and the migration support
+`docs/DATA_ARCHITECTURE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/INSTALLATION_GUIDE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`deploy/DISASTER_RECOVERY.md`, `docs/PRIVACY_AI_NOTICE.md`, and the migration support
 matrix, data-classification register, and data-at-rest/key-management standard.
 
 ## 13. Phase 5 - Canonical governed reasoning path
@@ -1519,9 +1525,9 @@ records are sufficient to explain exactly what happened.
 
 ### Documents updated
 
-`docs/WORKFLOW.md`, `docs/DECISION_LOGIC.md`, `docs/ARCHITECTURE.md`,
-`docs/DATA_FLOW_DIAGRAMS.md`, `docs/SEQUENCE_DIAGRAMS.md`, `docs/API.md`,
-`docs/PRODUCT_DESIGN.md`, and request-lifecycle diagrams.
+`docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`,
+`docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`, `docs/INTERFACE_INTEGRATION.md`,
+`docs/PRODUCT_REQUIREMENTS.md`, and request-lifecycle diagrams.
 
 ## 14. Phase 6 - Evidence, confidence, convergence, TruthCore, and KA validity
 
@@ -1684,8 +1690,8 @@ and human acceptance rubric.
 
 ### Documents updated
 
-`docs/DECISION_LOGIC.md`, `docs/WORKFLOW.md`, `docs/ARCHITECTURE.md`,
-`docs/API.md`, `docs/USER_GUIDE.md`, KA registry documentation, and evaluation
+`docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`,
+`docs/INTERFACE_INTEGRATION.md`, `docs/USER_GUIDE.md`, KA registry documentation, and evaluation
 methodology/evidence, golden-corpus manifest, human-review rubric, and AI system
 card.
 
@@ -1847,8 +1853,8 @@ call/token/cost ceilings cannot be bypassed by any UI or workflow path.
 
 ### Documents updated
 
-`docs/API.md`, `docs/PRIVACY_POLICY.md`, `docs/USER_GUIDE.md`,
-`docs/OPERATIONAL_RUNBOOKS.md`, `docs/PRODUCT_DESIGN.md`, and provider/model
+`docs/INTERFACE_INTEGRATION.md`, `docs/PRIVACY_AI_NOTICE.md`, `docs/USER_GUIDE.md`,
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/PRODUCT_REQUIREMENTS.md`, and provider/model
 support documentation, cost/quota policy, and local usage-ledger contract.
 
 ## 16. Phase 8 - External API Gateway and LLM middleware productization
@@ -2186,12 +2192,12 @@ production behavior remains.
 
 ### Documents updated
 
-`docs/API.md`, `docs/openapi.yaml`, `docs/API_VERSIONING.md`,
-`docs/ARCHITECTURE.md`, `docs/PRODUCT_DESIGN.md`, `docs/PRODUCT_OVERVIEW.md`,
-`docs/WORKFLOW.md`, `docs/DATA_FLOW_DIAGRAMS.md`, `docs/SEQUENCE_DIAGRAMS.md`,
-`docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, `docs/DEPLOYMENT.md`,
-`docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/USER_GUIDE.md`,
-`docs/OPERATIONAL_RUNBOOKS.md`, SDK documentation, virtual-model/client-policy
+`docs/INTERFACE_INTEGRATION.md`, `docs/openapi.yaml`, `docs/INTERFACE_INTEGRATION.md`,
+`docs/ARCHITECTURE.md`, `docs/PRODUCT_REQUIREMENTS.md`, `docs/PRODUCT_REQUIREMENTS.md`,
+`docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`,
+`docs/SECURITY_ARCHITECTURE.md`, `docs/PRIVACY_AI_NOTICE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/INSTALLATION_GUIDE.md`, `docs/USER_GUIDE.md`,
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, SDK documentation, virtual-model/client-policy
 contracts, private gateway/TLS/firewall runbook, compatibility matrix, and
 gateway qualification evidence.
 
@@ -2336,8 +2342,8 @@ Graph surfaces report real state.
 
 ### Documents updated
 
-`docs/USER_GUIDE.md`, `docs/WORKFLOW.md`, `docs/DATABASE_SCHEMA.md`,
-`docs/DATA_FLOW_DIAGRAMS.md`, `docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, and
+`docs/USER_GUIDE.md`, `docs/ARCHITECTURE.md`, `docs/DATA_ARCHITECTURE.md`,
+`docs/ARCHITECTURE.md`, `docs/SECURITY_ARCHITECTURE.md`, `docs/PRIVACY_AI_NOTICE.md`, and
 ingestion/reconciliation runbooks.
 
 ## 18. Phase 10 - Simulation completion
@@ -2421,8 +2427,8 @@ provider-call explosion.
 
 ### Documents updated
 
-`docs/PRODUCT_DESIGN.md`, `docs/WORKFLOW.md`, `docs/ARCHITECTURE.md`,
-`docs/API.md`, simulation user guidance, and simulation operational runbook.
+`docs/PRODUCT_REQUIREMENTS.md`, `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE.md`,
+`docs/INTERFACE_INTEGRATION.md`, simulation user guidance, and simulation operational runbook.
 
 ## 19. Phase 11 - MCP and connector completion
 
@@ -2497,8 +2503,8 @@ governed and traceable.
 
 ### Documents updated
 
-`docs/MCP_INTEGRATION.md`, `docs/API.md`, `docs/SECURITY.md`,
-`docs/PRIVACY_POLICY.md`, `docs/OPERATIONAL_RUNBOOKS.md`, and MCP user guidance.
+`docs/INTERFACE_INTEGRATION.md`, `docs/INTERFACE_INTEGRATION.md`, `docs/SECURITY_ARCHITECTURE.md`,
+`docs/PRIVACY_AI_NOTICE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, and MCP user guidance.
 
 ## 20. Phase 12 - UI workflow, project model, and accessibility completion
 
@@ -2653,7 +2659,7 @@ acceptance is complete.
 
 ### Documents updated
 
-`docs/PRODUCT_DESIGN.md`, `docs/USER_GUIDE.md`, `README.md`, accessibility
+`docs/PRODUCT_REQUIREMENTS.md`, `docs/USER_GUIDE.md`, `README.md`, accessibility
 evidence, and workflow-specific troubleshooting.
 
 ## 21. Phase 13 - Observability, diagnostics, compliance semantics, and support
@@ -2765,9 +2771,9 @@ limited to what the evidence proves.
 
 ### Documents updated
 
-`docs/OPERATIONAL_RUNBOOKS.md`, `docs/PRODUCTION_READINESS.md`,
-`docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`,
-`docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/SDLC_SSDF_MAPPING.md`, and support
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`,
+`docs/SECURITY_ARCHITECTURE.md`, `docs/PRIVACY_AI_NOTICE.md`,
+`docs/evaluation/AI_SYSTEM_CARD.md`, `docs/SOFTWARE_LIFECYCLE_PLAN.md`, and support
 documentation.
 
 ### Engineering checkpoint reached 2026-07-14
@@ -2982,9 +2988,9 @@ approved and no retired or unsupported production path is reachable.
 
 ### Documents updated
 
-`README.md`, `docs/DEPLOYMENT.md`, `docs/WINDOWS_11_LOCAL_RUNBOOK.md`,
-`docs/RELEASE_CHECKLIST.md`, `docs/PRODUCTION_READINESS.md`,
-`docs/SLSA_LEVEL_3_ATTESTATION.md`, `docs/SECURITY.md`, `CHANGELOG.md`, and
+`README.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/INSTALLATION_GUIDE.md`,
+`docs/RELEASE_READINESS_RECORD.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`,
+`docs/THIRD_PARTY_SOFTWARE_INDEX.md`, `docs/SECURITY_ARCHITECTURE.md`, `CHANGELOG.md`, and
 third-party notices, distribution authority record, and legacy-retirement report.
 
 ### Phase 14 engineering checkpoint - 2026-07-14
@@ -3607,7 +3613,7 @@ Existing filenames such as `PRODUCT_OVERVIEW.md`, `PRODUCT_DESIGN.md`,
 `ARCHITECTURE_MAP.md`, `COMPONENT_MAP.md`, `WORKFLOW.md`,
 `DATA_FLOW_DIAGRAMS.md`, `DECISION_LOGIC.md`, `DATABASE_SCHEMA.md`,
 `FILE_STRUCTURE.md`, `ENGINEER_ONBOARDING.md`, `DEVELOPER_GUIDE.md`,
-`API_VERSIONING.md`, `TESTING.md`, `DEPLOYMENT.md`, and
+`API_VERSIONING.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`, `DEPLOYMENT.md`, and
 `OPERATIONAL_RUNBOOKS.md` are transitional inputs, not automatically permanent
 authorities. Each must be merged into an approved Phase 16 target, generated,
 archived, or deleted according to the old-to-new crosswalk.
@@ -3626,7 +3632,7 @@ archived, or deleted according to the old-to-new crosswalk.
    root handoff short enough to read at session start.
 5. Keep one canonical audit log. Remove the duplicate pointer file only after all
    inbound links are updated.
-6. Merge `docs/AUTH_DECORATORS.md` into `docs/API.md` and `docs/SECURITY.md` after
+6. Merge `docs/INTERFACE_INTEGRATION.md` into `docs/INTERFACE_INTEGRATION.md` and `docs/SECURITY_ARCHITECTURE.md` after
    Phase 1 stabilizes, then archive/remove the standalone file.
 7. Consolidate overlapping sequence/diagram descriptions so each diagram has one
    authoritative narrative and one index entry.
@@ -4082,8 +4088,7 @@ exit gate.
 
 ## 32. Immediate next action
 
-Resolve the data-plane release blockers next: qualify the current ChromaDB
-upgrade/replacement against alert 389 and complete the final object-store
+Resolve the remaining data-plane blocker next: complete the final object-store
 Replacement Control with contract parity, durability, backup/restore, security,
 licensing, Windows delivery, migration/rollback, and the recorded owner decision.
 Then rebuild the exact signed release candidate, bind CP16-G, execute CP17-E, and
@@ -4097,6 +4102,6 @@ Documentation work may proceed, but it cannot convert source or unsigned
 qualification evidence into installed production acceptance.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
-alert 389, all independent-review requirements, and the SeaweedFS candidate-
+all independent-review requirements, and the SeaweedFS candidate-
 only Replacement Control boundary until their named evidence and owner
 approvals exist.

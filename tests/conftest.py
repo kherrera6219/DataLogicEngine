@@ -31,6 +31,14 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+# Lazy imports of ``app.app`` must never bind a test process to the real local
+# installation identity.  Keep the default application proxy in the same
+# process-scoped disposable root as explicit test app factories.
+os.environ.setdefault(
+    'DLE_RUNTIME_ROOT',
+    str(ROOT_DIR / '.pytest_cache' / f'default-runtime-{os.getpid()}'),
+)
+
 import pytest
 from flask import has_app_context
 from app import create_app, db

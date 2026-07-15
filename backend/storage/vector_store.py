@@ -2,19 +2,16 @@
 Vector Store for DataLogicEngine.
 
 Provides unified interface for vector/embedding storage with support for:
-- Local: ChromaDB (embedded, no server required)
+- Local supervised ChromaDB Rust service through a restricted HTTP client
 - Cloud: Pinecone, Qdrant, Weaviate
 """
 
-import os
-import json
 import logging
-import sqlite3
-from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
+from backend.storage.chroma_http import ChromaHttpClient
 from backend.storage.chroma_security import safe_get_or_create_collection
 
 logger = logging.getLogger(__name__)
@@ -83,7 +80,7 @@ class VectorBackend(ABC):
 
 
 class ChromaDBBackend(VectorBackend):
-    """ChromaDB backend for embedded development or supervised HTTP service."""
+    """Vector backend for the supervised app-owned Chroma Rust service."""
     
     def __init__(
         self,
@@ -98,89 +95,20 @@ class ChromaDBBackend(VectorBackend):
         self._client = None
         self._collections: Dict[str, Any] = {}
         
-        # Ensure directory exists
-        if self.port is None:
-            os.makedirs(persist_directory, exist_ok=True)
-    
+
     @property
     def client(self):
-        """Lazy initialization of ChromaDB client."""
+        """Lazily connect through the restricted vector-only HTTP contract."""
         if self._client is None:
-            try:
-                import chromadb
-                from chromadb.config import Settings
-
-                if self.port is not None:
-                    self._client = chromadb.HttpClient(
-                        host=self.host or "127.0.0.1",
-                        port=self.port,
-                        ssl=False,
-                        settings=Settings(
-                            anonymized_telemetry=False,
-                            allow_reset=False,
-                        ),
-                    )
-                    self._client.heartbeat()
-                    logger.info("Connected to supervisor-owned ChromaDB service")
-                else:
-                    self._upgrade_legacy_collection_configs()
-                    self._client = chromadb.PersistentClient(
-                        path=self.persist_directory,
-                        settings=Settings(
-                            anonymized_telemetry=False,
-                            allow_reset=True
-                        )
-                    )
-                    logger.info(f"ChromaDB initialized at {self.persist_directory}")
-            except ImportError:
-                logger.warning("ChromaDB not installed. Install with: pip install chromadb")
-                raise
-        return self._client
-
-    def _upgrade_legacy_collection_configs(self) -> int:
-        """Repair pre-0.6 Chroma collection configs without touching vector data."""
-        database_path = Path(self.persist_directory) / "chroma.sqlite3"
-        if not database_path.exists():
-            return 0
-
-        from chromadb.api.configuration import CollectionConfigurationInternal
-
-        default_config = CollectionConfigurationInternal().to_json_str()
-        connection = sqlite3.connect(database_path)
-        try:
-            rows = connection.execute("SELECT id, config_json_str FROM collections").fetchall()
-            legacy_ids = []
-            for collection_id, raw_config in rows:
-                try:
-                    parsed = json.loads(raw_config or "{}")
-                except (TypeError, ValueError):
-                    parsed = {}
-                if not isinstance(parsed, dict) or "_type" not in parsed:
-                    legacy_ids.append(collection_id)
-
-            if not legacy_ids:
-                return 0
-
-            backup_path = database_path.with_suffix(".pre-config-upgrade.bak")
-            if not backup_path.exists():
-                backup = sqlite3.connect(backup_path)
-                try:
-                    connection.backup(backup)
-                finally:
-                    backup.close()
-
-            connection.executemany(
-                "UPDATE collections SET config_json_str = ? WHERE id = ?",
-                [(default_config, collection_id) for collection_id in legacy_ids],
+            if self.port is None:
+                raise RuntimeError("supervisor_owned_chroma_service_required")
+            self._client = ChromaHttpClient(
+                host=self.host or "127.0.0.1",
+                port=self.port,
             )
-            connection.commit()
-            logger.info("Upgraded %s legacy Chroma collection configurations", len(legacy_ids))
-            return len(legacy_ids)
-        except sqlite3.OperationalError as exc:
-            logger.debug("Chroma collection configuration upgrade skipped: %s", exc)
-            return 0
-        finally:
-            connection.close()
+            self._client.heartbeat()
+            logger.info("Connected to supervisor-owned ChromaDB Rust service")
+        return self._client
     
     def _get_collection(self, name: str):
         """Get or create a collection."""
@@ -211,8 +139,8 @@ class ChromaDBBackend(VectorBackend):
             )
             logger.debug(f"Added {len(ids)} embeddings to collection {collection}")
             return ids
-        except Exception as e:
-            logger.error(f"Failed to add embeddings: {e}")
+        except Exception:
+            logger.error("Failed to add embeddings")
             return []
     
     def search(
@@ -244,8 +172,8 @@ class ChromaDBBackend(VectorBackend):
                     ))
             
             return search_results
-        except Exception as e:
-            logger.error(f"Vector search failed: {e}")
+        except Exception:
+            logger.error("Vector search failed")
             return []
     
     def delete(self, collection: str, ids: List[str]) -> bool:
@@ -254,8 +182,8 @@ class ChromaDBBackend(VectorBackend):
             coll = self._get_collection(collection)
             coll.delete(ids=ids)
             return True
-        except Exception as e:
-            logger.error(f"Failed to delete vectors: {e}")
+        except Exception:
+            logger.error("Failed to delete vectors")
             return False
     
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
@@ -267,9 +195,9 @@ class ChromaDBBackend(VectorBackend):
                 "count": coll.count(),
                 "backend": "chromadb"
             }
-        except Exception as e:
-            logger.error(f"Failed to get collection stats: {e}")
-            return {"name": collection, "count": 0, "error": str(e)}
+        except Exception:
+            logger.error("Failed to get collection stats")
+            return {"name": collection, "count": 0, "error": "vector_store_unavailable"}
 
     def list_collection_stats(self) -> Dict[str, Dict[str, Any]]:
         """Get statistics for the required ChromaDB collections."""
@@ -280,8 +208,8 @@ class ChromaDBBackend(VectorBackend):
         try:
             safe_get_or_create_collection(self.client, name=collection)
             return True
-        except Exception as e:
-            logger.error(f"Failed to create collection: {e}")
+        except Exception:
+            logger.error("Failed to create collection")
             return False
     
     def delete_collection(self, collection: str) -> bool:
@@ -291,8 +219,8 @@ class ChromaDBBackend(VectorBackend):
             if collection in self._collections:
                 del self._collections[collection]
             return True
-        except Exception as e:
-            logger.error(f"Failed to delete collection: {e}")
+        except Exception:
+            logger.error("Failed to delete collection")
             return False
 
 
@@ -424,7 +352,7 @@ class VectorStore:
     """
     Unified vector store interface.
 
-    Runtime selection is intentionally fixed to the app-owned ChromaDB backend.
+    Runtime selection is intentionally fixed to the app-owned ChromaDB Rust service.
     A Windows VM deployment uses the same internal storage model as desktop.
     """
     
@@ -440,7 +368,7 @@ class VectorStore:
         
         config = get_connection_manager().config.vector
         
-        logger.info("Using app-owned ChromaDB backend")
+        logger.info("Using app-owned ChromaDB Rust service")
         port = getattr(config, "port", None)
         return ChromaDBBackend(
             persist_directory=config.local_path,

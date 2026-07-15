@@ -39,14 +39,14 @@ provider execution/privacy accounting, and release-governed validation.
 
 ## Related documents
 
-1. `docs/API.md`
+1. `docs/INTERFACE_INTEGRATION.md`
 2. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
-3. `docs/PRODUCTION_READINESS.md`
-4. `docs/TESTING.md`
-5. `docs/diagrams/04_17_axis_coordinate_model.md`
-6. `docs/diagrams/05_truth_engine_architecture.md`
-7. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
-8. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+3. `docs/VERIFICATION_VALIDATION_REPORT.md`
+4. `docs/VERIFICATION_VALIDATION_REPORT.md`
+5. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+6. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+7. `docs/ARCHITECTURE.md`
+8. `docs/ARCHITECTURE.md`
 
 ## Architecture overview
 
@@ -766,7 +766,7 @@ Major API families:
 13. `/api/v1/ingestion/*`
 14. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
 
-See `docs/API.md` for endpoint-level guidance.
+See `docs/INTERFACE_INTEGRATION.md` for endpoint-level guidance.
 
 ## Security architecture
 
@@ -821,21 +821,21 @@ The current validation architecture includes:
 10. Docker image build verification.
 11. Release checklist and branch protection policies.
 
-`docs/TESTING.md` records the quality baseline and required release gates.
+`docs/VERIFICATION_VALIDATION_REPORT.md` records the quality baseline and required release gates.
 
 ## Reviewer architecture path
 
 A technical reviewer should inspect these diagrams first:
 
-1. `docs/diagrams/12_end_to_end_request_lifecycle.md`
-2. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
-3. `docs/diagrams/05_truth_engine_architecture.md`
-4. `docs/diagrams/04_17_axis_coordinate_model.md`
-5. `docs/diagrams/10_dsqp_persona_construction_architecture.md`
-6. `docs/diagrams/07_data_storage_and_memory_architecture.md`
-7. `docs/diagrams/06_local_first_security_model.md`
-8. `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md`
-9. `docs/diagrams/08_testing_validation_and_release_governance.md`
+1. `docs/ARCHITECTURE.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+4. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+5. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+6. `docs/DATA_ARCHITECTURE.md`
+7. `docs/SECURITY_ARCHITECTURE.md`
+8. `docs/PRODUCT_REQUIREMENTS.md`
+9. `docs/VERIFICATION_VALIDATION_REPORT.md`
 
 Then inspect these implementation files:
 

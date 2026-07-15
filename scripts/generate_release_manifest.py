@@ -38,7 +38,7 @@ PYTHON_COMPONENTS = (
     "psycopg2-binary",
     "redis",
     "neo4j",
-    "chromadb",
+    "httpx",
     "boto3",
     "cryptography",
 )

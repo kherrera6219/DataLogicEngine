@@ -81,10 +81,10 @@ Electron/Next UI
 
 Primary design references:
 
-- `docs/WORKFLOW.md:49-62`
-- `docs/DATA_FLOW_DIAGRAMS.md:88-114`
-- `docs/DECISION_LOGIC.md:287-329`
-- `docs/PRODUCT_DESIGN.md:68-75`
+- `docs/archive/phase-16/WORKFLOW.md:49-62`
+- `docs/archive/phase-16/DATA_FLOW_DIAGRAMS.md:88-114`
+- `docs/archive/phase-16/DECISION_LOGIC.md:287-329`
+- `docs/archive/phase-16/PRODUCT_DESIGN.md:68-75`
 - `docs/ARCHITECTURE.md:169-190`
 
 ## Actual normal-chat architecture
