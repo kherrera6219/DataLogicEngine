@@ -32,8 +32,8 @@ services:
   # Frontend Service (Next.js)
   frontend:
     build:
-      context: frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: ukg-frontend
     ports:
       - "3000:3000"

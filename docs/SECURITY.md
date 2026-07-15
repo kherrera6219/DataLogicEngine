@@ -63,6 +63,23 @@ the full backend suite, Ruff, Bandit, dependency audit, lock governance, workflo
 pin governance, and frontend lint/typecheck pass locally; GitHub-hosted reruns
 remain the authoritative CI result for the pushed commit.
 
+The follow-up CodeQL review found one shared public-error normalization defect:
+an allowed phrase inside an exception caused the entire exception string to be
+returned. Normalization now emits only a code-owned canonical message and
+regressions prove that adjacent secret, path, and upstream details cannot enter
+the response. The 51 affected medium findings are retained for CodeQL to mark
+fixed after the source correction.
+
+Six high findings were reviewed against the implemented trust boundaries and
+dismissed with evidence as false positives. Backup and ingestion paths require
+single-use Electron picker capabilities plus signed desktop requests; MCP paths
+are admin-only, canonicalized, fingerprinted, consent-gated, and process-
+contained; the external API token is a generated 256-bit machine credential
+whose SHA-256 value is only a lookup index; and support JSON is recursively
+redacted before serialization. A nested-redaction regression was added. The
+live open-high CodeQL query is clear. Full details are in
+`reports/code_scanning_alerts_2026-07-15.md`.
+
 ## Audience
 
 1. Security engineers

@@ -12,7 +12,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = (ROOT / "backend",)
 ROOT_FILES = (ROOT / "app.py",)
-SAFE_NORMALIZERS = {"normalize_public_error_message", "_public_error", "errors"}
+SAFE_NORMALIZERS = {
+    "normalize_public_error_message",
+    "_public_error",
+    "_policy_error",  # Typed MCPPolicyError exposes code-owned public_message only.
+    "errors",
+}
 
 
 def call_name(node: ast.Call) -> str:

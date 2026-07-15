@@ -33,6 +33,12 @@ administration, audit, observability, and validation application.
 > The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
 > backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
 > passes 2,177 backend tests and the full hashed Windows dependency install.
+> A follow-up CodeQL batch removes a shared raw-exception disclosure path,
+> records evidence-backed dispositions for six high scanner false positives,
+> leaves zero open high CodeQL findings, and repairs the cloud and standalone
+> frontend images' product-version input. The isolated backend result is 2,181
+> passed with 18 skipped, and both production frontend Docker targets pass.
+> Hosted replacement verification is in progress.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -105,7 +111,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Replacement GitHub Actions verification for the 2026-07-15 CI/security repair;
+- Replacement GitHub Actions verification for the 2026-07-15 CodeQL and cloud-
+  image follow-up;
   the ChromaDB no-fix advisory remains release-blocking despite its documented
   audit suppression
 - Phase 16 CP16-F source replacement, link migration, retained-evidence verification, and archive proposal after all 30 canonical targets were created

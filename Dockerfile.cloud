@@ -13,6 +13,8 @@ COPY frontend/package.json frontend/package-lock.json* ./
 COPY frontend/scripts ./scripts
 RUN npm ci
 COPY frontend/ ./
+# next.config.ts reads the repository-wide product version authority at build time.
+COPY config/product-versions.json /app/config/product-versions.json
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

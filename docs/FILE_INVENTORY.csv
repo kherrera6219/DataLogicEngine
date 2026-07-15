@@ -10,7 +10,7 @@ Path,Size_Bytes,Extension,Last_Modified
 .github\ISSUE_TEMPLATE\config.yml,668,.yml,2026-03-25 20:11:29 UTC
 .github\ISSUE_TEMPLATE\feature_request.yml,3006,.yml,2026-01-06 01:00:27 UTC
 .github\pull_request_template.md,791,.md,2026-02-16 18:35:51 UTC
-.github\workflows\ci.yml,12053,.yml,2026-07-15 07:44:08 UTC
+.github\workflows\ci.yml,12042,.yml,2026-07-15 08:36:36 UTC
 .github\workflows\code-signing-governance.yml,2446,.yml,2026-07-15 01:24:10 UTC
 .github\workflows\deploy.yml,7297,.yml,2026-07-15 01:23:52 UTC
 .github\workflows\release-checklist.yml,2178,.yml,2026-07-15 01:39:59 UTC
@@ -558,7 +558,7 @@ backend\unified_mapping_api.py,7759,.py,2026-07-13 16:51:50 UTC
 backend\utils\__init__.py,2202,.py,2026-07-15 00:34:57 UTC
 backend\utils\cors_policy.py,1586,.py,2026-02-16 11:48:22 UTC
 backend\utils\db_migration.py,4877,.py,2026-01-06 01:00:29 UTC
-backend\utils\error_normalization.py,841,.py,2026-02-16 11:16:20 UTC
+backend\utils\error_normalization.py,1426,.py,2026-07-15 08:19:30 UTC
 backend\utils\exceptions.py,8953,.py,2026-07-15 00:34:24 UTC
 backend\utils\flask_request_validation.py,1127,.py,2026-02-16 11:51:36 UTC
 backend\utils\pagination.py,4128,.py,2026-02-16 22:44:40 UTC
@@ -567,7 +567,7 @@ backend\utils\responses.py,5840,.py,2026-01-28 06:20:49 UTC
 backend\utils\safe_path.py,747,.py,2026-02-16 22:44:40 UTC
 backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,6501,.py,2026-07-13 18:32:05 UTC
-CHANGELOG.md,84900,.md,2026-07-15 08:06:19 UTC
+CHANGELOG.md,85451,.md,2026-07-15 08:38:49 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4340,.py,2026-07-15 01:11:17 UTC
@@ -743,8 +743,8 @@ deploy\windows\DataLogic_Frontend.xml,536,.xml,2026-02-07 09:18:47 UTC
 deploy\windows\DataLogicEngine.url,60,.url,2026-01-16 11:20:07 UTC
 deploy\windows\UKG_Setup.wxs,6480,.wxs,2026-02-07 09:40:30 UTC
 DEVELOPMENT.md,2381,.md,2026-05-22 22:15:29 UTC
-docker-compose.yml,2647,.yml,2026-05-24 23:05:53 UTC
-Dockerfile.cloud,2237,.cloud,2026-07-15 01:18:49 UTC
+docker-compose.yml,2645,.yml,2026-07-15 08:36:36 UTC
+Dockerfile.cloud,2389,.cloud,2026-07-15 08:20:50 UTC
 docs\ACCESSIBILITY_CONFORMANCE_REPORT.md,6473,.md,2026-07-15 07:17:24 UTC
 docs\ADMINISTRATOR_OPERATIONS_GUIDE.md,11333,.md,2026-07-15 06:55:20 UTC
 docs\adr\ADR-0001-engineering-governance-baseline.md,1789,.md,2026-07-06 18:55:43 UTC
@@ -868,9 +868,9 @@ docs\diagrams\10_dsqp_persona_construction_architecture.md,9792,.md,2026-07-06 1
 docs\diagrams\11_frontend_product_surface_and_trace_review_map.md,13803,.md,2026-07-14 23:36:14 UTC
 docs\diagrams\12_end_to_end_request_lifecycle.md,6221,.md,2026-07-14 19:11:28 UTC
 docs\DOCS_VERSION.json,334,.json,2026-07-15 03:14:44 UTC
-docs\DOCUMENTATION_BOM.md,4989,.md,2026-07-15 07:28:25 UTC
+docs\DOCUMENTATION_BOM.md,4989,.md,2026-07-15 08:39:38 UTC
 docs\DOCUMENTATION_COVERAGE_MATRIX.md,7258,.md,2026-07-14 08:33:38 UTC
-docs\DOCUMENTATION_CROSSWALK.md,29610,.md,2026-07-15 07:28:25 UTC
+docs\DOCUMENTATION_CROSSWALK.md,29610,.md,2026-07-15 08:39:38 UTC
 docs\DOCUMENTATION_STANDARDS.md,7381,.md,2026-07-06 07:34:43 UTC
 docs\DOCUMENTATION_VERSIONING.md,4241,.md,2026-07-06 07:35:15 UTC
 docs\documents\README.md,872,.md,2026-07-06 19:00:04 UTC
@@ -880,10 +880,10 @@ docs\evaluation\golden_corpus_v1.json,5373,.json,2026-07-14 05:11:18 UTC
 docs\evaluation\HUMAN_REVIEW_RUBRIC.md,1162,.md,2026-07-14 05:11:18 UTC
 docs\evaluation\provider_model_matrix_v1.json,1464,.json,2026-07-14 05:11:18 UTC
 docs\evaluation\QUALITY_EVALUATION.md,1454,.md,2026-07-14 05:11:18 UTC
-docs\FILE_INVENTORY.csv,167445,.csv,2026-07-15 07:28:24 UTC
+docs\FILE_INVENTORY.csv,167446,.csv,2026-07-15 08:39:38 UTC
 docs\FILE_STRUCTURE.md,4638,.md,2026-07-06 07:35:29 UTC
 docs\GATEWAY_COMPATIBILITY.md,4810,.md,2026-07-14 08:27:14 UTC
-docs\GENERATED_STRUCTURE.md,79571,.md,2026-07-15 07:28:25 UTC
+docs\GENERATED_STRUCTURE.md,79578,.md,2026-07-15 08:39:38 UTC
 docs\INDEPENDENT_REVIEW_RECORD.md,6822,.md,2026-07-15 07:25:16 UTC
 docs\INSTALLATION_GUIDE.md,8634,.md,2026-07-15 06:54:21 UTC
 docs\INTERFACE_INTEGRATION.md,8496,.md,2026-07-15 07:04:45 UTC
@@ -916,7 +916,7 @@ docs\REPO_AUDIT_LOG.md,370,.md,2026-06-25 04:14:47 UTC
 docs\REQUIREMENTS_TRACEABILITY.md,9181,.md,2026-07-15 07:08:13 UTC
 docs\ROOT_CLEANUP_REVIEW_2026-07-06.md,4165,.md,2026-07-13 06:44:43 UTC
 docs\SDLC_SSDF_MAPPING.md,14019,.md,2026-07-15 01:00:45 UTC
-docs\SECURITY.md,29994,.md,2026-07-15 08:06:19 UTC
+docs\SECURITY.md,31064,.md,2026-07-15 08:30:19 UTC
 docs\SECURITY_ARCHITECTURE.md,9180,.md,2026-07-15 07:05:43 UTC
 docs\SEQUENCE_DIAGRAMS.md,14282,.md,2026-07-14 19:11:53 UTC
 docs\SLSA_LEVEL_3_ATTESTATION.md,6789,.md,2026-07-15 03:13:06 UTC
@@ -1162,7 +1162,7 @@ frontend\contexts\AuthContext.tsx,3782,.tsx,2026-06-21 18:20:37 UTC
 frontend\contexts\FeatureFlagContext.tsx,6673,.tsx,2026-02-20 23:46:15 UTC
 frontend\contexts\ThemeContext.tsx,3510,.tsx,2026-02-16 11:56:23 UTC
 frontend\design-tokens\tokens.json,1075,.json,2026-02-16 09:57:10 UTC
-frontend\Dockerfile,1320,,2026-05-31 01:22:32 UTC
+frontend\Dockerfile,1490,,2026-07-15 08:36:36 UTC
 frontend\electron-builder.yml,1069,.yml,2026-07-15 06:08:13 UTC
 frontend\electron\desktop-log.test.ts,1561,.ts,2026-07-15 00:47:16 UTC
 frontend\electron\desktop-log.ts,2017,.ts,2026-07-15 00:46:37 UTC
@@ -1333,7 +1333,7 @@ frontend\types\electron.d.ts,4818,.ts,2026-07-14 09:25:11 UTC
 frontend\vitest.config.ts,785,.ts,2026-02-02 22:39:23 UTC
 frontend\vitest.setup.ts,1087,.ts,2026-05-22 06:33:58 UTC
 frontend\vitest.shims.d.ts,52,.ts,2026-01-28 18:00:50 UTC
-HANDOFF.md,34298,.md,2026-07-15 08:06:30 UTC
+HANDOFF.md,35674,.md,2026-07-15 08:38:49 UTC
 LICENSE,6481,,2026-01-16 03:51:58 UTC
 main.py,1183,.py,2026-07-13 17:57:42 UTC
 migrations\alembic.ini,857,.ini,2026-01-06 20:11:25 UTC
@@ -1372,7 +1372,7 @@ playwright-report\index.html,532676,.html,2026-02-16 18:15:52 UTC
 policies\truthgate.rego,730,.rego,2026-05-28 07:38:43 UTC
 PRODUCTION_COMPLETION_PLAN_2026.md,220914,.md,2026-07-15 08:06:19 UTC
 pyproject.toml,1321,.toml,2026-07-15 01:45:17 UTC
-README.md,45027,.md,2026-07-15 08:06:19 UTC
+README.md,45479,.md,2026-07-15 08:38:49 UTC
 REPO_AUDIT_LOG.md,177488,.md,2026-07-14 01:22:36 UTC
 reports\app-readiness-screenshot-capture.json,1463,.json,2026-05-23 05:01:10 UTC
 reports\app-readiness\a11y-ci-report.json,5380,.json,2026-07-15 00:53:36 UTC
@@ -1386,7 +1386,7 @@ reports\codesigning_certificate_health.json,1068,.json,2026-05-15 03:59:24 UTC
 reports\dependabot_alerts_2026-07-07.md,1495,.md,2026-07-07 22:50:32 UTC
 reports\dev_doctor_report.json,4576,.json,2026-05-23 04:54:27 UTC
 reports\dmrf_phase_f_validation.json,1357,.json,2026-05-26 23:27:18 UTC
-reports\dsqp_benchmark.json,324,.json,2026-07-15 07:59:14 UTC
+reports\dsqp_benchmark.json,324,.json,2026-07-15 08:29:18 UTC
 reports\dsqp_provider_audit_report.json,33136,.json,2026-05-26 05:53:45 UTC
 reports\first_run_qc_2026-07-07.md,12149,.md,2026-07-12 03:39:56 UTC
 reports\installer_integrity_report.json,463,.json,2026-07-11 06:03:32 UTC
@@ -1419,7 +1419,7 @@ reports\production-readiness\2026\phase-00\runtime\product-manifest.json,3354,.j
 reports\production-readiness\2026\phase-00\runtime\README.md,396,.md,2026-07-13 07:17:36 UTC
 reports\production-readiness\2026\phase-00\runtime\runtime-surfaces.json,149241,.json,2026-07-13 08:00:09 UTC
 reports\production-readiness\2026\phase-00\runtime\service-consumers.json,129459,.json,2026-07-13 08:00:10 UTC
-reports\production-readiness\2026\phase-00\runtime\ui-controls.json,42343,.json,2026-07-13 08:00:09 UTC
+reports\production-readiness\2026\phase-00\runtime\ui-controls.json,74301,.json,2026-07-15 08:07:20 UTC
 reports\production-readiness\2026\phase-00\scope-approval.md,686,.md,2026-07-13 07:16:10 UTC
 reports\production-readiness\2026\phase-00\summary.md,3044,.md,2026-07-13 08:02:14 UTC
 reports\production-readiness\2026\phase-00\test-results\environment-parity-python311.json,1120,.json,2026-07-13 08:03:12 UTC
@@ -1559,7 +1559,7 @@ reports\production-readiness\2026\phase-14\release-trust-policy.json,1125,.json,
 reports\production-readiness\2026\phase-14\sbom-services.cdx.json,6604,.json,2026-07-15 01:37:42 UTC
 reports\production-readiness\2026\phase-14\summary.md,6621,.md,2026-07-15 03:27:51 UTC
 reports\production-readiness\2026\phase-14\third-party-notices-readiness.md,1335,.md,2026-07-15 03:00:07 UTC
-reports\production-readiness\2026\phase-14\workflow-pins.json,18050,.json,2026-07-15 08:03:04 UTC
+reports\production-readiness\2026\phase-14\workflow-pins.json,18050,.json,2026-07-15 08:36:46 UTC
 reports\production-readiness\2026\phase-15\backend-payload-verification.json,978,.json,2026-07-15 06:06:24 UTC
 reports\production-readiness\2026\phase-15\candidate-1-binary-signatures.json,104294,.json,2026-07-15 03:59:41 UTC
 reports\production-readiness\2026\phase-15\candidate-1-content-inventory.json,4741332,.json,2026-07-15 04:01:09 UTC
@@ -1576,12 +1576,12 @@ reports\production-readiness\2026\phase-15\packaged-runtime-probe.json,1216,.jso
 reports\production-readiness\2026\phase-15\product-version-parity.json,2703,.json,2026-07-15 05:52:39 UTC
 reports\production-readiness\2026\phase-15\summary.md,5223,.md,2026-07-15 06:28:26 UTC
 reports\production-readiness\2026\phase-15\workflow-pin-verification.json,18050,.json,2026-07-15 06:08:50 UTC
-reports\production-readiness\2026\phase-16\document-authority-verification.json,6365,.json,2026-07-15 07:28:25 UTC
-reports\production-readiness\2026\phase-16\document-disposition-inventory.json,50639,.json,2026-07-15 07:28:25 UTC
-reports\production-readiness\2026\phase-16\documentation-bom-verification.json,239,.json,2026-07-15 07:28:25 UTC
-reports\production-readiness\2026\phase-16\engineering-assurance-document-verification.json,4519,.json,2026-07-15 07:28:26 UTC
-reports\production-readiness\2026\phase-16\product-user-document-verification.json,1622,.json,2026-07-15 07:28:25 UTC
-reports\production-readiness\2026\phase-16\submission-external-review-verification.json,783,.json,2026-07-15 07:28:26 UTC
+reports\production-readiness\2026\phase-16\document-authority-verification.json,6365,.json,2026-07-15 08:07:03 UTC
+reports\production-readiness\2026\phase-16\document-disposition-inventory.json,50639,.json,2026-07-15 08:39:38 UTC
+reports\production-readiness\2026\phase-16\documentation-bom-verification.json,239,.json,2026-07-15 08:40:24 UTC
+reports\production-readiness\2026\phase-16\engineering-assurance-document-verification.json,4519,.json,2026-07-15 08:40:24 UTC
+reports\production-readiness\2026\phase-16\product-user-document-verification.json,1622,.json,2026-07-15 08:40:24 UTC
+reports\production-readiness\2026\phase-16\submission-external-review-verification.json,783,.json,2026-07-15 08:40:24 UTC
 reports\production-readiness\2026\phase-16\summary.md,4222,.md,2026-07-15 07:27:53 UTC
 reports\release-readiness\local-first-phase1-completion-2026-05-25.md,2381,.md,2026-05-25 04:33:33 UTC
 reports\release-readiness\local-release-evidence-2026-05-23.md,16514,.md,2026-05-28 07:49:02 UTC
@@ -1733,7 +1733,7 @@ scripts\verify_mcp_system.py,1060,.py,2026-01-28 07:16:19 UTC
 scripts\verify_phase_h_desktop.py,3889,.py,2026-07-02 06:47:46 UTC
 scripts\verify_product_user_docs.py,6461,.py,2026-07-15 07:00:07 UTC
 scripts\verify_product_versions.py,7779,.py,2026-07-15 01:46:11 UTC
-scripts\verify_public_error_contracts.py,3778,.py,2026-07-13 16:51:50 UTC
+scripts\verify_public_error_contracts.py,3878,.py,2026-07-15 08:33:36 UTC
 scripts\verify_release_governance.py,4363,.py,2026-07-14 05:31:19 UTC
 scripts\verify_release_ownership.py,4000,.py,2026-07-15 01:43:26 UTC
 scripts\verify_release_payload.py,4449,.py,2026-07-15 05:51:05 UTC
@@ -2088,7 +2088,7 @@ tests\unit\test_services.py,11994,.py,2026-07-14 06:36:21 UTC
 tests\unit\test_simulation_engine_unit.py,5490,.py,2026-07-14 18:38:19 UTC
 tests\unit\test_storage_hardening.py,3632,.py,2026-07-14 02:30:36 UTC
 tests\unit\test_structured_logging_resilience.py,2227,.py,2026-07-15 00:10:46 UTC
-tests\unit\test_support_bundle.py,6073,.py,2026-07-15 07:45:14 UTC
+tests\unit\test_support_bundle.py,6488,.py,2026-07-15 08:18:32 UTC
 tests\unit\test_trace_export_lifecycle.py,4325,.py,2026-07-06 01:08:24 UTC
 tests\unit\test_trace_viewer_contract.py,4355,.py,2026-07-11 05:17:44 UTC
 tests\unit\test_ui_control_inventory.py,971,.py,2026-07-14 23:35:22 UTC
@@ -2113,5 +2113,5 @@ tests\verify_federated_sync_v2.py,3461,.py,2026-02-17 02:46:49 UTC
 tests\windows\installer_tests.Tests.ps1,2645,.ps1,2026-02-16 18:28:59 UTC
 tests\windows\test_windows_platform.py,2058,.py,2026-02-16 22:25:20 UTC
 tests\windows\verify_registry.ps1,799,.ps1,2026-01-30 05:59:22 UTC
-TODO.md,45419,.md,2026-07-15 08:06:19 UTC
+TODO.md,46159,.md,2026-07-15 08:38:49 UTC
 wsgi.py,772,.py,2026-07-13 17:57:42 UTC

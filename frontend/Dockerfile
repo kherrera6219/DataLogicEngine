@@ -6,18 +6,20 @@ RUN npm install -g npm@${NPM_VERSION} && npm cache clean --force
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY frontend/package.json frontend/package-lock.json* ./
 # The npm "postinstall" runs scripts/patch-electron-builder.mjs (a no-op off
 # Windows), so the scripts dir must exist before `npm ci` or the install fails
 # with "Cannot find module .../patch-electron-builder.mjs".
-COPY scripts ./scripts
+COPY frontend/scripts ./scripts
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY frontend/ ./
+# next.config.ts resolves the repository version authority one level above /app.
+COPY config/product-versions.json /config/product-versions.json
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build

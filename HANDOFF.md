@@ -581,16 +581,37 @@ advisory remains a documented no-fix CI ignore and an open production release
 blocker. Phase 16 CP16-F remains the exact next plan action after this repair is
 pushed and the replacement GitHub runs are observed.
 
+The follow-up CodeQL query found 51 medium findings caused by one shared helper
+returning an entire raw exception when it contained an allowed phrase. The
+helper now emits only code-owned canonical messages, with regressions proving
+secrets, internal paths, and upstream details stay private. Six high findings
+were reviewed against the existing signed picker, root confinement, MCP consent/
+containment, generated-machine-token, encrypted-backup, and recursive-redaction
+controls and dismissed in GitHub with evidence; the open-high query is clear.
+
+The first replacement Deploy and CI runs passed their original jobs and then
+found that both frontend image stages lacked `config/product-versions.json`,
+which `next.config.ts` requires. The cloud build now copies the authority, while
+the standalone Dockerfile, CI job, and Compose definition use repository context
+and copy the same authority before the production build. The focused regression,
+Compose rendering, repository Ruff gate, both real frontend Docker targets, and
+full isolated backend suite pass; the backend result is 2,181 passed and 18
+skipped. Replacement hosted-workflow results must be recorded before CP16-F
+resumes. See
+`reports/code_scanning_alerts_2026-07-15.md`.
+
 ## Exact next action
 
-1. Begin CP16-F by verifying every merge source against its canonical target,
+1. Push the CodeQL/public-error and cloud-image corrections and require the
+   replacement Security, CI, and Deploy workflows to pass.
+2. Resume CP16-F by verifying every merge source against its canonical target,
    migrating active inbound links, and proving requirement/decision/evidence
    retention before generating an archive/delete proposal.
-2. Keep archive/delete authority false until per-source content/link/evidence and
+3. Keep archive/delete authority false until per-source content/link/evidence and
    technical review pass; never archive immutable release evidence.
-3. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
+4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
-4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

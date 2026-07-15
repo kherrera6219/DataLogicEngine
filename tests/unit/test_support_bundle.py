@@ -73,6 +73,22 @@ def test_http_probe_rejects_non_loopback_or_non_http_targets(monkeypatch):
         }
 
 
+def test_write_json_recursively_redacts_secrets_before_storage(tmp_path):
+    target = tmp_path / "sanitized.json"
+
+    bundle.write_json(
+        target,
+        {
+            "api_key": SECRET,
+            "nested": {"message": f"authorization=Bearer {SECRET}"},
+        },
+    )
+
+    stored = target.read_text(encoding="utf-8")
+    assert SECRET not in stored
+    assert stored.count("[REDACTED_SECRET]") >= 2
+
+
 def test_preview_creates_no_archive_and_exposes_only_redacted_inventory(tmp_path):
     _seed_sensitive_files(tmp_path)
     preview = bundle.SupportBundleBuilder(tmp_path).preview(
