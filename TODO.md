@@ -34,8 +34,10 @@ conditions, and exit gates remain authoritative in the active root plan.
   GitHub with desktop-capability, path-confinement, MCP-consent, machine-token,
   encryption, and redaction evidence, leaving zero open high CodeQL findings.
   The cloud and standalone frontend images also receive their required product-
-  version authority and build locally; 2,181 isolated backend tests pass with 18 skipped. Remote
-  replacement workflows remain the final checkpoint before resuming CP16-F.
+  version authority and build locally; 2,181 isolated backend tests pass with 18
+  skipped. Replacement Security run 29401695782, CI run 29401695732, and Deploy
+  run 29401695777 all pass; GitHub reports zero open CodeQL findings. CP16-F may
+  resume, while critical Dependabot alert 389 remains release-blocking.
 - The 2026-07-15 CI/security maintenance checkpoint repaired the dependency,
   backend, governance, code-security, and Cosign artifact-signing failures.
   A clean short-path Windows environment installed all 315 hash-locked packages
@@ -654,8 +656,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete and observe the replacement CodeQL/CI/Deploy workflows for the
-2026-07-15 follow-up, then resume CP16-F replacement closure: verify every merge source against its canonical
+Resume CP16-F replacement closure: verify every merge source against its canonical
 target, migrate active inbound links, prove retained requirement/decision/evidence
 coverage, and generate the archive/delete proposal. Keep archive/delete authority
 false until per-source content, link, retained-evidence, and technical review

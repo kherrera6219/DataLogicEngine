@@ -596,22 +596,21 @@ the standalone Dockerfile, CI job, and Compose definition use repository context
 and copy the same authority before the production build. The focused regression,
 Compose rendering, repository Ruff gate, both real frontend Docker targets, and
 full isolated backend suite pass; the backend result is 2,181 passed and 18
-skipped. Replacement hosted-workflow results must be recorded before CP16-F
-resumes. See
+skipped. Replacement Security run 29401695782, CI run 29401695732, and Deploy
+run 29401695777 all pass. The live GitHub query reports zero open CodeQL
+findings; Dependabot alert 389 remains open and critical. CP16-F may resume. See
 `reports/code_scanning_alerts_2026-07-15.md`.
 
 ## Exact next action
 
-1. Push the CodeQL/public-error and cloud-image corrections and require the
-   replacement Security, CI, and Deploy workflows to pass.
-2. Resume CP16-F by verifying every merge source against its canonical target,
+1. Resume CP16-F by verifying every merge source against its canonical target,
    migrating active inbound links, and proving requirement/decision/evidence
    retention before generating an archive/delete proposal.
-3. Keep archive/delete authority false until per-source content/link/evidence and
+2. Keep archive/delete authority false until per-source content/link/evidence and
    technical review pass; never archive immutable release evidence.
-4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
+3. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
-5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MCP, backup, credential, and redaction controls, and supplied the product-
   version authority to the cloud and standalone frontend builds. The open-high
   CodeQL query is clear and both real frontend Docker targets build successfully.
+  Replacement Security, CI, and Deploy workflows pass with zero open CodeQL
+  findings; critical ChromaDB alert 389 remains release-blocking.
 - **CI/security gate repair**: added Flask async runtime support; upgraded the
   vulnerable Pillow, Starlette, and Transformers pins; regenerated the 315-
   package hash lock with cross-platform source hashing; migrated Cosign v3 SBOM

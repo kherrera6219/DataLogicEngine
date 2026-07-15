@@ -38,7 +38,8 @@ administration, audit, observability, and validation application.
 > leaves zero open high CodeQL findings, and repairs the cloud and standalone
 > frontend images' product-version input. The isolated backend result is 2,181
 > passed with 18 skipped, and both production frontend Docker targets pass.
-> Hosted replacement verification is in progress.
+> Replacement Security, CI, and Deploy workflows all pass, and GitHub reports
+> zero open CodeQL findings.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -111,8 +112,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Replacement GitHub Actions verification for the 2026-07-15 CodeQL and cloud-
-  image follow-up;
+- Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
+  image follow-up; critical ChromaDB alert 389 remains release-blocking;
   the ChromaDB no-fix advisory remains release-blocking despite its documented
   audit suppression
 - Phase 16 CP16-F source replacement, link migration, retained-evidence verification, and archive proposal after all 30 canonical targets were created

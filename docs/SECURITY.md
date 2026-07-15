@@ -67,8 +67,8 @@ The follow-up CodeQL review found one shared public-error normalization defect:
 an allowed phrase inside an exception caused the entire exception string to be
 returned. Normalization now emits only a code-owned canonical message and
 regressions prove that adjacent secret, path, and upstream details cannot enter
-the response. The 51 affected medium findings are retained for CodeQL to mark
-fixed after the source correction.
+the response. The pushed CodeQL rerun marked all 51 affected medium findings
+fixed; none were dismissed.
 
 Six high findings were reviewed against the implemented trust boundaries and
 dismissed with evidence as false positives. Backup and ingestion paths require
@@ -79,6 +79,11 @@ whose SHA-256 value is only a lookup index; and support JSON is recursively
 redacted before serialization. A nested-redaction regression was added. The
 live open-high CodeQL query is clear. Full details are in
 `reports/code_scanning_alerts_2026-07-15.md`.
+
+Replacement Security run 29401695782, CI run 29401695732, and Deploy run
+29401695777 all pass. The live code-scanning query returns zero open findings.
+Critical Dependabot alert 389 remains open as the separately governed ChromaDB
+production/public-release blocker.
 
 ## Audience
 

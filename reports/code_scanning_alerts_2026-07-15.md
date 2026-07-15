@@ -22,8 +22,7 @@ diagnostic text surrounding the phrase to enter a public response.
 message for an allowed phrase. It never returns the supplied exception text.
 Focused regressions prove that a message containing `permission denied` or a
 custom provider phrase cannot expose a secret, internal path, or upstream URL.
-The findings remain open until the pushed CodeQL rerun marks them fixed; they are
-not being dismissed.
+The pushed CodeQL rerun marked all 51 findings fixed. They were not dismissed.
 
 ## High finding review and disposition
 
@@ -62,7 +61,20 @@ definition now use repository context and copy the same authority before
 - Cloud and standalone frontend-builder Docker targets: passed, including Next.js production builds and TypeScript validation.
 - Docker Compose rendering: passed; unset local credential warnings are expected without an operator environment file.
 - Full isolated backend suite: 2,181 passed and 18 skipped.
-- Replacement GitHub workflows: pending at the time this report was created.
+- Replacement GitHub workflows: passed.
+
+## Remote confirmation
+
+Commit `6c1f2e8f` passed every required replacement workflow:
+
+| Workflow | Run | Result |
+|---|---|---|
+| Security Scan | [29401695782](https://github.com/kherrera6219/DataLogicEngine/actions/runs/29401695782) | Passed, including dependency, Bandit, secret, SBOM, Cosign, and Python/JavaScript CodeQL jobs |
+| CI/CD Pipeline | [29401695732](https://github.com/kherrera6219/DataLogicEngine/actions/runs/29401695732) | Passed, including backend, governance, frontend, Windows packaging/portable smoke, and backend/frontend Docker images |
+| Deploy | [29401695777](https://github.com/kherrera6219/DataLogicEngine/actions/runs/29401695777) | Passed, including build/test and the combined cloud Docker image |
+
+The live GitHub code-scanning query returns zero open findings. Dependabot alert
+389 remains open and critical as the separately retained ChromaDB blocker.
 
 Dependabot alert 389 for the no-fixed-release ChromaDB advisory is separate and
 remains a production/public-release blocker.
