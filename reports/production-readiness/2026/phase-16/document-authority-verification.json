@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.document-authority-verification.v1",
-  "generated_at": "2026-07-15T07:02:12.344864+00:00",
+  "generated_at": "2026-07-15T07:13:49.025633+00:00",
   "authority_version": "2026.07.14-approved1",
   "product_version": "4.3.0",
   "status": "pass",
-  "existing_canonical_count": 15,
-  "planned_canonical_count": 15,
-  "controlled_header_pass_count": 15,
+  "existing_canonical_count": 22,
+  "planned_canonical_count": 8,
+  "controlled_header_pass_count": 22,
   "archive_delete_authorized": false,
   "errors": [],
   "documents": [
@@ -117,26 +117,34 @@
     {
       "id": "DLE-ENG-002",
       "path": "docs/DATA_ARCHITECTURE.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ENG-003",
       "path": "docs/INTERFACE_INTEGRATION.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ENG-004",
       "path": "docs/SECURITY_ARCHITECTURE.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ENG-005",
       "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ENG-006",
@@ -149,20 +157,26 @@
     {
       "id": "DLE-ENG-007",
       "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-001",
       "path": "docs/REQUIREMENTS_TRACEABILITY.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-002",
       "path": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "state": "planned",
-      "header_status": "not_applicable_until_created"
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
     },
     {
       "id": "DLE-ASR-003",

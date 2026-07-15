@@ -29,14 +29,14 @@
 | `DLE-USER-004` | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | `user_admin_support` | Support Engineering | existing |
 | `DLE-USER-005` | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | Privacy Engineering | existing |
 | `DLE-ENG-001` | `docs/ARCHITECTURE.md` | `engineering_maintenance` | Architecture | existing |
-| `DLE-ENG-002` | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | Data Engineering | planned |
-| `DLE-ENG-003` | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | API Engineering | planned |
-| `DLE-ENG-004` | `docs/SECURITY_ARCHITECTURE.md` | `engineering_maintenance` | Security Engineering | planned |
-| `DLE-ENG-005` | `docs/SOFTWARE_LIFECYCLE_PLAN.md` | `engineering_maintenance` | Release Engineering | planned |
+| `DLE-ENG-002` | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | Data Engineering | existing |
+| `DLE-ENG-003` | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | API Engineering | existing |
+| `DLE-ENG-004` | `docs/SECURITY_ARCHITECTURE.md` | `engineering_maintenance` | Security Engineering | existing |
+| `DLE-ENG-005` | `docs/SOFTWARE_LIFECYCLE_PLAN.md` | `engineering_maintenance` | Release Engineering | existing |
 | `DLE-ENG-006` | `docs/DEVELOPER_GUIDE.md` | `engineering_maintenance` | Platform Engineering | existing |
-| `DLE-ENG-007` | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | `engineering_maintenance` | Platform Operations | planned |
-| `DLE-ASR-001` | `docs/REQUIREMENTS_TRACEABILITY.md` | `assurance_release_external` | Quality Engineering | planned |
-| `DLE-ASR-002` | `docs/VERIFICATION_VALIDATION_REPORT.md` | `assurance_release_external` | Quality Engineering | planned |
+| `DLE-ENG-007` | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | `engineering_maintenance` | Platform Operations | existing |
+| `DLE-ASR-001` | `docs/REQUIREMENTS_TRACEABILITY.md` | `assurance_release_external` | Quality Engineering | existing |
+| `DLE-ASR-002` | `docs/VERIFICATION_VALIDATION_REPORT.md` | `assurance_release_external` | Quality Engineering | existing |
 | `DLE-ASR-003` | `docs/evaluation/AI_SYSTEM_CARD.md` | `assurance_release_external` | AI Assurance | existing |
 | `DLE-ASR-004` | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | `assurance_release_external` | AI Assurance | planned |
 | `DLE-ASR-005` | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | `assurance_release_external` | Privacy Engineering | planned |

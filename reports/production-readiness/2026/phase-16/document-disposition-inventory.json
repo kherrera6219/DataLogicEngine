@@ -1,20 +1,20 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T07:02:12.047153+00:00",
+  "generated_at": "2026-07-15T07:13:48.732032+00:00",
   "authority_version": "2026.07.14-approved1",
   "authority_status": "approved_phase16_information_architecture",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 139,
+    "markdown_file_count": 146,
     "canonical_document_count": 30,
     "canonical_limit": 30,
-    "existing_canonical_count": 15,
-    "planned_canonical_count": 15,
+    "existing_canonical_count": 22,
+    "planned_canonical_count": 8,
     "unclassified_count": 0,
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
-      "authoritative": 19,
+      "authoritative": 26,
       "generated": 5,
       "historical": 43,
       "merge": 72
@@ -512,6 +512,14 @@
       "basis": "approved Phase 16 consolidation route"
     },
     {
+      "path": "docs/DATA_ARCHITECTURE.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
       "document_class": "engineering_maintenance",
       "disposition": "merge into docs/DATA_ARCHITECTURE.md",
@@ -768,6 +776,14 @@
       "basis": "selected canonical document"
     },
     {
+      "path": "docs/INTERFACE_INTEGRATION.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/ip/dsqp_technical_disclosure.md",
       "document_class": "assurance_release_external",
       "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
@@ -790,6 +806,14 @@
       "target": "docs/DATA_ARCHITECTURE.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/MCP_INTEGRATION.md",
@@ -920,6 +944,14 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/ROOT_CLEANUP_REVIEW_2026-07-06.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -944,6 +976,14 @@
       "basis": "approved Phase 16 consolidation route"
     },
     {
+      "path": "docs/SECURITY_ARCHITECTURE.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/SEQUENCE_DIAGRAMS.md",
       "document_class": "engineering_maintenance",
       "disposition": "merge into docs/ARCHITECTURE.md",
@@ -958,6 +998,14 @@
       "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/SSL_CONFIGURATION.md",
@@ -1012,6 +1060,14 @@
       "document_class": "user_admin_support",
       "disposition": "authoritative input",
       "target": "docs/USER_GUIDE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "document_class": "assurance_release_external",
+      "disposition": "authoritative input",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
       "cap_counted": true,
       "basis": "selected canonical document"
     },

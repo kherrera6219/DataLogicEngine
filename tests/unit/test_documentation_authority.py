@@ -7,6 +7,9 @@ from scripts.generate_documentation_authority import (
     markdown_paths,
 )
 from scripts.verify_doc_authority import verify as verify_doc_authority
+from scripts.verify_engineering_assurance_docs import (
+    verify as verify_engineering_assurance_docs,
+)
 from scripts.verify_product_user_docs import verify as verify_product_user_docs
 
 
@@ -63,4 +66,12 @@ def test_cp16b_product_user_documents_preserve_sources_and_truthful_boundaries()
     assert result["status"] == "pass"
     assert result["verified_count"] == 5
     assert result["target_count"] == 5
+    assert result["archive_delete_authorized"] is False
+
+
+def test_cp16c_engineering_assurance_documents_preserve_sources_and_boundaries():
+    result = verify_engineering_assurance_docs(load_authority())
+    assert result["status"] == "pass"
+    assert result["verified_count"] == 7
+    assert result["target_count"] == 7
     assert result["archive_delete_authorized"] is False

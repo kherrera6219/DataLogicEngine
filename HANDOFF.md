@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.16.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.17.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -518,15 +518,32 @@ the BOM/crosswalk, six focused tests, and documentation references pass. No sour
 was moved, archived, or deleted. The signed-RC unfamiliar-user walkthrough remains
 the retained CP16-B exit gate; CP16-C document construction is active.
 
+## Phase 16 first CP16-C engineering/assurance content batch
+
+Seven more canonical targets now exist: data architecture, interface/integration,
+security architecture, software lifecycle, maintenance/disaster recovery,
+requirements traceability, and V&V. They consolidate their approved source maps
+without claiming that retained installed, manual, independent, legal, signing,
+accessibility, provider, recovery, pilot, or soak gates passed.
+
+The authority now reports 22 existing and eight planned canonical targets and
+146 classified Markdown files. The engineering/assurance verifier passes seven
+of seven source maps, required topics, portal links, truthful statuses, and
+prohibited-claim checks. All 22 controlled headers and seven focused tests pass.
+No source was moved, archived, or deleted. CP16-C remains active for the five
+assurance/release records.
+
 ## Exact next action
 
-1. Build and verify the first CP16-C targets: data architecture, interface/
-   integration, security architecture, software lifecycle, maintenance/disaster
-   recovery, requirements traceability, and verification/validation.
-2. Preserve mapped requirements, decisions, limitations, and evidence and add
-   source/topic/link checks; do not archive/delete transitional sources yet.
-3. Retain the CP16-B signed-RC unfamiliar-user walkthrough.
-4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+1. Complete CP16-C with the KA/TruthCore validation dossier, privacy impact
+   assessment, accessibility conformance report, third-party software index, and
+   release-readiness record.
+2. Bind claims to generated/source evidence and preserve truthful open status;
+   do not archive/delete transitional sources yet.
+3. Then build the CP16-D/CP16-E professional, Microsoft, and independent-review
+   records without implying an external approval.
+4. Retain the CP16-B signed-RC unfamiliar-user walkthrough.
+5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

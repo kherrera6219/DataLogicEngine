@@ -26,7 +26,9 @@ administration, audit, observability, and validation application.
 > validation. Phases 0-2 and the Phase 3-15 engineering checkpoints are complete;
 > Phase 16 controlled-document replacement is active: CP16-A information
 > architecture and the CP16-B product/user content checkpoint are complete, with
-> the signed-RC unfamiliar-user walkthrough retained; CP16-C is active. Phase 15 freezes clean
+> the signed-RC unfamiliar-user walkthrough retained; the first CP16-C
+> engineering/assurance content batch is complete and CP16-C remains active.
+> Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
 > backend payload has 6,151 files and zero source/test/cache leakage findings.
@@ -98,8 +100,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 16 CP16-C engineering/assurance documentation set and professional/Microsoft review dossier, after CP16-A and the CP16-B content checkpoint
-- Approved 139-file disposition crosswalk: exactly 30 canonical targets, verified headers on all 15 existing targets, zero unclassified files, and no archive/delete action until full link/content verification passes
+- Phase 16 CP16-C assurance/release records and professional/Microsoft review dossier, after CP16-A, CP16-B content, and the first CP16-C engineering/assurance batch
+- Approved 146-file disposition crosswalk: exactly 30 canonical targets, verified headers on all 22 existing targets, zero unclassified files, and no archive/delete action until full link/content verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance

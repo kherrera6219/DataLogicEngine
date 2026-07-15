@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.16.0 |
+| Document version | v1.17.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -121,6 +121,15 @@ truthful-status, and prohibited-claim verification. The inventory is now 139
 Markdown files with 15 existing and 15 planned canonical targets. The signed-RC
 unfamiliar-user walkthrough remains a retained CP16-B exit gate; CP16-C document
 construction is active. Archive/delete authorization remains false.
+
+The first CP16-C content batch adds canonical data architecture, interface and
+integration, security architecture, software lifecycle, maintenance/disaster
+recovery, requirements traceability, and V&V documents. Their seven approved
+source maps, controlled headers, required topics, portal links, truthful statuses,
+and prohibited-claim checks pass. The inventory is now 146 Markdown files with
+22 existing and eight planned canonical targets. CP16-C remains active for the
+KA/TruthCore, privacy impact, accessibility, third-party, and release-readiness
+assurance records.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -3493,6 +3502,7 @@ python scripts/verify_requirements_traceability.py
 python scripts/verify_doc_authority.py
 python scripts/verify_documentation_bom.py
 python scripts/verify_product_user_docs.py
+python scripts/verify_engineering_assurance_docs.py
 python scripts/verify_submission_dossier.py
 git diff --check
 ```
@@ -4027,13 +4037,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 16 CP16-C** with the canonical data architecture, interface/
-integration, security architecture, software lifecycle, maintenance/disaster-
-recovery, requirements traceability, and V&V documents. Preserve each mapped
-requirement, decision, limitation, and evidence reference, then apply automated
-source/topic/link verification. Retain the CP16-B signed-RC unfamiliar-user
-walkthrough and do not archive/delete any source until its target, evidence
-retention, and full link scan pass.
+Continue **Phase 16 CP16-C** with the KA/TruthCore validation dossier, privacy
+impact assessment, accessibility conformance report, third-party software index,
+and release-readiness record. Bind every claim to generated/source evidence and
+retain not-evaluated/release-blocked status where installed, manual, legal, or
+independent proof is absent. Then proceed to CP16-D/CP16-E external-review
+records. Retain the CP16-B signed-RC walkthrough and do not archive/delete any
+source until its target, evidence retention, and full link scan pass.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

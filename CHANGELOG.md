@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 first CP16-C engineering/assurance content batch**: created the
+  canonical data architecture, interface/integration, security architecture,
+  software lifecycle, maintenance/disaster recovery, requirements traceability,
+  and V&V records; migrated portal entry links; and added seven-target source-
+  map, topic, truthful-status, and prohibited-claim verification. Retained
+  installed/manual/independent gates remain explicit and no source was archived.
 - **Phase 16 CP16-B product/user content checkpoint**: created the canonical
   product requirements, installation/lifecycle, administrator/operations,
   troubleshooting/support, and privacy/provider/retention/AI-limitations set;
