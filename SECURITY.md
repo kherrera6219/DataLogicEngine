@@ -112,7 +112,7 @@ DataLogicEngine uses a layered security model:
 Detailed controls are documented in:
 
 1. `docs/SECURITY.md`
-2. `docs/PRIVACY_POLICY.md`
+2. `docs/PRIVACY_AI_NOTICE.md`
 3. `docs/SSL_CONFIGURATION.md`
 4. `docs/CIS_BENCHMARKS.md`
 5. `docs/SLSA_LEVEL_3_ATTESTATION.md`
@@ -149,8 +149,8 @@ See `docs/PRODUCTION_READINESS.md` and `docs/RELEASE_CHECKLIST.md` for current r
 ## Additional resources
 
 1. `docs/SECURITY.md`
-2. `docs/OPERATIONAL_RUNBOOKS.md`
-3. `docs/PRIVACY_POLICY.md`
+2. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
+3. `docs/PRIVACY_AI_NOTICE.md`
 4. `docs/RELEASE_CHECKLIST.md`
 5. `docs/DOCUMENTATION_STANDARDS.md`
 

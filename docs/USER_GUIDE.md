@@ -304,7 +304,7 @@ Data may leave the machine when:
 4. web/cloud deployment is used;
 5. logs/reports are manually shared for support.
 
-Review `docs/PRIVACY_POLICY.md` for details.
+Review `docs/PRIVACY_AI_NOTICE.md` for details.
 
 ## Validation checklist
 
@@ -382,7 +382,7 @@ Review `docs/PRIVACY_POLICY.md` for details.
 2. Confirm loopback backend is reachable.
 3. Confirm desktop local-auth path is active.
 4. Restart the app.
-5. See `docs/WINDOWS_11_LOCAL_RUNBOOK.md` for desktop-auth troubleshooting.
+5. See `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` for desktop-auth troubleshooting.
 
 ### Storage offline
 
@@ -409,13 +409,13 @@ Review `docs/PRIVACY_POLICY.md` for details.
 
 ## Related documents
 
-1. `docs/PRODUCT_OVERVIEW.md`
-2. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-3. `docs/PRIVACY_POLICY.md`
+1. `docs/PRODUCT_REQUIREMENTS.md`
+2. `docs/INSTALLATION_GUIDE.md`
+3. `docs/PRIVACY_AI_NOTICE.md`
 4. `docs/API.md`
 5. `docs/ARCHITECTURE.md`
 6. `docs/SECURITY.md`
-7. `docs/OPERATIONAL_RUNBOOKS.md`
+7. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
 
 ## Phase 9 knowledge lifecycle controls
 

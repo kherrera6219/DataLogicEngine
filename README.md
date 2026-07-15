@@ -24,7 +24,9 @@ administration, audit, observability, and validation application.
 > **Current Status - Production completion program active; not a production release**
 > DataLogicEngine is available for local engineering evaluation and architecture
 > validation. Phases 0-2 and the Phase 3-15 engineering checkpoints are complete;
-> Phase 16 controlled-document replacement is active. Phase 15 freezes clean
+> Phase 16 controlled-document replacement is active: CP16-A information
+> architecture and the CP16-B product/user content checkpoint are complete, with
+> the signed-RC unfamiliar-user walkthrough retained; CP16-C is active. Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
 > backend payload has 6,151 files and zero source/test/cache leakage findings.
@@ -96,8 +98,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 16 CP16-B product/user documentation set and professional/Microsoft review dossier, after owner-approved CP16-A information architecture
-- Approved 134-file disposition crosswalk: exactly 30 canonical targets, verified headers on all ten existing targets, zero unclassified files, and no archive/delete action until link/content verification passes
+- Phase 16 CP16-C engineering/assurance documentation set and professional/Microsoft review dossier, after CP16-A and the CP16-B content checkpoint
+- Approved 139-file disposition crosswalk: exactly 30 canonical targets, verified headers on all 15 existing targets, zero unclassified files, and no archive/delete action until full link/content verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
@@ -187,7 +189,7 @@ documentation replacement, release lock, and controlled launch. See
 - 🔒 **Report Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
 - ❓ **Ask Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
 - 📚 **Need Help?**: See [Getting Help](#getting-help)
-- 🚢 **Deploy to Production**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+- 🚢 **Install and Operate**: [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md), [`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md)
 
 ## Quickstart
 
@@ -581,7 +583,7 @@ Installer artifacts are copied to the repository root as a single canonical setu
 - `DataLogicEngine Setup 4.3.0.exe`
 - matching `.sha256` and `.blockmap` files
 
-Legacy standalone install/uninstall scripts under `scripts/windows/` are quarantined and excluded from the release payload. Phase 15 will qualify the NSIS silent lifecycle and data-choice behavior; see [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](docs/WINDOWS_11_LOCAL_RUNBOOK.md).
+Legacy standalone install/uninstall scripts under `scripts/windows/` are quarantined and excluded from the release payload. Phase 15 retains the NSIS silent lifecycle and data-choice qualification gates; see [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md).
 
 ### Model Provider Setup
 
@@ -791,7 +793,7 @@ cleanup/disposition inputs and must not be used to represent a supported release
   owner explicitly opts in after privacy/redaction review.
 - Confirm truthful liveness, readiness, capabilities, diagnostics, trace, and
   release evidence against the installed package.
-- Review [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md), and [`deploy/DEPLOYMENT_CHECKLIST.md`](deploy/DEPLOYMENT_CHECKLIST.md).
+- Review [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md), [`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md), and [`deploy/DEPLOYMENT_CHECKLIST.md`](deploy/DEPLOYMENT_CHECKLIST.md).
 
 ## Security and Compliance
 
@@ -889,10 +891,10 @@ npm --prefix frontend audit --audit-level=high
 - **Setup & Configuration**: [`DEVELOPMENT.md`](DEVELOPMENT.md), [`.env.template`](.env.template)
 - **Production Completion**: [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md)
 - **Design/Implementation Baseline**: [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md)
-- **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md)
+- **Installation and Operations**: [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md), [`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md)
 - **Testing**: [`TESTING.md`](TESTING.md)
 - **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
-- **Support**: [`SUPPORT.md`](SUPPORT.md)
+- **Support**: [`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`](docs/TROUBLESHOOTING_SUPPORT_GUIDE.md)
 
 ### Community & Support
 

@@ -7,6 +7,7 @@ from scripts.generate_documentation_authority import (
     markdown_paths,
 )
 from scripts.verify_doc_authority import verify as verify_doc_authority
+from scripts.verify_product_user_docs import verify as verify_product_user_docs
 
 
 def test_phase16_canonical_set_is_exactly_thirty_with_unique_ids_and_paths():
@@ -50,7 +51,16 @@ def test_no_canonical_document_is_routed_as_historical_or_merge_input():
 def test_existing_canonical_documents_have_controlled_headers():
     result = verify_doc_authority(load_authority())
     assert result["status"] == "pass"
-    assert result["existing_canonical_count"] == 10
-    assert result["controlled_header_pass_count"] == 10
-    assert result["planned_canonical_count"] == 20
+    assert result["existing_canonical_count"] >= 15
+    assert result["controlled_header_pass_count"] == result["existing_canonical_count"]
+    assert result["planned_canonical_count"] <= 15
+    assert result["existing_canonical_count"] + result["planned_canonical_count"] == 30
+    assert result["archive_delete_authorized"] is False
+
+
+def test_cp16b_product_user_documents_preserve_sources_and_truthful_boundaries():
+    result = verify_product_user_docs(load_authority())
+    assert result["status"] == "pass"
+    assert result["verified_count"] == 5
+    assert result["target_count"] == 5
     assert result["archive_delete_authorized"] is False

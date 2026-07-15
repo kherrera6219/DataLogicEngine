@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 CP16-B product/user content checkpoint**: created the canonical
+  product requirements, installation/lifecycle, administrator/operations,
+  troubleshooting/support, and privacy/provider/retention/AI-limitations set;
+  migrated canonical entry links; and added automated source-map, required-topic,
+  truthful-status, and prohibited-claim verification. The signed-RC unfamiliar-
+  user walkthrough remains a retained exit gate and no source was archived.
 - **Phase 16 CP16-A documentation authority checkpoint**: owner-approved the exact
   30-document canonical target across five classes, generated a controlled BOM
   and complete 134-file old-to-new crosswalk, applied the required 13-field

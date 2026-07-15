@@ -359,9 +359,9 @@ Then validate references:
 2. `docs/API.md`
 3. `docs/DATABASE_SCHEMA.md`
 4. `docs/TESTING.md`
-5. `docs/DEPLOYMENT.md`
+5. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
 6. `docs/PRODUCTION_READINESS.md`
-7. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+7. `docs/INSTALLATION_GUIDE.md`
 8. `docs/ENGINEER_ONBOARDING.md`
 
 ## Change notes for v2.7.0

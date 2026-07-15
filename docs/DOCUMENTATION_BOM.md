@@ -22,12 +22,12 @@
 | `DLE-ROOT-004` | `CONTRIBUTING.md` | `engineering_maintenance` | Platform Engineering | existing |
 | `DLE-ROOT-005` | `TODO.md` | `engineering_maintenance` | Production Program Owner | existing |
 | `DLE-ROOT-006` | `HANDOFF.md` | `engineering_maintenance` | Production Program Owner | existing |
-| `DLE-PROD-001` | `docs/PRODUCT_REQUIREMENTS.md` | `product_public` | Product Engineering | planned |
+| `DLE-PROD-001` | `docs/PRODUCT_REQUIREMENTS.md` | `product_public` | Product Engineering | existing |
 | `DLE-USER-001` | `docs/USER_GUIDE.md` | `user_admin_support` | Product Engineering | existing |
-| `DLE-USER-002` | `docs/INSTALLATION_GUIDE.md` | `user_admin_support` | Platform Operations | planned |
-| `DLE-USER-003` | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | `user_admin_support` | Platform Operations | planned |
-| `DLE-USER-004` | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | `user_admin_support` | Support Engineering | planned |
-| `DLE-USER-005` | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | Privacy Engineering | planned |
+| `DLE-USER-002` | `docs/INSTALLATION_GUIDE.md` | `user_admin_support` | Platform Operations | existing |
+| `DLE-USER-003` | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | `user_admin_support` | Platform Operations | existing |
+| `DLE-USER-004` | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | `user_admin_support` | Support Engineering | existing |
+| `DLE-USER-005` | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | Privacy Engineering | existing |
 | `DLE-ENG-001` | `docs/ARCHITECTURE.md` | `engineering_maintenance` | Architecture | existing |
 | `DLE-ENG-002` | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | Data Engineering | planned |
 | `DLE-ENG-003` | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | API Engineering | planned |

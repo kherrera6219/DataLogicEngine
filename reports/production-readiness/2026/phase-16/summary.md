@@ -7,14 +7,20 @@ the information architecture, canonical set, IDs, ownership, controlled status
 vocabulary, required headers, and complete source-to-target map. It does not
 authorize any document move, archive, merge deletion, or authority retirement.
 
+The CP16-B product/user content checkpoint is complete. Five mapped canonical
+targets now cover product requirements, installation/lifecycle, administration/
+operations, troubleshooting/support, and privacy/provider/retention/AI
+limitations. The signed-RC unfamiliar-user walkthrough remains a retained CP16-B
+exit gate, and CP16-C document construction is active.
+
 ## Results
 
 - One approved versioned authority selects exactly 30 hand-maintained canonical documents
   across five controlled classes.
-- Ten canonical targets exist; 20 are planned replacement documents.
-- Every one of the 134 current root and `docs/**` Markdown files has exactly one
+- Fifteen canonical targets exist; 15 are planned replacement documents.
+- Every one of the 139 current root and `docs/**` Markdown files has exactly one
   disposition.
-- Dispositions: 14 authoritative inputs, five generated replacements, 43
+- Dispositions: 19 authoritative inputs, five generated replacements, 43
   historical/archive records, and 72 source-to-canonical merge routes.
 - Zero unclassified files, duplicate routes, duplicate canonical paths, duplicate
   document IDs, unknown classes, or noncanonical merge targets.
@@ -22,9 +28,9 @@ authorize any document move, archive, merge deletion, or authority retirement.
   controlled-header fields, and truthful status vocabulary.
 - The generated crosswalk explicitly states that it does not authorize archive
   or deletion before manual route/content/link review.
-- All ten existing canonical documents contain the required 13-field controlled
+- All 15 existing canonical documents contain the required 13-field controlled
   header, exact document ID, product 4.3.0 binding, controlled status, owner, and
-  owner approver. Twenty canonical targets remain planned.
+  owner approver. Fifteen canonical targets remain planned.
 
 ## Controls added
 
@@ -32,22 +38,24 @@ authorize any document move, archive, merge deletion, or authority retirement.
 - `scripts/generate_documentation_authority.py`
 - `scripts/verify_documentation_bom.py`
 - `scripts/verify_doc_authority.py`
+- `scripts/verify_product_user_docs.py`
 - `docs/DOCUMENTATION_BOM.md`
 - `docs/DOCUMENTATION_CROSSWALK.md`
 - `tests/unit/test_documentation_authority.py`
 
 ## Validation
 
-- Documentation BOM verification: pass, 30/30 canonical, 134 inventory rows,
+- Documentation BOM verification: pass, 30/30 canonical, 139 inventory rows,
   zero errors.
-- Document authority verification: pass, 10/10 existing headers, 20 planned,
+- Document authority verification: pass, 15/15 existing headers, 15 planned,
   archive/delete authorization false, zero errors.
-- Five focused documentation-authority unit tests passed.
-- Ruff passed for the generator, both verifiers, and tests.
+- Product/user document verification: pass, five of five targets, zero errors.
+- Six focused documentation-authority unit tests passed.
+- Ruff passed for the generator, all three verifiers, and tests.
 
 ## Next
 
-Begin CP16-B with the product requirements, installation, administrator/
-operations, troubleshooting/support, and privacy/AI notice targets. Preserve
-mapped requirements, decisions, limitations, and evidence; migrate inbound links
-after target review, and only then begin controlled archive/delete work.
+Begin CP16-C with data architecture, interface/integration, security architecture,
+software lifecycle, maintenance/disaster recovery, requirements traceability,
+and V&V. Preserve mapped requirements, decisions, limitations, and evidence;
+retain the signed-RC CP16-B walkthrough and defer archive/delete work.

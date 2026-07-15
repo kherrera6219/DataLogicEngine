@@ -1,20 +1,20 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T06:49:38.926590+00:00",
+  "generated_at": "2026-07-15T07:02:12.047153+00:00",
   "authority_version": "2026.07.14-approved1",
   "authority_status": "approved_phase16_information_architecture",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 134,
+    "markdown_file_count": 139,
     "canonical_document_count": 30,
     "canonical_limit": 30,
-    "existing_canonical_count": 10,
-    "planned_canonical_count": 20,
+    "existing_canonical_count": 15,
+    "planned_canonical_count": 15,
     "unclassified_count": 0,
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
-      "authoritative": 14,
+      "authoritative": 19,
       "generated": 5,
       "historical": 43,
       "merge": 72
@@ -62,6 +62,14 @@
       "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "document_class": "user_admin_support",
+      "disposition": "authoritative input",
+      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/adr/ADR-0001-engineering-governance-baseline.md",
@@ -752,6 +760,14 @@
       "basis": "generated companion artifact"
     },
     {
+      "path": "docs/INSTALLATION_GUIDE.md",
+      "document_class": "user_admin_support",
+      "disposition": "authoritative input",
+      "target": "docs/INSTALLATION_GUIDE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/ip/dsqp_technical_disclosure.md",
       "document_class": "assurance_release_external",
       "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
@@ -800,6 +816,14 @@
       "basis": "approved Phase 16 consolidation route"
     },
     {
+      "path": "docs/PRIVACY_AI_NOTICE.md",
+      "document_class": "product_public",
+      "disposition": "authoritative input",
+      "target": "docs/PRIVACY_AI_NOTICE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
+    },
+    {
       "path": "docs/PRIVACY_POLICY.md",
       "document_class": "product_public",
       "disposition": "merge into docs/PRIVACY_AI_NOTICE.md",
@@ -838,6 +862,14 @@
       "target": "docs/PRODUCT_REQUIREMENTS.md",
       "cap_counted": false,
       "basis": "approved Phase 16 consolidation route"
+    },
+    {
+      "path": "docs/PRODUCT_REQUIREMENTS.md",
+      "document_class": "product_public",
+      "disposition": "authoritative input",
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/PRODUCTION_READINESS.md",
@@ -966,6 +998,14 @@
       "target": "docs/archive/phase-16/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "document_class": "user_admin_support",
+      "disposition": "authoritative input",
+      "target": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "cap_counted": true,
+      "basis": "selected canonical document"
     },
     {
       "path": "docs/USER_GUIDE.md",

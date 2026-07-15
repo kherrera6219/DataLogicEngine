@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.15.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.16.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -502,15 +502,31 @@ header. CP16-A is complete. Archive/delete authorization remains false until
 each target, retained evidence, inbound link, and technical review passes.
 Evidence is under `reports/production-readiness/2026/phase-16/`.
 
+## Phase 16 CP16-B product/user content checkpoint
+
+Five canonical product/user targets now exist: product requirements,
+installation/lifecycle, administrator/operations, troubleshooting/support, and
+privacy/provider/retention/AI limitations. Each is built from its approved
+source map and preserves the current product boundary, qualification-only and
+NO-GO language, MinIO/SeaweedFS decision state, provider/connector egress,
+release gaps, and installed/manual evidence gates.
+
+The authority now reports 15 existing and 15 planned canonical targets and 139
+classified Markdown files. Canonical entry links prefer the replacement set.
+The product/user verifier passes five of five targets; all 15 controlled headers,
+the BOM/crosswalk, six focused tests, and documentation references pass. No source
+was moved, archived, or deleted. The signed-RC unfamiliar-user walkthrough remains
+the retained CP16-B exit gate; CP16-C document construction is active.
+
 ## Exact next action
 
-1. Build and verify the first CP16-B product/user targets:
-   `docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
-   `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
-   `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
-2. Preserve mapped requirements, decisions, limitations, and evidence; migrate
-   inbound links only after target review and do not archive/delete sources yet.
-3. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+1. Build and verify the first CP16-C targets: data architecture, interface/
+   integration, security architecture, software lifecycle, maintenance/disaster
+   recovery, requirements traceability, and verification/validation.
+2. Preserve mapped requirements, decisions, limitations, and evidence and add
+   source/topic/link checks; do not archive/delete transitional sources yet.
+3. Retain the CP16-B signed-RC unfamiliar-user walkthrough.
+4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

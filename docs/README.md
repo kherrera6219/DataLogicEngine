@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.27.0 |
+| Document version | v2.28.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -53,11 +53,12 @@ below remain transitional authorities only until the Phase 16 old-to-new
 crosswalk records their merge, generated replacement, archive, or deletion.
 
 The Phase 16 inventory is generated from `config/documentation-authority.json`:
-all 134 root and documentation-tree Markdown files have one owner-approved
+all 139 root and documentation-tree Markdown files have one owner-approved
 disposition, and the selected canonical set is exactly 30 hand-maintained
-documents (10 existing, 20 planned). All ten existing canonical documents pass
+documents (15 existing, 15 planned). All 15 existing canonical documents pass
 the controlled-header verifier. See `docs/DOCUMENTATION_BOM.md` and
-`docs/DOCUMENTATION_CROSSWALK.md`. CP16-A is complete and CP16-B is active; the
+`docs/DOCUMENTATION_CROSSWALK.md`. CP16-A and the CP16-B content checkpoint are
+complete; CP16-C is active and the signed-RC CP16-B walkthrough is retained. The
 approval authorizes no archive or deletion until target content and links pass.
 
 ---
@@ -66,28 +67,31 @@ approval authorizes no archive or deletion until target content and links pass.
 
 | Role | Read first |
 |---|---|
-| New user / evaluator | root `README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md` |
+| New user / evaluator | root `README.md`, `docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`, `docs/USER_GUIDE.md` |
 | New engineer | `docs/ENGINEER_ONBOARDING.md`, `docs/DEVELOPER_GUIDE.md` |
 | Production completion owner | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`, root `PRODUCTION_COMPLETION_PLAN_2026.md`, root `TODO.md`, root `HANDOFF.md` |
 | Architect | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/DATA_FLOW_DIAGRAMS.md`, `docs/DECISION_LOGIC.md` |
 | API integrator | `docs/API.md`, `docs/GATEWAY_COMPATIBILITY.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
-| Security reviewer | `docs/SECURITY.md`, `docs/PRIVACY_POLICY.md`, `docs/CIS_BENCHMARKS.md` |
-| Operator / SRE | `docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` |
+| Security reviewer | root `SECURITY.md`, `docs/PRIVACY_AI_NOTICE.md`, `docs/SECURITY.md`, `docs/CIS_BENCHMARKS.md` |
+| Operator / SRE | `docs/INSTALLATION_GUIDE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` |
 | Release reviewer | `docs/RELEASE_CHECKLIST.md`, `docs/PRODUCTION_READINESS.md`, `docs/SLSA_LEVEL_3_ATTESTATION.md` |
 | Documentation owner | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` |
 
 ---
 
-## Core source-of-truth documents
+## Canonical documents and transitional source inputs
 
 ### Product
 
 | Document | Purpose |
 |---|---|
-| `docs/PRODUCT_OVERVIEW.md` | Product narrative, capability map, deployment modes, reviewer path. |
-| `docs/PRODUCT_DESIGN.md` | Product surface, UX model, trace-first workflow design. |
+| `docs/PRODUCT_REQUIREMENTS.md` | Canonical product boundary, requirements, exclusions, acceptance evidence, and release status. |
 | `docs/USER_GUIDE.md` | End-user workflows and feature usage. |
-| `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Windows local-first setup, operation, and troubleshooting. |
+| `docs/INSTALLATION_GUIDE.md` | Canonical Windows installation, repair, upgrade, rollback, update, and uninstall lifecycle. |
+| `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | Canonical owner/operator service, backup, recovery, gateway, connector, diagnostics, and incident controls. |
+| `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | Canonical safe troubleshooting, evidence collection, and support channels. |
+| `docs/PRIVACY_AI_NOTICE.md` | Canonical local-first data, provider/connector, retention/deletion, telemetry, and AI-limitations notice. |
+| `docs/PRODUCT_OVERVIEW.md`, `docs/PRODUCT_DESIGN.md`, `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Transitional inputs retained until CP16-F link/content verification and archive approval. |
 
 ### Architecture and engineering
 
@@ -116,7 +120,7 @@ approval authorizes no archive or deletion until target content and links pass.
 | `docs/GATEWAY_COMPATIBILITY.md` | Native/SDK/OpenAI compatibility, streaming, durable-job, and qualification matrix. |
 | `docs/API_VERSIONING.md` | Canonical `/api/v1/*`, compatibility aliases, deprecation policy. |
 | `docs/openapi.yaml` | Machine-readable API contract where applicable. |
-| `docs/PRIVATE_GATEWAY_RUNBOOK.md` | Fail-closed private Windows gateway qualification and incident procedure. |
+| `docs/PRIVATE_GATEWAY_RUNBOOK.md` | Transitional input merged into the canonical administrator/operations guide; retained pending CP16-F evidence/link review. |
 
 ### Security, privacy, and governance
 
@@ -124,7 +128,8 @@ approval authorizes no archive or deletion until target content and links pass.
 |---|---|
 | `SECURITY.md` | Vulnerability reporting policy. |
 | `docs/SECURITY.md` | Security architecture and controls. |
-| `docs/PRIVACY_POLICY.md` | Local-first privacy, provider/connector data movement, export/delete. |
+| `docs/PRIVACY_AI_NOTICE.md` | Canonical local-first privacy, provider/connector data movement, retention/deletion, telemetry, and AI limitations. |
+| `docs/PRIVACY_POLICY.md` | Transitional source retained pending CP16-F legal/content/link review. |
 | `docs/SSL_CONFIGURATION.md` | HTTPS/TLS guidance and local desktop trust distinction. |
 | `docs/CIS_BENCHMARKS.md` | Evidence-guided CIS-style hardening map. |
 | `docs/SDLC_SSDF_MAPPING.md` | Secure SDLC / SSDF-style mapping. |
@@ -136,8 +141,8 @@ approval authorizes no archive or deletion until target content and links pass.
 | Document | Purpose |
 |---|---|
 | `docs/TESTING.md` | Test architecture, quality gates, validation commands. |
-| `docs/DEPLOYMENT.md` | Deployment modes and operational deployment guidance. |
-| `docs/OPERATIONAL_RUNBOOKS.md` | Operational and incident runbooks. |
+| `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | Canonical deployment operations, service lifecycle, backup/recovery, gateway, connector, diagnostics, and incidents. |
+| `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` | Transitional sources retained pending CP16-F evidence/link review. |
 | `docs/RELEASE_CHECKLIST.md` | Release evidence and approval checklist. |
 | `docs/PRODUCTION_READINESS.md` | Readiness scorecard, current caveats, release posture. |
 | `docs/evaluation/QUALITY_EVALUATION.md` | Versioned Phase 6 corpus, metrics, thresholds, and provider/model evaluation contract. |

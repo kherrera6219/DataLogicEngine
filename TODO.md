@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.15.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.16.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release decision | Production/public release: **NO-GO** |
@@ -40,6 +40,14 @@ conditions, and exit gates remain authoritative in the active root plan.
 - All ten existing canonical documents now carry the required controlled header;
   the authority verifier passes IDs, owners, approver, product version, status,
   and all 13 fields. The two verifiers and five focused unit tests pass.
+- The CP16-B content checkpoint adds and verifies the five canonical product/
+  user targets: product requirements, installation/lifecycle, administrator/
+  operations, troubleshooting/support, and privacy/AI notice. The canonical
+  inventory is now 15 existing and 15 planned targets across 139 Markdown files.
+- Canonical entry links now prefer the replacement set. The product/user verifier
+  passes all five source maps, required topics, truthful statuses, and prohibited-
+  claim checks. Six focused authority/document tests pass. No source was moved,
+  archived, or deleted.
 - Phase 15 reached its release-candidate engineering checkpoint on 2026-07-14.
   Evidence is under `reports/production-readiness/2026/phase-15/`; CP15-A
   through CP15-H remain installed/signed/manual release gates.
@@ -585,7 +593,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
-| 16 | Production documentation replacement and professional review dossier | **CP16-A complete 2026-07-14; CP16-B active** |
+| 16 | Production documentation replacement and professional review dossier | **CP16-A complete; CP16-B content checkpoint complete with signed-RC walkthrough retained; CP16-C active** |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 
@@ -605,13 +613,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Build and verify the first CP16-B canonical product/user set:
-`docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
-`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
-`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
-Preserve mapped requirements, decisions, limitations, and evidence, then migrate
-inbound links only after target review. No source archive/delete is authorized
-until target content and link verification pass.
+Build the first CP16-C engineering/assurance targets: data architecture,
+interface/integration, security architecture, software lifecycle, maintenance/
+disaster recovery, requirements traceability, and verification/validation.
+Preserve mapped requirements, decisions, limitations, and evidence and add
+source/topic/link verification. Retain the CP16-B signed-RC unfamiliar-user
+walkthrough; no source archive/delete is authorized yet.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS

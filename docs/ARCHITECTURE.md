@@ -40,7 +40,7 @@ provider execution/privacy accounting, and release-governed validation.
 ## Related documents
 
 1. `docs/API.md`
-2. `docs/DEPLOYMENT.md`
+2. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
 3. `docs/PRODUCTION_READINESS.md`
 4. `docs/TESTING.md`
 5. `docs/diagrams/04_17_axis_coordinate_model.md`

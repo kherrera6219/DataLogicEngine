@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.15.0 |
+| Document version | v1.16.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -115,9 +115,12 @@ Phase 16 CP16-A is complete on 2026-07-14. The owner-approved information
 architecture selects exactly 30 canonical hand-maintained documents across five
 classes, assigns all 134 current Markdown files one source-to-target disposition,
 and applies verified controlled headers to all ten existing canonical documents.
-The approved map does not authorize archive or deletion: CP16-B product/user
-document construction and link migration are active, while replacement actions
-remain fail-closed until their targets, evidence, and inbound links pass review.
+The first CP16-B content checkpoint adds five canonical product/user documents,
+migrates the canonical entry links, and passes source-map, required-topic,
+truthful-status, and prohibited-claim verification. The inventory is now 139
+Markdown files with 15 existing and 15 planned canonical targets. The signed-RC
+unfamiliar-user walkthrough remains a retained CP16-B exit gate; CP16-C document
+construction is active. Archive/delete authorization remains false.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -3461,10 +3464,11 @@ adapted, not applicable, or independently assessed. Initial references are:
 - **CP16-A - Information architecture - complete 2026-07-14:** the controlled
   classes, 30-document cap, templates, vocabulary, IDs, owners, controlled
   headers, and old-to-new disposition map are approved and machine-verified.
-- **CP16-B - Product/user set - active:** an unfamiliar supported user can install,
+- **CP16-B - Product/user set - content checkpoint complete 2026-07-14; signed-RC
+  walkthrough retained:** an unfamiliar supported user can install,
   configure, use, recover, update, and uninstall the signed RC using only the
   public/user/operations documents.
-- **CP16-C - Engineering and assurance set:** requirements, architecture, data,
+- **CP16-C - Engineering and assurance set - active:** requirements, architecture, data,
   interfaces, security/privacy, AI/KA, accessibility, V&V, supply chain, and
   release records are internally consistent and evidence-linked.
 - **CP16-D - Microsoft dossier:** the selected distribution route, current policy
@@ -3488,6 +3492,7 @@ python scripts/verify_docs_references.py
 python scripts/verify_requirements_traceability.py
 python scripts/verify_doc_authority.py
 python scripts/verify_documentation_bom.py
+python scripts/verify_product_user_docs.py
 python scripts/verify_submission_dossier.py
 git diff --check
 ```
@@ -4022,13 +4027,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 16 CP16-B** by creating and verifying the canonical product and
-user set: `docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
-`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
-`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
-Preserve requirements, decisions, limitations, and evidence from their mapped
-sources; migrate inbound links only after target review. Do not archive or
-delete a source until its target, evidence retention, and link scan pass.
+Continue **Phase 16 CP16-C** with the canonical data architecture, interface/
+integration, security architecture, software lifecycle, maintenance/disaster-
+recovery, requirements traceability, and V&V documents. Preserve each mapped
+requirement, decision, limitation, and evidence reference, then apply automated
+source/topic/link verification. Retain the CP16-B signed-RC unfamiliar-user
+walkthrough and do not archive/delete any source until its target, evidence
+retention, and full link scan pass.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,
