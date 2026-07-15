@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.30.0 |
+| Document version | v2.31.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -53,14 +53,15 @@ below remain transitional authorities only until the Phase 16 old-to-new
 crosswalk records their merge, generated replacement, archive, or deletion.
 
 The Phase 16 inventory is generated from `config/documentation-authority.json`:
-all 151 root and documentation-tree Markdown files have one owner-approved
+all 154 root and documentation-tree Markdown files have one owner-approved
 disposition, and the selected canonical set is exactly 30 hand-maintained
-documents (27 existing, three planned). All 27 existing canonical documents pass
+documents (30 existing, zero planned). All 30 canonical documents pass
 the controlled-header verifier. See `docs/DOCUMENTATION_BOM.md` and
 `docs/DOCUMENTATION_CROSSWALK.md`. CP16-A and the CP16-B content checkpoint are
 complete; CP16-C content construction is complete with signed/manual/independent
-evidence retained, and CP16-D/CP16-E external-review content is active. The
-approval authorizes no archive or deletion until target content and links pass.
+evidence retained; CP16-D/CP16-E content is complete with external policy/reviewer
+acceptance retained, and CP16-F is active. The approval authorizes no archive or
+deletion until target content, retained evidence, and links pass.
 
 ---
 
@@ -77,6 +78,7 @@ approval authorizes no archive or deletion until target content and links pass.
 | AI/privacy/accessibility assurance | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`, `docs/PRIVACY_IMPACT_ASSESSMENT.md`, `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` |
 | Operator / SRE | `docs/INSTALLATION_GUIDE.md`, `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`, `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` |
 | Release reviewer | `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/VERIFICATION_VALIDATION_REPORT.md`, `docs/THIRD_PARTY_SOFTWARE_INDEX.md`, `docs/RELEASE_READINESS_RECORD.md` |
+| Professional/Microsoft reviewer | `docs/PROFESSIONAL_REVIEW_INDEX.md`, `docs/MICROSOFT_SUBMISSION_DOSSIER.md`, `docs/INDEPENDENT_REVIEW_RECORD.md` |
 | Documentation owner | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` |
 
 ---
@@ -156,6 +158,9 @@ approval authorizes no archive or deletion until target content and links pass.
 | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | Canonical automated evidence, manual protocol, findings, and truthful non-conformance status. |
 | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | Canonical dependency/service/SBOM/license/notices/redistribution index and open legal gate. |
 | `docs/RELEASE_READINESS_RECORD.md` | Canonical candidate identity, gate status, final evidence bundle, and go-no-go decision. |
+| `docs/PROFESSIONAL_REVIEW_INDEX.md` | Canonical reviewer paths, exact subject, assignment/finding controls, and final package index. |
+| `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | Canonical MSI/EXE Store-route policy snapshot, Partner Center inventory, package/WACK matrix, and blockers. |
+| `docs/INDEPENDENT_REVIEW_RECORD.md` | Canonical reviewer independence, scope, findings, retests, and signed disposition record. |
 | `docs/TESTING.md` | Test architecture, quality gates, validation commands. |
 | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | Canonical deployment operations, service lifecycle, backup/recovery, gateway, connector, diagnostics, and incidents. |
 | `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md` | Transitional sources retained pending CP16-F evidence/link review. |

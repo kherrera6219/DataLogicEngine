@@ -11,6 +11,7 @@ from scripts.verify_engineering_assurance_docs import (
     verify as verify_engineering_assurance_docs,
 )
 from scripts.verify_product_user_docs import verify as verify_product_user_docs
+from scripts.verify_submission_dossier import verify as verify_submission_dossier
 
 
 def test_phase16_canonical_set_is_exactly_thirty_with_unique_ids_and_paths():
@@ -74,4 +75,12 @@ def test_cp16c_engineering_assurance_documents_preserve_sources_and_boundaries()
     assert result["status"] == "pass"
     assert result["verified_count"] == 12
     assert result["target_count"] == 12
+    assert result["archive_delete_authorized"] is False
+
+
+def test_cp16d_e_external_review_records_remain_fail_closed():
+    result = verify_submission_dossier(load_authority())
+    assert result["status"] == "pass"
+    assert result["verified_count"] == 3
+    assert result["target_count"] == 3
     assert result["archive_delete_authorized"] is False

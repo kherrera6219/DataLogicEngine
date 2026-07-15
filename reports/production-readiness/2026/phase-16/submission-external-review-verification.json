@@ -1,0 +1,30 @@
+{
+  "schema_version": "dle.submission-external-review-verification.v1",
+  "generated_at": "2026-07-15T07:28:26.204239+00:00",
+  "authority_version": "2026.07.14-approved1",
+  "status": "pass",
+  "target_count": 3,
+  "verified_count": 3,
+  "archive_delete_authorized": false,
+  "errors": [],
+  "documents": [
+    {
+      "path": "docs/PROFESSIONAL_REVIEW_INDEX.md",
+      "status": "release_blocked",
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",
+      "status": "not_evaluated",
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/INDEPENDENT_REVIEW_RECORD.md",
+      "status": "not_evaluated",
+      "missing_markers": [],
+      "errors": []
+    }
+  ]
+}

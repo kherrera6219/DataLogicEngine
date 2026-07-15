@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.18.0 |
+| Document version | v1.19.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -137,6 +137,15 @@ now 151 Markdown files with 27 existing and three planned canonical targets.
 CP16-C content construction is complete; exact signed-installed, provider/model,
 manual accessibility, privacy/legal, supply-chain, independent, pilot, and soak
 evidence remains retained. CP16-D/CP16-E external-review content is active.
+
+CP16-D/CP16-E content construction is complete. The professional review index,
+Microsoft submission dossier, and independent review record bring the canonical
+set to 30 existing/zero planned documents across 154 classified Markdown files.
+The current official Microsoft policy snapshot supports the traditional MSI/EXE
+route as the qualification choice, not submission approval. Partner Center,
+policy/WACK, signed artifact, reviewer assignment/findings, legal/distribution,
+and external acceptance remain not evaluated or release blocked. CP16-F
+replacement closure is active; archive/delete authorization remains false.
 
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
@@ -3488,13 +3497,15 @@ adapted, not applicable, or independently assessed. Initial references are:
   2026-07-14; installed/manual/independent evidence retained:** requirements, architecture, data,
   interfaces, security/privacy, AI/KA, accessibility, V&V, supply chain, and
   release records are internally consistent and evidence-linked.
-- **CP16-D - Microsoft dossier - active:** the selected distribution route, current policy
+- **CP16-D - Microsoft dossier - content checkpoint complete 2026-07-14;
+  policy/WACK/submission evidence retained:** the selected distribution route, current policy
   checklist, applicable WACK/certification evidence, metadata/assets, privacy,
   declarations, and reviewer notes are complete and truthful.
-- **CP16-E - Professional review:** independent reviewers can reproduce their
+- **CP16-E - Professional review - content checkpoint complete 2026-07-14;
+  reviewer assignment/findings/acceptance retained:** independent reviewers can reproduce their
   scoped assessment from the index and record findings without relying on session
   history or undocumented developer knowledge.
-- **CP16-F - Replacement closure:** every old active document is merged, generated,
+- **CP16-F - Replacement closure - active:** every old active document is merged, generated,
   archived, or deleted; the canonical hand-maintained set is within the approved
   limit and has no duplicate source of truth.
 - **CP16-G - Artifact binding:** every release-specific document and submission
@@ -4045,12 +4056,12 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 16 CP16-D/CP16-E** by creating the professional review index,
-Microsoft submission dossier, and independent review record. Mark external
-policy/certification, WACK, reviewer assignment/findings, legal/distribution,
-signed-artifact, and acceptance rows `not_evaluated` or `release_blocked` until
-real evidence exists; do not imply Microsoft or independent approval. Retain all
-signed/manual/installed gates and do not archive/delete any source yet.
+Continue **Phase 16 CP16-F** by verifying every merge source against its canonical
+target, scanning and migrating active inbound links, proving retained requirement/
+decision/evidence coverage, and producing an archive/delete proposal. Keep
+archive/delete authorization false until the per-source content/link/evidence and
+technical-review gates pass. Do not archive required immutable evidence or imply
+that content completion closes installed/manual/external release gates.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

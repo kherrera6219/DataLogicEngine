@@ -102,6 +102,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/FILE_STRUCTURE.md` | `engineering_maintenance` | merge into docs/DEVELOPER_GUIDE.md | `docs/DEVELOPER_GUIDE.md` | approved Phase 16 consolidation route |
 | `docs/GATEWAY_COMPATIBILITY.md` | `engineering_maintenance` | merge into docs/INTERFACE_INTEGRATION.md | `docs/INTERFACE_INTEGRATION.md` | approved Phase 16 consolidation route |
 | `docs/GENERATED_STRUCTURE.md` | `engineering_maintenance` | generated replacement | `docs/GENERATED_STRUCTURE.md` | generated companion artifact |
+| `docs/INDEPENDENT_REVIEW_RECORD.md` | `assurance_release_external` | authoritative input | `docs/INDEPENDENT_REVIEW_RECORD.md` | selected canonical document |
 | `docs/INSTALLATION_GUIDE.md` | `user_admin_support` | authoritative input | `docs/INSTALLATION_GUIDE.md` | selected canonical document |
 | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | authoritative input | `docs/INTERFACE_INTEGRATION.md` | selected canonical document |
 | `docs/ip/dsqp_technical_disclosure.md` | `assurance_release_external` | merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | approved Phase 16 consolidation route |
@@ -110,6 +111,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/LOCAL_USAGE_LEDGER_CONTRACT.md` | `engineering_maintenance` | merge into docs/DATA_ARCHITECTURE.md | `docs/DATA_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | `engineering_maintenance` | authoritative input | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | selected canonical document |
 | `docs/MCP_INTEGRATION.md` | `engineering_maintenance` | merge into docs/INTERFACE_INTEGRATION.md | `docs/INTERFACE_INTEGRATION.md` | approved Phase 16 consolidation route |
+| `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | `assurance_release_external` | authoritative input | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | selected canonical document |
 | `docs/MIGRATION_SUPPORT_MATRIX.md` | `engineering_maintenance` | merge into docs/DATA_ARCHITECTURE.md | `docs/DATA_ARCHITECTURE.md` | approved Phase 16 consolidation route |
 | `docs/OPERATIONAL_RUNBOOKS.md` | `user_admin_support` | merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | approved Phase 16 consolidation route |
 | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | authoritative input | `docs/PRIVACY_AI_NOTICE.md` | selected canonical document |
@@ -121,6 +123,7 @@ No archive, merge, or deletion action is authorized by this draft alone.
 | `docs/PRODUCT_OVERVIEW.md` | `product_public` | merge into docs/PRODUCT_REQUIREMENTS.md | `docs/PRODUCT_REQUIREMENTS.md` | approved Phase 16 consolidation route |
 | `docs/PRODUCT_REQUIREMENTS.md` | `product_public` | authoritative input | `docs/PRODUCT_REQUIREMENTS.md` | selected canonical document |
 | `docs/PRODUCTION_READINESS.md` | `assurance_release_external` | merge into docs/VERIFICATION_VALIDATION_REPORT.md | `docs/VERIFICATION_VALIDATION_REPORT.md` | approved Phase 16 consolidation route |
+| `docs/PROFESSIONAL_REVIEW_INDEX.md` | `assurance_release_external` | authoritative input | `docs/PROFESSIONAL_REVIEW_INDEX.md` | selected canonical document |
 | `docs/PROVIDER_COST_QUOTA_POLICY.md` | `assurance_release_external` | merge into docs/evaluation/AI_SYSTEM_CARD.md | `docs/evaluation/AI_SYSTEM_CARD.md` | approved Phase 16 consolidation route |
 | `docs/PROVIDER_MODEL_SUPPORT.md` | `assurance_release_external` | merge into docs/evaluation/AI_SYSTEM_CARD.md | `docs/evaluation/AI_SYSTEM_CARD.md` | approved Phase 16 consolidation route |
 | `docs/README.md` | `engineering_maintenance` | generated replacement | `docs/README.md` | generated companion artifact |

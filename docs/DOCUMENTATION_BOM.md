@@ -43,9 +43,9 @@
 | `DLE-ASR-006` | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | Accessibility Review | existing |
 | `DLE-ASR-007` | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | `assurance_release_external` | Release Engineering | existing |
 | `DLE-ASR-008` | `docs/RELEASE_READINESS_RECORD.md` | `assurance_release_external` | Release Authority | existing |
-| `DLE-EXT-001` | `docs/PROFESSIONAL_REVIEW_INDEX.md` | `assurance_release_external` | External Review Coordinator | planned |
-| `DLE-EXT-002` | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | `assurance_release_external` | Distribution Owner | planned |
-| `DLE-EXT-003` | `docs/INDEPENDENT_REVIEW_RECORD.md` | `assurance_release_external` | External Review Coordinator | planned |
+| `DLE-EXT-001` | `docs/PROFESSIONAL_REVIEW_INDEX.md` | `assurance_release_external` | External Review Coordinator | existing |
+| `DLE-EXT-002` | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | `assurance_release_external` | Distribution Owner | existing |
+| `DLE-EXT-003` | `docs/INDEPENDENT_REVIEW_RECORD.md` | `assurance_release_external` | External Review Coordinator | existing |
 
 ## Required controlled header
 

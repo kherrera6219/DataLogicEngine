@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.18.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.19.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -547,16 +547,32 @@ passes 12/12 targets and all 27 controlled headers pass. CP16-C content
 construction is complete with its installed/manual/independent exit evidence
 retained. No source was moved, archived, or deleted. CP16-D/CP16-E content is active.
 
+## Phase 16 CP16-D/CP16-E external-review content checkpoint
+
+The final three canonical targets now exist: professional review index,
+Microsoft submission dossier, and independent review record. The dossier uses a
+2026-07-14 review of current official Microsoft Store, MSI/EXE submission, package,
+and WACK guidance and selects the traditional MSI/EXE route for qualification
+only. It records no Partner Center, policy/WACK, certification, or Microsoft
+approval. No independent reviewer is assigned and no external finding or
+acceptance is recorded.
+
+All 30 canonical documents now exist across 154 classified Markdown files and
+all 30 controlled headers pass. The submission/external-review verifier passes
+3/3 records and eight focused tests pass. External policy, signed artifact,
+legal/distribution, reviewer, and acceptance gates remain open. No source was
+moved, archived, or deleted. CP16-F replacement closure is active.
+
 ## Exact next action
 
-1. Build and verify the CP16-D/CP16-E professional review index, Microsoft
-   submission dossier, and independent review record.
-2. Preserve not-evaluated/release-blocked status for Microsoft policy/WACK,
-   reviewer assignments/findings, legal/distribution, signed artifact, and
-   acceptance until real evidence exists; do not imply external approval.
-3. Do not archive/delete transitional sources yet.
-4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates.
-5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+1. Begin CP16-F by verifying every merge source against its canonical target,
+   migrating active inbound links, and proving requirement/decision/evidence
+   retention before generating an archive/delete proposal.
+2. Keep archive/delete authority false until per-source content/link/evidence and
+   technical review pass; never archive immutable release evidence.
+3. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
+   CP16-D/CP16-E policy/reviewer/acceptance gates.
+4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

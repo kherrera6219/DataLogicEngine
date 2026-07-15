@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 CP16-D/CP16-E external-review content checkpoint**: completed the
+  30-document canonical set with professional review, Microsoft submission, and
+  independent review records; selected the traditional MSI/EXE Store route for
+  qualification from current official guidance; and added fail-closed 3-target
+  verification. No Microsoft/independent approval or archive action is claimed.
 - **Phase 16 CP16-C assurance/release content checkpoint**: added the canonical
   KA/TruthCore validation, privacy impact, accessibility conformance, third-party
   software, and release-readiness records and expanded engineering/assurance
