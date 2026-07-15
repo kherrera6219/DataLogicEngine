@@ -474,14 +474,29 @@ security/privacy, accessibility/document walkthrough, human pilot, and gateway
 interoperability. Evidence is under
 `reports/production-readiness/2026/phase-15/`.
 
+## Phase 16 information-architecture batch
+
+The first Phase 16 batch inventories all 134 root and `docs/**` Markdown files.
+`config/documentation-authority.json` selects exactly 30 hand-maintained
+canonical targets in the five approved classes: 10 exist and 20 are planned.
+The generated BOM defines IDs, owners, required headers, and controlled status
+language. The generated crosswalk assigns 14 authoritative inputs, five
+generated replacements, 43 historical/archive records, and 72 merge routes,
+with zero unclassified files and zero duplicate routes.
+
+The BOM verifier and four focused unit tests pass. The crosswalk remains draft
+and authorizes no archive/delete action. CP16-A remains open for owner/technical
+review, controlled-header application, target-source verification, and approval.
+Evidence is under `reports/production-readiness/2026/phase-16/`.
+
 ## Exact next action
 
-1. Inventory every root and `docs/**` Markdown file and assign one Phase 16
-   document class and old-to-new disposition.
-2. Establish the controlled header, vocabulary, ownership, approval, archive,
-   and generated-document rules and select the 30-or-fewer hand-maintained set.
-3. Generate the documentation bill of materials and crosswalk before merging,
-   archiving, or deleting any prior authority.
+1. Review and approve or correct every draft source-to-target route in the
+   generated crosswalk.
+2. Apply the controlled header to the ten existing canonical documents and add
+   the authority verifier without weakening truthful status language.
+3. Build the 20 planned canonical targets from verified requirements, code,
+   generated contracts, and evidence; migrate links before any archive pass.
 4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.

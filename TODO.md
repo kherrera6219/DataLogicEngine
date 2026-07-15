@@ -17,6 +17,15 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- Phase 16 information architecture now inventories all 134 root and `docs/**`
+  Markdown files with zero unclassified files and zero duplicate merge routes.
+- The draft canonical set is exactly 30 hand-maintained documents across five
+  classes: 10 existing and 20 planned. Generated BOM/crosswalk controls do not
+  count against the cap.
+- The draft disposition totals are 14 authoritative inputs, five generated
+  replacements, 43 historical/archive records, and 72 merge routes. No move,
+  archive, or deletion is authorized until target and link review passes.
+- The BOM generator, verifier, and four focused unit tests pass.
 - Phase 15 reached its release-candidate engineering checkpoint on 2026-07-14.
   Evidence is under `reports/production-readiness/2026/phase-15/`; CP15-A
   through CP15-H remain installed/signed/manual release gates.
@@ -582,10 +591,11 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Begin Phase 16 with a complete root and `docs/**` Markdown inventory. Assign one
-controlled document class and old-to-new disposition to every file, define the
-canonical 30-or-fewer hand-maintained set, and generate the documentation bill
-of materials and crosswalk before any archive/delete pass.
+Review the complete Phase 16 source-to-target map, correct any disposition that
+cannot preserve verified requirements/decisions/evidence, and approve the
+information architecture. Then apply the controlled header to the ten existing
+canonical documents, implement the document-authority verifier, and begin the 20
+planned target documents with link migration before any archive/delete pass.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS

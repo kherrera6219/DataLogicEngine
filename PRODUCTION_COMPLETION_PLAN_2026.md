@@ -3176,6 +3176,24 @@ contracts, test evidence, and the signed release candidate; then it merges,
 archives, or deletes the superseded material. External review readiness must not
 change or remove PostgreSQL, Redis, Neo4j, ChromaDB, or MinIO responsibilities.
 
+### Initial information-architecture batch - 2026-07-14
+
+`config/documentation-authority.json` now selects the exact 30-document target
+set across the five controlled classes. The generated bill of materials records
+10 existing and 20 planned canonical documents, their IDs, owners, classes, and
+required controlled-header/status vocabulary. The generated crosswalk assigns
+all 134 current root and `docs/**` Markdown files exactly one draft disposition:
+14 authoritative inputs, five generated replacements, 43 historical/archive
+records, and 72 merge routes. No file is unclassified and no merge route is
+duplicated.
+
+`scripts/generate_documentation_authority.py` owns the BOM, crosswalk, and
+machine-readable inventory. `scripts/verify_documentation_bom.py` enforces the
+30-document cap, unique IDs/paths, complete inventory coverage, valid classes,
+and canonical merge targets. This batch is a draft information architecture,
+not CP16-A approval: no file is authorized for move, archive, or deletion until
+the map is reviewed and the target content/link migration is proved.
+
 ### 24.1 Documentation architecture and controls
 
 1. Establish five document classes with separate retention and review rules:

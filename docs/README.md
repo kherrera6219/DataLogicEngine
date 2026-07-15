@@ -52,6 +52,13 @@ generated contracts/evidence and a professional/Microsoft review dossier; Phase
 below remain transitional authorities only until the Phase 16 old-to-new
 crosswalk records their merge, generated replacement, archive, or deletion.
 
+The first Phase 16 inventory is now generated from
+`config/documentation-authority.json`: all 134 root and documentation-tree Markdown files
+have one draft disposition, and the selected canonical set is exactly 30
+hand-maintained documents (10 existing, 20 planned). See
+`docs/DOCUMENTATION_BOM.md` and `docs/DOCUMENTATION_CROSSWALK.md`. The map remains
+draft and authorizes no archive or deletion until reviewed.
+
 ---
 
 ## Start here by role

@@ -17,7 +17,8 @@ administration, audit, observability, and validation application.
 > service matrices, legal authority, object-store decision, independent reviews,
 > human pilot, and 24/72-hour soaks remain open, so production/public release is
 > **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md),
-> [`TODO.md`](TODO.md), and the [`Phase 15 evidence`](reports/production-readiness/2026/phase-15/summary.md).
+> [`TODO.md`](TODO.md), the generated [`documentation BOM`](docs/DOCUMENTATION_BOM.md),
+> and the [`Phase 15 evidence`](reports/production-readiness/2026/phase-15/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -78,6 +79,7 @@ Major subsystems in the current local-first desktop build:
 Current production-completion focus:
 
 - Phase 16 controlled 30-or-fewer production-document set, documentation BOM/crosswalk, and professional/Microsoft review dossier
+- Review of the 134-file draft disposition crosswalk: exactly 30 canonical targets, zero unclassified files, and no archive/delete action until link/content verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance

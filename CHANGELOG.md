@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 documentation authority foundation**: selected an exact 30-document
+  canonical target across five classes, generated a controlled BOM and complete
+  134-file old-to-new crosswalk, and added enforcement for the cap, unique IDs/
+  paths, valid classes, complete coverage, and canonical merge targets. The map
+  remains draft and performs no archive or deletion.
 - **Phase 15 release-candidate engineering checkpoint**: froze product 4.3.0
   candidate inputs in `f2e4174f`, separated unsigned qualification from
   production signing/authority, added a candidate-only release-channel policy,
