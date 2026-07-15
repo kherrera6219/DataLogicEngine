@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 16 CP16-F replacement closure**: froze SHA-256 and Git blob identity
+  for all 72 approved merge sources, migrated active links, verified retained
+  sections across all 18 routed canonical targets, authorized the controlled
+  move, and archived every source intact under `docs/archive/phase-16/`. The
+  post-move gate reports 72/72 retained hashes, zero active legacy sources, zero
+  unmigrated links, 30/30 controlled headers, and a fully classified 154-file
+  inventory. The documentation portal is now generated from the authority.
 - **CodeQL disclosure and cloud-build repair**: changed shared public-error
   normalization to return only code-owned canonical messages rather than raw
   exception strings, added nested support-bundle redaction proof, documented and

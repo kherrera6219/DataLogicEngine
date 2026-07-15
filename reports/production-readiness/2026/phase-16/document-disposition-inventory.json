@@ -1,8 +1,8 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T09:02:11.339449+00:00",
-  "authority_version": "2026.07.14-approved1",
-  "authority_status": "approved_phase16_information_architecture",
+  "generated_at": "2026-07-15T09:20:50.143934+00:00",
+  "authority_version": "2026.07.15-approved2",
+  "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
@@ -16,8 +16,7 @@
     "disposition_prefix_counts": {
       "authoritative": 34,
       "generated": 5,
-      "historical": 43,
-      "merge": 72
+      "historical": 115
     }
   },
   "unclassified": [],
@@ -56,14 +55,6 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "DEVELOPMENT.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
@@ -80,78 +71,6 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/adr/ADR-0001-engineering-governance-baseline.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0002-pq-grpc-transport.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0003-internal-service-delivery.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0004-seaweedfs-replacement-qualification.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0005-external-gateway-boundary.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0006-memory-authority-and-trust-boundary.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0007-authoritative-simulation-engine.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0008-governed-mcp-connector-boundary.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/adr/ADR-0009-session-library-product-model.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/adr/README.md",
       "document_class": "engineering_maintenance",
       "disposition": "generated replacement",
@@ -160,52 +79,12 @@
       "basis": "generated companion artifact"
     },
     {
-      "path": "docs/AI_MANAGEMENT_SYSTEM_42001.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/evaluation/AI_SYSTEM_CARD.md",
-      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/API.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/API_VERSIONING.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/ARCHITECTURE.md",
       "document_class": "engineering_maintenance",
       "disposition": "authoritative input",
       "target": "docs/ARCHITECTURE.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/ARCHITECTURE_MAP.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md",
@@ -292,6 +171,582 @@
       "document_class": "historical_research",
       "disposition": "historical archive",
       "target": "docs/archive/markdowns/ukg_simulation_context_instructions.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0002-pq-grpc-transport.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0002-pq-grpc-transport.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0003-internal-service-delivery.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0003-internal-service-delivery.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0005-external-gateway-boundary.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0005-external-gateway-boundary.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0007-authoritative-simulation-engine.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0007-authoritative-simulation-engine.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0008-governed-mcp-connector-boundary.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0008-governed-mcp-connector-boundary.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/adr/ADR-0009-session-library-product-model.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/adr/ADR-0009-session-library-product-model.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/AI_MANAGEMENT_SYSTEM_42001.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/AI_MANAGEMENT_SYSTEM_42001.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/API.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/API.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/API_VERSIONING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/API_VERSIONING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/ARCHITECTURE_MAP.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/ARCHITECTURE_MAP.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/AUTH_DECORATORS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/AUTH_DECORATORS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/BRANCH_PROTECTION_POLICY.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/BRANCH_PROTECTION_POLICY.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/CIS_BENCHMARKS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/CIS_BENCHMARKS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/COMPONENT_MAP.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/COMPONENT_MAP.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/CONTRIBUTING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/CONTRIBUTING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DATA_CLASSIFICATION_REGISTER.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DATA_CLASSIFICATION_REGISTER.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DATA_FLOW_DIAGRAMS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DATA_FLOW_DIAGRAMS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DATABASE_SCHEMA.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DATABASE_SCHEMA.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DECISION_LOGIC.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DECISION_LOGIC.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DEPLOYMENT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DEPLOYMENT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/02_research_to_code_traceability.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/02_research_to_code_traceability.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/03_ai_reasoning_sequence.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/03_ai_reasoning_sequence.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/04_17_axis_coordinate_model.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/04_17_axis_coordinate_model.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/05_truth_engine_architecture.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/05_truth_engine_architecture.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/06_local_first_security_model.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/06_local_first_security_model.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/07_data_storage_and_memory_architecture.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/07_data_storage_and_memory_architecture.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/08_testing_validation_and_release_governance.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/08_testing_validation_and_release_governance.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/10_dsqp_persona_construction_architecture.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/10_dsqp_persona_construction_architecture.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/11_frontend_product_surface_and_trace_review_map.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/11_frontend_product_surface_and_trace_review_map.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/diagrams/12_end_to_end_request_lifecycle.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/diagrams/12_end_to_end_request_lifecycle.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DOCUMENTATION_STANDARDS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DOCUMENTATION_STANDARDS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/DOCUMENTATION_VERSIONING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/DOCUMENTATION_VERSIONING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/documents/README.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/documents/README.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/ENGINEER_ONBOARDING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/ENGINEER_ONBOARDING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/evaluation/QUALITY_EVALUATION.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/evaluation/QUALITY_EVALUATION.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/FILE_STRUCTURE.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/FILE_STRUCTURE.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/GATEWAY_COMPATIBILITY.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/GATEWAY_COMPATIBILITY.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/ip/dsqp_technical_disclosure.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/ip/dsqp_technical_disclosure.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/MCP_INTEGRATION.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/MCP_INTEGRATION.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/MIGRATION_SUPPORT_MATRIX.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/MIGRATION_SUPPORT_MATRIX.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PRIVACY_POLICY.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PRIVACY_POLICY.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PRIVATE_GATEWAY_RUNBOOK.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PRIVATE_GATEWAY_RUNBOOK.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PROCESS_MAP.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PROCESS_MAP.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PRODUCT_DESIGN.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PRODUCT_DESIGN.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PRODUCT_OVERVIEW.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PRODUCT_OVERVIEW.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PRODUCTION_READINESS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PRODUCTION_READINESS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PROVIDER_COST_QUOTA_POLICY.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PROVIDER_COST_QUOTA_POLICY.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/PROVIDER_MODEL_SUPPORT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/PROVIDER_MODEL_SUPPORT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/RELEASE_CHECKLIST.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/RELEASE_CHECKLIST.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/root/DEVELOPMENT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/root/DEVELOPMENT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/root/SUPPORT.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/root/SUPPORT.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/root/TESTING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/root/TESTING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/SDLC_SSDF_MAPPING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/SDLC_SSDF_MAPPING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/SECURITY.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/SECURITY.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/SEQUENCE_DIAGRAMS.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/SEQUENCE_DIAGRAMS.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/SLSA_LEVEL_3_ATTESTATION.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/SLSA_LEVEL_3_ATTESTATION.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/SSL_CONFIGURATION.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/SSL_CONFIGURATION.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/TESTING.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/TESTING.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/THREAT_MODEL.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/THREAT_MODEL.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/phase-16/WORKFLOW.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/phase-16/WORKFLOW.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
@@ -480,100 +935,12 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
-      "path": "docs/AUTH_DECORATORS.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/BRANCH_PROTECTION_POLICY.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/CIS_BENCHMARKS.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SECURITY_ARCHITECTURE.md",
-      "target": "docs/SECURITY_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/COMPONENT_MAP.md",
-      "document_class": "product_public",
-      "disposition": "merge into docs/PRODUCT_REQUIREMENTS.md",
-      "target": "docs/PRODUCT_REQUIREMENTS.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/CONTRIBUTING.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into CONTRIBUTING.md",
-      "target": "CONTRIBUTING.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/DATA_ARCHITECTURE.md",
       "document_class": "engineering_maintenance",
       "disposition": "authoritative input",
       "target": "docs/DATA_ARCHITECTURE.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DATA_CLASSIFICATION_REGISTER.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DATA_FLOW_DIAGRAMS.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DATABASE_SCHEMA.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DECISION_LOGIC.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DEPLOYMENT.md",
-      "document_class": "user_admin_support",
-      "disposition": "merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/DEVELOPER_GUIDE.md",
@@ -584,108 +951,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/diagrams/02_research_to_code_traceability.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/REQUIREMENTS_TRACEABILITY.md",
-      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/03_ai_reasoning_sequence.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/04_17_axis_coordinate_model.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/05_truth_engine_architecture.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/06_local_first_security_model.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SECURITY_ARCHITECTURE.md",
-      "target": "docs/SECURITY_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/07_data_storage_and_memory_architecture.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/08_testing_validation_and_release_governance.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/VERIFICATION_VALIDATION_REPORT.md",
-      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/09_dmrf_control_plane_deep_dive.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/10_dsqp_persona_construction_architecture.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/11_frontend_product_surface_and_trace_review_map.md",
-      "document_class": "product_public",
-      "disposition": "merge into docs/PRODUCT_REQUIREMENTS.md",
-      "target": "docs/PRODUCT_REQUIREMENTS.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/diagrams/12_end_to_end_request_lifecycle.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/DOCUMENTATION_BOM.md",
       "document_class": "engineering_maintenance",
       "disposition": "generated replacement",
       "target": "docs/DOCUMENTATION_BOM.md",
       "cap_counted": false,
       "basis": "generated companion artifact"
-    },
-    {
-      "path": "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/REQUIREMENTS_TRACEABILITY.md",
-      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/DOCUMENTATION_CROSSWALK.md",
@@ -696,76 +967,12 @@
       "basis": "generated companion artifact"
     },
     {
-      "path": "docs/DOCUMENTATION_STANDARDS.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/DOCUMENTATION_VERSIONING.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/documents/README.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DEVELOPER_GUIDE.md",
-      "target": "docs/DEVELOPER_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/ENGINEER_ONBOARDING.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DEVELOPER_GUIDE.md",
-      "target": "docs/DEVELOPER_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/evaluation/AI_SYSTEM_CARD.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/evaluation/AI_SYSTEM_CARD.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/evaluation/HUMAN_REVIEW_RUBRIC.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/VERIFICATION_VALIDATION_REPORT.md",
-      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/evaluation/QUALITY_EVALUATION.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/evaluation/AI_SYSTEM_CARD.md",
-      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/FILE_STRUCTURE.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DEVELOPER_GUIDE.md",
-      "target": "docs/DEVELOPER_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/GATEWAY_COMPATIBILITY.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/GENERATED_STRUCTURE.md",
@@ -800,36 +1007,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/ip/dsqp_technical_disclosure.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/LOCAL_USAGE_LEDGER_CONTRACT.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
@@ -840,36 +1023,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/MCP_INTEGRATION.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/INTERFACE_INTEGRATION.md",
-      "target": "docs/INTERFACE_INTEGRATION.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/MIGRATION_SUPPORT_MATRIX.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/DATA_ARCHITECTURE.md",
-      "target": "docs/DATA_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/OPERATIONAL_RUNBOOKS.md",
-      "document_class": "user_admin_support",
-      "disposition": "merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/PRIVACY_AI_NOTICE.md",
@@ -888,60 +1047,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/PRIVACY_POLICY.md",
-      "document_class": "product_public",
-      "disposition": "merge into docs/PRIVACY_AI_NOTICE.md",
-      "target": "docs/PRIVACY_AI_NOTICE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/PRIVATE_GATEWAY_RUNBOOK.md",
-      "document_class": "user_admin_support",
-      "disposition": "merge into docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/PROCESS_MAP.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/PRODUCT_DESIGN.md",
-      "document_class": "product_public",
-      "disposition": "merge into docs/PRODUCT_REQUIREMENTS.md",
-      "target": "docs/PRODUCT_REQUIREMENTS.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/PRODUCT_OVERVIEW.md",
-      "document_class": "product_public",
-      "disposition": "merge into docs/PRODUCT_REQUIREMENTS.md",
-      "target": "docs/PRODUCT_REQUIREMENTS.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/PRODUCT_REQUIREMENTS.md",
       "document_class": "product_public",
       "disposition": "authoritative input",
       "target": "docs/PRODUCT_REQUIREMENTS.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/PRODUCTION_READINESS.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/VERIFICATION_VALIDATION_REPORT.md",
-      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/PROFESSIONAL_REVIEW_INDEX.md",
@@ -952,36 +1063,12 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/PROVIDER_COST_QUOTA_POLICY.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/evaluation/AI_SYSTEM_CARD.md",
-      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/PROVIDER_MODEL_SUPPORT.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/evaluation/AI_SYSTEM_CARD.md",
-      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/README.md",
       "document_class": "engineering_maintenance",
       "disposition": "generated replacement",
       "target": "docs/README.md",
       "cap_counted": false,
       "basis": "generated companion artifact"
-    },
-    {
-      "path": "docs/RELEASE_CHECKLIST.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/RELEASE_READINESS_RECORD.md",
-      "target": "docs/RELEASE_READINESS_RECORD.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/RELEASE_READINESS_RECORD.md",
@@ -1016,44 +1103,12 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
-      "path": "docs/SDLC_SSDF_MAPPING.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/SECURITY.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SECURITY_ARCHITECTURE.md",
-      "target": "docs/SECURITY_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/SECURITY_ARCHITECTURE.md",
       "document_class": "engineering_maintenance",
       "disposition": "authoritative input",
       "target": "docs/SECURITY_ARCHITECTURE.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/SEQUENCE_DIAGRAMS.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "docs/SLSA_LEVEL_3_ATTESTATION.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/THIRD_PARTY_SOFTWARE_INDEX.md",
-      "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
@@ -1064,14 +1119,6 @@
       "basis": "selected canonical document"
     },
     {
-      "path": "docs/SSL_CONFIGURATION.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SECURITY_ARCHITECTURE.md",
-      "target": "docs/SECURITY_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/SUBFOLDER_MARKDOWN_REVIEW_2026-07-06.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -1080,28 +1127,12 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
-      "path": "docs/TESTING.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/VERIFICATION_VALIDATION_REPORT.md",
-      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
       "document_class": "assurance_release_external",
       "disposition": "authoritative input",
       "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "docs/THREAT_MODEL.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/SECURITY_ARCHITECTURE.md",
-      "target": "docs/SECURITY_ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "docs/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
@@ -1168,28 +1199,12 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
-      "path": "docs/WINDOWS_11_LOCAL_RUNBOOK.md",
-      "document_class": "user_admin_support",
-      "disposition": "merge into docs/INSTALLATION_GUIDE.md",
-      "target": "docs/INSTALLATION_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
       "path": "docs/wireframes/README.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
       "target": "docs/archive/phase-16/wireframes/README.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
-    },
-    {
-      "path": "docs/WORKFLOW.md",
-      "document_class": "engineering_maintenance",
-      "disposition": "merge into docs/ARCHITECTURE.md",
-      "target": "docs/ARCHITECTURE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "HANDOFF.md",
@@ -1230,22 +1245,6 @@
       "target": "SECURITY.md",
       "cap_counted": true,
       "basis": "selected canonical document"
-    },
-    {
-      "path": "SUPPORT.md",
-      "document_class": "user_admin_support",
-      "disposition": "merge into docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
-      "target": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
-    },
-    {
-      "path": "TESTING.md",
-      "document_class": "assurance_release_external",
-      "disposition": "merge into docs/VERIFICATION_VALIDATION_REPORT.md",
-      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
-      "cap_counted": false,
-      "basis": "approved Phase 16 consolidation route"
     },
     {
       "path": "TODO.md",

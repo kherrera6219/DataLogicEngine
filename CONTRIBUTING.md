@@ -58,8 +58,8 @@ Before contributing, ensure you have the following installed and configured:
 
 For documentation standards, see:
 
-- [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
-- [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](docs/DOCUMENTATION_COVERAGE_MATRIX.md)
+- [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](docs/REQUIREMENTS_TRACEABILITY.md)
 
 ---
 
@@ -542,7 +542,7 @@ When adding features, update the following as applicable:
 - `CHANGELOG.md` — always, under the `Unreleased` section
 - Inline docstrings — always
 
-Full documentation governance is defined in [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md).
+Full documentation governance is defined in [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md).
 
 ---
 

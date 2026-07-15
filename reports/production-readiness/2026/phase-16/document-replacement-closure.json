@@ -1,0 +1,961 @@
+{
+  "schema_version": "dle.document-replacement-closure.v1",
+  "generated_at": "2026-07-15T09:20:50.549826+00:00",
+  "authority_version": "2026.07.15-approved2",
+  "status": "pass",
+  "reviewed_at": "2026-07-15",
+  "reviewed_by": "Codex implementation review under Kevin Herrera product-owner authority",
+  "review_scope": "Normative requirements, current decisions, operating procedures, retained evidence, technical accuracy, and active inbound links for every Phase 16 merge route",
+  "archive_delete_authorized": true,
+  "summary": {
+    "source_count": 72,
+    "active_source_count": 0,
+    "archived_source_count": 72,
+    "target_count": 18,
+    "verified_target_count": 18,
+    "unmigrated_link_count": 0,
+    "retained_evidence_pass_count": 72
+  },
+  "errors": [],
+  "unmigrated_links": [],
+  "archive_proposal": [
+    {
+      "source": "DEVELOPMENT.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/root/DEVELOPMENT.md",
+      "location": "docs/archive/phase-16/root/DEVELOPMENT.md",
+      "sha256": "9220ae24850205a1c8981f0bf7880f5de83da56992c1d24adae81a85b3e55067",
+      "expected_sha256": "9220ae24850205a1c8981f0bf7880f5de83da56992c1d24adae81a85b3e55067",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "SUPPORT.md",
+      "target": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/root/SUPPORT.md",
+      "location": "docs/archive/phase-16/root/SUPPORT.md",
+      "sha256": "d26c9ac1eb84a3be0013a2c2d87a5a2bb5c44fe3d58edfb192e0ee6047a72dd8",
+      "expected_sha256": "d26c9ac1eb84a3be0013a2c2d87a5a2bb5c44fe3d58edfb192e0ee6047a72dd8",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "TESTING.md",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "archive_path": "docs/archive/phase-16/root/TESTING.md",
+      "location": "docs/archive/phase-16/root/TESTING.md",
+      "sha256": "ae6ad885c416c9489c5ad0a4f6c60f97d4d01122013957ca56b7d4cdb1de608e",
+      "expected_sha256": "ae6ad885c416c9489c5ad0a4f6c60f97d4d01122013957ca56b7d4cdb1de608e",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/AI_MANAGEMENT_SYSTEM_42001.md",
+      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "archive_path": "docs/archive/phase-16/AI_MANAGEMENT_SYSTEM_42001.md",
+      "location": "docs/archive/phase-16/AI_MANAGEMENT_SYSTEM_42001.md",
+      "sha256": "6696443dae8c4def6ccaadaa29122131c1a1788170e8f526cb58356587cd7fa8",
+      "expected_sha256": "6696443dae8c4def6ccaadaa29122131c1a1788170e8f526cb58356587cd7fa8",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "location": "docs/archive/phase-16/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "sha256": "d7d0269cc146efa751a435450cb5575990d9ffef52a0472df858864d168685e2",
+      "expected_sha256": "d7d0269cc146efa751a435450cb5575990d9ffef52a0472df858864d168685e2",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/API.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/API.md",
+      "location": "docs/archive/phase-16/API.md",
+      "sha256": "57b055a6d8dc72f5dd699a6093d6747fe83dc0caff5e4f60b5a7dcb0986fc013",
+      "expected_sha256": "57b055a6d8dc72f5dd699a6093d6747fe83dc0caff5e4f60b5a7dcb0986fc013",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/API_VERSIONING.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/API_VERSIONING.md",
+      "location": "docs/archive/phase-16/API_VERSIONING.md",
+      "sha256": "3f4342f907197b4e2918c74fd535c01a25aa7f753d707c74801dbfdbe7ac2626",
+      "expected_sha256": "3f4342f907197b4e2918c74fd535c01a25aa7f753d707c74801dbfdbe7ac2626",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/ARCHITECTURE_MAP.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/ARCHITECTURE_MAP.md",
+      "location": "docs/archive/phase-16/ARCHITECTURE_MAP.md",
+      "sha256": "cd6b41aacef7546af068f720bb5117404b30e42d2532c40773c64823e26a8b0b",
+      "expected_sha256": "cd6b41aacef7546af068f720bb5117404b30e42d2532c40773c64823e26a8b0b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/AUTH_DECORATORS.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/AUTH_DECORATORS.md",
+      "location": "docs/archive/phase-16/AUTH_DECORATORS.md",
+      "sha256": "8828d6a822f6ae193e2bf86b0b97847b853f77b6a03433230f00bb4c1105b99b",
+      "expected_sha256": "8828d6a822f6ae193e2bf86b0b97847b853f77b6a03433230f00bb4c1105b99b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/BRANCH_PROTECTION_POLICY.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/BRANCH_PROTECTION_POLICY.md",
+      "location": "docs/archive/phase-16/BRANCH_PROTECTION_POLICY.md",
+      "sha256": "5c4e7e3ce8ec13a9b458693f0b9d34a7e2715adf2c8e4d169cdddf68b2db7022",
+      "expected_sha256": "5c4e7e3ce8ec13a9b458693f0b9d34a7e2715adf2c8e4d169cdddf68b2db7022",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/CIS_BENCHMARKS.md",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/CIS_BENCHMARKS.md",
+      "location": "docs/archive/phase-16/CIS_BENCHMARKS.md",
+      "sha256": "ce8f343e8708d023e6be190b850962da6ae4070942b0fc5400d85f536c9a5bfe",
+      "expected_sha256": "ce8f343e8708d023e6be190b850962da6ae4070942b0fc5400d85f536c9a5bfe",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/COMPONENT_MAP.md",
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "archive_path": "docs/archive/phase-16/COMPONENT_MAP.md",
+      "location": "docs/archive/phase-16/COMPONENT_MAP.md",
+      "sha256": "5f6c81e4afb09f922936f87d1720f21f74f6df37d17262f1385eadb6b1c61ba9",
+      "expected_sha256": "5f6c81e4afb09f922936f87d1720f21f74f6df37d17262f1385eadb6b1c61ba9",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/CONTRIBUTING.md",
+      "target": "CONTRIBUTING.md",
+      "archive_path": "docs/archive/phase-16/CONTRIBUTING.md",
+      "location": "docs/archive/phase-16/CONTRIBUTING.md",
+      "sha256": "e01817601cf0e492f78b8262ce424e26f26870cab3ee5c1b9680779631e9abc4",
+      "expected_sha256": "e01817601cf0e492f78b8262ce424e26f26870cab3ee5c1b9680779631e9abc4",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DATABASE_SCHEMA.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/DATABASE_SCHEMA.md",
+      "location": "docs/archive/phase-16/DATABASE_SCHEMA.md",
+      "sha256": "881be4b5d6d3b45c61d43a8e5e327976a0ef9ed9bb04210fa508050f3e4ba721",
+      "expected_sha256": "881be4b5d6d3b45c61d43a8e5e327976a0ef9ed9bb04210fa508050f3e4ba721",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "location": "docs/archive/phase-16/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "sha256": "3e8c5449183ae0b53812894614192126e41ff12b15da913d3524aa2f602bc59f",
+      "expected_sha256": "3e8c5449183ae0b53812894614192126e41ff12b15da913d3524aa2f602bc59f",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DATA_CLASSIFICATION_REGISTER.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/DATA_CLASSIFICATION_REGISTER.md",
+      "location": "docs/archive/phase-16/DATA_CLASSIFICATION_REGISTER.md",
+      "sha256": "3290191b4439d2302b38625001a8f21e2aa66f07d9705aed94ef644f28257831",
+      "expected_sha256": "3290191b4439d2302b38625001a8f21e2aa66f07d9705aed94ef644f28257831",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DATA_FLOW_DIAGRAMS.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/DATA_FLOW_DIAGRAMS.md",
+      "location": "docs/archive/phase-16/DATA_FLOW_DIAGRAMS.md",
+      "sha256": "5757c69b3ab5e36f0103714af3dfc4b8cda2a0fb065930c995ecbbfbbc520401",
+      "expected_sha256": "5757c69b3ab5e36f0103714af3dfc4b8cda2a0fb065930c995ecbbfbbc520401",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DECISION_LOGIC.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/DECISION_LOGIC.md",
+      "location": "docs/archive/phase-16/DECISION_LOGIC.md",
+      "sha256": "e45a9580b462f439c60a4bb7f7e0ea4a071f2a4c1ab85c8f88b96bed706ea7d6",
+      "expected_sha256": "e45a9580b462f439c60a4bb7f7e0ea4a071f2a4c1ab85c8f88b96bed706ea7d6",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DEPLOYMENT.md",
+      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/DEPLOYMENT.md",
+      "location": "docs/archive/phase-16/DEPLOYMENT.md",
+      "sha256": "cb303d4ec7b76a5e5ef9f2d0de9f9633a1eefc150f9090f522d07b3cf431da55",
+      "expected_sha256": "cb303d4ec7b76a5e5ef9f2d0de9f9633a1eefc150f9090f522d07b3cf431da55",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "archive_path": "docs/archive/phase-16/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "location": "docs/archive/phase-16/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "sha256": "fc0908a6f4dfe1504acc41f23c4c83d26e78dc1001150d9b886750f92917cf26",
+      "expected_sha256": "fc0908a6f4dfe1504acc41f23c4c83d26e78dc1001150d9b886750f92917cf26",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DOCUMENTATION_STANDARDS.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/DOCUMENTATION_STANDARDS.md",
+      "location": "docs/archive/phase-16/DOCUMENTATION_STANDARDS.md",
+      "sha256": "5143d1955b4e65d67f55c143cc70922d8876876285017f655b488f5ec3ab11a5",
+      "expected_sha256": "5143d1955b4e65d67f55c143cc70922d8876876285017f655b488f5ec3ab11a5",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/DOCUMENTATION_VERSIONING.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/DOCUMENTATION_VERSIONING.md",
+      "location": "docs/archive/phase-16/DOCUMENTATION_VERSIONING.md",
+      "sha256": "b267097047efc4d5f1d2d573cce2a96dde09840b55d342aea46b6d83ee9e4205",
+      "expected_sha256": "b267097047efc4d5f1d2d573cce2a96dde09840b55d342aea46b6d83ee9e4205",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/ENGINEER_ONBOARDING.md",
+      "target": "docs/DEVELOPER_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/ENGINEER_ONBOARDING.md",
+      "location": "docs/archive/phase-16/ENGINEER_ONBOARDING.md",
+      "sha256": "7c47e96666d313a89fd6adca005fc70b42f2d5f81b51fd6d9618b82bb54b383b",
+      "expected_sha256": "7c47e96666d313a89fd6adca005fc70b42f2d5f81b51fd6d9618b82bb54b383b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/FILE_STRUCTURE.md",
+      "target": "docs/DEVELOPER_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/FILE_STRUCTURE.md",
+      "location": "docs/archive/phase-16/FILE_STRUCTURE.md",
+      "sha256": "097061b6d6ab3e2dfd41d3c0792dbf584f6d246cafd26f0e0a2da0a85b488dcd",
+      "expected_sha256": "097061b6d6ab3e2dfd41d3c0792dbf584f6d246cafd26f0e0a2da0a85b488dcd",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/GATEWAY_COMPATIBILITY.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/GATEWAY_COMPATIBILITY.md",
+      "location": "docs/archive/phase-16/GATEWAY_COMPATIBILITY.md",
+      "sha256": "f67fd66871f71ce8443eb950f251aff10bbfd6d484d4faff2fcd93b5c9032241",
+      "expected_sha256": "f67fd66871f71ce8443eb950f251aff10bbfd6d484d4faff2fcd93b5c9032241",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "location": "docs/archive/phase-16/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "sha256": "1b1e699b88112cc7530cecad642af5ea1bbf3d42b849bb137959cf2a805235cd",
+      "expected_sha256": "1b1e699b88112cc7530cecad642af5ea1bbf3d42b849bb137959cf2a805235cd",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "location": "docs/archive/phase-16/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "sha256": "1bfd57aa1d5ed6412825e6ec1fa183ba91ef84e59f96d15cf1c195bb763aa6f5",
+      "expected_sha256": "1bfd57aa1d5ed6412825e6ec1fa183ba91ef84e59f96d15cf1c195bb763aa6f5",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/MCP_INTEGRATION.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/MCP_INTEGRATION.md",
+      "location": "docs/archive/phase-16/MCP_INTEGRATION.md",
+      "sha256": "78c4baf3ce92512fb64383b43a16faa3207c58157773fde6b594c3fc74432813",
+      "expected_sha256": "78c4baf3ce92512fb64383b43a16faa3207c58157773fde6b594c3fc74432813",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/MIGRATION_SUPPORT_MATRIX.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/MIGRATION_SUPPORT_MATRIX.md",
+      "location": "docs/archive/phase-16/MIGRATION_SUPPORT_MATRIX.md",
+      "sha256": "91abac1757f5edb91bd6e42e5bce26a2a191378a0d338c9e40028ed5023c5f01",
+      "expected_sha256": "91abac1757f5edb91bd6e42e5bce26a2a191378a0d338c9e40028ed5023c5f01",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/OPERATIONAL_RUNBOOKS.md",
+      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md",
+      "location": "docs/archive/phase-16/OPERATIONAL_RUNBOOKS.md",
+      "sha256": "695e35fc5ef4436f3bb8ae9dbe25a49625c3ab07a349c915f83e7dcaa2585086",
+      "expected_sha256": "695e35fc5ef4436f3bb8ae9dbe25a49625c3ab07a349c915f83e7dcaa2585086",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PRIVACY_POLICY.md",
+      "target": "docs/PRIVACY_AI_NOTICE.md",
+      "archive_path": "docs/archive/phase-16/PRIVACY_POLICY.md",
+      "location": "docs/archive/phase-16/PRIVACY_POLICY.md",
+      "sha256": "7e8de46f32a76542383ff6186d30a8afd29d0ad71818d1d1dfa167cb299c3001",
+      "expected_sha256": "7e8de46f32a76542383ff6186d30a8afd29d0ad71818d1d1dfa167cb299c3001",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PRIVATE_GATEWAY_RUNBOOK.md",
+      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/PRIVATE_GATEWAY_RUNBOOK.md",
+      "location": "docs/archive/phase-16/PRIVATE_GATEWAY_RUNBOOK.md",
+      "sha256": "a1d68bcdf892562580fba45a616c69b7325651a8698ad3e37f9ded4fc004952e",
+      "expected_sha256": "a1d68bcdf892562580fba45a616c69b7325651a8698ad3e37f9ded4fc004952e",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PROCESS_MAP.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/PROCESS_MAP.md",
+      "location": "docs/archive/phase-16/PROCESS_MAP.md",
+      "sha256": "01f2b6cc900d26d19f179887b49619bbb833e236da421c89bea02e354ef32bc1",
+      "expected_sha256": "01f2b6cc900d26d19f179887b49619bbb833e236da421c89bea02e354ef32bc1",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PRODUCTION_READINESS.md",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "archive_path": "docs/archive/phase-16/PRODUCTION_READINESS.md",
+      "location": "docs/archive/phase-16/PRODUCTION_READINESS.md",
+      "sha256": "849221be8a517b1ea44ab691ecb7b03a7eb7488929c7e0c7c43fe04175c6f75b",
+      "expected_sha256": "849221be8a517b1ea44ab691ecb7b03a7eb7488929c7e0c7c43fe04175c6f75b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN.md",
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "archive_path": "docs/archive/phase-16/PRODUCT_DESIGN.md",
+      "location": "docs/archive/phase-16/PRODUCT_DESIGN.md",
+      "sha256": "f8e76049e9f7321669d029a0feb489088898cf5b528c7d95e88101714f051cc8",
+      "expected_sha256": "f8e76049e9f7321669d029a0feb489088898cf5b528c7d95e88101714f051cc8",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PRODUCT_OVERVIEW.md",
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "archive_path": "docs/archive/phase-16/PRODUCT_OVERVIEW.md",
+      "location": "docs/archive/phase-16/PRODUCT_OVERVIEW.md",
+      "sha256": "9f8c87ddf36c4bc0dd00792b20762259946bfb360c6634008b8673da4e000706",
+      "expected_sha256": "9f8c87ddf36c4bc0dd00792b20762259946bfb360c6634008b8673da4e000706",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PROVIDER_COST_QUOTA_POLICY.md",
+      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "archive_path": "docs/archive/phase-16/PROVIDER_COST_QUOTA_POLICY.md",
+      "location": "docs/archive/phase-16/PROVIDER_COST_QUOTA_POLICY.md",
+      "sha256": "54dd782ee7039fcc73464da1f549a8647bc39c5cf29ce1c6a4b4cfb0af5d800b",
+      "expected_sha256": "54dd782ee7039fcc73464da1f549a8647bc39c5cf29ce1c6a4b4cfb0af5d800b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/PROVIDER_MODEL_SUPPORT.md",
+      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "archive_path": "docs/archive/phase-16/PROVIDER_MODEL_SUPPORT.md",
+      "location": "docs/archive/phase-16/PROVIDER_MODEL_SUPPORT.md",
+      "sha256": "0c974d1f5b9aff47030c1931027e5fd63491620a9e28791f5ff493bdaa5f02ba",
+      "expected_sha256": "0c974d1f5b9aff47030c1931027e5fd63491620a9e28791f5ff493bdaa5f02ba",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/RELEASE_CHECKLIST.md",
+      "target": "docs/RELEASE_READINESS_RECORD.md",
+      "archive_path": "docs/archive/phase-16/RELEASE_CHECKLIST.md",
+      "location": "docs/archive/phase-16/RELEASE_CHECKLIST.md",
+      "sha256": "5d764f162599c666b90e2dee424e63bcf33063e36e80de8b2e41d778403cc3b9",
+      "expected_sha256": "5d764f162599c666b90e2dee424e63bcf33063e36e80de8b2e41d778403cc3b9",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/SDLC_SSDF_MAPPING.md",
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "archive_path": "docs/archive/phase-16/SDLC_SSDF_MAPPING.md",
+      "location": "docs/archive/phase-16/SDLC_SSDF_MAPPING.md",
+      "sha256": "d02a12cb2956afb731cb9ebb41009cb9071921408369a8d69d01d30c6d396e8e",
+      "expected_sha256": "d02a12cb2956afb731cb9ebb41009cb9071921408369a8d69d01d30c6d396e8e",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/SECURITY.md",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/SECURITY.md",
+      "location": "docs/archive/phase-16/SECURITY.md",
+      "sha256": "5ca92c16137758bb218d879b870056989cb2f9087aab256be7e37357a94b052a",
+      "expected_sha256": "5ca92c16137758bb218d879b870056989cb2f9087aab256be7e37357a94b052a",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/SEQUENCE_DIAGRAMS.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/SEQUENCE_DIAGRAMS.md",
+      "location": "docs/archive/phase-16/SEQUENCE_DIAGRAMS.md",
+      "sha256": "cb30cf8931a6c820f4ce3169b8341afe8345861d281733a5a644e9b3bc571f95",
+      "expected_sha256": "cb30cf8931a6c820f4ce3169b8341afe8345861d281733a5a644e9b3bc571f95",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/SLSA_LEVEL_3_ATTESTATION.md",
+      "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "archive_path": "docs/archive/phase-16/SLSA_LEVEL_3_ATTESTATION.md",
+      "location": "docs/archive/phase-16/SLSA_LEVEL_3_ATTESTATION.md",
+      "sha256": "1e9b25e3485511440dd07d30c7e766c4ec5474402e413f9120413039a69cb07b",
+      "expected_sha256": "1e9b25e3485511440dd07d30c7e766c4ec5474402e413f9120413039a69cb07b",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/SSL_CONFIGURATION.md",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/SSL_CONFIGURATION.md",
+      "location": "docs/archive/phase-16/SSL_CONFIGURATION.md",
+      "sha256": "1973432bd571dbf0072473067df927cfebb8fb2bfa3d976d20ce52f3cd8a79f7",
+      "expected_sha256": "1973432bd571dbf0072473067df927cfebb8fb2bfa3d976d20ce52f3cd8a79f7",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/TESTING.md",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "archive_path": "docs/archive/phase-16/TESTING.md",
+      "location": "docs/archive/phase-16/TESTING.md",
+      "sha256": "47711d142963e36c5e0ed30e76fdc669bf3099f5e25c8b1061e688c5587db97e",
+      "expected_sha256": "47711d142963e36c5e0ed30e76fdc669bf3099f5e25c8b1061e688c5587db97e",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/THREAT_MODEL.md",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/THREAT_MODEL.md",
+      "location": "docs/archive/phase-16/THREAT_MODEL.md",
+      "sha256": "972ae60fc4b95c703dddd033db6827cb1150167f8de78f958b8fd943912d7105",
+      "expected_sha256": "972ae60fc4b95c703dddd033db6827cb1150167f8de78f958b8fd943912d7105",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/WINDOWS_11_LOCAL_RUNBOOK.md",
+      "target": "docs/INSTALLATION_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md",
+      "location": "docs/archive/phase-16/WINDOWS_11_LOCAL_RUNBOOK.md",
+      "sha256": "8028535fe60b63a11bceb347f85b4d0c31d9926d2ea601e72330500a092927fa",
+      "expected_sha256": "8028535fe60b63a11bceb347f85b4d0c31d9926d2ea601e72330500a092927fa",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/WORKFLOW.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/WORKFLOW.md",
+      "location": "docs/archive/phase-16/WORKFLOW.md",
+      "sha256": "d758c8a419d993c4fe495a7a19aae617847a3a0ffff6dbf670638c91346d2f5e",
+      "expected_sha256": "d758c8a419d993c4fe495a7a19aae617847a3a0ffff6dbf670638c91346d2f5e",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0001-engineering-governance-baseline.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md",
+      "location": "docs/archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md",
+      "sha256": "2a1742a5f1363042753d31a164899777501532ce412ca31cd032c9c6645516eb",
+      "expected_sha256": "2a1742a5f1363042753d31a164899777501532ce412ca31cd032c9c6645516eb",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0002-pq-grpc-transport.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0002-pq-grpc-transport.md",
+      "location": "docs/archive/phase-16/adr/ADR-0002-pq-grpc-transport.md",
+      "sha256": "f879a09c3b311f22031e4271d66bd664fb3300801dd5ca1031e9af4e3bf512ce",
+      "expected_sha256": "f879a09c3b311f22031e4271d66bd664fb3300801dd5ca1031e9af4e3bf512ce",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0003-internal-service-delivery.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0003-internal-service-delivery.md",
+      "location": "docs/archive/phase-16/adr/ADR-0003-internal-service-delivery.md",
+      "sha256": "99ac2e3cb468f4638b6b5f126685e9e0e8559924309c776f31941dae06a4deb3",
+      "expected_sha256": "99ac2e3cb468f4638b6b5f126685e9e0e8559924309c776f31941dae06a4deb3",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "location": "docs/archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "sha256": "a952f5a7ca76b386bde145033fda8aae22a29a8deada1b96e9c89e1bf359a366",
+      "expected_sha256": "a952f5a7ca76b386bde145033fda8aae22a29a8deada1b96e9c89e1bf359a366",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0005-external-gateway-boundary.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0005-external-gateway-boundary.md",
+      "location": "docs/archive/phase-16/adr/ADR-0005-external-gateway-boundary.md",
+      "sha256": "b2a878a72d35e671ec336de1d396186793485e2cd730f64f2023b67beb55d8b1",
+      "expected_sha256": "b2a878a72d35e671ec336de1d396186793485e2cd730f64f2023b67beb55d8b1",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+      "location": "docs/archive/phase-16/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+      "sha256": "f8d80ead9be34f871972c408bcdf6af6f7c5f8285526580634258f5e2d020452",
+      "expected_sha256": "f8d80ead9be34f871972c408bcdf6af6f7c5f8285526580634258f5e2d020452",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0007-authoritative-simulation-engine.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0007-authoritative-simulation-engine.md",
+      "location": "docs/archive/phase-16/adr/ADR-0007-authoritative-simulation-engine.md",
+      "sha256": "419dbfae064d5c31d6e1b9e01743a6ada2222cf7b84d9c0f4d192536890747e6",
+      "expected_sha256": "419dbfae064d5c31d6e1b9e01743a6ada2222cf7b84d9c0f4d192536890747e6",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0008-governed-mcp-connector-boundary.md",
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0008-governed-mcp-connector-boundary.md",
+      "location": "docs/archive/phase-16/adr/ADR-0008-governed-mcp-connector-boundary.md",
+      "sha256": "884521c10b85e97aec2043ee31063b67f9a63e0aca663d4e53e325b821d64a7f",
+      "expected_sha256": "884521c10b85e97aec2043ee31063b67f9a63e0aca663d4e53e325b821d64a7f",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/adr/ADR-0009-session-library-product-model.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/adr/ADR-0009-session-library-product-model.md",
+      "location": "docs/archive/phase-16/adr/ADR-0009-session-library-product-model.md",
+      "sha256": "1af553c0346ae1d567835b0c9e40e2211537b76793e4cbe5a35251e1e0027055",
+      "expected_sha256": "1af553c0346ae1d567835b0c9e40e2211537b76793e4cbe5a35251e1e0027055",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/02_research_to_code_traceability.md",
+      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "archive_path": "docs/archive/phase-16/diagrams/02_research_to_code_traceability.md",
+      "location": "docs/archive/phase-16/diagrams/02_research_to_code_traceability.md",
+      "sha256": "4b1a64cfa7c821571fc287cab6bf9c115821a9fb289fb45f75a910f10e23397f",
+      "expected_sha256": "4b1a64cfa7c821571fc287cab6bf9c115821a9fb289fb45f75a910f10e23397f",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/03_ai_reasoning_sequence.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/diagrams/03_ai_reasoning_sequence.md",
+      "location": "docs/archive/phase-16/diagrams/03_ai_reasoning_sequence.md",
+      "sha256": "5499b42dbf40928b661565b475b7389852e62e4dc0020fbf867949166c00c1f0",
+      "expected_sha256": "5499b42dbf40928b661565b475b7389852e62e4dc0020fbf867949166c00c1f0",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/04_17_axis_coordinate_model.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/diagrams/04_17_axis_coordinate_model.md",
+      "location": "docs/archive/phase-16/diagrams/04_17_axis_coordinate_model.md",
+      "sha256": "551680372e38331df6654176bb4906cb2c4ba96c6e8242e2065b67aa21eb3caf",
+      "expected_sha256": "551680372e38331df6654176bb4906cb2c4ba96c6e8242e2065b67aa21eb3caf",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/05_truth_engine_architecture.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/diagrams/05_truth_engine_architecture.md",
+      "location": "docs/archive/phase-16/diagrams/05_truth_engine_architecture.md",
+      "sha256": "3163bcb35d29d58b9953949268eb3522a37d81794157a9811fabc2527c16ae45",
+      "expected_sha256": "3163bcb35d29d58b9953949268eb3522a37d81794157a9811fabc2527c16ae45",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/06_local_first_security_model.md",
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/diagrams/06_local_first_security_model.md",
+      "location": "docs/archive/phase-16/diagrams/06_local_first_security_model.md",
+      "sha256": "6fc7c262650f8841ee55673ad71df80dbefb03d1b62e0ef138eaa37a0e2a7652",
+      "expected_sha256": "6fc7c262650f8841ee55673ad71df80dbefb03d1b62e0ef138eaa37a0e2a7652",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/07_data_storage_and_memory_architecture.md",
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/diagrams/07_data_storage_and_memory_architecture.md",
+      "location": "docs/archive/phase-16/diagrams/07_data_storage_and_memory_architecture.md",
+      "sha256": "fb71db0ab9470c70f0b1c2487026cb6771dfa0c8d4e32247f8eaa471d1140bff",
+      "expected_sha256": "fb71db0ab9470c70f0b1c2487026cb6771dfa0c8d4e32247f8eaa471d1140bff",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/08_testing_validation_and_release_governance.md",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "archive_path": "docs/archive/phase-16/diagrams/08_testing_validation_and_release_governance.md",
+      "location": "docs/archive/phase-16/diagrams/08_testing_validation_and_release_governance.md",
+      "sha256": "857fc6f59fb991294683c24c0e3f38e3a6fce84d173420562928b08eb4e3ac3c",
+      "expected_sha256": "857fc6f59fb991294683c24c0e3f38e3a6fce84d173420562928b08eb4e3ac3c",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "location": "docs/archive/phase-16/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "sha256": "1c4812e2d8294cf08a144068025a889d35cd899cebb2094744b44a57a354443a",
+      "expected_sha256": "1c4812e2d8294cf08a144068025a889d35cd899cebb2094744b44a57a354443a",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/10_dsqp_persona_construction_architecture.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/diagrams/10_dsqp_persona_construction_architecture.md",
+      "location": "docs/archive/phase-16/diagrams/10_dsqp_persona_construction_architecture.md",
+      "sha256": "3d080c11a2061bedea13bb590fc06446acd550b470218b7a531117f4eb3d03c4",
+      "expected_sha256": "3d080c11a2061bedea13bb590fc06446acd550b470218b7a531117f4eb3d03c4",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/11_frontend_product_surface_and_trace_review_map.md",
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "archive_path": "docs/archive/phase-16/diagrams/11_frontend_product_surface_and_trace_review_map.md",
+      "location": "docs/archive/phase-16/diagrams/11_frontend_product_surface_and_trace_review_map.md",
+      "sha256": "80e7e8e7d3d33f1ab61c60b1750baf188928fca4027549a76abf33d476768968",
+      "expected_sha256": "80e7e8e7d3d33f1ab61c60b1750baf188928fca4027549a76abf33d476768968",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/diagrams/12_end_to_end_request_lifecycle.md",
+      "target": "docs/ARCHITECTURE.md",
+      "archive_path": "docs/archive/phase-16/diagrams/12_end_to_end_request_lifecycle.md",
+      "location": "docs/archive/phase-16/diagrams/12_end_to_end_request_lifecycle.md",
+      "sha256": "31da02f9211562f9f523a2310e32c971f98acdd07c73bd99ed6dc1148ff3730d",
+      "expected_sha256": "31da02f9211562f9f523a2310e32c971f98acdd07c73bd99ed6dc1148ff3730d",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/documents/README.md",
+      "target": "docs/DEVELOPER_GUIDE.md",
+      "archive_path": "docs/archive/phase-16/documents/README.md",
+      "location": "docs/archive/phase-16/documents/README.md",
+      "sha256": "ad5005652ae735183b0956dd2e8fe05e0371953f8e632389d1aba2e32958a133",
+      "expected_sha256": "ad5005652ae735183b0956dd2e8fe05e0371953f8e632389d1aba2e32958a133",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "archive_path": "docs/archive/phase-16/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "location": "docs/archive/phase-16/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "sha256": "4a34915d118496d82c4fed3b93bfcae509b82c4c374e34727629aeac2aed176c",
+      "expected_sha256": "4a34915d118496d82c4fed3b93bfcae509b82c4c374e34727629aeac2aed176c",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/evaluation/QUALITY_EVALUATION.md",
+      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "archive_path": "docs/archive/phase-16/evaluation/QUALITY_EVALUATION.md",
+      "location": "docs/archive/phase-16/evaluation/QUALITY_EVALUATION.md",
+      "sha256": "41ebe7f6ebcb6253b95dae6188f26751ad6c2aeb5193233bbbebe4edf9f0d753",
+      "expected_sha256": "41ebe7f6ebcb6253b95dae6188f26751ad6c2aeb5193233bbbebe4edf9f0d753",
+      "retained_evidence": "verified"
+    },
+    {
+      "source": "docs/ip/dsqp_technical_disclosure.md",
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "archive_path": "docs/archive/phase-16/ip/dsqp_technical_disclosure.md",
+      "location": "docs/archive/phase-16/ip/dsqp_technical_disclosure.md",
+      "sha256": "52fb5c459a1299dbbe739900f8aae19e7415dd2aee0d488f9ade239102a0fa2e",
+      "expected_sha256": "52fb5c459a1299dbbe739900f8aae19e7415dd2aee0d488f9ade239102a0fa2e",
+      "retained_evidence": "verified"
+    }
+  ],
+  "target_reviews": [
+    {
+      "target": "CONTRIBUTING.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Code of Conduct",
+        "Development Setup",
+        "Contribution Workflow",
+        "Coding Standards",
+        "Security Requirements",
+        "Pull Request Process"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Operating boundary",
+        "Startup and readiness",
+        "Required services",
+        "Provider operations",
+        "Backup",
+        "Restore and disaster recovery",
+        "Diagnostics, logs, and support bundles",
+        "Client Gateway",
+        "MCP connector operations",
+        "Incident response"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/ARCHITECTURE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Architecture overview",
+        "High-level component map",
+        "Core runtime stack",
+        "DMRF control plane",
+        "17-axis knowledge framework",
+        "DSQP persona architecture",
+        "Truth Engine architecture",
+        "LLM Gateway architecture",
+        "Data, storage, and memory architecture",
+        "Frontend product architecture",
+        "Local-first and desktop architecture",
+        "API and route architecture",
+        "Security architecture",
+        "Observability and traceability",
+        "Testing and release governance"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/DATA_ARCHITECTURE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Store responsibility map",
+        "Required object namespaces",
+        "Core data domains",
+        "Classification and protection",
+        "Migration and schema rules",
+        "Backup, restore, and deletion",
+        "Retention",
+        "Integrity and reconciliation",
+        "Validation status"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/DEVELOPER_GUIDE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Prerequisites",
+        "Initial setup",
+        "Required environment values",
+        "Architecture orientation for developers",
+        "Local run modes",
+        "Build and packaging",
+        "Daily testing workflow",
+        "Repository structure",
+        "Important backend areas",
+        "Important frontend areas",
+        "API development rules",
+        "Data development rules",
+        "Documentation maintenance"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/INSTALLATION_GUIDE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Current distribution status",
+        "Supported target",
+        "Clean installation",
+        "First-use acceptance",
+        "Repair",
+        "Upgrade",
+        "Rollback",
+        "Uninstall and data choice",
+        "Updates",
+        "Installation failures"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/INTERFACE_INTEGRATION.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Interface boundary",
+        "Version and route policy",
+        "Authentication and authorization",
+        "Governed request contract",
+        "Client Gateway profiles",
+        "Native request modes",
+        "Rate, budget, retry, and cancellation",
+        "MCP integration contract",
+        "Private Windows gateway qualification boundary",
+        "Integration acceptance"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Assurance boundary",
+        "Registry and classification",
+        "KA validation controls",
+        "DSQP and 17-axis boundary",
+        "TruthCore and evidence model",
+        "Phase 6 checkpoint evidence",
+        "Evaluation protocol",
+        "Human review",
+        "Current disposition"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/PRIVACY_AI_NOTICE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Important current status",
+        "Local-first does not mean air-gapped",
+        "Data the application may process or retain",
+        "OpenAI and Google processing",
+        "MCP connectors and external tools",
+        "Data protection",
+        "Retention",
+        "External telemetry",
+        "AI purpose and limitations"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/PRODUCT_REQUIREMENTS.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Supported product boundary",
+        "Explicit exclusions",
+        "Functional requirements",
+        "Data and lifecycle requirements",
+        "Security, privacy, and AI requirements",
+        "User experience acceptance",
+        "Current acceptance status"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/RELEASE_READINESS_RECORD.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Current decision",
+        "Candidate identity",
+        "Gate summary",
+        "Phase status",
+        "Finding policy",
+        "Required final evidence bundle",
+        "GO authorization template"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Traceability rules",
+        "Functional requirements",
+        "Data and lifecycle requirements",
+        "Security, privacy, and AI requirements",
+        "Quality and release requirements",
+        "Architecture and document coverage",
+        "Findings and change control",
+        "Overall status"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/SECURITY_ARCHITECTURE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Security objective",
+        "Trust boundaries",
+        "Protected assets",
+        "Identity and least authority",
+        "Network and process controls",
+        "Governed AI and content controls",
+        "Data and secret protection",
+        "Release and update trust",
+        "Principal threats and controls",
+        "Incident response",
+        "Current assurance status"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Lifecycle objective",
+        "Authoritative configuration",
+        "Change lifecycle",
+        "Branch, review, and commit controls",
+        "Verification pipeline",
+        "Defect and vulnerability handling",
+        "Release lifecycle",
+        "Documentation lifecycle",
+        "Maintenance and retirement",
+        "Current status"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Current disposition",
+        "Dependency authorities",
+        "SBOM and inventory set",
+        "Material runtime components",
+        "Providers, models, connectors, and content",
+        "Vulnerability and maintenance state",
+        "Notice and redistribution approval gate"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "First rule: preserve the safety gate",
+        "Before requesting help",
+        "Diagnostics and local support bundle",
+        "Common problems",
+        "Reporting channels"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "V&V principles",
+        "Verification levels",
+        "Test domains and acceptance",
+        "Current candidate evidence",
+        "Phase evidence disposition",
+        "Human and independent validation",
+        "Performance and reliability validation",
+        "Finding and retest policy",
+        "Release decision"
+      ],
+      "missing_sections": []
+    },
+    {
+      "target": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "technical_review": "verified",
+      "required_sections": [
+        "Intended purpose and operating boundary",
+        "Governed AI lifecycle",
+        "Providers, models, cost, and quota controls",
+        "Evaluation method",
+        "Risk management and human oversight",
+        "Known limitations and failure modes",
+        "Current assurance disposition"
+      ],
+      "missing_sections": []
+    }
+  ]
+}

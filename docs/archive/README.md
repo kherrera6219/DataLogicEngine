@@ -12,6 +12,21 @@ Use the active documentation portal at [`docs/README.md`](../README.md) and the 
 
 The latest archive Markdown review is recorded in [`ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md`](ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md).
 
+## Phase 16 controlled source archive
+
+`docs/archive/phase-16/` preserves the 72 source documents consolidated by
+Phase 16 CP16-F on 2026-07-15. The originals retain their relative directory
+shape; former root sources are under `phase-16/root/`. These files are historical
+evidence only and are not active product, engineering, operating, security, or
+release authority.
+
+`reports/production-readiness/2026/phase-16/document-replacement-baseline.json`
+records each source's pre-move SHA-256, byte count, Git blob, canonical target,
+and archive destination. `document-replacement-closure.json` verifies 72/72
+retained hashes, 18/18 routed target reviews, zero active legacy sources, and
+zero unmigrated active links. Use `docs/DOCUMENTATION_CROSSWALK.md` for the full
+154-file disposition record and `docs/README.md` for current authority.
+
 ## Contents
 
 | Folder | Contents | Status |

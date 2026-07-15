@@ -18,8 +18,8 @@
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
-| Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
-| Current phase | Phase 16 - production documentation replacement and professional review dossier |
+| Completed phase | Phase 16 CP16-F replacement closure; CP16-G exact-artifact binding retained |
+| Current phase | Phase 17 - documentation consolidation and release lock |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -28,6 +28,14 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- Phase 16 CP16-F replacement closure passed on 2026-07-15. All 72 approved
+  merge sources were hash-frozen with Git blob identity, reviewed against all 18
+  routed canonical targets, and archived under `docs/archive/phase-16/`. The
+  retained SHA-256 count is 72/72, active legacy-source count is zero, active
+  unmigrated-link count is zero, all 30 controlled headers pass, and the full
+  154-file inventory remains classified with zero unclassified or duplicate
+  routes. `docs/README.md` is now generated from the authority. CP16-G remains
+  retained until an exact signed installed release candidate exists.
 - The 2026-07-15 CodeQL follow-up removes the shared raw-exception disclosure
   path affecting 51 medium findings; public normalization now returns only
   canonical messages. Six high scanner false positives are dispositioned in
@@ -636,8 +644,8 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
-| 16 | Production documentation replacement and professional review dossier | **CP16-A complete; CP16-B/CP16-C content checkpoints complete with retained exit gates; CP16-D/CP16-E content complete; CP16-F active** |
-| 17 | Documentation consolidation and release lock | Blocked by prior phases |
+| 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
+| 17 | Documentation consolidation and release lock | **CP17-A through CP17-D active; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -656,11 +664,11 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Resume CP16-F replacement closure: verify every merge source against its canonical
-target, migrate active inbound links, prove retained requirement/decision/evidence
-coverage, and generate the archive/delete proposal. Keep archive/delete authority
-false until per-source content, link, retained-evidence, and technical review
-pass. Do not archive immutable release evidence.
+Execute Phase 17 CP17-A through CP17-D: remove remaining duplicate active
+authority, move already-classified historical material into the archive, prove
+generated-contract parity, and make the documentation gate pass with zero
+errors and zero warnings. Retain CP16-G and CP17-E for the exact signed installed
+release candidate and clean-machine documentation-only walkthrough.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS

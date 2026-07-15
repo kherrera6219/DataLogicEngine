@@ -5,12 +5,12 @@
 
 ## Control status
 
-- Authority version: `2026.07.14-approved1`
-- Status: `approved_phase16_information_architecture`
+- Authority version: `2026.07.15-approved2`
+- Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`
 - Approval: `approved` by `Kevin Herrera` on `2026-07-14`.
-- Archive/delete authorized: `false`.
+- Archive/delete authorized: `true`.
 
 ## Canonical hand-maintained set
 

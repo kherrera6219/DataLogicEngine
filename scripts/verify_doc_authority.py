@@ -37,6 +37,14 @@ DEFAULT_REPORT = (
     / "document-authority-verification.json"
 )
 PRODUCT_VERSIONS = ROOT / "config" / "product-versions.json"
+REPLACEMENT_CLOSURE = (
+    ROOT
+    / "reports"
+    / "production-readiness"
+    / "2026"
+    / "phase-16"
+    / "document-replacement-closure.json"
+)
 TABLE_ROW = re.compile(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$")
 
 
@@ -72,8 +80,15 @@ def verify(
     approval = authority.get("approval", {})
     if approval.get("status") != "approved":
         errors.append("information_architecture_not_approved")
-    if approval.get("archive_delete_authorized") is not False:
-        errors.append("archive_delete_boundary_not_fail_closed")
+    if approval.get("archive_delete_authorized") is True:
+        if not REPLACEMENT_CLOSURE.is_file():
+            errors.append("archive_authorized_without_replacement_closure")
+        else:
+            closure = json.loads(REPLACEMENT_CLOSURE.read_text(encoding="utf-8"))
+            if closure.get("status") != "pass":
+                errors.append("archive_authorized_before_replacement_closure_pass")
+    elif approval.get("archive_delete_authorized") is not False:
+        errors.append("archive_delete_authorization_invalid")
 
     for item in authority["canonical_documents"]:
         path = root / item["path"]

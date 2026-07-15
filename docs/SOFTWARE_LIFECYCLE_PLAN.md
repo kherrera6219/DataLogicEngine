@@ -135,9 +135,11 @@ requirements/evidence. Status uses the controlled vocabulary and never converts
 planned or qualification-only work into current production behavior.
 
 The Phase 16 crosswalk preserves every source as authoritative input, generated
-replacement, merge route, or historical/archive record. No source is archived or
-deleted until target content, evidence retention, inbound links, technical review,
-and archive/delete authorization pass. Phase 17 locks the final set.
+replacement, merge route, or historical/archive record. CP16-F authorized and
+completed the controlled archive only after target content, evidence retention,
+inbound links, technical review, and per-source hashes passed. The baseline and
+closure reports preserve that proof. Future moves require a new reviewed closure;
+the prior authorization is not a standing permission. Phase 17 locks the final set.
 
 ## Maintenance and retirement
 
@@ -154,7 +156,7 @@ eligible for production support.
 
 ## Current status
 
-Product 4.3.0 has engineering checkpoints through Phase 15 and active Phase 16
-documentation replacement. The unsigned candidate, differing independent build
+Product 4.3.0 has engineering checkpoints through Phase 15, completed CP16-F
+documentation replacement, and active Phase 17 consolidation. The unsigned candidate, differing independent build
 hashes, installed/manual/independent gates, legal/signing/object-store decisions,
 and alert 389 keep production/public release at **NO-GO**.

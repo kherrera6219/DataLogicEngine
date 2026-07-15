@@ -66,7 +66,7 @@ acceptance. This report is not a production approval.
 | UI/accessibility | Route/control inventory, axe and keyboard workflows, truthful state contracts | Packaged visual/scaling/contrast and manual keyboard/NVDA/user acceptance |
 | Observability/support | Correlation/error taxonomy/redacted logs/diagnostics/support/soak evaluator | Installed cross-process correlation, canary/no-egress, support, 24/72-hour soak |
 | Packaging/supply chain | Versions/locks/SBOM/manifests/payload/integrity/update fail-closed | Reproducibility resolution, trusted signatures, legal/scans, lifecycle/update matrix |
-| Documentation/review | CP16-A authority and CP16-B/CP16-C content/source verifiers | Signed-RC walkthroughs, independent/professional/Microsoft dossier and final link/archive closure |
+| Documentation/review | CP16-A-E content/authority plus CP16-F 72-source retained-hash/link/archive closure | Signed-RC walkthroughs, exact-artifact binding, independent/professional/Microsoft acceptance, and CP17-E clean-machine walkthrough |
 
 ## Current candidate evidence
 

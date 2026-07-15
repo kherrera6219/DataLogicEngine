@@ -34,12 +34,10 @@ def test_every_root_and_docs_markdown_has_one_disposition():
 def test_every_merge_target_is_in_the_canonical_set():
     authority = load_authority()
     canonical = {item["path"] for item in authority["canonical_documents"]}
-    inventory = build_inventory(authority)
-    merge_rows = [
-        row for row in inventory["documents"] if row["disposition"].startswith("merge into ")
-    ]
-    assert merge_rows
-    assert all(row["target"] in canonical for row in merge_rows)
+    merge_routes = authority["merge_routes"]
+    assert merge_routes
+    assert all(target in canonical for target in merge_routes)
+    assert sum(len(sources) for sources in merge_routes.values()) == 72
 
 
 def test_no_canonical_document_is_routed_as_historical_or_merge_input():
@@ -59,7 +57,7 @@ def test_existing_canonical_documents_have_controlled_headers():
     assert result["controlled_header_pass_count"] == result["existing_canonical_count"]
     assert result["planned_canonical_count"] <= 15
     assert result["existing_canonical_count"] + result["planned_canonical_count"] == 30
-    assert result["archive_delete_authorized"] is False
+    assert result["archive_delete_authorized"] is True
 
 
 def test_cp16b_product_user_documents_preserve_sources_and_truthful_boundaries():
@@ -67,7 +65,7 @@ def test_cp16b_product_user_documents_preserve_sources_and_truthful_boundaries()
     assert result["status"] == "pass"
     assert result["verified_count"] == 5
     assert result["target_count"] == 5
-    assert result["archive_delete_authorized"] is False
+    assert result["archive_delete_authorized"] is True
 
 
 def test_cp16c_engineering_assurance_documents_preserve_sources_and_boundaries():
@@ -75,7 +73,7 @@ def test_cp16c_engineering_assurance_documents_preserve_sources_and_boundaries()
     assert result["status"] == "pass"
     assert result["verified_count"] == 12
     assert result["target_count"] == 12
-    assert result["archive_delete_authorized"] is False
+    assert result["archive_delete_authorized"] is True
 
 
 def test_cp16d_e_external_review_records_remain_fail_closed():
@@ -83,4 +81,23 @@ def test_cp16d_e_external_review_records_remain_fail_closed():
     assert result["status"] == "pass"
     assert result["verified_count"] == 3
     assert result["target_count"] == 3
-    assert result["archive_delete_authorized"] is False
+    assert result["archive_delete_authorized"] is True
+
+
+def test_cp16f_document_replacement_sources_links_and_retained_evidence_close():
+    import json
+
+    from scripts.verify_document_replacement_closure import (
+        DEFAULT_BASELINE,
+        verify as verify_replacement,
+    )
+
+    baseline = json.loads(DEFAULT_BASELINE.read_text(encoding="utf-8"))
+    result = verify_replacement(load_authority(), baseline)
+    assert result["status"] == "pass"
+    assert result["summary"]["source_count"] == 72
+    assert result["summary"]["active_source_count"] == 0
+    assert result["summary"]["archived_source_count"] == 72
+    assert result["summary"]["verified_target_count"] == 18
+    assert result["summary"]["unmigrated_link_count"] == 0
+    assert result["summary"]["retained_evidence_pass_count"] == 72

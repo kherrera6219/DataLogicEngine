@@ -18,8 +18,8 @@
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
-| Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
-| Current phase | Phase 16 - production documentation replacement and professional review dossier |
+| Completed phase | Phase 16 CP16-F replacement closure; CP16-G exact-artifact binding retained |
+| Current phase | Phase 17 - documentation consolidation and release lock |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -30,7 +30,7 @@ Read these documents in order before changing code or making a readiness claim:
 1. `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`
 2. `PRODUCTION_COMPLETION_PLAN_2026.md`
 3. `TODO.md`
-4. `docs/THREAT_MODEL.md`
+4. `docs/SECURITY_ARCHITECTURE.md`
 5. `docs/README.md`
 
 Installed behavior and reproducible production-path evidence take precedence
@@ -563,6 +563,25 @@ all 30 controlled headers pass. The submission/external-review verifier passes
 legal/distribution, reviewer, and acceptance gates remain open. No source was
 moved, archived, or deleted. CP16-F replacement closure is active.
 
+## Phase 16 CP16-F replacement closure
+
+CP16-F passed on 2026-07-15. The source baseline freezes all 72 approved merge
+inputs with SHA-256, byte count, Git blob identity, canonical target, and archive
+destination. Technical review covers all 18 routed targets. Active Markdown links
+were migrated before authorization, after which the 72 originals moved intact to
+`docs/archive/phase-16/`.
+
+The post-move verifier reports 72/72 retained hashes, zero active legacy sources,
+zero unmigrated active links, and 18/18 target reviews. The authority/BOM still
+classifies exactly 154 Markdown files, selects exactly 30 existing canonical
+documents, and reports zero unclassified files or duplicate routes. All 30
+controlled headers and the product/user, engineering/assurance, and external-
+review content gates pass. `docs/README.md` is generated from the authority and
+closure report. CP16-G remains blocked on the exact signed installed RC; the
+installed/manual/external exit gates from CP16-B through CP16-E remain retained.
+
+Evidence is under `reports/production-readiness/2026/phase-16/`.
+
 ## CI/security maintenance checkpoint - 2026-07-15
 
 The failing GitHub dependency, backend, governance, Bandit, and Cosign jobs were
@@ -603,11 +622,10 @@ findings; Dependabot alert 389 remains open and critical. CP16-F may resume. See
 
 ## Exact next action
 
-1. Resume CP16-F by verifying every merge source against its canonical target,
-   migrating active inbound links, and proving requirement/decision/evidence
-   retention before generating an archive/delete proposal.
-2. Keep archive/delete authority false until per-source content/link/evidence and
-   technical review pass; never archive immutable release evidence.
+1. Execute Phase 17 CP17-A through CP17-D: one active authority, controlled
+   historical archives, generated parity, and zero documentation errors/warnings.
+2. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
+   a clean-machine documentation-only walkthrough can be performed.
 3. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
 4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert

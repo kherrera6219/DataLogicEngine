@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.20.0 |
+| Document version | v1.21.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -14,7 +14,7 @@
 | Current evidence baseline | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` |
 | Execution ledger | Root `TODO.md` |
 | Session continuity | Root `HANDOFF.md` |
-| Release authority | `docs/RELEASE_CHECKLIST.md` and `docs/PRODUCTION_READINESS.md` |
+| Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
 
@@ -144,8 +144,16 @@ set to 30 existing/zero planned documents across 154 classified Markdown files.
 The current official Microsoft policy snapshot supports the traditional MSI/EXE
 route as the qualification choice, not submission approval. Partner Center,
 policy/WACK, signed artifact, reviewer assignment/findings, legal/distribution,
-and external acceptance remain not evaluated or release blocked. CP16-F
-replacement closure is active; archive/delete authorization remains false.
+and external acceptance remain not evaluated or release blocked.
+
+CP16-F replacement closure passed on 2026-07-15. All 72 merge sources were
+hash-frozen with Git blob identity, reviewed against 18 routed canonical targets,
+link-migrated, and archived intact under `docs/archive/phase-16/`. Post-move
+verification reports 72/72 retained hashes, zero active legacy sources, zero
+unmigrated active links, all 30 controlled headers, and the exact 154-file
+inventory with zero unclassified or duplicate routes. CP16-G remains retained
+for the exact signed installed release candidate. Phase 17 CP17-A through CP17-D
+are active; CP17-E remains a signed-installed clean-machine walkthrough.
 
 The 2026-07-15 CI/security maintenance checkpoint repaired the failing release
 gates without changing the Phase 16 sequence or the production **NO-GO** verdict.
@@ -3519,7 +3527,7 @@ adapted, not applicable, or independently assessed. Initial references are:
   reviewer assignment/findings/acceptance retained:** independent reviewers can reproduce their
   scoped assessment from the index and record findings without relying on session
   history or undocumented developer knowledge.
-- **CP16-F - Replacement closure - active:** every old active document is merged, generated,
+- **CP16-F - Replacement closure - complete 2026-07-15:** every old active document is merged, generated,
   archived, or deleted; the canonical hand-maintained set is within the approved
   limit and has no duplicate source of truth.
 - **CP16-G - Artifact binding:** every release-specific document and submission
@@ -4070,12 +4078,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Continue **Phase 16 CP16-F** by verifying every merge source against its canonical
-target, scanning and migrating active inbound links, proving retained requirement/
-decision/evidence coverage, and producing an archive/delete proposal. Keep
-archive/delete authorization false until the per-source content/link/evidence and
-technical-review gates pass. Do not archive required immutable evidence or imply
-that content completion closes installed/manual/external release gates.
+Continue **Phase 17 CP17-A through CP17-D** by enforcing one active authority,
+moving already-classified historical material under the archive, proving
+generated-contract parity, and making the documentation gate pass with zero
+errors and zero warnings. Retain CP16-G and CP17-E until the exact signed
+installed release candidate exists and a clean-machine documentation-only
+walkthrough can be performed. Do not imply that document consolidation closes
+installed/manual/external release gates.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

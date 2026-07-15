@@ -1,14 +1,16 @@
 {
   "schema_version": "dle.documentation-authority.v1",
-  "program_version": "2026.07.14-approved1",
-  "status": "approved_phase16_information_architecture",
+  "program_version": "2026.07.15-approved2",
+  "status": "approved_phase16_replacement_closed",
   "approval": {
     "status": "approved",
     "owner": "Kevin Herrera",
     "approved_at": "2026-07-14",
-    "scope": "document classes, canonical set, IDs, owners, vocabulary, and source-to-target dispositions",
-    "archive_delete_authorized": false,
-    "archive_delete_condition": "Target content, inbound links, retained evidence, and technical review must pass before each move or deletion."
+    "scope": "document classes, canonical set, IDs, owners, vocabulary, source-to-target dispositions, and CP16-F controlled archival",
+    "archive_delete_authorized": true,
+    "archive_delete_approved_at": "2026-07-15",
+    "archive_delete_evidence": "reports/production-readiness/2026/phase-16/document-replacement-closure.json",
+    "archive_delete_condition": "Satisfied only for the 72 hash-frozen routes whose target content, inbound links, retained evidence, and technical review pass CP16-F."
   },
   "max_hand_maintained_canonical_documents": 30,
   "document_classes": {
@@ -105,5 +107,32 @@
     "docs/PROFESSIONAL_REVIEW_INDEX.md": [],
     "docs/MICROSOFT_SUBMISSION_DOSSIER.md": [],
     "docs/INDEPENDENT_REVIEW_RECORD.md": []
+  },
+  "replacement_control": {
+    "schema_version": "dle.documentation-replacement-control.v1",
+    "reviewed_at": "2026-07-15",
+    "reviewed_by": "Codex implementation review under Kevin Herrera product-owner authority",
+    "review_scope": "Normative requirements, current decisions, operating procedures, retained evidence, technical accuracy, and active inbound links for every Phase 16 merge route",
+    "archive_root": "docs/archive/phase-16",
+    "target_reviews": {
+      "CONTRIBUTING.md": ["Code of Conduct", "Development Setup", "Contribution Workflow", "Coding Standards", "Security Requirements", "Pull Request Process"],
+      "docs/PRODUCT_REQUIREMENTS.md": ["Supported product boundary", "Explicit exclusions", "Functional requirements", "Data and lifecycle requirements", "Security, privacy, and AI requirements", "User experience acceptance", "Current acceptance status"],
+      "docs/INSTALLATION_GUIDE.md": ["Current distribution status", "Supported target", "Clean installation", "First-use acceptance", "Repair", "Upgrade", "Rollback", "Uninstall and data choice", "Updates", "Installation failures"],
+      "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md": ["Operating boundary", "Startup and readiness", "Required services", "Provider operations", "Backup", "Restore and disaster recovery", "Diagnostics, logs, and support bundles", "Client Gateway", "MCP connector operations", "Incident response"],
+      "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md": ["First rule: preserve the safety gate", "Before requesting help", "Diagnostics and local support bundle", "Common problems", "Reporting channels"],
+      "docs/PRIVACY_AI_NOTICE.md": ["Important current status", "Local-first does not mean air-gapped", "Data the application may process or retain", "OpenAI and Google processing", "MCP connectors and external tools", "Data protection", "Retention", "External telemetry", "AI purpose and limitations"],
+      "docs/ARCHITECTURE.md": ["Architecture overview", "High-level component map", "Core runtime stack", "DMRF control plane", "17-axis knowledge framework", "DSQP persona architecture", "Truth Engine architecture", "LLM Gateway architecture", "Data, storage, and memory architecture", "Frontend product architecture", "Local-first and desktop architecture", "API and route architecture", "Security architecture", "Observability and traceability", "Testing and release governance"],
+      "docs/DATA_ARCHITECTURE.md": ["Store responsibility map", "Required object namespaces", "Core data domains", "Classification and protection", "Migration and schema rules", "Backup, restore, and deletion", "Retention", "Integrity and reconciliation", "Validation status"],
+      "docs/INTERFACE_INTEGRATION.md": ["Interface boundary", "Version and route policy", "Authentication and authorization", "Governed request contract", "Client Gateway profiles", "Native request modes", "Rate, budget, retry, and cancellation", "MCP integration contract", "Private Windows gateway qualification boundary", "Integration acceptance"],
+      "docs/SECURITY_ARCHITECTURE.md": ["Security objective", "Trust boundaries", "Protected assets", "Identity and least authority", "Network and process controls", "Governed AI and content controls", "Data and secret protection", "Release and update trust", "Principal threats and controls", "Incident response", "Current assurance status"],
+      "docs/SOFTWARE_LIFECYCLE_PLAN.md": ["Lifecycle objective", "Authoritative configuration", "Change lifecycle", "Branch, review, and commit controls", "Verification pipeline", "Defect and vulnerability handling", "Release lifecycle", "Documentation lifecycle", "Maintenance and retirement", "Current status"],
+      "docs/DEVELOPER_GUIDE.md": ["Prerequisites", "Initial setup", "Required environment values", "Architecture orientation for developers", "Local run modes", "Build and packaging", "Daily testing workflow", "Repository structure", "Important backend areas", "Important frontend areas", "API development rules", "Data development rules", "Documentation maintenance"],
+      "docs/REQUIREMENTS_TRACEABILITY.md": ["Traceability rules", "Functional requirements", "Data and lifecycle requirements", "Security, privacy, and AI requirements", "Quality and release requirements", "Architecture and document coverage", "Findings and change control", "Overall status"],
+      "docs/VERIFICATION_VALIDATION_REPORT.md": ["V&V principles", "Verification levels", "Test domains and acceptance", "Current candidate evidence", "Phase evidence disposition", "Human and independent validation", "Performance and reliability validation", "Finding and retest policy", "Release decision"],
+      "docs/evaluation/AI_SYSTEM_CARD.md": ["Intended purpose and operating boundary", "Governed AI lifecycle", "Providers, models, cost, and quota controls", "Evaluation method", "Risk management and human oversight", "Known limitations and failure modes", "Current assurance disposition"],
+      "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": ["Assurance boundary", "Registry and classification", "KA validation controls", "DSQP and 17-axis boundary", "TruthCore and evidence model", "Phase 6 checkpoint evidence", "Evaluation protocol", "Human review", "Current disposition"],
+      "docs/THIRD_PARTY_SOFTWARE_INDEX.md": ["Current disposition", "Dependency authorities", "SBOM and inventory set", "Material runtime components", "Providers, models, connectors, and content", "Vulnerability and maintenance state", "Notice and redistribution approval gate"],
+      "docs/RELEASE_READINESS_RECORD.md": ["Current decision", "Candidate identity", "Gate summary", "Phase status", "Finding policy", "Required final evidence bundle", "GO authorization template"]
+    }
   }
 }

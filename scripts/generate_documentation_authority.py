@@ -263,6 +263,9 @@ def render_bom(authority: dict[str, Any], root: Path = ROOT) -> str:
 
 
 def render_crosswalk(inventory: dict[str, Any]) -> str:
+    archive_authorized = (
+        inventory.get("authority_status") == "approved_phase16_replacement_closed"
+    )
     lines = [
         "# Generated Documentation Disposition Crosswalk",
         "",
@@ -270,7 +273,12 @@ def render_crosswalk(inventory: dict[str, Any]) -> str:
         "",
         f"Status: `{inventory['status']}`. Manual review required: `{str(inventory['manual_review_required']).lower()}`.",
         "",
-        "No archive, merge, or deletion action is authorized by this draft alone.",
+        (
+            "The 72-route controlled archive is authorized only by the passing CP16-F "
+            "closure report; this generated crosswalk alone cannot authorize later moves."
+            if archive_authorized
+            else "No archive, merge, or deletion action is authorized by this draft alone."
+        ),
         "",
         "| Existing path | Class | Disposition | Target | Basis |",
         "|---|---|---|---|---|",

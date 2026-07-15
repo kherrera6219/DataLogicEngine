@@ -24,12 +24,12 @@ administration, audit, observability, and validation application.
 > **Current Status - Production completion program active; not a production release**
 > DataLogicEngine is available for local engineering evaluation and architecture
 > validation. Phases 0-2 and the Phase 3-15 engineering checkpoints are complete;
-> Phase 16 controlled-document replacement is active: CP16-A information
-> architecture and the CP16-B product/user content checkpoint are complete, with
-> the signed-RC unfamiliar-user walkthrough retained; the first CP16-C
-> engineering/assurance content set is complete with installed/manual evidence
-> retained; CP16-D/CP16-E external-review content is complete with policy and
-> reviewer acceptance retained, and CP16-F replacement closure is active.
+> Phase 16 CP16-F controlled-document replacement is complete: all 72 routed
+> sources are hash-frozen, link-migrated, technically reviewed, and retained
+> intact under the historical archive; all 30 canonical targets pass their
+> controls across the exact 154-file inventory. CP16-G signed-artifact binding
+> and the installed/manual/external exits remain retained. Phase 17 authority,
+> archive, generated-parity, and zero-warning consolidation is active.
 > The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
 > backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
 > passes 2,177 backend tests and the full hashed Windows dependency install.
@@ -116,8 +116,12 @@ Current production-completion focus:
   image follow-up; critical ChromaDB alert 389 remains release-blocking;
   the ChromaDB no-fix advisory remains release-blocking despite its documented
   audit suppression
-- Phase 16 CP16-F source replacement, link migration, retained-evidence verification, and archive proposal after all 30 canonical targets were created
-- Approved 154-file disposition crosswalk: exactly 30 existing canonical targets with verified headers, zero unclassified files, and no archive/delete action until full link/content/evidence verification passes
+- Completed Phase 16 CP16-F source replacement: 72/72 retained hashes, zero
+  active legacy sources, zero unmigrated links, and 18/18 routed target reviews
+- Approved and executed 154-file disposition crosswalk: exactly 30 canonical
+  targets with verified headers and zero unclassified or duplicate routes
+- Phase 17 active-authority, historical-archive, generated-parity, and zero-
+  warning documentation lock; clean installed walkthrough retained
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
@@ -339,7 +343,7 @@ $env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires the approved publisher, protected signing boundary, and release checklist in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md).
+`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires the approved publisher, protected signing boundary, and release checklist in [`docs/PRODUCTION_READINESS.md`](docs/VERIFICATION_VALIDATION_REPORT.md).
 The stale local `Latest` artifact is not a release candidate.
 
 The desktop build produces these root artifacts:
@@ -510,7 +514,7 @@ and deletion workflows remain mediated and audited by DataLogicEngine.
 | USKD NetworkX and other working state | Bounded materialized runtime state loaded from a durable revision; never a silent replacement for a required service |
 | SQLite, JSON, or filesystem fallbacks | Bootstrap, development, staging, or repair only unless a separately approved parity decision changes the contract |
 
-See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the full data architecture reference.
+See [`docs/DATABASE_SCHEMA.md`](docs/DATA_ARCHITECTURE.md) for the full data architecture reference.
 
 ## Installation
 
@@ -738,8 +742,8 @@ and claim metadata, warnings, and a typed failure when applicable. Missing
 confidence is returned as null rather than replaced with a plausible default.
 The deprecated `run_ukg_pipeline` field is ignored as a bypass control: every
 accepted answer request remains governed. See
-[`docs/API.md`](docs/API.md) for the current route documentation and
-[`docs/GATEWAY_COMPATIBILITY.md`](docs/GATEWAY_COMPATIBILITY.md) for the exact
+[`docs/API.md`](docs/INTERFACE_INTEGRATION.md) for the current route documentation and
+[`docs/GATEWAY_COMPATIBILITY.md`](docs/INTERFACE_INTEGRATION.md) for the exact
 compatibility boundary and
 [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md) for
 remaining installed acceptance gates.
@@ -833,10 +837,10 @@ gates in the production completion plan.
 Security references:
 
 - [`SECURITY.md`](SECURITY.md)
-- [`docs/SECURITY.md`](docs/SECURITY.md)
-- [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/AI_MANAGEMENT_SYSTEM_42001.md)
-- [`docs/SDLC_SSDF_MAPPING.md`](docs/SDLC_SSDF_MAPPING.md)
-- [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/SLSA_LEVEL_3_ATTESTATION.md)
+- [`docs/SECURITY.md`](docs/SECURITY_ARCHITECTURE.md)
+- [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/evaluation/AI_SYSTEM_CARD.md)
+- [`docs/SDLC_SSDF_MAPPING.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/THIRD_PARTY_SOFTWARE_INDEX.md)
 
 **🔒 Report Security Issues Privately:**
 
@@ -906,12 +910,12 @@ npm --prefix frontend audit --audit-level=high
 
 ### Documentation
 
-- **Setup & Configuration**: [`DEVELOPMENT.md`](DEVELOPMENT.md), [`.env.template`](.env.template)
+- **Setup & Configuration**: [`DEVELOPMENT.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md), [`.env.template`](.env.template)
 - **Production Completion**: [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md)
 - **Design/Implementation Baseline**: [`docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`](docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md)
 - **Installation and Operations**: [`docs/INSTALLATION_GUIDE.md`](docs/INSTALLATION_GUIDE.md), [`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md)
-- **Testing**: [`TESTING.md`](TESTING.md)
-- **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
+- **Testing**: [`TESTING.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
+- **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
 - **Support**: [`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`](docs/TROUBLESHOOTING_SUPPORT_GUIDE.md)
 
 ### Community & Support
@@ -933,10 +937,10 @@ Contributions are welcome when they align with the project license and governanc
 
 Development references:
 
-- [`DEVELOPMENT.md`](DEVELOPMENT.md)
-- [`TESTING.md`](TESTING.md)
+- [`DEVELOPMENT.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
+- [`TESTING.md`](docs/VERIFICATION_VALIDATION_REPORT.md)
 - [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
-- [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
+- [`docs/DOCUMENTATION_STANDARDS.md`](docs/SOFTWARE_LIFECYCLE_PLAN.md)
 
 ## License
 
