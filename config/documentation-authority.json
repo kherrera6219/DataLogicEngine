@@ -1,7 +1,15 @@
 {
   "schema_version": "dle.documentation-authority.v1",
-  "program_version": "2026.07.14-draft1",
-  "status": "draft_phase16_information_architecture",
+  "program_version": "2026.07.14-approved1",
+  "status": "approved_phase16_information_architecture",
+  "approval": {
+    "status": "approved",
+    "owner": "Kevin Herrera",
+    "approved_at": "2026-07-14",
+    "scope": "document classes, canonical set, IDs, owners, vocabulary, and source-to-target dispositions",
+    "archive_delete_authorized": false,
+    "archive_delete_condition": "Target content, inbound links, retained evidence, and technical review must pass before each move or deletion."
+  },
   "max_hand_maintained_canonical_documents": 30,
   "document_classes": {
     "product_public": "Product and public documentation",

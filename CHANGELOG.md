@@ -1,5 +1,23 @@
 # Changelog
 
+## Document control
+
+| Field | Value |
+|---|---|
+| Document ID | DLE-ROOT-002 |
+| Title | Product change log |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Users, operators, integrators, maintainers, and release reviewers |
+| Owner | Release Engineering |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Merged source history, release manifests, and validated phase evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
+| Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -8,11 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Phase 16 documentation authority foundation**: selected an exact 30-document
-  canonical target across five classes, generated a controlled BOM and complete
-  134-file old-to-new crosswalk, and added enforcement for the cap, unique IDs/
-  paths, valid classes, complete coverage, and canonical merge targets. The map
-  remains draft and performs no archive or deletion.
+- **Phase 16 CP16-A documentation authority checkpoint**: owner-approved the exact
+  30-document canonical target across five classes, generated a controlled BOM
+  and complete 134-file old-to-new crosswalk, applied the required 13-field
+  header to all ten existing canonical documents, and added enforcement for
+  approval, product version, status, identity, ownership, cap, paths, classes,
+  coverage, and merge targets. Archive/delete authority remains fail-closed.
 - **Phase 15 release-candidate engineering checkpoint**: froze product 4.3.0
   candidate inputs in `f2e4174f`, separated unsigned qualification from
   production signing/authority, added a candidate-only release-channel policy,

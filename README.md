@@ -1,5 +1,23 @@
 # DataLogicEngine
 
+## Document control
+
+| Field | Value |
+|---|---|
+| Document ID | DLE-ROOT-001 |
+| Title | Product entry point |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | release_blocked |
+| Audience | Users, evaluators, integrators, and professional reviewers |
+| Owner | Product Engineering |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
+| Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
+
 Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
@@ -78,8 +96,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 16 controlled 30-or-fewer production-document set, documentation BOM/crosswalk, and professional/Microsoft review dossier
-- Review of the 134-file draft disposition crosswalk: exactly 30 canonical targets, zero unclassified files, and no archive/delete action until link/content verification passes
+- Phase 16 CP16-B product/user documentation set and professional/Microsoft review dossier, after owner-approved CP16-A information architecture
+- Approved 134-file disposition crosswalk: exactly 30 canonical targets, verified headers on all ten existing targets, zero unclassified files, and no archive/delete action until link/content verification passes
 - Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance

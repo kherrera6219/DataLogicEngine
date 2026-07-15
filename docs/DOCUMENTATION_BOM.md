@@ -5,11 +5,12 @@
 
 ## Control status
 
-- Authority version: `2026.07.14-draft1`
-- Status: `draft_phase16_information_architecture`
+- Authority version: `2026.07.14-approved1`
+- Status: `approved_phase16_information_architecture`
 - Canonical limit: `30`
 - Selected canonical documents: `30`
-- Approval: draft information architecture; final owner/reviewer approval remains required.
+- Approval: `approved` by `Kevin Herrera` on `2026-07-14`.
+- Archive/delete authorized: `false`.
 
 ## Canonical hand-maintained set
 

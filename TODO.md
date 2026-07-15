@@ -1,12 +1,23 @@
 # DataLogicEngine Production TODO
 
-## Document status
+## Document control
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-07-14 |
-| Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.14.0 |
+| Document ID | DLE-ROOT-005 |
+| Title | Open production work and release blockers |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | release_blocked |
+| Audience | Product owner, engineering, assurance, and release reviewers |
+| Owner | Production Program Owner |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
+| Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.15.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release decision | Production/public release: **NO-GO** |
@@ -17,15 +28,18 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
-- Phase 16 information architecture now inventories all 134 root and `docs/**`
-  Markdown files with zero unclassified files and zero duplicate merge routes.
-- The draft canonical set is exactly 30 hand-maintained documents across five
+- Phase 16 CP16-A is owner-approved and complete. The information architecture
+  inventories all 134 root and `docs/**` Markdown files with zero unclassified
+  files and zero duplicate merge routes.
+- The approved canonical set is exactly 30 hand-maintained documents across five
   classes: 10 existing and 20 planned. Generated BOM/crosswalk controls do not
   count against the cap.
-- The draft disposition totals are 14 authoritative inputs, five generated
+- The approved disposition totals are 14 authoritative inputs, five generated
   replacements, 43 historical/archive records, and 72 merge routes. No move,
   archive, or deletion is authorized until target and link review passes.
-- The BOM generator, verifier, and four focused unit tests pass.
+- All ten existing canonical documents now carry the required controlled header;
+  the authority verifier passes IDs, owners, approver, product version, status,
+  and all 13 fields. The two verifiers and five focused unit tests pass.
 - Phase 15 reached its release-candidate engineering checkpoint on 2026-07-14.
   Evidence is under `reports/production-readiness/2026/phase-15/`; CP15-A
   through CP15-H remain installed/signed/manual release gates.
@@ -571,7 +585,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
-| 16 | Production documentation replacement and professional review dossier | **Active** |
+| 16 | Production documentation replacement and professional review dossier | **CP16-A complete 2026-07-14; CP16-B active** |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
 | 18 | Production launch and maintenance | Blocked by prior phases |
 
@@ -591,11 +605,13 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Review the complete Phase 16 source-to-target map, correct any disposition that
-cannot preserve verified requirements/decisions/evidence, and approve the
-information architecture. Then apply the controlled header to the ten existing
-canonical documents, implement the document-authority verifier, and begin the 20
-planned target documents with link migration before any archive/delete pass.
+Build and verify the first CP16-B canonical product/user set:
+`docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
+Preserve mapped requirements, decisions, limitations, and evidence, then migrate
+inbound links only after target review. No source archive/delete is authorized
+until target content and link verification pass.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 alert 389, legal/distribution NO-GO, automatic-update disablement, and SeaweedFS

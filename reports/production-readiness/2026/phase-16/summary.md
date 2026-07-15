@@ -1,14 +1,15 @@
-# Phase 16 information-architecture starter checkpoint
+# Phase 16 CP16-A information-architecture checkpoint
 
 ## Status
 
-Phase 16 is active. The information-architecture foundation is implemented and
-validated as a draft. CP16-A is not yet approved, and no document move, archive,
-merge deletion, or authority retirement is authorized by this batch.
+Phase 16 is active and CP16-A is owner-approved and complete. The approval covers
+the information architecture, canonical set, IDs, ownership, controlled status
+vocabulary, required headers, and complete source-to-target map. It does not
+authorize any document move, archive, merge deletion, or authority retirement.
 
 ## Results
 
-- One versioned authority selects exactly 30 hand-maintained canonical documents
+- One approved versioned authority selects exactly 30 hand-maintained canonical documents
   across five controlled classes.
 - Ten canonical targets exist; 20 are planned replacement documents.
 - Every one of the 134 current root and `docs/**` Markdown files has exactly one
@@ -21,12 +22,16 @@ merge deletion, or authority retirement is authorized by this batch.
   controlled-header fields, and truthful status vocabulary.
 - The generated crosswalk explicitly states that it does not authorize archive
   or deletion before manual route/content/link review.
+- All ten existing canonical documents contain the required 13-field controlled
+  header, exact document ID, product 4.3.0 binding, controlled status, owner, and
+  owner approver. Twenty canonical targets remain planned.
 
 ## Controls added
 
 - `config/documentation-authority.json`
 - `scripts/generate_documentation_authority.py`
 - `scripts/verify_documentation_bom.py`
+- `scripts/verify_doc_authority.py`
 - `docs/DOCUMENTATION_BOM.md`
 - `docs/DOCUMENTATION_CROSSWALK.md`
 - `tests/unit/test_documentation_authority.py`
@@ -35,12 +40,14 @@ merge deletion, or authority retirement is authorized by this batch.
 
 - Documentation BOM verification: pass, 30/30 canonical, 134 inventory rows,
   zero errors.
-- Four focused documentation-authority unit tests passed.
-- Ruff passed for the generator, verifier, and tests.
+- Document authority verification: pass, 10/10 existing headers, 20 planned,
+  archive/delete authorization false, zero errors.
+- Five focused documentation-authority unit tests passed.
+- Ruff passed for the generator, both verifiers, and tests.
 
 ## Next
 
-Review and approve or correct each route, apply controlled headers to existing
-canonical documents, implement the broader document-authority verifier, create
-the 20 planned targets from verified sources, migrate inbound links, and only
-then begin controlled archive/delete work.
+Begin CP16-B with the product requirements, installation, administrator/
+operations, troubleshooting/support, and privacy/AI notice targets. Preserve
+mapped requirements, decisions, limitations, and evidence; migrate inbound links
+after target review, and only then begin controlled archive/delete work.

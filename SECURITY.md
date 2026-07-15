@@ -1,15 +1,22 @@
 # Security Policy
 
-## Document metadata
+## Document control
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
-| Status | Active |
-| Classification | Public |
+| Document ID | DLE-ROOT-003 |
+| Title | Vulnerability reporting and disclosure policy |
+| Document version | v2.7.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Security researchers, users, maintainers, and release reviewers |
 | Owner | Security Engineering |
-| Review cadence | Every 30 days |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Security policy, supported-version authority, and release-risk records |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Supported-version, reporting, threat, or disclosure-process change |
+| Requirements and evidence | `docs/SECURITY.md`, `docs/THREAT_MODEL.md`, and security workflow evidence |
 
 ## Purpose
 

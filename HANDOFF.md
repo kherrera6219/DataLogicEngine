@@ -1,12 +1,23 @@
 # DataLogicEngine Session Handoff
 
-## Document status
+## Document control
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-07-14 |
-| Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.14.0 |
+| Document ID | DLE-ROOT-006 |
+| Title | Current checkpoint and next action |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Product owner, maintainers, release reviewers, and the next execution session |
+| Owner | Production Program Owner |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
+| Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.15.0 |
 | Completed phase | Phase 15 release-candidate engineering checkpoint; installed exit gates retained |
 | Current phase | Phase 16 - production documentation replacement and professional review dossier |
 | Release verdict | Production/public release: **NO-GO** |
@@ -474,9 +485,9 @@ security/privacy, accessibility/document walkthrough, human pilot, and gateway
 interoperability. Evidence is under
 `reports/production-readiness/2026/phase-15/`.
 
-## Phase 16 information-architecture batch
+## Phase 16 CP16-A information-architecture checkpoint
 
-The first Phase 16 batch inventories all 134 root and `docs/**` Markdown files.
+The Phase 16 authority inventories all 134 root and `docs/**` Markdown files.
 `config/documentation-authority.json` selects exactly 30 hand-maintained
 canonical targets in the five approved classes: 10 exist and 20 are planned.
 The generated BOM defines IDs, owners, required headers, and controlled status
@@ -484,20 +495,22 @@ language. The generated crosswalk assigns 14 authoritative inputs, five
 generated replacements, 43 historical/archive records, and 72 merge routes,
 with zero unclassified files and zero duplicate routes.
 
-The BOM verifier and four focused unit tests pass. The crosswalk remains draft
-and authorizes no archive/delete action. CP16-A remains open for owner/technical
-review, controlled-header application, target-source verification, and approval.
+The owner-approved map, BOM verifier, document-authority verifier, and five
+focused unit tests pass. Every existing canonical document has its exact ID,
+owner, approver, product version, controlled status, and required 13-field
+header. CP16-A is complete. Archive/delete authorization remains false until
+each target, retained evidence, inbound link, and technical review passes.
 Evidence is under `reports/production-readiness/2026/phase-16/`.
 
 ## Exact next action
 
-1. Review and approve or correct every draft source-to-target route in the
-   generated crosswalk.
-2. Apply the controlled header to the ten existing canonical documents and add
-   the authority verifier without weakening truthful status language.
-3. Build the 20 planned canonical targets from verified requirements, code,
-   generated contracts, and evidence; migrate links before any archive pass.
-4. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
+1. Build and verify the first CP16-B product/user targets:
+   `docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
+   `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+   `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
+2. Preserve mapped requirements, decisions, limitations, and evidence; migrate
+   inbound links only after target review and do not archive/delete sources yet.
+3. Preserve CP15-A through CP15-H, production signing/distribution NO-GO, alert
    389, automatic-update disablement, and SeaweedFS candidate-only status until
    their required installed and independent evidence exists.
 

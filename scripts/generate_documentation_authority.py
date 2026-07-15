@@ -176,13 +176,17 @@ def build_inventory(authority: dict[str, Any], root: Path = ROOT) -> dict[str, A
 
     dispositions = Counter(row["disposition"].split(" ")[0] for row in rows)
     unclassified = [row["path"] for row in rows if row["disposition"] == "unclassified"]
+    authority_approved = authority.get("approval", {}).get("status") == "approved"
+    inventory_status = (
+        "approved_map_pass" if authority_approved else "draft_pass"
+    ) if not unclassified and not duplicate_routes else "fail"
     return {
         "schema_version": "dle.documentation-disposition-inventory.v1",
         "generated_at": datetime.now(UTC).isoformat(),
         "authority_version": authority["program_version"],
         "authority_status": authority["status"],
         "manual_review_required": True,
-        "status": "draft_pass" if not unclassified and not duplicate_routes else "fail",
+        "status": inventory_status,
         "summary": {
             "markdown_file_count": len(rows),
             "canonical_document_count": len(canonical),
@@ -216,7 +220,15 @@ def render_bom(authority: dict[str, Any], root: Path = ROOT) -> str:
         f"- Status: `{authority['status']}`",
         f"- Canonical limit: `{authority['max_hand_maintained_canonical_documents']}`",
         f"- Selected canonical documents: `{len(authority['canonical_documents'])}`",
-        "- Approval: draft information architecture; final owner/reviewer approval remains required.",
+        (
+            f"- Approval: `{authority.get('approval', {}).get('status', 'pending')}` by "
+            f"`{authority.get('approval', {}).get('owner', 'unassigned')}` on "
+            f"`{authority.get('approval', {}).get('approved_at', 'not recorded')}`."
+        ),
+        (
+            "- Archive/delete authorized: `"
+            f"{str(authority.get('approval', {}).get('archive_delete_authorized', False)).lower()}`."
+        ),
         "",
         "## Canonical hand-maintained set",
         "",
@@ -290,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
         f"canonical={inventory['summary']['canonical_document_count']} "
         f"unclassified={inventory['summary']['unclassified_count']}"
     )
-    return 0 if inventory["status"] == "draft_pass" else 1
+    return 0 if inventory["status"].endswith("_pass") else 1
 
 
 if __name__ == "__main__":

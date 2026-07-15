@@ -1,14 +1,22 @@
 # DataLogicEngine Developer Guide
 
-## Document metadata
+## Document control
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
-| Status | Active |
-| Owner | Developer Experience |
-| Review cadence | Every 30 days |
+| Document ID | DLE-ENG-006 |
+| Title | Developer build, test, packaging, and reproducibility guide |
+| Document version | v2.8.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
+| Owner | Platform Engineering |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
+| Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
 ## Purpose
 

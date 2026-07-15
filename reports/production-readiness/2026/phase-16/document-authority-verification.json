@@ -1,0 +1,214 @@
+{
+  "schema_version": "dle.document-authority-verification.v1",
+  "generated_at": "2026-07-15T06:49:39.229050+00:00",
+  "authority_version": "2026.07.14-approved1",
+  "product_version": "4.3.0",
+  "status": "pass",
+  "existing_canonical_count": 10,
+  "planned_canonical_count": 20,
+  "controlled_header_pass_count": 10,
+  "archive_delete_authorized": false,
+  "errors": [],
+  "documents": [
+    {
+      "id": "DLE-ROOT-001",
+      "path": "README.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ROOT-002",
+      "path": "CHANGELOG.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ROOT-003",
+      "path": "SECURITY.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ROOT-004",
+      "path": "CONTRIBUTING.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ROOT-005",
+      "path": "TODO.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ROOT-006",
+      "path": "HANDOFF.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-PROD-001",
+      "path": "docs/PRODUCT_REQUIREMENTS.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-USER-001",
+      "path": "docs/USER_GUIDE.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-USER-002",
+      "path": "docs/INSTALLATION_GUIDE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-USER-003",
+      "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-USER-004",
+      "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-USER-005",
+      "path": "docs/PRIVACY_AI_NOTICE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ENG-001",
+      "path": "docs/ARCHITECTURE.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ENG-002",
+      "path": "docs/DATA_ARCHITECTURE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ENG-003",
+      "path": "docs/INTERFACE_INTEGRATION.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ENG-004",
+      "path": "docs/SECURITY_ARCHITECTURE.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ENG-005",
+      "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ENG-006",
+      "path": "docs/DEVELOPER_GUIDE.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ENG-007",
+      "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-001",
+      "path": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-002",
+      "path": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-003",
+      "path": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "state": "existing",
+      "header_status": "pass",
+      "missing_fields": [],
+      "errors": []
+    },
+    {
+      "id": "DLE-ASR-004",
+      "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-005",
+      "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-006",
+      "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-007",
+      "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-ASR-008",
+      "path": "docs/RELEASE_READINESS_RECORD.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-EXT-001",
+      "path": "docs/PROFESSIONAL_REVIEW_INDEX.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-EXT-002",
+      "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    },
+    {
+      "id": "DLE-EXT-003",
+      "path": "docs/INDEPENDENT_REVIEW_RECORD.md",
+      "state": "planned",
+      "header_status": "not_applicable_until_created"
+    }
+  ]
+}

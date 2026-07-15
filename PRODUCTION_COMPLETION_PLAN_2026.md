@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.14.0 |
+| Document version | v1.15.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -110,6 +110,15 @@ high-contrast/visual checks, and manual NVDA acceptance likewise remain open.
 Phase 13 installed multi-process/store correlation, complete failure injection,
 all-output redaction/no-egress, support workflow, and 24/72-hour soak acceptance
 likewise remain open.
+
+Phase 16 CP16-A is complete on 2026-07-14. The owner-approved information
+architecture selects exactly 30 canonical hand-maintained documents across five
+classes, assigns all 134 current Markdown files one source-to-target disposition,
+and applies verified controlled headers to all ten existing canonical documents.
+The approved map does not authorize archive or deletion: CP16-B product/user
+document construction and link migration are active, while replacement actions
+remain fail-closed until their targets, evidence, and inbound links pass review.
+
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -3176,13 +3185,13 @@ contracts, test evidence, and the signed release candidate; then it merges,
 archives, or deletes the superseded material. External review readiness must not
 change or remove PostgreSQL, Redis, Neo4j, ChromaDB, or MinIO responsibilities.
 
-### Initial information-architecture batch - 2026-07-14
+### CP16-A information-architecture checkpoint - complete 2026-07-14
 
 `config/documentation-authority.json` now selects the exact 30-document target
 set across the five controlled classes. The generated bill of materials records
 10 existing and 20 planned canonical documents, their IDs, owners, classes, and
-required controlled-header/status vocabulary. The generated crosswalk assigns
-all 134 current root and `docs/**` Markdown files exactly one draft disposition:
+required controlled-header/status vocabulary. The owner-approved crosswalk assigns
+all 134 current root and `docs/**` Markdown files exactly one disposition:
 14 authoritative inputs, five generated replacements, 43 historical/archive
 records, and 72 merge routes. No file is unclassified and no merge route is
 duplicated.
@@ -3190,9 +3199,15 @@ duplicated.
 `scripts/generate_documentation_authority.py` owns the BOM, crosswalk, and
 machine-readable inventory. `scripts/verify_documentation_bom.py` enforces the
 30-document cap, unique IDs/paths, complete inventory coverage, valid classes,
-and canonical merge targets. This batch is a draft information architecture,
-not CP16-A approval: no file is authorized for move, archive, or deletion until
-the map is reviewed and the target content/link migration is proved.
+and canonical merge targets. `scripts/verify_doc_authority.py` proves the
+approval boundary, product-version binding, controlled vocabulary, exact IDs,
+owners, approver, and all required header fields. Its verification passes for
+all ten existing canonical documents; 20 targets remain planned.
+
+CP16-A is approved and complete. This approval covers the classes, cap, IDs,
+owners, vocabulary, and source-to-target dispositions only. Archive/delete
+authorization remains false until target content, retained evidence, inbound
+links, and technical review pass for each replacement.
 
 ### 24.1 Documentation architecture and controls
 
@@ -3443,9 +3458,10 @@ adapted, not applicable, or independently assessed. Initial references are:
 
 ### Checkpoints
 
-- **CP16-A - Information architecture:** the controlled classes, 30-document cap,
-  templates, vocabulary, IDs, owners, and old-to-new disposition map are approved.
-- **CP16-B - Product/user set:** an unfamiliar supported user can install,
+- **CP16-A - Information architecture - complete 2026-07-14:** the controlled
+  classes, 30-document cap, templates, vocabulary, IDs, owners, controlled
+  headers, and old-to-new disposition map are approved and machine-verified.
+- **CP16-B - Product/user set - active:** an unfamiliar supported user can install,
   configure, use, recover, update, and uninstall the signed RC using only the
   public/user/operations documents.
 - **CP16-C - Engineering and assurance set:** requirements, architecture, data,
@@ -4006,11 +4022,13 @@ exit gate.
 
 ## 32. Immediate next action
 
-Begin **Phase 16** by inventorying every root and `docs/**` Markdown file,
-assigning its controlled document class and old-to-new disposition, and
-establishing the 30-or-fewer hand-maintained canonical set plus generated
-documentation bill of materials. Build the controlled vocabulary, document
-header, ownership, and approval rules before merging or archiving content.
+Continue **Phase 16 CP16-B** by creating and verifying the canonical product and
+user set: `docs/PRODUCT_REQUIREMENTS.md`, `docs/INSTALLATION_GUIDE.md`,
+`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`,
+`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`, and `docs/PRIVACY_AI_NOTICE.md`.
+Preserve requirements, decisions, limitations, and evidence from their mapped
+sources; migrate inbound links only after target review. Do not archive or
+delete a source until its target, evidence retention, and link scan pass.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

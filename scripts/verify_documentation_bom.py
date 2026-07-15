@@ -9,15 +9,26 @@ import json
 from pathlib import Path
 from typing import Any
 
-from generate_documentation_authority import (
-    DEFAULT_BOM,
-    DEFAULT_CONFIG,
-    DEFAULT_CROSSWALK,
-    DEFAULT_REPORT,
-    ROOT,
-    load_authority,
-    markdown_paths,
-)
+try:
+    from generate_documentation_authority import (
+        DEFAULT_BOM,
+        DEFAULT_CONFIG,
+        DEFAULT_CROSSWALK,
+        DEFAULT_REPORT,
+        ROOT,
+        load_authority,
+        markdown_paths,
+    )
+except ModuleNotFoundError:  # Imported as scripts.verify_documentation_bom in tests.
+    from scripts.generate_documentation_authority import (
+        DEFAULT_BOM,
+        DEFAULT_CONFIG,
+        DEFAULT_CROSSWALK,
+        DEFAULT_REPORT,
+        ROOT,
+        load_authority,
+        markdown_paths,
+    )
 
 
 DEFAULT_VERIFICATION = (

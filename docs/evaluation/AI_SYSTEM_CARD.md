@@ -1,5 +1,23 @@
 # DataLogicEngine AI system card
 
+## Document control
+
+| Field | Value |
+|---|---|
+| Document ID | DLE-ASR-003 |
+| Title | AI system card and evaluation report |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | release_blocked |
+| Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
+| Owner | AI Assurance |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
+| Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
+
 DataLogicEngine is an app-owned governed reasoning and evidence-trace system for
 desktop chat, retrieval, structured analysis, and auditable Knowledge Algorithm
 workflows. It is intended to help a human examine supplied information and the

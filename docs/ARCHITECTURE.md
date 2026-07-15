@@ -1,14 +1,22 @@
 # Universal Knowledge Graph (UKG) System Architecture
 
-## Document metadata
+## Document control
 
 | Field | Value |
 |---|---|
-| Document version | v4.5.0 |
-| Last updated | 2026-07-14 |
-| Status | Active |
-| Owner | Platform Architecture |
-| Review cadence | Every 60 days |
+| Document ID | DLE-ENG-001 |
+| Title | System architecture description |
+| Document version | v4.6.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
+| Owner | Architecture |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
+| Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
 ## Purpose
 

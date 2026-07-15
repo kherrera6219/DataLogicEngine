@@ -6,6 +6,7 @@ from scripts.generate_documentation_authority import (
     load_authority,
     markdown_paths,
 )
+from scripts.verify_doc_authority import verify as verify_doc_authority
 
 
 def test_phase16_canonical_set_is_exactly_thirty_with_unique_ids_and_paths():
@@ -22,7 +23,7 @@ def test_every_root_and_docs_markdown_has_one_disposition():
     assert [row["path"] for row in inventory["documents"]] == markdown_paths(ROOT)
     assert inventory["unclassified"] == []
     assert inventory["duplicate_routes"] == []
-    assert inventory["status"] == "draft_pass"
+    assert inventory["status"].endswith("_pass")
 
 
 def test_every_merge_target_is_in_the_canonical_set():
@@ -44,3 +45,12 @@ def test_no_canonical_document_is_routed_as_historical_or_merge_input():
     for path in canonical & set(rows):
         assert rows[path]["disposition"] == "authoritative input"
         assert rows[path]["cap_counted"] is True
+
+
+def test_existing_canonical_documents_have_controlled_headers():
+    result = verify_doc_authority(load_authority())
+    assert result["status"] == "pass"
+    assert result["existing_canonical_count"] == 10
+    assert result["controlled_header_pass_count"] == 10
+    assert result["planned_canonical_count"] == 20
+    assert result["archive_delete_authorized"] is False

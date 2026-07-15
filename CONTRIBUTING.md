@@ -1,13 +1,22 @@
 # Contributing to DataLogicEngine
 
-**Document Control**
+## Document control
 
 | Field | Value |
-|-------|-------|
+|---|---|
+| Document ID | DLE-ROOT-004 |
+| Title | Contribution controls |
+| Document version | v1.0.0 |
+| Product version | 4.3.0 |
+| Status | active |
+| Audience | Contributors, maintainers, and reviewers |
 | Owner | Platform Engineering |
-| Last Updated | March 2026 |
-| Status | Active |
-| Review Cadence | Every 30 days |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Repository governance, branch protections, and required validation workflows |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | Contribution workflow, toolchain, branch, or validation-gate change |
+| Requirements and evidence | CI workflows, root plan, and `docs/DEVELOPER_GUIDE.md` |
 
 ---
 

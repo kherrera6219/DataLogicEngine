@@ -1,14 +1,22 @@
 # DataLogicEngine User Guide
 
-## Document metadata
+## Document control
 
 | Field | Value |
 |---|---|
-| Document version | v3.5.0 |
-| Last updated | 2026-07-14 |
-| Status | Active |
-| Owner | Product Operations |
-| Review cadence | Every 30 days |
+| Document ID | DLE-USER-001 |
+| Title | User guide |
+| Document version | v3.6.0 |
+| Product version | 4.3.0 |
+| Status | release_blocked |
+| Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
+| Owner | Product Engineering |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-07-14 |
+| Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
+| Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
 ## Purpose
 

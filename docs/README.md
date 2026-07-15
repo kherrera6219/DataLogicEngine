@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.26.0 |
+| Document version | v2.27.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -52,12 +52,13 @@ generated contracts/evidence and a professional/Microsoft review dossier; Phase
 below remain transitional authorities only until the Phase 16 old-to-new
 crosswalk records their merge, generated replacement, archive, or deletion.
 
-The first Phase 16 inventory is now generated from
-`config/documentation-authority.json`: all 134 root and documentation-tree Markdown files
-have one draft disposition, and the selected canonical set is exactly 30
-hand-maintained documents (10 existing, 20 planned). See
-`docs/DOCUMENTATION_BOM.md` and `docs/DOCUMENTATION_CROSSWALK.md`. The map remains
-draft and authorizes no archive or deletion until reviewed.
+The Phase 16 inventory is generated from `config/documentation-authority.json`:
+all 134 root and documentation-tree Markdown files have one owner-approved
+disposition, and the selected canonical set is exactly 30 hand-maintained
+documents (10 existing, 20 planned). All ten existing canonical documents pass
+the controlled-header verifier. See `docs/DOCUMENTATION_BOM.md` and
+`docs/DOCUMENTATION_CROSSWALK.md`. CP16-A is complete and CP16-B is active; the
+approval authorizes no archive or deletion until target content and links pass.
 
 ---
 
