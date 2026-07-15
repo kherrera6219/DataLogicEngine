@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from backend.storage.managed_restore import restore_managed_backup_offline  # noqa: E402
+from backend.product_version import PRODUCT_VERSION  # noqa: E402
 
 
 def main() -> int:
@@ -25,7 +26,7 @@ def main() -> int:
         type=Path,
         default=ROOT / "deploy" / "internal-data-plane.candidate-lock.json",
     )
-    parser.add_argument("--product-version", default="0.1.1")
+    parser.add_argument("--product-version", default=PRODUCT_VERSION)
     parser.add_argument("--profile", choices=("qualification", "production"), default="qualification")
     parser.add_argument("--runtime", default="podman")
     args = parser.parse_args()

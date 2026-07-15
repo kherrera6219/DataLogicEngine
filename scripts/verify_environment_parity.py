@@ -120,7 +120,8 @@ def _check_required_files() -> list[Finding]:
     findings: list[Finding] = []
     required_paths = [
         ROOT / "requirements.txt",
-        ROOT / "uv.lock",
+        ROOT / "requirements.lock",
+        ROOT / "config" / "dependency-authority.json",
         ROOT / "frontend" / "package-lock.json",
         ROOT / ".github" / "workflows" / "ci.yml",
         ROOT / ".env.template",

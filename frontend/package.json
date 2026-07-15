@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.1.1",
+  "version": "4.3.0",
   "description": "Local-first AI orchestration and knowledge-graph workspace for desktop and web",
   "author": "Kevin Herrera",
   "private": true,
@@ -61,6 +61,7 @@
   "devDependencies": {
     "@axe-core/cli": "^4.11.0",
     "@chromatic-com/storybook": "3.2.3",
+    "@cyclonedx/cyclonedx-npm": "6.0.0",
     "@next/bundle-analyzer": "^16.2.6",
     "@playwright/test": "^1.58.1",
     "@storybook/addon-a11y": "^8.6.18",
@@ -88,7 +89,7 @@
     "@vitest/coverage-v8": "^4.1.8",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "electron": "^40.0.0",
+    "electron": "43.1.1",
     "electron-builder": "^26.7.0",
     "electron-store": "^11.0.2",
     "eslint": "^9",

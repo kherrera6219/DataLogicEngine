@@ -15,17 +15,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pip-audit
+        pip install pip-audit==2.10.0
 
     - name: Run pip-audit on locked requirements
       # CVE-2025-3000: memory corruption in torch.jit.script, local-host attack
@@ -35,10 +34,11 @@ jobs:
       # revisit when an upstream fix ships. See TODO.md "CI And Security Evidence".
       # CVE-2026-12243: nltk path traversal, no patch available for 3.9.x yet.
       run: |
-        pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
+        pip-audit -r requirements.lock --desc --format json --output pip-audit-report.json --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
 
     - name: Upload dependency scan report
-      uses: actions/upload-artifact@v4
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: pip-audit-report
         path: pip-audit-report.json
@@ -48,10 +48,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
 
@@ -65,14 +65,16 @@ jobs:
       run: |
         cd frontend
         npm ci
-        # || true: npm audit exits non-zero when vulnerabilities are found at the
-        # specified level. We capture the report as an artifact for review without
-        # hard-failing the job on known/accepted findings.
-        npm audit --audit-level=high --json > ../npm-audit.json || true
+        set +e
+        npm audit --audit-level=high --json > ../npm-audit.json
+        audit_status=$?
+        set -e
         cat ../npm-audit.json
+        exit "$audit_status"
 
     - name: Upload npm audit report
-      uses: actions/upload-artifact@v4
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: npm-audit-report
         path: npm-audit.json
@@ -82,15 +84,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Install bandit
-      run: pip install bandit[toml]
+      run: pip install bandit[toml]==1.9.3
 
     - name: Run Bandit full report
       run: |
@@ -129,7 +131,7 @@ jobs:
         bandit -r backend/ core/ -b .bandit-baseline.ci.json -ll -ii -f screen
 
     - name: Upload Bandit report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: bandit-report
         path: |
@@ -141,14 +143,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         fetch-depth: 0
 
     - name: Resolve TruffleHog diff range
       if: github.event_name != 'schedule'
       id: trufflehog-diff
-      uses: actions/github-script@v7
+      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
       with:
         script: |
           const before = context.payload.before || '';
@@ -172,7 +174,7 @@ jobs:
 
     - name: TruffleHog OSS (push/pr diff)
       if: github.event_name != 'schedule'
-      uses: trufflesecurity/trufflehog@v3.93.1
+      uses: trufflesecurity/trufflehog@7635b24fd512a2e817dd3e9dd661caaf035a079d # v3.93.1
       with:
         path: ./
         base: ${{ steps.trufflehog-diff.outputs.base }}
@@ -181,7 +183,7 @@ jobs:
 
     - name: TruffleHog OSS (scheduled full scan)
       if: github.event_name == 'schedule'
-      uses: trufflesecurity/trufflehog@v3.93.1
+      uses: trufflesecurity/trufflehog@7635b24fd512a2e817dd3e9dd661caaf035a079d # v3.93.1
       with:
         path: ./
         extra_args: --debug --only-verified
@@ -200,60 +202,63 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
+      uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
       with:
         languages: ${{ matrix.language }}
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v4
+      uses: github/codeql-action/autobuild@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
 
   sbom:
     name: SBOM Generation
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Install CycloneDX tools
-      run: pip install cyclonedx-bom
+      run: pip install cyclonedx-bom==7.2.1
 
     - name: Generate Backend SBOM
       run: |
-        if [ -f requirements-enterprise.txt ]; then
-          cyclonedx-py requirements requirements-enterprise.txt --output-file sbom-backend.json
-        else
-          cyclonedx-py requirements requirements.txt --output-file sbom-backend.json
-        fi
+        cyclonedx-py requirements requirements.lock --output-file sbom-backend.json
+
+    - name: Generate Internal Service Asset SBOM
+      run: |
+        python scripts/generate_service_asset_sbom.py --output sbom-services.json
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
 
     - name: Generate Frontend SBOM
+      env:
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
       run: |
-        if [ -f frontend/package-lock.json ]; then
-          cd frontend
-          npx @cyclonedx/cyclonedx-npm --package-lock-only --ignore-npm-errors --output-file ../sbom-frontend.json
-        fi
+        cd frontend
+        npm ci
+        npx --no-install cyclonedx-npm --package-lock-only --output-file ../sbom-frontend.json
 
     - name: Upload SBOMs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: sbom-reports
         path: |
           sbom-backend.json
           sbom-frontend.json
+          sbom-services.json
         if-no-files-found: error
 
   artifact-signing:
@@ -266,44 +271,58 @@ jobs:
       id-token: write
     steps:
     - name: Download SBOM artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
       with:
         name: sbom-reports
         path: .
 
     - name: Install Cosign
-      uses: sigstore/cosign-installer@v4.0.0
+      uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
 
     - name: Sign SBOM artifacts (keyless OIDC)
       env:
         COSIGN_EXPERIMENTAL: "1"
       run: |
-        set +e
+        set -euo pipefail
         cosign version
         test -f sbom-backend.json
+        test -f sbom-frontend.json
+        test -f sbom-services.json
         cosign sign-blob --yes sbom-backend.json \
           --output-signature sbom-backend.json.sig \
           --output-certificate sbom-backend.json.pem
-        backend_status=$?
-        if [ "$backend_status" -ne 0 ]; then
-          echo "::warning::Cosign SBOM signing is unavailable for this run; continuing without signatures."
-          rm -f sbom-backend.json.sig sbom-backend.json.pem sbom-frontend.json.sig sbom-frontend.json.pem
-          exit 0
-        fi
+        cosign sign-blob --yes sbom-frontend.json \
+          --output-signature sbom-frontend.json.sig \
+          --output-certificate sbom-frontend.json.pem
+        cosign sign-blob --yes sbom-services.json \
+          --output-signature sbom-services.json.sig \
+          --output-certificate sbom-services.json.pem
 
-        if [ -f sbom-frontend.json ]; then
-          cosign sign-blob --yes sbom-frontend.json \
-            --output-signature sbom-frontend.json.sig \
-            --output-certificate sbom-frontend.json.pem
-          frontend_status=$?
-          if [ "$frontend_status" -ne 0 ]; then
-            echo "::warning::Cosign frontend SBOM signing failed; backend SBOM signature was preserved."
-            rm -f sbom-frontend.json.sig sbom-frontend.json.pem
-          fi
-        fi
+    - name: Verify SBOM signatures
+      env:
+        COSIGN_EXPERIMENTAL: "1"
+      run: |
+        set -euo pipefail
+        IDENTITY='^https://github.com/kherrera6219/DataLogicEngine/.github/workflows/security.yml@refs/heads/main$'
+        ISSUER='https://token.actions.githubusercontent.com'
+        cosign verify-blob sbom-backend.json \
+          --signature sbom-backend.json.sig \
+          --certificate sbom-backend.json.pem \
+          --certificate-identity-regexp "$IDENTITY" \
+          --certificate-oidc-issuer "$ISSUER"
+        cosign verify-blob sbom-frontend.json \
+          --signature sbom-frontend.json.sig \
+          --certificate sbom-frontend.json.pem \
+          --certificate-identity-regexp "$IDENTITY" \
+          --certificate-oidc-issuer "$ISSUER"
+        cosign verify-blob sbom-services.json \
+          --signature sbom-services.json.sig \
+          --certificate sbom-services.json.pem \
+          --certificate-identity-regexp "$IDENTITY" \
+          --certificate-oidc-issuer "$ISSUER"
 
     - name: Upload signing artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: sbom-signatures
         path: |
@@ -311,24 +330,25 @@ jobs:
           sbom-backend.json.pem
           sbom-frontend.json.sig
           sbom-frontend.json.pem
-        if-no-files-found: warn
+          sbom-services.json.sig
+          sbom-services.json.pem
+        if-no-files-found: error
 
   crash-reporting-probe:
     name: Crash Reporting Probe
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        python -m pip install --require-hashes -r requirements.lock
 
     - name: Check crash reporting configuration
       id: crash-reporting-config
@@ -346,6 +366,7 @@ jobs:
       if: steps.crash-reporting-config.outputs.configured == 'true'
       env:
         SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        DLE_EXTERNAL_TELEMETRY_ENABLED: "true"
         FLASK_ENV: "production"
         APP_VERSION: "security-workflow-probe"
       run: |

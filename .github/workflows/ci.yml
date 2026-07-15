@@ -11,13 +11,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
     - name: Install Ruff
-      run: pip install ruff
+      run: pip install ruff==0.15.0
     - name: Run Ruff
       run: ruff check . --select E9,F63,F7
 
@@ -25,19 +25,16 @@ jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
         
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pip-audit
-        pip install neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira
+        python -m pip install --require-hashes -r requirements.lock
 
     - name: Security Audit
       # CVE-2025-3000 (torch.jit.script memory corruption, local-host only, no
@@ -45,14 +42,14 @@ jobs:
       # calls torch.jit.script. Keep in sync with security.yml. See TODO.md.
       # CVE-2026-12243 (nltk path traversal, no patch available for 3.9.x yet)
       run: |
-        pip-audit -r requirements.txt --desc --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
+        pip-audit -r requirements.lock --desc --ignore-vuln CVE-2025-3000 --ignore-vuln CVE-2026-12243
 
     - name: Run smoke bootstrap check
       run: |
         python scripts/test_smoke.py
 
     - name: Set up Node.js for deterministic startup precheck
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
 
@@ -126,10 +123,10 @@ jobs:
   frontend-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -220,15 +217,15 @@ jobs:
   windows-packaging-smoke:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -238,13 +235,11 @@ jobs:
       run: |
         $ErrorActionPreference = 'Stop'
         $PSNativeCommandUseErrorActionPreference = $true
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira eventlet tiktoken langchain-openai langchain-community
-        pyinstaller backend.spec
+        python -m pip install --require-hashes -r requirements.lock
+        python scripts/build_backend.py
 
     - name: Cache electron-builder binaries
-      uses: actions/cache@v4
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
       with:
         path: ${{ env.LOCALAPPDATA }}\electron-builder\Cache
         key: electron-builder-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
@@ -272,7 +267,7 @@ jobs:
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 
     - name: Upload packaging smoke report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: always()
       with:
         name: packaging-smoke-report
@@ -284,15 +279,15 @@ jobs:
   governance:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: '3.11'
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
         node-version: '24'
         cache: 'npm'
@@ -300,8 +295,7 @@ jobs:
 
     - name: Install governance dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install ruff
+        pip install ruff==0.15.0
         npm --prefix frontend ci
       env:
         CHROMEDRIVER_SKIP_DOWNLOAD: true
@@ -319,14 +313,24 @@ jobs:
       run: |
         python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_ci.json
 
+    - name: Verify immutable workflow action pins
+      run: |
+        python scripts/verify_workflow_pins.py --json-report reports/workflow_pin_report_ci.json
+
+    - name: Verify retired release paths stay unreachable
+      run: |
+        python scripts/verify_legacy_retirement.py --report reports/legacy_retirement_report_ci.json
+
     - name: Upload governance reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       if: always()
       with:
         name: governance-reports
         path: |
           reports/environment_parity_report_ci.json
           reports/lockfile_governance_report_ci.json
+          reports/workflow_pin_report_ci.json
+          reports/legacy_retirement_report_ci.json
         if-no-files-found: warn
 
   # Docker Build (Verification)
@@ -334,13 +338,13 @@ jobs:
     needs: [backend-test, frontend-build, windows-packaging-smoke, governance]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       
     - name: Build Backend Image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
       with:
         context: .
         file: backend/Dockerfile
@@ -348,7 +352,7 @@ jobs:
         tags: ukg-backend:latest
         
     - name: Build Frontend Image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
       with:
         context: frontend
         file: frontend/Dockerfile

@@ -5,10 +5,17 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: Exact product version declared by config/product-versions.json
+        required: true
+        type: string
 
 permissions:
   contents: read
   id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   build-installer:
@@ -16,32 +23,98 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+    - name: Setup Python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      with:
+        python-version: '3.11'
 
     - name: Setup Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
       with:
         node-version: '24'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
+
+    - name: Validate release source authority
+      env:
+        RELEASE_VERSION: ${{ inputs.release_version }}
+      run: |
+        if (git status --porcelain) {
+          throw "Release builds require a clean checkout."
+        }
+        python scripts/verify_product_versions.py --report reports/product_version_parity_release.json
+        python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_release.json
+        python scripts/verify_workflow_pins.py --json-report reports/workflow_pin_report_release.json
+        python scripts/verify_legacy_retirement.py --report reports/legacy_retirement_report_release.json
+        python scripts/verify_release_ownership.py --require-release-ready --report reports/distribution_authority_release.json
+        python scripts/verify_release_trust_policy.py --require-signing --require-updates --require-distribution --report reports/release_trust_policy_release.json
+        $authority = Get-Content config/product-versions.json -Raw | ConvertFrom-Json
+        $expectedVersion = [string]$authority.product.version
+        $requestedVersion = if ($env:GITHUB_REF -like 'refs/tags/*') {
+          $env:GITHUB_REF_NAME.TrimStart('v')
+        } else {
+          [string]$env:RELEASE_VERSION
+        }
+        if ($requestedVersion -ne $expectedVersion) {
+          throw "Release version '$requestedVersion' does not match product authority '$expectedVersion'."
+        }
 
     - name: Install frontend dependencies
       run: |
         cd frontend
         npm ci
 
+    - name: Install locked Python build dependencies
+      run: |
+        python -m pip install --require-hashes -r requirements.lock
+
     - name: Build unsigned installer
       run: |
         npm --prefix frontend run electron:dist
 
+    - name: Verify versioned installer integrity
+      run: |
+        python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_release.json
+
+    - name: Generate release SBOMs and normalized content inventory
+      run: |
+        New-Item -ItemType Directory -Force reports/release | Out-Null
+        cyclonedx-py requirements requirements.lock --output-file reports/release/sbom-backend.cdx.json
+        Push-Location frontend
+        npx --no-install cyclonedx-npm --package-lock-only --output-file ../reports/release/sbom-frontend.cdx.json
+        Pop-Location
+        python scripts/generate_service_asset_sbom.py --output reports/release/sbom-services.cdx.json
+        $authority = Get-Content config/product-versions.json -Raw | ConvertFrom-Json
+        $installer = Join-Path (Get-Location) "DataLogicEngine Setup $($authority.product.version).exe"
+        python scripts/generate_release_content_inventory.py `
+          --installer $installer `
+          --output reports/release/release-content-inventory.json
+        python scripts/generate_installer_sbom.py `
+          --installer $installer `
+          --backend-sbom reports/release/sbom-backend.cdx.json `
+          --frontend-sbom reports/release/sbom-frontend.cdx.json `
+          --services-sbom reports/release/sbom-services.cdx.json `
+          --output reports/release/sbom-installer.cdx.json
+        python scripts/generate_release_manifest.py --output reports/release/release-manifest.json
+
     - name: Upload unsigned installer artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
       with:
         name: unsigned-installers
         path: |
           DataLogicEngine Setup *.exe
           DataLogicEngine Setup *.exe.sha256
           DataLogicEngine Setup *.exe.blockmap
+          reports/product_version_parity_release.json
+          reports/lockfile_governance_report_release.json
+          reports/workflow_pin_report_release.json
+          reports/legacy_retirement_report_release.json
+          reports/distribution_authority_release.json
+          reports/release_trust_policy_release.json
+          reports/installer_integrity_release.json
+          reports/release/
         if-no-files-found: error
 
   sign-installer:
@@ -50,10 +123,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+    - name: Setup Python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      with:
+        python-version: '3.11'
 
     - name: Download unsigned installers
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
       with:
         name: unsigned-installers
         path: .
@@ -101,8 +179,45 @@ jobs:
           -CheckCertificateRevocation `
           -CheckSignatureRevocation
 
+    - name: Refresh final signed artifact evidence
+      run: |
+        $authority = Get-Content config/product-versions.json -Raw | ConvertFrom-Json
+        $installer = Join-Path (Get-Location) "DataLogicEngine Setup $($authority.product.version).exe"
+        Copy-Item reports/release/release-content-inventory.json reports/release/release-content-inventory.unsigned.json
+        python scripts/generate_release_content_inventory.py `
+          --installer $installer `
+          --prior-payload-inventory reports/release/release-content-inventory.unsigned.json `
+          --output reports/release/release-content-inventory.json
+        python scripts/generate_installer_sbom.py `
+          --installer $installer `
+          --backend-sbom reports/release/sbom-backend.cdx.json `
+          --frontend-sbom reports/release/sbom-frontend.cdx.json `
+          --services-sbom reports/release/sbom-services.cdx.json `
+          --output reports/release/sbom-installer.cdx.json
+        python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_release.json
+        python scripts/generate_release_manifest.py --output reports/release/release-manifest.json --require-clean --require-artifacts --require-release-authority
+
+    - name: Attest signed installer provenance
+      uses: actions/attest@f6bf1532d7d6793fce74eac584813a8eee607999 # v4
+      with:
+        subject-path: 'DataLogicEngine Setup *.exe'
+
+    - name: Attest signed installer SBOM
+      uses: actions/attest@f6bf1532d7d6793fce74eac584813a8eee607999 # v4
+      with:
+        subject-path: 'DataLogicEngine Setup *.exe'
+        sbom-path: reports/release/sbom-installer.cdx.json
+
+    - name: Verify published artifact attestations
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        $installer = Get-ChildItem -File -Filter "DataLogicEngine Setup *.exe" | Select-Object -First 1
+        if (-not $installer) { throw "Signed installer is missing." }
+        gh attestation verify $installer.FullName --repo $env:GITHUB_REPOSITORY
+
     - name: Upload signed installer artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
       with:
         name: signed-installers
         path: |
@@ -111,4 +226,6 @@ jobs:
           DataLogicEngine Setup *.exe.blockmap
           reports/codesigning_certificate_health.json
           reports/installer_signature_report.json
+          reports/installer_integrity_release.json
+          reports/release/
         if-no-files-found: error

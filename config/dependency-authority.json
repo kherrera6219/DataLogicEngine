@@ -1,0 +1,27 @@
+{
+  "schema_version": "dle.dependency-authority.v1",
+  "python": {
+    "reviewed_direct_source": "requirements.txt",
+    "release_lock": "requirements.lock",
+    "lock_generator": "uv 0.9.26",
+    "python_version": "3.11",
+    "universal_resolution": true,
+    "hashes_required": true,
+    "pyproject_runtime_dependencies": false,
+    "uv_project_lock": false
+  },
+  "node": {
+    "manifest": "frontend/package.json",
+    "release_lock": "frontend/package-lock.json",
+    "lockfile_version": 3,
+    "install_command": "npm ci",
+    "release_build_node_major": 24,
+    "electron": {
+      "package_version": "43.1.1",
+      "chromium_version": "150.0.7871.114",
+      "embedded_node_version": "24.18.0",
+      "official_release_metadata": "https://releases.electronjs.org/release/v43.1.1",
+      "reviewed_at": "2026-07-14"
+    }
+  }
+}

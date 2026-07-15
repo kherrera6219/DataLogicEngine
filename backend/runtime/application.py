@@ -12,6 +12,8 @@ from pathlib import Path
 
 from flask import Flask, current_app, has_request_context
 
+from backend.product_version import PRODUCT_VERSION
+
 from .metrics import RequestMetrics
 from .models import RuntimePhase
 from .ownership import RuntimeOwnership
@@ -49,7 +51,7 @@ class ApplicationRuntime:
         self.supervisor = ServiceSupervisor(required_services=required_services)
         self.ownership = RuntimeOwnership(
             self.runtime_root,
-            version=str(app.config.get("APP_VERSION", "0.1.1")),
+            version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
         )
         self.phase = RuntimePhase.CREATED
         self.phase_history: list[str] = [self.phase.value]

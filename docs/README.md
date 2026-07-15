@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.24.0 |
+| Document version | v2.25.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,19 +21,19 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 13 observability, Diagnostics,
-compliance-truth, and support engineering complete, with Phase 14 packaging,
-signing, updates, dependency, and supply-chain work active. ADR-0009 selects the
-truthful Session Library over an implied independent Project model. The live
-production-source control inventory reports zero enabled controls without an
-obvious action; all 28 routes are axe-clean and ten keyboard/app-readiness
-workflows pass. Real installed handler-to-durable-effect, packaged visual/
-scaling/high-contrast, NVDA, correlation reconstruction, failure injection,
-redaction/no-egress, support-bundle, and 24/72-hour soak proof remain open
-release gates.
-ADR-0008's rebuilt-installed MCP file/network/lifecycle/Electron acceptance also
-remains deferred.
+The current execution checkpoint is Phase 14 packaging, signing, updates,
+dependency, and supply-chain engineering complete, with Phase 15 installed-
+system qualification active. Product 4.3.0 has one version authority; Python
+uses a generated 315-package hash lock; Node/Electron inputs are exact; Windows
+artifacts are versioned; workflows are immutable; and signing, update, SBOM,
+manifest, attestation, legal, and legacy controls fail closed.
+
+The canonical rebuilt/signed installer, installed lifecycle/update/Windows
+matrix, final supply-chain dossier, publisher/distribution authority, and every
+retained Phase 3-14 installed gate remain open. ADR-0009 keeps the truthful
+Session Library model; ADR-0008's installed MCP acceptance remains deferred.
 Production/public release remains **NO-GO**.
+
 SeaweedFS is a qualification-only candidate under Proposed ADR-0004 and has not
 replaced MinIO in the production architecture.
 

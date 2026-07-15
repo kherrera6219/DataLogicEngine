@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Release Engineering |
 | Review cadence | Every release cycle |
@@ -57,6 +57,20 @@ reports/release-readiness/local-first-phase1-completion-2026-05-25.md
 
 The latest local desktop rebuild evidence is tracked through the root installer artifacts, `reports/installer_integrity_report.json`, `reports/installer_signature_report.json`, and `reports/packaging_smoke_report.json`. Local unsigned builds may report `NotSigned`; that is acceptable for workstation validation but not for public/customer signed distribution.
 
+### Phase 14 authority checkpoint
+
+The release candidate is product 4.3.0 and the only canonical installer is
+DataLogicEngine Setup 4.3.0.exe. Version/lock/workflow/legacy/trust/distribution
+gates, final SBOM/content inventories, release manifest, signatures, and verified
+attestations are mandatory release records. A stale Latest alias or a dirty,
+untagged, authority-mismatched checkout blocks promotion.
+
+Production signing is not authorized until config/release-trust-policy.json names
+the approved publisher and managed/hardware signing boundary. The current hosted-
+runner PFX mechanism is engineering scaffolding only. Legal/distribution release
+readiness remains false while ten authority actions and the reviewed notice
+bundle are open.
+
 Unchecked items in this checklist should be interpreted as production/public release gates unless explicitly scoped to local engineering or contest/demo release.
 
 ---
@@ -80,6 +94,12 @@ Run and attach evidence for:
 python scripts/dev_doctor.py --skip-ports
 python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
 python scripts/verify_lockfiles.py
+python scripts/verify_product_versions.py
+python scripts/verify_workflow_pins.py
+python scripts/verify_legacy_retirement.py
+python scripts/verify_release_trust_policy.py --require-signing --require-updates --require-distribution
+python scripts/verify_release_ownership.py --require-release-ready
+python scripts/generate_release_manifest.py --require-clean --require-artifacts --require-release-authority
 python scripts/verify_docs_references.py
 python scripts/validate_schema_parity.py --report reports/schema_parity_report_release.json
 python scripts/verify_environment_parity.py --strict --json-report reports/environment_parity_report_release.json
@@ -97,6 +117,12 @@ Checklist:
 7. [ ] release governance verifier passes.
 8. [ ] No production profile uses `AUTO_CREATE_SCHEMA=true`.
 9. [ ] Production secrets are not defaults.
+10. [ ] product-version parity passes.
+11. [ ] workflow pin and legacy-retirement governance pass.
+12. [ ] release trust signing/update/distribution requirements pass.
+13. [ ] legal/distribution ownership is release-ready.
+14. [ ] the clean final release manifest reports release_ready.
+15. [ ] all retained Phase 14 installed/authority rows are attached or explicitly block release.
 
 ---
 
@@ -177,19 +203,24 @@ Checklist:
 
 Required for public/customer Windows installer distribution:
 
-1. [ ] `WINDOWS_CODESIGN_CERT_BASE64` configured.
-2. [ ] `WINDOWS_CODESIGN_CERT_PASSWORD` configured.
-3. [ ] signing certificate health/rotation check passed.
-4. [ ] installer signing completed.
-5. [ ] installer signature verification passed.
-6. [ ] signed artifacts uploaded.
-7. [ ] signature reports attached.
-8. [ ] local dev certificates were not used as production evidence.
+1. [ ] release trust policy authorizes production signing.
+2. [ ] approved publisher subject and succession/incident owner are recorded.
+3. [ ] managed service or hardware-backed signing boundary is approved.
+4. [ ] protected signing environment requires the approved release review.
+5. [ ] signing certificate health/rotation check passed.
+6. [ ] installer and applicable app-owned executable payloads are signed.
+7. [ ] installer signature, timestamp, publisher, hash, and revocation checks pass.
+8. [ ] complete binary signature inventory passes.
+9. [ ] final SBOM and provenance attestations are generated and verified.
+10. [ ] signed artifacts and all reports are archived together.
+11. [ ] local development certificates are not used as production evidence.
+12. [ ] no long-lived exportable PFX is exposed to a normal build job.
 
 Verification command:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -RequireProductionTrust -CheckRevocation
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_release_binary_signatures.ps1 -RequireComplete -CheckRevocation
 ```
 
 ---

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -22,10 +23,11 @@ LEGAL_AREAS = {
 }
 
 
-def main() -> int:
-    ownership = json.loads((PHASE / "responsibility-approval.json").read_text(encoding="utf-8"))
-    legal = json.loads((PHASE / "legal-distribution-authority.json").read_text(encoding="utf-8"))
-    windows = json.loads((PHASE / "windows-support-matrix.json").read_text(encoding="utf-8"))
+def collect_release_ownership(root: Path = ROOT) -> dict:
+    phase = root / "reports/production-readiness/2026/phase-00"
+    ownership = json.loads((phase / "responsibility-approval.json").read_text(encoding="utf-8"))
+    legal = json.loads((phase / "legal-distribution-authority.json").read_text(encoding="utf-8"))
+    windows = json.loads((phase / "windows-support-matrix.json").read_text(encoding="utf-8"))
     errors: list[str] = []
     responsibilities = ownership.get("responsibilities", [])
     found_disciplines = {row.get("discipline") for row in responsibilities}
@@ -46,7 +48,8 @@ def main() -> int:
             errors.append(f"Windows matrix missing {section}")
     blocked_approvals = sum(row.get("approval_status") == "release-blocked" for row in responsibilities)
     blocked_legal = sum(bool(row.get("release_blocking")) for row in register)
-    result = {
+    return {
+        "schema_version": "dle.release-ownership-evidence.v1",
         "ownership_rows": len(responsibilities),
         "legal_rows": len(register),
         "blocked_independent_approvals": blocked_approvals,
@@ -55,8 +58,28 @@ def main() -> int:
         "structure_passed": not errors,
         "release_ready": not errors and blocked_approvals == 0 and blocked_legal == 0,
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", type=Path, default=ROOT)
+    parser.add_argument(
+        "--report",
+        type=Path,
+        default=Path("reports/production-readiness/2026/phase-14/distribution-authority.json"),
+    )
+    parser.add_argument("--require-release-ready", action="store_true")
+    args = parser.parse_args(argv)
+    result = collect_release_ownership(args.repo_root.resolve())
+    report = args.report if args.report.is_absolute() else args.repo_root / args.report
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
-    return 0 if not errors else 1
+    if not result["structure_passed"]:
+        return 1
+    if args.require_release_ready and not result["release_ready"]:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

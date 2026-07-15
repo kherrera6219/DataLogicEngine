@@ -13,6 +13,7 @@ const algos = [
 ];
 
 export default function AboutPage() {
+  const productVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? "unavailable";
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
       <div className="container mx-auto max-w-5xl">
@@ -20,6 +21,9 @@ export default function AboutPage() {
            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">About DataLogicEngine</h1>
            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
              A local-first knowledge graph workspace for traceable AI-assisted analysis, internal app-owned databases, and provider usage inspection.
+           </p>
+           <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+             Product version {productVersion}
            </p>
         </header>
 

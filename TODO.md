@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.12.0 |
-| Completed phase | Phase 13 engineering checkpoint - observability, diagnostics, compliance semantics, and support |
-| Current phase | Phase 14 - packaging, signing, updates, dependencies, and supply chain |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.13.0 |
+| Completed phase | Phase 14 engineering checkpoint - packaging, signing, updates, dependencies, and supply chain |
+| Current phase | Phase 15 - system qualification and release candidate |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -17,6 +17,19 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Completed checkpoints
 
+- Phase 14 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-14/`; the final installed/signed exit
+  rows are retained for Phase 15 rather than misreported complete.
+- Product `4.3.0` now has one authority across Python, Electron, UI, support,
+  Windows metadata, artifacts, release workflows, and the release manifest.
+- Python has 81 exact direct pins and a generated 315-package SHA-256 release
+  lock; Node is exact and Electron is locked to 43.1.1.
+- All 71 external workflow references are immutable. SBOM/content inventory,
+  release-manifest, signing, update-trust, attestation verification, legal, and
+  legacy gates fail closed.
+- Focused Phase 14 validation passes 27 Python tests, Ruff, 18 version checks,
+  lock/workflow/legacy/NSIS governance, frontend update tests/typecheck/Electron
+  build, and npm audit. The unsigned stale local artifact correctly fails.
 - Phase 0 CP0-A through CP0-G passed on 2026-07-13 and were committed as
   `52363a0e`.
 - Phase 1 CP1-A through CP1-F passed on 2026-07-13. Evidence is under
@@ -480,6 +493,21 @@ authority or placeholder production behavior.
 | CP13-D | Every compliance/control status resolves to evidence without certification claims | Source resolver/report/API/UI contract passes; installed wording/export review retained |
 | CP13-E | Installed 24-hour stress and 72-hour idle/normal soaks stay bounded with no silent degradation | Profile/evaluator and short observation pass; full-duration runs retained |
 
+## Phase 14 retained release gates
+
+| Checkpoint | Source checkpoint | Open closure evidence |
+|---|---|---|
+| CP14-A | Version parity passes | Rebuilt/installed 4.3.0 artifact and UI/support proof |
+| CP14-B | Clean/tag/lock/content gates implemented | Two isolated same-input builds |
+| CP14-C | Installer policy foundations present | Full install/repair/upgrade/rollback/uninstall/Windows matrix |
+| CP14-D | Signature inventory/verifiers implemented | Approved publisher and every final executable valid |
+| CP14-E | SBOM/manifest/attestation pipeline implemented | Final candidate SBOM/provenance/AV/license/alert evidence |
+| CP14-F | Updates fail closed | Complete adversarial signed-update matrix |
+| CP14-G | Register structure passes | Ten legal/authority actions and notices approved |
+| CP14-H | Legacy installer payload excluded | Full disposition and signed-runtime reachability proof |
+
+Details: `reports/production-readiness/2026/phase-14/deferred-gates.md`.
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -498,8 +526,8 @@ authority or placeholder production behavior.
 | 11 | MCP and connector completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 12 | UI workflow, Session Library, and accessibility completion | **Engineering checkpoint complete 2026-07-14; installed/manual gates retained** |
 | 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
-| 14 | Packaging, signing, updates, dependencies, and supply chain | **Active** |
-| 15 | System qualification and release candidate | Blocked by prior phases |
+| 14 | Packaging, signing, updates, dependencies, and supply chain | **Engineering checkpoint complete 2026-07-14; installed/authority gates retained** |
+| 15 | System qualification and release candidate | **Active** |
 | 16 | Production documentation replacement and professional review dossier | Blocked by prior phases |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
 | 18 | Production launch and maintenance | Blocked by prior phases |
@@ -520,9 +548,13 @@ authority or placeholder production behavior.
 
 ## Exact next action
 
-Begin Phase 14 with a live version, dependency-authority, build-input, internal-
-service asset, Windows packaging, update/signing, SBOM/provenance, and release-
-workflow inventory. Select one product-version authority and one Python
-dependency authority; add parity and native-failure-stop tests before changing
-packaging. Preserve all installed Phase 3-13 gates, alert 389, automatic-update
-disablement, and the SeaweedFS candidate-only Replacement Control boundary.
+Begin Phase 15 by freezing the 4.3.0 release-candidate inputs and building the
+canonical backend, portable app, and versioned NSIS installer through the clean
+release path. Compare two clean normalized content inventories, then execute the
+complete install/repair/0.1.1-upgrade/rollback/uninstall and supported-Windows
+matrix against that exact candidate.
+
+Run every retained Phase 3-14 installed, provider, gateway, recovery, security,
+accessibility, failure, update, signing, supply-chain, object-store, and soak
+gate. Preserve alert 389, legal/distribution NO-GO, automatic-update disablement,
+and SeaweedFS candidate-only status until their required evidence exists.

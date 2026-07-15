@@ -1,0 +1,33 @@
+{
+  "schema_version": "dle.release-trust-policy-evidence.v1",
+  "generated_at": "2026-07-15T03:22:01.047557+00:00",
+  "policy": "C:\\software\\DataLogicEngine\\config\\release-trust-policy.json",
+  "release_required": {
+    "signing": false,
+    "updates": false,
+    "distribution": false
+  },
+  "findings": [
+    {
+      "level": "OK",
+      "scope": "policy",
+      "detail": "Release trust schema is valid."
+    },
+    {
+      "level": "BLOCKED",
+      "scope": "signing",
+      "detail": "Production publisher/signing authority is not approved."
+    },
+    {
+      "level": "BLOCKED",
+      "scope": "updates",
+      "detail": "Open signed-update gates: production_qualified, signed_metadata_qualified, publisher_verification_qualified, downgrade_prevention_qualified, replay_prevention_qualified, interrupted_update_rollback_qualified, staged_rollout_qualified, offline_signed_update_qualified."
+    },
+    {
+      "level": "BLOCKED",
+      "scope": "distribution",
+      "detail": "Distribution artifact, regions, or legal authority remain unapproved."
+    }
+  ],
+  "status": "pass"
+}

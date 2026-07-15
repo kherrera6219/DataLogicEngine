@@ -1,4 +1,9 @@
 import type { NextConfig } from "next";
+import { readFileSync } from "node:fs";
+
+const versionAuthority = JSON.parse(
+  readFileSync(new URL("../config/product-versions.json", import.meta.url), "utf8"),
+) as { product: { version: string } };
 
 // Next.js 16 Configuration
 // Note: Request proxying/auth guard is handled via root proxy.ts
@@ -35,6 +40,9 @@ if (normalizedCdnUrl) {
 
 const nextConfig: NextConfig = {
   ...cdnConfig,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: versionAuthority.product.version,
+  },
   output: process.env.BUILD_MODE === 'electron' ? 'export' : 'standalone',
   // Rewrites are supported in standalone mode, but not export.
   async rewrites() {

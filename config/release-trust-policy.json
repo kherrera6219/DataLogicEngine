@@ -1,0 +1,27 @@
+{
+  "schema_version": "dle.release-trust-policy.v1",
+  "signing": {
+    "production_authorized": false,
+    "expected_publisher_subjects": [],
+    "sha256_file_digest_required": true,
+    "sha256_timestamp_digest_required": true,
+    "trusted_timestamp_required": true,
+    "revocation_check_required": true,
+    "credential_boundary": "pending_hardware_or_managed_signing_service_selection"
+  },
+  "updates": {
+    "production_qualified": false,
+    "signed_metadata_qualified": false,
+    "publisher_verification_qualified": false,
+    "downgrade_prevention_qualified": false,
+    "replay_prevention_qualified": false,
+    "interrupted_update_rollback_qualified": false,
+    "staged_rollout_qualified": false,
+    "offline_signed_update_qualified": false
+  },
+  "distribution": {
+    "artifact": "pending_owner_and_legal_selection",
+    "regions": [],
+    "authority_approved": false
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status": "fail",
+  "summary": {
+    "errors": 2,
+    "warnings": 0,
+    "total_issues": 2
+  },
+  "results": {
+    "expected_installer": "DataLogicEngine Setup 1.2.0.exe",
+    "installers": [
+      {
+        "artifact": "DataLogicEngine Setup Latest.exe",
+        "sha256": "3296cacbfc3cf288ec3fb651eabc7d02d59ca54957c8b48523bd82e30b2a8856",
+        "checksum_file": "DataLogicEngine Setup Latest.exe.sha256",
+        "blockmap_present": true,
+        "valid": false
+      }
+    ]
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "artifact": "DataLogicEngine Setup Latest.exe",
+      "check": "artifact_version",
+      "detail": "Expected the canonical versioned artifact DataLogicEngine Setup 1.2.0.exe."
+    },
+    {
+      "severity": "error",
+      "artifact": "DataLogicEngine Setup 1.2.0.exe",
+      "check": "canonical_artifact_presence",
+      "detail": "The canonical versioned installer is missing."
+    }
+  ]
+}

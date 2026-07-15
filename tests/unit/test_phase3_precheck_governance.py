@@ -1,5 +1,3 @@
-import json
-
 from scripts import runtime_precheck, verify_lockfiles
 
 
@@ -70,45 +68,38 @@ def test_runtime_precheck_accepts_explicit_in_memory_sqlite_for_ci(tmp_path, mon
     assert not any("Initialize local schema" in item.message for item in results)
 
 
-def test_runtime_precheck_validates_pyproject_and_uv_lock_alignment(tmp_path, monkeypatch):
+def test_runtime_precheck_requires_hash_locked_release_dependencies(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
     (tmp_path / "requirements.txt").write_text("Flask==3.1.2\n", encoding="utf-8")
-    (tmp_path / "pyproject.toml").write_text(
-        "[project]\nname = \"datalogicengine\"\nversion = \"0.1.0\"\n",
+    (tmp_path / "requirements.lock").write_text(
+        "# source-sha256: placeholder\nFlask==3.1.2 --hash=sha256:" + "a" * 64 + "\n",
         encoding="utf-8",
     )
-    (tmp_path / "uv.lock").write_text(
-        "version = 1\n\n[[package]]\nname = \"datalogicengine\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n",
+    (tmp_path / "pyproject.toml").write_text(
+        "[project]\nname = \"datalogicengine\"\nversion = \"1.2.0\"\ndependencies = []\n",
         encoding="utf-8",
     )
 
     results = runtime_precheck.check_backend_dependencies()
 
+    assert any("Hash-locked release dependencies" in item.message for item in results)
     assert any("project.name=datalogicengine" in item.message for item in results)
 
 
-def test_verify_lockfiles_fails_on_project_name_mismatch(tmp_path, monkeypatch):
+def test_verify_lockfiles_rejects_root_uv_lock_and_pyproject_runtime_dependencies(tmp_path, monkeypatch):
     pyproject = tmp_path / "pyproject.toml"
     uv_lock = tmp_path / "uv.lock"
-    npm_lock = tmp_path / "package-lock.json"
 
     pyproject.write_text(
-        "[project]\nname = \"datalogicengine\"\nversion = \"0.1.0\"\n",
+        "[project]\nname = \"datalogicengine\"\nversion = \"1.2.0\"\ndependencies = [\"Flask==3.1.3\"]\n",
         encoding="utf-8",
     )
-    uv_lock.write_text(
-        "version = 1\n\n[[package]]\nname = \"other-name\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n",
-        encoding="utf-8",
-    )
-    npm_lock.write_text(json.dumps({"lockfileVersion": 3, "name": "frontend"}), encoding="utf-8")
+    uv_lock.write_text("version = 1\n", encoding="utf-8")
 
     monkeypatch.setattr(verify_lockfiles, "PYPROJECT", pyproject)
     monkeypatch.setattr(verify_lockfiles, "UV_LOCK", uv_lock)
-    monkeypatch.setattr(verify_lockfiles, "NPM_LOCK", npm_lock)
 
     findings = verify_lockfiles._check_uv_lock()
 
-    assert any(
-        finding.level == "ERROR" and "does not match pyproject.toml" in finding.message
-        for finding in findings
-    )
+    assert any(finding.level == "ERROR" and "must be absent" in finding.message for finding in findings)
+    assert any(finding.level == "ERROR" and "second root runtime" in finding.message for finding in findings)

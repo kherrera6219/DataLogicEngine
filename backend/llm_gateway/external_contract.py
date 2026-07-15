@@ -7,8 +7,11 @@ from enum import Enum
 import os
 from typing import Any, Iterable, Mapping
 
+from backend.product_version import CONTRACT_VERSIONS
 
-GATEWAY_CONTRACT_VERSION = "dle-gateway.v1"
+
+GATEWAY_CONTRACT_VERSION = CONTRACT_VERSIONS["gateway"]
+VIRTUAL_MODEL_MANIFEST_VERSION = CONTRACT_VERSIONS["virtual_model_manifest"]
 
 
 class GatewayProfile(str, Enum):
@@ -203,6 +206,7 @@ def apply_virtual_model(payload: dict[str, Any]) -> VirtualModelPolicy:
     if not isinstance(metadata, dict):
         metadata = {}
     metadata["gateway_contract_version"] = GATEWAY_CONTRACT_VERSION
+    metadata["virtual_model_manifest_version"] = VIRTUAL_MODEL_MANIFEST_VERSION
     metadata["virtual_model"] = policy.id
     payload["meta"] = metadata
     return policy

@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
     - name: Check code-signing configuration
       id: codesign-config
@@ -53,7 +53,7 @@ jobs:
 
     - name: Upload governance report
       if: steps.codesign-config.outputs.configured == 'true'
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
       with:
         name: codesigning-governance-report
         path: reports/codesigning_certificate_health_governance.json

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.9.0 |
+| Last updated | 2026-07-14 |
 | Status | Planning / Partial Implementation |
 | Owner | Security Engineering + Release Engineering |
 | Review cadence | Every 60 days |
@@ -36,6 +36,10 @@ Covered artifacts:
 | Runtime/release prechecks | `scripts/runtime_precheck.py`, `scripts/verify_release_governance.py`, `scripts/verify_environment_parity.py`, `scripts/verify_lockfiles.py` |
 | Windows packaging governance | `scripts/windows/verify_nsis_governance.ps1`, `scripts/windows/run_packaging_smoke.ps1` |
 | Installer integrity/signature verification | `scripts/verify_installer_integrity.py`, `scripts/windows/verify_installer_signature.ps1` |
+| Version/dependency authority | `config/product-versions.json`, `config/dependency-authority.json`, `requirements.lock`, `scripts/verify_product_versions.py` |
+| Immutable workflow inputs | `scripts/verify_workflow_pins.py`; 71 external references pinned to commits |
+| SBOM and release inventory | backend/frontend/service/installer CycloneDX generators, normalized content inventory, `scripts/generate_release_manifest.py` |
+| Provenance verification | pinned `actions/attest`, GitHub attestation generation, and `gh attestation verify` release gate |
 | Documentation governance | `scripts/verify_docs_references.py`, versioned active docs, release checklist. |
 
 ## Target SLSA Level 3-style capabilities
@@ -45,10 +49,10 @@ Covered artifacts:
 | Build defined as code | Implemented | All production artifacts built only from version-controlled workflows/scripts. |
 | Hosted/isolated build service | Partial | Production releases should use hosted CI/release runners, not developer laptops. |
 | Ephemeral build environment | Partial | Prefer clean hosted runners or equivalent isolated builders for release artifacts. |
-| Authenticated provenance | Planned / verify before claim | Generate provenance for release artifacts. |
-| Non-falsifiable provenance | Planned / verify before claim | Publish signed provenance to trusted transparency or artifact store. |
-| Artifact signing | Partial | Windows installer signing workflow exists; production requires trusted certificate and verified signed artifacts. |
-| Policy enforcement | Partial | Release checklist and CI gates exist; deployment admission enforcement is target-state unless implemented. |
+| Authenticated provenance | Workflow implemented; final evidence pending | Generate and verify GitHub attestations for the exact final artifacts. |
+| Non-falsifiable provenance | Partial | GitHub OIDC attestation path is gated; archive/independent final verification remains required. |
+| Artifact signing | Fail-closed structure; authority pending | Approve publisher and managed/hardware signing boundary, then verify every executable. |
+| Policy enforcement | Source release gates implemented | Installed promotion remains blocked until trust, legal, artifact, and qualification gates pass. |
 
 ## Required production release policy
 
@@ -83,14 +87,14 @@ These are valid target-state goals, but they must not be represented as implemen
 
 ## Roadmap
 
-1. Ensure all production release paths are workflow-driven.
-2. Attach artifact checksums and verification reports to releases.
-3. Require trusted Windows certificate signing for public installer distribution.
-4. Add provenance generation for release artifacts.
-5. Add SBOM generation where applicable.
-6. Add policy verification for provenance/signature before deployment or distribution.
-7. Document verification commands in release records.
-8. Add release-blocking checks for missing provenance/signature evidence when claims require them.
+1. Approve the production publisher and managed/hardware signing boundary.
+2. Build the canonical 4.3.0 release candidate from a clean tagged commit.
+3. Generate final backend/frontend/service/JRE/installer SBOMs and notices.
+4. Sign every applicable executable and verify publisher/timestamp/revocation.
+5. Generate and verify final GitHub artifact and SBOM attestations.
+6. Complete license, vulnerability, AV, alert 389, and legal/distribution review.
+7. Prove two-build normalized-content repeatability and run installed qualification.
+8. Archive the complete release dossier and approval together.
 
 ## Reviewer verification path
 

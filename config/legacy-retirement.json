@@ -1,0 +1,45 @@
+{
+  "schema_version": "dle.legacy-retirement.v1",
+  "production_installer": "electron-builder-nsis",
+  "dispositions": [
+    {
+      "id": "legacy-wix-installer",
+      "paths": [
+        "deploy/windows/UKG_Setup.wxs",
+        "scripts/windows/install.ps1",
+        "scripts/windows/uninstall.ps1",
+        "scripts/windows/UKGWrapper.cs"
+      ],
+      "disposition": "quarantined_source_only",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false
+    },
+    {
+      "id": "latest-installer-alias",
+      "paths": [
+        "DataLogicEngine Setup Latest.exe"
+      ],
+      "disposition": "rejected_stale_artifact",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false
+    },
+    {
+      "id": "filesystem-object-store",
+      "paths": [
+        "backend/storage/object_store.py"
+      ],
+      "disposition": "retained_bootstrap_development_repair_only",
+      "production_bundle_allowed": true,
+      "release_workflow_allowed": true
+    },
+    {
+      "id": "seaweedfs-candidate",
+      "paths": [
+        "deploy/internal-data-plane.candidate-lock.json"
+      ],
+      "disposition": "replacement_control_candidate_only",
+      "production_bundle_allowed": true,
+      "release_workflow_allowed": false
+    }
+  ]
+}

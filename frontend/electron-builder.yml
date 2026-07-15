@@ -13,20 +13,18 @@ extraResources:
     to: backend
     filter:
       - "**/*"
-  - from: ../scripts/windows
-    to: scripts
-    filter:
-      - "*.ps1"
   - from: ../policies
     to: policies
     filter:
       - "*.rego"
+  - from: ../config/release-trust-policy.json
+    to: config/release-trust-policy.json
 
 win:
   target:
     - nsis
   icon: public/icon.png
-  verifyUpdateCodeSignature: false
+  verifyUpdateCodeSignature: true
 nsis:
   oneClick: false
   perMachine: true
@@ -36,7 +34,7 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: "DataLogicEngine"
   uninstallDisplayName: "DataLogicEngine Desktop"
-  artifactName: "DataLogicEngine Setup Latest.exe"
+  artifactName: "DataLogicEngine Setup ${version}.${ext}"
   deleteAppDataOnUninstall: false
   runAfterFinish: true
   include: electron/installer.nsh

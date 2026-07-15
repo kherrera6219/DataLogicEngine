@@ -5,6 +5,14 @@ import sys
 
 def build():
     print("--- Starting DataLogic_Backend Build ---")
+
+    version_gate = subprocess.run(
+        [sys.executable, "scripts/verify_product_versions.py"],
+        check=False,
+    )
+    if version_gate.returncode != 0:
+        print("Error: product version parity gate failed.")
+        sys.exit(version_gate.returncode)
     
     # Check for pyinstaller
     try:
@@ -19,6 +27,14 @@ def build():
         if os.path.exists(folder):
             print(f"Cleaning {folder}...")
             shutil.rmtree(folder)
+
+    version_info = subprocess.run(
+        [sys.executable, "scripts/generate_windows_version_info.py"],
+        check=False,
+    )
+    if version_info.returncode != 0:
+        print("Error: Windows executable version metadata generation failed.")
+        sys.exit(version_info.returncode)
 
     # Run PyInstaller
     print("Running PyInstaller...")

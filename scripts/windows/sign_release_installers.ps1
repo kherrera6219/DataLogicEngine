@@ -1,5 +1,5 @@
 Param(
-    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
+    [string]$RepoRoot,
     [Parameter(Mandatory = $true)][string]$CertificatePath,
     [Parameter(Mandatory = $true)][string]$CertificatePassword,
     [string]$TimestampUrl = "http://timestamp.digicert.com",
@@ -9,6 +9,10 @@ Param(
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+}
 
 if (-not (Test-Path $CertificatePath)) {
     throw "Certificate file not found: $CertificatePath"
@@ -103,7 +107,8 @@ $verifyArgs = @(
     "-ExecutionPolicy", "Bypass",
     "-File", $verifyScript,
     "-RepoRoot", $RepoRoot,
-    "-RequireArtifacts"
+    "-RequireArtifacts",
+    "-RequireProductionTrust"
 )
 if ($CheckSignatureRevocation) {
     $verifyArgs += "-CheckRevocation"

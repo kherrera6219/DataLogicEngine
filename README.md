@@ -4,7 +4,16 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-13 engineering checkpoints are complete; Phase 14 packaging/signing/dependency/supply-chain work is active. Phase 13 adds validated correlation, shared structured/redacted backend and Electron logs, explicit telemetry opt-in, authenticated Diagnostics, previewed/confirmed/hashed support bundles, typed failure semantics, evidence-backed compliance wording, and real stress/idle evaluators. All 28 routes are axe-clean and ten keyboard/app-readiness workflows pass. Installed correlation/failure/redaction/support/24-hour/72-hour proof remains open, along with prior installed workflow, provider, gateway, recovery, security, object-store, signing, and review gates; production/public release is therefore **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), the [`Phase 13 evidence`](reports/production-readiness/2026/phase-13/summary.md), and the [`Phase 14 plan`](PRODUCTION_COMPLETION_PLAN_2026.md#22-phase-14---packaging-signing-updates-dependencies-and-supply-chain).
+> DataLogicEngine is available for local engineering evaluation and architecture
+> validation. Phases 0-2 and the Phase 3-14 engineering checkpoints are complete;
+> Phase 15 installed-system qualification is active. Phase 14 establishes product
+> 4.3.0 authority, a 315-package hashed Python lock, exact Node/Electron inputs,
+> versioned Windows artifacts, immutable workflows, fail-closed signing/update/
+> distribution policy, SBOM/release-manifest/attestation gates, and legacy-path
+> exclusion. The rebuilt signed installer, installed lifecycle/update matrix,
+> legal authority, object-store decision, independent reviews, and all retained
+> installed gates remain open, so production/public release is **NO-GO**. Follow
+> [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), and the [`Phase 14 evidence`](reports/production-readiness/2026/phase-14/summary.md).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,7 +73,7 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 14 authoritative versioning, deterministic builds, signed packaging/updates, dependency locks, SBOMs, and provenance
+- Phase 15 clean 4.3.0 release-candidate build, installed lifecycle, Windows matrix, retained system gates, and release qualification
 - Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
 - Deferred rebuilt-installed Phase 11 MCP containment, lifecycle, stores, and Electron acceptance
@@ -285,15 +294,16 @@ $env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires trusted Windows code-signing credentials and the release checklist in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md).
+`CSC_SKIP=true` creates an unsigned local installer. A signed public release requires the approved publisher, protected signing boundary, and release checklist in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md).
+The stale local `Latest` artifact is not a release candidate.
 
 The desktop build produces these root artifacts:
 
 | Artifact | Purpose |
 | --- | --- |
-| `DataLogicEngine Setup Latest.exe` | NSIS Windows installer |
-| `DataLogicEngine Setup Latest.exe.sha256` | Installer checksum |
-| `DataLogicEngine Setup Latest.exe.blockmap` | Electron updater block map |
+| `DataLogicEngine Setup 4.3.0.exe` | Canonical versioned NSIS Windows installer |
+| `DataLogicEngine Setup 4.3.0.exe.sha256` | Installer checksum |
+| `DataLogicEngine Setup 4.3.0.exe.blockmap` | Electron updater block map |
 
 ### 7. Verify the generated installer
 
@@ -313,7 +323,7 @@ The installer-mode smoke test performs a local install/uninstall cycle. Close an
 Start the installer interactively:
 
 ```powershell
-.\DataLogicEngine Setup Latest.exe
+.\DataLogicEngine Setup 4.3.0.exe
 ```
 
 After installation, launch DataLogicEngine from the Start menu or desktop shortcut, open **Settings -> AI/Model**, select OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`, paste your provider key, and save it. Unsigned local builds may show a Windows SmartScreen warning until the production code-signing gate is complete.
@@ -543,10 +553,10 @@ npm --prefix frontend run electron:dist
 
 Installer artifacts are copied to the repository root as a single canonical setup executable:
 
-- `DataLogicEngine Setup Latest.exe`
+- `DataLogicEngine Setup 4.3.0.exe`
 - matching `.sha256` and `.blockmap` files
 
-Silent install/uninstall scripts are maintained under `scripts/windows/`; see [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](docs/WINDOWS_11_LOCAL_RUNBOOK.md) for enterprise install and uninstall examples.
+Legacy standalone install/uninstall scripts under `scripts/windows/` are quarantined and excluded from the release payload. Phase 15 will qualify the NSIS silent lifecycle and data-choice behavior; see [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](docs/WINDOWS_11_LOCAL_RUNBOOK.md).
 
 ### Model Provider Setup
 
@@ -842,7 +852,7 @@ npm --prefix frontend audit --audit-level=high
 | --- | --- |
 | Completed foundation | Phases 0-7: scope and trust boundaries, internal data plane, canonical governed path, evidence validity, and governed provider behavior. |
 | Completed product, UI, and operations checkpoints | Phases 8-13: gateway/SDKs, ingestion/retrieval/memory, simulation, MCP, truthful UI/accessibility automation, and source-level observability/diagnostics/support/compliance semantics. Installed acceptance remains gated. |
-| Active subsystem | Phase 14: deterministic signed packaging, updates, dependencies, SBOMs, and provenance. |
+| Active subsystem | Phase 15: clean release-candidate build and complete installed-system qualification. |
 | Retained installed subsystem gates | Phase 12 workflow/visual/NVDA plus Phase 13 correlation/failure/redaction/support/soak acceptance. |
 | Release | Phases 15-18: installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 

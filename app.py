@@ -40,6 +40,7 @@ from backend.observability.crash_reporting import (
     initialize_crash_reporting,
 )
 from backend.observability.latency_slo import latency_slo_prometheus_lines
+from backend.product_version import PRODUCT_VERSION
 from backend.security.secret_resolver import (
     is_secure_secret_source,
     resolve_runtime_secret,
@@ -1425,7 +1426,7 @@ def _configure_application(
         ENV=environment,
         TESTING=testing,
         DLE_ENVIRONMENT=environment,
-        APP_VERSION=os.environ.get("APP_VERSION", "0.1.1"),
+        APP_VERSION=PRODUCT_VERSION,
         DLE_PRODUCTION_MODE=production,
         DLE_DESKTOP_MODE=desktop,
         DLE_START_RUNTIME=False,
@@ -1646,7 +1647,7 @@ def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None
 
         identity = InstallationIdentity.load_or_create(
             runtime.ownership.identity_path,
-            version=str(app.config.get("APP_VERSION", "0.1.1")),
+            version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
         )
         manager = PodmanDataPlaneManager(
             runtime_root=runtime.runtime_root,
@@ -1734,7 +1735,7 @@ def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None
     manager = DatabaseLifecycleManager(
         base_dir=str(database_root),
         stop_timeout_seconds=stop_timeout,
-        product_version=str(app.config.get("APP_VERSION", "0.1.1")),
+        product_version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
     )
     app.extensions["dle_database_manager"] = manager
 
@@ -1849,12 +1850,12 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
         if (
             active_runtime.ownership.identity is not None
             and active_runtime.ownership.identity.version
-            != str(app.config.get("APP_VERSION", "0.1.1"))
+            != str(app.config.get("APP_VERSION", PRODUCT_VERSION))
         ):
             from backend.storage.migration_inventory import SUPPORTED_UPGRADE_SOURCES
 
             installed_version = active_runtime.ownership.identity.version
-            target_version = str(app.config.get("APP_VERSION", "0.1.1"))
+            target_version = str(app.config.get("APP_VERSION", PRODUCT_VERSION))
             if (
                 app.config.get("DLE_DATA_PLANE_DRIVER") == "podman"
                 and installed_version in SUPPORTED_UPGRADE_SOURCES
@@ -1907,7 +1908,7 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
             enabled=bool(app.config.get("DLE_EXTERNAL_TELEMETRY_ENABLED")),
             dsn=os.environ.get("SENTRY_DSN"),
             environment=str(app.config.get("DLE_ENVIRONMENT", "production")),
-            release=os.environ.get("APP_VERSION", "1.2.0"),
+            release=PRODUCT_VERSION,
             traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
             profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
         )

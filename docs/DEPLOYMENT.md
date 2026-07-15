@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
+| Document version | v2.13.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -19,6 +19,21 @@ desktop, an explicit Flask application factory and owned runtime, Windows VM
 using the same internal stack, app-owned internal storage services,
 deterministic readiness/shutdown, packaging smoke tests, and release-governed
 promotion.
+
+## Phase 14 release authority
+
+The source checkpoint uses config/product-versions.json for product 4.3.0 and
+Windows file version 4.3.0.0. requirements.txt is the reviewed direct-pin input
+and requirements.lock is the generated SHA-256 release lock; package-lock.json
+is the exact Node authority. Release builds fail on version/lock drift, mutable
+workflow actions, stale installer aliases, missing SBOM/content inventories,
+missing signatures/attestations, or unapproved release authority.
+
+The only canonical installer name is DataLogicEngine Setup 4.3.0.exe. The current
+local Latest artifact is stale 0.1.1 evidence and must not be installed or cited
+as the release candidate. Production signing, automatic updates, service
+redistribution, legal authority, and the final object-store choice remain blocked
+until the Phase 15 installed candidate and owner/independent evidence close them.
 
 ## Audience
 
@@ -150,7 +165,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packag
 Typical desktop outputs include:
 
 - `frontend/dist/` packaged app output;
-- repo-root installer copy such as `DataLogicEngine Setup Latest.exe` where configured by packaging scripts;
+- repo-root canonical installer `DataLogicEngine Setup 4.3.0.exe`;
 - matching integrity sidecars such as `.sha256` and `.blockmap` where generated;
 - packaging smoke reports under `reports/`;
 - installer integrity and signature reports under `reports/` where verification is run.
@@ -158,7 +173,7 @@ Typical desktop outputs include:
 ### Manual installer run
 
 ```powershell
-.\DataLogicEngine Setup Latest.exe
+.\DataLogicEngine Setup 4.3.0.exe
 ```
 
 ### Desktop runtime behavior

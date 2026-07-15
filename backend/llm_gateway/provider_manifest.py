@@ -7,9 +7,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+from backend.product_version import CONTRACT_VERSIONS
+
 
 MANIFEST_PATH = Path(__file__).resolve().parents[2] / "config" / "provider_manifest.v1.json"
-EXPECTED_SCHEMA_VERSION = "provider-manifest.v1"
+EXPECTED_SCHEMA_VERSION = CONTRACT_VERSIONS["provider_manifest"]
 
 
 @dataclass(frozen=True, slots=True)

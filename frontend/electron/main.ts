@@ -7,6 +7,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { runBoundedShutdown } from './lifecycle';
+import { evaluateUpdateTrustPolicy, type ReleaseTrustPolicy } from './update-trust';
 import {
   createDesktopLogLine,
   redactDesktopLogText,
@@ -326,13 +327,34 @@ function setUpdateState(
   updateState.availableVersion = availableVersion;
 }
 
+function loadReleaseTrustPolicy(isDev: boolean): ReleaseTrustPolicy | null {
+  const policyPath = isDev
+    ? path.resolve(__dirname, '..', '..', 'config', 'release-trust-policy.json')
+    : path.join(process.resourcesPath, 'config', 'release-trust-policy.json');
+  try {
+    return JSON.parse(fs.readFileSync(policyPath, 'utf-8')) as ReleaseTrustPolicy;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    appendDesktopLog('ERROR', `Release trust policy could not be loaded: ${message}`);
+    return null;
+  }
+}
+
 function configureAutoUpdater(isDev: boolean): void {
-  const updatesAllowed = !isDev && envFlag('DLE_AUTO_UPDATE_ENABLED', false);
+  const trustDecision = evaluateUpdateTrustPolicy(loadReleaseTrustPolicy(isDev));
+  const updatesAllowed = !isDev
+    && trustDecision.allowed
+    && envFlag('DLE_AUTO_UPDATE_ENABLED', false);
   updateState.enabled = updatesAllowed;
   updateState.currentVersion = app.getVersion();
 
   if (!updatesAllowed) {
-    setUpdateState('disabled', 'Auto-update disabled by runtime policy.', null);
+    const reason = isDev
+      ? 'development build'
+      : trustDecision.allowed
+        ? 'runtime policy is disabled'
+        : trustDecision.reason;
+    setUpdateState('disabled', `Auto-update disabled: ${reason}.`, null);
     return;
   }
 
@@ -1000,7 +1022,7 @@ app.on('ready', async () => {
 
 function startBackend() {
   intentionalBackendShutdown = false;
-  console.log('Starting Python backend... v0.1.1');
+  console.log(`Starting Python backend... v${app.getVersion()}`);
   appendDesktopLog('INFO', 'Starting backend process.');
   
   const isDev = !app.isPackaged;

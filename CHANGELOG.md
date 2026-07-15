@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 14 packaging and supply-chain engineering checkpoint**: established
+  product 4.3.0 and Windows 4.3.0.0 authority across Python, Electron, UI,
+  support, migrations, artifacts, and release manifests; added an 81-direct-pin/
+  315-package SHA-256 Python release lock and exact Node/Electron authority.
+- **Trusted release gates**: added clean/tag/version/lock enforcement, Windows
+  version resources, canonical versioned NSIS artifacts, stale-output rejection,
+  immutable GitHub Actions, backend/frontend/service/installer SBOMs, normalized
+  content inventories, release manifests, GitHub attestations, and verification.
+- **Fail-closed signing, updates, legal, and legacy controls**: added publisher/
+  timestamp/revocation/binary inventories, policy-gated signed updates, release-
+  blocking legal/distribution checks, third-party-notice readiness, and exclusion
+  of legacy installer payloads. Final installed/signed/authority gates remain open.
 - **Phase 13 observability and support engineering checkpoint**: added validated
   renderer/Electron/Flask/background correlation, shared rotated/redacted
   `dle.log.v1` backend and desktop logs, explicit backend/renderer telemetry

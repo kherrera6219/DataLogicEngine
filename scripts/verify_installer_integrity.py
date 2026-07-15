@@ -40,8 +40,32 @@ def _read_hash_file(hash_file: Path) -> str:
     return expected_hash
 
 
+def _expected_installer_name(repo_root: Path) -> str:
+    authority_path = repo_root / "config" / "product-versions.json"
+    try:
+        authority = json.loads(authority_path.read_text(encoding="utf-8"))
+        version = authority["product"]["version"]
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Product version authority is missing or invalid: {exc}") from exc
+    if not isinstance(version, str) or not version.strip():
+        raise ValueError("Product version authority does not declare a valid product.version.")
+    return f"DataLogicEngine Setup {version}.exe"
+
+
 def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[InstallerIssue], dict]:
     issues: List[InstallerIssue] = []
+    try:
+        expected_installer_name = _expected_installer_name(repo_root)
+    except ValueError as exc:
+        issues.append(
+            InstallerIssue(
+                severity="error",
+                artifact="config/product-versions.json",
+                check="version_authority",
+                detail=str(exc),
+            )
+        )
+        return issues, {"expected_installer": None, "installers": []}
     installers = sorted(
         artifact
         for artifact in repo_root.glob("DataLogicEngine Setup *.exe")
@@ -57,7 +81,7 @@ def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[In
                 detail="No installer artifacts were found in repository root.",
             )
         )
-        return issues, {"installers": []}
+        return issues, {"expected_installer": expected_installer_name, "installers": []}
 
     report_rows = []
     for installer in installers:
@@ -68,6 +92,16 @@ def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[In
             "blockmap_present": (repo_root / f"{installer.name}.blockmap").exists(),
             "valid": True,
         }
+        if installer.name != expected_installer_name:
+            issues.append(
+                InstallerIssue(
+                    severity="error",
+                    artifact=installer.name,
+                    check="artifact_version",
+                    detail=f"Expected the canonical versioned artifact {expected_installer_name}.",
+                )
+            )
+            row["valid"] = False
         checksum_file = repo_root / f"{installer.name}.sha256"
         if not checksum_file.exists():
             issues.append(
@@ -121,7 +155,20 @@ def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[In
             )
         report_rows.append(row)
 
-    return issues, {"installers": report_rows}
+    if installers and not any(installer.name == expected_installer_name for installer in installers):
+        issues.append(
+            InstallerIssue(
+                severity="error",
+                artifact=expected_installer_name,
+                check="canonical_artifact_presence",
+                detail="The canonical versioned installer is missing.",
+            )
+        )
+
+    return issues, {
+        "expected_installer": expected_installer_name,
+        "installers": report_rows,
+    }
 
 
 def main() -> int:

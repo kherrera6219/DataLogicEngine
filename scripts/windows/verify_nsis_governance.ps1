@@ -1,13 +1,18 @@
 [CmdletBinding()]
 Param(
-    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+    [string]$RepoRoot
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+}
+
 $configPath = Join-Path $RepoRoot "frontend\electron-builder.yml"
 $packagePath = Join-Path $RepoRoot "frontend\package.json"
+$versionAuthorityPath = Join-Path $RepoRoot "config\product-versions.json"
 $nsisScriptPath = Join-Path $RepoRoot "frontend\electron\installer.nsh"
 
 if (-not (Test-Path -LiteralPath $configPath)) {
@@ -16,12 +21,16 @@ if (-not (Test-Path -LiteralPath $configPath)) {
 if (-not (Test-Path -LiteralPath $packagePath)) {
     throw "NSIS governance check failed: missing $packagePath"
 }
+if (-not (Test-Path -LiteralPath $versionAuthorityPath)) {
+    throw "NSIS governance check failed: missing $versionAuthorityPath"
+}
 if (-not (Test-Path -LiteralPath $nsisScriptPath)) {
     throw "NSIS governance check failed: missing $nsisScriptPath"
 }
 
 $configText = Get-Content -LiteralPath $configPath -Raw
 $packageJson = Get-Content -LiteralPath $packagePath -Raw | ConvertFrom-Json
+$versionAuthority = Get-Content -LiteralPath $versionAuthorityPath -Raw | ConvertFrom-Json
 $nsisText = Get-Content -LiteralPath $nsisScriptPath -Raw
 
 $checks = @(
@@ -36,6 +45,8 @@ $checks = @(
     @{ id = "uninstall_display_name"; pattern = '(?m)^\s*uninstallDisplayName:\s*"DataLogicEngine Desktop"\s*$'; message = "Uninstaller display name must be DataLogicEngine Desktop." },
     @{ id = "retain_app_data"; pattern = "(?m)^\s*deleteAppDataOnUninstall:\s*false\s*$"; message = "Uninstall must default to retaining app data." },
     @{ id = "run_after_finish"; pattern = "(?m)^\s*runAfterFinish:\s*true\s*$"; message = "Installer must show finish/run completion behavior." },
+    @{ id = "update_signature_verification"; pattern = "(?m)^\s*verifyUpdateCodeSignature:\s*true\s*$"; message = "Electron update signature verification must be enabled." },
+    @{ id = "versioned_artifact_name"; pattern = '(?m)^\s*artifactName:\s*"DataLogicEngine Setup \$\{version\}\.\$\{ext\}"\s*$'; message = "Installer artifact name must include the authoritative package version." },
     @{ id = "custom_nsis_include"; pattern = "(?m)^\s*include:\s*electron/installer\.nsh\s*$"; message = "Custom NSIS include must be present." }
 )
 
@@ -63,6 +74,16 @@ if (-not $authorMatches) {
     $failures += "Package author must be Kevin Herrera for Windows file metadata."
 }
 
+$versionMatches = [string]$packageJson.version -eq [string]$versionAuthority.product.version
+$results += [ordered]@{
+    id = "package_product_version"
+    passed = $versionMatches
+    message = "Frontend package version must match config/product-versions.json."
+}
+if (-not $versionMatches) {
+    $failures += "Frontend package version must match config/product-versions.json."
+}
+
 foreach ($macro in @("customHeader", "customInstall", "customUnInstall")) {
     $present = [bool]($nsisText -match ("!macro\s+" + [Regex]::Escape($macro)))
     $results += [ordered]@{
@@ -83,6 +104,16 @@ $results += [ordered]@{
 }
 if (-not $installLocationRegistered) {
     $failures += "Installer should write InstallLocation for Windows Apps metadata."
+}
+
+$legacyScriptsExcluded = -not [bool]($configText -match '(?m)^\s*-\s+from:\s+\.\./scripts/windows\s*$')
+$results += [ordered]@{
+    id = "legacy_installer_scripts_excluded"
+    passed = $legacyScriptsExcluded
+    message = "Legacy standalone installer scripts must not be copied into the NSIS payload."
+}
+if (-not $legacyScriptsExcluded) {
+    $failures += "Legacy standalone installer scripts must not be copied into the NSIS payload."
 }
 
 $report = [ordered]@{

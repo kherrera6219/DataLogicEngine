@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.12.0 |
-| Completed phase | Phase 13 engineering checkpoint - observability, diagnostics, compliance semantics, and support |
-| Current phase | Phase 14 - packaging, signing, updates, dependencies, and supply chain |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.13.0 |
+| Completed phase | Phase 14 engineering checkpoint - packaging, signing, updates, dependencies, and supply chain |
+| Current phase | Phase 15 - system qualification and release candidate |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -416,18 +416,43 @@ Installed cross-process/store reconstruction, complete failure injection,
 all-output redaction/no-egress, real diagnostics/support acceptance, and the
 24-hour stress plus 72-hour idle/normal soaks remain release-blocking.
 
+## Phase 14 engineering checkpoint
+
+Product 4.3.0 now has one version authority across Python, Electron, Windows
+file metadata, UI/support output, versioned NSIS artifact naming, and the release
+manifest. Python release dependencies use 81 exact reviewed direct pins and a
+generated 315-package SHA-256 lock; Node is exact and Electron is 43.1.1.
+
+All 71 external workflow references are commit-pinned. The release path now
+requires clean/tag/version/lock parity, current backend-first packaging, SBOMs,
+normalized content inventory, release manifest, signing and signature checks,
+GitHub attestations, and attestation verification. Update-signature verification
+is always enabled while automatic update remains policy-disabled.
+
+The Windows signature inventory covers 158 current executable/script payload
+files and correctly fails because the canonical 4.3.0 installer and approved
+publisher do not yet exist. Legal/distribution structure passes but ten actions
+remain open. Legacy WiX/PowerShell payloads are excluded; SeaweedFS remains a
+production-disabled qualification candidate.
+
+Focused validation passes 27 Phase 14 Python tests, Ruff, product/dependency/
+workflow/legacy/NSIS governance, PowerShell 5.1 parsing/execution, frontend
+update-trust tests, frontend typecheck/Electron build, and npm audit. Evidence
+and the retained CP14-A through CP14-H rows are under
+reports/production-readiness/2026/phase-14/.
+
 ## Exact next action
 
-1. Begin Phase 14 with a live inventory of product/API/schema/SDK versions,
-   Python and Node dependency authorities, PyInstaller/Electron inputs, internal
-   service assets, Windows packaging, signing/update settings, SBOM/provenance,
-   and release workflows.
-2. Select one product-version authority and one Python dependency authority.
-3. Add version-parity and native-build-failure-stop tests before implementation.
-4. Keep automatic update disabled until signed update, downgrade, interruption,
-   rollback, and offline-package acceptance passes.
-5. Preserve every installed-only Phase 3-13 gate, alert 389, and the SeaweedFS
-   candidate-only boundary as release blockers.
+1. Freeze product 4.3.0 release inputs at a clean candidate commit.
+2. Build the canonical backend, portable app, and versioned NSIS installer only
+   through the release workflow, then compare two normalized clean builds.
+3. Execute the clean install, repair, 0.1.1 retained-data upgrade, rollback,
+   uninstall data choices, path/user/elevation, and supported Windows matrix.
+4. Run every retained Phase 3-14 service, recovery, provider, gateway, knowledge,
+   simulation, MCP, UI/accessibility, observability, security, failure, update,
+   signing, supply-chain, object-store, and soak gate against that candidate.
+5. Preserve production signing/distribution NO-GO, alert 389, automatic-update
+   disablement, and SeaweedFS candidate-only status until evidence closes them.
 
 ## Phase rules
 

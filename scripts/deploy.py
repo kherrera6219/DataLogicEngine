@@ -18,6 +18,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import text
 
+from backend.product_version import PRODUCT_VERSION
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -220,7 +222,7 @@ def create_deployment_record():
         deployment_data = {
             "timestamp": datetime.datetime.now(UTC).isoformat(),
             "environment": os.environ.get("FLASK_ENV", "development"),
-            "version": os.environ.get("APP_VERSION", "1.0.0"),
+            "version": PRODUCT_VERSION,
             "deployer": os.environ.get("USER", "unknown"),
             "database_url": os.environ.get("DATABASE_URL", "").split("@")[-1]  # Hide credentials
         }

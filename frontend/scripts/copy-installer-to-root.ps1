@@ -14,7 +14,16 @@ if (-not (Test-Path $DistDir)) {
     throw "Installer output directory not found: $DistDir"
 }
 
-$CanonicalInstallerName = "DataLogicEngine Setup Latest.exe"
+$VersionAuthorityPath = Join-Path $RepoRoot "config\product-versions.json"
+if (-not (Test-Path -LiteralPath $VersionAuthorityPath)) {
+    throw "Product version authority not found: $VersionAuthorityPath"
+}
+$VersionAuthority = Get-Content -LiteralPath $VersionAuthorityPath -Raw | ConvertFrom-Json
+$ProductVersion = [string]$VersionAuthority.product.version
+if (-not $ProductVersion) {
+    throw "Product version authority does not declare product.version."
+}
+$CanonicalInstallerName = "DataLogicEngine Setup $ProductVersion.exe"
 $Installer = Get-ChildItem -Path $DistDir -File -Filter $CanonicalInstallerName |
     Select-Object -First 1
 

@@ -22,6 +22,7 @@ a = Analysis(
     datas=[
         ('backend', 'backend'),
         ('core', 'core'),
+        ('config/product-versions.json', 'config'),
         # static/ is produced by the frontend build; skip when absent (CI packaging smoke).
         *([('static', 'static')] if os.path.isdir('static') else []),
 
@@ -112,6 +113,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    version='build/backend-version-info.txt',
 )
 coll = COLLECT(
     exe,

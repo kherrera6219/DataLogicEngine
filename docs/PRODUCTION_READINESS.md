@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.15.0 |
+| Document version | v2.16.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -42,10 +42,10 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **Phase 13 observability/diagnostics/compliance/support
-engineering is complete and Phase 14 is active, but signed production release
-remains NO-GO until retained installed, security, provider, recovery,
-accessibility, soak, signing, and independent-review evidence is complete.**
+Current status: **Phase 14 packaging/dependency/signing/supply-chain engineering
+is complete and Phase 15 installed-system qualification is active, but signed
+production release remains NO-GO until retained installed, security, provider,
+recovery, accessibility, soak, signing, legal, and review evidence is complete.**
 
 ### Ready / substantially implemented
 
@@ -82,6 +82,10 @@ accessibility, soak, signing, and independent-review evidence is complete.**
     telemetry opt-in, authenticated Diagnostics, previewed/confirmed/hashed
     support bundles, typed failure semantics, evidence-backed compliance
     outputs, and stress24/idle72 evaluators.
+20. Product 4.3.0 authority, hashed Python release lock, exact Node/Electron
+    inputs, versioned Windows artifacts, immutable workflow references,
+    fail-closed signing/update/distribution policy, SBOM/content inventory/
+    release-manifest/attestation gates, and legacy installer exclusion.
 
 ### Remaining release blockers before signed production distribution
 
@@ -110,6 +114,11 @@ accessibility, soak, signing, and independent-review evidence is complete.**
 14. Phase 13 installed multi-process/store correlation reconstruction, complete
     failure injection, all-output redaction/no-egress proof, Diagnostics/support
     acceptance, and full 24-hour stress plus 72-hour idle/normal-use soaks.
+15. Phase 14 canonical rebuilt/signed installer, two-build repeatability, full
+    install/repair/0.1.1-upgrade/rollback/uninstall/Windows matrix, approved
+    publisher/signing boundary, adversarial signed updates, final SBOM/provenance/
+    AV/license evidence, ten legal/authority actions, approved notices, and full
+    legacy reachability proof.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -160,14 +169,16 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 
 ### Required before signed Windows production distribution
 
-1. Trusted signing certificate is available.
-2. `WINDOWS_CODESIGN_CERT_BASE64` is configured.
-3. `WINDOWS_CODESIGN_CERT_PASSWORD` is configured.
-4. Signing certificate health/rotation validation passes.
-5. Installer signing completes.
-6. Installer signature verification passes.
-7. Signed installer and reports are uploaded as artifacts.
-8. Packaging smoke is run against the signed artifact when practical.
+1. Release trust policy authorizes production signing and distribution.
+2. Approved publisher subject and protected managed/hardware signing boundary exist.
+3. Signing certificate health, rotation, revocation, and incident ownership pass.
+4. Installer and all applicable app-owned executable payloads are signed.
+5. Signature chain, timestamp, publisher, hash, and revocation verification pass.
+6. Final installer/service/JRE SBOM and content inventories are complete.
+7. GitHub artifact/SBOM attestations are generated and verified.
+8. Signed installer, reports, notices, scans, and approvals are archived together.
+9. Packaging and installed lifecycle run against the exact signed artifact.
+10. No local certificate or normal-runner exportable PFX is accepted as evidence.
 
 ---
 
@@ -288,22 +299,26 @@ See `docs/TESTING.md` for commands and quality baseline.
 
 ## Production code-signing path
 
-The trusted Windows signing path is the `Release Installer Signing` GitHub Actions workflow.
+The Release Installer Signing workflow is gated engineering scaffolding; it is
+not yet the approved production signing boundary. Production authorization
+requires config/release-trust-policy.json to name the approved publisher subject,
+managed service or hardware-protected credential boundary, signing owner,
+rotation/revocation process, protected environment, and distribution authority.
 
-Required secrets:
+Required final workflow path:
 
-1. `WINDOWS_CODESIGN_CERT_BASE64`
-2. `WINDOWS_CODESIGN_CERT_PASSWORD`
+1. Build the clean tagged version-consistent installer from locked inputs.
+2. Generate integrity reports, final SBOMs, notices, and release manifest.
+3. Sign the installer and every applicable app-owned executable with SHA-256 and
+   a trusted timestamp inside the approved signing boundary.
+4. Verify publisher, chain, timestamp, hash, and revocation for all binaries.
+5. Generate GitHub provenance and SBOM attestations.
+6. Verify the attestations before promotion.
+7. Archive artifacts, hashes, signatures, SBOMs, attestations, scans, notices,
+   installed qualification, and approval together.
 
-Expected workflow path:
-
-1. Build unsigned installer.
-2. Validate certificate health and rotation threshold using `scripts/windows/verify_signing_certificate_health.ps1`.
-3. Sign installers using `scripts/windows/sign_release_installers.ps1`.
-4. Verify signatures using `scripts/windows/verify_installer_signature.ps1`.
-5. Upload signed installers and reports.
-
-Local development certificates are valid only for workstation validation and must not be treated as production signing evidence.
+Local development certificates and an exportable PFX on a normal hosted runner
+are not production release evidence.
 
 ---
 

@@ -248,37 +248,27 @@ def check_backend_dependencies() -> list[CheckResult]:
     header("Backend dependencies")
     results: list[CheckResult] = []
     req_file = ROOT / "requirements.txt"
+    req_lock = ROOT / "requirements.lock"
     pyproject_file = ROOT / "pyproject.toml"
-    uv_lock = ROOT / "uv.lock"
 
     if req_file.exists():
         results.append(CheckResult("OK", f"requirements.txt found at {req_file}"))
-        results.append(CheckResult("INFO", "Install with `pip install -r requirements.txt`."))
-    elif pyproject_file.exists():
-        results.append(CheckResult("WARN", "requirements.txt missing; fallback manifest pyproject.toml detected."))
-        if uv_lock.exists():
-            results.append(CheckResult("INFO", "Install with `uv sync` to honor uv.lock."))
+        if req_lock.exists():
+            results.append(CheckResult("OK", f"Hash-locked release dependencies found at {req_lock}."))
+            results.append(CheckResult("INFO", "Install release dependencies with `pip install --require-hashes -r requirements.lock`."))
         else:
-            results.append(CheckResult("INFO", "Install with `pip install -e .` from repository root."))
+            results.append(CheckResult("ERROR", "requirements.lock is missing; regenerate the release dependency lock."))
+    elif pyproject_file.exists():
+        results.append(CheckResult("ERROR", "requirements.txt is missing; pyproject.toml is metadata-only."))
     else:
         results.append(CheckResult("BLOCKER", "No dependency manifest found (requirements.txt or pyproject.toml)."))
 
-    if pyproject_file.exists() and uv_lock.exists():
+    if pyproject_file.exists():
         pyproject_name = _read_pyproject_name(pyproject_file)
-        uv_lock_name = _read_uv_virtual_package_name(uv_lock)
         if not pyproject_name:
             results.append(CheckResult("ERROR", "pyproject.toml is missing project.name metadata."))
-        elif not uv_lock_name:
-            results.append(CheckResult("ERROR", "uv.lock is missing the virtual root package entry."))
-        elif pyproject_name != uv_lock_name:
-            results.append(
-                CheckResult(
-                    "ERROR",
-                    f"Dependency metadata mismatch: pyproject.toml project.name='{pyproject_name}' but uv.lock root package='{uv_lock_name}'.",
-                )
-            )
         else:
-            results.append(CheckResult("OK", f"Python workspace metadata aligned (project.name={pyproject_name})."))
+            results.append(CheckResult("OK", f"Python workspace metadata present (project.name={pyproject_name})."))
 
     venv_dir = ROOT / ".venv"
     if venv_dir.exists():

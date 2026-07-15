@@ -6,6 +6,8 @@ import logging
 import sys
 from typing import Optional
 
+from backend.product_version import PRODUCT_VERSION
+
 logger = logging.getLogger(__name__)
 
 class DatabaseLifecycleManager:
@@ -19,7 +21,7 @@ class DatabaseLifecycleManager:
         base_dir: Optional[str] = None,
         *,
         stop_timeout_seconds: float = 10.0,
-        product_version: str = "0.1.1",
+        product_version: str = PRODUCT_VERSION,
     ):
         if base_dir:
             self.base_dir = base_dir

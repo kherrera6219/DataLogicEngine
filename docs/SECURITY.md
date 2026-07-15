@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.0 |
+| Document version | v2.15.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -17,8 +17,23 @@ Define DataLogicEngine security controls, identity/access patterns, local-first 
 This version reflects the current architecture: canonical `/api/v1/*` APIs,
 DMRF injection defense, TruthGate, Truth Engine v7.3, desktop loopback auth,
 DPAPI helper, export integrity, multi-store data protections, MCP governance,
-Phase 13 observability/support controls, and signed-release gates.
+Phase 13 observability/support controls, and Phase 14 release-trust gates.
 
+
+## Phase 14 release trust and supply-chain controls
+
+Product 4.3.0 and Windows file version 4.3.0.0 are bound to one authority.
+Release Python dependencies are hash-locked; Node/Electron inputs are exact; all
+external workflow actions are pinned to commits. Backend/frontend/service/final-
+installer SBOM, content inventory, release-manifest, signature, provenance, and
+attestation-verification gates fail closed.
+
+config/release-trust-policy.json keeps production signing, distribution, and
+updates unauthorized until approved. Electron signature verification cannot be
+disabled for updates, and environment settings cannot bypass the signed-update
+qualification gates. The approved publisher, managed/hardware credential
+boundary, final signed binaries, legal authority, and installed adversarial
+update results remain release blockers.
 ## Audience
 
 1. Security engineers
@@ -463,14 +478,18 @@ Release security controls:
 12. Trusted Windows code signing for production distribution.
 13. Signature verification before release distribution.
 
-Required signing path:
+Required guarded signing path:
 
+- `config/release-trust-policy.json`
 - `.github/workflows/release-installer-signing.yml`
 - `scripts/windows/verify_signing_certificate_health.ps1`
 - `scripts/windows/sign_release_installers.ps1`
 - `scripts/windows/verify_installer_signature.ps1`
+- `scripts/windows/verify_release_binary_signatures.ps1`
 
-Local dev certificates are not production release evidence.
+The workflow must remain blocked until the production publisher and protected
+signing boundary are approved. Local development certificates and an exportable
+PFX on a normal hosted build runner are not production release evidence.
 
 ---
 

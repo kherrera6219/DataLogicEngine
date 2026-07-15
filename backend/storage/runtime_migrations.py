@@ -9,6 +9,7 @@ from typing import Any
 from flask_migrate import upgrade
 from sqlalchemy import create_engine
 
+from backend.product_version import CONTRACT_VERSIONS, PRODUCT_VERSION
 from backend.storage.migration_coordinator import MigrationCoordinator
 from backend.storage.store_migration_adapters import (
     ChromaMigrationAdapter,
@@ -22,7 +23,7 @@ from backend.storage.store_migration_adapters import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
-POSTGRESQL_TARGET_REVISION = "e0f1a2b3c4d5"
+POSTGRESQL_TARGET_REVISION = CONTRACT_VERSIONS["data_plane_schema"]
 MANAGED_STORE_TARGETS = {
     "chroma": "dle.chroma.v1",
     "local_json_memory": "unified-memory.v2",
@@ -148,7 +149,7 @@ def build_managed_migration_coordinator(app, runtime, resources):
         adapters=adapters,
         target_versions=MANAGED_STORE_TARGETS,
         ledger_path=runtime.runtime_root / "migrations" / "migration-ledger.json",
-        product_version=str(app.config.get("APP_VERSION", "0.1.1")),
+        product_version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
         supported_paths=set(),
         backup_verifier=None,
     )

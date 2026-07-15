@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.11.0 |
+| Document version | v2.12.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -61,7 +61,7 @@ ChromaDB, and MinIO and refuses fallback when any required service is absent.
 
 ## Current state
 
-As of the Phase 4 engineering checkpoint (2026-07-13):
+The current cumulative engineering state through Phase 14 includes:
 
 1. `create_app()` produces isolated application instances; importing `app.py`
    performs no application construction or resource startup.
@@ -97,6 +97,14 @@ As of the Phase 4 engineering checkpoint (2026-07-13):
     independent review, and final object-store selection remain release blockers.
 
 To repeat the engineering qualification from a prepared Podman lab environment:
+Phase 14 adds product 4.3.0 authority, a 315-package hashed Python release
+lock, exact Node/Electron 43.1.1 inputs, Windows file-version resources,
+versioned NSIS artifact identity, immutable workflow inputs, SBOM/content
+inventories, release manifests, attestation verification, fail-closed publisher/
+update/distribution policy, and legacy installer payload exclusion. The canonical
+rebuilt and signed installer plus the full installed lifecycle remain Phase 15
+gates; no current local artifact is production evidence.
+
 
 ```powershell
 python scripts/verify_internal_data_plane.py --profile qualification --require-all --report reports/production-readiness/2026/phase-03/internal-data-plane-qualification.json
@@ -359,34 +367,27 @@ npm --prefix frontend run electron:dist
 
 Expected files:
 
-1. `DataLogicEngine Setup Latest.exe`
-2. `DataLogicEngine Setup Latest.exe.sha256`
-3. `DataLogicEngine Setup Latest.exe.blockmap`
+1. `DataLogicEngine Setup 4.3.0.exe`
+2. `DataLogicEngine Setup 4.3.0.exe.sha256`
+3. `DataLogicEngine Setup 4.3.0.exe.blockmap`
 4. `frontend/dist/` packaged app artifacts
 5. `dist/DataLogic_Backend/` PyInstaller backend bundle
 
 Run manually:
 
 ```powershell
-.\DataLogicEngine Setup Latest.exe
+.\DataLogicEngine Setup 4.3.0.exe
 ```
 
-Silent install:
+Legacy install_silent.ps1 and uninstall.ps1 are quarantined source-only paths and
+are not copied into the NSIS payload or approved for release qualification.
+Phase 15 must record exact NSIS silent install/uninstall commands, exit codes,
+logs, repair behavior, and keep/export-delete/delete data results.
+
+Candidate silent install syntax (not production-qualified yet):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\install_silent.ps1
-```
-
-Silent uninstall preserving data:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -KeepData
-```
-
-Silent uninstall deleting data:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -DeleteData
+& '.\DataLogicEngine Setup 4.3.0.exe' /S
 ```
 
 ---
@@ -419,23 +420,21 @@ Local unsigned builds are valid for workstation validation, but they are not pro
 
 ## Controlled auto-update policy
 
-Auto-update is disabled by default.
+Auto-update is disabled for the pre-production channel.
 
-Enable only with explicit feed policy:
+Environment variables cannot bypass config/release-trust-policy.json. The updater
+starts only when production_qualified plus every signed-metadata, publisher,
+downgrade, replay, interruption/rollback, staged, and offline gate is true.
+
+After those approvals, the feed request still requires:
 
 ```text
 DLE_AUTO_UPDATE_ENABLED=true
 DLE_AUTO_UPDATE_FEED_URL=<https://...>
 ```
 
-Optional controls:
-
-```text
-DLE_AUTO_UPDATE_AUTO_DOWNLOAD=true|false
-DLE_AUTO_UPDATE_AUTO_INSTALL_ON_QUIT=true|false
-```
-
-Do not enable auto-update for production without signed update artifacts and tested rollback behavior.
+Phase 15 must preserve proof that unsigned, wrong-publisher, tampered, replayed,
+downgraded, and interrupted packages are rejected before policy can change.
 
 ---
 

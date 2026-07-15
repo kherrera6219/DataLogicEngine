@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from backend.product_version import PRODUCT_VERSION
 from urllib.parse import urlsplit, urlunsplit
 
 from backend.observability.redaction import redact_text, redact_value
@@ -193,7 +195,7 @@ class SupportBundleBuilder:
             "schema_version": SUPPORT_BUNDLE_SCHEMA,
             "generated_at": datetime.now(UTC).isoformat(),
             "device_id_hash": hashlib.sha256(socket.gethostname().encode("utf-8")).hexdigest()[:16],
-            "product_version": os.environ.get("APP_VERSION", "0.1.1"),
+            "product_version": PRODUCT_VERSION,
             "content_policy": "redacted_diagnostics_only",
             "user_content_included": False,
             "external_telemetry_required": False,

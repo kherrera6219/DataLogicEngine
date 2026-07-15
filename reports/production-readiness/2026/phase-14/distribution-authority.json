@@ -1,0 +1,10 @@
+{
+  "schema_version": "dle.release-ownership-evidence.v1",
+  "ownership_rows": 13,
+  "legal_rows": 11,
+  "blocked_independent_approvals": 0,
+  "release_blocking_legal_actions": 10,
+  "errors": [],
+  "structure_passed": true,
+  "release_ready": false
+}

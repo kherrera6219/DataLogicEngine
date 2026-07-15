@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.12.0 |
+| Document version | v1.13.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -51,7 +51,19 @@ re-redacted, hashed, retained, optionally encrypted support bundles; a complete
 typed error taxonomy and critical fail-semantics map; evidence-backed compliance
 outputs; real exception/import gates; expanded incident response; and stress24/
 idle72 evaluators. All 28 routes pass axe. A short resource observation passes
-engineering bounds but cannot satisfy CP13-E. Phase 14 is now active.
+engineering bounds but cannot satisfy CP13-E. Phase 13 remains at its
+engineering checkpoint with installed evidence retained.
+
+Phase 14 reached its engineering checkpoint on 2026-07-14. Product 4.3.0 now has
+one version authority and one hashed Python release-lock authority. Windows file
+metadata, UI/API/support consumers, versioned NSIS artifact identity, clean/tag/
+lock gates, immutable workflow inputs, SBOM/content inventories, release
+manifest, attestation verification, publisher/signature checks, and fail-closed
+update/distribution policy are implemented. Legacy installer payload paths are
+excluded. The canonical rebuilt/signed artifact, two-build repeatability,
+installed lifecycle/update matrix, publisher/signing boundary, final supply-
+chain evidence, legal authority, notices, and broad legacy reachability remain
+release-blocking. Phase 15 system qualification is now active.
 
 This checkpoint does not close the installed production exit gates for Phases
 3-13 and does not change the overall release verdict from **NO-GO**. The
@@ -2888,6 +2900,21 @@ approved and no retired or unsupported production path is reachable.
 `docs/SLSA_LEVEL_3_ATTESTATION.md`, `docs/SECURITY.md`, `CHANGELOG.md`, and
 third-party notices, distribution authority record, and legacy-retirement report.
 
+### Phase 14 engineering checkpoint - 2026-07-14
+
+The source checkpoint establishes product 4.3.0 version/dependency authority,
+hashed Python and exact Node locks, supported Electron 43.1.1, versioned
+installer identity, Windows file metadata, immutable workflow actions,
+fail-closed signing/update/distribution policy, SBOM/content inventory/release
+manifest generation, attestation verification, binary-signature inventory, and
+legacy installer exclusion.
+
+CP14-A passes at the source boundary. CP14-B, CP14-D, CP14-E, CP14-F, and CP14-H
+retain final-artifact or installed rows. CP14-C and CP14-G remain open. The exact
+deferred matrix and validation are under
+reports/production-readiness/2026/phase-14/. The phase reaches an engineering
+checkpoint, not the signed production exit gate.
+
 ## 23. Phase 15 - System qualification and release candidate
 
 ### Objective
@@ -3937,18 +3964,19 @@ exit gate.
 
 ## 32. Immediate next action
 
-Begin **Phase 14** with an authoritative version/dependency/build-input inventory
-covering Python, Node/Electron, PyInstaller, application/API/schema/SDK versions,
-all five internal service assets, Windows packaging, update/signing settings,
-SBOM/provenance inputs, and release workflows. Select one version authority and
-one Python dependency authority before changing packaging behavior.
+Begin **Phase 15** by freezing the 4.3.0 release-candidate inputs and producing
+the clean canonical backend, portable application, and versioned NSIS installer
+through the release workflow. Run the two-build normalized-content comparison
+before any installed qualification claim.
 
-Start with tests proving every consumer receives the same version and a native
-build failure stops the release pipeline. Keep external telemetry and automatic
-updates disabled until their later qualification gates pass.
+Execute the clean install, repair, supported 0.1.1 upgrade, rollback, uninstall
+data-choice, non-default path, non-ASCII user, long path, standard-user, and
+elevation matrix. Then run the retained Phase 3-14 service, migration, recovery,
+provider, gateway, knowledge, simulation, MCP, UI/accessibility, observability,
+redaction, failure, support, performance, update, signature, SBOM/provenance,
+and soak gates against that exact candidate.
 
-Preserve the one `governed.v1` orchestrator, `dle-simulation.v1`, and
-versioned client boundary, all installed-only Phase 3-13 gates, Dependabot alert
-389, and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 14 must preserve Phase 12's installed workflow, packaged visual/
-scaling/high-contrast, and manual NVDA gates plus every deferred Phase 13 gate.
+Preserve automatic-update disablement, production signing/distribution NO-GO,
+alert 389, all independent-review requirements, and the SeaweedFS candidate-
+only Replacement Control boundary until their named evidence and owner
+approvals exist.

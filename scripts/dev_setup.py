@@ -52,15 +52,15 @@ def install_dependencies():
     print_step("Installing Dependencies")
     pip_cmd = ".venv/bin/pip" if platform.system() != "Windows" else ".venv\\Scripts\\pip"
 
-    requirements = Path("requirements.txt")
+    requirements = Path("requirements.lock")
     pyproject = Path("pyproject.toml")
 
     # Core dependencies
     subprocess.check_call([pip_cmd, "install", "--upgrade", "pip"])
 
     if requirements.exists():
-        subprocess.check_call([pip_cmd, "install", "-r", str(requirements)])
-        print_success("Dependencies installed from requirements.txt")
+        subprocess.check_call([pip_cmd, "install", "--require-hashes", "-r", str(requirements)])
+        print_success("Dependencies installed from requirements.lock")
         return
 
     if pyproject.exists():

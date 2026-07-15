@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Iterable
 
 
+from backend.product_version import SUPPORTED_UPGRADE_SOURCES
+
+
 MIGRATION_INVENTORY_SCHEMA_VERSION = "1.0.0"
-SUPPORTED_UPGRADE_SOURCES = ("0.1.1",)
 
 
 @dataclass(frozen=True, slots=True)

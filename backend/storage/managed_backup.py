@@ -11,6 +11,7 @@ import re
 import shutil
 from typing import Any
 
+from backend.product_version import PRODUCT_VERSION
 from backend.storage.coordinated_backup import (
     BackupComponent,
     CoordinatedBackupCoordinator,
@@ -666,7 +667,7 @@ def build_managed_backup_coordinator(app, runtime, resources):
     }
     return CoordinatedBackupCoordinator(
         adapters=adapters,
-        product_version=str(app.config.get("APP_VERSION", "0.1.1")),
+        product_version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
         migration_versions=versions,
         required_components=MANAGED_BACKUP_COMPONENTS,
     )

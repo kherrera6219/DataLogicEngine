@@ -8,6 +8,7 @@ runtime components while the project transitions to backend/config packages.
 import os
 
 from dotenv import load_dotenv
+from backend.product_version import PRODUCT_VERSION
 from backend.security.secret_resolver import resolve_secret_with_source
 
 load_dotenv()
@@ -22,7 +23,7 @@ class Config:
     """Base configuration for shared runtime settings."""
 
     APP_NAME = "Universal Knowledge Graph"
-    APP_VERSION = "1.0.0"
+    APP_VERSION = PRODUCT_VERSION
 
     # Secrets default to env-provided values in base config.
     SECRET_KEY = _resolve_secret("SECRET_KEY")
