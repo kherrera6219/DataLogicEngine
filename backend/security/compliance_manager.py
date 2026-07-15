@@ -1,9 +1,9 @@
 
 """
-Universal Knowledge Graph (UKG) SOC 2 Compliance Manager
+Universal Knowledge Graph (UKG) SOC 2 Control-Map Check Manager
 
-This module provides SOC 2 Type 2 compliance functionality for the UKG enterprise
-architecture, focusing on the five trust service criteria:
+This module provides local self-assessment checks mapped to the five SOC 2 trust
+service criteria:
   Security, Availability, Processing Integrity, Confidentiality, and Privacy.
 
 Each ``_check_*`` method performs real runtime inspections and marks the relevant
@@ -55,11 +55,6 @@ except Exception:  # noqa: BLE001
     TruthAuditEvent = None  # type: ignore[assignment]
     TruthAuditRecorder = None  # type: ignore[assignment]
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger("UKG-Compliance")
 
 # ---------------------------------------------------------------------------
@@ -87,10 +82,10 @@ _PII_PATTERNS: List[re.Pattern] = [
 
 class SOC2ComplianceManager:
     """
-    SOC 2 Compliance Manager for UKG Enterprise System
+    Legacy-named SOC 2 control-map self-check manager.
 
-    Provides capabilities for monitoring and enforcing SOC 2 Type 2 compliance
-    across the UKG enterprise architecture.
+    Results are application self-assessment evidence only. They are not an
+    independent audit, attestation, or certification.
     """
 
     def __init__(self, config=None):
@@ -189,7 +184,7 @@ class SOC2ComplianceManager:
             self.compliance_state[category]["issues"] = issues
             summary = "; ".join(issues)
             self.log_compliance_event(category, "violation", summary)
-            logger.warning("Compliance [%s] NON-COMPLIANT: %s", category, summary)
+            logger.warning("Control-map check [%s] FAILED: %s", category, summary)
         else:
             self.compliance_state[category]["status"] = "compliant"
             self.compliance_state[category].pop("issues", None)
@@ -528,21 +523,46 @@ class SOC2ComplianceManager:
 
     def get_compliance_status(self) -> Dict[str, Any]:
         """
-        Get the current compliance status.
+        Get current application control-map check evidence.
 
         Returns:
-            Dict with ``overall_status`` and per-category ``categories``.
+            A non-certifying self-assessment evidence contract.
         """
-        overall_status = "compliant"
+        category_checks = {}
         for category, state in self.compliance_state.items():
-            if state["status"] != "compliant":
-                overall_status = "non_compliant"
-                break
+            internal_state = state.get("status")
+            result = {
+                "compliant": "passed",
+                "non_compliant": "failed",
+                "monitored": "not_measured",
+            }.get(internal_state, "not_measured")
+            category_checks[category] = {
+                "claim_type": "automated_control_check",
+                "check_version": "soc2-control-map.v1",
+                "executed_at": state.get("last_check"),
+                "scope": "local_application_runtime",
+                "result": result,
+                "evidence_ref": "logs/compliance/events.jsonl",
+                "source_record": f"control-map:{category}",
+                "issues": list(state.get("issues", [])),
+            }
+        results = {item["result"] for item in category_checks.values()}
+        overall_result = (
+            "checks_failed"
+            if "failed" in results
+            else "not_measured"
+            if "not_measured" in results
+            else "checks_passed"
+        )
 
         return {
             "timestamp": datetime.now().isoformat(),
-            "overall_status": overall_status,
-            "categories": self.compliance_state
+            "schema_version": "dle.compliance-check-status.v1",
+            "report_classification": "self_assessment_evidence",
+            "framework_map": "SOC2",
+            "framework_map_is_certification": False,
+            "overall_check_result": overall_result,
+            "category_checks": category_checks,
         }
 
     def get_compliance_events(
@@ -606,7 +626,7 @@ class SOC2ComplianceManager:
         end_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
-        Generate a SOC 2 compliance report for the specified time period.
+        Generate a SOC 2 control-map self-assessment evidence report.
 
         Args:
             start_date: Start date for the report period (default: 30 days ago).
@@ -639,36 +659,48 @@ class SOC2ComplianceManager:
             if cat in event_counts and etype in event_counts[cat]:
                 event_counts[cat][etype] += 1
 
-        compliance_scores = {}
+        category_results = {}
         for cat, counts in event_counts.items():
             total_checks = counts["check"]
             total_violations = counts["violation"]
-
-            if total_checks > 0:
-                compliance_rate = 100 * (
-                    1 - (total_violations / (total_checks + total_violations))
-                )
-            else:
-                compliance_rate = 0
-
-            compliance_scores[cat] = round(compliance_rate, 2)
+            category_results[cat] = (
+                "failed"
+                if total_violations > 0
+                else "passed"
+                if total_checks > 0
+                else "not_measured"
+            )
+        result_values = set(category_results.values())
+        overall_result = (
+            "checks_failed"
+            if "failed" in result_values
+            else "not_measured"
+            if "not_measured" in result_values
+            else "checks_passed"
+        )
 
         report = {
+            "schema_version": "dle.compliance-event-evidence.v1",
             "report_id": str(uuid.uuid4()),
-            "report_type": "SOC 2 Type 2",
+            "report_classification": "self_assessment_evidence",
+            "framework_map": "SOC2",
+            "framework_map_is_certification": False,
             "generated_at": datetime.now().isoformat(),
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "compliance_scores": compliance_scores,
+            "overall_check_result": overall_result,
+            "category_results": category_results,
             "event_counts": event_counts,
-            "overall_compliance_score": round(
-                sum(compliance_scores.values()) / len(compliance_scores), 2
-            ),
-            "event_sample": events[:10]
+            "event_sample": events[:10],
+            "certification_claim": False,
+            "limitations": [
+                "Application-generated control-map evidence only.",
+                "Not an independent audit, attestation, or certification.",
+            ],
         }
 
         report_file = (
-            f"logs/compliance/report_"
+            f"logs/compliance/self_assessment_"
             f"{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.json"
         )
         try:

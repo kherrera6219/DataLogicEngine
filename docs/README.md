@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.23.0 |
+| Document version | v2.24.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Engineering |
@@ -21,13 +21,16 @@ Active documents listed here are the operational source of truth. Historical whi
 Current implementation status belongs in root `TODO.md`. The active phased
 production program is root `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
-The current execution checkpoint is Phase 12 UI engineering complete and Phase
-13 observability/diagnostics/compliance/support active. ADR-0009 selects the truthful Session Library
-over an implied independent Project model. The live production-source control
-inventory reports zero enabled controls without an obvious action; all 27 routes
-are axe-clean and ten keyboard/app-readiness workflows pass. Real installed
-handler-to-durable-effect, packaged visual/scaling/high-contrast, and NVDA proof
-remain open release gates.
+The current execution checkpoint is Phase 13 observability, Diagnostics,
+compliance-truth, and support engineering complete, with Phase 14 packaging,
+signing, updates, dependency, and supply-chain work active. ADR-0009 selects the
+truthful Session Library over an implied independent Project model. The live
+production-source control inventory reports zero enabled controls without an
+obvious action; all 28 routes are axe-clean and ten keyboard/app-readiness
+workflows pass. Real installed handler-to-durable-effect, packaged visual/
+scaling/high-contrast, NVDA, correlation reconstruction, failure injection,
+redaction/no-egress, support-bundle, and 24/72-hour soak proof remain open
+release gates.
 ADR-0008's rebuilt-installed MCP file/network/lifecycle/Electron acceptance also
 remains deferred.
 Production/public release remains **NO-GO**.
@@ -234,6 +237,14 @@ The active documentation set has been normalized around:
 6. Phase 6 separation between trace presence and evidence/confidence validity;
 7. evidence-based security and compliance claims;
 8. desktop-first source build, installer, install-smoke, and uninstall-smoke guidance.
+
+## Change notes for v2.24.0
+
+1. Advanced the active checkpoint to Phase 14 and indexed the completed Phase
+   13 structured observability, Diagnostics/support, failure-semantics,
+   compliance-truth, and soak-evaluator engineering evidence.
+2. Preserved all installed Phase 13 acceptance work as open release gates and
+   updated the automated route baseline to 28 axe-clean routes.
 
 ## Change notes for v2.20.0
 

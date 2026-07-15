@@ -345,39 +345,39 @@ def create_compliance_link():
 @regulatory_api.route('/standards', methods=['GET'])
 @api_login_required
 def get_standards():
-    """Get all compliance standards (e.g., NIST, SOC2, GDPR)."""
+    """Return configured framework-map records without coverage claims."""
     try:
-        # In a real system, these would come from Axis 7 or a similar manager
+        db_manager = current_app.config.get('DB_MANAGER')
+        if not db_manager:
+            return jsonify({
+                'success': False,
+                'error': 'Compliance registry is unavailable',
+                'capability_state': 'unavailable',
+                'timestamp': datetime.now().isoformat(),
+            }), 503
+        records = db_manager.get_nodes_by_properties({
+            'node_type': 'compliance_standard',
+            'axis_number': 7,
+        })
         standards = [
             {
-                "id": "nist-800-171",
-                "name": "NIST 800-171",
-                "version": "Rev 2",
-                "description": "Protecting Controlled Unclassified Information",
-                "status": "active",
-                "coverage": 94
-            },
-            {
-                "id": "soc2-type-2",
-                "name": "SOC2 Type 2",
-                "version": "2024",
-                "description": "Security, Availability, and Confidentiality Trust Services",
-                "status": "active",
-                "coverage": 88
-            },
-            {
-                "id": "gdpr-eu",
-                "name": "GDPR (EU)",
-                "version": "2018",
-                "description": "General Data Protection Regulation",
-                "status": "warning",
-                "coverage": 72
+                'uid': item.get('uid'),
+                'id': item.get('id'),
+                'name': item.get('name'),
+                'version': item.get('version'),
+                'description': item.get('description'),
+                'mapping_state': 'configured',
             }
+            for item in records
         ]
         
         return jsonify({
             'success': True,
+            'schema_version': 'dle.framework-map-registry.v1',
+            'report_classification': 'control_mapping',
+            'framework_map_is_certification': False,
             'data': standards,
+            'count': len(standards),
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:

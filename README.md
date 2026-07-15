@@ -4,7 +4,7 @@ Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
 > **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-12 engineering checkpoints are complete; Phase 13 observability/diagnostics/compliance/support work is active. The Phase 12 source inventory finds zero enabled controls without an obvious action, ADR-0009 identifies the former Projects UI truthfully as the durable Session Library, the encrypted offline queue has owner controls, all 27 routes are axe-clean, and ten keyboard/app-readiness workflows pass. Real installed workflow/store effects, packaged visual/scaling/high-contrast, and NVDA proof remain open, along with rebuilt-installed MCP, simulation, causal-retrieval, provider, gateway, recovery, security, object-store, signing, and review gates; production/public release is therefore **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), the [`Phase 12 evidence`](reports/production-readiness/2026/phase-12/summary.md), and the [`Phase 13 plan`](PRODUCTION_COMPLETION_PLAN_2026.md#21-phase-13---observability-diagnostics-compliance-semantics-and-support).
+> DataLogicEngine is available for local engineering evaluation and architecture validation. Phases 0-2 and the Phase 3-13 engineering checkpoints are complete; Phase 14 packaging/signing/dependency/supply-chain work is active. Phase 13 adds validated correlation, shared structured/redacted backend and Electron logs, explicit telemetry opt-in, authenticated Diagnostics, previewed/confirmed/hashed support bundles, typed failure semantics, evidence-backed compliance wording, and real stress/idle evaluators. All 28 routes are axe-clean and ten keyboard/app-readiness workflows pass. Installed correlation/failure/redaction/support/24-hour/72-hour proof remains open, along with prior installed workflow, provider, gateway, recovery, security, object-store, signing, and review gates; production/public release is therefore **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md), [`TODO.md`](TODO.md), the [`Phase 13 evidence`](reports/production-readiness/2026/phase-13/summary.md), and the [`Phase 14 plan`](PRODUCTION_COMPLETION_PLAN_2026.md#22-phase-14---packaging-signing-updates-dependencies-and-supply-chain).
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -64,7 +64,8 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 13 structured observability, diagnostics, truthful compliance semantics, and support bundles
+- Phase 14 authoritative versioning, deterministic builds, signed packaging/updates, dependency locks, SBOMs, and provenance
+- Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
 - Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
 - Deferred rebuilt-installed Phase 11 MCP containment, lifecycle, stores, and Electron acceptance
 - Deferred rebuilt-installed Phase 10 simulation, provider, artifact, and UI acceptance
@@ -597,7 +598,9 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables the Google gemini-3.1-pro-preview model. |
 | `LLM_DEFAULT_PROVIDER` | Optional env fallback preference (`google` or `openai`) when multiple provider keys are present. |
 | `GOOGLE_MODEL_PRIMARY` / `GOOGLE_MODEL_FAST` | Optional Google model overrides. Use `gemini-3.1-pro-preview` for Gemini 3.1 Pro preview. |
-| `SENTRY_DSN` | Enables crash reporting when configured. |
+| `DLE_EXTERNAL_TELEMETRY_ENABLED` | Explicit backend crash-reporting opt-in. Default: `false`; a DSN alone is inert. |
+| `NEXT_PUBLIC_EXTERNAL_TELEMETRY_ENABLED` | Explicit renderer crash-reporting opt-in. Default: `false`. |
+| `SENTRY_DSN` | Optional crash-reporting endpoint; does not enable egress without the applicable explicit opt-in. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |
 
@@ -796,10 +799,12 @@ Do not report vulnerabilities in public issues. Follow the private reporting pro
 | Gateway provider usage | LLM gateway usage models and admin routes |
 | Crash reporting | Local redacted diagnostics by default; any external Sentry-compatible reporting requires explicit owner opt-in and separate privacy qualification |
 | Run tracing | `/api/v1/trace/*` and run-oriented UI routes |
+| Owner diagnostics | `GET /api/v1/system/diagnostics/summary` and Admin -> Diagnostics |
+| Support evidence | Preview, confirm, local allowlisted/redacted export, per-file/archive SHA-256, optional CLI encryption |
 
 Production observability direction:
 
-- Local structured, rotated, redacted JSON logs.
+- Local `dle.log.v1` structured, rotated, redacted backend and Electron JSON logs.
 - Local metrics and authenticated diagnostics covering services, gateway clients,
   governed runs, provider usage, failures, and recovery.
 - Explicitly generated support bundles that can be previewed before export.
@@ -836,10 +841,10 @@ npm --prefix frontend audit --audit-level=high
 | Horizon | Focus |
 | --- | --- |
 | Completed foundation | Phases 0-7: scope and trust boundaries, internal data plane, canonical governed path, evidence validity, and governed provider behavior. |
-| Completed product, knowledge, simulation, connector, and UI checkpoints | Phases 8-12: versioned gateway and SDKs; secure durable ingestion; causal retrieval and memory authority; one bounded simulation workflow; governed local MCP connectors; and truthful UI/session/accessibility automation. Installed acceptance remains gated. |
-| Active subsystem | Phase 13: complete observability, diagnostics, compliance semantics, and support. |
-| Retained installed subsystem gates | Phase 12 real-service/store workflow, packaged visual/scaling/high-contrast, and NVDA acceptance. |
-| Release | Phases 14-18: deterministic signed packaging, installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
+| Completed product, UI, and operations checkpoints | Phases 8-13: gateway/SDKs, ingestion/retrieval/memory, simulation, MCP, truthful UI/accessibility automation, and source-level observability/diagnostics/support/compliance semantics. Installed acceptance remains gated. |
+| Active subsystem | Phase 14: deterministic signed packaging, updates, dependencies, SBOMs, and provenance. |
+| Retained installed subsystem gates | Phase 12 workflow/visual/NVDA plus Phase 13 correlation/failure/redaction/support/soak acceptance. |
+| Release | Phases 15-18: installed-system qualification, professional documentation replacement, release lock, launch, and maintenance. |
 
 ## Getting Help
 

@@ -24,11 +24,26 @@ from backend.utils.validation import (
     validate_query_params
 )
 from backend.utils.exceptions import (
+    CRITICAL_BOUNDARY_FAILURE_SEMANTICS,
+    TYPED_ERROR_CLASSES,
     UKGException,
     AuthenticationError,
     AuthorizationError,
+    ConfigurationError,
+    DataCorruptionError,
+    ErrorCategory,
+    FailBehavior,
+    InternalDefectError,
+    MigrationError,
+    OperationCancelledError,
+    OperationTimeoutError,
+    PersistenceError,
+    PolicyError,
+    ProviderError,
     ResourceNotFoundError,
     SecurityBreachError,
+    ServiceUnavailableError,
+    ToolExecutionError,
     ValidationError
 )
 
@@ -55,10 +70,25 @@ __all__ = [
     'validate_json_body',
     'validate_query_params',
     # Exceptions
+    'CRITICAL_BOUNDARY_FAILURE_SEMANTICS',
+    'TYPED_ERROR_CLASSES',
     'UKGException',
     'AuthenticationError',
     'AuthorizationError',
+    'ConfigurationError',
+    'DataCorruptionError',
+    'ErrorCategory',
+    'FailBehavior',
+    'InternalDefectError',
+    'MigrationError',
+    'OperationCancelledError',
+    'OperationTimeoutError',
+    'PersistenceError',
+    'PolicyError',
+    'ProviderError',
     'ResourceNotFoundError',
     'SecurityBreachError',
+    'ServiceUnavailableError',
+    'ToolExecutionError',
     'ValidationError'
 ]

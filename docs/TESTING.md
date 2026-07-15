@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.10.0 |
+| Document version | v2.11.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Quality Engineering |
@@ -254,6 +254,19 @@ npm run test:e2e:visual
 .\.venv\Scripts\python .\scripts\verify_docs_references.py
 ```
 
+### Phase 13 observability and failure-boundary gates
+
+```powershell
+.\.venv\Scripts\python .\scripts\check_exception_boundaries.py --output reports\production-readiness\2026\phase-13\failure-boundary-inventory.json
+.\.venv\Scripts\python .\scripts\check_circular_deps.py --output reports\production-readiness\2026\phase-13\python-import-cycles.json
+.\.venv\Scripts\python .\scripts\run_phase13_soak.py --profile stress24 --duration-seconds 5 --output reports\production-readiness\2026\phase-13\soak-engineering-latest.json
+```
+
+The short soak command validates collection and bound evaluation only. It cannot
+qualify CP13-E; installed 24-hour stress and 72-hour idle runs are required. The
+circular-dependency gate currently reports four real cycles and therefore fails
+truthfully until Phase 14 technical-debt work removes them.
+
 ### Schema parity validation
 
 ```powershell
@@ -403,6 +416,11 @@ A reviewer should inspect these files in order:
 20. `tests/knowledge_algorithms/`
 21. `tests/axes/`
 22. `frontend/tests/`
+
+## Change notes for v2.11.0
+
+1. Added the Phase 13 exception-boundary inventory, real circular-import graph,
+   and engineering-only soak commands with explicit release-gate semantics.
 
 ## Change notes for v2.9.0
 

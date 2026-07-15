@@ -50,7 +50,7 @@ describe('ComplianceTrendChart', () => {
       isLoading: false
     });
     render(<ComplianceTrendChart />);
-    expect(screen.getByText('Compliance & Intelligence Trends')).toBeInTheDocument();
+    expect(screen.getByText('Session Activity')).toBeInTheDocument();
     expect(screen.getByText('Sessions')).toBeInTheDocument();
   });
 });

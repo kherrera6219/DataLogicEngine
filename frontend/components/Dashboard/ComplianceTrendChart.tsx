@@ -20,8 +20,8 @@ export function ComplianceTrendChart() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">Compliance & Intelligence Trends</CardTitle>
-            <CardDescription>Activity across the 17-axis framework (14-day history)</CardDescription>
+            <CardTitle className="text-lg">Session Activity</CardTitle>
+            <CardDescription>Recorded sessions across the 17-axis workspace (14-day history)</CardDescription>
           </div>
           <div className="flex gap-2">
             <div className="flex items-center gap-1.5">

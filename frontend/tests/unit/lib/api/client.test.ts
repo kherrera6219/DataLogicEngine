@@ -113,6 +113,10 @@ describe('lib/api/client', () => {
         expect.stringContaining('/demo'),
         expect.objectContaining({ credentials: 'include' }),
       );
+      const headers = new Headers(fetchMock.mock.calls[0][1].headers as HeadersInit);
+      expect(headers.get('X-Correlation-ID')).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
     });
 
     it('adds a CSRF token to mutation requests and sanitizes JSON payloads', async () => {

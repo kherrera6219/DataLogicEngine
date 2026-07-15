@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 13 observability and support engineering checkpoint**: added validated
+  renderer/Electron/Flask/background correlation, shared rotated/redacted
+  `dle.log.v1` backend and desktop logs, explicit backend/renderer telemetry
+  opt-in, authenticated System Diagnostics, and preview/confirm/local support
+  export with allowlisting, re-redaction, per-file/archive hashes, retention,
+  sidecars, and optional AES-256-GCM encryption.
+- **Failure, compliance, and operations truth**: added all required typed error
+  categories, an executable critical-boundary fail-semantics map, a broad-catch/
+  root-logging regression gate, a real Python import-cycle analyzer, versioned
+  compliance evidence records, stress24/idle72 evaluators, and disk/resource/
+  update/deletion/redaction/egress/soak incident runbooks. Installed Phase 13
+  reconstruction, injection, redaction, support, and full soak gates remain open.
 - **Phase 11 governed MCP connector engineering checkpoint**: selected MCP
   `2025-11-25` local stdio in ADR-0008; added exact executable/argument/cwd/file-
   root/limit validation, SHA-256 fingerprint and granular owner consent, DPAPI
@@ -88,6 +100,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
 
 ### Changed
+- **Compliance and status semantics**: removed hardcoded framework coverage,
+  compliant-by-default TruthGate results, synthetic compliance reports/scores,
+  and compliance-labeled session trends. Frameworks are control maps, technical
+  checks are self-assessment evidence, and absent evidence is Not measured.
 - **Truthful provider and delivery state**: settings distinguish stored from
   available keys, connection tests return typed failure classes, and chat
   discloses external data categories and remaining allowance. The gateway now

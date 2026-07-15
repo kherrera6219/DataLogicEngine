@@ -7,6 +7,11 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { runBoundedShutdown } from './lifecycle';
+import {
+  createDesktopLogLine,
+  redactDesktopLogText,
+  type DesktopLogLevel,
+} from './desktop-log';
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
@@ -58,6 +63,7 @@ const ALLOWED_IPC_WEB_ORIGINS = new Set(['http://localhost:3000', 'http://127.0.
 const ALLOWED_IPC_APP_HOSTS = new Set(['-', 'dashboard']);
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
+const MAX_DESKTOP_LOG_BACKUPS = 4;
 const AUTO_UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const BACKEND_HEALTH_TIMEOUT_MS = 60 * 1000;
 const MAX_BACKEND_RESTART_ATTEMPTS = 3;
@@ -95,26 +101,6 @@ async function responseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
-function normalizeLogLine(raw: string): string {
-  return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
-}
-
-function redactSecretsForLog(raw: string): string {
-  return raw
-    .replace(/\b(bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, '$1[REDACTED_SECRET]')
-    .replace(
-      /\b((?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*)[^\s,;]+/gi,
-      '$1[REDACTED_SECRET]',
-    )
-    .replace(/\bsk-[A-Za-z0-9_-]{16,}\b/g, '[REDACTED_SECRET]')
-    .replace(/\bAIza[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_SECRET]')
-    .replace(/\bukg_[A-Za-z0-9_-]{16,}\b/g, '[REDACTED_SECRET]');
-}
-
-function safeDesktopLogMessage(raw: string): string {
-  return redactSecretsForLog(normalizeLogLine(raw));
-}
-
 function secureDirectoryBestEffort(targetPath: string): void {
   try {
     fs.mkdirSync(targetPath, { recursive: true });
@@ -124,9 +110,16 @@ function secureDirectoryBestEffort(targetPath: string): void {
   }
 }
 
-function appendDesktopLog(level: 'INFO' | 'WARN' | 'ERROR', rawMessage: string): void {
-  const message = safeDesktopLogMessage(rawMessage);
-  if (!message) {
+function appendDesktopLog(
+  level: DesktopLogLevel,
+  rawMessage: string,
+  correlationId = 'desktop',
+): void {
+  const line = createDesktopLogLine(level, rawMessage, {
+    homePath: os.homedir(),
+    correlationId,
+  });
+  if (!line) {
     return;
   }
 
@@ -137,11 +130,19 @@ function appendDesktopLog(level: 'INFO' | 'WARN' | 'ERROR', rawMessage: string):
   try {
     if (fs.existsSync(logPath)) {
       const size = fs.statSync(logPath).size;
-      if (size > MAX_DESKTOP_LOG_FILE_BYTES) {
-        fs.truncateSync(logPath, 0);
+      if (size + Buffer.byteLength(line, 'utf8') > MAX_DESKTOP_LOG_FILE_BYTES) {
+        for (let index = MAX_DESKTOP_LOG_BACKUPS; index >= 1; index -= 1) {
+          const target = `${logPath}.${index}`;
+          const source = index === 1 ? logPath : `${logPath}.${index - 1}`;
+          if (fs.existsSync(target)) {
+            fs.rmSync(target, { force: true });
+          }
+          if (fs.existsSync(source)) {
+            fs.renameSync(source, target);
+          }
+        }
       }
     }
-    const line = `${new Date().toISOString()} [${level}] ${message}\n`;
     fs.appendFileSync(logPath, line, { encoding: 'utf8', mode: 0o600 });
   } catch {
     // Logging must never block app startup/runtime.
@@ -688,6 +689,7 @@ function desktopRequestHeaders(method: string, requestUrl: string): Record<strin
   const requestNonce = crypto.randomBytes(24).toString('base64url');
   return {
     'Content-Type': 'application/json',
+    'X-Correlation-ID': crypto.randomUUID(),
     'X-DataLogic-Desktop': 'true',
     'X-Desktop-Auth-Timestamp': timestamp,
     'X-Desktop-Auth-Request-Nonce': requestNonce,
@@ -1080,14 +1082,14 @@ function startBackend() {
   backendProcess = spawn(pythonPath, args, { env, cwd: runtimeDir });
 
   backendProcess.stdout?.on('data', (data) => {
-    const log = safeDesktopLogMessage(data.toString());
+    const log = redactDesktopLogText(data.toString(), os.homedir());
     console.log(`[Backend] ${log}`);
     mainWindow?.webContents.send('backend-log', log);
     appendDesktopLog('INFO', `[Backend] ${log}`);
   });
 
   backendProcess.stderr?.on('data', (data) => {
-    const log = safeDesktopLogMessage(data.toString());
+    const log = redactDesktopLogText(data.toString(), os.homedir());
     console.error(`[Backend Error] ${log}`);
     mainWindow?.webContents.send('backend-error', log);
     appendDesktopLog('ERROR', `[Backend Error] ${log}`);

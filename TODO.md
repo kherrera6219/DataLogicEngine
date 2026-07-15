@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Status | Canonical open-work ledger |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.11.0 |
-| Completed phase | Phase 12 engineering checkpoint - UI workflow, Session Library, and accessibility automation |
-| Current phase | Phase 13 - observability, diagnostics, compliance semantics, and support |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.12.0 |
+| Completed phase | Phase 13 engineering checkpoint - observability, diagnostics, compliance semantics, and support |
+| Current phase | Phase 14 - packaging, signing, updates, dependencies, and supply chain |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -195,6 +195,27 @@ conditions, and exit gates remain authoritative in the active root plan.
 - Final Phase 11 validation reports 2,094 backend tests passed (18 skipped) and
   411 frontend tests passed, plus frontend typecheck/lint/build, Ruff, migration,
   schema, and documentation gates.
+- Phase 12 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-12/`; installed workflow/store,
+  packaged visual/scaling/high-contrast, and NVDA acceptance remain open.
+- Phase 13 reached its engineering checkpoint on 2026-07-14. Evidence is under
+  `reports/production-readiness/2026/phase-13/`; installed correlation,
+  failure-injection, redaction/no-egress, diagnostics/support, and 24/72-hour
+  soak acceptance remain open.
+- Backend/Electron logs share `dle.log.v1`; request/background correlation,
+  explicit external-telemetry opt-in, authenticated Diagnostics, and previewed,
+  confirmed, re-redacted, hashed, retained, optionally encrypted support bundles
+  are implemented.
+- Typed failures and critical-boundary semantics are enforced. The regression
+  inventory records 1,104 broad/bare catches in 321 files and zero module
+  `logging.basicConfig` calls. The real import analyzer records four open cycles
+  rather than emitting the former fabricated pass.
+- Compliance/status/report paths are evidence-backed self-assessment/control
+  maps; empty evidence is Not measured and no certification/coverage is invented.
+- Final Phase 13 validation reports 2,135 backend tests passed (18 skipped), 419
+  frontend tests passed, 28 axe-clean routes, and 10/10 browser
+  readiness workflows; typecheck, Electron build, Next build, Ruff, and Python
+  compilation pass.
 
 ## Phase 5 objective - engineering checkpoint complete
 
@@ -449,6 +470,16 @@ authority or placeholder production behavior.
 | CP12-E | Accessibility automation plus packaged visual/scaling/high-contrast checks pass | All 27 routes axe-clean and keyboard/app-readiness 10/10; installed display/visual matrix retained |
 | CP12-F | Manual NVDA checklist completes without a release blocker | Deferred to rebuilt release-candidate UI |
 
+## Phase 13 deferred release gates
+
+| Checkpoint | Required result | Status |
+|---|---|---|
+| CP13-A | One installed run reconstructed across every participating process/store | Source request/context/trace contract passes; installed reconstruction retained |
+| CP13-B | Complete installed failure-injection matrix produces approved safe states/evidence | Typed taxonomy/matrix/regression gate passes; installed matrix retained |
+| CP13-C | Canary secrets/PII/content absent from every installed local/exported output and no unexpected egress | Source canary suites pass; installed all-output proof retained |
+| CP13-D | Every compliance/control status resolves to evidence without certification claims | Source resolver/report/API/UI contract passes; installed wording/export review retained |
+| CP13-E | Installed 24-hour stress and 72-hour idle/normal soaks stay bounded with no silent degradation | Profile/evaluator and short observation pass; full-duration runs retained |
+
 ## Phase ledger
 
 | Phase | Result | Status |
@@ -466,8 +497,8 @@ authority or placeholder production behavior.
 | 10 | Simulation completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 11 | MCP and connector completion | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
 | 12 | UI workflow, Session Library, and accessibility completion | **Engineering checkpoint complete 2026-07-14; installed/manual gates retained** |
-| 13 | Observability, diagnostics, compliance semantics, and support | **Active** |
-| 14 | Packaging, signing, updates, dependencies, and supply chain | Blocked by prior phases |
+| 13 | Observability, diagnostics, compliance semantics, and support | **Engineering checkpoint complete 2026-07-14; installed gates retained** |
+| 14 | Packaging, signing, updates, dependencies, and supply chain | **Active** |
 | 15 | System qualification and release candidate | Blocked by prior phases |
 | 16 | Production documentation replacement and professional review dossier | Blocked by prior phases |
 | 17 | Documentation consolidation and release lock | Blocked by prior phases |
@@ -489,9 +520,9 @@ authority or placeholder production behavior.
 
 ## Exact next action
 
-Begin Phase 13 with a live inventory of structured logs, correlation IDs,
-metrics, diagnostics routes/UI, error types and broad catches, support bundles,
-compliance-status resolvers, and operational runbooks. Classify authority,
-sensitivity, retention, and fail behavior; then add correlation and forbidden-
-field/redaction tests before implementation. Preserve installed Phase 3-12
-gates, alert 389, and the SeaweedFS candidate-only Replacement Control boundary.
+Begin Phase 14 with a live version, dependency-authority, build-input, internal-
+service asset, Windows packaging, update/signing, SBOM/provenance, and release-
+workflow inventory. Select one product-version authority and one Python
+dependency authority; add parity and native-failure-stop tests before changing
+packaging. Preserve all installed Phase 3-13 gates, alert 389, automatic-update
+disablement, and the SeaweedFS candidate-only Replacement Control boundary.

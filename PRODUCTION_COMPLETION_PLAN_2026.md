@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.11.0 |
+| Document version | v1.12.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,7 +18,7 @@
 
 ### Current execution checkpoint
 
-Phase 12 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
+Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
 Registration validates but does not execute one exact absolute command. Owner
 consent binds its SHA-256 fingerprint and granular scope subset; DPAPI protects
@@ -39,13 +39,22 @@ without an obvious action. Hardcoded dashboard
 trend, optimistic compliance/project/analytics state, and actionless advanced
 configuration/chat/project/profile/response controls were removed or replaced
 with real state and actions. The encrypted offline queue now supports owner
-review, redacted export, governed replay, delete, and clear. All 27 routes pass
-axe and ten browser keyboard/app-readiness workflows pass. Phase 13 is now
-active. Real installed handler-to-durable-effect, packaged visual/scaling/high-
-contrast, and NVDA proof remain open release gates.
+review, redacted export, governed replay, delete, and clear. At the Phase 12
+checkpoint all 27 then-current routes passed axe and ten browser keyboard/app-
+readiness workflows passed. Real installed handler-to-durable-effect, packaged
+visual/scaling/high-contrast, and NVDA proof remain open release gates.
+
+Phase 13 adds validated renderer/Electron/Flask/background correlation; shared
+rotated/redacted `dle.log.v1` backend and desktop logs; explicit external-
+telemetry opt-in; authenticated Diagnostics; previewed, confirmed, allowlisted,
+re-redacted, hashed, retained, optionally encrypted support bundles; a complete
+typed error taxonomy and critical fail-semantics map; evidence-backed compliance
+outputs; real exception/import gates; expanded incident response; and stress24/
+idle72 evaluators. All 28 routes pass axe. A short resource observation passes
+engineering bounds but cannot satisfy CP13-E. Phase 14 is now active.
 
 This checkpoint does not close the installed production exit gates for Phases
-3-12 and does not change the overall release verdict from **NO-GO**. The
+3-13 and does not change the overall release verdict from **NO-GO**. The
 supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
 matrix, exact Podman artifact qualification, independent recovery/security/
@@ -62,6 +71,9 @@ add/discover/call/cancel/stop/restart/remove acceptance remain open gates
 that can only close against the later rebuilt release candidate.
 Phase 12 installed real-service/store workflow reconciliation, Windows scaling/
 high-contrast/visual checks, and manual NVDA acceptance likewise remain open.
+Phase 13 installed multi-process/store correlation, complete failure injection,
+all-output redaction/no-egress, support workflow, and 24/72-hour soak acceptance
+likewise remain open.
 SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
 selection is false, and MinIO remains the product-specific architecture until
 Replacement Control passes in full and the owner gives final approval.
@@ -2659,6 +2671,21 @@ limited to what the evidence proves.
 `docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/SDLC_SSDF_MAPPING.md`, and support
 documentation.
 
+### Engineering checkpoint reached 2026-07-14
+
+The source checkpoint implements the structured/redacted log contract,
+validated correlation ingress and context propagation, explicit telemetry opt-
+in, authenticated diagnostics, preview/confirm/hash/encrypt support bundles,
+typed failure semantics, truthful compliance evidence, real import/exception
+gates, operational incidents, and stress24/idle72 evaluators.
+
+CP13-D passes at the source boundary. CP13-A, CP13-B, CP13-C, and CP13-E retain
+installed evidence rows: one real multi-process/store reconstruction, the
+complete injected-failure matrix, installed all-output canary/no-egress proof,
+and real 24-hour/72-hour soaks. The 1,104-site legacy broad-catch queue and four
+import cycles remain tracked technical debt. Evidence is under
+`reports/production-readiness/2026/phase-13/`.
+
 ## 22. Phase 14 - Packaging, signing, updates, dependencies, and supply chain
 
 ### Objective
@@ -3910,18 +3937,18 @@ exit gate.
 
 ## 32. Immediate next action
 
-Begin **Phase 13** with a live inventory of structured logs, correlation IDs,
-metrics, diagnostics routes/UI, error taxonomies, broad exception fallbacks,
-support-bundle generation, compliance-status resolvers, and operational
-runbooks. Classify each surface by authority, sensitivity, retention, and
-fail-closed/fail-soft behavior before changing code.
+Begin **Phase 14** with an authoritative version/dependency/build-input inventory
+covering Python, Node/Electron, PyInstaller, application/API/schema/SDK versions,
+all five internal service assets, Windows packaging, update/signing settings,
+SBOM/provenance inputs, and release workflows. Select one version authority and
+one Python dependency authority before changing packaging behavior.
 
-Start with correlation propagation and forbidden-field/redaction tests, then
-build the explicit owner support-bundle preview/export workflow required by
-Phase 13. Retain external telemetry as disabled by default.
+Start with tests proving every consumer receives the same version and a native
+build failure stops the release pipeline. Keep external telemetry and automatic
+updates disabled until their later qualification gates pass.
 
 Preserve the one `governed.v1` orchestrator, `dle-simulation.v1`, and
-versioned client boundary, all installed-only Phase 3-11 gates, Dependabot alert
+versioned client boundary, all installed-only Phase 3-13 gates, Dependabot alert
 389, and the SeaweedFS candidate-only Replacement Control boundary as release
-blockers. Phase 13 must preserve Phase 12's installed workflow, packaged visual/
-scaling/high-contrast, and manual NVDA gates.
+blockers. Phase 14 must preserve Phase 12's installed workflow, packaged visual/
+scaling/high-contrast, and manual NVDA gates plus every deferred Phase 13 gate.

@@ -45,4 +45,11 @@ describe('API Modules', () => {
   it('should have trace methods', () => {
     expect(api.trace).toBeDefined();
   });
+
+  it('should have diagnostics methods', () => {
+    expect(api.diagnostics).toBeDefined();
+    expect(typeof api.diagnostics.summary).toBe('function');
+    expect(typeof api.diagnostics.previewSupportBundle).toBe('function');
+    expect(typeof api.diagnostics.exportSupportBundle).toBe('function');
+  });
 });

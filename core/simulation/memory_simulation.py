@@ -806,8 +806,7 @@ class MemorySimulationEngine:
 
 def create_sample_simulation():
     """Create a sample simulation with test data."""
-    logging.basicConfig(level=logging.INFO)
-    
+
     # Create engine
     engine = MemorySimulationEngine()
     

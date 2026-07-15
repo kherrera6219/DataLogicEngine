@@ -4,7 +4,7 @@ from flask import Flask
 from unittest.mock import patch
 import hashlib
 
-from backend.middleware.correlation_id import CorrelationIdMiddleware
+from backend.middleware.correlation_id import CorrelationIdMiddleware, normalize_correlation_id
 from backend.middleware.etag import etag_middleware
 from backend.middleware.request_limits import RequestLimitsMiddleware
 from backend.middleware.timeout import RequestTimeout
@@ -39,6 +39,28 @@ def test_correlation_id_passthrough(app):
     with app.test_client() as client:
         resp = client.get("/test", headers={"X-Correlation-ID": cid})
         assert resp.headers["X-Correlation-ID"] == cid
+
+
+@pytest.mark.parametrize(
+    "invalid_id",
+    ["contains spaces", "x" * 65, "#invalid"],
+)
+def test_invalid_correlation_id_is_replaced(app, invalid_id):
+    CorrelationIdMiddleware(app)
+
+    @app.route("/test")
+    def index():
+        return "ok"
+
+    with app.test_client() as client:
+        resp = client.get("/test", headers={"X-Correlation-ID": invalid_id})
+        replacement = resp.headers["X-Correlation-ID"]
+        assert replacement != invalid_id
+        assert len(replacement) == 36
+
+
+def test_correlation_id_normalizer_rejects_control_characters():
+    assert normalize_correlation_id("line\nbreak") is None
 
 # --- ETag Tests ---
 def test_etag_generation(app):

@@ -18,8 +18,6 @@ from app import app
 from extensions import db
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def create_admin_user():
@@ -284,4 +282,7 @@ def init_database():
         logger.info("Database initialization completed")
 
 if __name__ == "__main__":
+    from backend.logging_config import configure_service_logging
+
+    configure_service_logging("database-initialization")
     init_database()

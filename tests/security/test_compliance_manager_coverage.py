@@ -506,12 +506,21 @@ def test_log_compliance_state_and_status(manager):
     assert state_files
 
     status = manager.get_compliance_status()
-    assert status["overall_status"] in {"compliant", "non_compliant"}
-    assert "categories" in status
+    assert status["schema_version"] == "dle.compliance-check-status.v1"
+    assert status["report_classification"] == "self_assessment_evidence"
+    assert status["framework_map"] == "SOC2"
+    assert status["framework_map_is_certification"] is False
+    assert status["overall_check_result"] in {
+        "checks_passed",
+        "checks_failed",
+        "not_measured",
+    }
+    assert "category_checks" in status
 
     manager.compliance_state["privacy"]["status"] = "non_compliant"
     status = manager.get_compliance_status()
-    assert status["overall_status"] == "non_compliant"
+    assert status["overall_check_result"] == "checks_failed"
+    assert status["category_checks"]["privacy"]["result"] == "failed"
 
 
 def test_log_event_and_filtered_event_retrieval(manager):
@@ -555,12 +564,20 @@ def test_generate_compliance_report_with_counts(manager):
             start_date=now - timedelta(days=7), end_date=now
         )
 
-    assert report["report_type"] == "SOC 2 Type 2"
+    assert report["schema_version"] == "dle.compliance-event-evidence.v1"
+    assert report["report_classification"] == "self_assessment_evidence"
+    assert report["framework_map"] == "SOC2"
+    assert report["framework_map_is_certification"] is False
+    assert report["certification_claim"] is False
     assert report["event_counts"]["security"]["check"] == 1
     assert report["event_counts"]["security"]["violation"] == 1
-    assert "overall_compliance_score" in report
+    assert report["category_results"]["security"] == "failed"
+    assert report["category_results"]["availability"] == "passed"
+    assert report["overall_check_result"] == "checks_failed"
+    assert "overall_compliance_score" not in report
 
     report_file = Path("logs/compliance") / (
-        f"report_{(now - timedelta(days=7)).strftime('%Y%m%d')}_{now.strftime('%Y%m%d')}.json"
+        f"self_assessment_{(now - timedelta(days=7)).strftime('%Y%m%d')}_"
+        f"{now.strftime('%Y%m%d')}.json"
     )
     assert report_file.exists()

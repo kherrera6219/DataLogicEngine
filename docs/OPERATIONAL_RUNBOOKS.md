@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.15.0 |
+| Document version | v2.16.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | SRE + Security Operations |
@@ -81,27 +81,39 @@ production resources.
 
 ## Support bundle capture
 
-Use the support-bundle generator to collect bounded diagnostics:
+Use **Admin -> Diagnostics** to review the content-free system summary. Generate
+the preview first, inspect the exact allowlisted file inventory, confirm the
+matching preview fingerprint, and only then create the local archive. The
+application does not upload the bundle.
+
+The equivalent maintainer preview is:
 
 ```powershell
-python .\scripts\generate_support_bundle.py
+python .\scripts\generate_support_bundle.py --preview
 ```
 
-Offline collection:
+After reviewing the preview, generate an encrypted local bundle when it must
+leave the device. The passphrase is entered interactively and never supplied on
+the command line:
 
 ```powershell
-python .\scripts\generate_support_bundle.py --skip-http --max-files-per-group 5
+python .\scripts\generate_support_bundle.py --encrypt
 ```
 
 Bundle contents include:
 
-1. sanitized environment snapshot;
-2. Git and runtime precheck snapshots;
-3. recent logs and bounded reports;
-4. optional `/health`, `/ready`, and `/metrics` probe output;
-5. report artifacts where available.
+1. a versioned manifest and content policy;
+2. sanitized configuration shape, source/version, system, and resource state;
+3. optional runtime precheck and allowlisted loopback probe metadata;
+4. only approved, bounded, re-redacted `.log`, `.jsonl`, and `.txt` logs;
+5. a per-file SHA-256 inventory, archive SHA-256, and optional AES-256-GCM
+   encryption.
 
-Do not attach raw secrets, provider keys, unredacted PII, or private customer data to support bundles.
+Generic reports, prompts, documents, provider payloads, request/response bodies,
+credentials, authorization headers, home-directory paths, URL credentials/query
+strings, and decrypted backup content are excluded or redacted. Do not attach a
+bundle if preview/export fingerprints differ or a canary appears in any staged
+file.
 
 ---
 
@@ -738,6 +750,168 @@ Relevant files:
 - `core/mcp/`
 - `docs/MCP_INTEGRATION.md`
 - `reports/production-readiness/2026/phase-11/`
+
+## Incident 23: Full disk or unbounded log/support growth
+
+**Trigger:** free space enters the runtime stop threshold, a write fails for lack
+of space, logs exceed the configured rotation cap, or more than five app-owned
+support archives remain in the support directory.
+
+**Default severity:** `SEV-1` when a durable write, migration, backup, or restore
+is affected; otherwise `SEV-2`.
+
+1. Stop new mutations, ingestion, simulations, provider work, backup, and update
+   activity. Do not claim a partially persisted operation succeeded.
+2. Open Admin -> Diagnostics and record content-free disk/log/support counts plus
+   the correlation/run IDs for affected operations.
+3. Identify growth only inside the app-owned runtime root. Never recursively
+   delete an inferred user path or an unverified service volume.
+4. Allow configured log rotation and exact-name support-archive retention to run.
+   Preserve required audit/recovery evidence and do not delete a backup needed
+   for rollback.
+5. Restore sufficient space, then verify every interrupted durable operation from
+   its authoritative store/checkpoint before retrying.
+6. Run readiness, migration, store, backup/restore, redaction, and short resource-
+   growth checks. Keep release/operation blocked until growth is bounded.
+
+Relevant files:
+
+- `backend/logging_config.py`
+- `backend/observability/support_bundle.py`
+- `backend/observability/soak.py`
+- `frontend/app/admin/diagnostics/page.tsx`
+
+## Incident 24: High memory, handle, thread, or child-process growth
+
+**Trigger:** the diagnostics/soak evaluator crosses its profile bound, resource
+use grows monotonically, or a child process remains after cancellation/shutdown.
+
+**Default severity:** `SEV-1` for system-wide exhaustion or orphaned privileged
+processes; otherwise `SEV-2`.
+
+1. Stop admission of new expensive work and preserve the failing profile,
+   timestamps, correlation IDs, process IDs, and content-free resource samples.
+2. Separate the Electron, backend, provider/tool, parser, MCP, and internal-
+   service process contributions. Do not capture prompts or documents in a dump.
+3. Cancel through the owning lifecycle API and verify bounded termination. Do
+   not kill a process until product, user, session, and parent identity match.
+4. Check queue/lease cleanup, open connections, repeated listeners, abandoned
+   simulations/ingestion, and support/log growth.
+5. Restart only after safe state is durable. Repeat the applicable stress/idle
+   profile and require bounded memory, handles, threads, children, and disk.
+
+## Incident 25: Failed, interrupted, or untrusted update
+
+**Trigger:** update download/apply is interrupted, signature/publisher/version
+verification fails, schema migration cannot complete, or rollback cannot prove
+the prior version.
+
+**Default severity:** `SEV-1`.
+
+1. Keep automatic update disabled and stop first launch of the candidate build.
+2. Preserve signed metadata, artifact hashes, current/prior version, migration
+   ledger, and safe installer logs. Never bypass publisher, timestamp,
+   downgrade, or integrity checks.
+3. If mutation began, keep services offline and run only the documented atomic
+   rollback/restore path. Do not mix old binaries with a newer data schema.
+4. Verify the prior signed application and data-plane identity, then run retained-
+   data readiness and migration checks before reopening.
+5. Treat update installation/rollback as unqualified until Phase 14 rebuilt-
+   installed evidence passes; source-only tests cannot close this incident gate.
+
+## Incident 26: Data deletion partial failure or retained remnant
+
+**Trigger:** any PostgreSQL, Redis, Neo4j, Chroma, object-store, local-file, log,
+backup, or audit deletion step fails or reconciliation finds a remnant.
+
+**Default severity:** `SEV-1` for deletion reported as complete or cross-user
+impact; otherwise `SEV-2`.
+
+1. Mark the request `partial_failure`; never return or display deletion success.
+2. Preserve the non-PII tombstone, per-store result, policy/legal retention basis,
+   and correlation ID. Do not place deleted content into incident evidence.
+3. Retry only failed idempotent store operations and reconcile all authorities.
+4. Distinguish disclosed immutable audit/backup retention from an unexplained
+   remnant. Escalate any undisclosed retention.
+5. Close only when reconciliation proves deletion or the owner-visible retention
+   exception has a documented basis and expiry.
+
+Relevant files:
+
+- `backend/governance/retention.py`
+- `backend/ingestion/deletion.py`
+- `docs/DATA_CLASSIFICATION_REGISTER.md`
+
+## Incident 27: Support-bundle preview, redaction, or integrity failure
+
+**Trigger:** a canary secret/PII/content value appears, preview and export differ,
+an unapproved file is staged, hashing/encryption fails, or the archive sidecar
+does not verify.
+
+**Default severity:** `SEV-1` if a bundle left the device; otherwise `SEV-2`.
+
+1. Stop export and upload. Delete only exact app-owned failed staging/archive
+   names after recording their content-free hashes and timestamps.
+2. Revoke/rotate any exposed credential; follow privacy response for exposed PII
+   or user content.
+3. Compare the preview fingerprint, allowlisted inventory, per-file hashes,
+   archive hash, and encryption state. Never inspect by copying content into an
+   external service.
+4. Run deterministic support/log/client-error canary tests. Keep support export
+   disabled until the defect and regression are fixed.
+5. If disclosure occurred, preserve a sanitized incident record and follow the
+   approved notification process.
+
+## Incident 28: Unexpected external telemetry or diagnostic egress
+
+**Trigger:** any Sentry/telemetry request occurs without explicit owner opt-in,
+or telemetry contains a secret, PII, prompt/document, provider payload, path, or
+authorization value.
+
+**Default severity:** `SEV-1` for content/credential disclosure; otherwise
+`SEV-2`.
+
+1. Disable external telemetry, block the endpoint, and preserve destination,
+   time, request count, build/config identity, and local correlation IDs only.
+2. Confirm both `DLE_EXTERNAL_TELEMETRY_ENABLED` and
+   `NEXT_PUBLIC_EXTERNAL_TELEMETRY_ENABLED` are absent/false. A DSN alone must
+   never activate egress.
+3. Rotate exposed credentials and follow privacy response when applicable.
+4. Run backend crash opt-in, renderer telemetry redaction, and network-egress
+   tests before restoring an explicitly approved telemetry configuration.
+5. Keep local crash IDs and support evidence available when external telemetry
+   remains disabled.
+
+## Incident 29: Soak degradation, silent failure, or unbounded trend
+
+**Trigger:** the 24-hour stress or 72-hour idle/normal profile fails any resource
+bound, loses observations, shows unexpected egress, accumulates errors without
+capability degradation, or cannot correlate a failure.
+
+**Default severity:** `SEV-2`; upgrade to `SEV-1` for data integrity, secret
+egress, runaway process/disk exhaustion, or fabricated success.
+
+1. Stop the profile and preserve its versioned JSON report plus correlated local
+   logs/diagnostics. Never edit a failed report into a pass.
+2. Classify memory, handles, threads, child processes, connections, queues, logs,
+   caches, objects, and network calls against the selected profile.
+3. Reproduce with the smallest workload while retaining the same failure state.
+4. Fix and add a targeted regression before repeating the full installed profile.
+5. Short engineering observations may validate the evaluator but always remain
+   `engineering_observation_only`; they cannot satisfy CP13-E.
+
+Relevant files:
+
+- `backend/observability/soak.py`
+- `scripts/run_phase13_soak.py`
+- `reports/production-readiness/2026/phase-13/`
+
+## Change notes for v2.16.0
+
+1. Replaced the legacy raw support collection instructions with the preview,
+   confirmation, allowlist, re-redaction, hashing, and optional-encryption flow.
+2. Added full-disk/log growth, resource growth, failed update, data deletion,
+   support redaction, unexpected telemetry, and soak-degradation response.
 
 ## Change notes for v2.15.0
 

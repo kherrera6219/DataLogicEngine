@@ -11,13 +11,12 @@ import os
 import sys
 import logging
 import socket
-import re
 import json
 from datetime import datetime, UTC
 from flask import Flask
 
 
-from backend.security.pii_redaction import pii_redactor
+from backend.observability.redaction import is_sensitive_key, redact_text, redact_value
 
 
 _PYTHON_JSON_LOGGER_SPEC = importlib.util.find_spec("pythonjsonlogger")
@@ -33,48 +32,11 @@ def _redact_text_for_logging(text: str) -> str:
 
     This avoids formatter recursion where redaction logs would re-enter logging.
     """
-    if not isinstance(text, str):
-        return text
-
-    redacted = text
-    patterns = getattr(pii_redactor, "patterns", {})
-    for pii_type, pattern in patterns.items():
-        replacement = f"[REDACTED_{str(pii_type).upper()}]"
-        try:
-            redacted = re.sub(pattern, replacement, redacted)
-        except re.error:
-            # Ignore malformed patterns in logging path; preserve availability.
-            continue
-    secret_patterns = (
-        (r"(?i)\b(bearer\s+)[A-Za-z0-9._~+/=-]{8,}", r"\1[REDACTED_SECRET]"),
-        (
-            r"(?i)\b((?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*)[^\s,;]+",
-            r"\1[REDACTED_SECRET]",
-        ),
-        (r"\bsk-[A-Za-z0-9_-]{16,}\b", "[REDACTED_SECRET]"),
-        (r"\bAIza[A-Za-z0-9_-]{20,}\b", "[REDACTED_SECRET]"),
-        (r"\bukg_[A-Za-z0-9_-]{16,}\b", "[REDACTED_SECRET]"),
-    )
-    for pattern, replacement in secret_patterns:
-        redacted = re.sub(pattern, replacement, redacted)
-    return redacted
+    return redact_text(text)
 
 
 def _redact_value_for_logging(value):
-    if isinstance(value, str):
-        return _redact_text_for_logging(value)
-    if isinstance(value, dict):
-        return {
-            key: (
-                "[REDACTED_SECRET]"
-                if re.search(r"(?i)(password|secret|token|api[_-]?key|authorization)", str(key))
-                else _redact_value_for_logging(item)
-            )
-            for key, item in value.items()
-        }
-    if isinstance(value, list):
-        return [_redact_value_for_logging(item) for item in value]
-    return value
+    return redact_value(value)
 
 
 class CustomJsonFormatter(logging.Formatter):
@@ -87,39 +49,50 @@ class CustomJsonFormatter(logging.Formatter):
             self._json_formatter = JsonFormatter(fmt)
 
     def _build_log_record(self, record: logging.LogRecord, message_dict: dict | None = None) -> dict:
-        log_record = {}
-        if self._json_formatter is not None:
-            self._json_formatter.add_fields(log_record, record, message_dict or {})
+        try:
+            rendered_message = record.getMessage()
+        except Exception:
+            rendered_message = str(getattr(record, "msg", "log-message-unavailable"))
 
-        # Redact message if it's a string
-        message = log_record.get('message')
-        if not isinstance(message, str):
-            # Some call sites pass a pre-built dict or raw LogRecord message.
-            fallback_msg = getattr(record, 'msg', None)
-            if isinstance(fallback_msg, str):
-                message = fallback_msg
-                log_record['message'] = fallback_msg
-        if isinstance(message, str):
-            log_record['message'] = _redact_text_for_logging(message)
+        log_record = {
+            "schema_version": "dle.log.v1",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "severity": getattr(record, "levelname", "INFO"),
+            "level": getattr(record, "levelname", "INFO"),
+            "service": "datalogicengine",
+            "component": getattr(record, "name", "unknown"),
+            "event": getattr(record, "event", "log"),
+            "message": rendered_message,
+            "environment": os.environ.get("FLASK_ENV", "production"),
+            "redaction_classification": getattr(
+                record,
+                "redaction_classification",
+                "best_effort_redacted",
+            ),
+            "error_code": getattr(record, "error_code", None),
+            "duration_ms": getattr(record, "duration_ms", None),
+            "state_transition": getattr(record, "state_transition", None),
+        }
+        if message_dict:
+            log_record.update(message_dict)
 
-        # Add timestamp
-        log_record['timestamp'] = datetime.now(UTC).isoformat()
+        standard_fields = set(logging.makeLogRecord({}).__dict__)
+        standard_fields.update({"message", "asctime"})
+        for key, value in record.__dict__.items():
+            if key not in standard_fields and not key.startswith("_"):
+                log_record[key] = value
 
-        # Add level
-        log_record['level'] = getattr(record, 'levelname', 'INFO')
-
-        # Add service name
-        log_record['service'] = 'datalogicengine'
-
-        # Add environment
-        log_record['environment'] = os.environ.get('FLASK_ENV', 'production')
+        if record.exc_info:
+            log_record["exception"] = self.formatException(record.exc_info)
 
         # Add request context if available (ultra-defensive)
         try:
             from flask import has_request_context
             if has_request_context():
                 from flask import request, g
-                log_record['request_id'] = getattr(g, 'correlation_id', '')
+                correlation_id = getattr(g, 'correlation_id', '')
+                log_record['correlation_id'] = correlation_id
+                log_record['request_id'] = correlation_id
                 log_record['path'] = getattr(request, 'path', '')
                 log_record['method'] = getattr(request, 'method', '')
 
@@ -137,12 +110,21 @@ class CustomJsonFormatter(logging.Formatter):
             log_record.setdefault('logging_context_error', 'request-context-enrichment-failed')
 
         # Deep redaction for all fields (excluding structural ones)
+        log_record.setdefault("correlation_id", "startup")
+        log_record.setdefault("request_id", log_record["correlation_id"])
         for key in list(log_record.keys()):
             value = log_record[key]
-            if key in ('timestamp', 'level', 'environment', 'service', 'request_id'):
+            if key in (
+                'schema_version', 'timestamp', 'severity', 'level', 'environment',
+                'service', 'component', 'event', 'correlation_id', 'request_id',
+                'redaction_classification', 'error_code', 'duration_ms',
+                'state_transition',
+            ):
                 continue
-
-            log_record[key] = _redact_value_for_logging(value)
+            if is_sensitive_key(key):
+                log_record[key] = "[REDACTED_SECRET]"
+            else:
+                log_record[key] = _redact_value_for_logging(value)
         return log_record
 
     def add_fields(self, log_record, record, message_dict):
@@ -150,10 +132,7 @@ class CustomJsonFormatter(logging.Formatter):
         log_record.update(built_record)
 
     def format(self, record: logging.LogRecord) -> str:
-        if self._json_formatter is None:
-            fallback_record = self._build_log_record(record)
-            return json.dumps(fallback_record, default=str)
-        return self._json_formatter.format(record)
+        return json.dumps(self._build_log_record(record), default=str, ensure_ascii=True)
 
 
 def _resolve_log_level() -> int:

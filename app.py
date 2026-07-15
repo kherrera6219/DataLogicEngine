@@ -1059,15 +1059,160 @@ def health() -> tuple:
 @api_session_login_required
 def health_diagnostics() -> tuple:
     """Authenticated desktop diagnostics separated from public health."""
+    return jsonify(_diagnostics_summary()), 200
+
+
+def _diagnostics_summary() -> dict:
+    """Return local, authenticated, content-free diagnostic state."""
+    from backend.observability.crash_reporting import crash_reporting_state
+
+    runtime = get_application_runtime()
+    metrics_snapshot = runtime.metrics.snapshot()
+    crash_state = crash_reporting_state()
+    init_error = crash_state.get("init_error")
+    return {
+        "schema_version": "dle.diagnostics.v1",
+        "status": "ok",
+        "runtime": runtime.capabilities(),
+        "config": _config_health(),
+        "database": _database_health(),
+        "requests": {
+            "total": metrics_snapshot["total"],
+            "inflight": metrics_snapshot["inflight"],
+            "uptime_seconds": max(0.0, time.time() - metrics_snapshot["started_at"]),
+        },
+        "logging": {
+            "schema_version": "dle.log.v1",
+            "format": "json",
+            "app_max_bytes": 10 * 1024 * 1024,
+            "app_backup_count": 5,
+            "security_backup_count": 10,
+            "audit_backup_count": 30,
+            "redaction": "best_effort_redacted",
+        },
+        "external_telemetry": {
+            "opted_in": bool(current_app.config.get("DLE_EXTERNAL_TELEMETRY_ENABLED")),
+            "enabled": bool(crash_state.get("enabled")),
+            "provider": crash_state.get("provider", "none"),
+            "state_code": str(init_error).split(":", 1)[0] if init_error else None,
+        },
+        "support_bundle": {
+            "schema_version": "dle.support-bundle.v1",
+            "content_policy": "redacted_diagnostics_only",
+            "user_content_included": False,
+            "generic_reports_included": False,
+            "preview_required": True,
+            "encryption_available_via_cli": True,
+        },
+        "correlation_id": _current_correlation_id(),
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+
+
+def _support_bundle_builder():
+    from backend.observability.support_bundle import SupportBundleBuilder
+
+    return SupportBundleBuilder(get_application_runtime().runtime_root)
+
+
+def _support_bundle_options():
+    from backend.observability.support_bundle import SupportBundleOptions
+
+    return SupportBundleOptions(
+        max_log_bytes=2_000_000,
+        max_log_files=10,
+        include_http=False,
+        include_runtime_precheck=False,
+    )
+
+
+def _support_preview_fingerprint(preview: dict) -> str:
+    import hashlib
+
+    contract = [
+        {
+            "path": item.get("path"),
+            "classification": item.get("classification"),
+        }
+        for item in preview.get("files", [])
+    ]
+    encoded = json.dumps(contract, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+@core_bp.route("/api/v1/system/diagnostics/summary", methods=["GET"])
+@api_session_login_required
+def diagnostics_summary() -> tuple:
+    """Return the owner-facing safe diagnostic contract."""
+    return jsonify(_diagnostics_summary()), 200
+
+
+@core_bp.route("/api/v1/system/diagnostics/support/preview", methods=["POST"])
+@api_session_login_required
+def support_bundle_preview() -> tuple:
+    """Preview the exact allowlisted support-bundle file classes."""
+    preview = _support_bundle_builder().preview(
+        options=_support_bundle_options(),
+        diagnostics=_diagnostics_summary(),
+    )
+    preview["preview_fingerprint"] = _support_preview_fingerprint(preview)
+    return jsonify(preview), 200
+
+
+@core_bp.route("/api/v1/system/diagnostics/support/export", methods=["POST"])
+@api_session_login_required
+def support_bundle_export() -> tuple:
+    """Generate one bounded local bundle only after an explicit preview."""
+    payload = request.get_json(silent=True) or {}
+    if payload.get("confirm") is not True:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Explicit support bundle confirmation is required",
+                "code": "SUPPORT_BUNDLE_CONFIRMATION_REQUIRED",
+            }
+        ), 400
+    preview = _support_bundle_builder().preview(
+        options=_support_bundle_options(),
+        diagnostics=_diagnostics_summary(),
+    )
+    expected_fingerprint = _support_preview_fingerprint(preview)
+    if payload.get("preview_fingerprint") != expected_fingerprint:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Support bundle preview is stale; review it again",
+                "code": "SUPPORT_BUNDLE_PREVIEW_STALE",
+            }
+        ), 409
+
+    output_dir = get_application_runtime().runtime_root / "support-bundles"
+    result = _support_bundle_builder().export(
+        output_dir,
+        options=_support_bundle_options(),
+        diagnostics=_diagnostics_summary(),
+    )
+    logger.info(
+        "Redacted support bundle generated",
+        extra={
+            "event": "support_bundle.generated",
+            "artifact_sha256": result["sha256"],
+            "artifact_size_bytes": result["size_bytes"],
+            "redaction_classification": "redacted_diagnostics",
+        },
+    )
     return jsonify(
         {
-            "status": "ok",
-            "runtime": get_application_runtime().capabilities(),
-            "config": _config_health(),
-            "database": _database_health(),
+            "success": True,
+            "artifact_name": Path(result["archive_path"]).name,
+            "sidecar_name": Path(result["sidecar_path"]).name,
+            "sha256": result["sha256"],
+            "size_bytes": result["size_bytes"],
+            "encrypted": result["encrypted"],
+            "location": "application_support_bundles_directory",
             "timestamp": datetime.now(UTC).isoformat(),
         }
-    ), 200
+    ), 201
 
 
 @core_bp.route("/api/v1/system/capabilities", methods=["GET"])
@@ -1292,6 +1437,7 @@ def _configure_application(
         DLE_DATA_PLANE_DRIVER=data_plane_driver,
         DLE_DATA_PLANE_PROFILE=data_plane_profile,
         DLE_MCP_CONNECTORS_QUALIFIED=_env_bool("DLE_MCP_CONNECTORS_QUALIFIED"),
+        DLE_EXTERNAL_TELEMETRY_ENABLED=_env_bool("DLE_EXTERNAL_TELEMETRY_ENABLED"),
         DLE_DATA_PLANE_LOCK_PATH=os.environ.get(
             "DLE_DATA_PLANE_LOCK_PATH",
             str(Path(__file__).resolve().parent / "deploy" / "internal-data-plane.candidate-lock.json"),
@@ -1758,6 +1904,7 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
 
     def workers_phase(_runtime: ApplicationRuntime) -> None:
         initialize_crash_reporting(
+            enabled=bool(app.config.get("DLE_EXTERNAL_TELEMETRY_ENABLED")),
             dsn=os.environ.get("SENTRY_DSN"),
             environment=str(app.config.get("DLE_ENVIRONMENT", "production")),
             release=os.environ.get("APP_VERSION", "1.2.0"),

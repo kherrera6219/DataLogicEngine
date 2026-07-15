@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-14T23:48:23.245Z",
+  "generated_at": "2026-07-15T00:53:36.629Z",
   "base_url": "http://127.0.0.1:3200",
   "routes": [
     "/",
@@ -16,6 +16,7 @@
     "/admin/mcp/servers",
     "/admin/mcp",
     "/admin/compliance",
+    "/admin/diagnostics",
     "/algorithms",
     "/analytics",
     "/graph",
@@ -30,7 +31,7 @@
     "/tools/history",
     "/truth-engine"
   ],
-  "total_routes": 27,
+  "total_routes": 28,
   "total_violations": 0,
   "results": [
     {
@@ -127,6 +128,13 @@
     {
       "route": "/admin/compliance",
       "url": "http://127.0.0.1:3200/admin/compliance",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/admin/diagnostics",
+      "url": "http://127.0.0.1:3200/admin/diagnostics",
       "status": 200,
       "violation_count": 0,
       "violations": []

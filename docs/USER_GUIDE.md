@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.4.0 |
+| Document version | v3.5.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Product Operations |
@@ -14,7 +14,7 @@
 
 Provide task-focused instructions for day-to-day use of DataLogicEngine by analysts, operators, admins, pilot users, and technical evaluators.
 
-This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, and admin workflows.
+This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
 ## Audience
 
@@ -60,6 +60,7 @@ the local desktop trust boundary.
 | `/settings` | API, storage, AI model, preferences, and local configuration. |
 | `/settings/privacy` | Export/delete profile data and manage privacy controls. |
 | `/admin` | Admin telemetry/provider/compliance views (single owner; no user management). |
+| `/admin/diagnostics` | Content-free runtime diagnostics and previewed support-bundle export. |
 | `/admin/mcp/servers` | MCP server registry management. |
 | `/legal/privacy` | Privacy policy surface. |
 
@@ -265,6 +266,24 @@ The SSE route emits live governed stage events. Provider answer text is released
 only after validation as `validated_output` chunks; it is not raw provider-token
 streaming and v1 does not resume a disconnected stream.
 
+### 13. Review Diagnostics and export a support bundle
+
+1. Open **Admin -> Diagnostics** (`/admin/diagnostics`).
+2. Review the content-free runtime, service, request, log, privacy, and external-
+   telemetry status. This surface is owner-authenticated and does not display
+   prompts, responses, secrets, provider keys, or stored user content.
+3. Select **Preview support bundle**. Review the allowlisted file list, sizes,
+   hashes, redaction result, and exact preview fingerprint.
+4. Select **Export confirmed bundle** only after reviewing that preview. Export
+   is refused if the preview fingerprint is missing, stale, or does not match.
+5. Treat the resulting archive and hash sidecar as sensitive operational data.
+   Store or share them only through an approved support channel. Use the CLI
+   encryption option when an encrypted handoff is required.
+
+External crash reporting remains off unless the owner explicitly enables the
+backend and/or renderer telemetry opt-in. Configuring a DSN by itself does not
+authorize egress.
+
 ## Understanding local-first privacy
 
 Local-first means application data is stored locally by default in desktop/VM mode. It does not mean data never leaves the machine.
@@ -296,13 +315,22 @@ Review `docs/PRIVACY_POLICY.md` for details.
 
 ## Known limitations
 
-1. Manual NVDA accessibility evidence remains open in `TODO.md`; all 27
+1. Manual NVDA accessibility evidence remains open in `TODO.md`; all 28
    production routes pass the automated axe sweep and ten keyboard/app-readiness
    workflows pass, with evidence tracked under `reports/app-readiness/`.
 2. `/register` redirects to `/dashboard` in the current local-first build.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
+
+## Change notes for v3.5.0
+
+1. Added the owner-authenticated Diagnostics workflow and the preview-before-
+   export support-bundle contract.
+2. Clarified that external crash reporting requires an explicit opt-in and that
+   a configured DSN alone does not authorize egress.
+3. Updated the automated accessibility baseline to 28 routes while preserving
+   installed NVDA acceptance as open.
 
 ## Change notes for v3.4.0
 

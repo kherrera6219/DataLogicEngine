@@ -237,6 +237,9 @@ function buildHeaders(options: RequestInit): Headers {
   if (!isFormDataBody && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
+  if (!headers.has('X-Correlation-ID')) {
+    headers.set('X-Correlation-ID', globalThis.crypto.randomUUID());
+  }
 
   return headers;
 }

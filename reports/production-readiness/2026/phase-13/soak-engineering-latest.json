@@ -1,0 +1,98 @@
+{
+  "checks": {
+    "child_process_count_growth": {
+      "limit": 0,
+      "observed": 0,
+      "passed": true
+    },
+    "handle_count_growth": {
+      "limit": 128,
+      "observed": 0,
+      "passed": true
+    },
+    "log_bytes_growth": {
+      "limit": 536870912,
+      "observed": 0,
+      "passed": true
+    },
+    "required_duration": {
+      "limit": 86400,
+      "observed": 0.215,
+      "passed": false
+    },
+    "rss_bytes_growth": {
+      "limit": 536870912,
+      "observed": 90112,
+      "passed": true
+    },
+    "sample_integrity": {
+      "limit": "at_least_2_error_free_samples",
+      "observed": 3,
+      "passed": true
+    },
+    "support_archive_count": {
+      "limit": 5,
+      "observed": 0,
+      "passed": true
+    },
+    "thread_count_growth": {
+      "limit": 16,
+      "observed": 0,
+      "passed": true
+    }
+  },
+  "generated_at": "2026-07-15T00:39:34.923741+00:00",
+  "installed_application": false,
+  "observed_duration_seconds": 0.215,
+  "profile": {
+    "max_child_process_growth": 0,
+    "max_handle_growth": 128,
+    "max_log_growth_bytes": 536870912,
+    "max_rss_growth_bytes": 536870912,
+    "max_support_archive_count": 5,
+    "max_thread_growth": 16,
+    "name": "stress24",
+    "required_duration_seconds": 86400,
+    "sample_interval_seconds": 60
+  },
+  "qualifies_cp13_e": false,
+  "resource_checks_passed": true,
+  "sample_count": 3,
+  "samples": [
+    {
+      "child_process_count": 0,
+      "handle_count": 307,
+      "log_bytes": 42811796,
+      "process_id": 25584,
+      "rss_bytes": 72040448,
+      "sample_error": null,
+      "support_archive_count": 0,
+      "thread_count": 9,
+      "timestamp": "2026-07-15T00:39:34.709236+00:00"
+    },
+    {
+      "child_process_count": 0,
+      "handle_count": 307,
+      "log_bytes": 42811796,
+      "process_id": 25584,
+      "rss_bytes": 72056832,
+      "sample_error": null,
+      "support_archive_count": 0,
+      "thread_count": 9,
+      "timestamp": "2026-07-15T00:39:34.821785+00:00"
+    },
+    {
+      "child_process_count": 0,
+      "handle_count": 307,
+      "log_bytes": 42811796,
+      "process_id": 25584,
+      "rss_bytes": 72130560,
+      "sample_error": null,
+      "support_archive_count": 0,
+      "thread_count": 9,
+      "timestamp": "2026-07-15T00:39:34.909441+00:00"
+    }
+  ],
+  "schema_version": "dle.soak-report.v1",
+  "status": "engineering_observation_only"
+}

@@ -75,9 +75,12 @@ def test_compliance_enforcer_core_paths():
     }
 
     result = enforcer.enforce(request, session_id="session-1")
-    assert result["compliant"] is True
-    assert result["article_53"]["logged"] is True
-    assert result["article_13"]["explainability_enabled"] is True
+    assert result["framework_map_is_certification"] is False
+    assert result["certification_claim"] is False
+    assert result["overall_check_result"] == "checks_failed"
+    assert result["article_53"]["logged"] is False
+    assert result["article_53"]["result"] == "not_measured"
+    assert result["article_13"]["result"] == "passed"
     assert result["pii_check"]["pii_found"] is True
 
     hashed = enforcer._hash_query("hello")
@@ -85,7 +88,9 @@ def test_compliance_enforcer_core_paths():
 
     report = enforcer.get_compliance_report(tenant_id="tenant-a")
     assert report["tenant_id"] == "tenant-a"
-    assert report["summary"]["compliance_rate"] == 1.0
+    assert report["summary"]["overall_result"] == "not_measured"
+    assert report["summary"]["pass_rate"] is None
+    assert report["framework_map_is_certification"] is False
 
     assert enforcer.get_audit_trail("session-1") == []
 
@@ -105,6 +110,7 @@ def test_compliance_enforcer_db_paths_and_errors():
 
         result = enforcer.enforce({"query": "safe query", "tier": "trivial"}, session_id="session-db")
         assert result["article_53"]["logged"] is True
+        assert result["article_53"]["result"] == "passed"
         db_session.add.assert_called()
         db_session.commit.assert_called()
 
@@ -118,6 +124,8 @@ def test_compliance_enforcer_db_paths_and_errors():
     enforcer = compliance_module.ComplianceEnforcer(db_session=failing_session)
     enforce_result = enforcer.enforce({"query": "safe", "tier": "moderate"}, session_id="bad-session")
     assert enforce_result["article_53"]["logged"] is False
+    assert enforce_result["article_53"]["result"] == "failed"
+    assert enforce_result["overall_check_result"] == "checks_failed"
 
     failing_session.query.return_value.filter_by.return_value.order_by.return_value.all.side_effect = RuntimeError(
         "read fail"

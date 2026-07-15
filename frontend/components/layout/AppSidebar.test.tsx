@@ -31,6 +31,7 @@ vi.mock('lucide-react', () => ({
   ShieldCheck: () => <svg data-testid="icon-truth" />,
   BarChart3: () => <svg data-testid="icon-analytics" />,
   ClipboardCheck: () => <svg data-testid="icon-compliance" />,
+  Activity: () => <svg data-testid="icon-diagnostics" />,
   ShieldAlert: () => <svg data-testid="icon-shield" />,
   Settings: () => <svg data-testid="icon-settings" />,
   Hexagon: () => <svg data-testid="icon-hexagon" />,
@@ -58,6 +59,7 @@ describe('AppSidebar', () => {
     render(<AppSidebar />);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Enterprise AI')).toBeInTheDocument();
+    expect(screen.getByText('Diagnostics')).toBeInTheDocument();
   });
 
   it('should highlight active route', () => {

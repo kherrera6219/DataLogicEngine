@@ -52,23 +52,27 @@ class AnalyticsService:
                 sum(confidence_values) / len(confidence_values)
                 if confidence_values else None
             )
-            compliance_score = f"{average_confidence * 100:.1f}%" if average_confidence is not None else "N/A"
+            average_validation_confidence = (
+                f"{average_confidence * 100:.1f}%"
+                if average_confidence is not None
+                else "Not measured"
+            )
             if not traces:
-                compliance_status = "No validation data"
+                validation_status = "No validation data"
             elif failed_runs:
-                compliance_status = "Review required"
+                validation_status = "Review required"
             elif average_confidence is not None and average_confidence >= 0.8:
-                compliance_status = "Validated"
+                validation_status = "Validation checks passed"
             else:
-                compliance_status = "Needs review"
+                validation_status = "Needs review"
 
             return {
                 "api_requests_24h": request_count,
                 "kg_nodes": node_count,
                 "kg_edges": edge_count,
                 "kg_size_display": size_display,
-                "compliance_status": compliance_status,
-                "compliance_score": compliance_score,
+                "validation_status": validation_status,
+                "average_validation_confidence": average_validation_confidence,
                 "validation_run_count": len(traces),
                 "failed_validation_runs": failed_runs,
                 "timestamp": datetime.now(UTC).isoformat()

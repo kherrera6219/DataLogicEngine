@@ -6,7 +6,7 @@ This module provides API endpoints for managing and accessing compliance standar
 in the Universal Knowledge Graph (UKG) system.
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from flask import Blueprint, request, jsonify, current_app
 
 from backend.auth.api_decorators import api_login_required, api_admin_required
@@ -271,7 +271,7 @@ def export_audit_logs_route():
 @api_login_required
 @validate_json_payload(ComplianceReportRequest)
 def export_compliance_report():
-    """Generate and export a real compliance report PDF."""
+    """Generate a non-certifying self-assessment evidence PDF."""
     from backend.reports.compliance import compliance_reporter, ComplianceFramework
     from flask import send_file
     import os
@@ -284,13 +284,12 @@ def export_compliance_report():
         framework_val = payload.framework
         framework = ComplianceFramework(framework_val)
         
-        # In a real scenario, we'd fetch data_points from DB
         data_points = payload.data_points
         
         report = compliance_reporter.generate_report(
             framework=framework,
-            start_date=datetime.now(),
-            end_date=datetime.now(),
+            start_date=datetime.now(UTC),
+            end_date=datetime.now(UTC),
             data_points=data_points
         )
         

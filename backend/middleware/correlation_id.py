@@ -7,9 +7,28 @@ and improved debugging capabilities.
 
 import uuid
 import logging
+import re
 from flask import request, g
 
+from backend.observability.context import (
+    bind_correlation_id,
+    current_correlation_id,
+    reset_correlation_id,
+)
+
 logger = logging.getLogger(__name__)
+
+CORRELATION_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$")
+
+
+def normalize_correlation_id(value: object) -> str | None:
+    """Return one bounded log/header-safe correlation ID or ``None``."""
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    if not CORRELATION_ID_PATTERN.fullmatch(candidate):
+        return None
+    return candidate
 
 
 class CorrelationIdMiddleware:
@@ -33,16 +52,18 @@ class CorrelationIdMiddleware:
         def add_correlation_id():
             """Add or extract correlation ID for the request."""
             # Try Correlation ID first, then Request ID
-            correlation_id = request.headers.get(self.CORRELATION_ID_HEADER)
-            if not correlation_id:
-                correlation_id = request.headers.get(self.REQUEST_ID_HEADER)
-            
-            if not correlation_id:
+            supplied_id = request.headers.get(self.CORRELATION_ID_HEADER)
+            if not supplied_id:
+                supplied_id = request.headers.get(self.REQUEST_ID_HEADER)
+            correlation_id = normalize_correlation_id(supplied_id)
+            if correlation_id is None:
                 correlation_id = str(uuid.uuid4())
+                g.correlation_id_replaced = bool(supplied_id)
             
             # Set both for backward compatibility
             g.correlation_id = correlation_id
             g.request_id = correlation_id
+            g.correlation_context_token = bind_correlation_id(correlation_id)
             
         @app.after_request
         def add_correlation_id_to_response(response):
@@ -51,6 +72,13 @@ class CorrelationIdMiddleware:
                 response.headers[self.CORRELATION_ID_HEADER] = g.correlation_id
                 response.headers[self.REQUEST_ID_HEADER] = g.correlation_id
             return response
+
+        @app.teardown_request
+        def reset_request_correlation(_error=None):
+            token = getattr(g, 'correlation_context_token', None)
+            if token is not None:
+                reset_correlation_id(token)
+                g.correlation_context_token = None
         
         logger.info("Correlation ID middleware initialized")
 
@@ -70,7 +98,7 @@ def get_correlation_id():
             return getattr(g, 'correlation_id', 'unknown')
     except Exception:
         pass
-    return 'startup'
+    return current_correlation_id()
 
 
 def configure_correlation_id(app):

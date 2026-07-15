@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.0 |
+| Document version | v2.15.0 |
 | Last updated | 2026-07-14 |
 | Effective date | 2026-05-30 |
 | Status | Active |
@@ -303,6 +303,33 @@ Neo4j, Chroma, required objects, and provenance-linked UnifiedMemory records.
 Shared chunks remain only while another active source references them. Memory
 review/export/delete/compaction/recovery controls are owner-only. Installed
 backup, deletion-remnant, and recovery proof remain release gates.
+
+## Phase 13 diagnostics, support, and telemetry handling
+
+System Diagnostics exposes authenticated content-free runtime, service,
+request, logging, resource, configuration-shape, and external-telemetry state.
+It does not expose provider credentials, authorization headers, prompts,
+documents, provider payloads, request/response bodies, or decrypted backups.
+
+Support bundles are created only after explicit owner preview and confirmation.
+They include a versioned manifest, sanitized environment/configuration shape,
+source/system/resource state, optional local probe/precheck metadata, and only
+allowlisted bounded logs that are re-redacted during staging. Generic reports
+and user content are excluded. The preview/export fingerprint must match; files
+and archive are SHA-256 hashed, old exact-name app-owned archives are bounded,
+and CLI encryption uses an interactively supplied passphrase. The application
+does not upload a bundle.
+
+Backend and renderer external telemetry are disabled by default and require a
+separate explicit owner opt-in. A configured DSN or provider object alone cannot
+enable egress. Local crash IDs remain available without external telemetry.
+Installed no-egress and all-output canary evidence remains a release gate.
+
+## Change notes for v2.15.0
+
+1. Added the authenticated content-free Diagnostics, explicit support preview/
+   confirmation/export, allowlist/redaction/hash/encryption/retention, and
+   external-telemetry opt-in privacy contract.
 
 ## Change notes for v2.14.0
 

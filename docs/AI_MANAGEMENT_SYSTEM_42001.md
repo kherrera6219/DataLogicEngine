@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | AI Governance + Security Engineering |
 | Review cadence | Every 60 days |
@@ -272,10 +272,10 @@ Improvement mechanisms:
 | Human oversight | Admin/compliance surfaces, release gates, operational runbooks, manual accessibility and signing evidence requirements. |
 | Information security | desktop local auth, CSRF/CORS/trusted hosts, rate limits, DPAPI, export integrity, TruthGate, injection defense. |
 | Supplier/provider management | LLM Gateway provider config, MCP connector governance, provider validation scripts, connector scope/contract controls. |
-| Logging and audit | TruthMemory, trace tables, audit logs, export manifests, support bundles, release evidence artifacts. |
+| Logging and audit | Correlated `dle.log.v1`, TruthMemory, trace tables, audit logs, export manifests, previewed/redacted support bundles, release evidence artifacts. |
 | Lifecycle management | CI, deploy workflows, release checklist, production readiness scorecard, backend packaging, installer integrity, packaging smoke, code signing. |
-| Monitoring and measurement | `/metrics`, Truth Engine stats, DMRF observability, latency SLO metrics, CI reports. |
-| Incident management | `docs/OPERATIONAL_RUNBOOKS.md`, support bundle generator, post-incident validation checklist. |
+| Monitoring and measurement | `/metrics`, authenticated Diagnostics, Truth Engine stats, DMRF observability, latency SLO metrics, stress24/idle72 profiles, CI reports. |
+| Incident management | `docs/OPERATIONAL_RUNBOOKS.md`, previewed/confirmed support bundles, post-incident validation checklist. |
 | Improvement | regression tests, docs versioning, governance scripts, postmortem corrective actions. |
 
 ---
@@ -288,7 +288,7 @@ Improvement mechanisms:
 | API contract evidence | `docs/API.md`, `tests/contract/` |
 | Security evidence | `docs/SECURITY.md`, `tests/security/`, `backend/security/` |
 | Data governance evidence | `docs/DATABASE_SCHEMA.md`, `scripts/validate_schema_parity.py` |
-| Operational evidence | `docs/OPERATIONAL_RUNBOOKS.md`, support bundles, `/metrics` |
+| Operational evidence | `docs/OPERATIONAL_RUNBOOKS.md`, `reports/production-readiness/2026/phase-13/`, support bundles, `/metrics`, authenticated Diagnostics |
 | Production readiness evidence | `docs/PRODUCTION_READINESS.md`, `docs/RELEASE_CHECKLIST.md` |
 | Release evidence | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, signing workflow, packaging reports |
 | AI traceability evidence | Trace Explorer, `backend/tracing/`, TruthMemory, export manifests |
@@ -308,6 +308,8 @@ Known caveats:
 4. Trusted Windows signing credentials and signed artifact validation are required before production installer distribution.
 5. Field-level encryption now writes AES-256-GCM payloads; legacy Fernet-encrypted values remain decryptable for backward compatibility.
 6. Provider-backed staging tests must be run with configured provider credentials before production release claims.
+7. Installed multi-process correlation, failure injection, all-output redaction/
+   no-egress, support acceptance, and full 24/72-hour soaks remain open.
 
 ---
 
@@ -333,6 +335,13 @@ An AI governance reviewer should inspect:
 16. `docs/RELEASE_CHECKLIST.md`
 
 ---
+
+## Change notes for v2.8.0
+
+1. Added Phase 13 correlated observability, authenticated Diagnostics, safe
+   support evidence, typed failure semantics, evidence-backed framework maps,
+   incident handling, and soak profiles without changing the non-certification
+   boundary.
 
 ## Change notes for v2.7.0
 

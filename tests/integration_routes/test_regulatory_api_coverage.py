@@ -99,6 +99,9 @@ def test_regulatory_api_success_paths(regulatory_app, regulatory_client):
     resp = regulatory_client.get("/reg/standards")
     assert resp.status_code == 200
     assert resp.json["success"] is True
+    assert resp.json["framework_map_is_certification"] is False
+    assert resp.json["data"][0]["mapping_state"] == "configured"
+    assert "coverage" not in resp.json["data"][0]
 
 
 def test_regulatory_api_validation_and_error_paths(regulatory_app, regulatory_client):
@@ -172,7 +175,11 @@ def test_regulatory_api_validation_and_error_paths(regulatory_app, regulatory_cl
 
 
 def test_regulatory_api_exception_path_on_standards(regulatory_app, regulatory_client):
+    regulatory_app.config["DB_MANAGER"] = MagicMock()
+    regulatory_app.config["DB_MANAGER"].get_nodes_by_properties.side_effect = RuntimeError(
+        "registry fail"
+    )
     with patch("backend.regulatory_api.datetime") as mock_datetime:
-        mock_datetime.now.side_effect = [RuntimeError("clock fail"), datetime.now()]
+        mock_datetime.now.return_value = datetime.now()
         resp = regulatory_client.get("/reg/standards")
         assert resp.status_code == 500

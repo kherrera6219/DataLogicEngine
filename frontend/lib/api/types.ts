@@ -425,8 +425,8 @@ export interface AnalyticsOverview {
   kg_nodes: number;
   kg_edges: number;
   kg_size_display: string;
-  compliance_status: string;
-  compliance_score: string;
+  validation_status: string;
+  average_validation_confidence: string;
   validation_run_count?: number;
   failed_validation_runs?: number;
   timestamp: string;

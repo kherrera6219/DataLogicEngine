@@ -17,11 +17,6 @@ from typing import Dict, List, Any, Optional
 import threading
 import uuid
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger("UKG-Audit")
 
 class AuditLogger:

@@ -9,6 +9,7 @@ import { ingestion } from './ingestion';
 import { request } from './client';
 import { gateway } from './gateway';
 import { memory } from './memory';
+import { diagnostics } from './diagnostics';
 
 export { API_BASE, ApiError, buildApiUrl, request } from './client';
 export * from './types';
@@ -25,6 +26,7 @@ export const api = {
   compliance,
   gateway,
   memory,
+  diagnostics,
   system: {
     health: () => request<{ status?: string } | string>('/health')
       .then((payload) => typeof payload === 'string' ? payload : payload.status || 'degraded')

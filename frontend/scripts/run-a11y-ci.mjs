@@ -25,6 +25,7 @@ const defaultRoutes = [
   '/admin/mcp/servers',
   '/admin/mcp',
   '/admin/compliance',
+  '/admin/diagnostics',
   '/algorithms',
   '/analytics',
   '/graph',
@@ -96,6 +97,27 @@ async function mockApi(page) {
     if (path === '/analytics/activity') return route.fulfill(jsonResponse([]));
     if (path === '/analytics/summary' || path === '/analytics/overview') return route.fulfill(jsonResponse({}));
     if (path === '/analytics/mcp') return route.fulfill(jsonResponse({ servers: 0, tools: 0, resources: 0 }));
+
+    if (path === '/system/diagnostics/summary') {
+      return route.fulfill(jsonResponse({
+        schema_version: 'dle.diagnostics.v1',
+        status: 'ok',
+        runtime: { phase: 'ready', ready: true, services: {} },
+        requests: { total: 12, inflight: 1, uptime_seconds: 60 },
+        logging: { schema_version: 'dle.log.v1', format: 'json', redaction: 'best_effort_redacted' },
+        external_telemetry: { opted_in: false, enabled: false, provider: 'none', state_code: null },
+        support_bundle: {
+          schema_version: 'dle.support-bundle.v1',
+          content_policy: 'redacted_diagnostics_only',
+          user_content_included: false,
+          generic_reports_included: false,
+          preview_required: true,
+          encryption_available_via_cli: true,
+        },
+        correlation_id: 'a11y-diagnostics',
+        timestamp: new Date().toISOString(),
+      }));
+    }
 
     if (path === '/mcp/servers') {
       return route.fulfill(jsonResponse({ servers: [], runtime_servers: [] }));

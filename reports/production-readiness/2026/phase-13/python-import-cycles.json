@@ -1,0 +1,28 @@
+{
+  "cycle_count": 4,
+  "cycles": [
+    [
+      "backend.dmrf.truth_integration.core_adapter",
+      "backend.governed_execution.orchestrator",
+      "backend.llm_gateway.gateway",
+      "backend.truth_engine.truth_core.engine"
+    ],
+    [
+      "backend.ingestion.jobs",
+      "backend.ingestion.local_ingestion"
+    ],
+    [
+      "backend.llm_gateway.api",
+      "backend.llm_gateway.jobs"
+    ],
+    [
+      "backend.storage.connection_manager",
+      "backend.storage.vector_store"
+    ]
+  ],
+  "module_count": 532,
+  "parse_errors": [],
+  "passed": false,
+  "scanned_files": 532,
+  "schema_version": "dle.python-import-analysis.v1"
+}

@@ -1,143 +1,163 @@
-"""
-Compliance Reporting Service - PRODUCTION VERSION
------------------------------------------------
-Generates real compliance reports with PDF export capabilities.
-"""
+"""Compliance control-map self-assessment evidence reports."""
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import List, Dict, Any
+import uuid
 from datetime import datetime
 from enum import Enum
-from reportlab.lib.pagesizes import LETTER
+from pathlib import Path
+from typing import Any
+
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+from backend.compliance.evidence import normalize_evidence_record, summarize_evidence
 
 logger = logging.getLogger(__name__)
 
+
 class ComplianceFramework(Enum):
+    """Framework maps supported for self-assessment evidence organization."""
+
     SOC2 = "SOC2"
     GDPR = "GDPR"
     HIPAA = "HIPAA"
     ISO27001 = "ISO27001"
     CCPA = "CCPA"
 
-class ComplianceReportGenerator:
-    """
-    Generates structured compliance reports from system logs and audit trails.
-    """
-    
-    def __init__(self, output_dir: str = "reports"):
-        self.output_dir = output_dir
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        logger.info("ComplianceReportGenerator v2.0 initialized (PRODUCTION MODE)")
 
-    def generate_report(self, framework: ComplianceFramework, start_date: datetime, end_date: datetime, data_points: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Generate a comprehensive compliance report.
-        """
-        report_id = f"RPT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        logger.info(f"Generating {framework.value} report: {report_id}")
-        
-        # Real logic: analyze findings
-        findings = self._analyze_compliance(framework, data_points)
-        summary = self._generate_summary(framework, findings)
-        
+class ComplianceReportGenerator:
+    """Generate non-certifying reports from supplied, versioned evidence records."""
+
+    def __init__(self, output_dir: str = "reports"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def generate_report(
+        self,
+        framework: ComplianceFramework,
+        start_date: datetime,
+        end_date: datetime,
+        data_points: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        if end_date < start_date:
+            raise ValueError("compliance_report_period_invalid")
+        records = [normalize_evidence_record(item) for item in data_points]
         report = {
-            "report_id": report_id,
-            "framework": framework.value,
-            "generated_at": datetime.now().isoformat(),
+            "schema_version": "dle.compliance-evidence-report.v1",
+            "report_id": f"RPT-{uuid.uuid4()}",
+            "report_classification": "self_assessment_evidence",
+            "framework_map": framework.value,
+            "framework_map_is_certification": False,
+            "generated_at": datetime.now().astimezone().isoformat(),
             "period": {
-                "start": start_date.isoformat(),
-                "end": end_date.isoformat()
+                "start": start_date.astimezone().isoformat(),
+                "end": end_date.astimezone().isoformat(),
             },
-            "summary": summary,
-            "findings": findings,
-            "recommendations": self._generate_recommendations(framework, findings)
+            "summary": summarize_evidence(records),
+            "evidence_records": records,
+            "limitations": [
+                "This report is application-generated self-assessment evidence.",
+                "It is not an independent audit, attestation, or certification.",
+                "Organizational and process controls outside recorded checks are not assessed.",
+            ],
         }
-        
-        # Auto-export to PDF in production
-        pdf_path = self.export_to_pdf(report)
-        report["pdf_export_path"] = pdf_path
-        
+        report["pdf_export_path"] = self.export_to_pdf(report)
         return report
 
-    def _analyze_compliance(self, framework: ComplianceFramework, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Perform actual analysis of provided data against framework rules."""
-        # For production, we evaluate real data (like PII redaction rates or audit trail checks)
-        return [
-            {"control": "Data Access", "status": "Pass", "finding": "All access logged correctly."},
-            {"control": "Encryption", "status": "Pass", "finding": "Data at rest is encrypted."},
-            {"control": "Audit Integrity", "status": "Partial", "finding": "Some blockchain anchors missing private keys."}
+    def export_to_pdf(self, report: dict[str, Any]) -> str:
+        framework = str(report["framework_map"])
+        filename = f"{report['report_id']}_{framework}_SELF_ASSESSMENT.pdf"
+        filepath = self.output_dir / filename
+        document = SimpleDocTemplate(str(filepath), pagesize=LETTER)
+        styles = getSampleStyleSheet()
+        elements = [
+            Paragraph(
+                f"DataLogicEngine - {framework} Control-Map Self-Assessment Evidence",
+                styles["Title"],
+            ),
+            Paragraph(f"Report ID: {report['report_id']}", styles["Normal"]),
+            Paragraph(f"Generated: {report['generated_at']}", styles["Normal"]),
+            Paragraph(
+                "This application-generated report is not an independent audit, attestation, or certification.",
+                styles["Normal"],
+            ),
+            Spacer(1, 12),
         ]
 
-    def _generate_summary(self, framework: ComplianceFramework, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
-        total = len(findings)
-        passed = len([f for f in findings if f["status"] == "Pass"])
-        return {
-            "compliance_score": (passed / total) * 100 if total > 0 else 0,
-            "findings_count": total,
-            "passed_count": passed,
-            "status": "Compliant" if passed == total else "Minor Non-Compliance"
-        }
-
-    def _generate_recommendations(self, framework: ComplianceFramework, findings: List[Dict[str, Any]]) -> List[str]:
-        recs = ["Maintain current logging standards."]
-        if any(f["status"] != "Pass" for f in findings):
-            recs.append("Ensure production private keys are configured for blockchain anchoring.")
-        return recs
-
-    def export_to_pdf(self, report: Dict[str, Any]) -> str:
-        """
-        Export the report to a PDF file using ReportLab.
-        """
-        filename = f"{report['report_id']}_{report['framework']}.pdf"
-        filepath = os.path.join(self.output_dir, filename)
-        
-        try:
-            doc = SimpleDocTemplate(filepath, pagesize=LETTER)
-            styles = getSampleStyleSheet()
-            elements = []
-            
-            # Title
-            elements.append(Paragraph(f"UKG DataLogicEngine - {report['framework']} Report", styles['Title']))
-            elements.append(Paragraph(f"Report ID: {report['report_id']}", styles['Normal']))
-            elements.append(Paragraph(f"Generated: {report['generated_at']}", styles['Normal']))
-            elements.append(Spacer(1, 12))
-            
-            # Summary Table
-            summary_data = [
-                ['Metric', 'Value'],
-                ['Framework', report['framework']],
-                ['Score', f"{report['summary']['compliance_score']}%"],
-                ['Status', report['summary']['status']],
+        summary = report["summary"]
+        summary_table = Table(
+            [
+                ["Evidence metric", "Value"],
+                ["Framework map", framework],
+                ["Overall check result", summary["overall_result"]],
+                ["Evidence records", str(summary["record_count"])],
+                ["Measured checks", str(summary["measured_check_count"])],
+                ["Passed checks", str(summary["passed_check_count"])],
+                [
+                    "Pass rate",
+                    "Not measured"
+                    if summary["pass_rate"] is None
+                    else f"{summary['pass_rate'] * 100:.1f}%",
+                ],
             ]
-            t = Table(summary_data)
-            t.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                                  ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                                  ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                                  ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
-            elements.append(t)
-            elements.append(Spacer(1, 12))
-            
-            # Findings
-            elements.append(Paragraph("Compliance Findings", styles['Heading2']))
-            findings_data = [['Control', 'Status', 'Observation']]
-            for f in report['findings']:
-                findings_data.append([f['control'], f['status'], f['finding']])
-            
-            ft = Table(findings_data)
-            ft.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-                                   ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)]))
-            elements.append(ft)
-            
-            doc.build(elements)
-            logger.info(f"Report exported to {filepath}")
-            return filepath
-        except Exception as e:
-            logger.error(f"PDF export failed: {e}")
-            return f"Export Error: {str(e)}"
+        )
+        summary_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+        )
+        elements.extend([summary_table, Spacer(1, 12)])
 
-# Global Instance
+        elements.append(Paragraph("Versioned evidence records", styles["Heading2"]))
+        rows = [["Control", "Claim type", "Result", "Evidence reference"]]
+        for record in report["evidence_records"]:
+            rows.append(
+                [
+                    record["control_id"],
+                    record["claim_type"],
+                    record["result"],
+                    record["evidence_ref"],
+                ]
+            )
+        if len(rows) == 1:
+            rows.append(["No evidence supplied", "-", "not_measured", "-"])
+        evidence_table = Table(rows, repeatRows=1)
+        evidence_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.lightblue),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]
+            )
+        )
+        elements.append(evidence_table)
+
+        try:
+            document.build(elements)
+        except Exception as exc:
+            filepath.unlink(missing_ok=True)
+            raise RuntimeError("compliance_evidence_pdf_export_failed") from exc
+        logger.info(
+            "Compliance self-assessment evidence report exported",
+            extra={
+                "event": "compliance_evidence_report.exported",
+                "report_id": report["report_id"],
+                "framework_map": framework,
+                "record_count": summary["record_count"],
+            },
+        )
+        return os.fspath(filepath)
+
+
 compliance_reporter = ComplianceReportGenerator()

@@ -164,9 +164,9 @@ export default function DashboardPage() {
                    border: 'border-purple-500/20' 
                  },
                  { 
-                   label: 'Compliance Status', 
-                   value: overview?.compliance_status || 'Unavailable',
-                   badge: overview?.compliance_score || 'Not measured',
+                   label: 'Validation Review',
+                   value: overview?.validation_status || 'Unavailable',
+                   badge: overview?.average_validation_confidence || 'Not measured',
                    icon: Settings, // Changed from ShieldCheck
                    color: 'text-green-400', 
                    bg: 'bg-green-500/10', 

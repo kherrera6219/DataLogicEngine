@@ -81,12 +81,14 @@ def persist_governed_trace(
             logger.warning("Cannot persist non-UUID governed trace ID: %s", run_id)
             return False
 
-        try:
-            from flask import g, has_app_context
+        from backend.observability.context import current_correlation_id
 
-            correlation_id = getattr(g, "correlation_id", None) if has_app_context() else None
-        except Exception:
-            correlation_id = None
+        observed_correlation_id = current_correlation_id()
+        correlation_id = (
+            observed_correlation_id
+            if observed_correlation_id not in {"", "startup", "unknown"}
+            else None
+        )
 
         metadata = _mapping(sdk_result.get("metadata"))
         dmrf = _mapping(metadata.get("dmrf"))

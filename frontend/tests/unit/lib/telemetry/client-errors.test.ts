@@ -4,10 +4,12 @@ describe('lib/telemetry/client-errors', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     delete (window as Window & { Sentry?: unknown }).Sentry;
   });
 
   it('captures Error instances with Sentry when available', async () => {
+    vi.stubEnv('NEXT_PUBLIC_EXTERNAL_TELEMETRY_ENABLED', 'true');
     const sentryCapture = vi.fn();
     (window as Window & { Sentry?: { captureException: typeof sentryCapture } }).Sentry = {
       captureException: sentryCapture,
@@ -20,6 +22,26 @@ describe('lib/telemetry/client-errors', () => {
     expect(sentryCapture).toHaveBeenCalledWith(error, {
       extra: { module: 'chat', action: 'send' },
     });
+  });
+
+  it('does not use Sentry without explicit external telemetry opt-in', async () => {
+    const sentryCapture = vi.fn();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (window as Window & { Sentry?: { captureException: typeof sentryCapture } }).Sentry = {
+      captureException: sentryCapture,
+    };
+
+    const { reportClientError } = await import('@/lib/telemetry/client-errors');
+    reportClientError(new Error('token=raw-secret-value user@example.com'));
+
+    expect(sentryCapture).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith(
+      '[ClientError]',
+      expect.objectContaining({
+        message: expect.not.stringContaining('raw-secret-value'),
+      }),
+      expect.any(Object),
+    );
   });
 
   it('falls back to console.error for non-Error payloads', async () => {

@@ -170,8 +170,18 @@ class TruthGateGateway:
                         self.db_session.commit()
                         budget_info['kill_switch_triggered'] = True
                         return False, budget_info
-            except Exception as e:
-                logger.error(f"Budget check failed: {e}")
+            except Exception:
+                logger.exception(
+                    "Budget authority check failed",
+                    extra={
+                        "event": "truth_gateway.budget_check_failed",
+                        "error_code": "PERSISTENCE_FAILED",
+                        "fail_behavior": "fail_closed",
+                    },
+                )
+                budget_info['capability_state'] = 'unavailable'
+                budget_info['error_code'] = 'PERSISTENCE_FAILED'
+                return False, budget_info
         
         return True, budget_info
 
@@ -198,33 +208,22 @@ class TruthGateGateway:
 
     def _check_compliance(self, query: str, tenant_id: str) -> Dict[str, Any]:
         """Check EU AI Act and other compliance requirements."""
-        compliance_result = {
-            'article_53_logged': True,
-            'article_13_enabled': True,
-            'pii_redaction_applied': False,
-            'compliant': True
-        }
-        
-        pii_patterns = [
-            r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-            r'\b\d{3}-\d{2}-\d{4}\b',
-            r'\b\d{16}\b'
-        ]
-        
-        for pattern in pii_patterns:
-            if re.search(pattern, query):
-                compliance_result['pii_redaction_applied'] = True
-                break
-        
-        return compliance_result
+        return self.compliance_enforcer.enforce(
+            {"query": query, "tenant_id": tenant_id},
+            session_id=None,
+        )
 
     def record_response(self, request_id: str, response: Dict[str, Any]) -> Dict[str, Any]:
         """Record and validate response for compliance."""
         return {
+            'schema_version': 'dle.response-recording-status.v1',
             'request_id': request_id,
-            'response_recorded': True,
-            'output_sanitized': True,
-            'compliance_logged': True,
+            'result': 'not_measured',
+            'response_recorded': False,
+            'output_sanitization': 'not_measured',
+            'evidence_ref': None,
+            'certification_claim': False,
+            'message': 'No durable response recorder is configured on this legacy gateway.',
             'timestamp': datetime.now(UTC).isoformat()
         }
 

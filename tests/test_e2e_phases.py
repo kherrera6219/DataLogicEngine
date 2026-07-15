@@ -163,7 +163,9 @@ async def run_functional_tests():
             datetime.now(UTC),
             []
         )
-        assert report["framework"] == "SOC2"
+        assert report["framework_map"] == "SOC2"
+        assert report["framework_map_is_certification"] is False
+        assert report["summary"]["overall_result"] == "not_measured"
         assert "report_id" in report
         print("  ✓ PASS: Compliance reports generated successfully")
     except Exception as e:

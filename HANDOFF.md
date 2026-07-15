@@ -6,9 +6,9 @@
 |---|---|
 | Last updated | 2026-07-14 |
 | Purpose | Current checkpoint and exact next action only |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.11.0 |
-| Completed phase | Phase 12 engineering checkpoint - UI workflow, Session Library, and accessibility automation |
-| Current phase | Phase 13 - observability, diagnostics, compliance semantics, and support |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.12.0 |
+| Completed phase | Phase 13 engineering checkpoint - observability, diagnostics, compliance semantics, and support |
+| Current phase | Phase 14 - packaging, signing, updates, dependencies, and supply chain |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -381,15 +381,52 @@ axe-clean and ten app-readiness/keyboard workflows pass. Full validation passes
 CP12-C installed workflows/store effects, packaged visual/scaling/high-contrast
 checks, and CP12-F manual NVDA acceptance remain open release gates.
 
+## Phase 13 engineering checkpoint
+
+Validated correlation IDs originate in renderer/Electron requests, bind to
+Flask/background context, echo safely, enrich backend/desktop `dle.log.v1`, and
+persist with governed traces. Electron logs rotate through bounded generations
+and deterministically redact secrets, PII, content, and home paths. Backend and
+renderer external telemetry require explicit opt-in.
+
+Admin -> Diagnostics exposes content-free runtime/service/request/log/privacy
+state and an explicit support preview/confirm/local-export workflow. Preview and
+export share the same allowlisted, re-redacted staging contract; per-file and
+archive hashes, sidecars, exact-name retention, and optional interactive AES-
+256-GCM CLI encryption are implemented.
+
+The typed taxonomy covers all Phase 13 categories and the critical fail-closed/
+fail-soft map is executable. Six module root-logging calls are gone. The AST
+regression gate records 1,104 broad/bare catches in 321 files without claiming
+the legacy queue is complete. The former false circular checker now reports four
+real open cycles.
+
+Compliance/status/PDF paths now use self-assessment/control-map evidence,
+require source/check/time/scope/result/evidence fields, return Not measured for
+missing evidence, and do not invent coverage, compliance, attestation, or
+certification. Seven incident runbooks and real stress24/idle72 profiles were
+added. The short collection run passes bounds but cannot satisfy CP13-E.
+
+Full source validation passes 2,135 backend tests with 18 skipped, all 419
+frontend tests, 28 axe-clean routes, 10/10 browser readiness checks, Ruff,
+compilation, frontend typecheck, Electron build, and Next build. Evidence is under
+`reports/production-readiness/2026/phase-13/`.
+
+Installed cross-process/store reconstruction, complete failure injection,
+all-output redaction/no-egress, real diagnostics/support acceptance, and the
+24-hour stress plus 72-hour idle/normal soaks remain release-blocking.
+
 ## Exact next action
 
-1. Begin Phase 13 with a live inventory of structured logs, correlation IDs,
-   metrics, diagnostics APIs/UI, error taxonomies, broad catches, compliance
-   status resolvers, support-bundle code, and operational runbooks.
-2. Classify authority, sensitivity, retention, and fail behavior before edits.
-3. Add forbidden-field/redaction and cross-component correlation tests first.
-4. Build explicit owner support-bundle preview/export with canary-secret tests.
-5. Preserve every installed-only Phase 3-12 gate, alert 389, and the SeaweedFS
+1. Begin Phase 14 with a live inventory of product/API/schema/SDK versions,
+   Python and Node dependency authorities, PyInstaller/Electron inputs, internal
+   service assets, Windows packaging, signing/update settings, SBOM/provenance,
+   and release workflows.
+2. Select one product-version authority and one Python dependency authority.
+3. Add version-parity and native-build-failure-stop tests before implementation.
+4. Keep automatic update disabled until signed update, downgrade, interruption,
+   rollback, and offline-package acceptance passes.
+5. Preserve every installed-only Phase 3-13 gate, alert 389, and the SeaweedFS
    candidate-only boundary as release blockers.
 
 ## Phase rules

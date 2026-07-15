@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.14.0 |
+| Document version | v2.15.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Platform Operations |
@@ -42,10 +42,10 @@ This version aligns production readiness with the current architecture: DMRF con
 
 ## Production readiness status
 
-Current status: **Phase 11 MCP connector engineering is complete and Phase 12 is active,
-but signed production release remains NO-GO until retained installed, security,
-provider, recovery, accessibility, signing, and independent-review evidence is
-complete.**
+Current status: **Phase 13 observability/diagnostics/compliance/support
+engineering is complete and Phase 14 is active, but signed production release
+remains NO-GO until retained installed, security, provider, recovery,
+accessibility, soak, signing, and independent-review evidence is complete.**
 
 ### Ready / substantially implemented
 
@@ -78,6 +78,10 @@ complete.**
     scope consent, DPAPI credentials, durable PostgreSQL authority, content-free
     Redis live state, governed object-backed results, cancellation, Windows Job
     Object containment, hostile fixtures, and truthful owner controls.
+19. Validated correlation, shared backend/Electron `dle.log.v1`, explicit
+    telemetry opt-in, authenticated Diagnostics, previewed/confirmed/hashed
+    support bundles, typed failure semantics, evidence-backed compliance
+    outputs, and stress24/idle72 evaluators.
 
 ### Remaining release blockers before signed production distribution
 
@@ -101,6 +105,11 @@ complete.**
 12. Phase 11 rebuilt-installed file/network containment, lifecycle/reboot,
     PostgreSQL/Redis/object backup/restore, hostile connector, and Electron
     add/discover/call/cancel/stop/restart/remove acceptance.
+13. Phase 12 installed handler-to-store workflow reconciliation, packaged
+    visual/scaling/high-contrast checks, and manual NVDA acceptance.
+14. Phase 13 installed multi-process/store correlation reconstruction, complete
+    failure injection, all-output redaction/no-egress proof, Diagnostics/support
+    acceptance, and full 24-hour stress plus 72-hour idle/normal-use soaks.
 
 Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
 
@@ -114,11 +123,11 @@ Keep tactical task tracking in `TODO.md`; keep this guide focused on release cri
 | API contract | Engineering checkpoint complete | `dle-gateway.v1`, OpenAPI compatibility diff, native/compatible contract tests, SDK and examples parity. |
 | Security | Ready with release caveats | Security tests, runtime precheck, desktop auth tests, secret validation, signing evidence. |
 | Data/storage | Phase 11 engineering checkpoint complete | 86 PostgreSQL entities, 31 logical contracts, nine object buckets, migration head `e0f1a2b3c4d5`; installed populated reconciliation remains gated. |
-| Testing | Strong | Phase 11 baseline: 2,094 backend passed/18 skipped and 411 frontend passed, plus MCP hostile-process, contract, parity, security, governance, and build checks. |
-| Frontend/product | Connector, simulation, and knowledge lifecycle controls complete; later workflows remain | Gateway, ingestion, Graph, memory, Simulation, and MCP controls are tested; installed visual truth and Phases 12-13 remain. |
+| Testing | Strong | Phase 13 baseline: 2,135 backend passed/18 skipped, 419 frontend passed, 28 axe-clean routes, and 10/10 browser readiness workflows. |
+| Frontend/product | Phase 13 source workflows complete; installed proof remains | Gateway, ingestion, Graph, memory, Simulation, MCP, Session Library, Diagnostics, support, and accessibility contracts are tested. |
 | Desktop packaging | Strong but signing-dependent | backend rebuild, NSIS governance, installer integrity, packaging smoke, installer-mode install/uninstall smoke, signed artifact verification. |
 | Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
-| Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |
+| Observability | Phase 13 engineering checkpoint complete | Validated correlation, `dle.log.v1`, `/health`, `/live`, `/ready`, `/metrics`, authenticated Diagnostics/support, trace review; installed reconstruction/soaks pending. |
 | Private gateway | Disabled pending qualification | Loopback is the default; TLS/mTLS, firewall, certificate, client policy, real providers, and two-machine acceptance must pass before enablement. |
 
 ---
@@ -324,6 +333,11 @@ Required compliance/audit controls:
 6. cloud-service and AI-limitation disclosures are present;
 7. admin/compliance surfaces are protected by the single-owner auth check (single-mode OS-level auth);
 8. release evidence is attached to release checklist.
+9. every pass/fail status includes claim type, check version, execution time,
+   scope, result, source record, and evidence reference;
+10. framework maps and application self-checks never imply independent audit,
+    attestation, legal conclusion, or certification; missing evidence is Not
+    measured.
 
 ---
 
@@ -344,6 +358,11 @@ A release candidate must demonstrate safe behavior for:
 11. frontend API error boundary recovery;
 12. installer integrity or packaging smoke failure.
 13. installer-mode install/uninstall smoke failure.
+14. disk exhaustion and bounded log/support retention;
+15. memory, handle, thread, and child-process growth;
+16. support-bundle redaction/hash/encryption failure;
+17. unexpected telemetry or diagnostic egress;
+18. cancellation, timeout, persistence, corruption, and partial deletion.
 
 Failures must be explicit, logged, and triageable. Do not silently return synthetic success for production paths.
 
@@ -401,6 +420,12 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 ```
 
 ---
+
+## Change notes for v2.15.0
+
+1. Recorded the Phase 13 structured observability, Diagnostics/support,
+   compliance-evidence, error-semantics, runbook, and soak engineering checkpoint
+   while retaining every installed acceptance gate.
 
 ## Change notes for v2.13.0
 

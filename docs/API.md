@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v4.5.0 |
+| Document version | v4.6.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | API Platform Team |
@@ -131,7 +131,8 @@ Single-mode / OS-level auth: one owner per machine; the former SSO/OIDC (Azure A
 
 Unauthenticated operational probes are explicitly limited to `/health`, `/live`,
 `/ready`, and `/api/v1/gateway/health`. `/metrics`, `/health/cache`, and
-`/api/v1/system/diagnostics/health` require the desktop/session principal.
+`/api/v1/system/diagnostics/health`, the Diagnostics summary, and support
+preview/export require the desktop/session principal.
 
 Security and runtime context:
 
@@ -614,6 +615,9 @@ Truth Engine modules:
 ### Compliance report and audit
 
 - **GET** `/compliance/report`
+  - Returns an application-generated control-map/self-assessment evidence
+    availability report. Framework names are organizational maps, not
+    certification; absent evidence is `not_measured` and pass rate is null.
 - **GET** `/compliance/audit/<session_id>`
 
 ---
@@ -1129,6 +1133,27 @@ Representative response:
   - Each service record can include required flag, safe reason, endpoint,
     expected/observed identity, dependency list, and start/stop budgets.
 
+### Authenticated diagnostics and support
+
+- **GET** `/api/v1/system/diagnostics/summary`
+  - Returns content-free runtime/service/request/config/database/logging/
+    external-telemetry/support policy state plus the current correlation ID.
+- **POST** `/api/v1/system/diagnostics/support/preview`
+  - Stages the exact allowlisted, re-redacted bundle contract without creating
+    an archive; returns file path/classification/size/hash records and a preview
+    fingerprint.
+- **POST** `/api/v1/system/diagnostics/support/export`
+  - Requires `{ "confirm": true, "preview_fingerprint": "..." }`.
+  - A missing confirmation returns `400 SUPPORT_BUNDLE_CONFIRMATION_REQUIRED`;
+    a changed preview returns `409 SUPPORT_BUNDLE_PREVIEW_STALE`.
+  - Success writes a local archive and SHA-256 sidecar in the application-owned
+    support folder and returns artifact names/hash/size, never an absolute path
+    or upload claim.
+
+Support data excludes generic reports and user content; approved logs are
+bounded and re-redacted. CLI-only optional encryption requires an interactively
+entered passphrase.
+
 ### Desktop lifecycle events and drain
 
 - **POST** `/api/v1/system/lifecycle/event`
@@ -1205,6 +1230,11 @@ A technical reviewer should validate this document against these files:
 12. `frontend/lib/api/` — frontend API clients and CSRF handling.
 13. `tests/contract/` — canonical API contract tests.
 14. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v4.6.0
+
+1. Added Phase 13 Diagnostics/support preview-confirm-export contracts and
+   clarified evidence-map/Not measured compliance report semantics.
 
 ## Change notes for v4.4.0
 

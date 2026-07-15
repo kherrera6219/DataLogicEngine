@@ -23,6 +23,7 @@ _SENTRY_SDK = None
 
 def initialize_crash_reporting(
     *,
+    enabled: bool = False,
     dsn: Optional[str],
     environment: str,
     release: str,
@@ -36,6 +37,13 @@ def initialize_crash_reporting(
     """
     global _SENTRY_SDK
     _STATE["initialized"] = True
+
+    if not enabled:
+        _SENTRY_SDK = None
+        _STATE["enabled"] = False
+        _STATE["provider"] = "none"
+        _STATE["init_error"] = "external_telemetry_opt_in_required" if dsn else None
+        return crash_reporting_state()
 
     if not dsn:
         _STATE["enabled"] = False
@@ -129,4 +137,3 @@ def crash_reporting_prometheus_lines(prefix: str = "datalogicengine") -> list[st
         f"# TYPE {prefix}_crash_events_fallback_total counter",
         f"{prefix}_crash_events_fallback_total {int(state.get('fallback_total', 0))}",
     ]
-

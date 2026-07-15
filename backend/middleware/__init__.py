@@ -91,17 +91,35 @@ def api_response(f):
 
     def _handle_exception(e, func, is_dev):
         if isinstance(e, UKGException):
-            logger.warning(f"UKG Error in {func.__name__}: {e.message} ({e.error_code})")
+            safe_failure = e.to_safe_dict()
+            logger.warning(
+                "Typed API failure",
+                extra={
+                    "event": "api.typed_failure",
+                    "handler": func.__name__,
+                    **safe_failure,
+                },
+            )
             return jsonify({
                 'success': False,
                 'error': e.message,
                 'code': e.error_code,
+                'failure': safe_failure,
                 'details': pii_redactor.redact_dict(e.details) if e.details else None,
                 'timestamp': datetime.now(UTC).isoformat()
             }), e.status_code
 
-        logger.error(f"Unhandled API error in {func.__name__}: {str(e)}", exc_info=True)
-        error_msg = str(e) if is_dev else "An internal server error occurred."
+        logger.error(
+            "Unhandled API boundary defect",
+            extra={
+                "event": "api.internal_defect",
+                "handler": func.__name__,
+                "error_code": "INTERNAL_DEFECT",
+                "fail_behavior": "fail_closed",
+            },
+            exc_info=True,
+        )
+        error_msg = "An internal server error occurred."
         return jsonify({
             'success': False,
             'error': error_msg,

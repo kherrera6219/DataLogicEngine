@@ -31,6 +31,23 @@ Include:
 - exact error messages or screenshots if available,
 - the commit or version you are using.
 
+## Local diagnostic bundle
+
+For runtime problems, open **Admin -> Diagnostics** and review the content-free
+state first. Select **Preview bundle**, inspect the exact file inventory, then
+confirm **Generate local bundle**. The application writes the archive and its
+SHA-256 sidecar locally; it does not upload them.
+
+Maintainers can preview the same contract with:
+
+```powershell
+python .\scripts\generate_support_bundle.py --preview
+```
+
+Use `--encrypt` when a reviewed bundle must leave the device. The passphrase is
+entered interactively. Bundles exclude generic reports and user content, and
+re-redact approved logs, but the preview is still mandatory before sharing.
+
 ## Security issues
 
 Do **not** open public issues for vulnerabilities. Follow the private reporting instructions in [`SECURITY.md`](SECURITY.md).

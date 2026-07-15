@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
+| Document version | v2.14.0 |
 | Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering |
@@ -14,7 +14,10 @@
 
 Define DataLogicEngine security controls, identity/access patterns, local-first desktop protections, data protection measures, AI safety controls, trace/export integrity, and audit/compliance posture.
 
-This version reflects the current architecture: canonical `/api/v1/*` APIs, DMRF injection defense, TruthGate, Truth Engine v7.3, desktop loopback auth, DPAPI helper, export integrity, multi-store data protections, MCP governance, and signed-release controls.
+This version reflects the current architecture: canonical `/api/v1/*` APIs,
+DMRF injection defense, TruthGate, Truth Engine v7.3, desktop loopback auth,
+DPAPI helper, export integrity, multi-store data protections, MCP governance,
+Phase 13 observability/support controls, and signed-release gates.
 
 ## Audience
 
@@ -198,8 +201,9 @@ Operational probes intentionally exposed without authentication:
 2. `/live`
 3. `/ready`
 
-`/metrics`, `/health/cache`, and `/api/v1/system/diagnostics/health` are
-authenticated diagnostic surfaces. Public `/health` does not include
+`/metrics`, `/health/cache`, `/api/v1/system/diagnostics/health`,
+`/api/v1/system/diagnostics/summary`, and the support preview/export endpoints
+are authenticated diagnostic surfaces. Public `/health` does not include
 configuration, database, credential-source, or storage-detail fields.
 
 Canonical route policy:
@@ -562,6 +566,44 @@ A security reviewer should inspect these files in order:
 - UnifiedMemory v2 separates working from validated trust; promotion requires a
   validated governed run, and integrity/recovery plus source deletion are owner
   controlled under ADR-0006.
+
+## Phase 13 observability and support controls
+
+1. Backend and Electron emit local, bounded `dle.log.v1` JSON with component,
+   event, severity, correlation/request ID, nullable safe error/duration/state
+   fields, and redaction classification.
+2. Caller correlation headers are syntax/length validated. Renderer and Electron
+   requests originate IDs; Flask/background context and governed trace
+   persistence retain them without accepting control characters or unbounded
+   input.
+3. Secret-named fields, authorization/provider/service credentials, common PII,
+   user home paths, prompts/documents/content, provider payloads, and request/
+   response bodies are excluded or redacted. Canary tests cover backend,
+   Electron, renderer/crash, and support paths.
+4. Sentry-compatible backend and renderer telemetry is disabled unless the owner
+   explicitly enables the separate opt-in flag. DSN/global provider presence
+   alone is insufficient.
+5. Support export requires authenticated explicit action, preview, matching
+   fingerprint, and confirmation. Preview/export share the same allowlisted,
+   re-redacted staging contract; archives have per-file/archive SHA-256,
+   sidecars, exact-name retention, and optional interactive AES-256-GCM CLI
+   encryption.
+6. Typed errors cover authentication, authorization, policy, validation,
+   configuration, migration, service, provider, tool, timeout, cancellation,
+   persistence, corruption, and internal defects. Critical boundaries record
+   fail-closed/fail-soft behavior; no upstream error may become fabricated
+   success.
+7. Framework mappings and automated checks are application self-assessment
+   evidence, not independent audit, attestation, legal conclusion, or
+   certification. Missing evidence is Not measured.
+
+Installed cross-process/store correlation, the full failure-injection matrix,
+all-output/no-egress canaries, and 24/72-hour soaks remain release-blocking.
+
+## Change notes for v2.14.0
+
+1. Added Phase 13 correlation, structured logging, telemetry opt-in, Diagnostics,
+   support-bundle, typed-error, redaction, and compliance-evidence controls.
 
 ## Change notes for v2.12.0
 

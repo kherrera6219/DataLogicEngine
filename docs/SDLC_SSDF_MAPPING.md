@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
-| Last updated | 2026-07-06 |
+| Document version | v2.8.0 |
+| Last updated | 2026-07-14 |
 | Status | Active |
 | Owner | Security Engineering + Release Engineering |
 | Review cadence | Every 60 days |
@@ -58,7 +58,7 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | PO.2 Assign roles and responsibilities | Active docs include owner and review cadence metadata; single-mode OS-level auth defines the single owner (application RBAC removed). | document metadata, `frontend/app/admin/`, `backend/auth/api_decorators.py` |
 | PO.3 Implement supporting toolchain | CI validates backend, frontend, contract, parity, security, packaging, governance, and Docker builds. | `.github/workflows/ci.yml` |
 | PO.4 Define criteria for software security checks | Release gates include runtime precheck, schema parity, docs validation, tests, backend packaging, installer integrity, packaging smoke, lockfile governance. | `docs/RELEASE_CHECKLIST.md`, `docs/TESTING.md` |
-| PO.5 Collect and share vulnerability information | Security incident response and operational runbooks define escalation and support bundle evidence. | `docs/SECURITY.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `scripts/generate_support_bundle.py` |
+| PO.5 Collect and share vulnerability information | Security/runbooks define escalation; support evidence requires preview, confirmation, allowlisting, re-redaction, hashes, and optional encryption. | `docs/SECURITY.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `scripts/generate_support_bundle.py` |
 
 ---
 
@@ -83,7 +83,7 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | PW.4 Reuse well-secured software | Uses standard frameworks/libraries for Flask, SQLAlchemy, Next.js, pytest, Playwright, ChromaDB, Neo4j, Windows DPAPI helper where applicable. | dependency files, code modules |
 | PW.5 Configure build process securely | CI performs deterministic installs, lockfile verification, lint/test gates, frontend build, backend packaging, installer integrity, packaging smoke, Docker build. | `.github/workflows/ci.yml` |
 | PW.6 Produce secure executable artifacts | Electron/NSIS packaging path includes backend rebuild, governance, installer integrity, and smoke tests; production path includes signing and signature verification. | `scripts/build_backend.py`, `scripts/verify_installer_integrity.py`, `scripts/windows/verify_nsis_governance.ps1`, `scripts/windows/run_packaging_smoke.ps1` |
-| PW.7 Review/test code for security | Security tests, contract tests, parity tests, route tests, runtime precheck, dependency audit. | `tests/security/`, `tests/contract/`, `tests/parity/` |
+| PW.7 Review/test code for security | Security/contract/parity/route tests, runtime precheck, redaction canaries, typed-error and exception/import regression gates. | `tests/security/`, `tests/contract/`, `tests/parity/`, `scripts/check_exception_boundaries.py`, `scripts/check_circular_deps.py` |
 | PW.8 Configure software to have secure settings by default | Production blocks unsafe `AUTO_CREATE_SCHEMA`; `SESSION_SECRET` is required; canonical auth errors are JSON-native; cloud mode cannot rely on desktop auth. | `app.py`, `scripts/runtime_precheck.py`, `docs/API.md` |
 | PW.9 Protect data at rest and in transit | HTTPS/cloud guardrails, CSRF/CORS/trusted hosts, desktop DPAPI helper, encryption manager, export integrity. | `backend/security/`, `docs/SECURITY.md` |
 
@@ -97,6 +97,21 @@ This document is an internal alignment artifact, not a formal attestation. It id
 | RV.2 Assess, prioritize, and remediate vulnerabilities | Severity model in runbooks, production readiness blockers, release gates, incident postmortems. | `docs/OPERATIONAL_RUNBOOKS.md`, `docs/PRODUCTION_READINESS.md` |
 | RV.3 Analyze root causes | Failure triage protocol requires defect classification, regression test additions, post-incident report. | `docs/TESTING.md`, `docs/OPERATIONAL_RUNBOOKS.md` |
 | RV.4 Report vulnerability status | Release checklist, incident records, support bundles, CI reports, signed release reports. | `docs/RELEASE_CHECKLIST.md`, `reports/` |
+
+### Phase 13 operational-security evidence
+
+1. Correlated backend/Electron `dle.log.v1` and authenticated Diagnostics keep
+   local failure evidence content-free and external telemetry disabled by
+   default.
+2. Support export is explicit, previewed, confirmed, allowlisted, re-redacted,
+   hashed, retained, and optionally encrypted.
+3. Typed failure categories and critical fail semantics prevent missing policy,
+   persistence, corruption, provider/tool, timeout, or cancellation state from
+   becoming synthetic success.
+4. Compliance framework outputs are evidence maps/self-assessments rather than
+   certification claims.
+5. Stress24/idle72 evaluators and incident runbooks define installed acceptance;
+   the full-duration installed evidence remains open.
 
 ---
 
@@ -155,6 +170,7 @@ DataLogicEngine adds AI-specific controls beyond normal application SDLC checks:
 | AI security controls | `backend/dmrf/`, `backend/truth_engine/` |
 | Export integrity | `backend/security/export_integrity.py` |
 | Incident response | `docs/OPERATIONAL_RUNBOOKS.md` |
+| Phase 13 operations evidence | `reports/production-readiness/2026/phase-13/` |
 
 ---
 
@@ -165,6 +181,8 @@ DataLogicEngine adds AI-specific controls beyond normal application SDLC checks:
 3. Production Windows distribution still requires trusted signing credentials and signed artifact validation.
 4. Manual accessibility evidence is still required for production release signoff.
 5. Field-level encryption is implemented with AES-256-GCM for new payloads, with legacy `Fernet-AES-128-CBC` entries kept decryptable for backward compatibility; active docs describe AES-256-GCM as implemented, not target-state.
+6. Phase 13 source gates do not replace installed failure-injection, all-output
+   redaction/no-egress, support, and 24/72-hour soak evidence.
 
 ---
 
@@ -196,6 +214,11 @@ A secure-SDLC reviewer should inspect:
 22. `tests/parity/`
 
 ---
+
+## Change notes for v2.8.0
+
+1. Added the Phase 13 correlation, Diagnostics/support, redaction, typed-failure,
+   exception/import regression, incident, and soak evidence mapping.
 
 ## Change notes for v2.7.0
 

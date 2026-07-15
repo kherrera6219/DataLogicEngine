@@ -12,8 +12,6 @@ from datetime import datetime
 # Import security components
 from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Create the blueprint
@@ -49,7 +47,7 @@ def security_status():
 # Compliance status endpoint
 @security_bp.route('/compliance/status', methods=['GET'])
 def compliance_status():
-    """Get the current compliance status."""
+    """Get current control-map self-assessment evidence."""
     # Get the compliance manager instance
     compliance_manager = get_compliance_manager()
     
@@ -104,7 +102,7 @@ def compliance_events():
 # Generate compliance report endpoint
 @security_bp.route('/compliance/report', methods=['POST'])
 def generate_compliance_report():
-    """Generate a SOC 2 compliance report."""
+    """Generate a SOC 2 control-map self-assessment evidence report."""
     # Get the compliance manager instance
     compliance_manager = get_compliance_manager()
     

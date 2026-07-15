@@ -1,8 +1,4 @@
-"""
-TruthGate Compliance Enforcer
-
-EU AI Act Article 53/13 compliance enforcement.
-"""
+"""TruthGate technical-control evidence mapped to regulatory frameworks."""
 
 import logging
 import re
@@ -14,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 class ComplianceEnforcer:
     """
-    Enforces EU AI Act and other compliance requirements.
-    
-    Article 53: Decision logging and audit trail
-    Article 13: User explainability and transparency
+    Produce application self-check evidence for mapped technical controls.
+
+    These checks are not a legal conclusion, independent assessment, audit,
+    attestation, or certification.
     """
     
     COMPLIANCE_STANDARDS = {
@@ -60,45 +56,45 @@ class ComplianceEnforcer:
         """Initialize compliance enforcer."""
         self.db_session = db_session
         self.retention_years = retention_years
-        logger.info("ComplianceEnforcer initialized")
+        logger.info("Control-map evidence enforcer initialized")
 
     def enforce(self, request: Dict[str, Any], session_id: str = None) -> Dict[str, Any]:
         """
-        Enforce compliance requirements on request.
-        
-        Returns compliance result with any required actions.
+        Evaluate local technical controls without claiming legal compliance.
         """
         result = {
+            'schema_version': 'dle.truth-control-evidence.v1',
+            'report_classification': 'self_assessment_evidence',
+            'framework_map': ['EU_AI_ACT', 'GDPR', 'NIS2'],
+            'framework_map_is_certification': False,
             'session_id': session_id,
             'timestamp': datetime.now(UTC).isoformat(),
-            'standards_checked': [],
-            'requirements_met': [],
-            'requirements_failed': [],
             'actions_taken': [],
-            'compliant': True
         }
         
         article_53 = self._enforce_article_53(request, session_id)
         result['article_53'] = article_53
-        result['standards_checked'].append('EU AI Act Article 53')
         
         article_13 = self._enforce_article_13(request, session_id)
         result['article_13'] = article_13
-        result['standards_checked'].append('EU AI Act Article 13')
         
         pii_result = self._check_pii(request)
         result['pii_check'] = pii_result
         if pii_result['pii_found']:
             result['actions_taken'].append('pii_flagged')
-        
-        if article_53['logged'] and article_13['explainability_enabled']:
-            result['requirements_met'].extend(['decision_logging', 'user_explainability'])
-        else:
-            result['compliant'] = False
-            if not article_53['logged']:
-                result['requirements_failed'].append('decision_logging')
-            if not article_13['explainability_enabled']:
-                result['requirements_failed'].append('user_explainability')
+        control_results = {
+            article_53['result'],
+            article_13['result'],
+            pii_result['result'],
+        }
+        result['overall_check_result'] = (
+            'checks_failed'
+            if 'failed' in control_results
+            else 'not_measured'
+            if 'not_measured' in control_results
+            else 'checks_passed'
+        )
+        result['certification_claim'] = False
         
         return result
 
@@ -109,6 +105,9 @@ class ComplianceEnforcer:
         Log all decisions with full reasoning trace.
         """
         logged = False
+        check_result = 'not_measured'
+        evidence_ref = 'not_available'
+        error_code = None
         
         decision_record = {
             'session_id': session_id,
@@ -155,14 +154,29 @@ class ComplianceEnforcer:
                 self.db_session.add(audit_event)
                 self.db_session.commit()
                 logged = True
-            except Exception as e:
-                logger.error(f"Failed to log Article 53 decision: {e}")
-        else:
-            logged = True
+                check_result = 'passed'
+                evidence_ref = f"truth-audit-session:{session_id}"
+            except Exception:
+                check_result = 'failed'
+                error_code = 'PERSISTENCE_FAILED'
+                logger.exception(
+                    "Control-map decision-log write failed",
+                    extra={
+                        "event": "truth_control_evidence.decision_log_failed",
+                        "error_code": error_code,
+                    },
+                )
         
         return {
             'logged': logged,
-            'record': decision_record,
+            'result': check_result,
+            'claim_type': 'automated_control_check',
+            'check_version': 'truth-decision-log.v1',
+            'scope': 'local_truth_gateway_request',
+            'evidence_ref': evidence_ref,
+            'source_record': f"truth-request:{session_id or 'not_available'}",
+            'error_code': error_code,
+            'record_hash': self._hash_query(str(decision_record)),
             'retention_years': self.retention_years
         }
 
@@ -173,11 +187,17 @@ class ComplianceEnforcer:
         Ensure users can understand AI decisions.
         """
         explainability_url = f"/api/truth/memory/explain/{session_id}" if session_id else None
+        result = 'passed' if explainability_url else 'not_measured'
         
         return {
-            'explainability_enabled': True,
+            'result': result,
+            'claim_type': 'automated_control_check',
+            'check_version': 'truth-explainability-link.v1',
+            'scope': 'local_truth_gateway_request',
+            'evidence_ref': explainability_url or 'not_available',
+            'source_record': f"truth-request:{session_id or 'not_available'}",
             'explainability_url': explainability_url,
-            'features': [
+            'available_review_surfaces': [
                 'reasoning_trace',
                 'confidence_scores',
                 'source_citations',
@@ -198,7 +218,13 @@ class ComplianceEnforcer:
         return {
             'pii_found': bool(pii_found),
             'pii_types': list(pii_found.keys()),
-            'pii_counts': pii_found
+            'pii_counts': pii_found,
+            'result': 'failed' if pii_found else 'passed',
+            'claim_type': 'automated_control_check',
+            'check_version': 'truth-pii-pattern-check.v1',
+            'scope': 'request_query',
+            'evidence_ref': 'in_memory_pattern_check',
+            'source_record': f"query-sha256:{self._hash_query(query)}",
         }
 
     def _hash_query(self, query: str) -> str:
@@ -206,21 +232,29 @@ class ComplianceEnforcer:
         import hashlib
         return hashlib.sha256(query.encode()).hexdigest()[:16]
 
-    def get_compliance_report(self, tenant_id: str = None, 
-                               date_from: datetime = None) -> Dict[str, Any]:
-        """Generate compliance report."""
+    def get_compliance_report(self, tenant_id: str = None,
+                              date_from: datetime = None) -> Dict[str, Any]:
+        """Generate a non-certifying control-map evidence availability report."""
         date_from = date_from or (datetime.now(UTC) - timedelta(days=30))
         
         report = {
+            'schema_version': 'dle.truth-control-evidence-report.v1',
+            'report_classification': 'self_assessment_evidence',
+            'framework_map_is_certification': False,
             'generated_at': datetime.now(UTC).isoformat(),
             'period_start': date_from.isoformat(),
             'tenant_id': tenant_id,
-            'standards': self.COMPLIANCE_STANDARDS,
+            'framework_maps': self.COMPLIANCE_STANDARDS,
             'summary': {
-                'total_requests': 0,
-                'compliant_requests': 0,
-                'compliance_rate': 1.0
-            }
+                'overall_result': 'not_measured',
+                'evidence_record_count': 0,
+                'pass_rate': None,
+            },
+            'certification_claim': False,
+            'limitations': [
+                'Framework names organize technical control evidence only.',
+                'No organizational controls or legal compliance conclusion are assessed.',
+            ],
         }
         
         return report

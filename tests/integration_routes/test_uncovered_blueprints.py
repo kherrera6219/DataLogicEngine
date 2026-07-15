@@ -147,7 +147,10 @@ def test_security_api_endpoints(security_client):
     }
 
     mock_compliance_manager = MagicMock()
-    mock_compliance_manager.get_compliance_status.return_value = {"overall_status": "compliant"}
+    mock_compliance_manager.get_compliance_status.return_value = {
+        "schema_version": "dle.compliance-check-status.v1",
+        "overall_check_result": "checks_passed",
+    }
     mock_compliance_manager.get_compliance_events.return_value = [{"id": "c1"}]
     mock_compliance_manager.generate_compliance_report.return_value = {"report_id": "r1"}
 
@@ -167,7 +170,7 @@ def test_security_api_endpoints(security_client):
 
         resp = security_client.get("/api/security/compliance/status")
         assert resp.status_code == 200
-        assert resp.json["overall_status"] == "compliant"
+        assert resp.json["overall_check_result"] == "checks_passed"
 
         resp = security_client.get(
             "/api/security/compliance/events?start_time=2024-01-01T00:00:00&end_time=2024-01-10T00:00:00&limit=bad"

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 
 class QueryRequest(BaseModel):
@@ -83,9 +83,29 @@ class RegulatoryComplianceMapRequest(BaseModel):
     confidence: float = Field(default=0.9, ge=0.0, le=1.0)
 
 
+class ComplianceEvidenceRecordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    control_id: str = Field(..., min_length=1, max_length=128)
+    claim_type: Literal[
+        "control_mapping",
+        "automated_control_check",
+        "self_assessment_evidence",
+        "policy_status",
+    ]
+    check_version: str = Field(..., min_length=1, max_length=64)
+    executed_at: AwareDatetime
+    scope: str = Field(..., min_length=1, max_length=512)
+    result: Literal["passed", "failed", "not_measured", "not_applicable"]
+    evidence_ref: str = Field(..., min_length=1, max_length=512)
+    source_record: str = Field(..., min_length=1, max_length=512)
+
+
 class ComplianceReportRequest(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid")
 
-    framework: str = Field(default="SOC2", min_length=1, max_length=64)
-    data_points: list[dict[str, Any]] = Field(default_factory=list)
-
+    framework: Literal["SOC2", "GDPR", "HIPAA", "ISO27001", "CCPA"] = "SOC2"
+    data_points: list[ComplianceEvidenceRecordRequest] = Field(
+        default_factory=list,
+        max_length=1000,
+    )
