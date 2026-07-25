@@ -175,8 +175,9 @@ second reviewer is still pending.
 Repository and deterministic components support CP6-A through CP6-E and the
 local portion of CP6-F. Phase 18 CP18-A passed its identity/capability authority
 gate, but the whole KA subsystem does not yet meet `DLE-FR-011`; CP18-B is
-complete, CP18-C is active, CP18-D through CP18-H remain open, and the signed
-rebuild is paused.
+complete and CP18-C Batch 01 qualified 11 existing KAs with 469 KA tests passing
+and zero static randomness/mock-honesty flags. CP18-C is still active, CP18-D
+through CP18-H remain open, and the signed rebuild is paused.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is

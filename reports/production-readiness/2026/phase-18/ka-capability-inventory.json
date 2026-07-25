@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4",
+  "source_input_sha256": "611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -27,11 +27,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 132,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 134,
+    "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 92,
-    "canonical_with_named_test_function": 84
+    "canonical_with_test_reference": 96,
+    "canonical_with_named_test_function": 89
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -10146,6 +10146,13 @@
     },
     {
       "path": "backend/knowledge_algorithms/production_catalog.py",
+      "exists": true,
+      "kind": "backend_ka_governance_or_package_surface",
+      "disposition": "merge_into_canonical_manifest_and_controller",
+      "target_checkpoint": "CP18-B"
+    },
+    {
+      "path": "backend/knowledge_algorithms/production_utils.py",
       "exists": true,
       "kind": "backend_ka_governance_or_package_surface",
       "disposition": "merge_into_canonical_manifest_and_controller",

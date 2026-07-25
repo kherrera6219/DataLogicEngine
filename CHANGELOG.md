@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C existing-honesty Batch 01**: qualified 11 existing
+  Knowledge Algorithms that the authority inventory flagged for unrecorded
+  randomness, mock operations, or unsupported success. Six now perform bounded
+  deterministic analysis or caller-supplied normalization; five return stable
+  effect proposals without claiming delivery, persistence, signing, backup,
+  publication, or queueing. Added 11 individually named semantic tests,
+  modernized the bulk schema fixture/loader for constrained Pydantic contracts,
+  and recorded a 469-pass KA suite. The regenerated authority retains 213
+  canonical capabilities, 132 existing implementations, 81 gaps, one alias,
+  and zero duplicate collisions, unresolved duplicate candidates, unclassified
+  surfaces, or static honesty flags. CP18-C remains active.
 - **Phase 18 CP18-B single Knowledge Algorithm runtime**: added one generated
   213-capability manifest, typed definition/request/context/budget/result/
   failure/artifact/effect/trace contracts, and one canonical controller.

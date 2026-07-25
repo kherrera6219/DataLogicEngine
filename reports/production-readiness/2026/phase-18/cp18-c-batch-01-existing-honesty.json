@@ -1,0 +1,61 @@
+{
+  "schema_version": "dle.phase18.cp18c.implementation-qualification.v1",
+  "checkpoint": "CP18-C",
+  "batch": "01-existing-honesty",
+  "evaluated_at": "2026-07-25",
+  "status": "pass",
+  "release_decision": "no-go",
+  "scope": {
+    "qualified_existing_implementations": 11,
+    "deterministic_analysis_implementations": [
+      "KA-008",
+      "KA-012",
+      "KA-028",
+      "KA-091",
+      "KA-098",
+      "KA-099"
+    ],
+    "honest_effect_proposal_implementations": [
+      "KA-095",
+      "KA-097",
+      "KA-108",
+      "KA-110",
+      "KA-112"
+    ]
+  },
+  "authority": {
+    "canonical_capabilities": 213,
+    "existing_implementations": 132,
+    "implementation_required": 81,
+    "semantic_duplicate_aliases": 1,
+    "unresolved_semantic_duplicate_candidates": 0,
+    "exact_canonical_collisions": 0,
+    "unclassified_surfaces": 0,
+    "existing_implementation_static_honesty_flags": 0
+  },
+  "proof": {
+    "individually_named_batch_tests": 11,
+    "canonical_capabilities_with_named_tests": 89,
+    "unique_named_test_functions": 128,
+    "knowledge_algorithm_suite": {
+      "passed": 469,
+      "failed": 0,
+      "warnings": 3
+    },
+    "ruff": "pass",
+    "capability_inventory": "pass",
+    "runtime_authority": "pass",
+    "generated_manifest_parity": "pass"
+  },
+  "truthfulness_controls": [
+    "No fabricated accuracy, confidence, profiler measurement, diagnostic capture, rendering, delivery, persistence, signing, backup, publication, or queue receipt remains in this batch.",
+    "Effect-oriented algorithms return proposed effects only; authoritative service application and receipts remain open CP18-C work.",
+    "The canonical no-duplicate and one-runtime gates remain passing."
+  ],
+  "open_work": [
+    "Build and qualify the 81 missing canonical implementations.",
+    "Qualify the remaining 121 existing implementation surfaces.",
+    "Connect effect proposals to approved app-owned services with policy, idempotency, transaction, and receipt enforcement.",
+    "Complete CP18-D through CP18-H before rebuilding or releasing."
+  ]
+}

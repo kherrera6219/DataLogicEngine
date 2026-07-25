@@ -1,7 +1,7 @@
 {
-    "bus_type": "event_driven",
-    "message_broker": "kafka_cluster",
+    "bus_type": "postgresql_outbox_with_redis_materialization",
     "topics": ["knowledge_updates", "system_events", "audit_logs"],
-    "buffer_size": 1024,
-    "reliable_delivery": true
+    "max_message_size_bytes": 524288,
+    "direct_publication": false,
+    "authoritative_receipt_required": true
 }

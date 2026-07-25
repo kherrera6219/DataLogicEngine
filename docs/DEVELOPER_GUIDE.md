@@ -134,6 +134,12 @@ changing a KA identity or purpose, update the reviewed CP18-A crosswalk and
 preserve compatible aliases. Do not join historical metadata to an
 implementation by numeric ID unless the manifest proves semantic identity.
 
+CP18-C Batch 01 qualified 11 existing implementations by replacing
+unrecorded-random/mock outputs with bounded deterministic behavior or honest
+effect proposals. Its full KA regression is 469 passed. Continue in semantic
+batches, retain one individually named test per KA, and never convert a proposed
+effect into an applied-effect claim without the authoritative service receipt.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate

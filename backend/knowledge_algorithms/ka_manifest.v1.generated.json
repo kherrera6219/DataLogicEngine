@@ -5,7 +5,7 @@
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4",
+    "crosswalk_source_input_sha256": "611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6",
     "duplicate_policy": "one_semantic_capability_one_canonical_id"
   },
   "capability_count": 213,

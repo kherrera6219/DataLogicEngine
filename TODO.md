@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.25.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.26.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release decision | Production/public release: **NO-GO** |
@@ -56,6 +56,14 @@ catalog-only.
 - [ ] **CP18-C — implementation parity:** replace every placeholder, mock,
       metadata-only façade, and false operational effect with production
       behavior or honest prerequisite failure through authoritative services.
+  - [x] Batch 01 qualified 11 existing KAs: six bounded deterministic analysis/
+        normalization implementations and five honest effect proposals. The
+        full KA suite passes 469 tests; all 11 have named semantic tests; the
+        inventory now reports zero static randomness/mock-honesty flags on
+        existing implementations and still reports zero duplicate collisions.
+  - [ ] Qualify the remaining existing implementations, build all 81 explicit
+        implementation gaps, and connect effect proposals to authoritative
+        service application/receipt paths.
 - [ ] **CP18-D — dynamic integration:** give every canonical KA a real selector
       fixture and reachable production call path across the owning application
       subsystems; register all Layer-9/Layer-10 KAs and eliminate silent skips.
@@ -727,7 +735,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
-| 18 | Knowledge Algorithm production completion and dynamic integration | **Active; CP18-A/CP18-B passed 2026-07-25, CP18-C in progress** |
+| 18 | Knowledge Algorithm production completion and dynamic integration | **Active; CP18-A/CP18-B and CP18-C Batch 01 passed 2026-07-25, CP18-C in progress** |
 | 19 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -745,8 +753,9 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete Phase 18 CP18-C against the approved 213-capability manifest: qualify
-the 132 existing implementations and build the 81 explicit gaps without
+Continue Phase 18 CP18-C against the approved 213-capability manifest. Batch 01
+qualified 11 existing implementations; qualify the remaining existing
+implementations and build the 81 explicit gaps without
 duplicate identities, private runtimes, placeholders, false effects, or
 capability loss. Every batch must add strict contracts, limits, failure
 semantics, authoritative service integration where applicable, and focused

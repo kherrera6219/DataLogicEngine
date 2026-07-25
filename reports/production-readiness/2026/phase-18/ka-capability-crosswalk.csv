@@ -1,16 +1,16 @@
 canonical_id,name,identity_class,implementation,implementation_status,effect_class,runtime_call_sites,test_references,named_test_functions,scoped_aliases
-KA-001,Algorithm of Thought,current_executable,backend/knowledge_algorithms/ka_01_algorithm_of_thought.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,14,29,
+KA-001,Algorithm of Thought,current_executable,backend/knowledge_algorithms/ka_01_algorithm_of_thought.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,14,32,
 KA-002,Tree of Thought,current_executable,backend/knowledge_algorithms/ka_02_tree_of_thought.py,existing_requires_phase18_qualification,effect_oriented_review_required,2,3,6,
 KA-003,Gap Analysis,current_executable,backend/knowledge_algorithms/ka_03_gap_analysis.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,2,0,0,
 KA-004,Input Validation & Normalization,current_executable,backend/knowledge_algorithms/ka_04_input_validation__normalization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,3,5,8,generated-v1:KA-115;generated-v1:KA-278
 KA-005,Query Classification,current_executable,backend/knowledge_algorithms/ka_05_query_classification.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,6,5,
 KA-006,Deep Planning,current_executable,backend/knowledge_algorithms/ka_06_deep_planning.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,1,2,
 KA-007,Recursive Reasoning Control,current_executable,backend/knowledge_algorithms/ka_07_recursive_reasoning_control.py,existing_requires_phase18_qualification,effect_oriented_review_required,2,1,0,
-KA-008,Self-Critique & Reflection,current_executable,backend/knowledge_algorithms/ka_08_self_critique__reflection.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,2,2,3,generated-v1:KA-116;generated-v1:KA-279
+KA-008,Self-Critique & Reflection,current_executable,backend/knowledge_algorithms/ka_08_self_critique__reflection.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,2,3,4,generated-v1:KA-116;generated-v1:KA-279
 KA-009,Evidence Validation,current_executable,backend/knowledge_algorithms/ka_09_evidence_validation.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,2,0,
-KA-010,Bias Detection,current_executable,backend/knowledge_algorithms/ka_10_bias_detection.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,2,7,
-KA-011,Analytical Modeling,current_executable,backend/knowledge_algorithms/ka_11_analytical_modeling.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,4,
-KA-012,Persona Simulation,current_executable,backend/knowledge_algorithms/ka_12_persona_simulation.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,2,1,
+KA-010,Bias Detection,current_executable,backend/knowledge_algorithms/ka_10_bias_detection.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,2,8,
+KA-011,Analytical Modeling,current_executable,backend/knowledge_algorithms/ka_11_analytical_modeling.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,6,
+KA-012,Persona Simulation,current_executable,backend/knowledge_algorithms/ka_12_persona_simulation.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,3,2,
 KA-013,Persona Weighting,current_executable,backend/knowledge_algorithms/ka_13_persona_weighting.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,
 KA-014,Confidence Scoring,current_executable,backend/knowledge_algorithms/ka_14_confidence_scoring.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,3,3,
 KA-015,Temporal Reasoning,current_executable,backend/knowledge_algorithms/ka_15_temporal_reasoning.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,
@@ -26,7 +26,7 @@ KA-024,Trust Gate,current_executable,backend/knowledge_algorithms/ka_24_trust_ga
 KA-025,Dependency Mapping,current_executable,backend/knowledge_algorithms/ka_25_dependency_mapping.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,3,2,3,
 KA-026,Contradiction Detection,current_executable,backend/knowledge_algorithms/ka_26_contradiction_detection.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,2,1,
 KA-027,Ethical Impact Analysis,current_executable,backend/knowledge_algorithms/ka_27_ethical_impact_analysis.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,
-KA-028,Point-of-View Expansion,current_executable,backend/knowledge_algorithms/ka_28_point_of_view_expansion.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,0,0,generated-v1:KA-141
+KA-028,Point-of-View Expansion,current_executable,backend/knowledge_algorithms/ka_28_point_of_view_expansion.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,1,1,generated-v1:KA-141
 KA-029,Knowledge Expansion,current_executable,backend/knowledge_algorithms/ka_29_knowledge_expansion.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,
 KA-030,Conflict Resolution,current_executable,backend/knowledge_algorithms/ka_30_conflict_resolution.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,2,1,0,
 KA-031,Algorithm Selection Engine,current_executable,backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,1,2,
@@ -89,15 +89,15 @@ KA-087,Model Versioning,current_executable,backend/knowledge_algorithms/ka_87_mo
 KA-088,A/B Testing,current_executable,backend/knowledge_algorithms/ka_88_ab_testing.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,2,generated-v1:KA-202
 KA-089,Model Pruning,current_executable,backend/knowledge_algorithms/ka_89_model_pruning.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-203
 KA-090,Model Quantization,current_executable,backend/knowledge_algorithms/ka_90_model_quantization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-204
-KA-091,Visualization,current_executable,backend/knowledge_algorithms/ka_91_visualization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-205
+KA-091,Visualization,current_executable,backend/knowledge_algorithms/ka_91_visualization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-205
 KA-092,Dashboarding,current_executable,backend/knowledge_algorithms/ka_92_dashboarding.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-206
 KA-093,Notification,current_executable,backend/knowledge_algorithms/ka_93_notification.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,0,0,generated-v1:KA-207
 KA-094,Reporting,current_executable,backend/knowledge_algorithms/ka_94_reporting.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-208
-KA-095,Alerting,current_executable,backend/knowledge_algorithms/ka_95_alerting.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,2,2,generated-v1:KA-209
+KA-095,Alerting,current_executable,backend/knowledge_algorithms/ka_95_alerting.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,3,3,generated-v1:KA-209
 KA-096,Logging,current_executable,backend/knowledge_algorithms/ka_96_logging.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-210
-KA-097,Auditing,current_executable,backend/knowledge_algorithms/ka_97_auditing.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-211
-KA-098,Profiling,current_executable,backend/knowledge_algorithms/ka_98_profiling.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-212
-KA-099,Debugging,current_executable,backend/knowledge_algorithms/ka_99_debugging.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-213
+KA-097,Auditing,current_executable,backend/knowledge_algorithms/ka_97_auditing.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,2,2,generated-v1:KA-211
+KA-098,Profiling,current_executable,backend/knowledge_algorithms/ka_98_profiling.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,1,1,generated-v1:KA-212
+KA-099,Debugging,current_executable,backend/knowledge_algorithms/ka_99_debugging.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,2,2,generated-v1:KA-213
 KA-100,Optimization,current_executable,backend/knowledge_algorithms/ka_100_optimization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,0,0,0,generated-v1:KA-117
 KA-101,Environment Management,current_executable,backend/knowledge_algorithms/ka_101_environment_management.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,1,1,generated-v1:KA-118
 KA-102,Dependency Injection,current_executable,backend/knowledge_algorithms/ka_102_dependency_injection.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,0,0,generated-v1:KA-119
@@ -129,7 +129,7 @@ KA-1076,Knowledge Graph Pruner,restored_original_design_capability,,implementati
 KA-1077,Knowledge Importance Scorer,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-077
 KA-1078,Memory Tier Classifier,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-078
 KA-1079,Knowledge Promotion Gate,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-079
-KA-108,Backup Strategy,current_executable,backend/knowledge_algorithms/ka_108_backup_strategy.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,1,0,generated-v1:KA-125
+KA-108,Backup Strategy,current_executable,backend/knowledge_algorithms/ka_108_backup_strategy.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,2,1,generated-v1:KA-125
 KA-1080,Simulation Cost Estimator,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-080
 KA-1081,Simulation Budget Enforcer,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-081
 KA-1082,Confidence Drift Monitor,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-082
@@ -151,7 +151,7 @@ KA-1096,Knowledge Release Manager,restored_original_design_capability,,implement
 KA-1097,System Performance Optimizer,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-097
 KA-1098,Self-Evaluation & Benchmarking,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-098
 KA-1099,System Integrity Auditor,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-099
-KA-110,Integration Bus,current_executable,backend/knowledge_algorithms/ka_110_integration_bus.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,1,1,generated-v1:KA-127
+KA-110,Integration Bus,current_executable,backend/knowledge_algorithms/ka_110_integration_bus.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,2,2,generated-v1:KA-127
 KA-1100,Autonomous System Evolution Controller,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-100
 KA-1101,Chaos Injection Governor,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,2,2,design-v1:KA-101;generated-v1:KA-133
 KA-1102,Global Entropy Quantifier,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-102
@@ -167,7 +167,7 @@ KA-1110,Cross-Domain Coupling Risk Analyzer,restored_original_design_capability,
 KA-1111,Long-Horizon Goal Drift Monitor,restored_original_design_capability,,implementation_required,pure_or_advisory_review_required,0,0,0,design-v1:KA-111
 KA-1112,System Self-Introspection Auditor,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-112
 KA-1114,External Deep Research Invocation,restored_original_design_capability,,implementation_required,effect_oriented_review_required,0,0,0,design-v1:KA-114
-KA-112,Message Broker,current_executable,backend/knowledge_algorithms/ka_112_message_broker.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,0,0,generated-v1:KA-129
+KA-112,Message Broker,current_executable,backend/knowledge_algorithms/ka_112_message_broker.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,1,1,generated-v1:KA-129
 KA-113,Complexity Router,current_executable,backend/knowledge_algorithms/ka_113_complexity_router.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,3,8,5,generated-v1:KA-130
 KA-114,Federated Outbox,current_executable,backend/knowledge_algorithms/ka_114_federated_outbox.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,1,0,generated-v1:KA-131
 KA-115,Federated Inbox,current_executable,backend/knowledge_algorithms/ka_115_federated_inbox.py,existing_requires_phase18_qualification,effect_oriented_review_required,0,1,0,generated-v1:KA-134

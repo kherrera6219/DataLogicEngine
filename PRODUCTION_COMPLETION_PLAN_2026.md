@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.25.0 |
+| Document version | v1.26.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -230,6 +230,20 @@ were removed. The runtime gate verifies 213 canonical capabilities, 132
 one-to-one implementation owners, 81 explicit gaps, one reviewed scoped alias,
 zero duplicate canonical collisions, and zero unclassified surfaces. CP18-C is
 active; these counts remain a work authority, not a production-readiness claim.
+
+CP18-C Batch 01 passed on 2026-07-25 for 11 existing implementations previously
+flagged for unrecorded randomness, mock operational paths, or unsupported
+success claims. `KA-008`, `KA-012`, `KA-028`, `KA-091`, `KA-098`, and `KA-099`
+now provide bounded deterministic analysis or caller-supplied normalization.
+`KA-095`, `KA-097`, `KA-108`, `KA-110`, and `KA-112` return honest stable
+effect proposals and do not claim delivery, persistence, signing, backup,
+publication, or queueing before an authoritative service receipt exists. The
+full KA suite passes 469 tests; the regenerated authority retains 213 canonical
+capabilities, 132 existing implementations, 81 implementation gaps, one
+reviewed alias, and zero duplicate collisions, unresolved duplicate candidates,
+unclassified surfaces, or static honesty flags on existing implementations.
+CP18-C remains active because the other existing implementations, all 81 gaps,
+and authoritative effect application still require completion.
 
 ## 1. Purpose
 
@@ -3980,13 +3994,17 @@ artifact rather than against a known-incomplete subsystem.
   trace/replay acceptance and binds the final manifest/hash to the release
   record.
 
-**Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. The approved
-capability authority is
+**Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batch 01
+also passed for 11 existing implementations, removing every CP18-A static
+random/mock-honesty flag while preserving the canonical capability set. The
+approved capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
 `scripts/verify_ka_capability_inventory.py` and
 `scripts/verify_ka_runtime_authority.py` enforce the deduplicated identity and
-single-runtime boundaries. CP18-C is active; CP18-C through CP18-H remain open,
-and the signed rebuild remains blocked.
+single-runtime boundaries. Batch evidence is
+`reports/production-readiness/2026/phase-18/cp18-c-batch-01-existing-honesty.json`.
+CP18-C is active; CP18-C through CP18-H remain open, and the signed rebuild
+remains blocked.
 
 ### Stop conditions
 

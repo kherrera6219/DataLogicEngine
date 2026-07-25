@@ -1,9 +1,10 @@
 {
-    "broker_instance": "rabbitmq_cluster",
+    "broker_instance": "postgresql_redis_job_coordinator",
     "queues": {
-        "high_priority": {"durable": true, "auto_delete": false},
+        "high_priority": {"durable": true},
         "background_tasks": {"durable": true}
     },
-    "max_message_size_kb": 512,
-    "acknowledgment_mode": "manual_ack"
+    "max_message_size_bytes": 524288,
+    "acknowledgment_mode": "authoritative_receipt_required",
+    "direct_enqueue": false
 }

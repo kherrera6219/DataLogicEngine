@@ -1,144 +1,103 @@
-"""
-KA-099: Debugging
-Purpose: Provide interactive and remote debugging capabilities, including stack trace capture and system snapshots.
-"""
-import logging
-import json
-import os
-import sys
-import gc
-from typing import Dict, Any
+"""KA-099: bounded redacted diagnostic snapshot normalization."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+SENSITIVE_KEYS = (
+    "password",
+    "secret",
+    "token",
+    "credential",
+    "authorization",
+    "private_key",
+)
 
-logger = logging.getLogger(__name__)
+
+class DebugFrame(BaseModel):
+    filename: str = Field(max_length=500)
+    function: str = Field(max_length=500)
+    line: int = Field(ge=0)
+    locals: dict[str, Any] = Field(default_factory=dict)
 
 
 class KA099DebugInput(BaseModel):
-    error_context: str = Field("runtime_exception", description="The context or error identifier for debugging")
-    capture_system_metrics: bool = Field(True, description="Whether to capture system and process metrics")
-    inspect_caller_frames: bool = Field(True, description="Whether to inspect calling frames dynamically")
+    error_context: str = Field(
+        default="runtime_exception",
+        min_length=1,
+        max_length=2_000,
+    )
+    traceback_text: str | None = Field(default=None, max_length=100_000)
+    frames: list[DebugFrame] = Field(default_factory=list, max_length=100)
+    system_metrics: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("system_metrics")
+    @classmethod
+    def bound_metrics(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if len(value) > 200:
+            raise ValueError("system_metrics exceeds 200 entries")
+        return value
 
 
 class KA099Debugging(KnowledgeAlgorithm):
-    """
-    KA-099: Advanced system debugging and introspection engine for deep diagnostics.
-    """
+    """Normalize already captured diagnostics without hidden frame inspection."""
+
     input_schema = KA099DebugInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-099"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_99_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA099DebugInput) -> Dict[str, Any]:
-        error_context = input_data.error_context
-        self.log_execution_step("Capturing Debug Snapshot", {"context": error_context})
-        
-        frames = []
-        if input_data.inspect_caller_frames:
-            try:
-                # Walk up python stack frames safely, starting from caller of run()
-                # sys._getframe(0) is _run_logic
-                # sys._getframe(1) is base run()
-                # sys._getframe(2) is the algorithm runner context caller
-                curr_frame = sys._getframe(1)
-                depth = 0
-                while curr_frame and depth < 6:
-                    f_code = curr_frame.f_code
-                    f_locals = {}
-                    for k, v in curr_frame.f_locals.items():
-                        k_lower = k.lower()
-                        # Redact sensitive parameters
-                        if any(s in k_lower for s in ["pass", "key", "token", "secret", "auth", "credential", "private"]):
-                            f_locals[k] = "[REDACTED]"
-                        else:
-                            try:
-                                f_locals[k] = str(v)[:200]
-                            except Exception:
-                                f_locals[k] = "<unserializable>"
-                    
-                    frames.append({
-                        "filename": os.path.basename(f_code.co_filename),
-                        "function": f_code.co_name,
-                        "line": curr_frame.f_lineno,
-                        "locals": f_locals
-                    })
-                    curr_frame = curr_frame.f_back
-                    depth += 1
-            except Exception as e:
-                logger.warning(f"Failed to inspect frames: {e}")
-
-        system_metrics = {}
-        if input_data.capture_system_metrics:
-            try:
-                import platform
-                system_metrics = {
-                    "pid": os.getpid(),
-                    "ppid": os.getppid() if hasattr(os, "getppid") else None,
-                    "cwd": os.getcwd(),
-                    "python_version": sys.version,
-                    "platform": platform.platform(),
-                    "active_threads": 1,
-                    "garbage_objects": len(gc.get_objects())
-                }
-                
-                # Active threads list
-                import threading
-                system_metrics["active_threads"] = threading.active_count()
-                system_metrics["thread_names"] = [t.name for t in threading.enumerate()]
-                
-                # Attempt to get process memory/cpu if psutil is available
-                try:
-                    import psutil
-                    proc = psutil.Process()
-                    system_metrics["cpu_percent"] = proc.cpu_percent()
-                    system_metrics["memory_percent"] = proc.memory_percent()
-                except ImportError:
-                    pass
-            except Exception as e:
-                logger.warning(f"Failed to capture system metrics: {e}")
-
-        # Construct diagnostic traceback output
-        if frames:
-            traceback_lines = ["Traceback (most recent call last):"]
-            for f in reversed(frames):
-                traceback_lines.append(f'  File "{f["filename"]}", line {f["line"]}, in {f["function"]}')
-                traceback_lines.append(f'    locals: {json.dumps(f["locals"])}')
-            traceback_str = "\n".join(traceback_lines)
-        else:
-            traceback_str = "Traceback (most recent call last): ..."
-
+    def _run_logic(self, input_data: KA099DebugInput) -> dict[str, Any]:
+        frames = [
+            {
+                "filename": frame.filename.replace("\\", "/").rsplit("/", 1)[-1],
+                "function": frame.function,
+                "line": frame.line,
+                "locals": self._redact(frame.locals),
+            }
+            for frame in input_data.frames
+        ]
         snapshot = {
-            "traceback": traceback_str,
-            "locals": frames[0]["locals"] if frames else {"ka_id": "KA-Master", "step": "router"},
+            "error_context": input_data.error_context,
+            "traceback": input_data.traceback_text,
             "frames": frames,
-            "system_metrics": system_metrics,
-            "timestamp": "iso8601"
+            "system_metrics": self._redact(input_data.system_metrics),
         }
-        
         return {
             "success": True,
-            "snapshot_id": f"DBG_{os.urandom(4).hex().upper()}",
-            "remote_port_active": self.config.get("remote_debugging_port", 5678),
-            "snapshot": snapshot
+            "snapshot_id": stable_identifier("debug", snapshot),
+            "remote_port_active": False,
+            "snapshot": snapshot,
+            "capture_mode": "caller_supplied_redacted_diagnostics",
+            "limitations": (
+                "KA-099 does not inspect live caller frames, open a remote "
+                "debug port, or persist a snapshot."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA099Debugging(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-099 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    @classmethod
+    def _redact(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            return {
+                str(key): (
+                    "[REDACTED]"
+                    if any(token in str(key).lower() for token in SENSITIVE_KEYS)
+                    else cls._redact(item)
+                )
+                for key, item in value.items()
+            }
+        if isinstance(value, list):
+            return [cls._redact(item) for item in value[:1_000]]
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value if not isinstance(value, str) else value[:2_000]
+        return f"<{type(value).__name__}>"
+
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA099Debugging(context).run(context)

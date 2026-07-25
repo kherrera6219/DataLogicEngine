@@ -1,86 +1,84 @@
-"""
-KA-095: Alerting
-Purpose: Detect critical system states and trigger real-time alerts with escalation and deduplication logic.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+"""KA-095: deterministic alert decision and effect proposal."""
+
+from __future__ import annotations
+
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+from backend.knowledge_algorithms.production_utils import (
+    load_config,
+    stable_identifier,
+)
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
 class KA095AlertInput(BaseModel):
-    event: str = Field(..., description="The system event identifier")
-    level: str = Field("error", description="The alert level (e.g., info, warning, error, critical)")
-    recent_events: List[str] = Field(default_factory=list, description="List of recently triggered alert events for deduplication")
+    event: str = Field(min_length=1, max_length=2_000)
+    level: Literal["info", "warning", "error", "critical"] = "error"
+    source: str = Field(default="datalogicengine", min_length=1, max_length=200)
+    recent_deduplication_keys: list[str] = Field(
+        default_factory=list,
+        max_length=10_000,
+    )
 
 
 class KA095Alerting(KnowledgeAlgorithm):
-    """
-    KA-095: System event alerting and multi-level escalation engine.
-    """
+    """Decide whether an alert should be sent without claiming delivery."""
+
     input_schema = KA095AlertInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-095"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_95_config.json")
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_95_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA095AlertInput) -> Dict[str, Any]:
-        event = input_data.event
-        level = input_data.level
-        self.log_execution_step("Evaluating Alert Event", {"event": event, "level": level})
-        
-        # Deduplication check
-        is_deduplicated = event in input_data.recent_events
-        
-        # Determine escalation target based on level
-        escalation_config = self.config.get("escalation_policy")
-        if isinstance(escalation_config, dict):
-            policy = escalation_config.get(level.lower(), "standard_ops")
-        elif isinstance(escalation_config, str):
-            policy = escalation_config
-        else:
-            default_map = {
-                "info": "none",
-                "warning": "slack",
-                "error": "pagerduty",
-                "critical": "executive_pager"
+    def _run_logic(self, input_data: KA095AlertInput) -> dict[str, Any]:
+        deduplication_key = stable_identifier(
+            "alert",
+            {
+                "source": input_data.source,
+                "event": input_data.event,
+                "level": input_data.level,
+            },
+        )
+        deduplicated = deduplication_key in set(
+            input_data.recent_deduplication_keys
+        )
+        should_alert = input_data.level != "info" and not deduplicated
+        policy = self.config.get("escalation_policy", "ops_on_call")
+        proposal = (
+            {
+                "effect_id": deduplication_key,
+                "kind": "operator_alert",
+                "status": "proposed",
+                "service": "app_observability_alert_service",
+                "payload": {
+                    "event": input_data.event,
+                    "level": input_data.level,
+                    "source": input_data.source,
+                    "escalation_policy": policy,
+                },
             }
-            policy = default_map.get(level.lower(), "standard_ops")
-        
+            if should_alert
+            else None
+        )
         return {
             "success": True,
-            "alert_triggered": not is_deduplicated,
-            "active_alert_id": f"ALRT_{os.urandom(4).hex().upper()}",
+            "alert_triggered": False,
+            "alert_recommended": should_alert,
+            "active_alert_id": None,
+            "deduplication_key": deduplication_key,
             "escalation_policy": policy,
-            "deduplicated": is_deduplicated,
-            "alert_details": {
-                "event": event,
-                "level": level,
-                "urgency": "HIGH" if level.lower() in ["error", "critical"] else "LOW"
-            }
+            "deduplicated": deduplicated,
+            "effect_proposal": proposal,
+            "delivery_receipt": None,
+            "limitations": (
+                "An alert is not delivered until the canonical orchestrator "
+                "applies this proposal through the alert service."
+            ),
         }
 
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA095Alerting(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-095 Failed: {e}")
-        return {"success": False, "error": str(e)}
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA095Alerting(context).run(context)

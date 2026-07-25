@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.25.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.26.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -64,6 +64,17 @@ CP18-D through CP18-G retain dynamic wiring, product workflow, individual proof,
 and clean full-source qualification. Only that exit gate permits the signed
 rebuild; CP18-H and every retained installed/manual/independent gate still apply
 to the rebuilt artifact.
+
+CP18-C Batch 01 passed on 2026-07-25. Eleven existing KAs no longer use
+unrecorded randomness, fabricate measurements/diagnostics/rendered assets, or
+claim operational effects without receipts. Six now produce bounded
+deterministic analysis/specification and five return honest effect proposals
+pending authoritative service application. All 11 have individually named
+semantic tests, the full KA suite passes 469 tests, and the regenerated
+authority reports zero static honesty flags, duplicate collisions, unresolved
+duplicate candidates, or unclassified surfaces. CP18-C remains active for the
+remaining existing implementations, 81 missing implementations, and real
+effect-service receipts.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -682,10 +693,11 @@ replacement. See
 
 ## Exact next action
 
-1. Execute Phase 18 CP18-C against the approved 213-capability manifest:
-   qualify the 132 existing implementations and build the 81 explicit gaps in
-   semantic batches with strict schemas, limits, failure behavior, and
-   authoritative effect/service integration.
+1. Continue Phase 18 CP18-C against the approved 213-capability manifest:
+   Batch 01 qualified 11 existing implementations; qualify the remaining
+   existing implementations and build the 81 explicit gaps in semantic batches
+   with strict schemas, limits, failure behavior, and authoritative
+   effect/service integration.
 2. Preserve canonical IDs and behavior until parity proof permits each
    migration; keep the zero-duplicate gate mandatory and do not reintroduce
    ambiguous historical numeric aliases or private runtimes.

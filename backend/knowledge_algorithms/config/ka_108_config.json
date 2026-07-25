@@ -1,7 +1,14 @@
 {
-    "backup_targets": ["postgresql", "redis", "elasticsearch", "s3_buckets"],
-    "frequency": "daily",
-    "retention_policy": "keep_last_30_days",
-    "encryption_algorithm": "AES-256",
-    "verification_enabled": true
+    "backup_service": "managed_backup_service",
+    "backup_targets": [
+        "postgresql",
+        "redis",
+        "neo4j",
+        "chroma",
+        "object_store",
+        "retained_files"
+    ],
+    "encryption_required": true,
+    "verification_required": true,
+    "direct_execution": false
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4",
+  "source_input_sha256": "611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -41,11 +41,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 132,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 134,
+    "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 92,
-    "canonical_with_named_test_function": 84
+    "canonical_with_test_reference": 96,
+    "canonical_with_named_test_function": 89
   },
   "canonical_capabilities": [
     {
@@ -245,6 +245,9 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_reads_only_the_canonical_manifest",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
@@ -1504,21 +1507,16 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_calculate_overall_score",
-          "_evaluate_rubrics",
-          "_generate_suggestions",
-          "_load_config",
           "_run_logic",
+          "_suggestions",
           "run"
         ],
         "classes": [
           "KA008Input",
           "KA008SelfCritique"
         ],
-        "nonblank_noncomment_loc": 83,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 142,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -1533,10 +1531,12 @@
         "backend/truth_engine/truth_gate/trust_validation_gateway.py:540"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_008_self_critique_is_deterministic_and_accuracy_honest",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1875,6 +1875,7 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka106_uses_deterministic_circuit_breaker_policy",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -2040,6 +2041,8 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka011_supports_structural_and_bayesian_models",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer"
       ],
       "phase6_production_metadata": {
@@ -2185,10 +2188,9 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_construct_dsqp_profiles",
-          "_load_config",
+          "_finding",
           "_run_logic",
-          "_simulate_persona",
+          "normalize_personas",
           "run"
         ],
         "classes": [
@@ -2196,9 +2198,7 @@
           "KA012PersonaSimulation"
         ],
         "nonblank_noncomment_loc": 116,
-        "signals": [
-          "uses_randomness"
-        ],
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -2212,10 +2212,12 @@
         "backend/truth_engine/truth_core/personas.py:148"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
         "tests/unit/test_phase5_phase_c.py",
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_012_persona_simulation_emits_review_findings_not_fake_claims",
         "tests/verify_consensus_v2.py::test_consensus_pipeline"
       ],
       "phase6_production_metadata": {
@@ -4809,8 +4811,7 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_generate_pov_finding",
-          "_load_config",
+          "_finding",
           "_run_logic",
           "run"
         ],
@@ -4818,10 +4819,8 @@
           "KA028Input",
           "KA028POVExpansion"
         ],
-        "nonblank_noncomment_loc": 67,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 83,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -4832,8 +4831,12 @@
       "execution_call_sites": [
         "core/simulation/pov_engine.py:197"
       ],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-028",
         "implementation": "backend.knowledge_algorithms.ka_28_point_of_view_expansion.run",
@@ -6255,7 +6258,6 @@
         "imports_celery": false
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/ka_12_persona_simulation.py",
         "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "backend/knowledge_algorithms/production_catalog.py"
       ],
@@ -12492,26 +12494,28 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
+          "normalize_type",
           "run"
         ],
         "classes": [
           "KA091Visualization",
           "KA091VisualizationInput"
         ],
-        "nonblank_noncomment_loc": 53,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 70,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_091_visualization_builds_stable_spec_without_fake_asset"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-091",
         "implementation": "backend.knowledge_algorithms.ka_91_visualization.run",
@@ -12835,7 +12839,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -12843,10 +12846,8 @@
           "KA095AlertInput",
           "KA095Alerting"
         ],
-        "nonblank_noncomment_loc": 70,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 71,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -12859,10 +12860,12 @@
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka095_alerting",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_095_alerting_returns_proposal_without_delivery_claim",
         "tests/truth_engine/test_layer10_emergence.py::test_trust_gate_belief_decay_fail_high_risk"
       ],
       "phase6_production_metadata": {
@@ -13017,7 +13020,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -13025,10 +13027,8 @@
           "KA097AuditInput",
           "KA097Auditing"
         ],
-        "nonblank_noncomment_loc": 60,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 74,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -13036,10 +13036,12 @@
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka097_auditing"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka097_auditing",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_097_auditing_returns_hash_chain_proposal_without_persistence_claim"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-097",
@@ -13108,24 +13110,26 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
         "classes": [
           "KA098Profiling",
-          "KA098ProfilingInput"
+          "KA098ProfilingInput",
+          "ProfileSample"
         ],
-        "nonblank_noncomment_loc": 60,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 86,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_098_profiling_aggregates_only_supplied_measurements"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-098",
         "implementation": "backend.knowledge_algorithms.ka_98_profiling.run",
@@ -13193,27 +13197,29 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
+          "_redact",
           "_run_logic",
+          "bound_metrics",
           "run"
         ],
         "classes": [
+          "DebugFrame",
           "KA099DebugInput",
           "KA099Debugging"
         ],
-        "nonblank_noncomment_loc": 118,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 85,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka099_debugging"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka099_debugging",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_099_debugging_redacts_supplied_diagnostics_and_opens_no_port"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-099",
@@ -16777,7 +16783,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -16785,10 +16790,8 @@
           "KA108BackupInput",
           "KA108BackupStrategy"
         ],
-        "nonblank_noncomment_loc": 50,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 69,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
@@ -16798,9 +16801,12 @@
         "backend/truth_engine/truth_core/emergence_controller.py:156"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-108",
         "implementation": "backend.knowledge_algorithms.ka_108_backup_strategy.run",
@@ -19375,7 +19381,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -19383,20 +19388,19 @@
           "KA110BusInput",
           "KA110IntegrationBus"
         ],
-        "nonblank_noncomment_loc": 63,
-        "signals": [
-          "contains_mock_language",
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 84,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-110",
@@ -21383,7 +21387,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -21391,16 +21394,18 @@
           "KA112Input",
           "KA112MessageBroker"
         ],
-        "nonblank_noncomment_loc": 45,
-        "signals": [
-          "uses_randomness"
-        ],
+        "nonblank_noncomment_loc": 71,
+        "signals": [],
         "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-112",
         "implementation": "backend.knowledge_algorithms.ka_112_message_broker.run",
@@ -23850,7 +23855,6 @@
         "imports_celery": true
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/ka_99_debugging.py",
         "backend/knowledge_algorithms/manifest.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/personas.py",
