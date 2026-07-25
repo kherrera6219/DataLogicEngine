@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C knowledge-evolution Batch 04**: restored six distinct
+  original-design capabilities for ontology drift, semantic alignment,
+  knowledge lineage, bounded evidence-linked composition, hierarchical
+  memory-patch planning, and ontological conflict resolution. Each has a strict
+  bounded schema/example, deterministic output, explicit limitations, a named
+  semantic test, and a unique canonical implementation owner. Effect-oriented
+  outputs remain unapplied proposals. The authority advances to 154
+  implementations/59 gaps, the KA suite passes 536 tests, Python/TypeScript SDK
+  tests pass 34/34 and 6/6, and all duplicate, collision, unclassified, and
+  honesty gates pass.
 - **Phase 18 CP18-C governed-decision Batch 03**: restored eight deterministic,
   read-only capabilities for context selection, intent clarification, knowledge
   promotion admission, simulation cost/budget admission, cross-instance

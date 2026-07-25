@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.28.0 |
+| Document version | v1.29.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -266,6 +266,18 @@ bounded, deterministic, read-only, individually tested, and explicit about
 measurement/inference limitations. The authority advances to 148
 implementations and 65 gaps; the full KA suite passes 517 tests and all
 no-duplicate, collision, honesty, and classification gates remain clean.
+
+CP18-C Batch 04 passed on 2026-07-25 for six distinct original-design
+knowledge-evolution capabilities: ontology drift detection, semantic alignment,
+knowledge-lineage tracking, bounded creative composition, hierarchical
+memory-patch planning, and ontological conflict resolution. Each has a strict
+bounded schema/example, deterministic behavior, explicit limitations, one
+named semantic test, and a unique implementation owner. Mutation-oriented
+results remain proposals for authoritative owning services; lineage and
+composed hypotheses do not claim authenticity, truth, or persistence. The
+authority advances to 154 implementations and 59 gaps; the full KA suite passes
+536 tests and the no-duplicate, collision, honesty, and classification gates
+remain clean.
 
 ## 1. Purpose
 
@@ -4017,9 +4029,9 @@ artifact rather than against a known-incomplete subsystem.
   record.
 
 **Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batches 01
-through 03 also passed: 11 existing implementations were made honest and 16
+through 04 also passed: 11 existing implementations were made honest and 22
 preserved capabilities were restored as distinct production sources. The
-authority now reports 148 implementations and 65 gaps with 517 KA tests passing
+authority now reports 154 implementations and 59 gaps with 536 KA tests passing
 and no duplicate, unclassified, or static-honesty finding. The approved
 capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
@@ -4027,7 +4039,7 @@ capability authority is
 `scripts/verify_ka_runtime_authority.py` enforce the deduplicated identity and
 single-runtime boundaries. Batch evidence is under
 `reports/production-readiness/2026/phase-18/`, including
-`cp18-c-batch-03-governed-decisions.json`.
+`cp18-c-batch-04-knowledge-evolution.json`.
 CP18-C is active; CP18-C through CP18-H remain open, and the signed rebuild
 remains blocked.
 
@@ -4442,8 +4454,8 @@ exit gate.
 ## 33. Immediate next action
 
 Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
-01-03 have qualified 11 existing implementations and restored 16 gaps; qualify
-the remaining existing implementations and build the 65 explicit gaps
+01-04 have qualified 11 existing implementations and restored 22 gaps; qualify
+the remaining existing implementations and build the 59 explicit gaps
 in validated batches. Replace every placeholder, metadata-only facade, mock/simulated
 operation, weak or unrecorded random default, and false success with bounded
 typed production behavior or an honest prerequisite failure through an

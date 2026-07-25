@@ -7,12 +7,12 @@
 ## Authority and release status
 
 - Generated: `2026-07-25`
-- Documentation authority: `2026.07.25-phase18-cp18c-batch3` (`approved_phase16_replacement_closed`)
+- Documentation authority: `2026.07.25-phase18-cp18c-batch4` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
 - Current program checkpoint: Phase 18 Knowledge Algorithm production completion; CP18-C active
-- Current KA evidence: CP18-A/CP18-B and CP18-C Batches 01-03 passed; 148 implementations and 65 gaps remain, with 517 KA tests passing and zero duplicate or static honesty flags. CP18-C remains active.
+- Current KA evidence: CP18-A/CP18-B and CP18-C Batches 01-04 passed; 154 implementations and 59 gaps remain, with 536 KA tests passing and zero duplicate or static honesty flags. CP18-C remains active.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

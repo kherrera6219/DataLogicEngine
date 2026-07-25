@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "0da795247287a6e2d0c062d8b0a35a75fe015c83bf47c33235d84df3e4096b0c",
+  "source_input_sha256": "3e419822d534794e308c52a5d2b30f00e0e2d9dc4659fabcb8a9c965889341d7",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -12,8 +12,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 148,
-    "implementation_required_proposals": 65,
+    "existing_implementation_proposals": 154,
+    "implementation_required_proposals": 59,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -25,13 +25,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 148,
+    "implementation_surfaces": 154,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 112,
-    "canonical_with_named_test_function": 107
+    "canonical_with_test_reference": 117,
+    "canonical_with_named_test_function": 112
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -9151,9 +9151,25 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1039_ontology_drift_detection.py",
+      "canonical_ids": [
+        "KA-1039"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_103_service_mesh.py",
       "canonical_ids": [
         "KA-103"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1040_semantic_alignment_engine.py",
+      "canonical_ids": [
+        "KA-1040"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"
@@ -9175,6 +9191,22 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1043_knowledge_lineage_tracker.py",
+      "canonical_ids": [
+        "KA-1043"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1044_creative_knowledge_composer.py",
+      "canonical_ids": [
+        "KA-1044"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
       "canonical_ids": [
         "KA-1045"
@@ -9183,9 +9215,25 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1046_hierarchical_memory_patcher.py",
+      "canonical_ids": [
+        "KA-1046"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
       "canonical_ids": [
         "KA-1047"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1048_ontological_conflict_resolver.py",
+      "canonical_ids": [
+        "KA-1048"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"

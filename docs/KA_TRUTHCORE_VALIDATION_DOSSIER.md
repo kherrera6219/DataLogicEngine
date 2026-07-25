@@ -183,6 +183,11 @@ through CP18-H remain open, and the signed rebuild is paused.
 Batch 03 adds eight governed decision-support KAs, advancing the verified
 authority to 148 implementations/65 gaps and 517 passing KA tests without
 changing the release decision.
+Batch 04 adds six knowledge-evolution KAs with bounded deterministic
+drift/alignment, lineage, composition, patch-plan, and conflict-resolution
+semantics. It advances the authority to 154 implementations/59 gaps and 536
+passing KA tests while keeping mutation claims false and the no-duplicate gate
+clean.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is

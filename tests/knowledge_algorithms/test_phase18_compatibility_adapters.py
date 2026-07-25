@@ -2,9 +2,25 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from backend.knowledge_algorithms.controller import CanonicalKAController
 from backend.knowledge_algorithms.manifest import load_manifest
 from core.engine.ka_engine import KAEngine
 from core.knowledge_algorithm.ka_loader import KALoader
+
+
+def controller_with_unavailable_implementation(
+    ka_id: str = "KA-1039",
+) -> CanonicalKAController:
+    manifest = load_manifest().model_copy(deep=True)
+    definition = manifest.entries[ka_id]
+    definition.implementation = definition.implementation.model_copy(
+        update={
+            "status": "implementation_required",
+            "source": None,
+            "entrypoint": None,
+        }
+    )
+    return CanonicalKAController(manifest)
 
 
 def test_phase18_core_engine_reads_only_the_canonical_manifest():
@@ -29,6 +45,7 @@ def test_phase18_core_engine_reads_only_the_canonical_manifest():
 
 def test_phase18_core_engine_executes_through_canonical_controller():
     engine = KAEngine()
+    engine.controller = controller_with_unavailable_implementation()
 
     completed = engine.execute_algorithm("KA-004", {"query": "validate"})
     unavailable = engine.execute_algorithm("KA-1039", {})
@@ -47,6 +64,7 @@ def test_phase18_core_engine_executes_through_canonical_controller():
 
 def test_phase18_core_engine_pipeline_stops_on_canonical_failure():
     engine = KAEngine()
+    engine.controller = controller_with_unavailable_implementation()
 
     result = engine.execute_pipeline(
         [

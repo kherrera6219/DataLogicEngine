@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-25T19:56:05.950291+00:00",
-  "authority_version": "2026.07.25-phase18-cp18c-batch3",
+  "generated_at": "2026-07-25T20:16:09.072549+00:00",
+  "authority_version": "2026.07.25-phase18-cp18c-batch4",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",

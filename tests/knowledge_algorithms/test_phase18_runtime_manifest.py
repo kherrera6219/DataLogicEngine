@@ -20,6 +20,21 @@ from scripts.build_ka_runtime_manifest import (
 )
 
 
+def controller_with_unavailable_implementation(
+    ka_id: str = "KA-1039",
+) -> CanonicalKAController:
+    manifest = load_manifest().model_copy(deep=True)
+    definition = manifest.entries[ka_id]
+    definition.implementation = definition.implementation.model_copy(
+        update={
+            "status": "implementation_required",
+            "source": None,
+            "entrypoint": None,
+        }
+    )
+    return CanonicalKAController(manifest)
+
+
 def test_phase18_runtime_manifest_is_current_and_deduplicated():
     manifest = load_manifest()
 
@@ -96,7 +111,7 @@ def test_phase18_controller_blocks_unqualified_production_execution():
 
 
 def test_phase18_controller_reports_missing_implementation_without_false_success():
-    result = CanonicalKAController().execute(
+    result = controller_with_unavailable_implementation().execute(
         {"ka_id": "KA-1039", "mode": "evaluation", "input": {}}
     )
 

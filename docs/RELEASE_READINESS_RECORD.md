@@ -94,6 +94,9 @@ tests passing. CP18-C remains active for the remaining existing
 implementations, implementation gaps, and authoritative effect integration.
 Batch 03 advances source coverage to 148 implementations/65 gaps and 517
 passing KA tests; it does not authorize a rebuild or production release.
+Batch 04 advances source coverage to 154 implementations/59 gaps and 536
+passing KA tests with unique-owner/no-duplicate gates clean; it also does not
+authorize a rebuild or production release.
 The signed rebuild remains blocked until CP18-C through CP18-G pass; CP18-H and
 CP17-E then require the exact signed installed artifact. Phase 19 launch remains
 blocked by every prior gate.

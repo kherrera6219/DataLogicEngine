@@ -154,6 +154,14 @@ limitations, never start work, mutate state, or convert agreement/statistical
 deviation into truth. Current authority is 148 implementations and 65 gaps; the
 KA suite is 517 passed.
 
+CP18-C Batch 04 restores the final six missing original-design
+knowledge-evolution KAs. Drift/alignment/lineage algorithms evaluate
+caller-supplied snapshots and graphs; composition outputs remain unverified
+evidence-linked candidates; memory patches and ontology resolutions remain
+versioned proposals for owning-service authorization. Each canonical ID has one
+source owner and one named semantic test. Current authority is 154
+implementations and 59 gaps; the KA suite is 536 passed.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate
