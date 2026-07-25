@@ -41,7 +41,7 @@ record can promote the exact artifact to `Pass` for production.
 | DLE-FR-008 | Authoritative simulation lifecycle/budget/checkpoint/artifact/result | Simulation contract/failure tests; Phase 10 evidence | Partial: installed provider/restart/UI/artifact acceptance retained |
 | DLE-FR-009 | MCP registry/fingerprint/scope/consent, process loop, Job Object, result governance | MCP policy/lifecycle/hostile fixture tests; Phase 11 evidence | Partial: installed OS containment/Electron lifecycle retained |
 | DLE-FR-010 | Client-key verifier, scopes/limits/jobs/idempotency/trace ownership/SDKs | Gateway auth/isolation/SDK/compatibility tests; Phase 8 evidence | Partial: signed installed same-host/private acceptance retained |
-| DLE-FR-011 | Phase 18 canonical KA manifest/crosswalk, typed controller/selector, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test per KA, manifest/call-path/selector gates, effect receipts, integration/security/performance/trace/replay suites, and Phase 18 evidence | Partial: CP18-A/CP18-B and CP18-C Batches 01-06 passed; 172 implementations/41 gaps and 592 KA tests are verified, while remaining implementations/effects, CP18-D through CP18-H, and rebuild remain open |
+| DLE-FR-011 | Retained Phase 18 canonical manifest/crosswalk/controller plus Phase 19 owner matrix, selector/DAG, ten-layer/persona/refinement stages, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test, positive/negative selector fixture, real owner-path assertion, limitation, trace proof, and applicable effect/security/performance evidence per KA; cross-subsystem and rebuilt-installed acceptance | Partial: Phase 18 retained 213 unique implementation owners, zero source gaps, and 721 KA tests, but CP18-D failed and CP18-E-H did not pass. Phase 19 CP19-A-M integration and qualification remain open |
 
 ## Data and lifecycle requirements
 
@@ -98,6 +98,6 @@ tests, canonical documents, migration/compatibility, and release evidence.
 ## Overall status
 
 All 29 product requirement IDs have an implementation/control or planned
-Phase 18 control and a named verification path. None may be interpreted as final
+Phase 19 control and a named verification path. None may be interpreted as final
 production pass while their retained gates are open. The exact 4.3.0 release
 remains **NO-GO**.

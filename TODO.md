@@ -17,127 +17,85 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.36.0 |
-| Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
-| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.37.0 |
+| Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-A active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
-## Active Phase 18 Knowledge Algorithm completion
+## Active Phase 19 canonical KA system-of-systems integration
 
-The signed rebuild is paused because the documentation-first KA review found a
-major incomplete subsystem. The 125-entry executable registry has only 11
-production-enabled KAs; seven live Layer-9 implementations are unregistered and
-silently skipped; the runtime merges a conflicting 277-row metadata catalog;
-the SDK and core retain separate handler/engine contracts; dynamic selection is
-partial and contains a malformed branch; effect-oriented KAs can report
-operations without authoritative service receipts; and the Algorithms page is
-catalog-only.
+Phase 18 closed incomplete after CP18-D proved the source-complete KA catalog is
+not yet the product's dynamic production system. The signed rebuild remains
+paused. Retain 213 canonical capabilities, 213 unique implementation owners,
+zero source gaps, the one manifest/controller boundary, and the 721-test source
+baseline while completing the whole-application wiring.
 
-- [x] **CP18-A — authority and crosswalk:** classified every definition,
-      implementation, historical alias, duplicate/scaffold, caller, test,
-      SDK/UI surface, and ID/name/purpose collision with zero capability loss.
-      The approved authority contains 213 canonical capabilities, 132 existing
-      implementations, 81 implementation gaps, 62 classified identity
-      conflicts, 64 historical generic scaffolds, one confirmed duplicate
-      collapsed to an alias, zero exact name/purpose/contract collisions, zero
-      unresolved duplicate candidates, and zero unclassified definitions or
-      surfaces.
-- [x] **CP18-B — one contract/controller:** one generated manifest now drives
-      the typed execution/effect/trace contract and canonical controller;
-      KA-Master, core engine, and loader use that authority; Python/TypeScript
-      catalogs and clients are generated; the private SDK handler runtime is
-      removed. The runtime gate reports 213 canonical capabilities, 132 unique
-      implementation owners, 81 explicit gaps, one reviewed alias, and zero
-      duplicate canonical collisions.
-- [ ] **CP18-C — implementation parity:** replace every placeholder, mock,
-      metadata-only façade, and false operational effect with production
-      behavior or honest prerequisite failure through authoritative services.
-  - [x] Batch 01 qualified 11 existing KAs: six bounded deterministic analysis/
-        normalization implementations and five honest effect proposals. The
-        full KA suite passes 469 tests; all 11 have named semantic tests; the
-        inventory now reports zero static randomness/mock-honesty flags on
-        existing implementations and still reports zero duplicate collisions.
-  - [x] Batch 02 restored eight distinct design capabilities as bounded,
-        deterministic, read-only canonical implementations with schema examples
-        and individually named semantic tests. The authority advances to 140
-        implementations and 73 gaps, and the full KA suite passes 493 tests
-        with zero duplicate, collision, unclassified, or static-honesty finding.
-  - [x] Batch 03 restored eight governed decision-support capabilities with
-        strict schemas, read-only decisions, explicit limitations, and named
-        tests. The authority advances to 148 implementations and 65 gaps; 517
-        KA tests pass with all no-duplicate and honesty gates clean.
-  - [x] Batch 04 restored six knowledge-evolution capabilities for ontology
-        drift/alignment, lineage, bounded composition, memory-patch planning,
-        and ontological conflict resolution. All have unique owners, strict
-        schemas, honest proposal/read-only semantics, and named tests. The
-        authority advances to 154 implementations and 59 gaps; 536 KA tests
-        pass with the no-duplicate authority clean.
-  - [x] Batch 05 restored ten lifecycle-governance capabilities for
-        provenance, privacy transformation, bias reweighting, graph pruning,
-        importance, tiering, confidence drift, revalidation, usage, and
-        lifecycle planning. The authority advances to 164 implementations and
-        49 gaps; 567 KA tests pass and the no-duplicate authority remains clean.
-  - [x] Batch 06 restored eight policy/release capabilities for policy
-        evolution, compliance regression, scenario archives, dependency
-        impact, trust decay, quarantine, human escalation, and release staging.
-        The authority advances to 172 implementations and 41 gaps; 592 KA tests
-        pass with all identity gates clean.
-  - [x] Batch 07 restored eight system-control capabilities for bounded
-        performance tuning, benchmark evaluation, integrity auditing, controlled
-        evolution, chaos admission, entropy, rollback planning, and truth/utility
-        arbitration. The authority advances to 180 implementations and 33 gaps;
-        617 KA tests pass with all identity gates clean.
-  - [x] Batch 08 restored eight containment/oversight capabilities for
-        conceptual obsolescence, override rationale, reasoning boundaries,
-        capability escalation, knowledge containment, cross-domain coupling,
-        long-horizon goal drift, and self-introspection. The authority advances
-        to 188 implementations and 25 gaps; 642 KA tests pass.
-  - [x] Batch 09 restored eight security/health/fairness capabilities for threat
-        modeling, sensitive-data discovery, predictive health, purple-team
-        coverage, fairness, safety, privacy filtering, and current-state
-        compliance. The authority advances to 196 implementations and 17 gaps;
-        668 KA tests pass.
-  - [x] Batch 10 restored ten language/governance/identity capabilities for
-        translation evidence, paraphrase selection, style, topics, keywords,
-        explanations, security auditing, governance validation, policy
-        enforcement, and exact identity resolution. The authority advances to
-        206 implementations and seven gaps; 699 KA tests pass.
-  - [x] Batch 11 restored access control, encryption, key management, threat
-        detection, vulnerability scanning, incident response, and external deep
-        research. All 213 canonical capabilities now have unique implementation
-        owners; zero implementation gaps remain and 721 KA tests pass.
-  - [ ] Qualify the remaining pre-existing implementations and connect effect
-        proposals to authoritative service application/receipt paths.
-- [ ] **CP18-D — dynamic integration:** give every canonical KA a real selector
-      fixture and reachable production call path across the owning application
-      subsystems; register all Layer-9/Layer-10 KAs and eliminate silent skips.
-- [ ] **CP18-E — product workflow:** complete authenticated KA API/SDK and
-      accessible desktop detail/input/plan/confirm/execute/cancel/history/trace/
-      effect workflows.
-- [ ] **CP18-F — individual proof:** add one individually named production
-      functional test for every canonical KA plus applicable boundary, failure,
-      determinism, security, side-effect, cancellation, recovery, and
-      performance tests.
-- [ ] **CP18-G — source qualification:** pass focused/full backend, SDK,
-      frontend, Electron/browser, security, docs/governance, trace/catalog, and
-      packaging-smoke gates from a clean source state.
-- [ ] **CP18-H — rebuilt installed acceptance:** after CP18-G permits the
-      rebuild, prove representative selection, integration, effects,
-      failure/recovery, performance, UI/accessibility, and trace/replay against
-      the exact signed installed artifact.
+- [ ] **CP19-A — transfer and architecture authority:** freeze the 213-row
+      primary-owner/consumer-path matrix, canonical ten-layer lifecycle,
+      duplicate-prevention rule, workflow dispositions, finding transfers, and
+      evidence destinations; migrate current Phase 18 qualification labels in
+      manifest/inventory generators and generated SDK/runtime/documentation
+      outputs while retaining CP18 labels only as historical provenance.
+- [ ] **CP19-B — contract parity:** migrate TruthCore, L9/L10, persona,
+      refinement, simulation, SEKrE, data, MCP, provider, operations, API, and
+      SDK callers to typed canonical result variants; repair the current real-
+      controller Layer-10 failure and remove optimistic defaults.
+- [ ] **CP19-C — selector and dependency DAG:** implement manifest-driven
+      positive/negative selection for all 213 KAs with validated dependencies,
+      structured concurrency, budgets, cancellation, service capability,
+      policy, and truthful trace states.
+- [ ] **CP19-D — canonical ten-layer path:** integrate L1-L10 into the one
+      `GovernedExecutionOrchestrator` lifecycle; no private provider,
+      persistence, or answer path may remain.
+- [ ] **CP19-E — Layer-9/Layer-10 safety:** correct canonical IDs, execute all
+      required L9/L10 KAs, remove fabricated invocation records, and fail closed
+      on safety/privacy/containment/release failures.
+- [ ] **CP19-F — causal Quad Persona/DSQP:** bind axes 8-11 profiles to
+      applicable persona KAs, weighting, dissent, sufficiency, prompt/candidate
+      influence, provider budgets, and causal trace proof.
+- [ ] **CP19-G — one 12-step workflow:** consolidate every refinement variant
+      into one bounded post-candidate KA subgraph, one authorized rewrite, and
+      L6-L10 revalidation; prohibit production imports of reference variants.
+- [ ] **CP19-H — Truth/data/knowledge lifecycle:** connect TruthGate,
+      TruthCore, TruthMemory, TruthLink, FROST, ingestion, retrieval, graph,
+      memory, provenance, quarantine, promotion, deletion, and recovery owners.
+- [ ] **CP19-I — extended subsystems and effects:** repair and connect
+      simulation, MCP, providers, gateway, security, operations, lifecycle,
+      durable jobs, authoritative service ports, and verified effect receipts.
+- [ ] **CP19-J — product workflow:** complete authenticated API/SDK and
+      accessible real-backend desktop plan/execute/cancel/history/trace/
+      artifact/effect workflows.
+- [ ] **CP19-K — per-KA proof:** close the generated 213-row matrix with one
+      individually named semantic test, positive/negative selector fixtures,
+      real owning-path assertion, limitation, trace proof, and applicable
+      security/effect/performance evidence for every KA.
+- [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
+      frontend, Electron/browser, security, docs/governance, environment,
+      packaging-smoke, source-cleanliness, and no-capability-reduction gates.
+      Only CP19-L may authorize rebuilding.
+- [ ] **CP19-M — rebuilt-installed acceptance:** bind the exact signed rebuilt
+      artifact and pass representative ten-layer, persona, refinement,
+      subsystem, effect, failure/recovery, performance, UI/accessibility,
+      trace/replay, provider, five-service, gateway, object-store, pilot, and
+      soak acceptance.
 
-Baseline evidence:
-`reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
-Approved CP18-A evidence:
-`reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`;
-verification gate: `scripts/verify_ka_capability_inventory.py`.
+Phase 18 audit and transfer evidence:
+`reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`
+and
+`reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
 
 ## Completed checkpoints
 
+- Phase 18 closed incomplete on 2026-07-25. CP18-A/CP18-B remain passed and
+  CP18-C Batches 01-11 retain 213 unique implementation owners, zero source
+  gaps, and the 721-test source baseline. CP18-D failed the whole-application
+  wiring audit; CP18-C's broader effect/pre-existing qualification and
+  CP18-E-H were not passed. All unresolved work transfers without waiver to
+  Phase 19 and the rebuild remains blocked.
 - Phase 17 CP17-A through CP17-D passed on 2026-07-15. The active documentation
   validator now discovers 38 maintained Markdown files with zero errors and zero
   warnings. The history gate verifies 47/47 dispositions: 17 controlled moves,
@@ -349,9 +307,9 @@ verification gate: `scripts/verify_ka_capability_inventory.py`.
   and hash-vector convergence were removed from the production contract.
 - Phase 6 classified all 125 then-registered KAs and enabled 11 deterministic
   entries, but the 2026-07-25 review proved that classification did not complete
-  the subsystem. Phase 18 now owns lossless identity reconciliation, production
-  implementation, dynamic wiring, individual tests, and product workflow
-  completion for every preserved KA capability.
+  the subsystem. Phase 18 established lossless identity and source availability;
+  Phase 19 now owns production wiring, individual proof, effect integration,
+  and product workflow completion for every preserved KA capability.
 - Golden corpus `2026.07.13.1`, automated thresholds, provider/model drift gate,
   human rubric, and AI system card are versioned. Deterministic local checks
   pass; OpenAI, Google, blinded review, and owner approval remain pending.
@@ -783,8 +741,9 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
-| 18 | Knowledge Algorithm production completion and dynamic integration | **Active; CP18-A/CP18-B and CP18-C Batches 01-11 passed 2026-07-25, all 213 implementation owners present with zero gaps; pre-existing/effect qualification remains** |
-| 19 | Production launch and maintenance | Blocked by prior phases |
+| 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A authority/transfer is next and rebuild remains blocked through CP19-L** |
+| 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
 
@@ -801,18 +760,14 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
-01-11 qualified 11 existing implementations and restored all 81 gaps; qualify
-the remaining pre-existing implementations and effect paths without
-duplicate identities, private runtimes, placeholders, false effects, or
-capability loss. Every batch must add strict contracts, limits, failure
-semantics, authoritative service integration where applicable, and focused
-semantic tests.
+Begin CP19-A by generating and reviewing the 213-row primary-owner/consumer-
+path matrix and freezing the canonical ten-layer/persona/refinement lifecycle.
+Then complete CP19-B contract parity before adding selector or subsystem wiring.
+Proceed through CP19-C to CP19-K in the plan's mandatory order.
 
-Then execute CP18-D through CP18-G in validated batches. Do not rebuild the
-signed RC until that source/contract/integration exit gate passes. Afterward,
-rebuild with the locked SeaweedFS 4.40-dle.1 image, execute CP18-H, bind
-CP16-G/CP17-E, and run all retained installed gates against the exact artifact.
+Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
+locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run
+all retained installed gates against the exact artifact.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 legal/distribution NO-GO, automatic-update disablement, and object-store

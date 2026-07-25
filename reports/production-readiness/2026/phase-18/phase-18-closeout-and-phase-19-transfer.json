@@ -1,0 +1,41 @@
+{
+  "schema_version": "dle.phase-18-closeout-transfer.v1",
+  "closeout_date": "2026-07-25",
+  "phase": 18,
+  "status": "closed_incomplete_transferred",
+  "release_decision": "no_go",
+  "rebuild_authorized": false,
+  "retained_baseline_commit": "15b5d7e79760fbc36365abfc7eae9b17da31b5ce",
+  "retained_results": {
+    "canonical_capabilities": 213,
+    "unique_implementation_owners": 213,
+    "source_implementation_gaps": 0,
+    "duplicate_canonical_collisions": 0,
+    "unresolved_duplicate_candidates": 0,
+    "ka_tests_passing_at_source_checkpoint": 721
+  },
+  "checkpoint_disposition": {
+    "CP18-A": "passed_retained",
+    "CP18-B": "passed_retained",
+    "CP18-C": "source_batches_passed_full_checkpoint_not_passed",
+    "CP18-D": "failed",
+    "CP18-E": "not_passed_transferred_to_CP19-J",
+    "CP18-F": "not_passed_transferred_to_CP19-K",
+    "CP18-G": "not_passed_transferred_to_CP19-L",
+    "CP18-H": "not_passed_transferred_to_CP19-M"
+  },
+  "audit_evidence": {
+    "markdown": "reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md",
+    "json": "reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.json",
+    "decision": "failed_no_go"
+  },
+  "successor": {
+    "phase": 19,
+    "title": "Canonical KA system-of-systems integration and qualification",
+    "plan_section": 27,
+    "source_exit_checkpoint": "CP19-L",
+    "installed_exit_checkpoint": "CP19-M"
+  },
+  "generator_migration_required": true,
+  "production_launch_phase": 20
+}

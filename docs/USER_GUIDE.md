@@ -162,10 +162,10 @@ but it is not yet the approved production execute workflow. Do not treat a
 catalog card or a successful import/classification test as proof that the KA is
 fully implemented or dynamically wired.
 
-Phase 18 will add canonical detail and schemas, prerequisite and dependency
+Phase 19 will complete canonical detail and schemas, prerequisite and dependency
 preview, typed inputs, risk/side-effect confirmation, governed execute/cancel,
 result/effect receipts, history, trace navigation, and complete accessible
-states. Until CP18-E and CP18-H pass, direct KA execution remains an engineering
+states. Until CP19-J and CP19-M pass, direct KA execution remains an engineering
 evaluation surface and the signed rebuild remains paused.
 
 ### 5. Review sessions and projects

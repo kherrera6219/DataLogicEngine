@@ -1,0 +1,248 @@
+{
+  "schema_version": "dle.cp18-d-ka-subsystem-wiring-audit.v1",
+  "audit_date": "2026-07-25",
+  "audited_commit": "15b5d7e79760fbc36365abfc7eae9b17da31b5ce",
+  "status": "failed",
+  "decision": "no_go",
+  "phase": "CP18-D",
+  "post_audit_disposition": {
+    "phase_18_status": "closed_incomplete_transferred",
+    "successor_phase": 19,
+    "source_exit_checkpoint": "CP19-L",
+    "installed_exit_checkpoint": "CP19-M",
+    "findings_waived": false,
+    "rebuild_authorized": false
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "implementation_owners": 213,
+    "implementation_gaps": 0,
+    "production_enabled": 11,
+    "with_detected_execution_call_site": 42,
+    "without_detected_execution_call_site": 171,
+    "with_detected_named_test_function": 172,
+    "without_detected_named_test_function": 41,
+    "standard_product_preflight_ka_count": 1,
+    "enhanced_product_preflight_ka_count": 2
+  },
+  "retained_positive_evidence": [
+    "one 213-capability canonical manifest",
+    "zero implementation gaps",
+    "one canonical implementation controller beneath compatibility facades",
+    "one governed product request orchestrator",
+    "DMRF routing and gate execute on the product path",
+    "DSQP profiles are included in the provider prompt",
+    "executed preflight KA outputs are included in the provider prompt",
+    "authenticated direct-by-ID API and SDK execution exist"
+  ],
+  "subsystems": [
+    {
+      "name": "canonical_chat_gateway",
+      "status": "partial",
+      "finding": "TruthCore preflight selects KA-113 and optionally KA-001 only."
+    },
+    {
+      "name": "dmrf",
+      "status": "partial",
+      "finding": "Gate, tier, axis route, audit, and link publication are live; broad KA selection is absent."
+    },
+    {
+      "name": "truthcore_layers_1_10",
+      "status": "failed",
+      "finding": "Full workflow is private and test-only; public product flow uses the limited preflight."
+    },
+    {
+      "name": "layer_9",
+      "status": "failed",
+      "finding": "Private-path only, obsolete result-shape consumption, and L9-KA-007 is not executed."
+    },
+    {
+      "name": "layer_10",
+      "status": "failed",
+      "finding": "Private-path only, canonical-ID drift, missing calls, nested-output mismatch, and fabricated L10-KA-006 invocation evidence."
+    },
+    {
+      "name": "quad_persona_dsqp",
+      "status": "partial",
+      "finding": "DSQP profile context is live and causal; KA-backed persona reasoning is absent."
+    },
+    {
+      "name": "twelve_step_refinement",
+      "status": "failed",
+      "finding": "No single reachable working KA-backed production implementation exists."
+    },
+    {
+      "name": "truth_gate",
+      "status": "partial",
+      "finding": "DMRF entry gate is live; the KA-enhanced L8 gate is private and contract-incompatible."
+    },
+    {
+      "name": "truth_memory_truth_link",
+      "status": "partial",
+      "finding": "Audit and events are live; applicable lifecycle and containment KAs are not dispatched."
+    },
+    {
+      "name": "simulation",
+      "status": "failed",
+      "finding": "Result parsing, KA membership, and optional infrastructure imports prevent intended KA execution."
+    },
+    {
+      "name": "retrieval_graph_memory_ingestion",
+      "status": "failed",
+      "finding": "Direct services are used without owning-subsystem KA selection."
+    },
+    {
+      "name": "mcp_provider_operations_security",
+      "status": "failed",
+      "finding": "No broad manifest-driven selector dispatches applicable capabilities."
+    },
+    {
+      "name": "api_sdk_desktop_ui",
+      "status": "partial",
+      "finding": "Direct API/SDK execution exists; desktop UI is catalog-only."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-01",
+      "severity": "critical",
+      "title": "CP18-D selector and call-path coverage is absent"
+    },
+    {
+      "id": "F-02",
+      "severity": "critical",
+      "title": "The production TruthCore path is not the ten-layer system"
+    },
+    {
+      "id": "F-03",
+      "severity": "critical",
+      "title": "Canonical-result migration broke subsystem consumers"
+    },
+    {
+      "id": "F-04",
+      "severity": "critical",
+      "title": "Layer-10 identity drift and fabricated invocation evidence"
+    },
+    {
+      "id": "F-05",
+      "severity": "high",
+      "title": "The simulation KA path is functionally empty"
+    },
+    {
+      "id": "F-06",
+      "severity": "high",
+      "title": "No single working 12-step production refinement system exists"
+    },
+    {
+      "id": "F-07",
+      "severity": "high",
+      "title": "Quad Persona construction is live, but KA persona reasoning is not"
+    },
+    {
+      "id": "F-08",
+      "severity": "high",
+      "title": "Silent degradation violates CP18-D trace semantics"
+    },
+    {
+      "id": "F-09",
+      "severity": "medium",
+      "title": "Existing tests overstate integration coverage"
+    },
+    {
+      "id": "F-10",
+      "severity": "medium",
+      "title": "Active validation documents and generated qualification metadata are semantically stale",
+      "phase_19_owner": "CP19-A and every later checkpoint"
+    }
+  ],
+  "canonical_id_mismatches": [
+    {
+      "intended": "capability_escalation",
+      "used": "KA-108",
+      "actual": "Backup Strategy",
+      "expected": "KA-1108"
+    },
+    {
+      "intended": "knowledge_containment",
+      "used": "KA-109",
+      "actual": "System Health",
+      "expected": "KA-1109"
+    },
+    {
+      "intended": "knowledge_promotion_gate",
+      "used": "KA-079",
+      "actual": "Data Retrieval",
+      "expected": "KA-1079"
+    },
+    {
+      "intended": "safety_baseline",
+      "used": "KA-058",
+      "actual": "Interactive Clarification & Learning",
+      "expected": "dedicated safety or containment policy capability"
+    },
+    {
+      "intended": "privacy_baseline",
+      "used": "KA-059",
+      "actual": "Predictive Layer Preemption",
+      "expected": "L10-KA-003 or applicable privacy capability"
+    }
+  ],
+  "verification": [
+    {
+      "check": "generated_capability_inventory",
+      "status": "passed",
+      "detail": "four files current; zero changes"
+    },
+    {
+      "check": "runtime_authority",
+      "status": "passed"
+    },
+    {
+      "check": "focused_subsystem_tests",
+      "status": "failed",
+      "passed": 179,
+      "failed": 1,
+      "failure": "test_l10_registry_import_shape_executes_all_modules: KeyError entropy_score"
+    },
+    {
+      "check": "standalone_refinement_workflow_constructor",
+      "status": "failed",
+      "failure": "ModuleNotFoundError: backend.knowledge_algorithm"
+    },
+    {
+      "check": "simulation_routing_persona_probe",
+      "status": "failed",
+      "detail": "empty planned pipeline, missing Phase 2 infrastructure, KA membership false"
+    },
+    {
+      "check": "enhanced_truthcore_preflight",
+      "status": "passed_limited_scope",
+      "executed_kas": [
+        "KA-113",
+        "KA-001"
+      ]
+    }
+  ],
+  "source_evidence": [
+    "PRODUCTION_COMPLETION_PLAN_2026.md",
+    "docs/PRODUCT_REQUIREMENTS.md",
+    "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
+    "backend/governed_execution/orchestrator.py",
+    "backend/dmrf/truth_integration/core_adapter.py",
+    "backend/truth_engine/truth_core/engine.py",
+    "backend/truth_engine/truth_core/meta_reasoning_controller.py",
+    "backend/truth_engine/truth_core/emergence_controller.py",
+    "backend/truth_engine/truth_core/refinement_orchestrator.py",
+    "backend/truth_engine/truth_gate/trust_validation_gateway.py",
+    "backend/truth_engine/truth_gate/quant.py",
+    "backend/knowledge_algorithms/controller.py",
+    "backend/knowledge_algorithms/ka_master_controller.py",
+    "core/simulation/refinement_workflow.py",
+    "core/simulation/simulation_engine.py",
+    "core/persona/quad/quad_engine.py",
+    "backend/quad_persona/quad_engine.py",
+    "frontend/app/algorithms/page.tsx"
+  ],
+  "release_blocked": true,
+  "next_gate": "Execute Phase 19 CP19-A through CP19-L before rebuilding, then complete CP19-M installed acceptance."
+}

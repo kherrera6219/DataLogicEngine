@@ -96,7 +96,7 @@ distinguishes policy, validation, provider, quota/rate, timeout, cancellation,
 capability, readiness, and internal failures without exposing exception details
 or inventing safe-looking success.
 
-Phase 18 extends this boundary to every Knowledge Algorithm. Selection and
+Phase 19 extends this boundary to every Knowledge Algorithm. Selection and
 direct execution use server-owned principal/scope, policy, dependency DAG,
 deadline, cancellation, recursion/fan-out, resource, provider/tool, and
 side-effect budgets. Effectful KAs require risk-specific confirmation,
@@ -143,7 +143,7 @@ unauthorized artifacts fail closed.
 |---|---|---|
 | Malicious renderer/client | Preload allowlist, opaque tokens, API auth/scopes, no secrets/direct stores | Packaged penetration and client isolation review |
 | Prompt/document/tool injection | Admission defense, untrusted labeling, bounds, secret/injection checks, evidence validation | Hostile installed corpus/connector matrix |
-| Malicious or over-privileged KA selection/effect | Canonical manifest, server-owned context, policy/scopes, bounded DAG, confirmation, idempotency, authoritative service receipt, causal trace | Phase 18 per-KA adversarial/effect matrix and rebuilt-installed acceptance |
+| Malicious or over-privileged KA selection/effect | Canonical manifest, server-owned context, policy/scopes, bounded DAG, confirmation, idempotency, authoritative service receipt, causal trace | Phase 19 per-KA adversarial/effect matrix at CP19-L and rebuilt-installed acceptance at CP19-M |
 | Credential/content leakage | DPAPI/encryption, backend-owned calls, redaction, support preview, no direct provider access | Installed all-output canary/no-egress proof |
 | Foreign service/port/process | Installation identity, immutable service verification, lock, supervisor, Job Object | Installed collision/restart matrix |
 | Cross-store inconsistency or partial deletion | Durable authority, migrations, hashes/revisions, reconciliation, explicit partial failure | Populated installed repair/remnant evidence |
@@ -167,7 +167,7 @@ MCP consent/containment, diagnostics/support redaction, dependency/release trust
 and fail-closed update policy. Production remains **NO-GO** pending signed
 installed security/privacy/network/failure matrices, protected-volume/ACL and
 no-egress canaries, penetration and independent review, final legal/object-store
-authority, and Phase 18 KA security/effect qualification. Alert 389 is fixed by
+authority, and Phase 19 KA security/effect qualification. Alert 389 is fixed by
 removing the affected SDK and qualifying the restricted replacement client; its
 release evidence remains required. No certification or formal conformance
 should be inferred from control mappings.

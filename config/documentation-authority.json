@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-authority.v1",
-  "program_version": "2026.07.25-phase18-cp18c-zero-gap",
+  "program_version": "2026.07.25-phase19-ka-system-integration-plan",
   "status": "approved_phase16_replacement_closed",
   "approval": {
     "status": "approved",
@@ -130,9 +130,9 @@
       "docs/SOFTWARE_LIFECYCLE_PLAN.md": ["Lifecycle objective", "Authoritative configuration", "Change lifecycle", "Branch, review, and commit controls", "Verification pipeline", "Defect and vulnerability handling", "Release lifecycle", "Documentation lifecycle", "Maintenance and retirement", "Current status"],
       "docs/DEVELOPER_GUIDE.md": ["Prerequisites", "Initial setup", "Required environment values", "Architecture orientation for developers", "Local run modes", "Build and packaging", "Daily testing workflow", "Repository structure", "Important backend areas", "Important frontend areas", "API development rules", "Data development rules", "Documentation maintenance"],
       "docs/REQUIREMENTS_TRACEABILITY.md": ["Traceability rules", "Functional requirements", "Data and lifecycle requirements", "Security, privacy, and AI requirements", "Quality and release requirements", "Architecture and document coverage", "Findings and change control", "Overall status"],
-      "docs/VERIFICATION_VALIDATION_REPORT.md": ["V&V principles", "Verification levels", "Test domains and acceptance", "Current candidate evidence", "Phase evidence disposition", "Phase 18 KA verification method", "Human and independent validation", "Performance and reliability validation", "Finding and retest policy", "Release decision"],
+      "docs/VERIFICATION_VALIDATION_REPORT.md": ["V&V principles", "Verification levels", "Test domains and acceptance", "Current candidate evidence", "Phase evidence disposition", "Phase 19 KA verification method", "Human and independent validation", "Performance and reliability validation", "Finding and retest policy", "Release decision"],
       "docs/evaluation/AI_SYSTEM_CARD.md": ["Intended purpose and operating boundary", "Governed AI lifecycle", "Providers, models, cost, and quota controls", "Evaluation method", "Risk management and human oversight", "Known limitations and failure modes", "Current assurance disposition"],
-      "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": ["Assurance boundary", "Registry and classification", "KA validation controls", "Phase 18 production completion contract", "DSQP and 17-axis boundary", "TruthCore and evidence model", "Phase 6 checkpoint evidence", "Evaluation protocol", "Human review", "Current disposition"],
+      "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": ["Assurance boundary", "Registry and classification", "KA validation controls", "Phase 19 system integration contract", "DSQP and 17-axis boundary", "TruthCore and evidence model", "Phase 6 checkpoint evidence", "Evaluation protocol", "Human review", "Current disposition"],
       "docs/THIRD_PARTY_SOFTWARE_INDEX.md": ["Current disposition", "Dependency authorities", "SBOM and inventory set", "Material runtime components", "Providers, models, connectors, and content", "Vulnerability and maintenance state", "Notice and redistribution approval gate"],
       "docs/RELEASE_READINESS_RECORD.md": ["Current decision", "Candidate identity", "Gate summary", "Phase status", "Finding policy", "Required final evidence bundle", "GO authorization template"]
     }

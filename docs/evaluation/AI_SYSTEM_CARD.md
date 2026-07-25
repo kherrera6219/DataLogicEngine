@@ -43,12 +43,14 @@ OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
 
 The current 11-entry production-enabled KA subset is a Phase 6 safety boundary,
-not final subsystem completion. Phase 18 is reconciling conflicting catalogs and
-runtimes, restoring the unregistered Layer-9 suite, completing every preserved
-KA implementation and dynamic call path, and requiring one individually named
-functional test per canonical KA. The signed rebuild is paused until the
-source/contract/integration gate passes. No catalog entry, imported module, or
-nonproduction opt-in alone establishes production capability.
+not final subsystem completion. Phase 18 retained a reconciled 213-capability
+authority, one runtime/controller, 213 unique implementation owners, zero source
+gaps, and a 721-test KA baseline, but its whole-application wiring audit failed.
+Phase 19 now owns the canonical selector/DAG, ten-layer, L9/L10, Quad
+Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop,
+per-KA, and installed integration proof. The signed rebuild is paused through
+CP19-L. No catalog entry, imported module, or nonproduction opt-in alone
+establishes production capability.
 
 The trace records request and workflow identity, provider/model selection,
 policy and routing decisions, evidence and claim relationships, convergence,
@@ -99,7 +101,7 @@ of 1.00, complete required trace stages, and no metric regression greater than
 evidence-support coverage, not a probability of correctness. Missing quality,
 freshness, provenance, claim support, or validator inputs produce `not measured`.
 
-Phase 18 adds a per-KA evidence matrix: canonical identity/version, typed
+Phase 19 requires a per-KA evidence matrix: canonical identity/version, typed
 schemas, representative semantic fixture, individually named functional test,
 positive/negative selector fixture, real owning call path, dependency/failure/
 side-effect/seed rules, performance budget, limitation, and causal trace

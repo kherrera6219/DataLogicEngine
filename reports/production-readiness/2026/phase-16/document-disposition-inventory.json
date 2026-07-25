@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-25T21:28:52.305947+00:00",
-  "authority_version": "2026.07.25-phase18-cp18c-zero-gap",
+  "generated_at": "2026-07-25T22:26:27.829684+00:00",
+  "authority_version": "2026.07.25-phase19-ka-system-integration-plan",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",

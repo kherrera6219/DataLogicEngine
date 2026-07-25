@@ -30,6 +30,15 @@ Every durable workflow has one named authority. Derived graph, vector, object,
 cache, stream, export, and UI views must remain traceable to that authority and
 must report partial/inconsistent state instead of fabricating success.
 
+Under Phase 19, a Knowledge Algorithm never becomes a second data authority.
+Each KA has one implementation owner and one primary owning subsystem. Pure KAs
+return typed analysis or validation results; effect-oriented KAs return
+proposals. Only the authoritative ingestion, retrieval, graph, memory,
+simulation, MCP, provider, security, operations, or lifecycle service may write
+state, and only its policy-, idempotency-, transaction-, and reconciliation-
+bound receipt may be recorded as `applied_effect`. Partial cross-store work
+remains partial and cannot be promoted to validated knowledge.
+
 ## Store responsibility map
 
 | Store | Authoritative responsibilities | Prohibited production use |
@@ -149,4 +158,6 @@ memory integrity, gateway, simulation, and MCP data contracts have engineering
 evidence. Exact installed Podman delivery, protected-volume/ACL Windows matrix,
 retained-data upgrade, signed clean-machine restore/deletion-remnant scan,
 object-store final selection, and independent durability/security/license review
-remain release blockers.
+remain release blockers. Phase 19 KA ownership, selector, effect-port, and
+causal trace integration remain release blockers through CP19-L; the exact
+rebuilt-installed data/effect path remains blocked through CP19-M.

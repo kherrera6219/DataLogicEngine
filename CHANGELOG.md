@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 canonical KA system-of-systems integration plan**: closed Phase 18
+  incomplete without waiver after its whole-application audit proved that
+  source completeness did not establish product integration. The new phase
+  preserves the 213-capability authority, 213 unique implementation owners,
+  zero source gaps, and 721-test baseline while requiring one canonical result
+  contract, manifest selector/dependency DAG, ten-layer path, corrected L9/L10,
+  KA-backed Quad Persona/DSQP, one 12-step refinement workflow, owning-subsystem
+  service ports, API/SDK/desktop workflows, a 213-row proof matrix, clean source
+  qualification at CP19-L, and exact rebuilt-installed acceptance at CP19-M.
+  Production launch and maintenance move to Phase 20.
 - **Phase 18 CP18-C zero-gap Batch 11**: restored the final seven capabilities
   for access control, encryption admission, key governance, runtime threat
   detection, vulnerability-result qualification, incident-response planning,
@@ -111,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and recorded a 469-pass KA suite. The regenerated authority retains 213
   canonical capabilities, 132 existing implementations, 81 gaps, one alias,
   and zero duplicate collisions, unresolved duplicate candidates, unclassified
-  surfaces, or static honesty flags. CP18-C remains active.
+  surfaces, or static honesty flags. At that checkpoint CP18-C remained active.
 - **Phase 18 CP18-B single Knowledge Algorithm runtime**: added one generated
   213-capability manifest, typed definition/request/context/budget/result/
   failure/artifact/effect/trace contracts, and one canonical controller.
@@ -121,7 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   handler runtime plus backend fallbacks were removed. The new runtime gate
   verifies 132 unique implementation owners, 81 explicit gaps, one reviewed
   scoped alias, zero duplicate canonical collisions, identical generated
-  catalogs, and no private runtime bypass. CP18-C is active; production
+  catalogs, and no private runtime bypass. At that checkpoint CP18-C was active;
+  production
   qualification is not yet claimed.
 - **Phase 18 CP18-A Knowledge Algorithm authority**: approved a reproducible,
   lossless 213-capability crosswalk covering 132 existing implementations, 81

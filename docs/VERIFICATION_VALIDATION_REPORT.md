@@ -57,7 +57,7 @@ acceptance. This report is not a production approval.
 |---|---|---|
 | Runtime/trust/readiness | Factory isolation, phased startup, truthful capabilities, supervisor/lock tests | Signed collision/lifecycle/Windows protection matrix |
 | Data/migration/recovery | Five-service and populated migration/backup/restore/deletion drills | Exact installed delivery, 0.1.1 upgrade, clean restore/remnant/independent review |
-| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, Phase 6 safety classifications, CP18-A 213-capability no-duplicate authority, and CP18-B single runtime/controller pass; production implementation remains open | CP18-C-G implementation/wiring/individual-test evidence, then CP18-H installed provider traces, per-KA sample/performance/effects, corpus rows, and blinded human acceptance |
+| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, Phase 6 safety classifications, retained CP18-A 213-capability no-duplicate authority, CP18-B single runtime/controller, 213 unique implementation owners, zero source gaps, and a 721-test KA baseline | CP19-A-L ownership, contract, selector/DAG, ten-layer, persona, refinement, owning-subsystem, product-workflow, per-KA, security/effect, and clean-source evidence; then CP19-M installed provider traces, per-KA samples/performance/effects, corpus rows, and blinded-human acceptance |
 | Providers/privacy/offline | OpenAI/Google adapters, budgets, deadlines, ledger, replay contracts | Live installed provider failure/cancel/spend/privacy matrix |
 | Gateway/SDK | Native, SSE, async/cancel, scopes, SDK/compatibility tests | Signed same-host/private TLS/firewall/two-machine/load/soak |
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
@@ -97,11 +97,13 @@ passes.
 | 15 | Release-candidate engineering checkpoint; CP15-A through CP15-H retained |
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
-| 18 | CP18-A/CP18-B and CP18-C Batches 01-06 passed 2026-07-25; 11 existing KAs qualified, 40 restored, 172 implementations/41 gaps, and 592 KA tests pass, while CP18-C completion, CP18-D through CP18-H, and the signed rebuild remain open |
+| 18 | Closed incomplete 2026-07-25: CP18-A/CP18-B and CP18-C source batches are retained at 213 unique implementation owners, zero source gaps, and 721 KA tests; CP18-D failed and CP18-C effect/pre-existing qualification plus CP18-E-H transferred without waiver |
+| 19 | Active: CP19-A-M own canonical KA contract, selector/DAG, ten-layer, L9/L10, Quad Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop, per-KA, clean-source, and rebuilt-installed qualification |
+| 20 | Production launch and maintenance remain blocked by every prior release gate |
 
-## Phase 18 KA verification method
+## Phase 19 KA verification method
 
-Phase 18 requires more than registry imports or a shared parameterized shape
+Phase 19 requires more than registry imports or a shared parameterized shape
 test. Every canonical KA must have its own named functional test that exercises
 the production entry point and asserts its semantic output or authoritative
 effect receipt. The manifest gate also requires a selector fixture, real owning
@@ -112,8 +114,8 @@ Cross-system validation covers selector/DAG behavior, all Layer-9 and Layer-10
 KAs, TruthCore/refinement, DMRF/DSQP, governed chat, retrieval/graph/memory,
 ingestion, simulation, MCP, providers, gateway, and operations. API/SDK/desktop
 tests cover detail, typed plan/execute/cancel/history/trace, confirmation,
-effects, failure states, and accessibility. CP18-G is the clean source gate that
-permits rebuilding; CP18-H repeats representative behavior against the exact
+effects, failure states, and accessibility. CP19-L is the clean source gate that
+permits rebuilding; CP19-M repeats representative behavior against the exact
 signed installed artifact and does not replace the retained CP15/16/17 gates.
 
 Detailed evidence resides in `reports/production-readiness/2026/phase-*/` and

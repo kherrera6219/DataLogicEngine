@@ -47,55 +47,24 @@ administration, audit, observability, and validation application.
 > defines the capability **app-owned S3-compatible object store** and selects
 > the exact security-patched SeaweedFS 4.40-dle.1 image. Production approval
 > remains false until the installed and independent release gates pass.
-> The signed rebuild is now paused behind the new Phase 18 Knowledge Algorithm
-> completion gate. A documentation-first review found conflicting 114/125/277
-> catalogs, seven unregistered Layer-9 implementations, multiple incompatible
-> runtimes, partial/defective dynamic selection, operational façades without
-> authoritative effect receipts, only 11 production-enabled entries, and a
-> catalog-only Algorithms page. CP18-A now passes with an approved,
-> machine-verified authority for 213 distinct capabilities: 132 existing
-> implementations to qualify and 81 missing implementations to build. One true
-> semantic duplicate is now a scoped alias; exact name/purpose/contract
-> collisions and unresolved duplicate candidates are zero. CP18-B has now
-> passed with one generated manifest, typed runtime contract, canonical
-> controller, generated Python/TypeScript clients, compatibility adapters, and
-> no private SDK handler runtime. CP18-C Batch 01 has qualified 11 existing KAs:
-> six now use bounded deterministic analysis/normalization and five return
-> honest effect proposals instead of simulated applied effects. Their 11 named
-> semantic tests pass. Batch 02 then restores eight separate deterministic,
-> read-only analysis capabilities with their own semantic tests. The full
-> 493-test KA suite passes, implementation progress is 140/213 with 73 gaps,
-> and the no-duplicate authority remains clean. CP18-C is active for the
-> remaining implementation
-> completion. Batch 03 adds eight governed decision-support KAs, advancing the
-> verified authority to 148 implementations/65 gaps and 517 passing KA tests.
-> Batch 04 adds six distinct knowledge-evolution KAs for ontology drift and
-> alignment, lineage, bounded composition, memory-patch planning, and
-> ontological conflict resolution. The authority is now 154
-> implementations/59 gaps with 536 KA tests passing and unique-owner/
-> no-duplicate gates clean.
-> Batch 05 adds ten lifecycle-governance KAs for provenance, privacy, bias
-> mitigation, graph pruning, importance/tiering, drift, revalidation, usage,
-> and lifecycle planning. The authority is now 164 implementations/49 gaps
-> with 567 KA tests passing.
-> Batch 06 adds eight policy/release KAs, advancing the authority to 172
-> implementations/41 gaps with 592 KA tests passing.
-> Batch 07 adds eight system-control KAs, advancing the authority to 180
-> implementations/33 gaps with 617 KA tests passing.
-> Batch 08 adds eight containment/oversight KAs, advancing the authority to 188
-> implementations/25 gaps with 642 KA tests passing.
-> Batch 09 adds eight security/health/fairness KAs, advancing the authority to
-> 196 implementations/17 gaps with 668 KA tests passing.
-> Batch 10 adds ten language/governance/identity KAs, advancing the authority to
-> 206 implementations/seven gaps with 699 KA tests passing.
-> Batch 11 closes the final seven missing implementations. All 213 canonical KAs
-> now have unique source owners, zero implementation gaps remain, and 721 KA
-> tests pass. Pre-existing/effect integration qualification remains active.
-> Phase 18 will finish production implementations and application
-> wiring, and require one named functional test per canonical KA before rebuild.
-> The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
-> frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
-> and the 10/10 documentation truth gate.
+> The signed rebuild is now paused behind Phase 19 canonical KA system-of-
+> systems integration. Phase 18 closed incomplete after retaining a real
+> 213-capability authority, 213 unique implementation owners, zero source gaps,
+> one generated manifest/controller, and the 721-test source baseline. Its
+> CP18-D audit did not pass: the public product preflight executes only one KA
+> in standard mode and two in enhanced mode; the ten-layer and 12-step systems
+> are not on the production path; several callers ignore the canonical nested
+> result; Layer 9/Layer 10 contain wrong IDs and misleading invocation evidence;
+> simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
+> reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
+> CP18-H were not passed and no finding was waived.
+> Phase 19 now owns contract parity, a manifest-driven selector/dependency DAG,
+> the ten layers inside the single governed lifecycle, fail-closed L9/L10,
+> causal KA-backed Quad Persona/DSQP, one production 12-step workflow, all data/
+> knowledge/simulation/MCP/provider/operations/effect integrations, the KA API/
+> SDK/desktop workflow, and the complete 213-row semantic/selector/call-path/
+> trace proof. CP19-L is the source gate that may authorize a rebuild; CP19-M
+> retains exact rebuilt-installed acceptance.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -156,8 +125,8 @@ Major subsystems in the current local-first desktop build:
 - 17-Axis Knowledge Framework
 - 10-Layer Truth Engine
 - 12-Step Refinement Workflow
-- Knowledge Algorithm Framework (catalog and full production integration under
-  active Phase 18 reconciliation)
+- Knowledge Algorithm Framework (213-capability source authority retained; full
+  production integration under active Phase 19)
 - Multi-Agent Orchestration
 - GraphRAG Integration
 - Knowledge Ingestion Pipeline
@@ -169,23 +138,20 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 18 CP18-A lossless Knowledge Algorithm capability/identity authority
-  passed: 213 canonical capabilities, 132 existing implementations, 81
-  implementation gaps, one duplicate collapsed to an alias, and zero exact or
-  unresolved semantic duplicates or unclassified definitions/surfaces
-- Phase 18 CP18-B passed: one authoritative KA manifest,
-  execution/effect/trace contract, canonical controller, generated
-  Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
-  implementation sources have unique canonical owners, the 81 gaps are explicit,
-  and duplicate canonical collisions are zero
-- Phase 18 CP18-C Batches 01-11 passed: 11 existing implementations qualified,
-  all 81 missing capabilities restored, 213 implementations/0 gaps,
-  721 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
-  remains active and the release-candidate rebuild remains paused through CP18-G
-- Production behavior, dynamic application call path, and one individually
-  named functional test for every canonical KA
-- Authenticated KA API/SDK and accessible Algorithms detail/input/plan/confirm/
-  execute/cancel/history/trace/effect workflow
+- Phase 18 closed incomplete: retain CP18-A/CP18-B, the 213 unique
+  implementation owners, zero source gaps, and the 721-test source baseline;
+  CP18-D failed and CP18-E-H transferred without waiver
+- Active Phase 19 CP19-A: freeze one primary owning subsystem and governed
+  consumer paths for every canonical KA with zero duplicate implementation
+  authority
+- Canonical result parity, manifest selector/dependency DAG, ten-layer path,
+  fail-closed L9/L10, KA-backed Quad Persona/DSQP, and one 12-step workflow
+- Ingestion, retrieval, graph, memory, simulation, MCP, provider, gateway,
+  security, operations, lifecycle, and authoritative effect integration
+- One named semantic test, positive/negative selector proof, real owning call
+  path, limitation, and causal trace assertion for every canonical KA
+- Authenticated KA API/SDK and accessible Algorithms plan/confirm/execute/
+  cancel/history/trace/artifact/effect workflow
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -211,8 +177,8 @@ Current production-completion focus:
 - Completed source/lab Replacement Control: ADR-0010 selects SeaweedFS
   4.40-dle.1 as the app-owned S3-compatible object-store implementation with
   all engineering gates passing and production authorization still false
-- After Phase 18 CP18-G: rebuilt-installed protected-volume, independent
-  security/license, clean-machine object-store, and KA CP18-H acceptance for the
+- After Phase 19 CP19-L: rebuilt-installed protected-volume, independent
+  security/license, clean-machine object-store, and KA CP19-M acceptance for the
   selected SeaweedFS implementation
 - Installed-system, accessibility, security, signing, and release qualification
 

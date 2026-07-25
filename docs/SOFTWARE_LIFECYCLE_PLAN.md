@@ -44,13 +44,15 @@ Generated inventories, schemas, OpenAPI, SBOMs, attestations, and evidence are
 derived outputs and identify their generation authority. Historical plans and
 session records are not current requirements.
 
-Phase 18 applies a stricter identity-migration rule to Knowledge Algorithms.
+Retained Phase 18 work applies a stricter identity-migration rule to Knowledge
+Algorithms.
 Before changing a KA ID, name, purpose, or runtime mapping, CP18-A must classify
 every historical/executable definition and preserve distinct capability through
 an approved canonical ID or compatible alias. The approved KA manifest will
 become configuration authority only after the crosswalk reports zero
 unclassified capability and zero unresolved semantic collision. The signed
-release-candidate rebuild is paused through the CP18-G source gate.
+release-candidate rebuild is paused through the Phase 19 CP19-L source and
+integration gate.
 
 ## Change lifecycle
 

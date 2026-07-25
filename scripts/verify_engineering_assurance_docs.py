@@ -158,8 +158,9 @@ TARGETS = {
             "docs/adr/ADR-0007-authoritative-simulation-engine.md",
         },
         "markers": {
-            "current executable registry exposes 125 IDs",
-            "enabled 11",
+            "pre-Phase 18 executable registry exposed 125 IDs",
+            "721-test KA baseline",
+            "Phase 19 system integration contract",
             "TruthCore and evidence model",
             "Phase 6 checkpoint evidence",
             "Evaluation protocol",

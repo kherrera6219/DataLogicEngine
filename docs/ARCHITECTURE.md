@@ -80,19 +80,19 @@ failure transitions and can execute only production-enabled KA catalog entries.
 Experimental and placeholder KAs are disabled in governed production traces.
 Legacy hash-vector DRL output is not a production convergence signal.
 
-### Phase 18 Knowledge Algorithm target architecture
+### Phase 19 Knowledge Algorithm target architecture
 
-The Phase 6 production-enabled filter remains a safety control, but the
-2026-07-25 review proved the KA subsystem is not complete. The current 125-entry
-executable registry, 277-row metadata catalog, 114-row SDK/design catalog,
-unregistered Layer-9 suite, multiple engines/loaders, partial selector, and
-sample SDK handlers were conflicting authorities. CP18-B now replaces those
-runtime authorities with one generated manifest and controller without
-capability loss. The signed rebuild remains paused while CP18-C through CP18-G
-finish and qualify the implementations, dynamic paths, product workflow, and
-individual evidence.
+Phase 18 retained one 213-capability authority, 213 unique implementation
+owners, zero source gaps, one generated manifest/controller, and the 721-test
+source baseline. It closed incomplete after CP18-D proved the application does
+not yet use that authority as the documented dynamic system. Only 42 KAs had a
+statically detected call site, 41 lacked a detected individually named test,
+only 11 were production enabled, and the public preflight ran one KA in standard
+mode or two in enhanced mode. The ten-layer, L9/L10, refinement, persona, and
+simulation paths were disconnected or contract-incompatible. Phase 19 owns the
+integration and the signed rebuild remains blocked through CP19-L.
 
-The active CP18-B architecture has one versioned KA manifest and one controller. The
+The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
 layer/persona/subsystem, dependencies, selector triggers, determinism/seed,
 evidence and service requirements, risk, confirmation, budgets, side-effect
@@ -113,9 +113,29 @@ Layer 9, Layer 10, TruthCore/refinement, DMRF, DSQP/personas, retrieval/graph/
 memory, ingestion, simulation, MCP, providers, gateway, and operations reuse the
 same controller. Compatibility adapters may preserve older callers, but no
 private engine, SDK handler map, unmanaged Celery queue, or direct provider/
-store path is a production authority. Every canonical KA has a real owning
-call path and its own named functional test before the source exit gate permits
-the rebuild.
+store path is a production authority. Every canonical KA must have a real
+owning call path and its own named functional test before CP19-L permits the
+rebuild.
+
+The Phase 19 canonical lifecycle treats Layers 1-5 as candidate preparation and
+Layers 6-10 as candidate validation/release. L1 normalizes, clarifies,
+classifies, and routes the request; L2 retrieves bounded evidence/graph/memory;
+L3 plans authorized research; L4 constructs DSQP axes 8-11 profiles and
+applicable persona analysis; L5 records weighting, dissent, conflict resolution,
+and the candidate prompt plan. The canonical gateway then performs one bounded
+candidate execution. L6 measures evidence/provenance/contradiction/confidence,
+L7 performs applicable causal/planning/boundary review, L8 applies trust/risk/
+ethics/privacy/compliance, L9 makes the bounded convergence decision, and L10
+owns containment and release. The one 12-step KA refinement subgraph is entered
+only when L9 selects refinement and must re-enter L6-L10 validation.
+
+Every canonical ID has exactly one implementation owner and one primary owning
+subsystem. Other subsystems may consume it through declared governed edges but
+may not copy the handler or load a private registry. TruthCore executes
+transport-neutral stages; `GovernedExecutionOrchestrator` remains the only
+answer/provider/persistence lifecycle. Only executed output may influence state,
+and effect proposals become applied effects only after an authorized app-owned
+service returns an idempotent receipt.
 
 ### Phase 10 durable simulation architecture
 

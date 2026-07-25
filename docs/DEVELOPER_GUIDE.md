@@ -125,16 +125,29 @@ frontend prompt
   -> trace review/export
 ```
 
-### Phase 18 KA development boundary
+### Phase 19 KA integration boundary
 
-CP18-B replaced the conflicting KA registries/engines with one generated
-manifest and canonical controller. The signed rebuild remains paused while
-CP18-C through CP18-G complete and qualify behavior and integration. Before
-changing a KA identity or purpose, update the reviewed CP18-A crosswalk and
-preserve compatible aliases. Do not join historical metadata to an
-implementation by numeric ID unless the manifest proves semantic identity.
+Retained CP18-B work replaced the conflicting KA registries/engines with one
+generated manifest and canonical controller. Phase 18 subsequently reached 213
+unique implementation owners, zero source gaps, and a 721-test KA baseline, but
+CP18-D failed the whole-application wiring audit. Phase 19 is therefore the
+active integration authority and the signed rebuild remains paused through
+CP19-L. Before changing a KA identity or purpose, update the reviewed CP18-A
+crosswalk and preserve compatible aliases. Do not join historical metadata to
+an implementation by numeric ID unless the manifest proves semantic identity.
 
-CP18-C Batch 01 qualified 11 existing implementations by replacing
+Implement Phase 19 in its required order: result-contract parity; manifest
+selector and bounded dependency DAG; the canonical ten-layer path; corrected
+fail-closed L9/L10; causal KA-backed Quad Persona/DSQP; one production 12-step
+refinement workflow; Truth/data/knowledge and extended-subsystem service ports;
+API/SDK/desktop workflow; and the 213-row per-KA proof matrix. Every KA has one
+implementation owner and one primary owning subsystem. All other consumers use
+the canonical controller; none may create a second implementation, registry,
+selector, private execution path, or competing refinement workflow.
+
+The following CP18-C batch notes are retained historical source-completion
+evidence, not proof of current application integration. Batch 01 qualified 11
+existing implementations by replacing
 unrecorded-random/mock outputs with bounded deterministic behavior or honest
 effect proposals. Its full KA regression is 469 passed. Continue in semantic
 batches, retain one individually named test per KA, and never convert a proposed

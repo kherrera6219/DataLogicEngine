@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Phase 6 safety contracts plus Phase 18 CP18-A 213-capability no-duplicate authority and CP18-B single runtime/controller pass | CP18-C-G full-KA implementation/wiring/individual-test source gate, then CP18-H installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded human acceptance |
+| Governed path/evidence/KA | Phase 6 safety contracts plus retained Phase 18 authority/runtime, 213 unique implementation owners, zero source gaps, and 721 KA tests; CP18-D whole-application wiring audit failed | CP19-A-L contract/selector/layers/persona/refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -87,23 +87,19 @@ hashes retained, zero active legacy sources, and zero unmigrated links. Its
 signed/manual/independent/external exits and CP16-G exact-artifact binding remain
 open. Phase 17 CP17-A through CP17-D pass with 47/47 historical dispositions,
 10/10 generated-truth checks, and zero active documentation warnings/errors.
-Phase 18 KA production completion passed CP18-A and CP18-B. CP18-C Batches
-01-02 qualified 11 existing KAs and restored eight distinct missing analysis
-capabilities; the authority is now 140 implementations and 73 gaps with 493 KA
-tests passing. CP18-C remains active for the remaining existing
-implementations, implementation gaps, and authoritative effect integration.
-Batch 03 advances source coverage to 148 implementations/65 gaps and 517
-passing KA tests; it does not authorize a rebuild or production release.
-Batch 04 advances source coverage to 154 implementations/59 gaps and 536
-passing KA tests with unique-owner/no-duplicate gates clean; it also does not
-authorize a rebuild or production release.
-Batch 05 advances source coverage to 164 implementations/49 gaps and 567
-passing KA tests; it does not authorize a rebuild or production release.
-Batch 06 advances source coverage to 172 implementations/41 gaps and 592
-passing KA tests; it does not authorize a rebuild or production release.
-The signed rebuild remains blocked until CP18-C through CP18-G pass; CP18-H and
-CP17-E then require the exact signed installed artifact. Phase 19 launch remains
-blocked by every prior gate.
+Phase 18 closed incomplete on 2026-07-25. Retained CP18-A/CP18-B and CP18-C
+source batches establish 213 canonical capabilities, 213 unique implementation
+owners, zero source gaps, and a 721-test KA baseline. They do not prove dynamic
+application integration. CP18-D failed because the public path reaches only a
+small subset, subsystem callers consume an incompatible result shape, the
+ten-layer and 12-step paths are not canonical product paths, L9/L10 identity and
+failure handling drift, and persona, simulation, and broad owning-subsystem
+integration are incomplete. CP18-C's broader effect/pre-existing qualification
+and CP18-E-H transferred without waiver to Phase 19.
+
+The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
+require the exact signed installed artifact. Phase 20 launch remains blocked by
+every prior gate.
 
 ## Finding policy
 
