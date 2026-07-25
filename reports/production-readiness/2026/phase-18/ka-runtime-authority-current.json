@@ -1,0 +1,23 @@
+{
+  "schema_version": "dle.ka-runtime-authority.v1",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp18b.1",
+  "canonical_capabilities": 213,
+  "existing_implementations": 140,
+  "implementation_gaps": 73,
+  "duplicate_canonical_collisions": 0,
+  "reviewed_duplicate_aliases": 1,
+  "scoped_aliases": 137,
+  "adapter_counts": {
+    "module_run": 133,
+    "class_execute": 7
+  },
+  "generated_catalogs": {
+    "backend/knowledge_algorithms/ka_manifest.v1.generated.json": "769b70c2bb077b8761c2cf5c5a8e78ac6b7be6c434a53e42ddc1cee2b5609d99",
+    "sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json": "769b70c2bb077b8761c2cf5c5a8e78ac6b7be6c434a53e42ddc1cee2b5609d99",
+    "sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts": "ced39882a2f6be7581484ca338de428bd7a9fd23284af4a3345b46388a0ad961"
+  },
+  "single_controller": "backend.knowledge_algorithms.controller.CanonicalKAController",
+  "private_sdk_handler_runtime_present": false,
+  "errors": []
+}

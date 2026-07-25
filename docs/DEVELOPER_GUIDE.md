@@ -140,6 +140,14 @@ effect proposals. Its full KA regression is 469 passed. Continue in semantic
 batches, retain one individually named test per KA, and never convert a proposed
 effect into an applied-effect claim without the authoritative service receipt.
 
+CP18-C Batch 02 restored eight original-design analysis capabilities under
+canonical 1000-series IDs. Restored files follow
+`ka_<canonical-number>_<capability>.py`; the inventory resolver accepts exactly
+one such source per restored ID and fails on multiple owners. Add a bounded JSON
+Schema example to every new top-level input model so API/UI tooling and the
+generic contract harness can construct a valid representative request. Current
+authority is 140 implementations and 73 gaps; the KA suite is 493 passed.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate

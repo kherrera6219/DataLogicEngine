@@ -101,6 +101,9 @@ def generate_mock_input(schema: type[BaseModel]) -> dict[str, Any]:
     Generate valid mock input data based on a Pydantic schema.
     """
     json_schema = schema.model_json_schema()
+    examples = json_schema.get("examples", [])
+    if examples:
+        return examples[0]
     properties = json_schema.get("properties", {})
     return {
         field_name: _example_from_json_schema(

@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Schema | `dle.ka-capability-inventory.v1` |
-| Source-input SHA-256 | `611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6` |
+| Source-input SHA-256 | `ebf9e71c63a278baacf974d39ccceb47dc1b2a7d71859c8492fb4c5428edcf92` |
 | Status | `cp18_a_inventory_verified` |
 
 ## Counts
@@ -18,8 +18,8 @@
 | Expanded historical metadata rows | 277 |
 | SDK registry rows | 114 |
 | Proposed canonical distinct capabilities | 213 |
-| Existing implementations requiring Phase 18 qualification | 132 |
-| Missing implementations to build | 81 |
+| Existing implementations requiring Phase 18 qualification | 140 |
+| Missing implementations to build | 73 |
 | Generated generic scaffolds retained as history, not capabilities | 64 |
 | Classified identity conflicts | 62 |
 | Unclassified source definitions | 0 |
@@ -29,13 +29,13 @@
 | Exact canonical name collisions | 0 |
 | Exact canonical purpose collisions | 0 |
 | Exact canonical purpose/input/output contract collisions | 0 |
-| Classified implementation surfaces | 132 |
+| Classified implementation surfaces | 140 |
 | Unclassified implementation surfaces | 0 |
 | Classified integration/API/SDK/UI surfaces | 135 |
 | Unclassified integration/API/SDK/UI surfaces | 0 |
 | Canonical capabilities with literal runtime execution call sites | 42 |
-| Canonical capabilities with any test reference | 96 |
-| Canonical capabilities with an individually named test function | 89 |
+| Canonical capabilities with any test reference | 104 |
+| Canonical capabilities with an individually named test function | 98 |
 
 ## Proposed identity policy
 

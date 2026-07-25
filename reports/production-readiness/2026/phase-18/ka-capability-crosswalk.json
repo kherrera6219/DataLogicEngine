@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6",
+  "source_input_sha256": "ebf9e71c63a278baacf974d39ccceb47dc1b2a7d71859c8492fb4c5428edcf92",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 132,
-    "implementation_required_proposals": 81,
+    "existing_implementation_proposals": 140,
+    "implementation_required_proposals": 73,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 132,
+    "implementation_surfaces": 140,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 96,
-    "canonical_with_named_test_function": 89
+    "canonical_with_test_reference": 104,
+    "canonical_with_named_test_function": 98
   },
   "canonical_capabilities": [
     {
@@ -248,6 +248,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1041_confidence_normalization_respects_declared_scales",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1042_contradiction_propagation_traces_bounded_paths",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
@@ -1876,6 +1884,14 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka106_uses_deterministic_circuit_breaker_policy",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1041_confidence_normalization_respects_declared_scales",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1042_contradiction_propagation_traces_bounded_paths",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -7394,11 +7410,13 @@
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka050_extractively_summarizes_important_sentences",
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-050",
@@ -11391,6 +11409,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_core/engine.py"
@@ -11400,10 +11419,12 @@
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka079_retrieves_ranked_local_records_with_filters",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
         "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
       ],
       "phase6_production_metadata": {
@@ -13559,7 +13580,11 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-103",
         "implementation": "backend.knowledge_algorithms.ka_103_service_mesh.run",
@@ -13582,10 +13607,10 @@
       "name": "Pareto Optimization Engine",
       "purpose": "Optimize multi-objective trade-offs",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1036_pareto_optimization_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Objectives",
         "constraints",
@@ -13680,39 +13705,53 @@
         "design-v1:KA-036"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1036_pareto_optimization_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_constraint_violations",
+          "_dominates",
+          "_run_logic",
+          "_weighted_score",
+          "run",
+          "validate_bounds",
+          "validate_references"
+        ],
+        "classes": [
+          "KA1036Input",
+          "KA1036ParetoOptimizationEngine",
+          "ParetoConstraint",
+          "ParetoObjective",
+          "ParetoOption"
+        ],
+        "nonblank_noncomment_loc": 209,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
-        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
-        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_executes_through_canonical_controller",
-        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_reports_missing_implementation_without_false_success"
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options"
       ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1037",
       "name": "Norm Emergence Detector",
       "purpose": "Detect groupthink/unhealthy convergence in multi-agent outputs",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1037_norm_emergence_detector.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Persona outputs",
         "debate trace"
@@ -13814,30 +13853,47 @@
         "design-v1:KA-037"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1037_norm_emergence_detector.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "_similarity",
+          "run",
+          "validate_personas"
+        ],
+        "classes": [
+          "DebateTurn",
+          "KA1037Input",
+          "KA1037NormEmergenceDetector",
+          "PersonaOutput"
+        ],
+        "nonblank_noncomment_loc": 151,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1038",
       "name": "Cross-Modal Synthesis",
       "purpose": "Fuse multi-modal evidence into unified representation",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1038_cross_modal_synthesis.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Text+tables+images+code evidence"
       ],
@@ -13939,20 +13995,35 @@
         "generated-v1:KA-146"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1038_cross_modal_synthesis.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1038CrossModalSynthesis",
+          "KA1038Input",
+          "ModalEvidence"
+        ],
+        "nonblank_noncomment_loc": 143,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1039",
@@ -14070,8 +14141,15 @@
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_executes_through_canonical_controller",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_reports_missing_implementation_without_false_success"
+      ],
       "phase6_production_metadata": null,
       "phase18_status": "implementation_required"
     },
@@ -14143,7 +14221,12 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1041_confidence_normalization_respects_declared_scales",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1042_contradiction_propagation_traces_bounded_paths",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-104",
@@ -14290,10 +14373,10 @@
       "name": "Concept Confidence Normalization",
       "purpose": "Normalize confidence scales across domains",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1041_concept_confidence_normalization.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Confidence vectors"
       ],
@@ -14382,30 +14465,45 @@
         "design-v1:KA-041"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1041_concept_confidence_normalization.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_scale"
+        ],
+        "classes": [
+          "ConfidenceObservation",
+          "KA1041ConceptConfidenceNormalization",
+          "KA1041Input"
+        ],
+        "nonblank_noncomment_loc": 120,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1041_confidence_normalization_respects_declared_scales"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1042",
       "name": "Contradiction Propagation Analysis",
       "purpose": "Trace downstream impacts of contradictions",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1042_contradiction_propagation_analysis.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Conflict set",
         "dependency graph"
@@ -14504,20 +14602,38 @@
         "design-v1:KA-042"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1042_contradiction_propagation_analysis.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_cycle_detected",
+          "_run_logic",
+          "reject_self_edge",
+          "run",
+          "validate_identity"
+        ],
+        "classes": [
+          "ContradictionRecord",
+          "DependencyEdge",
+          "KA1042ContradictionPropagationAnalysis",
+          "KA1042Input"
+        ],
+        "nonblank_noncomment_loc": 178,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1042_contradiction_propagation_traces_bounded_paths"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1043",
@@ -14764,10 +14880,10 @@
       "name": "Bias Pattern Analyzer",
       "purpose": "Detect systemic bias patterns (population-level)",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Traces over time",
         "outputs corpus"
@@ -14860,20 +14976,35 @@
         "design-v1:KA-045"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_records"
+        ],
+        "classes": [
+          "KA1045BiasPatternAnalyzer",
+          "KA1045Input",
+          "PopulationOutcome"
+        ],
+        "nonblank_noncomment_loc": 159,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1046",
@@ -15004,10 +15135,10 @@
       "name": "Meta-Algorithm Selection",
       "purpose": "Select/invent algorithms dynamically (bounded)",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Performance history",
         "problem signature"
@@ -15118,20 +15249,36 @@
         "generated-v1:KA-155"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_rank",
+          "_run_logic",
+          "run",
+          "validate_candidates"
+        ],
+        "classes": [
+          "AlgorithmCandidate",
+          "KA1047Input",
+          "KA1047MetaAlgorithmSelection"
+        ],
+        "nonblank_noncomment_loc": 184,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1048",
@@ -15258,10 +15405,10 @@
       "name": "Knowledge Redundancy Detector",
       "purpose": "Detect duplicate/near-duplicate knowledge",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1049_knowledge_redundancy_detector.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Knowledge nodes",
         "similarity metrics"
@@ -15354,20 +15501,39 @@
         "design-v1:KA-049"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1049_knowledge_redundancy_detector.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_jaccard",
+          "_normalized_content",
+          "_run_logic",
+          "reject_self_pair",
+          "run",
+          "validate_identity"
+        ],
+        "classes": [
+          "KA1049Input",
+          "KA1049KnowledgeRedundancyDetector",
+          "KnowledgeNode",
+          "SuppliedSimilarity"
+        ],
+        "nonblank_noncomment_loc": 152,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-105",
@@ -23855,6 +24021,7 @@
         "imports_celery": true
       },
       "runtime_references": [
+        "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "backend/knowledge_algorithms/manifest.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/personas.py",

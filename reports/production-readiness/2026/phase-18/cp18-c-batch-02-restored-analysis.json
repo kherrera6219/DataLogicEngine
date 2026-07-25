@@ -1,0 +1,76 @@
+{
+  "schema_version": "dle.phase18.cp18c.implementation-qualification.v1",
+  "checkpoint": "CP18-C",
+  "batch": "02-restored-analysis",
+  "evaluated_at": "2026-07-25",
+  "status": "pass",
+  "release_decision": "no-go",
+  "implemented_capabilities": [
+    "KA-1036",
+    "KA-1037",
+    "KA-1038",
+    "KA-1041",
+    "KA-1042",
+    "KA-1045",
+    "KA-1047",
+    "KA-1049"
+  ],
+  "authority": {
+    "canonical_capabilities": 213,
+    "existing_implementations": 140,
+    "implementation_required": 73,
+    "implementation_delta": 8,
+    "semantic_duplicate_aliases": 1,
+    "unresolved_semantic_duplicate_candidates": 0,
+    "exact_canonical_collisions": 0,
+    "unclassified_surfaces": 0,
+    "existing_implementation_static_honesty_flags": 0
+  },
+  "proof": {
+    "individually_named_batch_tests": 8,
+    "implemented_capabilities_with_named_tests": 96,
+    "unique_named_test_functions": 136,
+    "knowledge_algorithm_suite": {
+      "passed": 493,
+      "failed": 0,
+      "warnings": 3
+    },
+    "focused_implementation_and_authority_tests": {
+      "passed": 18,
+      "failed": 0
+    },
+    "python_sdk_tests": {
+      "passed": 34,
+      "failed": 0
+    },
+    "typescript_sdk_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "ruff": "pass",
+    "capability_inventory": "pass",
+    "runtime_authority": "pass",
+    "generated_manifest_parity": "pass",
+    "documentation": {
+      "active_markdown_files": 40,
+      "errors": 0,
+      "warnings": 0,
+      "authority_headers": "30/30",
+      "bom_inventory": 154,
+      "truth_checks": "10/10"
+    }
+  },
+  "production_controls": [
+    "Every implementation has a strict bounded Pydantic input contract and a documented schema example.",
+    "Every output is deterministic and ordered for the same validated input.",
+    "No implementation mutates data, invokes a provider, or claims an applied effect.",
+    "The restored-source resolver fails if more than one implementation file claims a canonical restored ID.",
+    "Authority gates enforce monotonic implementation progress without changing the 213-capability identity set."
+  ],
+  "open_work": [
+    "Build and qualify the remaining 73 missing canonical implementations.",
+    "Qualify remaining legacy implementation surfaces and effect-service integration.",
+    "Complete dynamic selector and application call-path proof in CP18-D.",
+    "Complete CP18-E through CP18-H before rebuilding or releasing."
+  ]
+}

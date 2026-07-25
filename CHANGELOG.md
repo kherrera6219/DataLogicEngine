@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C restored-analysis Batch 02**: restored eight distinct
+  original-design capabilities under their collision-free canonical IDs:
+  Pareto optimization, norm emergence detection, cross-modal evidence
+  synthesis, confidence normalization, contradiction propagation,
+  population-level disparity analysis, bounded approved meta-selection, and
+  knowledge redundancy detection. Each has a strict bounded schema and example,
+  deterministic read-only semantics, explicit limitations, and its own named
+  test. The authority advances from 132 implementations/81 gaps to 140/73 while
+  retaining 213 capabilities and zero duplicate, collision, unclassified, or
+  honesty findings. The full KA suite passes 493 tests. Inventory/runtime gates
+  now enforce monotonic implementation progress from the approved baseline.
 - **Phase 18 CP18-C existing-honesty Batch 01**: qualified 11 existing
   Knowledge Algorithms that the authority inventory flagged for unrecorded
   randomness, mock operations, or unsupported success. Six now perform bounded

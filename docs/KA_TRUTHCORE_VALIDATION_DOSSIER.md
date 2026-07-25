@@ -176,7 +176,9 @@ Repository and deterministic components support CP6-A through CP6-E and the
 local portion of CP6-F. Phase 18 CP18-A passed its identity/capability authority
 gate, but the whole KA subsystem does not yet meet `DLE-FR-011`; CP18-B is
 complete and CP18-C Batch 01 qualified 11 existing KAs with 469 KA tests passing
-and zero static randomness/mock-honesty flags. CP18-C is still active, CP18-D
+and zero static randomness/mock-honesty flags. Batch 02 restored eight distinct
+analysis KAs, advancing the authority to 140 implementations/73 gaps with 493
+KA tests passing and zero duplicate findings. CP18-C is still active, CP18-D
 through CP18-H remain open, and the signed rebuild is paused.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,

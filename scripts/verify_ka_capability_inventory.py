@@ -18,8 +18,8 @@ from build_ka_capability_inventory import (
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_CANONICAL_CAPABILITIES = 213
-EXPECTED_EXISTING_IMPLEMENTATIONS = 132
-EXPECTED_REQUIRED_IMPLEMENTATIONS = 81
+BASELINE_EXISTING_IMPLEMENTATIONS = 132
+BASELINE_REQUIRED_IMPLEMENTATIONS = 81
 EXPECTED_GENERIC_SCAFFOLDS = 64
 
 
@@ -30,8 +30,6 @@ def verify() -> tuple[list[str], dict[str, Any]]:
 
     expected_counts = {
         "canonical_capability_proposals": EXPECTED_CANONICAL_CAPABILITIES,
-        "existing_implementation_proposals": EXPECTED_EXISTING_IMPLEMENTATIONS,
-        "implementation_required_proposals": EXPECTED_REQUIRED_IMPLEMENTATIONS,
         "generated_generic_scaffolds": EXPECTED_GENERIC_SCAFFOLDS,
         "unclassified_source_definitions": 0,
         "semantic_duplicate_aliases": 1,
@@ -46,6 +44,24 @@ def verify() -> tuple[list[str], dict[str, Any]]:
         actual = summary.get(key)
         if actual != expected:
             errors.append(f"{key}: expected {expected}, got {actual}")
+
+    existing = summary["existing_implementation_proposals"]
+    required = summary["implementation_required_proposals"]
+    if existing + required != EXPECTED_CANONICAL_CAPABILITIES:
+        errors.append(
+            "implementation accounting does not equal the canonical "
+            f"capability count: {existing} + {required}"
+        )
+    if existing < BASELINE_EXISTING_IMPLEMENTATIONS:
+        errors.append(
+            "existing implementations regressed below the CP18-A baseline: "
+            f"{existing} < {BASELINE_EXISTING_IMPLEMENTATIONS}"
+        )
+    if required > BASELINE_REQUIRED_IMPLEMENTATIONS:
+        errors.append(
+            "implementation gaps exceed the CP18-A baseline: "
+            f"{required} > {BASELINE_REQUIRED_IMPLEMENTATIONS}"
+        )
 
     if inventory["status"] != "cp18_a_inventory_verified":
         errors.append(f"inventory status is not approved: {inventory['status']}")
@@ -131,9 +147,7 @@ def verify() -> tuple[list[str], dict[str, Any]]:
 
     sdk_source = SDK_REGISTRY_PATH.relative_to(ROOT).as_posix()
     sdk_rows = [
-        row
-        for row in inventory["source_definitions"]
-        if row["source"] == sdk_source
+        row for row in inventory["source_definitions"] if row["source"] == sdk_source
     ]
     if len(sdk_rows) != summary["sdk_registry_rows"]:
         errors.append("SDK registry row count does not match classified definitions")
@@ -152,10 +166,10 @@ def verify() -> tuple[list[str], dict[str, Any]]:
                 )
 
     for conflict in inventory["identity_conflicts"]:
-        if (
-            conflict.get("status")
-            != "classified_by_scoped_alias_or_restored_id"
-            or not conflict.get("canonical_resolutions")
+        if conflict.get(
+            "status"
+        ) != "classified_by_scoped_alias_or_restored_id" or not conflict.get(
+            "canonical_resolutions"
         ):
             errors.append(f"{conflict.get('source_id')}: unresolved identity conflict")
 
@@ -209,9 +223,7 @@ def verify() -> tuple[list[str], dict[str, Any]]:
         "unresolved_semantic_duplicate_candidates": summary[
             "unresolved_semantic_duplicate_candidates"
         ],
-        "exact_canonical_name_collisions": summary[
-            "exact_canonical_name_collisions"
-        ],
+        "exact_canonical_name_collisions": summary["exact_canonical_name_collisions"],
         "exact_canonical_purpose_collisions": summary[
             "exact_canonical_purpose_collisions"
         ],

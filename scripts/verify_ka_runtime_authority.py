@@ -30,7 +30,7 @@ DEFAULT_EVIDENCE_PATH = (
     / "production-readiness"
     / "2026"
     / "phase-18"
-    / "cp18-b-runtime-authority.json"
+    / "ka-runtime-authority-current.json"
 )
 
 
@@ -84,9 +84,7 @@ def _verify_entrypoints(
         )
         if entrypoint.adapter == "module_run":
             if entrypoint.callable not in functions:
-                errors.append(
-                    f"{canonical_id}: missing function {entrypoint.callable}"
-                )
+                errors.append(f"{canonical_id}: missing function {entrypoint.callable}")
         elif entrypoint.adapter == "class_execute":
             methods = classes.get(entrypoint.class_name or "", set())
             if entrypoint.callable not in methods:
@@ -95,9 +93,7 @@ def _verify_entrypoints(
                     f"{entrypoint.class_name}.{entrypoint.callable}"
                 )
         else:
-            errors.append(
-                f"{canonical_id}: unsupported adapter {entrypoint.adapter}"
-            )
+            errors.append(f"{canonical_id}: unsupported adapter {entrypoint.adapter}")
     return errors, adapter_counts
 
 
@@ -123,24 +119,15 @@ def _verify_runtime_boundaries() -> list[str]:
                 )
 
     sdk_handler_path = (
-        ROOT
-        / "sdk"
-        / "UKG_Python_SDK"
-        / "ukg_sdk"
-        / "ka"
-        / "handlers.py"
+        ROOT / "sdk" / "UKG_Python_SDK" / "ukg_sdk" / "ka" / "handlers.py"
     )
     if sdk_handler_path.exists():
         errors.append("SDK private KA handler module still exists")
     builtins_path = sdk_handler_path.with_name("builtins.py")
     if "def ka_" in builtins_path.read_text(encoding="utf-8"):
         errors.append("SDK builtins still contains private KA implementations")
-    for path in (
-        ROOT / "backend" / "knowledge_algorithms"
-    ).glob("*.py"):
-        if "ukg_sdk.ka.handlers" in path.read_text(
-            encoding="utf-8", errors="replace"
-        ):
+    for path in (ROOT / "backend" / "knowledge_algorithms").glob("*.py"):
+        if "ukg_sdk.ka.handlers" in path.read_text(encoding="utf-8", errors="replace"):
             errors.append(
                 f"{path.relative_to(ROOT).as_posix()}: "
                 "imports the removed SDK handler runtime"
@@ -182,17 +169,24 @@ def verify() -> dict[str, Any]:
         errors.append(
             f"expected 213 canonical capabilities, got {manifest.capability_count}"
         )
-    if implemented != 132 or missing != 81:
+    if implemented + missing != manifest.capability_count:
         errors.append(
-            f"expected 132 existing and 81 gaps, got {implemented} and {missing}"
+            "implementation accounting does not equal the canonical "
+            f"capability count: {implemented} + {missing}"
         )
+    if implemented < 132:
+        errors.append(
+            f"implementation count regressed below CP18-B baseline: {implemented}"
+        )
+    if missing > 81:
+        errors.append(f"implementation gaps exceed CP18-B baseline: {missing}")
     if "KA-133" in manifest.entries:
         errors.append("duplicate KA-133 was reintroduced as a canonical capability")
     if manifest.alias_index.get("generated-v1:KA-133") != "KA-1101":
         errors.append("reviewed Chaos Injection alias is missing or misrouted")
 
     evidence = {
-        "schema_version": "dle.cp18-b-runtime-authority.v1",
+        "schema_version": "dle.ka-runtime-authority.v1",
         "status": "pass" if not errors else "fail",
         "manifest_version": manifest.manifest_version,
         "canonical_capabilities": manifest.capability_count,

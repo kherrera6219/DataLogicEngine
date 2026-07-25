@@ -97,7 +97,7 @@ passes.
 | 15 | Release-candidate engineering checkpoint; CP15-A through CP15-H retained |
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
-| 18 | CP18-A/CP18-B and CP18-C Batch 01 passed 2026-07-25; 11 existing KAs qualified and 469 KA tests pass, while CP18-C completion, CP18-D through CP18-H, and the signed rebuild remain open |
+| 18 | CP18-A/CP18-B and CP18-C Batches 01-02 passed 2026-07-25; 11 existing KAs qualified, eight restored, 140 implementations/73 gaps, and 493 KA tests pass, while CP18-C completion, CP18-D through CP18-H, and the signed rebuild remain open |
 
 ## Phase 18 KA verification method
 

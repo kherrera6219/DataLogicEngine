@@ -28,18 +28,13 @@ def test_phase18_runtime_manifest_is_current_and_deduplicated():
     assert DEFAULT_OUTPUT_PATH.read_text(encoding="utf-8") == json_text(
         build_manifest()
     )
-    assert SDK_OUTPUT_PATH.read_text(encoding="utf-8") == json_text(
+    assert SDK_OUTPUT_PATH.read_text(encoding="utf-8") == json_text(build_manifest())
+    assert TYPESCRIPT_OUTPUT_PATH.read_text(encoding="utf-8") == typescript_text(
         build_manifest()
     )
-    assert TYPESCRIPT_OUTPUT_PATH.read_text(
-        encoding="utf-8"
-    ) == typescript_text(build_manifest())
     assert "KA-133" not in manifest.entries
     assert (
-        manifest.resolve_id(
-            "generated-v1:KA-133", allow_scoped_alias=True
-        )
-        == "KA-1101"
+        manifest.resolve_id("generated-v1:KA-133", allow_scoped_alias=True) == "KA-1101"
     )
 
 
@@ -102,7 +97,7 @@ def test_phase18_controller_blocks_unqualified_production_execution():
 
 def test_phase18_controller_reports_missing_implementation_without_false_success():
     result = CanonicalKAController().execute(
-        {"ka_id": "KA-1036", "mode": "evaluation", "input": {}}
+        {"ka_id": "KA-1039", "mode": "evaluation", "input": {}}
     )
 
     assert result.success is False
@@ -127,9 +122,7 @@ def test_phase18_controller_honors_cancellation_and_deadline():
             "mode": "production",
             "input": {"query": "hello"},
             "context": {
-                "deadline_at": (
-                    datetime.now(UTC) - timedelta(seconds=1)
-                ).isoformat()
+                "deadline_at": (datetime.now(UTC) - timedelta(seconds=1)).isoformat()
             },
         }
     )

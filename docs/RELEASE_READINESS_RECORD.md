@@ -87,9 +87,11 @@ hashes retained, zero active legacy sources, and zero unmigrated links. Its
 signed/manual/independent/external exits and CP16-G exact-artifact binding remain
 open. Phase 17 CP17-A through CP17-D pass with 47/47 historical dispositions,
 10/10 generated-truth checks, and zero active documentation warnings/errors.
-Phase 18 KA production completion passed CP18-A and CP18-B. CP18-C Batch 01
-qualified 11 existing KAs, but CP18-C remains active for the remaining existing
-implementations, 81 implementation gaps, and authoritative effect integration.
+Phase 18 KA production completion passed CP18-A and CP18-B. CP18-C Batches
+01-02 qualified 11 existing KAs and restored eight distinct missing analysis
+capabilities; the authority is now 140 implementations and 73 gaps with 493 KA
+tests passing. CP18-C remains active for the remaining existing
+implementations, implementation gaps, and authoritative effect integration.
 The signed rebuild remains blocked until CP18-C through CP18-G pass; CP18-H and
 CP17-E then require the exact signed installed artifact. Phase 19 launch remains
 blocked by every prior gate.

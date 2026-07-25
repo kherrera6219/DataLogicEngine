@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "611f53db124b20075aa1e681c47f12198bd69e9f08635606265d1d65eb2ee8c6",
+  "source_input_sha256": "ebf9e71c63a278baacf974d39ccceb47dc1b2a7d71859c8492fb4c5428edcf92",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -12,8 +12,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 132,
-    "implementation_required_proposals": 81,
+    "existing_implementation_proposals": 140,
+    "implementation_required_proposals": 73,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -25,13 +25,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 132,
+    "implementation_surfaces": 140,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 96,
-    "canonical_with_named_test_function": 89
+    "canonical_with_test_reference": 104,
+    "canonical_with_named_test_function": 98
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -9127,9 +9127,73 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1036_pareto_optimization_engine.py",
+      "canonical_ids": [
+        "KA-1036"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1037_norm_emergence_detector.py",
+      "canonical_ids": [
+        "KA-1037"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1038_cross_modal_synthesis.py",
+      "canonical_ids": [
+        "KA-1038"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_103_service_mesh.py",
       "canonical_ids": [
         "KA-103"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1041_concept_confidence_normalization.py",
+      "canonical_ids": [
+        "KA-1041"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1042_contradiction_propagation_analysis.py",
+      "canonical_ids": [
+        "KA-1042"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
+      "canonical_ids": [
+        "KA-1045"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
+      "canonical_ids": [
+        "KA-1047"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1049_knowledge_redundancy_detector.py",
+      "canonical_ids": [
+        "KA-1049"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"

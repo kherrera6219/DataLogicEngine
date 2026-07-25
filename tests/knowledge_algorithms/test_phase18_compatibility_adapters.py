@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from backend.knowledge_algorithms.manifest import load_manifest
 from core.engine.ka_engine import KAEngine
 from core.knowledge_algorithm.ka_loader import KALoader
 
@@ -30,7 +31,7 @@ def test_phase18_core_engine_executes_through_canonical_controller():
     engine = KAEngine()
 
     completed = engine.execute_algorithm("KA-004", {"query": "validate"})
-    unavailable = engine.execute_algorithm("KA-1036", {})
+    unavailable = engine.execute_algorithm("KA-1039", {})
 
     assert completed["status"] == "completed"
     assert completed["results"]["is_valid"] is True
@@ -50,7 +51,7 @@ def test_phase18_core_engine_pipeline_stops_on_canonical_failure():
     result = engine.execute_pipeline(
         [
             {"ka_id": "KA-004", "params": {"query": "ok"}},
-            {"ka_id": "KA-1036", "params": {}},
+            {"ka_id": "KA-1039", "params": {}},
             {"ka_id": "KA-005", "params": {"query": "not reached"}},
         ],
         session_id="session-1",
@@ -73,7 +74,12 @@ def test_phase18_legacy_loader_accepts_numeric_ids_without_private_scanning():
         layer_num=3,
     )
 
-    assert len(loader.get_available_kas()) == 132
+    manifest = load_manifest()
+    implemented = sum(
+        definition.implementation.entrypoint is not None
+        for definition in manifest.entries.values()
+    )
+    assert len(loader.get_available_kas()) == implemented
     assert result["status"] == "success"
     assert result["ka_id"] == "KA-004"
     assert result["findings"]["is_valid"] is True

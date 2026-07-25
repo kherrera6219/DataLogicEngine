@@ -78,7 +78,7 @@ def render(
         f"- CP16-F replacement status: `{closure.get('status', 'not_evaluated')}`",
         f"- Routed sources: `{summary.get('source_count', 0)}`; archived: `{summary.get('archived_source_count', 0)}`; unmigrated links: `{summary.get('unmigrated_link_count', 0)}`",
         f"- Current program checkpoint: {current_phase}",
-        "- Current KA evidence: CP18-A/CP18-B passed; CP18-C Batch 01 qualified 11 existing KAs with 469 KA tests passing and zero duplicate or static honesty flags. CP18-C remains active.",
+        "- Current KA evidence: CP18-A/CP18-B and CP18-C Batches 01-02 passed; 140 implementations and 73 gaps remain, with 493 KA tests passing and zero duplicate or static honesty flags. CP18-C remains active.",
         "- Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.",
         "",
         "The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root",

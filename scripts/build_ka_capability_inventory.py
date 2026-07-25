@@ -73,13 +73,34 @@ RISK_EFFECT_WORDS = {
 }
 
 L9_DEFINITIONS = {
-    "L9-KA-001": ("Trace Analyzer", "backend.knowledge_algorithms.l9.l9_ka_001_trace_analyzer"),
-    "L9-KA-002": ("Belief Drift Detector", "backend.knowledge_algorithms.l9.l9_ka_002_belief_drift"),
-    "L9-KA-003": ("Persona Agreement Auditor", "backend.knowledge_algorithms.l9.l9_ka_003_persona_auditor"),
-    "L9-KA-004": ("Meta-Cognitive Evaluator", "backend.knowledge_algorithms.l9.l9_ka_004_meta_evaluator"),
-    "L9-KA-005": ("Recursion Trigger", "backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger"),
-    "L9-KA-006": ("Readiness Scorer", "backend.knowledge_algorithms.l9.l9_ka_006_confidence_calc"),
-    "L9-KA-007": ("Loop Controller", "backend.knowledge_algorithms.l9.l9_ka_007_loop_controller"),
+    "L9-KA-001": (
+        "Trace Analyzer",
+        "backend.knowledge_algorithms.l9.l9_ka_001_trace_analyzer",
+    ),
+    "L9-KA-002": (
+        "Belief Drift Detector",
+        "backend.knowledge_algorithms.l9.l9_ka_002_belief_drift",
+    ),
+    "L9-KA-003": (
+        "Persona Agreement Auditor",
+        "backend.knowledge_algorithms.l9.l9_ka_003_persona_auditor",
+    ),
+    "L9-KA-004": (
+        "Meta-Cognitive Evaluator",
+        "backend.knowledge_algorithms.l9.l9_ka_004_meta_evaluator",
+    ),
+    "L9-KA-005": (
+        "Recursion Trigger",
+        "backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger",
+    ),
+    "L9-KA-006": (
+        "Readiness Scorer",
+        "backend.knowledge_algorithms.l9.l9_ka_006_confidence_calc",
+    ),
+    "L9-KA-007": (
+        "Loop Controller",
+        "backend.knowledge_algorithms.l9.l9_ka_007_loop_controller",
+    ),
 }
 
 DELETED_STUB_ALIASES = {
@@ -144,8 +165,7 @@ REVIEWED_DISTINCT_CAPABILITY_PAIRS = {
         "trade-off optimization."
     ),
     ("KA-109", "KA-138"): (
-        "Current health aggregation is distinct from predictive health "
-        "forecasting."
+        "Current health aggregation is distinct from predictive health forecasting."
     ),
     ("KA-1099", "KA-117"): (
         "Knowledge-record integrity validation is distinct from a full-system "
@@ -216,8 +236,28 @@ def implementation_file(module_or_callable: str) -> Path:
     return ROOT.joinpath(*module.split(".")).with_suffix(".py")
 
 
+def restored_implementation_module(canonical_id: str) -> str | None:
+    """Resolve one reviewed restored-capability source by canonical ID."""
+    number = canonical_id.removeprefix("KA-")
+    candidates = sorted(
+        (ROOT / "backend" / "knowledge_algorithms").glob(f"ka_{number}_*.py")
+    )
+    if len(candidates) > 1:
+        paths = ", ".join(path.name for path in candidates)
+        raise ValueError(
+            f"{canonical_id}: multiple restored implementation owners: {paths}"
+        )
+    if not candidates:
+        return None
+    return f"backend.knowledge_algorithms.{candidates[0].stem}.run"
+
+
 def implementation_name(module_or_callable: str, ka_id: str) -> str:
-    module = module_or_callable.rsplit(".", 1)[0] if module_or_callable.endswith(".run") else module_or_callable
+    module = (
+        module_or_callable.rsplit(".", 1)[0]
+        if module_or_callable.endswith(".run")
+        else module_or_callable
+    )
     stem = module.rsplit(".", 1)[-1]
     stem = IMPLEMENTATION_PREFIX_RE.sub("", stem)
     if ka_id == "KA-Master":
@@ -323,9 +363,13 @@ def analyze_implementation(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
     tree = ast.parse(text)
     functions = sorted(
-        node.name for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        node.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
     )
-    classes = sorted(node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef))
+    classes = sorted(
+        node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+    )
     lines = [
         line
         for line in text.splitlines()
@@ -361,14 +405,20 @@ def iter_python_files(roots: Iterable[Path]) -> Iterable[Path]:
         if not root.exists():
             continue
         for path in root.rglob("*.py"):
-            if any(part in {".venv", "node_modules", "__pycache__"} for part in path.parts):
+            if any(
+                part in {".venv", "node_modules", "__pycache__"} for part in path.parts
+            ):
                 continue
             yield path
 
 
-def scan_references(canonical_ids: Iterable[str], implementations: dict[str, Path]) -> dict[str, Any]:
+def scan_references(
+    canonical_ids: Iterable[str], implementations: dict[str, Path]
+) -> dict[str, Any]:
     all_ids = sorted(set(canonical_ids))
-    runtime_files = list(iter_python_files([ROOT / "backend", ROOT / "core", ROOT / "sdk"]))
+    runtime_files = list(
+        iter_python_files([ROOT / "backend", ROOT / "core", ROOT / "sdk"])
+    )
     test_files = list(iter_python_files([ROOT / "tests"]))
     execution_call_sites: dict[str, set[str]] = {ka_id: set() for ka_id in all_ids}
     runtime_references: dict[str, set[str]] = {ka_id: set() for ka_id in all_ids}
@@ -412,7 +462,9 @@ def scan_references(canonical_ids: Iterable[str], implementations: dict[str, Pat
             if isinstance(first, ast.Constant) and isinstance(first.value, str):
                 ka_id = normalize_ka_id(first.value)
                 if ka_id in execution_call_sites and ka_id not in own_ids:
-                    execution_call_sites[ka_id].add(f"{relative}:{getattr(node, 'lineno', 0)}")
+                    execution_call_sites[ka_id].add(
+                        f"{relative}:{getattr(node, 'lineno', 0)}"
+                    )
 
     for path in test_files:
         text = path.read_text(encoding="utf-8")
@@ -475,7 +527,9 @@ def classify_implementation_surfaces(
         )
         for path in pattern_root.glob(pattern)
     }
-    discovered.add(ROOT / "backend" / "knowledge_algorithms" / "ka_master_controller.py")
+    discovered.add(
+        ROOT / "backend" / "knowledge_algorithms" / "ka_master_controller.py"
+    )
     rows = []
     for path in sorted(discovered | set(implementations.values())):
         relative = path.relative_to(ROOT).as_posix()
@@ -615,7 +669,9 @@ def choose_name_match(
         return source_id
     if len(candidates) == 1:
         return candidates[0]
-    numeric = [candidate for candidate in candidates if re.fullmatch(r"KA-\d+", candidate)]
+    numeric = [
+        candidate for candidate in candidates if re.fullmatch(r"KA-\d+", candidate)
+    ]
     if len(numeric) == 1:
         return numeric[0]
     return None
@@ -686,9 +742,7 @@ def split_catalog_values(value: Any) -> list[str]:
     if value is None:
         return []
     return [
-        item.strip()
-        for item in re.split(r"[,;]", str(value))
-        if item and item.strip()
+        item.strip() for item in re.split(r"[,;]", str(value)) if item and item.strip()
     ]
 
 
@@ -738,7 +792,9 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
                 path.relative_to(ROOT).as_posix() if path is not None else None
             ),
             "implementation_status": implementation_status,
-            "effect_class": "effect_oriented_review_required" if is_effect_oriented(name) else "pure_or_advisory_review_required",
+            "effect_class": "effect_oriented_review_required"
+            if is_effect_oriented(name)
+            else "pure_or_advisory_review_required",
             "contract_status": (
                 "phase18_b_schema_review_required"
                 if implementation
@@ -805,21 +861,15 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         entry = canonical[canonical_id]
         inputs = split_catalog_values(row.get("Inputs"))
         outputs = split_catalog_values(row.get("Outputs"))
-        categories = split_catalog_values(
-            row.get("Category") or row.get("category")
-        )
+        categories = split_catalog_values(row.get("Category") or row.get("category"))
         layers = split_catalog_values(
-            row.get("Allowed_Layers")
-            or row.get("Primary_Layers")
-            or row.get("layers")
+            row.get("Allowed_Layers") or row.get("Primary_Layers") or row.get("layers")
         )
         dependencies = [
             normalize_ka_id(item)
             for item in split_catalog_values(row.get("Dependencies"))
         ]
-        risk_classes = split_catalog_values(
-            row.get("Risk_Class") or row.get("risk")
-        )
+        risk_classes = split_catalog_values(row.get("Risk_Class") or row.get("risk"))
         triggers = [
             label
             for field, label in (
@@ -852,13 +902,11 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             "notes": str(row.get("Notes") or "").strip() or None,
         }
         if not entry.get("purpose"):
-            entry["purpose"] = str(
-                row.get("Purpose") or row.get("purpose") or ""
-            ).strip() or None
+            entry["purpose"] = (
+                str(row.get("Purpose") or row.get("purpose") or "").strip() or None
+            )
         design_name = str(row.get("KA_Name") or row.get("name") or "").strip()
-        if design_name and normalize_name(design_name) == normalize_name(
-            entry["name"]
-        ):
+        if design_name and normalize_name(design_name) == normalize_name(entry["name"]):
             entry["name"] = design_name
         entry["design_contracts"].append(contract)
         entry["input_descriptions"] = sorted(
@@ -876,9 +924,7 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             set(entry["dependency_source_ids"]) | set(dependencies)
         )
         entry["triggers"] = sorted(set(entry["triggers"]) | set(triggers))
-        entry["risk_classes"] = sorted(
-            set(entry["risk_classes"]) | set(risk_classes)
-        )
+        entry["risk_classes"] = sorted(set(entry["risk_classes"]) | set(risk_classes))
         if any(
             (
                 contract["writes_memory"],
@@ -920,9 +966,7 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             implementation_status="existing_unregistered_requires_qualification",
         )
 
-    original_by_id = {
-        normalize_ka_id(str(row.get("KA_ID"))): row for row in original
-    }
+    original_by_id = {normalize_ka_id(str(row.get("KA_ID"))): row for row in original}
     original_canonical_by_id: dict[str, str] = {}
     for source_id, row in sorted(original_by_id.items()):
         name = str(row.get("KA_Name") or source_id)
@@ -938,18 +982,25 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         if match is None:
             number = int(source_id.split("-")[1])
             canonical_id = f"KA-{1000 + number:04d}"
+            restored_implementation = restored_implementation_module(canonical_id)
             add_canonical(
                 ka_id=canonical_id,
                 name=name,
                 purpose=purpose,
                 identity_class="restored_original_design_capability",
-                implementation=None,
+                implementation=restored_implementation,
                 source=ORIGINAL_REGISTRY_PATH.relative_to(ROOT).as_posix(),
                 source_id=source_id,
-                implementation_status="implementation_required",
+                implementation_status=(
+                    "restored_implementation_requires_qualification"
+                    if restored_implementation
+                    else "implementation_required"
+                ),
             )
             if source_id in canonical:
-                canonical[canonical_id]["scoped_aliases"].append(f"design-v1:{source_id}")
+                canonical[canonical_id]["scoped_aliases"].append(
+                    f"design-v1:{source_id}"
+                )
             original_canonical_by_id[source_id] = canonical_id
         else:
             definitions.append(
@@ -1018,7 +1069,9 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         )
         if reviewed_generated_alias:
             match = reviewed_generated_alias
-        elif source_id == "KA-132" and normalize_name(name) == normalize_name("Meta Orchestrator"):
+        elif source_id == "KA-132" and normalize_name(name) == normalize_name(
+            "Meta Orchestrator"
+        ):
             match = "KA-Master"
         else:
             match = choose_name_match(
@@ -1216,13 +1269,13 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         for signature, ids in sorted(contract_index.items())
         if len(ids) > 1
     ]
-    implementation_surfaces = classify_implementation_surfaces(
-        implementation_paths
-    )
+    implementation_surfaces = classify_implementation_surfaces(implementation_paths)
     integration_surfaces = classify_integration_surfaces(implementation_paths)
     summary = {
         "live_registry_entries": len(live),
-        "live_numeric_entries": len([key for key in live if re.fullmatch(r"KA-\d+", key)]),
+        "live_numeric_entries": len(
+            [key for key in live if re.fullmatch(r"KA-\d+", key)]
+        ),
         "live_layer10_entries": len([key for key in live if key.startswith("L10-KA-")]),
         "live_master_entries": int("KA-Master" in live),
         "unregistered_layer9_implementations": len(L9_DEFINITIONS),
@@ -1240,7 +1293,9 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             [
                 entry
                 for entry in entries
-                if (entry.get("phase6_production_metadata") or {}).get("production_enabled")
+                if (entry.get("phase6_production_metadata") or {}).get(
+                    "production_enabled"
+                )
             ]
         ),
         "generated_generic_scaffolds": len(
@@ -1301,9 +1356,15 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         "status": "cp18_a_inventory_verified",
         "summary": summary,
         "source_authorities": {
-            "current_executable_registry": LIVE_REGISTRY_PATH.relative_to(ROOT).as_posix(),
-            "original_design_registry": ORIGINAL_REGISTRY_PATH.relative_to(ROOT).as_posix(),
-            "expanded_historical_metadata": CORE_METADATA_PATH.relative_to(ROOT).as_posix(),
+            "current_executable_registry": LIVE_REGISTRY_PATH.relative_to(
+                ROOT
+            ).as_posix(),
+            "original_design_registry": ORIGINAL_REGISTRY_PATH.relative_to(
+                ROOT
+            ).as_posix(),
+            "expanded_historical_metadata": CORE_METADATA_PATH.relative_to(
+                ROOT
+            ).as_posix(),
             "sdk_registry": SDK_REGISTRY_PATH.relative_to(ROOT).as_posix(),
             "layer9_registry": "backend/knowledge_algorithms/l9/__init__.py",
             "layer10_registry": "backend/knowledge_algorithms/l10/__init__.py",
@@ -1498,7 +1559,9 @@ def output_payloads(output_dir: Path) -> dict[Path, str]:
         output_dir / "ka-capability-inventory.json": json_text(inventory),
         output_dir / "ka-capability-crosswalk.json": json_text(crosswalk),
         output_dir / "ka-capability-crosswalk.csv": csv_text(crosswalk),
-        output_dir / "ka-capability-inventory-summary.md": summary_markdown(inventory, crosswalk),
+        output_dir / "ka-capability-inventory-summary.md": summary_markdown(
+            inventory, crosswalk
+        ),
     }
 
 
@@ -1517,7 +1580,9 @@ def write_or_check(output_dir: Path, *, check: bool) -> int:
             print(f"STALE {path.relative_to(ROOT)}")
         return 1
     verb = "verified" if check else "generated"
-    print(f"KA capability inventory {verb}: files={len(payloads)} changed={len(changed)}")
+    print(
+        f"KA capability inventory {verb}: files={len(payloads)} changed={len(changed)}"
+    )
     return 0
 
 

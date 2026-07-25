@@ -62,8 +62,11 @@ administration, audit, observability, and validation application.
 > no private SDK handler runtime. CP18-C Batch 01 has qualified 11 existing KAs:
 > six now use bounded deterministic analysis/normalization and five return
 > honest effect proposals instead of simulated applied effects. Their 11 named
-> semantic tests and the full 469-test KA suite pass, while the no-duplicate
-> authority remains clean. CP18-C is active for the remaining implementation
+> semantic tests pass. Batch 02 then restores eight separate deterministic,
+> read-only analysis capabilities with their own semantic tests. The full
+> 493-test KA suite passes, implementation progress is 140/213 with 73 gaps,
+> and the no-duplicate authority remains clean. CP18-C is active for the
+> remaining implementation
 > completion. Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
@@ -151,8 +154,9 @@ Current production-completion focus:
   Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
   implementation sources have unique canonical owners, the 81 gaps are explicit,
   and duplicate canonical collisions are zero
-- Phase 18 CP18-C Batch 01 passed for 11 existing implementations with 469 KA
-  tests passing and zero remaining static randomness/mock-honesty flags; CP18-C
+- Phase 18 CP18-C Batches 01-02 passed: 11 existing implementations qualified,
+  eight distinct missing capabilities restored, 140 implementations/73 gaps,
+  493 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
   remains active and the release-candidate rebuild remains paused through CP18-G
 - Production behavior, dynamic application call path, and one individually
   named functional test for every canonical KA

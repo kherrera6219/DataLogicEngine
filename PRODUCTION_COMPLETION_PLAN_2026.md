@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.26.0 |
+| Document version | v1.27.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -244,6 +244,19 @@ reviewed alias, and zero duplicate collisions, unresolved duplicate candidates,
 unclassified surfaces, or static honesty flags on existing implementations.
 CP18-C remains active because the other existing implementations, all 81 gaps,
 and authoritative effect application still require completion.
+
+CP18-C Batch 02 passed on 2026-07-25. Eight distinct original-design analysis
+capabilities now have canonical production sources: Pareto optimization, norm
+emergence detection, cross-modal synthesis of already-extracted evidence,
+confidence-scale normalization, contradiction propagation, population-level
+bias-pattern measurement, bounded meta-algorithm selection, and knowledge
+redundancy detection. Each is typed, bounded, deterministic, read-only, and
+individually tested. The authority now reports 140 implementations and 73 gaps
+while retaining 213 canonical capabilities, one reviewed alias, and zero
+duplicate collisions, unresolved duplicate candidates, unclassified surfaces,
+or static honesty flags. The full KA suite passes 493 tests. The authority gates
+now enforce monotonic implementation progress from the CP18-A/CP18-B baselines
+instead of freezing their old implementation/gap counts.
 
 ## 1. Purpose
 
@@ -3994,15 +4007,18 @@ artifact rather than against a known-incomplete subsystem.
   trace/replay acceptance and binds the final manifest/hash to the release
   record.
 
-**Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batch 01
-also passed for 11 existing implementations, removing every CP18-A static
-random/mock-honesty flag while preserving the canonical capability set. The
-approved capability authority is
+**Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batches 01
+and 02 also passed: 11 existing implementations were made honest and eight
+preserved capabilities were restored as distinct production sources. The
+authority now reports 140 implementations and 73 gaps with 493 KA tests passing
+and no duplicate, unclassified, or static-honesty finding. The approved
+capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
 `scripts/verify_ka_capability_inventory.py` and
 `scripts/verify_ka_runtime_authority.py` enforce the deduplicated identity and
-single-runtime boundaries. Batch evidence is
-`reports/production-readiness/2026/phase-18/cp18-c-batch-01-existing-honesty.json`.
+single-runtime boundaries. Batch evidence is under
+`reports/production-readiness/2026/phase-18/`, including
+`cp18-c-batch-02-restored-analysis.json`.
 CP18-C is active; CP18-C through CP18-H remain open, and the signed rebuild
 remains blocked.
 
@@ -4416,9 +4432,10 @@ exit gate.
 
 ## 33. Immediate next action
 
-Execute Phase 18 CP18-C against the approved 213-capability manifest. Qualify
-the 132 existing implementations and build the 81 explicit gaps in validated
-batches. Replace every placeholder, metadata-only facade, mock/simulated
+Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
+01-02 have qualified 11 existing implementations and restored eight gaps;
+qualify the remaining existing implementations and build the 73 explicit gaps
+in validated batches. Replace every placeholder, metadata-only facade, mock/simulated
 operation, weak or unrecorded random default, and false success with bounded
 typed production behavior or an honest prerequisite failure through an
 authoritative app-owned service. Preserve every approved capability and keep the
