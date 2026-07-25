@@ -128,11 +128,13 @@ generic `allow_nonproduction` flag is not an adequate authorization/
 confirmation model, and the SDK/desktop do not share a complete typed
 execute/history/trace workflow. Phase 18 closed incomplete after CP18-D failed.
 Phase 19 owns correction and keeps the signed rebuild blocked through CP19-L.
-CP19-A now supplies the verified one-primary-owner and governed-consumer
-authority for all 213 KAs through the canonical generated manifest. CP19-B is
-actively migrating every real caller to the typed canonical result variants;
-the compatibility envelope is not acceptable as a long-term internal contract,
-and no caller may replace a missing required value with an optimistic default.
+CP19-A supplies the verified one-primary-owner and governed-consumer authority
+for all 213 KAs through the canonical generated manifest. CP19-B passed after
+migrating every existing production caller to the typed canonical result
+variants: 18 internal/API/SDK surfaces, 32 typed sites, and zero legacy result
+calls across 621 scanned production Python files. The compatibility envelope
+remains an external boundary only; missing required values raise or fail closed
+and missing confidence is unmeasured/zero. CP19-C selector/DAG work is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

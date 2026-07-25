@@ -4,10 +4,13 @@ Tests for Layer 8: TrustValidationGateway
 Tests PASS/WARN/FAIL gate decisions, KA integration, and fail-closed behavior.
 """
 
+
 import pytest
-from unittest.mock import MagicMock
-from backend.truth_engine.truth_gate.trust_validation_gateway import TrustValidationGateway
-from backend.truth_engine.truth_gate.l8_schemas import L8Input, GateDecision
+
+from backend.truth_engine.truth_gate.l8_schemas import GateDecision, L8Input
+from backend.truth_engine.truth_gate.trust_validation_gateway import (
+    TrustValidationGateway,
+)
 
 
 class TestL8Schemas:
@@ -180,31 +183,36 @@ class TestTrustValidationGateway:
 
 
 class TestL8WithKAController:
-    """Test Layer 8 with mocked KA Controller."""
+    """Test Layer 8 against the canonical KA controller."""
     
     def test_ka_invocation(self):
-        """Test that KAs are invoked during validation."""
-        mock_controller = MagicMock()
-        mock_controller.execute_algorithm.return_value = {
-            "contradictions": [],
-            "critiques": [],
-            "calibrated_confidence": 0.96
-        }
-        
-        gateway = TrustValidationGateway(ka_controller=mock_controller)
+        """Test real canonical typed results are consumed during validation."""
+        from backend.knowledge_algorithms.ka_master_controller import (
+            KAMasterController,
+        )
+
+        gateway = TrustValidationGateway(
+            ka_controller=KAMasterController(),
+        )
         input_data = L8Input(
             simulation_id="test-ka",
+            query_text="Evaluate a supported test claim.",
             claims=[{"text": "Test claim"}],
+            evidence=[{"id": "evidence-1", "claim": "Test claim"}],
             persona_results={
-                "knowledge": {"confidence": 0.95}
-            }
+                "knowledge": {"confidence": 0.95},
+                "sector": {"confidence": 0.95},
+                "regulatory": {"confidence": 0.95},
+                "compliance": {"confidence": 0.95},
+            },
         )
         
         result = gateway.validate(input_data)
         
         # Should have invoked multiple KAs
         assert len(result.kas_invoked) > 0
-        mock_controller.execute_algorithm.assert_called()
+        assert "KA-026" in result.kas_invoked
+        assert "KA-014" in result.kas_invoked
 
 
 if __name__ == "__main__":

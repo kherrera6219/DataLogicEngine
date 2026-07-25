@@ -2,6 +2,11 @@ from types import SimpleNamespace
 from datetime import UTC, datetime
 
 from backend.auth import api_decorators
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.routes import ka_routes
 from extensions import db
 from tests.conftest import create_test_user, seed_login_session
@@ -36,17 +41,37 @@ class _FakeKAController:
     def _normalize_ka_id(self, ka_id):
         return str(ka_id).upper()
 
-    def execute_algorithm(self, ka_id, input_data):
+    def execute_typed(
+        self,
+        ka_id,
+        input_data,
+        *,
+        production_workflow=False,
+    ):
         self.last_execution = (ka_id, input_data)
-        return {
-            "success": True,
-            "output": {"echo": input_data},
-            "execution_time": 0.012,
-        }
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output={"echo": input_data},
+            request_id="request-test",
+            run_id="run-test",
+            trace_id="trace-test",
+            duration_ms=12,
+        )
 
 
 class _FailingKAController(_FakeKAController):
-    def execute_algorithm(self, ka_id, input_data):
+    def execute_typed(
+        self,
+        ka_id,
+        input_data,
+        *,
+        production_workflow=False,
+    ):
         raise RuntimeError("<script>alert('secret-stack')</script>")
 
 

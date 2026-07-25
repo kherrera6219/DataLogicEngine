@@ -145,10 +145,11 @@ Current production-completion focus:
   governed consumer/evidence destinations, and one runtime manifest; 16
   competing workflow surfaces have explicit dispositions and the KA suite is
   726 passed
-- Active Phase 19 CP19-B: migrate every real caller to the canonical typed
-  result variants, repair the real-controller Layer-10 failure, and eliminate
-  optimistic defaults
-- Canonical result parity, manifest selector/dependency DAG, ten-layer path,
+- Phase 19 CP19-B passed: 621 production Python files scanned, 18 caller/API/
+  SDK surfaces verified, 32 typed execution/helper sites, zero legacy result
+  calls, 738 KA/Python-SDK tests passed, and 2,486 full-suite tests passed with
+  18 skipped
+- Active Phase 19 CP19-C: manifest selector/dependency DAG, followed by ten-layer path,
   fail-closed L9/L10, KA-backed Quad Persona/DSQP, and one 12-step workflow
 - Ingestion, retrieval, graph, memory, simulation, MCP, provider, gateway,
   security, operations, lifecycle, and authoritative effect integration

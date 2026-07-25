@@ -17,10 +17,15 @@ This results in multi-perspective reasoning that improves accuracy and context.
 """
 
 import logging
-import uuid
 import random
+import uuid
 from datetime import datetime
-from typing import Dict, List
+
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
+)
+
 
 class POVEngine:
     """
@@ -128,7 +133,7 @@ class POVEngine:
         
         logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/17 active axes + KA integration")
     
-    def process(self, context: Dict) -> Dict:
+    def process(self, context: dict) -> dict:
         """
         Process a request as Layer 4 (POV Engine).
         
@@ -145,7 +150,7 @@ class POVEngine:
         logging.info(f"[{datetime.now()}] POVEngine processing context from L1-L3")
         return self.expand_context(query, context)
 
-    def expand_context(self, query: str, initial_context: Dict) -> Dict:
+    def expand_context(self, query: str, initial_context: dict) -> dict:
         """
         Expand query context using the POV Engine.
         
@@ -169,7 +174,7 @@ class POVEngine:
         
         return expanded_context
     
-    def _execute_pov_expansion(self, context: Dict) -> Dict:
+    def _execute_pov_expansion(self, context: dict) -> dict:
         """
         Execute the POV expansion process.
         
@@ -193,28 +198,48 @@ class POVEngine:
             
             # 2b. KA-028: Point of View Expansion
             if self.ka_controller:
-                try:
-                    ka028_result = self.ka_controller.execute_algorithm('KA-028', {
-                        'personas': [p['name'] for p in personas],
-                        'query': self.current_query
-                    })
-                    if ka028_result.get('expanded_perspectives'):
-                        expanded_context['ka028_perspectives'] = ka028_result['expanded_perspectives']
-                        logging.info(f"[{datetime.now()}] KA-028 added {len(ka028_result['expanded_perspectives'])} perspectives")
-                except Exception as e:
-                    logging.debug(f"KA-028 skipped: {e}")
+                ka028_result = execute_required_ka(
+                    self.ka_controller,
+                    'KA-028',
+                    {
+                        'query': self.current_query,
+                        'context': expanded_context,
+                        'existing_personas': [
+                            str(p.get('name', ''))
+                            for p in personas
+                            if p.get('name')
+                        ],
+                    },
+                )
+                perspectives = require_output_field(
+                    ka028_result,
+                    'additional_perspectives',
+                )
+                expanded_context['ka028_perspectives'] = perspectives
+                logging.info(
+                    f"[{datetime.now()}] KA-028 added "
+                    f"{len(perspectives)} perspectives"
+                )
             
             # 2c. KA-057: Persona Emotion Adaptation
             if self.ka_controller:
-                try:
-                    ka057_result = self.ka_controller.execute_algorithm('KA-057', {
-                        'personas': personas,
-                        'context_sentiment': expanded_context.get('sentiment', 'neutral')
-                    })
-                    if ka057_result.get('adapted_personas'):
-                        expanded_context['emotional_context'] = ka057_result.get('emotional_context', {})
-                except Exception as e:
-                    logging.debug(f"KA-057 skipped: {e}")
+                ka057_result = execute_required_ka(
+                    self.ka_controller,
+                    'KA-057',
+                    {
+                        'output_object': {
+                            'id': self.simulation_id,
+                            'personas': personas,
+                        },
+                        'persona': str(
+                            expanded_context.get('target_persona', 'general')
+                        ),
+                    },
+                )
+                expanded_context['emotional_context'] = require_output_field(
+                    ka057_result,
+                    'adapted_style_plan',
+                )
         
         # 3. Temporal-Spatial Alignment (Axes 12-13)
         if self.enable_temporal_mapping:
@@ -286,7 +311,7 @@ class POVEngine:
             "conflict_detection": True
         }
         
-    def _expand_data_via_honeycomb(self, context: Dict) -> List[Dict]:
+    def _expand_data_via_honeycomb(self, context: dict) -> list[dict]:
         """
         Expand data nodes using the Honeycomb System (Axis 3).
         
@@ -404,7 +429,7 @@ class POVEngine:
         
         return expanded_data
         
-    def _extract_pl_levels(self, context: Dict) -> List[str]:
+    def _extract_pl_levels(self, context: dict) -> list[str]:
         """
         Extract Pillar Level (PL) information from context.
         
@@ -470,7 +495,7 @@ class POVEngine:
         
         return unique_pl_levels
     
-    def _extract_sectors(self, context: Dict) -> List[str]:
+    def _extract_sectors(self, context: dict) -> list[str]:
         """
         Extract sector information from context.
         
@@ -525,7 +550,7 @@ class POVEngine:
         
         return unique_sectors
     
-    def _simulate_personas(self, context: Dict) -> List[Dict]:
+    def _simulate_personas(self, context: dict) -> list[dict]:
         """
         Simulate expert personas across Axes 8-11.
         
@@ -659,7 +684,7 @@ class POVEngine:
         
         return personas
     
-    def _map_expertise_areas(self, pl_levels: List[str], sectors: List[str]) -> Dict[str, List[str]]:
+    def _map_expertise_areas(self, pl_levels: list[str], sectors: list[str]) -> dict[str, list[str]]:
         """
         Map PL levels and sectors to expertise areas for each persona type.
         
@@ -762,7 +787,7 @@ class POVEngine:
             "compliance": compliance_expertise
         }
         
-    def _extract_regulatory_mentions(self, context: Dict) -> List[str]:
+    def _extract_regulatory_mentions(self, context: dict) -> list[str]:
         """
         Extract regulatory framework mentions from context.
         
@@ -794,7 +819,7 @@ class POVEngine:
         
         return found_frameworks
     
-    def _extract_compliance_frameworks(self, context: Dict) -> List[str]:
+    def _extract_compliance_frameworks(self, context: dict) -> list[str]:
         """
         Extract compliance framework mentions from context.
         
@@ -825,7 +850,7 @@ class POVEngine:
         
         return found_frameworks
     
-    def _generate_perspective(self, context: Dict, persona_type: str, expertise_areas: Dict[str, List[str]] = None) -> Dict:
+    def _generate_perspective(self, context: dict, persona_type: str, expertise_areas: dict[str, list[str]] = None) -> dict:
         """
         Generate a perspective for a persona type.
         
@@ -921,7 +946,7 @@ class POVEngine:
             'timestamp': datetime.now().isoformat()
         }
     
-    def _generate_component(self, component_type: str, persona_type: str, pl_levels: List[str] = None, sectors: List[str] = None) -> Dict:
+    def _generate_component(self, component_type: str, persona_type: str, pl_levels: list[str] = None, sectors: list[str] = None) -> dict:
         """
         Generate a component for a persona.
         
@@ -1138,7 +1163,7 @@ class POVEngine:
                                   persona_type == 'compliance' and 4 or 0)
         }
     
-    def _apply_temporal_spatial_mapping(self, context: Dict) -> Dict:
+    def _apply_temporal_spatial_mapping(self, context: dict) -> dict:
         """
         Apply temporal and spatial mapping (Axes 12-13).
         
@@ -1172,7 +1197,7 @@ class POVEngine:
             }
         }
     
-    def _entangle_viewpoints(self, context: Dict) -> Dict:
+    def _entangle_viewpoints(self, context: dict) -> dict:
         """
         Entangle viewpoints from different personas.
         
@@ -1284,7 +1309,7 @@ class POVEngine:
         
         return result
 
-    def _generate_belief_matrix(self, personas: List[Dict]) -> Dict:
+    def _generate_belief_matrix(self, personas: list[dict]) -> dict:
         """
         Generate a belief weight matrix for personas.
         
@@ -1347,7 +1372,7 @@ class POVEngine:
             
         return belief_matrix
         
-    def _apply_cross_persona_relationships(self, personas: List[Dict], belief_matrix: Dict) -> None:
+    def _apply_cross_persona_relationships(self, personas: list[dict], belief_matrix: dict) -> None:
         """
         Apply cross-persona relationships to refine belief weights.
         
@@ -1413,7 +1438,7 @@ class POVEngine:
         
         return belief_matrix
     
-    def _calculate_confidence(self, context: Dict) -> float:
+    def _calculate_confidence(self, context: dict) -> float:
         """
         Calculate overall confidence for the expanded context.
         
@@ -1474,7 +1499,7 @@ class POVEngine:
         # Apply bounds to final confidence score
         return max(0.0, min(1.0, confidence))
     
-    def _calculate_axis_coverage(self, context: Dict) -> Dict:
+    def _calculate_axis_coverage(self, context: dict) -> dict:
         """
         Calculate coverage across the 13 axes.
         
@@ -1501,7 +1526,7 @@ class POVEngine:
             'axis_13': 0.7   # Temporal
         }
     
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Get POV Engine statistics.
         

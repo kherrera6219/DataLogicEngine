@@ -6,24 +6,26 @@ of the UKG 10-layer stack. It performs emergence detection, safety audit,
 and makes the final binary RELEASE vs CONTAIN decision.
 """
 
-import logging
-import time
 import hashlib
 import json
-from typing import Dict, List, Any, Optional, Tuple
+import logging
+import time
+from typing import Any, ClassVar
+
+from backend.knowledge_algorithms.contracts import KAExecutionResult
 
 from .l10_schemas import (
-    L10Decision,
-    EmergenceLevel,
-    EmergencePattern,
-    EmergenceAssessment,
-    SafetyViolation,
-    SafetyCheckResult,
-    TrustGateResult,
     ContainmentAction,
     DSQPTraceSeal,
+    EmergenceAssessment,
+    EmergenceLevel,
+    EmergencePattern,
+    L10Decision,
     L10Input,
-    L10Result
+    L10Result,
+    SafetyCheckResult,
+    SafetyViolation,
+    TrustGateResult,
 )
 
 logger = logging.getLogger(__name__)
@@ -51,7 +53,7 @@ class EmergenceDetectionController:
     """
     
     # L10 specific KA suite
-    L10_KAS = [
+    L10_KAS: ClassVar[list[str]] = [
         "L10-KA-001",  # Entropy-Based Emergence Scorer
         "L10-KA-002",  # Self-Awareness Monitor
         "L10-KA-003",  # Privacy & PII Redactor
@@ -62,24 +64,55 @@ class EmergenceDetectionController:
     ]
     
     # Canonical KAs for Lane A (Response Gate)
-    LANE_A_KAS = [
+    LANE_A_KAS: ClassVar[list[str]] = [
         "KA-021", "KA-108", "KA-116",  # Emergence/Drift
         "KA-058", "KA-059", "KA-061", "KA-063", "KA-027",  # Safety/Ethics
         "KA-014", "KA-023", "KA-095", "KA-062"  # Trust/Governance
     ]
 
     # Canonical KAs for Lane B (Knowledge Commit)
-    LANE_B_KAS = [
+    LANE_B_KAS: ClassVar[list[str]] = [
         "KA-109", "KA-079", "KA-050", "KA-094",  # Commit/Classification
         "KA-065", "KA-083", "KA-088", "KA-096"  # Lifecycle/Regression
     ]
 
-    def __init__(self, ka_controller=None, config: Optional[Dict] = None):
+    def __init__(self, ka_controller=None, config: dict | None = None):
         self.ka_controller = ka_controller
         self.config = config or {}
         logger.info("EmergenceDetectionController (Layer 10 Sentinel) initialized")
 
-    def authorize(self, input_data: Optional[L10Input]) -> L10Result:
+    def _execute_ka(
+        self,
+        ka_id: str,
+        payload: dict[str, Any],
+        kas_invoked: list[str],
+    ) -> dict[str, Any]:
+        """Execute through the typed contract and record only successful calls."""
+        if self.ka_controller is None:
+            raise RuntimeError(f"{ka_id} controller is unavailable")
+        execute_typed = getattr(self.ka_controller, "execute_typed", None)
+        if not callable(execute_typed):
+            raise TypeError(
+                f"{type(self.ka_controller).__name__} does not implement execute_typed"
+            )
+        result = execute_typed(ka_id, payload)
+        if not isinstance(result, KAExecutionResult):
+            raise TypeError(f"{ka_id} returned a non-canonical execution result")
+        output = result.require_output()
+        kas_invoked.append(result.canonical_id)
+        return output
+
+    @staticmethod
+    def _required_output_value(
+        ka_id: str,
+        output: dict[str, Any],
+        field: str,
+    ) -> Any:
+        if field not in output:
+            raise RuntimeError(f"{ka_id} output is missing required field {field!r}")
+        return output[field]
+
+    def authorize(self, input_data: L10Input | None) -> L10Result:
         """
         Final release authority gate (Lane A + Lane B triggers).
         """
@@ -130,10 +163,10 @@ class EmergenceDetectionController:
             )
 
         except Exception as e:
-            logger.error(f"Layer 10 Sentinel Critical Failure: {e}", exc_info=True)
+            logger.exception("Layer 10 Sentinel Critical Failure")
             return self._create_failure_result(input_data, str(e), (time.time() - start_time) * 1000)
 
-    def _detect_emergence_lane_a(self, input_data: L10Input, kas_invoked: List[str]) -> EmergenceAssessment:
+    def _detect_emergence_lane_a(self, input_data: L10Input, kas_invoked: list[str]) -> EmergenceAssessment:
         """Detect emergent behaviors and capability drift using canonical and L10 KAs."""
         assessment = EmergenceAssessment()
         content = input_data.l9_result.get("epistemic_report", {}).get("current_output", "")
@@ -143,19 +176,25 @@ class EmergenceDetectionController:
 
         # KA-021: Emergence Detection (General)
         try:
-            ka_res = self.ka_controller.execute_algorithm("KA-021", {"content": content, "trace": input_data.reasoning_trace})
-            kas_invoked.append("KA-021")
-            if ka_res.get("emergence_detected"):
+            ka_res = self._execute_ka(
+                "KA-021",
+                {"content": content, "trace": input_data.reasoning_trace},
+                kas_invoked,
+            )
+            if self._required_output_value("KA-021", ka_res, "is_emergent"):
                 assessment.emergence_detected = True
                 assessment.overall_level = EmergenceLevel.MODERATE
-        except Exception as e:
-            logger.debug(f"KA-021 failed: {e}")
+        except Exception as exc:
+            raise RuntimeError("Required KA-021 emergence check failed") from exc
 
         # KA-108: Capability Escalation (Unsafe drift)
         try:
-            ka_res = self.ka_controller.execute_algorithm("KA-108", {"content": content, "problem_spec": input_data.problem_spec})
-            kas_invoked.append("KA-108")
-            if ka_res.get("escalation_detected"):
+            ka_res = self._execute_ka(
+                "KA-108",
+                {"content": content, "problem_spec": input_data.problem_spec},
+                kas_invoked,
+            )
+            if self._required_output_value("KA-108", ka_res, "escalation_detected"):
                 assessment.patterns.append(EmergencePattern(
                     pattern_type="capability_escalation",
                     location="reasoning_path",
@@ -163,18 +202,34 @@ class EmergenceDetectionController:
                     risk_level=EmergenceLevel.HIGH,
                     score=0.9
                 ))
-        except Exception as e:
-            logger.debug(f"KA-108 failed: {e}")
+        except Exception as exc:
+            raise RuntimeError("Required KA-108 escalation check failed") from exc
 
         # L10-KA-001/002: Entropy and Self-Awareness
         try:
-            ka_res = self.ka_controller.execute_algorithm("L10-KA-001", {"content": content})
-            kas_invoked.append("L10-KA-001")
-            assessment.entropy_delta = ka_res.get("entropy_score", 0.0)
+            ka_res = self._execute_ka(
+                "L10-KA-001",
+                {"content": content},
+                kas_invoked,
+            )
+            assessment.entropy_delta = float(
+                self._required_output_value(
+                    "L10-KA-001",
+                    ka_res,
+                    "entropy_score",
+                )
+            )
             
-            ka_res = self.ka_controller.execute_algorithm("L10-KA-002", {"content": content})
-            kas_invoked.append("L10-KA-002")
-            if ka_res.get("awareness_detected"):
+            ka_res = self._execute_ka(
+                "L10-KA-002",
+                {"content": content},
+                kas_invoked,
+            )
+            if self._required_output_value(
+                "L10-KA-002",
+                ka_res,
+                "awareness_detected",
+            ):
                 assessment.patterns.append(EmergencePattern(
                     pattern_type="self_referential",
                     location="output",
@@ -182,12 +237,14 @@ class EmergenceDetectionController:
                     risk_level=EmergenceLevel.LOW,
                     score=0.3
                 ))
-        except Exception as e:
-            logger.debug(f"L10-KA-001/2 failed: {e}")
+        except Exception as exc:
+            raise RuntimeError(
+                "Required Layer-10 entropy/self-awareness checks failed"
+            ) from exc
 
         return assessment
 
-    def _run_safety_audit_lane_a(self, input_data: L10Input, kas_invoked: List[str]) -> SafetyCheckResult:
+    def _run_safety_audit_lane_a(self, input_data: L10Input, kas_invoked: list[str]) -> SafetyCheckResult:
         """Sequential safety and policy audit."""
         result = SafetyCheckResult()
         content = input_data.l9_result.get("epistemic_report", {}).get("current_output", "")
@@ -198,9 +255,12 @@ class EmergenceDetectionController:
         # Safety & Privacy Baseline (KA-058, KA-059)
         for ka_id in ["KA-058", "KA-059"]:
             try:
-                ka_res = self.ka_controller.execute_algorithm(ka_id, {"content": content})
-                kas_invoked.append(ka_id)
-                if not ka_res.get("passed", True):
+                ka_res = self._execute_ka(
+                    ka_id,
+                    {"content": content},
+                    kas_invoked,
+                )
+                if not self._required_output_value(ka_id, ka_res, "passed"):
                     result.passed = False
                     v_type = "PII_leak" if ka_id == "KA-059" else "safety_violation"
                     result.violations.append(SafetyViolation(
@@ -210,16 +270,26 @@ class EmergenceDetectionController:
                         description=f"{ka_id} flag: {ka_res.get('flag', 'Unknown')}",
                         recommended_action="redact" if ka_id == "KA-059" else "withhold"
                     ))
-            except Exception as e:
-                logger.debug(f"{ka_id} failed: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Required Layer-10 safety check {ka_id} failed"
+                ) from exc
 
         # Ethics Validator (L10-KA-004 + KA-027)
         try:
-            ka_res = self.ka_controller.execute_algorithm("L10-KA-004", {"content": content})
-            kas_invoked.append("L10-KA-004")
-            if ka_res.get("violations"):
+            ka_res = self._execute_ka(
+                "L10-KA-004",
+                {"content": content},
+                kas_invoked,
+            )
+            violations = self._required_output_value(
+                "L10-KA-004",
+                ka_res,
+                "violations",
+            )
+            if violations:
                 result.passed = False
-                for v in ka_res["violations"]:
+                for v in violations:
                     result.violations.append(SafetyViolation(
                         module="ethics",
                         violation_type=v["type"],
@@ -227,15 +297,17 @@ class EmergenceDetectionController:
                         description=v["message"],
                         recommended_action="modify"
                     ))
-        except Exception as e:
-            logger.debug(f"L10-KA-004 failed: {e}")
+        except Exception as exc:
+            raise RuntimeError(
+                "Required Layer-10 ethics check failed"
+            ) from exc
 
         result.release_approved = len([v for v in result.violations if v.severity == "critical"]) == 0
         return result
 
-    def _evaluate_trust_gate_lane_a(self, input_data: L10Input, kas_invoked: List[str]) -> TrustGateResult:
+    def _evaluate_trust_gate_lane_a(self, input_data: L10Input, kas_invoked: list[str]) -> TrustGateResult:
         """Enforce domain thresholds with belief decay and Axis 17 governance."""
-        orig_conf = input_data.l9_result.get("readiness_score", 1.0)
+        orig_conf = input_data.l9_result.get("readiness_score", 0.0)
         decayed_conf = orig_conf * BELIEF_DECAY_FACTOR
         
         domain = input_data.risk_domain
@@ -249,10 +321,18 @@ class EmergenceDetectionController:
             # KA-095: Human-in-the-Loop Escalation
             if action == "human_review" and self.ka_controller:
                 try:
-                    self.ka_controller.execute_algorithm("KA-095", {"problem": input_data.problem_spec, "reason": "high_risk_low_confidence"})
-                    kas_invoked.append("KA-095")
-                except Exception:
-                    pass
+                    self._execute_ka(
+                        "KA-095",
+                        {
+                            "problem": input_data.problem_spec,
+                            "reason": "high_risk_low_confidence",
+                        },
+                        kas_invoked,
+                    )
+                except Exception as exc:
+                    raise RuntimeError(
+                        "Required high-risk human escalation failed"
+                    ) from exc
             
         kas_invoked.append("L10-KA-006")
         
@@ -266,27 +346,46 @@ class EmergenceDetectionController:
             action_required=action
         )
 
-    def _process_knowledge_commit_lane_b(self, input_data: L10Input, kas_invoked: List[str]) -> Dict[str, Any]:
+    def _process_knowledge_commit_lane_b(self, input_data: L10Input, kas_invoked: list[str]) -> dict[str, Any]:
         """Authorized persistence logic (Lane B). Decides if knowledge is saved."""
         commit_report = {"status": "authorized", "promotion_authorized": True}
         
         # KA-109: Containment Classifier (Tagging)
         if self.ka_controller:
             try:
-                ka_res = self.ka_controller.execute_algorithm("KA-109", {"content": input_data.reasoning_trace})
-                kas_invoked.append("KA-109")
-                commit_report["containment_class"] = ka_res.get("class", "RESTRICTED")
+                ka_res = self._execute_ka(
+                    "KA-109",
+                    {"content": input_data.reasoning_trace},
+                    kas_invoked,
+                )
+                commit_report["containment_class"] = self._required_output_value(
+                    "KA-109",
+                    ka_res,
+                    "class",
+                )
             except Exception as exc:
-                logger.debug("KA-109 Lane B classification failed: %s", exc)
+                raise RuntimeError(
+                    "Required Lane-B containment classification failed"
+                ) from exc
 
             # KA-079: Knowledge Promotion Gate
             try:
-                ka_res = self.ka_controller.execute_algorithm("KA-079", {"trace": input_data.reasoning_trace})
-                kas_invoked.append("KA-079")
-                commit_report["promotion_authorized"] = ka_res.get("authorized", False)
+                ka_res = self._execute_ka(
+                    "KA-079",
+                    {"trace": input_data.reasoning_trace},
+                    kas_invoked,
+                )
+                commit_report["promotion_authorized"] = bool(
+                    self._required_output_value(
+                        "KA-079",
+                        ka_res,
+                        "authorized",
+                    )
+                )
             except Exception as exc:
-                logger.debug("KA-079 Lane B promotion gate failed: %s", exc)
-                commit_report["promotion_authorized"] = False
+                raise RuntimeError(
+                    "Required Lane-B promotion gate failed"
+                ) from exc
 
         if not self.config.get("enable_lane_b_commit", True):
             commit_report["status"] = "disabled"
@@ -339,7 +438,7 @@ class EmergenceDetectionController:
                 )
             commit_report.update(self._index_lane_b_trace(input_data, properties))
             commit_report["status"] = "committed"
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - authoritative store boundary
             logger.warning("Lane B graph commit skipped: %s", exc)
             commit_report["status"] = "graph_commit_skipped"
             commit_report["error"] = str(exc)
@@ -347,7 +446,7 @@ class EmergenceDetectionController:
         return commit_report
 
     @staticmethod
-    def _index_lane_b_trace(input_data: L10Input, properties: Dict[str, Any]) -> Dict[str, Any]:
+    def _index_lane_b_trace(input_data: L10Input, properties: dict[str, Any]) -> dict[str, Any]:
         """Index release-authorized traces into DB-C vector collections."""
         report = {
             "audit_evidence_indexed": False,
@@ -386,11 +485,11 @@ class EmergenceDetectionController:
                     "risk_domain": input_data.risk_domain,
                 },
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - optional trace index boundary
             report["vector_index_error"] = str(exc)
         return report
 
-    def _build_lane_b_knowledge_node(self, input_data: L10Input, commit_report: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_lane_b_knowledge_node(self, input_data: L10Input, commit_report: dict[str, Any]) -> dict[str, Any]:
         """Build a deterministic KnowledgeNode payload for release-authorized output."""
         final_answer = str(input_data.l9_result.get("epistemic_report", {}).get("current_output", "") or "").strip()
         trace_payload = {
@@ -420,7 +519,7 @@ class EmergenceDetectionController:
         }
 
     @staticmethod
-    def _first_coordinate_axis(coordinate_vector: Dict[str, Any]) -> Optional[int]:
+    def _first_coordinate_axis(coordinate_vector: dict[str, Any]) -> int | None:
         active_axes = coordinate_vector.get("active_axes") if isinstance(coordinate_vector, dict) else None
         if isinstance(active_axes, list):
             for axis in active_axes:
@@ -439,7 +538,7 @@ class EmergenceDetectionController:
         return None
 
     @staticmethod
-    def _coordinate_axis_value(coordinate_vector: Dict[str, Any], axis_number: int) -> Optional[str]:
+    def _coordinate_axis_value(coordinate_vector: dict[str, Any], axis_number: int) -> str | None:
         if not isinstance(coordinate_vector, dict):
             return None
         for key in (axis_number, str(axis_number), f"axis_{axis_number}", f"A{axis_number}"):
@@ -454,7 +553,7 @@ class EmergenceDetectionController:
                                   input_data: L10Input, 
                                   emergence: EmergenceAssessment,
                                   safety: SafetyCheckResult,
-                                  trust: TrustGateResult) -> Tuple[L10Decision, Optional[str], List[ContainmentAction]]:
+                                  trust: TrustGateResult) -> tuple[L10Decision, str | None, list[ContainmentAction]]:
         """Decision tree mapping signals to containment actions."""
         actions = []
         final_answer = input_data.l9_result.get("epistemic_report", {}).get("current_output", "")
@@ -500,7 +599,7 @@ class EmergenceDetectionController:
             compliance_status="compliant" if safety.passed and emergence.overall_level != EmergenceLevel.HIGH else "flagged"
         )
 
-    def _create_failure_result(self, input_data: Optional[L10Input], error_msg: str, processing_time: float) -> L10Result:
+    def _create_failure_result(self, input_data: L10Input | None, error_msg: str, processing_time: float) -> L10Result:
         """Fail-Closed result for Layer 10 errors."""
         sim_id = input_data.simulation_id if input_data else "unknown"
         return L10Result(

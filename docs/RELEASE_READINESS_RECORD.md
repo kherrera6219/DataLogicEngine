@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A passing 213-row primary-owner/consumer/evidence authority, 16 workflow dispositions, one runtime manifest, and 726 KA tests | CP19-B-L contract/selector/layers/persona/refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A owner/consumer authority and CP19-B typed parity: 18 caller/API/SDK surfaces, zero legacy calls, 738 KA/Python-SDK tests | CP19-C-L selector/layers/persona/refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -99,9 +99,11 @@ and CP18-E-H transferred without waiver to Phase 19.
 
 Phase 19 CP19-A passed on 2026-07-25 with all 213 KAs assigned one primary
 subsystem owner and governed consumers/evidence destinations, 16 workflow
-dispositions, zero added runtime registries, both authority verifiers passing,
-and 726 KA tests passing. CP19-B contract parity is active. This checkpoint did
-not authorize selectors, effects, rebuilding, installed acceptance, or release.
+dispositions, and zero added runtime registries. CP19-B also passed: 621
+production Python files scanned, 18 typed caller/API/SDK surfaces, zero legacy
+result calls, 738 KA/Python-SDK tests, and 2,486 full-suite tests with 18
+skipped. CP19-C is active. These checkpoints did not authorize effects,
+rebuilding, installed acceptance, or release.
 
 The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
 require the exact signed installed artifact. Phase 20 launch remains blocked by

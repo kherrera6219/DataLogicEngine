@@ -143,8 +143,11 @@ consumer, stage, selector, effect-port, workflow-disposition, or evidence
 metadata. The generated 213-row JSON/CSV authority under
 `reports/production-readiness/2026/phase-19/` is planning and verification
 metadata carried by the one runtime manifest, not another executable registry.
-The checkpoint baseline is 726 passing KA tests. CP19-B typed caller migration
-is now active.
+The CP19-A checkpoint baseline was 726 passing KA tests. CP19-B then migrated
+all existing production callers to the typed result boundary: 621 production
+Python files scanned, 18 caller/API/SDK surfaces verified, 32 typed call sites,
+zero legacy result calls, and 738 KA/Python-SDK tests passing. CP19-C selector
+and bounded dependency-DAG work is now active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

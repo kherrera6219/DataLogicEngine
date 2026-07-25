@@ -47,8 +47,10 @@ not final subsystem completion. Phase 18 retained a reconciled 213-capability
 authority, one runtime/controller, 213 unique implementation owners, and zero
 source gaps, but its whole-application wiring audit failed. Phase 19 CP19-A now
 adds one primary subsystem owner and governed consumer/evidence destinations
-for every KA, 16 workflow dispositions, and a 726-test baseline. CP19-B typed
-caller migration is active. Phase 19 continues to own the selector/DAG,
+for every KA, 16 workflow dispositions, and a 726-test baseline. CP19-B now
+passes with 18 typed caller/API/SDK surfaces, zero legacy production result
+calls, 738 KA/Python-SDK tests, and fail-closed remaining L10 identity drift.
+CP19-C is active. Phase 19 continues to own the selector/DAG,
 ten-layer, L9/L10, Quad
 Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop,
 per-KA, and installed integration proof. The signed rebuild is paused through

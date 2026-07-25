@@ -4,6 +4,11 @@ from types import SimpleNamespace
 import pytest
 
 from backend.knowledge_algorithms.ka_38_consensus_engine import KA038ConsensusEngine, KA038Input, PersonaClaim
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.llm_gateway.gateway import LLMGateway
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from backend.truth_engine.truth_core.personas import PersonaEnhancer
@@ -14,19 +19,32 @@ from core.persona.quad.mathematical_framework import DynamicWeightFunctions
 class FakeController:
     llm_gateway = None
 
-    def execute_algorithm(self, ka_id, inputs):
+    def execute_typed(self, ka_id, inputs):
         if ka_id == "KA-012":
-            return {
-                "personas": {
-                    "knowledge": {"response": "Axis 8 claim", "confidence": 0.9},
-                    "sector": {"response": "Axis 9 claim", "confidence": 0.8},
-                    "regulatory": {"response": "Axis 10 claim", "confidence": 0.85},
-                    "compliance": {"response": "Axis 11 claim", "confidence": 0.82},
-                },
-                "claims": [{"claim_id": "c1", "content": "claim"}],
-                "confidence": 0.86,
-            }
-        return {"output": {"ok": True}, "confidence": 0.9}
+            output = {
+                    "personas": {
+                        "knowledge": {"response": "Axis 8 claim", "confidence": 0.9},
+                        "sector": {"response": "Axis 9 claim", "confidence": 0.8},
+                        "regulatory": {"response": "Axis 10 claim", "confidence": 0.85},
+                        "compliance": {"response": "Axis 11 claim", "confidence": 0.82},
+                    },
+                    "claims": [{"claim_id": "c1", "content": "claim"}],
+                    "confidence": 0.86,
+                }
+        else:
+            output = {"ok": True, "confidence": 0.9}
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output=output,
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        )
 
 
 class FakePersonaConstruction:

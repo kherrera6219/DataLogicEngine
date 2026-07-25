@@ -27,20 +27,25 @@ Required KAs:
 - KA-034: Adversarial Reasoning
 """
 
-import logging
 import json
+import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from statistics import mean
-from typing import Dict, List, Any, Optional
+from typing import Any
+
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
+)
 
 from .l8_schemas import (
-    GateDecision,
     ContradictionItem,
-    FixDirective,
     DomainConfidence,
+    FixDirective,
+    GateDecision,
+    L8GateResult,
     L8Input,
-    L8GateResult
 )
 
 logger = logging.getLogger(__name__)
@@ -101,7 +106,7 @@ class TrustValidationGateway:
         "KA-034",  # Adversarial Reasoning
     ]
     
-    def __init__(self, ka_controller=None, config: Optional[Dict] = None):
+    def __init__(self, ka_controller=None, config: dict | None = None):
         """
         Initialize the Trust Validation Gateway.
         
@@ -127,6 +132,16 @@ class TrustValidationGateway:
         self.fail_count = 0
         
         logger.info("TrustValidationGateway initialized with 12 KAs")
+
+    def _execute_ka(
+        self,
+        ka_id: str,
+        payload: dict[str, Any],
+        kas_invoked: list[str],
+    ):
+        result = execute_required_ka(self.ka_controller, ka_id, payload)
+        kas_invoked.append(result.canonical_id)
+        return result
     
     def validate(self, input_data: L8Input) -> L8GateResult:
         """
@@ -239,10 +254,10 @@ class TrustValidationGateway:
                 status=GateDecision.FAIL,
                 overall_confidence=0.0,
                 target_threshold=threshold if 'threshold' in dir() else 0.95,
-                warnings=[f"Critical error: {str(e)}"],
+                warnings=[f"Critical error: {e!s}"],
                 fix_directives=[FixDirective(
                     target_layer=8,
-                    reason=f"L8 crashed: {str(e)}",
+                    reason=f"L8 crashed: {e!s}",
                     priority="critical"
                 )],
                 kas_invoked=kas_invoked,
@@ -262,7 +277,7 @@ class TrustValidationGateway:
 
         return self.risk_thresholds.get(domain, 0.95)
 
-    def _get_historical_threshold(self, domain: str) -> Optional[float]:
+    def _get_historical_threshold(self, domain: str) -> float | None:
         """Calibrate thresholds from 90-day TraceRun confidence history by domain."""
         confidences = self._trace_confidences_for_domain(domain)
         if not confidences:
@@ -272,7 +287,7 @@ class TrustValidationGateway:
         calibrated = mean(confidences) + 0.03
         return max(0.80, min(static_threshold, round(calibrated, 4)))
 
-    def _trace_confidences_for_domain(self, domain: str) -> List[float]:
+    def _trace_confidences_for_domain(self, domain: str) -> list[float]:
         session = self._get_db_session()
         if session is None:
             return []
@@ -280,7 +295,7 @@ class TrustValidationGateway:
         try:
             from models import TraceRun
 
-            cutoff = datetime.now(timezone.utc) - timedelta(days=90)
+            cutoff = datetime.now(UTC) - timedelta(days=90)
             rows = (
                 session.query(TraceRun)
                 .filter(TraceRun.created_at >= cutoff)
@@ -306,7 +321,7 @@ class TrustValidationGateway:
         return confidences
 
     @staticmethod
-    def _domain_from_snapshot(snapshot: Dict[str, Any]) -> str:
+    def _domain_from_snapshot(snapshot: dict[str, Any]) -> str:
         if not isinstance(snapshot, dict):
             return "standard"
         risk = snapshot.get("risk") if isinstance(snapshot.get("risk"), dict) else {}
@@ -329,54 +344,90 @@ class TrustValidationGateway:
         except Exception:
             return None
     
-    def _run_consistency_scan(self, input_data: L8Input, kas_invoked: List[str]) -> List[ContradictionItem]:
+    def _run_consistency_scan(self, input_data: L8Input, kas_invoked: list[str]) -> list[ContradictionItem]:
         """Run contradiction detection on claims."""
         contradictions = []
         
         # KA-026: Contradiction Detection
         if self.ka_controller:
             try:
-                claims = [c.get("text", str(c)) for c in input_data.claims[:50]]
-                result = self.ka_controller.execute_algorithm("KA-026", {"claims": claims})
-                kas_invoked.append("KA-026")
+                findings = [
+                    {
+                        "id": str(index),
+                        "content": claim.get("text", str(claim)),
+                        "persona": claim.get("persona"),
+                        "subject": claim.get("subject"),
+                    }
+                    for index, claim in enumerate(input_data.claims[:50])
+                ]
+                result = self._execute_ka(
+                    "KA-026",
+                    {"findings": findings},
+                    kas_invoked,
+                )
                 
-                for c in result.get("contradictions", []):
+                for c in require_output_field(result, "conflicts"):
+                    if "severity" not in c:
+                        raise RuntimeError(
+                            "KA-026 conflict is missing severity"
+                        )
                     contradictions.append(ContradictionItem(
-                        claim_a=c.get("claim_a", ""),
-                        claim_b=c.get("claim_b", ""),
-                        severity=c.get("severity", 0.5)
+                        claim_a=str(c.get("f1_id") or ""),
+                        claim_b=str(c.get("f2_id") or ""),
+                        severity=c["severity"],
                     ))
-            except Exception as e:
-                logger.debug(f"KA-026 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-026 contradiction scan failed"
+                ) from exc
         
         # KA-030: Attempt resolution if permitted
         if contradictions and self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-030", {
-                    "conflicts": [c.dict() for c in contradictions]
-                })
-                kas_invoked.append("KA-030")
+                result = self._execute_ka(
+                    "KA-030",
+                    {
+                        "conflicts": [c.model_dump() for c in contradictions],
+                        "query": input_data.query_text,
+                        "context": {"risk_domain": input_data.risk_domain},
+                    },
+                    kas_invoked,
+                )
+                resolved_findings = require_output_field(
+                    result,
+                    "resolved_findings",
+                )
                 
                 for i, c in enumerate(contradictions):
-                    if result.get("resolved", {}).get(str(i)):
+                    if (
+                        i < len(resolved_findings)
+                        and resolved_findings[i].get("status")
+                        in {"RESOLVED", "MEDIATED"}
+                    ):
                         c.resolution_attempted = True
                         c.resolution_status = "resolved"
-            except Exception as e:
-                logger.debug(f"KA-030 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-030 conflict resolution failed"
+                ) from exc
         
         return contradictions
     
-    def _run_cross_domain_validation(self, input_data: L8Input, kas_invoked: List[str]) -> List[DomainConfidence]:
+    def _run_cross_domain_validation(self, input_data: L8Input, kas_invoked: list[str]) -> list[DomainConfidence]:
         """Validate consistency across domains (Axis 6/7 crosswalks)."""
         domain_confidences = []
         
         # Base confidence from persona results
-        persona_confidences = {
-            "knowledge": input_data.persona_results.get("knowledge", {}).get("confidence", 0.9),
-            "sector": input_data.persona_results.get("sector", {}).get("confidence", 0.9),
-            "regulatory": input_data.persona_results.get("regulatory", {}).get("confidence", 0.9),
-            "compliance": input_data.persona_results.get("compliance", {}).get("confidence", 0.9),
-        }
+        persona_confidences = {}
+        for domain in ("knowledge", "sector", "regulatory", "compliance"):
+            raw_confidence = input_data.persona_results.get(domain, {}).get(
+                "confidence"
+            )
+            persona_confidences[domain] = (
+                float(raw_confidence)
+                if isinstance(raw_confidence, (int, float))
+                else 0.0
+            )
         
         threshold = self._get_threshold(input_data)
         
@@ -393,12 +444,22 @@ class TrustValidationGateway:
         # KA-016: Regulatory Mapping (Axis 6)
         if self.ka_controller and input_data.constraints:
             try:
-                result = self.ka_controller.execute_algorithm("KA-016", {
-                    "constraints": input_data.constraints
-                })
-                kas_invoked.append("KA-016")
+                result = self._execute_ka(
+                    "KA-016",
+                    {
+                        "query": input_data.query_text,
+                        "frameworks": [
+                            str(item)
+                            for item in input_data.constraints
+                            if isinstance(item, str)
+                        ],
+                    },
+                    kas_invoked,
+                )
                 
-                reg_conf = result.get("regulatory_confidence", 0.9)
+                reg_conf = 1.0 - float(
+                    require_output_field(result, "highest_risk")
+                )
                 domain_confidences.append(DomainConfidence(
                     domain="regulatory_mapping",
                     axis_id=6,
@@ -406,18 +467,40 @@ class TrustValidationGateway:
                     threshold=threshold,
                     passes=reg_conf >= threshold
                 ))
-            except Exception as e:
-                logger.debug(f"KA-016 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-016 regulatory mapping failed"
+                ) from exc
         
         # KA-025: Dependency Mapping (Axis 7)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-025", {
-                    "claims": input_data.claims[:20]
-                })
-                kas_invoked.append("KA-025")
+                result = self._execute_ka(
+                    "KA-025",
+                    {
+                        "nodes": [
+                            {
+                                "id": str(
+                                    claim.get("id")
+                                    or claim.get("claim_id")
+                                    or index
+                                ),
+                                "deps": claim.get("dependencies", []),
+                            }
+                            for index, claim in enumerate(
+                                input_data.claims[:20]
+                            )
+                        ]
+                    },
+                    kas_invoked,
+                )
                 
-                dep_conf = result.get("dependency_confidence", 0.9)
+                dependency_meta = require_output_field(result, "meta")
+                if "is_dag" not in dependency_meta:
+                    raise RuntimeError(
+                        "KA-025 output is missing meta.is_dag"
+                    )
+                dep_conf = 1.0 if dependency_meta["is_dag"] else 0.0
                 domain_confidences.append(DomainConfidence(
                     domain="dependency_crosswalk",
                     axis_id=7,
@@ -425,18 +508,20 @@ class TrustValidationGateway:
                     threshold=threshold,
                     passes=dep_conf >= threshold
                 ))
-            except Exception as e:
-                logger.debug(f"KA-025 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-025 dependency mapping failed"
+                ) from exc
         
         return domain_confidences
     
-    def _compute_trust_score(self, input_data: L8Input, domain_confidences: List[DomainConfidence], kas_invoked: List[str]) -> float:
+    def _compute_trust_score(self, input_data: L8Input, domain_confidences: list[DomainConfidence], kas_invoked: list[str]) -> float:
         """Compute calibrated trust score."""
         # Start with average of domain confidences
         if domain_confidences:
             base_confidence = sum(d.confidence for d in domain_confidences) / len(domain_confidences)
         else:
-            base_confidence = 0.9
+            base_confidence = 0.0
 
         citation_hits = self._search_citation_cache(input_data)
         if citation_hits:
@@ -446,14 +531,46 @@ class TrustValidationGateway:
         # KA-014: Confidence Scoring
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-014", {
-                    "domain_scores": [d.model_dump() for d in domain_confidences],
-                    "evidence_count": len(input_data.evidence)
-                })
-                kas_invoked.append("KA-014")
-                base_confidence = result.get("calibrated_confidence", base_confidence)
-            except Exception as e:
-                logger.debug(f"KA-014 skipped: {e}")
+                domain_scores = {
+                    item.domain: item.confidence
+                    for item in domain_confidences
+                }
+                persona_scores = [
+                    item.confidence
+                    for item in domain_confidences
+                    if item.domain
+                    in {"knowledge", "sector", "regulatory", "compliance"}
+                ]
+                result = self._execute_ka(
+                    "KA-014",
+                    {
+                        "evidence_score": min(
+                            1.0,
+                            len(input_data.evidence) / max(
+                                len(input_data.claims),
+                                1,
+                            ),
+                        ),
+                        "persona_consensus_score": (
+                            sum(persona_scores) / len(persona_scores)
+                            if persona_scores
+                            else 0.0
+                        ),
+                        "truth_score": base_confidence,
+                        "relevance_score": base_confidence,
+                        "has_contradictions": False,
+                        "domain_scores": domain_scores,
+                        "risk_domain": input_data.risk_domain,
+                    },
+                    kas_invoked,
+                )
+                base_confidence = float(
+                    require_output_field(result, "calibrated_confidence")
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-014 confidence calibration failed"
+                ) from exc
         
         # KA-023: Belief Decay (overconfidence protection)
         if self.ka_controller:
@@ -463,56 +580,87 @@ class TrustValidationGateway:
                     {
                         "id": str(i),
                         "confidence": base_confidence,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "category": "evidence"
                     }
                     for i, _ in enumerate(input_data.evidence[:10])
                 ]
-                result = self.ka_controller.execute_algorithm("KA-023", {
-                    "knowledge_items": knowledge_items,
-                    "reference_time": datetime.now(timezone.utc).isoformat()
-                })
-                kas_invoked.append("KA-023")
+                result = self._execute_ka(
+                    "KA-023",
+                    {
+                        "knowledge_items": knowledge_items,
+                        "reference_time": datetime.now(UTC).isoformat(),
+                    },
+                    kas_invoked,
+                )
                 # Calculate decay from processed items
-                processed = result.get("processed_items", [])
+                processed = require_output_field(result, "processed_items")
                 if processed:
-                    avg_conf = sum(p.get("confidence", base_confidence) for p in processed) / len(processed)
+                    if any("confidence" not in item for item in processed):
+                        raise RuntimeError(
+                            "KA-023 processed item is missing confidence"
+                        )
+                    avg_conf = sum(
+                        float(item["confidence"])
+                        for item in processed
+                    ) / len(processed)
                     base_confidence = avg_conf
-            except Exception as e:
-                logger.debug(f"KA-023 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-023 belief-decay calculation failed"
+                ) from exc
         
         # KA-022: Risk Assessment
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-022", {
-                    "risk_domain": input_data.risk_domain,
-                    "claims": input_data.claims[:10]
-                })
-                kas_invoked.append("KA-022")
-                risk_factor = result.get("risk_adjustment", 1.0)
+                result = self._execute_ka(
+                    "KA-022",
+                    {
+                        "recommendation": (
+                            _jsonish(input_data.l5_synthesis)
+                            or input_data.query_text
+                        ),
+                        "impact_scores": {},
+                    },
+                    kas_invoked,
+                )
+                overall_risk = float(
+                    require_output_field(result, "overall_risk_score")
+                )
+                risk_factor = max(0.0, 1.0 - overall_risk)
                 base_confidence *= risk_factor
-            except Exception as e:
-                logger.debug(f"KA-022 skipped: {e}")
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-022 risk assessment failed"
+                ) from exc
         
         # KA-024: Trust Gate (final policy enforcement)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-024", {
-                    "confidence": base_confidence,
-                    "risk_score": 1.0 - base_confidence  # Inverse of confidence
-                })
-                kas_invoked.append("KA-024")
+                result = self._execute_ka(
+                    "KA-024",
+                    {
+                        "confidence": base_confidence,
+                        "risk_score": 1.0 - base_confidence,
+                    },
+                    kas_invoked,
+                )
                 # If not approved, reduce confidence significantly
-                if not result.get("is_approved", True):
+                if not require_output_field(result, "is_approved"):
                     base_confidence *= 0.7
-                    logger.info(f"KA-024 vetoed: {result.get('blocking_reasons', [])}")
-            except Exception as e:
-                logger.debug(f"KA-024 skipped: {e}")
+                    logger.info(
+                        "KA-024 vetoed: %s",
+                        require_output_field(result, "blocking_reasons"),
+                    )
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-024 trust gate failed"
+                ) from exc
         
         return min(max(base_confidence, 0.0), 1.0)
 
     @staticmethod
-    def _search_citation_cache(input_data: L8Input) -> List[Dict[str, Any]]:
+    def _search_citation_cache(input_data: L8Input) -> list[dict[str, Any]]:
         """Search prior citation evidence for similar claims or query text."""
         try:
             from backend.services.rag_service import RAGService, get_rag_service
@@ -530,46 +678,99 @@ class TrustValidationGateway:
         except Exception:
             return []
     
-    def _run_self_critique(self, input_data: L8Input, kas_invoked: List[str]) -> List[str]:
+    def _run_self_critique(self, input_data: L8Input, kas_invoked: list[str]) -> list[str]:
         """Attack the solution for flaws."""
         warnings = []
         
         # KA-008: Self-Critique & Reflection
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-008", {
-                    "solution": input_data.l7_agi_plan or input_data.l5_synthesis,
-                    "claims": input_data.claims[:20]
-                })
-                kas_invoked.append("KA-008")
-                warnings.extend(result.get("critiques", []))
-            except Exception as e:
-                logger.debug(f"KA-008 skipped: {e}")
+                result = self._execute_ka(
+                    "KA-008",
+                    {
+                        "output_content": _jsonish(
+                            input_data.l7_agi_plan
+                            or input_data.l5_synthesis
+                        )
+                        or input_data.query_text
+                        or "No candidate content supplied.",
+                        "query": input_data.query_text,
+                        "required_points": [
+                            str(claim.get("text") or claim)
+                            for claim in input_data.claims[:20]
+                        ],
+                    },
+                    kas_invoked,
+                )
+                warnings.extend(
+                    str(item)
+                    for item in require_output_field(
+                        result,
+                        "suggestions",
+                    )
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-008 self-critique failed"
+                ) from exc
         
         # KA-034: Adversarial Reasoning
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-034", {
-                    "statements": [c.get("text", str(c)) for c in input_data.claims[:10]]
-                })
-                kas_invoked.append("KA-034")
-                if result.get("vulnerabilities"):
-                    warnings.extend(result.get("vulnerabilities", []))
-            except Exception as e:
-                logger.debug(f"KA-034 skipped: {e}")
+                assumptions = [
+                    claim.get("text", str(claim))
+                    for claim in input_data.claims[:10]
+                ]
+                result = self._execute_ka(
+                    "KA-034",
+                    {
+                        "scenario": input_data.query_text,
+                        "assumptions": assumptions,
+                        "evidence": input_data.evidence[:20],
+                    },
+                    kas_invoked,
+                )
+                attacks = require_output_field(
+                    result,
+                    "attacks_simulated",
+                )
+                warnings.extend(
+                    str(item.get("mitigation"))
+                    for item in attacks
+                    if item.get("vulnerability_found")
+                    and item.get("mitigation")
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-034 adversarial reasoning failed"
+                ) from exc
         
         # KA-003: Gap Analysis
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("KA-003", {
-                    "evidence": input_data.evidence[:20],
-                    "claims": input_data.claims[:20]
-                })
-                kas_invoked.append("KA-003")
-                if result.get("gaps"):
-                    warnings.append(f"Evidence gaps detected: {len(result.get('gaps', []))} items")
-            except Exception as e:
-                logger.debug(f"KA-003 skipped: {e}")
+                result = self._execute_ka(
+                    "KA-003",
+                    {
+                        "current_state": {
+                            "evidence_count": len(input_data.evidence),
+                            "claim_count": len(input_data.claims),
+                        },
+                        "desired_state": {
+                            "evidence_count": len(input_data.claims),
+                            "claim_count": len(input_data.claims),
+                        },
+                    },
+                    kas_invoked,
+                )
+                gaps = require_output_field(result, "gaps")
+                if gaps:
+                    warnings.append(
+                        f"Evidence gaps detected: {len(gaps)} items"
+                    )
+            except Exception as exc:
+                raise RuntimeError(
+                    "Required KA-003 gap analysis failed"
+                ) from exc
         
         return warnings
     
@@ -577,8 +778,8 @@ class TrustValidationGateway:
         self,
         confidence: float,
         threshold: float,
-        contradictions: List[ContradictionItem],
-        warnings: List[str]
+        contradictions: list[ContradictionItem],
+        warnings: list[str]
     ) -> tuple:
         """Make PASS/WARN/FAIL decision."""
         fix_directives = []
@@ -625,7 +826,7 @@ class TrustValidationGateway:
         return GateDecision.PASS, fix_directives
 
     @staticmethod
-    def _evaluate_opa_policy(input_data: L8Input, result: L8GateResult) -> Dict[str, Any]:
+    def _evaluate_opa_policy(input_data: L8Input, result: L8GateResult) -> dict[str, Any]:
         try:
             from backend.truth_engine.truth_gate.opa_policy import OPAPolicyEvaluator
 
@@ -650,9 +851,11 @@ class TrustValidationGateway:
             }
 
     @staticmethod
-    def _evaluate_model_screening(input_data: L8Input) -> Dict[str, Any]:
+    def _evaluate_model_screening(input_data: L8Input) -> dict[str, Any]:
         try:
-            from backend.truth_engine.truth_gate.model_screening import TruthGateModelScreening
+            from backend.truth_engine.truth_gate.model_screening import (
+                TruthGateModelScreening,
+            )
 
             claim_text = "\n".join(str(claim.get("text", claim)) for claim in input_data.claims[:20])
             synthesis_text = _jsonish(input_data.l5_synthesis)
@@ -679,7 +882,7 @@ class TrustValidationGateway:
                 "error": str(exc),
             }
     
-    def _get_escalation_target(self, fix_directives: List[FixDirective]) -> Optional[int]:
+    def _get_escalation_target(self, fix_directives: list[FixDirective]) -> int | None:
         """Determine which layer to escalate to."""
         if not fix_directives:
             return None
@@ -689,7 +892,7 @@ class TrustValidationGateway:
         sorted_directives = sorted(fix_directives, key=lambda d: priority_order.get(d.priority, 99))
         return sorted_directives[0].target_layer if sorted_directives else None
     
-    def _get_axes_evaluated(self, input_data: L8Input) -> List[int]:
+    def _get_axes_evaluated(self, input_data: L8Input) -> list[int]:
         """Return list of axes evaluated."""
         axes = [6, 7, 8, 9, 10, 11, 14]  # Core axes
         if self.enable_17_axis:
@@ -706,7 +909,7 @@ class TrustValidationGateway:
         else:
             self.fail_count += 1
     
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get gateway statistics."""
         return {
             "total_processed": self.total_processed,

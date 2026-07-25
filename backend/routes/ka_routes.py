@@ -5,11 +5,11 @@ Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-
 """
 
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, UTC
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 
 from backend.auth.api_decorators import api_login_required, get_authenticated_principal
 from backend.knowledge_algorithms.ka_master_controller import get_controller
@@ -387,20 +387,31 @@ def execute_algorithm(ka_id):
                 'limitations': metadata.get('limitations'),
             }), 409
 
-        ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
+        ka_result = _get_controller().execute_typed(
+            ka_id_norm,
+            input_data,
+            production_workflow=not allow_nonproduction,
+        )
 
         result = {
             'algorithm_id': ka_id_norm,
             'executed_at': datetime.now(UTC).isoformat(),
-            'status': 'completed' if ka_result.get('success', True) else 'failed',
-            'output': ka_result.get('output', ka_result),
-            'log': ka_result.get('log', ''),
-            'execution_time_ms': int(ka_result.get('execution_time', 0) * 1000)
+            'status': 'completed' if ka_result.success else 'failed',
+            'output': ka_result.output,
+            'log': '',
+            'execution_time_ms': int(ka_result.duration_ms),
+            'trace_id': ka_result.trace_id,
+            'canonical_result': ka_result.model_dump(
+                mode='json',
+                exclude_none=True,
+            ),
         }
 
         logger.info("Executed %s for user %s", ka_id_norm, _current_user_id())
 
-        return jsonify({'success': ka_result.get('success', True), 'result': result}), 200
+        return jsonify({'success': ka_result.success, 'result': result}), (
+            200 if ka_result.success else 422
+        )
     except Exception:
         logger.exception("Error executing algorithm")
         return _error_response('Algorithm execution failed', 500)
@@ -604,16 +615,25 @@ def batch_execute():
                 continue
 
             try:
-                ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
+                ka_result = _get_controller().execute_typed(
+                    ka_id_norm,
+                    input_data,
+                    production_workflow=not allow_nonproduction,
+                )
                 results.append({
                     'ka_id': ka_meta.get('KA_ID', ka_id_norm),
                     'name': ka_meta.get('KA_Name') or ka_meta.get('KA_ID') or ka_id_norm,
                     'short_name': ka_meta.get('Short_Name'),
                     'category': ka_meta.get('Category'),
-                    'status': 'completed' if ka_result.get('success', True) else 'failed',
-                    'output': ka_result.get('output', {}),
-                    'execution_time_ms': int(ka_result.get('execution_time', 0) * 1000),
-                    'layers_used': parse_list_field(ka_meta.get('Primary_Layers'))
+                    'status': 'completed' if ka_result.success else 'failed',
+                    'output': ka_result.output,
+                    'execution_time_ms': int(ka_result.duration_ms),
+                    'layers_used': parse_list_field(ka_meta.get('Primary_Layers')),
+                    'trace_id': ka_result.trace_id,
+                    'canonical_result': ka_result.model_dump(
+                        mode='json',
+                        exclude_none=True,
+                    ),
                 })
             except Exception:
                 logger.exception("Batch execution error for %s", ka_id_norm)

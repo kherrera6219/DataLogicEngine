@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.38.0 |
+| Document version | v1.39.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4725,6 +4725,40 @@ Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-a-validation.json`;
 - `reports/production-readiness/2026/phase-19/ka-runtime-authority-current.json`.
 
+### CP19-B checkpoint result - passed 2026-07-25
+
+CP19-B passed canonical result-contract parity. All existing production Python
+callers under `backend/` and `core/` now execute through `KAExecutionResult`
+or the strict required-output helpers. The legacy `execute_algorithm`,
+`execute_legacy`, and `execute_ka` methods remain compatibility definitions
+only; the source verifier scanned 621 production Python files and found zero
+legacy execution call sites, 32 typed execution/helper sites, and 18 verified
+internal/API/SDK caller surfaces.
+
+TruthCore, L6-L10, persona, refinement, simulation, POV, Query Persona, SEKrE,
+KA API, and the core compatibility facades consume canonical typed results.
+The Python SDK retains the canonical result returned by the authenticated API,
+and the TypeScript SDK carries `dle.ka-execution-result.v1`. Required failures
+raise or fail closed. Missing confidence is unmeasured/zero rather than an
+optimistic default. Layer 9 passes with the real controller and its live
+KA-008/010/022/025 meanings. The current Layer-10 identity drift is contained
+as HALT without releasing the candidate; correcting the wrong IDs and proving
+the full required L9/L10 suite remains CP19-E.
+
+Validation passed the CP19-B verifier, focused real-controller/API/simulation
+contract tests, the KA/Python-SDK suite at 738 passed, repository critical
+Ruff checks, and the full source suite at 2,486 passed with 18 skipped. CP19-C
+is now active. This checkpoint does not claim selector/DAG, ten-layer,
+persona/DSQP, 12-step, data/knowledge, extended-subsystem/effect, product UI,
+per-KA, clean-source, rebuilt-installed, or release completion.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
+- `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-b-validation.json`; and
+- `tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py`.
+
 ### Stop conditions
 
 Stop the current checkpoint and keep the rebuild or release blocked if:
@@ -5164,12 +5198,13 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A passed on 2026-07-25 with the 213-row owner/consumer authority, canonical
-lifecycle, workflow dispositions, evidence destinations, and one generated
-runtime manifest verified. Begin CP19-B contract parity: inventory every real
-caller, migrate it to the canonical typed result variants, repair the existing
-real-controller Layer-10 failure, and remove optimistic defaults before
-selector or subsystem wiring can consume or hide the wrong result shape.
+CP19-A and CP19-B passed on 2026-07-25. The 213-row owner/consumer authority,
+canonical lifecycle, workflow dispositions, evidence destinations, one runtime
+manifest, typed result boundary, 18 caller surfaces, and zero legacy production
+execution call sites are verified. Begin CP19-C: implement the manifest-driven
+selector plan and bounded dependency DAG with positive/negative fixtures for
+all 213 KAs, capability/policy admission, budgets, cancellation, structured
+concurrency, and truthful planned/selected/executed trace states.
 
 Proceed through CP19-C to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

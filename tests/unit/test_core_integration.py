@@ -22,7 +22,7 @@ class TestCoreIntegration:
         
         with patch('backend.knowledge_algorithms.ka_01_algorithm_of_thought.run', return_value={"output": "success"}):
             result = controller.execute_algorithm("KA-001", {"query": "test"})
-            assert result["output"] == "success"
+            assert result["output"] == {"output": "success"}
 
     @pytest.mark.asyncio
     async def test_truth_engine_coordination(self, truth_engine):

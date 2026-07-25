@@ -28,7 +28,7 @@ class KAResult(BaseModel):
     ka_id: str
     success: bool
     output: Dict[str, Any] = Field(default_factory=dict)
-    confidence: float = Field(ge=0.0, le=1.0, default=1.0)
+    confidence: float = Field(ge=0.0, le=1.0, default=0.0)
     execution_time_ms: float = 0.0
     errors: List[KAErrorInfo] = Field(default_factory=list)
     trace_id: Optional[str] = None
@@ -78,7 +78,7 @@ class KnowledgeAlgorithm(ABC):
         error_list: List[KAErrorInfo] = []
         result_output = {}
         success = False
-        confidence = 1.0
+        confidence = 0.0
         validated_input = None
 
         try:
@@ -89,7 +89,7 @@ class KnowledgeAlgorithm(ABC):
             self.log_execution_step("START", {"input_summary": str(input_data)[:100]})
             result_output = self._run_logic(validated_input)
             success = result_output.get("success", True)
-            confidence = result_output.get("confidence", 1.0)
+            confidence = result_output.get("confidence", 0.0)
             
         except ValidationError as ve:
             self.logger.error(f"Validation failed: {ve}")

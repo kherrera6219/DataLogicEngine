@@ -1,11 +1,21 @@
 import logging
-import uuid
 import math
 import re
-from typing import List, Dict, Any
-from backend.truth_engine.truth_core.l7_schemas import (
-    AGIGoal, AGIBelief, AGIConflict, AGIPlan, AGIContext
+import uuid
+from typing import Any
+
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
 )
+from backend.truth_engine.truth_core.l7_schemas import (
+    AGIBelief,
+    AGIConflict,
+    AGIContext,
+    AGIGoal,
+    AGIPlan,
+)
+
 try:
     from backend.security.ai_guardrail import AIGuardrailService
 except ImportError:
@@ -24,6 +34,12 @@ class AGIPlannerService:
 
     def __init__(self, llm_gateway=None, guardrail_service=None, ka_controller=None):
         self.llm_gateway = llm_gateway
+        if ka_controller is None:
+            from backend.knowledge_algorithms.ka_master_controller import (
+                get_controller,
+            )
+
+            ka_controller = get_controller()
         self.ka_controller = ka_controller
         self.guardrail = guardrail_service or (AIGuardrailService() if AIGuardrailService else None)
         self.max_depth = 3
@@ -34,7 +50,7 @@ class AGIPlannerService:
         self._explicit_conflict_terms = {"impossible", "violate", "contradict", "override"}
         logger.info("AGIPlannerService (Layer 7) initialized with Security Hardening + KA Integration")
 
-    def plan(self, initial_goal: str, beliefs: List[Dict[str, Any]]) -> AGIPlan:
+    def plan(self, initial_goal: str, beliefs: list[dict[str, Any]]) -> AGIPlan:
         """
         Main entry point. Generates a recursive plan.
         Follows Fail-Safe protocol: Returns a valid 'Failed' plan on crash.
@@ -116,15 +132,21 @@ class AGIPlannerService:
             # Post-Loop: KA-021 Emergence Detection
             if self.ka_controller:
                 try:
-                    ka021_result = self.ka_controller.execute_algorithm('KA-021', {
-                        'goals': [g.model_dump() for g in context.goals],
-                        'conflicts': [c.model_dump() for c in conflicts]
-                    })
-                    if ka021_result.get('emergence_detected'):
+                    ka021_result = execute_required_ka(
+                        self.ka_controller,
+                        "KA-021",
+                        {
+                            'goals': [g.model_dump() for g in context.goals],
+                            'conflicts': [c.model_dump() for c in conflicts],
+                        },
+                    )
+                    if require_output_field(ka021_result, "is_emergent"):
                         logger.info("Layer 7: Emergence pattern detected, flagging for L8 escalation.")
                         # Could set a flag here for L8 escalation
-                except Exception as e:
-                    logger.debug(f"KA-021 skipped: {e}")
+                except Exception as exc:
+                    raise RuntimeError(
+                        "Required KA-021 post-plan emergence check failed"
+                    ) from exc
 
             # 3. Finalize Plan
             convergence_score = self._calculate_convergence(conflicts)
@@ -138,7 +160,7 @@ class AGIPlannerService:
 
         except Exception as e:
             logger.error(f"AGI Planner Critical Failure: {e}")
-            return self._create_failed_plan(initial_goal, f"System Error: {str(e)}")
+            return self._create_failed_plan(initial_goal, f"System Error: {e!s}")
 
     def _create_failed_plan(self, initial_content: str, reason: str) -> AGIPlan:
         """Returns a structural plan object indicating failure."""
@@ -149,19 +171,37 @@ class AGIPlannerService:
             iterations=0
         )
 
-    def _decompose_goal(self, goal: AGIGoal) -> List[AGIGoal]:
+    def _decompose_goal(self, goal: AGIGoal) -> list[AGIGoal]:
         """
         Uses KA-002 (Tree of Thought) or KA-040 (Hypothesis Generation)
         to break a goal into sub-steps.
         """
         subgoals = []
+        execution_errors = []
         
         # Try KA-002: Tree of Thought
         if self.ka_controller:
             try:
-                ka002_result = self.ka_controller.execute_algorithm('KA-002', {'goal': goal.content})
-                if ka002_result.get('sub_goals'):
-                    for sg_content in ka002_result['sub_goals']:
+                ka002_result = execute_required_ka(
+                    self.ka_controller,
+                    "KA-002",
+                    {"goal": goal.content},
+                )
+                ka002_subgoals = require_output_field(
+                    ka002_result,
+                    "sub_goals",
+                )
+                if ka002_subgoals:
+                    for item in ka002_subgoals:
+                        sg_content = (
+                            item.get("label")
+                            if isinstance(item, dict)
+                            else str(item)
+                        )
+                        if not sg_content:
+                            raise RuntimeError(
+                                "KA-002 returned a sub-goal without a label"
+                            )
                         subgoals.append(AGIGoal(
                             id=str(uuid.uuid4()),
                             content=sg_content,
@@ -169,43 +209,50 @@ class AGIPlannerService:
                             parent_id=goal.id
                         ))
                     return subgoals
-            except Exception as e:
-                logger.debug(f"KA-002 skipped: {e}")
+            except Exception as exc:
+                execution_errors.append(f"KA-002: {exc}")
         
         # Try KA-040: Hypothesis Generation
         if self.ka_controller:
             try:
-                ka040_result = self.ka_controller.execute_algorithm('KA-040', {'goal': goal.content})
-                if ka040_result.get('hypotheses'):
-                    for hyp in ka040_result['hypotheses']:
+                ka040_result = execute_required_ka(
+                    self.ka_controller,
+                    "KA-040",
+                    {"goal": goal.content},
+                )
+                hypotheses = require_output_field(
+                    ka040_result,
+                    "hypotheses",
+                )
+                if hypotheses:
+                    for item in hypotheses:
+                        hypothesis = (
+                            item.get("statement")
+                            if isinstance(item, dict)
+                            else str(item)
+                        )
+                        if not hypothesis:
+                            raise RuntimeError(
+                                "KA-040 returned a hypothesis without a statement"
+                            )
                         subgoals.append(AGIGoal(
                             id=str(uuid.uuid4()),
-                            content=hyp,
+                            content=hypothesis,
                             depth=goal.depth + 1,
                             parent_id=goal.id
                         ))
                     return subgoals
-            except Exception as e:
-                logger.debug(f"KA-040 skipped: {e}")
+            except Exception as exc:
+                execution_errors.append(f"KA-040: {exc}")
         
-        # Fallback: Mock Intelligence for stability
-        sub_content_templates = [
-            f"Research preconditions for '{goal.content}'",
-            f"Execute core logic of '{goal.content}'",
-            f"Verify outcome of '{goal.content}'"
-        ]
-        
-        for content in sub_content_templates:
-            subgoals.append(AGIGoal(
-                id=str(uuid.uuid4()),
-                content=content,
-                depth=goal.depth + 1,
-                parent_id=goal.id
-            ))
-            
-        return subgoals
+        if self.ka_controller:
+            detail = "; ".join(execution_errors) or "no candidate output"
+            raise RuntimeError(
+                f"KA-backed goal decomposition produced no sub-goals: {detail}"
+            )
+        return []
 
-    def _detect_conflicts(self, goal: AGIGoal, beliefs: List[AGIBelief]) -> List[AGIConflict]:
+    def _detect_conflicts(self, goal: AGIGoal, beliefs: list[AGIBelief]) -> list[AGIConflict]:
         """
         Checks if a goal contradicts any held belief.
         """
@@ -306,7 +353,7 @@ class AGIPlannerService:
                 logger.debug(f"LLM arbitration skipped ({method_name}): {e}")
         return None
         
-    def _calculate_convergence(self, conflicts: List[AGIConflict]) -> float:
+    def _calculate_convergence(self, conflicts: list[AGIConflict]) -> float:
         if not conflicts:
             return 1.0
         resolved = sum(1 for c in conflicts if c.resolved)

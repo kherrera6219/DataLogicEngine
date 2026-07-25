@@ -57,7 +57,7 @@ acceptance. This report is not a production approval.
 |---|---|---|
 | Runtime/trust/readiness | Factory isolation, phased startup, truthful capabilities, supervisor/lock tests | Signed collision/lifecycle/Windows protection matrix |
 | Data/migration/recovery | Five-service and populated migration/backup/restore/deletion drills | Exact installed delivery, 0.1.1 upgrade, clean restore/remnant/independent review |
-| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, retained CP18-A/CP18-B authority/runtime, and CP19-A passing 213-row owner/consumer/evidence authority with 726 KA tests | CP19-B-L contract, selector/DAG, ten-layer, persona, refinement, owning-subsystem, product-workflow, per-KA, security/effect, and clean-source evidence; then CP19-M installed provider traces, per-KA samples/performance/effects, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, retained CP18-A/CP18-B authority/runtime, CP19-A owner/consumer authority, and CP19-B typed parity with 18 caller/API/SDK surfaces and zero legacy calls | CP19-C-L selector/DAG, ten-layer, persona, refinement, owning-subsystem, product-workflow, per-KA, security/effect, and clean-source evidence; then CP19-M installed provider traces, per-KA samples/performance/effects, corpus rows, and blinded-human acceptance |
 | Providers/privacy/offline | OpenAI/Google adapters, budgets, deadlines, ledger, replay contracts | Live installed provider failure/cancel/spend/privacy matrix |
 | Gateway/SDK | Native, SSE, async/cancel, scopes, SDK/compatibility tests | Signed same-host/private TLS/firewall/two-machine/load/soak |
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
@@ -98,7 +98,7 @@ passes.
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
 | 18 | Closed incomplete 2026-07-25: CP18-A/CP18-B and CP18-C source batches are retained at 213 unique implementation owners, zero source gaps, and 721 KA tests; CP18-D failed and CP18-C effect/pre-existing qualification plus CP18-E-H transferred without waiver |
-| 19 | Active: CP19-A owner/consumer/workflow authority passed 2026-07-25; CP19-B typed contract parity is active; CP19-C-M retain selector/DAG, ten-layer, L9/L10, Quad Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop, per-KA, clean-source, and rebuilt-installed qualification |
+| 19 | Active: CP19-A owner/consumer/workflow authority and CP19-B typed contract parity passed 2026-07-25; CP19-C selector/DAG is active; CP19-D-M retain ten-layer, L9/L10, Quad Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop, per-KA, clean-source, and rebuilt-installed qualification |
 | 20 | Production launch and maintenance remain blocked by every prior release gate |
 
 ## Phase 19 KA verification method

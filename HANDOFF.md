@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.38.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.39.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-B active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-C active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -70,7 +70,7 @@ dispatch is broken, and owning subsystems do not select the wider catalog.
 Phase 19 is now the sole KA integration authority. Its mandatory order is:
 
 1. CP19-A transfer/ownership/architecture freeze - passed 2026-07-25;
-2. CP19-B canonical result-contract parity;
+2. CP19-B canonical result-contract parity - passed 2026-07-25;
 3. CP19-C manifest selector and bounded dependency DAG;
 4. CP19-D ten layers inside `GovernedExecutionOrchestrator`;
 5. CP19-E correct fail-closed L9/L10;
@@ -119,9 +119,25 @@ Authority version `2026.07.25-cp19a.1` verifies all 213 KAs have one
 implementation owner and one primary subsystem owner, all required integration
 and evidence destinations are classified, 16 competing/adjacent workflow
 surfaces have explicit dispositions, and no second runtime registry exists.
-Focused authority/runtime tests and the full KA suite pass at 726 tests. This
-authorizes CP19-B only; selector activation, effects, rebuilding, installed
-acceptance, and production launch remain unauthorized.
+Focused authority/runtime tests and the CP19-A KA suite pass at 726 tests.
+
+CP19-B is also complete. Its verifier scanned 621 production Python files,
+verified 18 internal/API/SDK caller surfaces and 32 typed execution/helper call
+sites, and found zero calls to the legacy result methods. TruthCore, L6-L10,
+persona, refinement, simulation, POV, Query Persona, SEKrE, API, and
+compatibility facades now consume `KAExecutionResult`; SDKs retain the canonical
+result schema. Missing required values fail closed and missing confidence is
+unmeasured/zero. Real-controller Layer 9 passes. Layer 10 now contains its
+remaining wrong-ID mismatch as HALT without releasing the candidate; semantic
+correction remains CP19-E. The KA/Python-SDK suite passes 738 tests and the full
+source suite passes 2,486 with 18 skipped.
+
+CP19-A/CP19-B authorize CP19-C only; selector activation, effects, rebuilding,
+installed acceptance, and production launch remain unauthorized. Read:
+
+- `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
+- `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-b-validation.json`.
 
 ## Approved product boundary
 
@@ -738,11 +754,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-B contract parity before adding new selector/call-path wiring.
-   Inventory every real caller, migrate it to canonical typed result variants,
-   and make the current real-controller L10 failure a passing regression
-   without flattening the canonical result or retaining optimistic defaults.
-2. Proceed through CP19-C to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-C manifest selector and bounded dependency-DAG execution for
+   all 213 KAs with positive/negative fixtures, capability/policy admission,
+   budgets, cancellation, structured concurrency, and truthful trace states.
+2. Proceed through CP19-D to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

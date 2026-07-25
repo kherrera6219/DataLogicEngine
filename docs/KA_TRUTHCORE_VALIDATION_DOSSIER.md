@@ -195,8 +195,10 @@ no unresolved finding was waived.
 
 Phase 19 CP19-A passed with one primary subsystem owner and governed
 consumer/evidence destinations for all 213 KAs, 16 workflow dispositions, zero
-new runtime registries, and 726 passing KA tests. CP19-B typed result-contract
-parity is active. CP19-C-M still must establish manifest selection and bounded
+new runtime registries, and a 726-test baseline. CP19-B passed with 18 typed
+caller/API/SDK surfaces, zero legacy production result calls, 738
+KA/Python-SDK tests, and a 2,486-passed/18-skipped full source suite. CP19-C-M
+still must establish manifest selection and bounded
 dependency DAG execution, the canonical ten-layer and 12-step paths, correct
 fail-closed L9/L10, causal KA-backed Quad Persona/DSQP, Truth/data/knowledge and
 extended-subsystem integration, API/SDK/desktop workflows, one semantic

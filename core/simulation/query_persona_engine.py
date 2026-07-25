@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any
+
 
 class QueryPersonaEngine:
     """
@@ -37,8 +38,8 @@ class QueryPersonaEngine:
         
         logging.info(f"[{datetime.now()}] QueryPersonaEngine initialized with personas: {', '.join(self.enabled_personas)}")
     
-    def run(self, query_text: str, query_topic_uid: str, initial_axis_context_scores: Dict[str, float],
-            active_location_context: List[str], session_id: str, pass_num: int) -> Dict[str, Any]:
+    def run(self, query_text: str, query_topic_uid: str, initial_axis_context_scores: dict[str, float],
+            active_location_context: list[str], session_id: str, pass_num: int) -> dict[str, Any]:
         """
         Run the query through all enabled personas.
         
@@ -127,7 +128,7 @@ class QueryPersonaEngine:
             return result
         
         except Exception as e:
-            error_msg = f"Error in QPE: {str(e)}"
+            error_msg = f"Error in QPE: {e!s}"
             logging.error(f"[{datetime.now()}] QPE: {error_msg}", exc_info=True)
             
             return {
@@ -136,8 +137,8 @@ class QueryPersonaEngine:
             }
     
     def _run_persona(self, persona_type: str, query_text: str, query_topic_uid: str,
-                   initial_axis_context_scores: Dict[str, float], active_location_context: List[str],
-                   session_id: str, pass_num: int) -> Dict[str, Any]:
+                   initial_axis_context_scores: dict[str, float], active_location_context: list[str],
+                   session_id: str, pass_num: int) -> dict[str, Any]:
         """
         Run a specific persona on the query.
         
@@ -194,42 +195,20 @@ class QueryPersonaEngine:
                 'CE': 6   # KA06 for Context Expert (not implemented in this example)
             }.get(persona_type, 1)  # Default to KA01 if specific KA not available
             
-            # Try to use the specific persona KA if available, otherwise use generic KA01
-            try:
-                ka_input = {
-                    'query_text': query_text,
-                    'persona_type': persona_type,
-                    'initial_axis_context_scores': initial_axis_context_scores,
-                    'active_location_context': active_location_context
-                }
-                
-                ka_result = self.ka_loader.execute_ka(
-                    ka_id=persona_ka_id,
-                    input_data=ka_input,
-                    session_id=session_id,
-                    pass_num=pass_num,
-                    layer_num=2
-                )
-                
-                if ka_result.get('status') != 'success':
-                    # Fall back to using KA01 if the specific KA fails
-                    ka_result = self.ka_loader.execute_ka(
-                        ka_id=1,
-                        input_data={'query_text': query_text},
-                        session_id=session_id,
-                        pass_num=pass_num,
-                        layer_num=2
-                    )
-            except Exception as e:
-                # Fallback to KA01 if the specific KA doesn't exist
-                logging.warning(f"Failed to execute KA, falling back to KA01: {str(e)}")
-                ka_result = self.ka_loader.execute_ka(
-                    ka_id=1,
-                    input_data={'query_text': query_text},
-                    session_id=session_id,
-                    pass_num=pass_num,
-                    layer_num=2
-                )
+            ka_input = {
+                'query_text': query_text,
+                'persona_type': persona_type,
+                'initial_axis_context_scores': initial_axis_context_scores,
+                'active_location_context': active_location_context
+            }
+            ka_execution = self.ka_loader.execute_typed(
+                ka_id=persona_ka_id,
+                input_data=ka_input,
+                session_id=session_id,
+                pass_num=pass_num,
+                layer_num=2,
+            )
+            ka_result = ka_execution.require_output()
             
             # Step 2: Generate persona-specific answer
             answer = self._generate_persona_answer(
@@ -276,7 +255,7 @@ class QueryPersonaEngine:
             }
         
         except Exception as e:
-            error_msg = f"Error running {persona_type} persona: {str(e)}"
+            error_msg = f"Error running {persona_type} persona: {e!s}"
             logging.error(f"[{datetime.now()}] QPE: {error_msg}", exc_info=True)
             
             return {
@@ -286,7 +265,7 @@ class QueryPersonaEngine:
                 'confidence': 0.0
             }
     
-    def _get_persona_model(self, persona_type: str) -> Dict[str, Any]:
+    def _get_persona_model(self, persona_type: str) -> dict[str, Any]:
         """
         Get a persona model from the UKG.
         
@@ -372,10 +351,10 @@ class QueryPersonaEngine:
         
         return default_models.get(persona_type, {})
     
-    def _generate_persona_answer(self, persona_type: str, persona_model: Dict[str, Any],
-                               query_text: str, ka_result: Dict[str, Any],
-                               initial_axis_context_scores: Dict[str, float],
-                               active_location_context: List[str]) -> str:
+    def _generate_persona_answer(self, persona_type: str, persona_model: dict[str, Any],
+                               query_text: str, ka_result: dict[str, Any],
+                               initial_axis_context_scores: dict[str, float],
+                               active_location_context: list[str]) -> str:
         """
         Generate an answer from the persona's perspective.
         
@@ -400,9 +379,8 @@ class QueryPersonaEngine:
         entities = []
         topics = []
         
-        if ka_result.get('status') == 'success' and 'findings' in ka_result:
-            entities = ka_result['findings'].get('extracted_entities', [])
-            topics = ka_result['findings'].get('identified_topics', [])
+        entities = ka_result.get('extracted_entities', [])
+        topics = ka_result.get('identified_topics', [])
         
         # Extract entity and topic names
         entity_names = [e.get('text', '') for e in entities if e.get('text')]
@@ -445,8 +423,8 @@ class QueryPersonaEngine:
         
         return answer
     
-    def _calculate_persona_confidence(self, persona_type: str, ka_result: Dict[str, Any],
-                                    answer_length: int, initial_axis_context_scores: Dict[str, float]) -> float:
+    def _calculate_persona_confidence(self, persona_type: str, ka_result: dict[str, Any],
+                                    answer_length: int, initial_axis_context_scores: dict[str, float]) -> float:
         """
         Calculate the confidence score for a persona's answer.
         
@@ -459,13 +437,12 @@ class QueryPersonaEngine:
         Returns:
             float: Confidence score (0.0 to 1.0)
         """
-        confidence = 0.7  # Base confidence
-        
-        # Add confidence based on KA result
-        if ka_result.get('status') == 'success':
-            confidence += min(0.2, ka_result.get('ka_confidence', 0.0) * 0.2)
-        else:
-            confidence -= 0.1
+        measured_confidence = ka_result.get('confidence')
+        confidence = (
+            float(measured_confidence)
+            if isinstance(measured_confidence, (int, float))
+            else 0.0
+        )
         
         # Add confidence based on answer length (longer answers might indicate more confidence)
         # But not too long, which might indicate verbosity without substance

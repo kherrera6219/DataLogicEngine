@@ -8,7 +8,7 @@ including expert persona simulation and knowledge refinement.
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, Optional
+
 
 class SimulationEngine:
     """
@@ -42,16 +42,22 @@ class SimulationEngine:
         
         # Phase 2 Infrastructure
         try:
-            from backend.knowledge_algorithm.axis_mapper import AxisMapper  # inversion:ok — lazy optional Phase 2 infrastructure
-            from backend.knowledge_algorithm.truth_engine import TruthEngine  # inversion:ok
-            from backend.knowledge_algorithm.workflow_loader import WorkflowLoader  # inversion:ok
+            from backend.knowledge_algorithm.axis_mapper import (
+                AxisMapper,  # inversion:ok — lazy optional Phase 2 infrastructure
+            )
+            from backend.knowledge_algorithm.truth_engine import (
+                TruthEngine,  # inversion:ok
+            )
+            from backend.knowledge_algorithm.workflow_loader import (
+                WorkflowLoader,  # inversion:ok
+            )
             
             self.axis_mapper = AxisMapper()
             self.truth_engine = TruthEngine()
             self.workflow_loader = WorkflowLoader()
             logging.info(f"[{datetime.now()}] Phase 2 Infrastructure (AxisMapper, TruthEngine, WorkflowLoader) initialized.")
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Failed to initialize Phase 2 Infrastructure: {str(e)}")
+            logging.error(f"[{datetime.now()}] Failed to initialize Phase 2 Infrastructure: {e!s}")
             self.axis_mapper = None
             self.truth_engine = None
             self.workflow_loader = None
@@ -152,7 +158,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 4 Reasoning Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 4 Reasoning Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 4 Reasoning Engine: {e!s}")
                 self.layer4_enabled = False
 
         # Layer 5: Memory & Analysis Integration
@@ -167,7 +173,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 5 Integration Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 5 Integration Engine: {e!s}")
                 self.layer5_enabled = False
 
         # Layer 6: Knowledge Enhancement
@@ -181,7 +187,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 6 Enhancement Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 6 Enhancement Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 6 Enhancement Engine: {e!s}")
                 self.layer6_enabled = False
 
         # Layer 7: AGI Simulation
@@ -196,7 +202,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 7 AGI Simulation Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 7 AGI Simulation Engine: {e!s}")
                 self.layer7_enabled = False
 
         # Layer 8: Quantum Simulation
@@ -210,7 +216,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 8 Quantum Simulation Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 8 Quantum Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 8 Quantum Engine: {e!s}")
                 self.layer8_enabled = False
 
         # Layer 9: Recursive Processing
@@ -224,7 +230,7 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 9 Recursive Processing Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 9 Recursive Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 9 Recursive Engine: {e!s}")
                 self.layer9_enabled = False
 
         # Layer 10: Final Synthesis
@@ -238,12 +244,12 @@ class SimulationEngine:
                 )
                 logging.info(f"[{datetime.now()}] Layer 10 Final Synthesis Engine initialized")
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 10 Synthesis Engine: {str(e)}")
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 10 Synthesis Engine: {e!s}")
                 self.layer10_enabled = False
 
-    def start_simulation(self, query: str, context: Optional[Dict] = None, 
-                       session_id: Optional[str] = None, 
-                       simulation_params: Optional[Dict] = None) -> Dict:
+    def start_simulation(self, query: str, context: dict | None = None,
+                       session_id: str | None = None,
+                       simulation_params: dict | None = None) -> dict:
         """
         Start a new simulation.
         
@@ -312,7 +318,7 @@ class SimulationEngine:
         
         return simulation
     
-    def get_simulation(self, simulation_id: str) -> Optional[Dict]:
+    def get_simulation(self, simulation_id: str) -> dict | None:
         """
         Get a simulation by ID.
         
@@ -324,7 +330,7 @@ class SimulationEngine:
         """
         return self.active_simulations.get(simulation_id)
         
-    def _apply_layer5_integration(self, context: Dict, simulation_id: str) -> Dict:
+    def _apply_layer5_integration(self, context: dict, simulation_id: str) -> dict:
         """
         Apply Layer 5 Integration Engine processing to a simulation context.
         
@@ -385,11 +391,11 @@ class SimulationEngine:
             return integrated_context
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Layer 5 integration error for {simulation_id}: {str(e)}")
+            logging.error(f"[{datetime.now()}] Layer 5 integration error for {simulation_id}: {e!s}")
             # Return original context on error
             return context
     
-    def _apply_layer7_agi_processing(self, context: Dict, simulation_id: str) -> Dict:
+    def _apply_layer7_agi_processing(self, context: dict, simulation_id: str) -> dict:
         """
         Apply Layer 7 AGI Simulation Engine processing to the context.
         
@@ -435,7 +441,7 @@ class SimulationEngine:
                 pov_engine = context['pov_engine']
                 
             # Add historical confidence for tracking decay
-            if 'passes' in simulation and simulation['passes']:
+            if simulation.get('passes'):
                 historical_confidence = [
                     p.get('confidence', {}).get('overall', 0.0) 
                     for p in simulation['passes']
@@ -486,12 +492,12 @@ class SimulationEngine:
             return agi_context
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Layer 7 AGI simulation error for {simulation_id}: {str(e)}")
+            logging.error(f"[{datetime.now()}] Layer 7 AGI simulation error for {simulation_id}: {e!s}")
             # Return original context on error
             context['layer7_error'] = str(e)
             return context
 
-    def _process_simulation_layers(self, context: Dict, simulation_id: str, current_pass: int) -> Dict:
+    def _process_simulation_layers(self, context: dict, simulation_id: str, current_pass: int) -> dict:
         """
         Process context through all simulation layers (4-10) in sequence.
 
@@ -513,7 +519,7 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 4: Reasoning & Logic Engine")
                 enhanced_context = self.layer4_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 4 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 4 processing error: {e!s}")
                 enhanced_context['layer4_error'] = str(e)
 
         # Layer 5: Memory & Analysis Integration
@@ -522,7 +528,7 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 5: Memory & Analysis Integration")
                 enhanced_context = self.layer5_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 5 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 5 processing error: {e!s}")
                 enhanced_context['layer5_error'] = str(e)
 
         # Layer 6: Knowledge Enhancement
@@ -531,7 +537,7 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 6: Knowledge Enhancement")
                 enhanced_context = self.layer6_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 6 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 6 processing error: {e!s}")
                 enhanced_context['layer6_error'] = str(e)
 
         # Layer 7: AGI Simulation
@@ -541,7 +547,7 @@ class SimulationEngine:
                 pov_engine = enhanced_context.get('pov_engine', None)
                 enhanced_context = self.layer7_engine.process(enhanced_context, pov_engine)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 7 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 7 processing error: {e!s}")
                 enhanced_context['layer7_error'] = str(e)
 
         # Layer 8: Quantum Simulation
@@ -550,7 +556,7 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 8: Quantum Simulation")
                 enhanced_context = self.layer8_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 8 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 8 processing error: {e!s}")
                 enhanced_context['layer8_error'] = str(e)
 
         # Layer 9: Recursive Processing
@@ -559,7 +565,7 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 9: Recursive Processing")
                 enhanced_context = self.layer9_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 9 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 9 processing error: {e!s}")
                 enhanced_context['layer9_error'] = str(e)
 
         # Layer 10: Final Synthesis
@@ -568,13 +574,13 @@ class SimulationEngine:
                 logging.info(f"[{datetime.now()}] Applying Layer 10: Final Synthesis")
                 enhanced_context = self.layer10_engine.process(enhanced_context)
             except Exception as e:
-                logging.error(f"[{datetime.now()}] Layer 10 processing error: {str(e)}")
+                logging.error(f"[{datetime.now()}] Layer 10 processing error: {e!s}")
                 enhanced_context['layer10_error'] = str(e)
 
         logging.info(f"[{datetime.now()}] Completed processing all simulation layers for {simulation_id}")
         return enhanced_context
 
-    def run_simulation_pass(self, simulation_id: str) -> Dict:
+    def run_simulation_pass(self, simulation_id: str) -> dict:
         """
         Run a single pass of the simulation.
         
@@ -763,12 +769,12 @@ class SimulationEngine:
                 simulation['duration_ms'] = (datetime.fromisoformat(simulation['end_time']) - 
                                            datetime.fromisoformat(simulation['start_time'])).total_seconds() * 1000
             
-            logging.error(f"[{datetime.now()}] Error in simulation {simulation_id}: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error in simulation {simulation_id}: {e!s}")
         
         return simulation
     
-    def _run_persona_simulation(self, persona_id: str, query: str, context: Dict,
-                              simulation_id: str, pass_number: int) -> Dict:
+    def _run_persona_simulation(self, persona_id: str, query: str, context: dict,
+                              simulation_id: str, pass_number: int) -> dict:
         """
         Run simulation for a specific persona.
         
@@ -855,13 +861,13 @@ class SimulationEngine:
                 result['duration_ms'] = (datetime.fromisoformat(result['end_time']) - 
                                        start_time).total_seconds() * 1000
             
-            logging.error(f"[{datetime.now()}] Error in persona simulation {persona_id}: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error in persona simulation {persona_id}: {e!s}")
         
         return result
     
     def _run_component_simulation(self, persona_id: str, component_id: str, 
-                                query: str, context: Dict,
-                                simulation_id: str, pass_number: int) -> Dict:
+                                query: str, context: dict,
+                                simulation_id: str, pass_number: int) -> dict:
         """
         Run simulation for a specific persona component.
         
@@ -904,44 +910,42 @@ class SimulationEngine:
                 'pass_number': pass_number
             }
             
-            # Determine which KA to execute (Prefer KA-XXX format, fallback to legacy)
-            ka_id = ka_params.get('ka_id', f"KA_PERSONA_{persona_id.upper()}_{component_id.upper()}")
-            
-            # Execute KA if available
-            if self.ka_engine and (ka_id in self.ka_engine.list_algorithms() or 
-                                  ka_id.replace("KA_PERSONA_", "KA-") in self.ka_engine.list_algorithms()):
-                
-                # Normalize ID if it was legacy
-                if ka_id not in self.ka_engine.list_algorithms():
-                    # Map legacy to modern (e.g., KA_PERSONA_KNOWLEDGE_PERSONA -> KA-012)
-                    if "PERSONA" in ka_id:
-                        ka_id = "KA-012"
-                    # Add more mappings as needed, or use a lookup table
-                    
-                # Execute algorithm
-                execution = self.ka_engine.execute_algorithm(
-                    ka_id=ka_id,
-                    params=ka_params,
-                    session_id=simulation_id
+            if not self.ka_engine:
+                raise RuntimeError(
+                    "Canonical KA engine is required for persona simulation"
                 )
-                
-                if execution['status'] == 'completed':
-                    # Extract results
-                    ka_results = execution.get('results', {})
-                    result['ka_id'] = ka_id
-                    result['response'] = ka_results.get('response')
-                    result['confidence'] = ka_results.get('confidence', 0.6)
-                    result['ka_execution_id'] = execution['execution_id']
-                else:
-                    # KA execution failed, use fallback
-                    result['response'] = self._generate_fallback_response(persona_id, component_id, query)
-                    result['confidence'] = 0.4
-                    result['ka_execution_failed'] = True
-            else:
-                # No KA available, use fallback
-                result['response'] = self._generate_fallback_response(persona_id, component_id, query)
-                result['confidence'] = 0.4
-                result['ka_not_available'] = True
+
+            ka_id = "KA-012"
+            execution = self.ka_engine.execute_typed(
+                ka_id,
+                {
+                    "query": query,
+                    "active_personas": [persona_id],
+                    "context": {
+                        **context,
+                        "component_id": component_id,
+                        "axis_vector": context.get("axis_vector", {}),
+                        "pass_number": pass_number,
+                    },
+                },
+                session_id=simulation_id,
+            )
+            ka_results = execution.require_output()
+            persona_results = ka_results.get("persona_results")
+            if not isinstance(persona_results, list) or not persona_results:
+                raise RuntimeError(
+                    "KA-012 output is missing persona_results"
+                )
+            persona_result = persona_results[0]
+            measured_confidence = persona_result.get("confidence")
+            result['ka_id'] = ka_id
+            result['response'] = persona_result.get('response')
+            result['confidence'] = (
+                float(measured_confidence)
+                if isinstance(measured_confidence, (int, float))
+                else 0.0
+            )
+            result['ka_execution_id'] = execution.trace_id
             
             # Calculate duration
             end_time = datetime.now()
@@ -962,12 +966,12 @@ class SimulationEngine:
                 result['duration_ms'] = (datetime.fromisoformat(result['end_time']) - 
                                        start_time).total_seconds() * 1000
             
-            logging.error(f"[{datetime.now()}] Error in component simulation {persona_id}/{component_id}: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error in component simulation {persona_id}/{component_id}: {e!s}")
         
         return result
     
-    def _generate_persona_response(self, persona_id: str, components: Dict, 
-                                 query: str, context: Dict) -> Dict:
+    def _generate_persona_response(self, persona_id: str, components: dict,
+                                 query: str, context: dict) -> dict:
         """
         Generate a combined response for a persona from its components.
         
@@ -1003,7 +1007,7 @@ class SimulationEngine:
         
         return combined_response
     
-    def _generate_fallback_response(self, persona_id: str, component_id: str, query: str) -> Dict:
+    def _generate_fallback_response(self, persona_id: str, component_id: str, query: str) -> dict:
         """
         Generate a fallback response when KA execution fails.
         
@@ -1067,7 +1071,7 @@ class SimulationEngine:
         
         return response
     
-    def _calculate_overall_confidence(self, confidences: Dict) -> float:
+    def _calculate_overall_confidence(self, confidences: dict) -> float:
         """
         Calculate overall confidence from individual confidence scores.
         
@@ -1086,8 +1090,8 @@ class SimulationEngine:
         # Simple average for now - could be enhanced with weighted approach
         return sum(relevant_confidences.values()) / len(relevant_confidences)
     
-    def _synthesize_results(self, persona_results: Dict, query: str, 
-                          context: Dict, pass_number: int) -> Dict:
+    def _synthesize_results(self, persona_results: dict, query: str,
+                          context: dict, pass_number: int) -> dict:
         """
         Synthesize results from all personas.
         
@@ -1144,7 +1148,7 @@ class SimulationEngine:
         
         return synthesis
     
-    def cancel_simulation(self, simulation_id: str) -> Dict:
+    def cancel_simulation(self, simulation_id: str) -> dict:
         """
         Cancel an active simulation.
         
@@ -1175,9 +1179,9 @@ class SimulationEngine:
         
         return simulation
     
-    def run_simulation(self, query: str, context: Optional[Dict] = None, 
-                    session_id: Optional[str] = None, 
-                    simulation_params: Optional[Dict] = None) -> Dict:
+    def run_simulation(self, query: str, context: dict | None = None,
+                    session_id: str | None = None,
+                    simulation_params: dict | None = None) -> dict:
         """
         Run a complete simulation (all passes).
         
@@ -1210,7 +1214,7 @@ class SimulationEngine:
 
         return simulation
 
-    def _run_sekre_analysis(self, simulation: Dict) -> None:
+    def _run_sekre_analysis(self, simulation: dict) -> None:
         """Run SEKRE post-L10 analysis on a completed simulation.
 
         Gated to higher-tier runs (the plan's "Tier 3+" intent): a tier marker
@@ -1231,7 +1235,7 @@ class SimulationEngine:
             logging.warning(f"[{datetime.now()}] SEKRE analysis skipped (non-fatal): {e}")
 
     @staticmethod
-    def _qualifies_for_sekre(simulation: Dict) -> bool:
+    def _qualifies_for_sekre(simulation: dict) -> bool:
         """True when the run is high-tier, or no tier marker is present."""
         high_tiers = {"high_stakes", "extreme", "autonomous", "3", "4", "5"}
         for source in (simulation.get('context') or {}, simulation.get('params') or {}):
@@ -1242,8 +1246,8 @@ class SimulationEngine:
         return True  # no tier marker — let SEKRE self-gate on confidence
 
     def run_single_persona_simulation(self, persona_id: str, query: str,
-                                   context: Optional[Dict] = None,
-                                   session_id: Optional[str] = None) -> Dict:
+                                   context: dict | None = None,
+                                   session_id: str | None = None) -> dict:
         """
         Run a simulation with only a single persona.
         
@@ -1296,26 +1300,43 @@ class SimulationEngine:
         # Return full simulation if persona results not available
         return simulation
 
-    def _run_routing_step(self, simulation: Dict, pass_record: Dict):
+    def _run_routing_step(self, simulation: dict, pass_record: dict):
         """Step 1: Run Complexity Router and Algorithm Selection."""
         if not self.ka_engine:
             return
             
         logging.info("Executing Step 1: Routing & Selection")
         # Run KA-113 (Complexity Router)
-        router_res = self.ka_engine.execute_algorithm("KA-113", {"query": simulation['query']})
-        complexity_data = router_res.get('results', {}).get('output', {"tier": "medium"})
+        router_res = self.ka_engine.execute_typed(
+            "KA-113",
+            {"query": simulation['query']},
+            session_id=simulation['simulation_id'],
+        )
+        complexity_data = router_res.require_output()
         
         # Run KA-031 (Algorithm Selection)
-        selection_res = self.ka_engine.execute_algorithm("KA-031", complexity_data)
-        pipeline = selection_res.get('results', {}).get('output', [])
+        selection_res = self.ka_engine.execute_typed(
+            "KA-031",
+            {
+                "query": simulation['query'],
+                "query_class": "GENERAL",
+                "complexity_tier": complexity_data["complexity_tier"],
+                "available_kas": [
+                    item["ka_id"]
+                    for item in self.ka_engine.list_algorithms()
+                ],
+            },
+            session_id=simulation['simulation_id'],
+        )
+        selection_output = selection_res.require_output()
+        pipeline = selection_output["selected_pipeline"]
         
         # Store in simulation context
         simulation['context']['complexity'] = complexity_data
         simulation['context']['planned_pipeline'] = pipeline
         pass_record['routing'] = {"complexity": complexity_data, "pipeline": pipeline}
 
-    def _run_mapping_step(self, simulation: Dict, pass_record: Dict):
+    def _run_mapping_step(self, simulation: dict, pass_record: dict):
         """Step 2: Initialize or update Axis Mapping."""
         if self.axis_mapper and 'axis_vector' not in simulation['context']:
             logging.info(f"Resolving 17-axis vector for: {simulation['query'][:50]}...")
@@ -1323,7 +1344,7 @@ class SimulationEngine:
             simulation['context']['axis_vector'] = axis_vector
             logging.info(f"Axis Mapping: {axis_vector}")
 
-    def _run_persona_step(self, simulation: Dict, pass_record: Dict, simulation_id: str, pass_number: int):
+    def _run_persona_step(self, simulation: dict, pass_record: dict, simulation_id: str, pass_number: int):
         """Step 3: Orchestrate Expert Persona Simulations."""
         for persona_id, persona_config in simulation['params']['personas'].items():
             if persona_config['enabled']:
@@ -1337,7 +1358,7 @@ class SimulationEngine:
                 pass_record['persona_results'][persona_id] = persona_result
                 pass_record['confidence'][persona_id] = persona_result.get('confidence', 0.0)
 
-    def _run_validation_step(self, simulation: Dict, pass_record: Dict):
+    def _run_validation_step(self, simulation: dict, pass_record: dict):
         """Step 11: TruthEngine Validation and Scoring."""
         if not self.truth_engine:
             return
@@ -1351,7 +1372,7 @@ class SimulationEngine:
                     ka_id = comp_res.get('ka_id', f"KA_PERSONA_{comp_res.get('persona_id', 'UNK').upper()}_{comp_res.get('component_id', 'UNK').upper()}")
                     ka_execution_records.append({
                         "ka_id": ka_id,
-                        "results": {"confidence": comp_res.get('confidence', 0.5)}
+                        "results": {"confidence": comp_res.get('confidence', 0.0)}
                     })
         
         truth_vector = self.truth_engine.calculate_truth_vector(ka_execution_records)
@@ -1361,7 +1382,7 @@ class SimulationEngine:
         if truth_vector:
             truth_vector['overall_truth_score'] = sum(truth_vector.values()) / len(truth_vector)
         else:
-            truth_vector['overall_truth_score'] = 0.5
+            truth_vector['overall_truth_score'] = 0.0
             
         simulation['context']['axis_vector'].update(truth_coords)
         pass_record['truth_vector'] = truth_vector
@@ -1369,7 +1390,7 @@ class SimulationEngine:
         is_valid, reason = self.truth_engine.get_validation_status(truth_vector)
         pass_record['validation'] = {"is_valid": is_valid, "reason": reason}
 
-    def _run_pipeline_step(self, simulation: Dict, pass_record: Dict, step_num: int):
+    def _run_pipeline_step(self, simulation: dict, pass_record: dict, step_num: int):
         """Steps 4-10: Execute KAs from the planned pipeline based on workflow step."""
         if not self.ka_engine:
             return
@@ -1389,22 +1410,30 @@ class SimulationEngine:
             
         for ka_id in ka_ids_to_run:
             logging.info(f"Executing {ka_id} for Step {step_num}")
-            execution = self.ka_engine.execute_algorithm(
-                ka_id=ka_id, 
-                params={"query": simulation['query'], "context": simulation['context']},
-                session_id=simulation['simulation_id']
+            execution = self.ka_engine.execute_typed(
+                ka_id,
+                {
+                    "query": simulation['query'],
+                    "context": simulation['context'],
+                },
+                session_id=simulation['simulation_id'],
             )
             
             # Store in pass record components
             if 'pipeline_results' not in pass_record:
                 pass_record['pipeline_results'] = {}
             
-            res = execution.get('results', {})
+            res = execution.require_output()
+            measured_confidence = res.get('confidence')
             pass_record['pipeline_results'][ka_id] = {
                 "ka_id": ka_id,
-                "ka_execution_id": execution.get('execution_id'),
-                "confidence": res.get('confidence', 0.7),
-                "output": res.get('output')
+                "ka_execution_id": execution.trace_id,
+                "confidence": (
+                    float(measured_confidence)
+                    if isinstance(measured_confidence, (int, float))
+                    else 0.0
+                ),
+                "output": res,
             }
             
             # Also add to persona_results for TruthEngine (optional, depends on weighting)

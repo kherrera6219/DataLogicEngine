@@ -1,12 +1,35 @@
 import pytest
 
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 
 
 class _Controller:
-    def execute_algorithm(self, ka_id, input_data):
+    def execute_typed(
+        self,
+        ka_id,
+        input_data,
+        *,
+        production_workflow=False,
+    ):
         assert input_data["_production_workflow"] is True
-        return {"success": True, "output": {"ka_id": ka_id}}
+        assert production_workflow is True
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output={"ka_id": ka_id},
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        )
 
 
 @pytest.mark.asyncio

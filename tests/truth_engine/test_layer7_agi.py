@@ -1,6 +1,28 @@
 from unittest.mock import MagicMock
+
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.agi_planner import AGIPlannerService
 from backend.truth_engine.truth_core.l7_schemas import AGIBelief, AGIConflict, AGIGoal
+
+
+def typed_result(ka_id, output):
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output,
+        request_id="request-test",
+        run_id="run-test",
+        trace_id=f"trace-{ka_id}",
+    )
+
 
 class TestLayer7AGIPlanning:
     
@@ -52,8 +74,18 @@ class TestLayer7AGIPlanning:
     def test_decompose_goal_uses_ka002_when_available(self):
         """Verify KA-002 output is preferred for decomposition."""
         ka = MagicMock()
-        ka.execute_algorithm.side_effect = lambda ka_id, payload: (
-            {"sub_goals": ["Step A", "Step B"]} if ka_id == "KA-002" else {}
+        ka.execute_typed.side_effect = lambda ka_id, payload: (
+            typed_result(
+                ka_id,
+                {
+                    "sub_goals": [
+                        {"label": "Step A"},
+                        {"label": "Step B"},
+                    ]
+                },
+            )
+            if ka_id == "KA-002"
+            else typed_result(ka_id, {})
         )
         service = AGIPlannerService(ka_controller=ka)
         goal = AGIGoal(id="g1", content="Launch project", depth=0)
@@ -68,14 +100,22 @@ class TestLayer7AGIPlanning:
         """Verify KA-040 fallback runs when KA-002 fails."""
         ka = MagicMock()
 
-        def execute_algorithm(ka_id, payload):
+        def execute_typed(ka_id, payload):
             if ka_id == "KA-002":
                 raise RuntimeError("KA-002 unavailable")
             if ka_id == "KA-040":
-                return {"hypotheses": ["Alt path 1", "Alt path 2"]}
-            return {}
+                return typed_result(
+                    ka_id,
+                    {
+                        "hypotheses": [
+                            {"statement": "Alt path 1"},
+                            {"statement": "Alt path 2"},
+                        ]
+                    },
+                )
+            return typed_result(ka_id, {})
 
-        ka.execute_algorithm.side_effect = execute_algorithm
+        ka.execute_typed.side_effect = execute_typed
         service = AGIPlannerService(ka_controller=ka)
         goal = AGIGoal(id="g2", content="Scale system", depth=0)
 
@@ -121,39 +161,40 @@ class TestLayer7AGIPlanning:
         """Verify KA-021 hook executes after planning loop."""
         ka = MagicMock()
 
-        def execute_algorithm(ka_id, payload):
-            if ka_id == "KA-002":
-                return {"sub_goals": []}
+        def execute_typed(ka_id, payload):
             if ka_id == "KA-021":
-                return {"emergence_detected": True}
-            return {}
+                return typed_result(ka_id, {"is_emergent": True})
+            return typed_result(ka_id, {})
 
-        ka.execute_algorithm.side_effect = execute_algorithm
+        ka.execute_typed.side_effect = execute_typed
         service = AGIPlannerService(ka_controller=ka)
+        service.max_depth = 0
 
         plan = service.plan("Detect emergence", beliefs=[])
 
         assert plan.root_goal.status == "pending"
-        assert any(call.args[0] == "KA-021" for call in ka.execute_algorithm.call_args_list)
+        assert any(
+            call.args[0] == "KA-021"
+            for call in ka.execute_typed.call_args_list
+        )
 
     def test_plan_handles_ka021_exception(self):
-        """Verify KA-021 errors are non-fatal."""
+        """Verify required KA-021 errors fail the plan closed."""
         ka = MagicMock()
 
-        def execute_algorithm(ka_id, payload):
-            if ka_id == "KA-002":
-                return {"sub_goals": []}
+        def execute_typed(ka_id, payload):
             if ka_id == "KA-021":
                 raise RuntimeError("KA-021 timeout")
-            return {}
+            return typed_result(ka_id, {})
 
-        ka.execute_algorithm.side_effect = execute_algorithm
+        ka.execute_typed.side_effect = execute_typed
         service = AGIPlannerService(ka_controller=ka)
+        service.max_depth = 0
 
         plan = service.plan("Handle KA failures", beliefs=[])
 
-        assert plan.root_goal.status == "pending"
-        assert plan.iterations == 1
+        assert plan.root_goal.status == "failed"
+        assert plan.iterations == 0
 
     def test_semantic_negation_conflict_detection(self):
         """Verify semantic conflict path catches negated beliefs."""

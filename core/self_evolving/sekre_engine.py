@@ -8,7 +8,7 @@ for the UKG system.
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List
+
 
 class SekreEngine:
     """
@@ -58,7 +58,7 @@ class SekreEngine:
         
         logging.info(f"[{datetime.now()}] SekreEngine initialized with auto-improvement set to {self.auto_improve}")
     
-    def analyze_simulation_results(self, simulation_results: Dict) -> Dict:
+    def analyze_simulation_results(self, simulation_results: dict) -> dict:
         """
         Analyze simulation results to identify areas for improvement.
         
@@ -144,12 +144,12 @@ class SekreEngine:
                 self.apply_improvements(analysis['suggestions'])
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error analyzing simulation results: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error analyzing simulation results: {e!s}")
             analysis['error'] = str(e)
         
         return analysis
     
-    def apply_improvements(self, suggestions: List[Dict]) -> Dict:
+    def apply_improvements(self, suggestions: list[dict]) -> dict:
         """
         Apply improvement suggestions to the knowledge base.
         
@@ -211,13 +211,13 @@ class SekreEngine:
             self.stats['improvements_applied'] += results['suggestions_applied']
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error applying improvements: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error applying improvements: {e!s}")
             results['error'] = str(e)
         
         return results
     
     def _enhance_knowledge(self, persona_id: str, component_id: str, 
-                         query_pattern: str, confidence: float) -> Dict:
+                         query_pattern: str, confidence: float) -> dict:
         """
         Enhance knowledge for a specific persona component.
         
@@ -253,36 +253,38 @@ class SekreEngine:
                     
                     if enhancement_ka_id in available_kas:
                         # Execute specific enhancement KA
-                        execution = ka_engine.execute_algorithm(
-                            ka_id=enhancement_ka_id,
-                            params={
+                        execution = ka_engine.execute_typed(
+                            enhancement_ka_id,
+                            {
                                 'query_pattern': query_pattern,
                                 'current_confidence': confidence,
                                 'learning_rate': self.learning_rate
-                            }
+                            },
                         )
                         
-                        if execution['status'] == 'completed':
+                        if execution.success:
+                            execution.require_output()
                             result['success'] = True
-                            result['ka_execution_id'] = execution['execution_id']
+                            result['ka_execution_id'] = execution.trace_id
                             result['actions_taken'].append(f"Applied {enhancement_ka_id}")
                     
                     elif fallback_ka_id in available_kas:
                         # Use fallback enhancement KA
-                        execution = ka_engine.execute_algorithm(
-                            ka_id=fallback_ka_id,
-                            params={
+                        execution = ka_engine.execute_typed(
+                            fallback_ka_id,
+                            {
                                 'persona_id': persona_id,
                                 'component_id': component_id,
                                 'query_pattern': query_pattern,
                                 'current_confidence': confidence,
                                 'learning_rate': self.learning_rate
-                            }
+                            },
                         )
                         
-                        if execution['status'] == 'completed':
+                        if execution.success:
+                            execution.require_output()
                             result['success'] = True
-                            result['ka_execution_id'] = execution['execution_id']
+                            result['ka_execution_id'] = execution.trace_id
                             result['actions_taken'].append(f"Applied {fallback_ka_id}")
                     
                     else:
@@ -299,12 +301,12 @@ class SekreEngine:
                 result['actions_taken'].append("Applied basic enhancement")
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error enhancing knowledge: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error enhancing knowledge: {e!s}")
             result['error'] = str(e)
         
         return result
     
-    def _enhance_general_knowledge(self, query_pattern: str, confidence: float) -> Dict:
+    def _enhance_general_knowledge(self, query_pattern: str, confidence: float) -> dict:
         """
         Enhance general knowledge across the system.
         
@@ -335,18 +337,19 @@ class SekreEngine:
                     
                     if general_ka_id in available_kas:
                         # Execute enhancement KA
-                        execution = ka_engine.execute_algorithm(
-                            ka_id=general_ka_id,
-                            params={
+                        execution = ka_engine.execute_typed(
+                            general_ka_id,
+                            {
                                 'query_pattern': query_pattern,
                                 'current_confidence': confidence,
                                 'learning_rate': self.learning_rate
-                            }
+                            },
                         )
                         
-                        if execution['status'] == 'completed':
+                        if execution.success:
+                            execution.require_output()
                             result['success'] = True
-                            result['ka_execution_id'] = execution['execution_id']
+                            result['ka_execution_id'] = execution.trace_id
                             result['actions_taken'].append(f"Applied {general_ka_id}")
                     else:
                         # Apply basic general enhancement
@@ -362,7 +365,7 @@ class SekreEngine:
                 result['actions_taken'].append("Applied basic general enhancement")
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error enhancing general knowledge: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error enhancing general knowledge: {e!s}")
             result['error'] = str(e)
         
         return result
@@ -402,7 +405,7 @@ class SekreEngine:
             return True
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error in basic enhancement: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error in basic enhancement: {e!s}")
             return False
     
     def _apply_basic_general_enhancement(self, query_pattern: str) -> bool:
@@ -436,10 +439,10 @@ class SekreEngine:
             return True
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error in basic general enhancement: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error in basic general enhancement: {e!s}")
             return False
     
-    def process_feedback(self, feedback: Dict) -> Dict:
+    def process_feedback(self, feedback: dict) -> dict:
         """
         Process user feedback to improve knowledge quality.
         
@@ -517,12 +520,12 @@ class SekreEngine:
             result['processed'] = True
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error processing feedback: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error processing feedback: {e!s}")
             result['error'] = str(e)
         
         return result
     
-    def identify_knowledge_conflicts(self) -> List[Dict]:
+    def identify_knowledge_conflicts(self) -> list[dict]:
         """
         Identify potential conflicts in the knowledge base.
         
@@ -544,11 +547,11 @@ class SekreEngine:
             # as this requires complex domain-specific logic
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error identifying knowledge conflicts: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error identifying knowledge conflicts: {e!s}")
         
         return conflicts
     
-    def resolve_knowledge_conflict(self, conflict_id: str, resolution_strategy: str = 'auto') -> Dict:
+    def resolve_knowledge_conflict(self, conflict_id: str, resolution_strategy: str = 'auto') -> dict:
         """
         Resolve an identified knowledge conflict.
         
@@ -576,12 +579,12 @@ class SekreEngine:
             result['resolved'] = True
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] Error resolving knowledge conflict: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error resolving knowledge conflict: {e!s}")
             result['error'] = str(e)
         
         return result
     
-    def get_improvement_history(self, limit: int = 100, offset: int = 0) -> List[Dict]:
+    def get_improvement_history(self, limit: int = 100, offset: int = 0) -> list[dict]:
         """
         Get history of improvement suggestions.
         
@@ -596,7 +599,7 @@ class SekreEngine:
         paginated = self.improvement_suggestions[offset:offset+limit]
         return paginated
     
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Get SEKRE engine statistics.
         

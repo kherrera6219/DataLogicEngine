@@ -2,6 +2,11 @@ from backend.knowledge_algorithms.ka_11_analytical_modeling import (
     KA011AnalyticalModeling,
     KA011Input,
 )
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.knowledge_algorithms.ka_31_algorithm_selection_engine import (
     KA031AlgorithmSelectionEngine,
     KA031Input,
@@ -823,9 +828,20 @@ def test_ka_master_dispatches_selected_flow(monkeypatch):
 
     def fake_execute(ka_id, payload):
         calls.append((ka_id, payload))
-        return {"success": True, "output": {"ka_id": ka_id}}
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output={"ka_id": ka_id},
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        )
 
-    monkeypatch.setattr(controller, "execute_algorithm", fake_execute)
+    monkeypatch.setattr(controller, "execute_typed", fake_execute)
 
     result = controller.run(
         {"data": {"query": "Extract entities from NIST control owner Alice Smith"}}
@@ -866,8 +882,19 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
 
     monkeypatch.setattr(
         controller,
-        "execute_algorithm",
-        lambda ka_id, payload: {"success": True, "output": payload},
+        "execute_typed",
+        lambda ka_id, payload: KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output=payload,
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        ),
     )
 
     cases = [

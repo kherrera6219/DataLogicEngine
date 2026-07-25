@@ -1,6 +1,28 @@
+from typing import Any
+
 import pytest
-from typing import Dict, Any
+
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
+
+
+def typed_result(ka_id: str, output: dict[str, Any]) -> KAExecutionResult:
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output,
+        request_id="request-test",
+        run_id="run-test",
+        trace_id=f"trace-{ka_id}",
+    )
 
 class MockService:
     def validate(self, *args, **kwargs): return {"status": "valid", "confidence": 0.99}
@@ -11,17 +33,24 @@ class MockService:
 class MockController:
     def __init__(self):
         self.llm_gateway = "mock_gateway"
-    def execute_algorithm(self, ka_id: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        return {"output": f"Result from {ka_id}", "passed": True, "confidence": 0.95}
+    def execute_typed(self, ka_id: str, inputs: dict[str, Any]) -> KAExecutionResult:
+        return typed_result(
+            ka_id,
+            {
+                "result": f"Result from {ka_id}",
+                "passed": True,
+                "confidence": 0.95,
+            },
+        )
     def authorize(self, *args, **kwargs):
         from types import SimpleNamespace
-        return SimpleNamespace(decision=SimpleNamespace(value="RELEASE"), final_answer="Safety Approved Output", model_dump=lambda: {})
+        return SimpleNamespace(decision=SimpleNamespace(value="RELEASE"), final_answer="Safety Approved Output", model_dump=dict)
     def evaluate(self, *args, **kwargs):
         from types import SimpleNamespace
-        return SimpleNamespace(decision=SimpleNamespace(value="FINALIZE"), readiness_score=0.99, model_dump=lambda: {})
+        return SimpleNamespace(decision=SimpleNamespace(value="FINALIZE"), readiness_score=0.99, model_dump=dict)
     def validate(self, *args, **kwargs):
         from types import SimpleNamespace
-        return SimpleNamespace(status=SimpleNamespace(value="PASS"), overall_confidence=0.98, model_dump=lambda: {})
+        return SimpleNamespace(status=SimpleNamespace(value="PASS"), overall_confidence=0.98, model_dump=dict)
 
 @pytest.fixture
 def engine():

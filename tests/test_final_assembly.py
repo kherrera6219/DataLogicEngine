@@ -1,6 +1,16 @@
 import pytest
+
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool, SufficiencyMode
+from core.persona.quad.persona_scaling.sufficiency import (
+    GatewayPersonaSufficiencyTool as PersonaSufficiencyTool,
+)
+from core.persona.quad.persona_scaling.sufficiency import SufficiencyMode
+
 
 class MockKAController:
     def __init__(self):
@@ -10,6 +20,29 @@ class MockKAController:
         if "step_name" in context.get("step_metadata", {}):
             return {"output": "Refined by Mock", "refined_content": "Refined by Mock KA", "confidence": 0.99}
         return {"output": "Mock output", "confidence": 0.9}
+
+    def execute_typed(self, ka_id, context):
+        output = (
+            {
+                "result": "Refined by Mock",
+                "refined_content": "Refined by Mock KA",
+                "confidence": 0.99,
+            }
+            if "step_name" in context.get("step_metadata", {})
+            else {"result": "Mock output", "confidence": 0.9}
+        )
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output=output,
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        )
     
     def process_with_persona(self, query, persona, context):
         return {"response": f"Persona {persona} response", "confidence": 0.85}
@@ -42,7 +75,9 @@ def test_persona_sufficiency_trigger():
 
 @pytest.mark.asyncio
 async def test_refinement_orchestrator_flow():
-    from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
+    from backend.truth_engine.truth_core.refinement_orchestrator import (
+        RefinementOrchestrator,
+    )
     ka_ctrl = MockKAController()
     orchestrator = RefinementOrchestrator(ka_controller=ka_ctrl)
     

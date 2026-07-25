@@ -1,6 +1,16 @@
 import pytest
+
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool, SufficiencyMode
+from core.persona.quad.persona_scaling.sufficiency import (
+    GatewayPersonaSufficiencyTool as PersonaSufficiencyTool,
+)
+from core.persona.quad.persona_scaling.sufficiency import SufficiencyMode
+
 
 class MockKAController:
     def __init__(self):
@@ -8,6 +18,20 @@ class MockKAController:
 
     def execute_algorithm(self, ka_id, context):
         return {"output": {"personas": {}}, "confidence": 0.9, "status": "completed"}
+
+    def execute_typed(self, ka_id, context):
+        return KAExecutionResult(
+            canonical_id=ka_id,
+            ka_version="1.0.0",
+            manifest_version="test",
+            state=KAExecutionState.SUCCEEDED,
+            outcome_type=KAOutcomeType.VALUE,
+            success=True,
+            output={"personas": {}, "confidence": 0.9},
+            request_id="request-test",
+            run_id="run-test",
+            trace_id=f"trace-{ka_id}",
+        )
     
     def process_with_persona(self, query, persona, context):
         return {"response": f"Persona {persona} response", "confidence": 0.85, "status": "completed"}
@@ -26,7 +50,9 @@ def engine():
 
 @pytest.mark.asyncio
 async def test_refinement_resilience_recovery():
-    from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
+    from backend.truth_engine.truth_core.refinement_orchestrator import (
+        RefinementOrchestrator,
+    )
     ka_ctrl = MockKAController()
     orchestrator = RefinementOrchestrator(ka_controller=ka_ctrl)
     

@@ -1,8 +1,15 @@
-from typing import Dict, List, Any, Optional
 import logging
-from backend.truth_engine.truth_gate.schemas import Layer6Input, QuantBundle
-from backend.truth_engine.truth_gate.quant_backends.statistical import StatisticalBackend
+from typing import Any
+
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
+)
 from backend.truth_engine.truth_gate.quant_backends.logical import LogicalBackend
+from backend.truth_engine.truth_gate.quant_backends.statistical import (
+    StatisticalBackend,
+)
+from backend.truth_engine.truth_gate.schemas import Layer6Input, QuantBundle
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +25,26 @@ class QuantValidationService:
         self.logic_backend = LogicalBackend()
         logger.info("QuantValidationService (Layer 6) initialized with modular backends")
 
-    def validate(self, draft_solution: str, claims: List[str], data_context: Optional[Dict[str, Any]] = None) -> QuantBundle:
+    @staticmethod
+    def _numeric_data_points(data_context: dict[str, Any] | None) -> list[float]:
+        points: list[float] = []
+
+        def collect(value: Any) -> None:
+            if isinstance(value, bool):
+                return
+            if isinstance(value, (int, float)):
+                points.append(float(value))
+            elif isinstance(value, dict):
+                for nested in value.values():
+                    collect(nested)
+            elif isinstance(value, (list, tuple)):
+                for nested in value:
+                    collect(nested)
+
+        collect(data_context or {})
+        return points
+
+    def validate(self, draft_solution: str, claims: list[str], data_context: dict[str, Any] | None = None) -> QuantBundle:
         """
         Main entry point for Layer 6 validation.
         """
@@ -37,7 +63,7 @@ class QuantValidationService:
                 risk_score=1.0, 
                 confidence_map={}, 
                 anomalies=[], 
-                validation_flags=[f"Input Schema Error: {str(e)}"]
+                validation_flags=[f"Input Schema Error: {e!s}"]
             )
 
         anomalies = []
@@ -66,30 +92,55 @@ class QuantValidationService:
         # 3. KA-039: Anomaly Detection (Supplementary)
         if self.ka_controller:
             try:
-                ka039_result = self.ka_controller.execute_algorithm('KA-039', {'data': input_payload.data_context})
-                if ka039_result.get('anomalies'):
-                    anomalies.extend(ka039_result['anomalies'])
+                ka039_result = execute_required_ka(
+                    self.ka_controller,
+                    "KA-039",
+                    {"data": self._numeric_data_points(input_payload.data_context)},
+                )
+                ka039_anomalies = require_output_field(
+                    ka039_result,
+                    "anomalies",
+                )
+                if ka039_anomalies:
+                    anomalies.extend(ka039_anomalies)
                     total_risk += 0.1
-            except Exception as e:
-                logger.debug(f"KA-039 skipped: {e}")
+            except Exception as exc:
+                validation_flags.append("KA-039 anomaly validation failed")
+                total_risk += 0.2
+                logger.warning("KA-039 anomaly validation failed: %s", exc)
         
         # 4. KA-116: Entropy Detection (Supplementary)
         if self.ka_controller:
             try:
-                ka116_result = self.ka_controller.execute_algorithm('KA-116', {'claims': input_payload.claims})
-                if ka116_result.get('high_entropy_claims'):
-                    for hec in ka116_result['high_entropy_claims']:
-                        validation_flags.append(f"High Entropy Claim: {hec}")
+                ka116_result = execute_required_ka(
+                    self.ka_controller,
+                    "KA-116",
+                    {"claims": input_payload.claims},
+                )
+                entropy_state = require_output_field(ka116_result, "state")
+                entropy_score = float(
+                    require_output_field(ka116_result, "entropy_score")
+                )
+                if entropy_state == "CRITICAL":
+                    validation_flags.append(
+                        f"High aggregate claim entropy: {entropy_score:.3f}"
+                    )
                     total_risk += 0.15
-            except Exception as e:
-                logger.debug(f"KA-116 skipped: {e}")
+            except Exception as exc:
+                validation_flags.append("KA-116 entropy validation failed")
+                total_risk += 0.2
+                logger.warning("KA-116 entropy validation failed: %s", exc)
                     
         # 5. Final Synthesis
         avg_confidence = sum(confidence_map.values()) / len(confidence_map) if confidence_map else 0.0
         normalized_risk = min(1.0, total_risk)
         
         # Thresholds: Risk < 0.7 and Confidence > 0.6
-        is_valid = normalized_risk < 0.7 and (avg_confidence > 0.6 or not confidence_map)
+        is_valid = (
+            normalized_risk < 0.7
+            and bool(confidence_map)
+            and avg_confidence > 0.6
+        )
         
         return QuantBundle(
             is_valid=is_valid,

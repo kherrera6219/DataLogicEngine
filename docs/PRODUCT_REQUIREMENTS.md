@@ -136,8 +136,9 @@ store, legal/distribution authority, accessibility/manual review, pilot, and
 soak gates also remain open. Phase 18 closed incomplete after retaining 213
 unique implementation owners and zero source gaps; CP18-D failed and CP18-E-H
 did not pass. Phase 19 canonical KA system-of-systems integration is active;
-CP19-A owner/consumer authority passed and CP19-B typed result-contract parity
-is active. The signed rebuild is paused through CP19-L. Dependabot alert 389 is fixed.
+CP19-A owner/consumer authority and CP19-B typed result-contract parity passed;
+CP19-C selector/DAG integration is active. The signed rebuild is paused through
+CP19-L. Dependabot alert 389 is fixed.
 Production/public release is **NO-GO**.
 
 ## Change control

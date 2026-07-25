@@ -1,34 +1,92 @@
-import pytest
-from typing import Dict, Any
+from typing import Any
 
-from backend.truth_engine.truth_core.l10_schemas import (
-    L10Input, L10Decision, EmergenceLevel
+import pytest
+
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
 )
-from backend.truth_engine.truth_core.emergence_controller import EmergenceDetectionController
+from backend.truth_engine.truth_core.emergence_controller import (
+    EmergenceDetectionController,
+)
+from backend.truth_engine.truth_core.l10_schemas import (
+    EmergenceLevel,
+    L10Decision,
+    L10Input,
+)
+
+
+def _typed_result(ka_id: str, output: dict[str, Any]) -> KAExecutionResult:
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output,
+        request_id="request-test",
+        run_id="run-test",
+        trace_id=f"trace-{ka_id}",
+    )
+
 
 class MockKAController:
-    def execute_algorithm(self, ka_id: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    def execute_typed(
+        self,
+        ka_id: str,
+        inputs: dict[str, Any],
+    ) -> KAExecutionResult:
         content = str(inputs.get("content", ""))
-        
+
         # Lane A: Emergence
-        if ka_id == "KA-021" and "emergent" in content:
-            return {"emergence_detected": True}
-        if ka_id == "KA-108" and "bypass" in content:
-            return {"escalation_detected": True}
-        
+        if ka_id == "KA-021":
+            return _typed_result(
+                ka_id,
+                {"is_emergent": "emergent" in content},
+            )
+        if ka_id == "KA-108":
+            return _typed_result(
+                ka_id,
+                {"escalation_detected": "bypass" in content},
+            )
+
         # Lane A: Safety
-        if ka_id == "KA-059" and "@" in content:
-            return {"passed": False, "flag": "PII_found"}
-        if ka_id == "L10-KA-004" and "unethical" in content:
-            return {"violations": [{"type": "ethical_breach", "severity": "major", "message": "Unethical content detected"}]}
-            
+        if ka_id in {"KA-058", "KA-059"}:
+            pii_found = ka_id == "KA-059" and "@" in content
+            return _typed_result(
+                ka_id,
+                {
+                    "passed": not pii_found,
+                    "flag": "PII_found" if pii_found else None,
+                },
+            )
+        if ka_id == "L10-KA-001":
+            return _typed_result(ka_id, {"entropy_score": 0.2})
+        if ka_id == "L10-KA-002":
+            return _typed_result(ka_id, {"awareness_detected": False})
+        if ka_id == "L10-KA-004":
+            violations = (
+                [
+                    {
+                        "type": "ethical_breach",
+                        "severity": "major",
+                        "message": "Unethical content detected",
+                    }
+                ]
+                if "unethical" in content
+                else []
+            )
+            return _typed_result(ka_id, {"violations": violations})
+
         # Lane B: Commit
         if ka_id == "KA-109":
-            return {"class": "PUBLIC"}
+            return _typed_result(ka_id, {"class": "PUBLIC"})
         if ka_id == "KA-079":
-            return {"authorized": True}
-            
-        return {"status": "success", "passed": True}
+            return _typed_result(ka_id, {"authorized": True})
+
+        return _typed_result(ka_id, {"status": "success", "passed": True})
 
 @pytest.fixture
 def l10_controller():

@@ -11,6 +11,12 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionContext,
+    KAExecutionMode,
+    KAExecutionRequest,
+    KAExecutionResult,
+)
 from backend.knowledge_algorithms.controller import (
     CanonicalKAController,
     get_ka_controller,
@@ -35,7 +41,7 @@ class KALoader:
         self.smm = memory_manager
         self.usm = united_system_manager
         self.default_ka_confidence_threshold = float(
-            self.config.get("default_ka_confidence_threshold", 0.7)
+            self.config.get("default_ka_confidence_threshold", 0.0)
         )
         self.controller: CanonicalKAController = get_ka_controller()
         self.ka_classes = {
@@ -56,38 +62,76 @@ class KALoader:
         pass_num: int | None = None,
         layer_num: int | None = None,
     ) -> dict[str, Any]:
-        canonical_id = normalize_ka_id(str(ka_id))
+        """Return the historical loader envelope for compatibility callers."""
         started_at = datetime.now(UTC)
-        result = self.controller.execute_legacy(canonical_id, input_data)
-        success = bool(result.get("success"))
-        output = result.get("output", {})
-        response = {
-            "status": "success" if success else "error",
-            "ka_id": result.get("ka_id", canonical_id),
-            "ka_confidence": float(
-                output.get("confidence", self.default_ka_confidence_threshold)
-                if isinstance(output, dict)
-                else self.default_ka_confidence_threshold
-            ),
-            "findings": output if isinstance(output, dict) else {},
-            "error_message": result.get("error"),
-            "error_code": result.get("error_code"),
+        result = self.execute_typed(
+            ka_id,
+            input_data,
+            session_id=session_id,
+            pass_num=pass_num,
+            layer_num=layer_num,
+        )
+        output = result.output
+        measured_confidence = output.get("confidence")
+        confidence = (
+            float(measured_confidence)
+            if isinstance(measured_confidence, (int, float))
+            else 0.0
+        )
+        return {
+            "status": "success" if result.success else "error",
+            "ka_id": result.canonical_id,
+            "ka_confidence": confidence,
+            "findings": output,
+            "error_message": result.error.message if result.error else None,
+            "error_code": result.error.code.value if result.error else None,
             "execution_time": (
                 datetime.now(UTC) - started_at
             ).total_seconds(),
-            "trace_id": result.get("trace_id"),
-            "canonical_result": result.get("canonical_result"),
+            "trace_id": result.trace_id,
+            "canonical_result": result.model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         }
+
+    def execute_typed(
+        self,
+        ka_id: int | str,
+        input_data: dict[str, Any],
+        *,
+        session_id: str | None = None,
+        pass_num: int | None = None,
+        layer_num: int | None = None,
+        production_workflow: bool = False,
+    ) -> KAExecutionResult:
+        """Execute and optionally persist one canonical typed KA result."""
+        canonical_id = normalize_ka_id(str(ka_id))
+        result = self.controller.execute(
+            KAExecutionRequest(
+                ka_id=canonical_id,
+                input=input_data,
+                context=KAExecutionContext(
+                    session_id=session_id,
+                    layer=str(layer_num) if layer_num is not None else None,
+                ),
+                mode=(
+                    KAExecutionMode.PRODUCTION
+                    if production_workflow
+                    else KAExecutionMode.EVALUATION
+                ),
+            )
+        )
         if session_id and self.smm is not None:
             self._record_memory(
                 session_id=session_id,
                 pass_num=pass_num,
                 layer_num=layer_num,
-                ka_id=response["ka_id"],
+                ka_id=result.canonical_id,
                 input_data=input_data,
-                result=response,
+                result=result,
             )
-        return response
+        return result
 
     def _record_memory(
         self,
@@ -97,9 +141,16 @@ class KALoader:
         layer_num: int | None,
         ka_id: str,
         input_data: dict[str, Any],
-        result: dict[str, Any],
+        result: KAExecutionResult,
     ) -> None:
         try:
+            output = result.output
+            measured_confidence = output.get("confidence")
+            confidence = (
+                float(measured_confidence)
+                if isinstance(measured_confidence, (int, float))
+                else 0.0
+            )
             self.smm.add_memory_entry(
                 session_id=session_id,
                 pass_num=pass_num if pass_num is not None else 0,
@@ -108,10 +159,13 @@ class KALoader:
                 content={
                     "ka_id": ka_id,
                     "input_data": input_data,
-                    "result": result,
-                    "execution_time": result["execution_time"],
+                    "result": result.model_dump(
+                        mode="json",
+                        exclude_none=True,
+                    ),
+                    "execution_time": result.duration_ms / 1000,
                 },
-                confidence=result["ka_confidence"],
+                confidence=confidence,
             )
         except Exception as exc:  # noqa: BLE001 - optional legacy memory adapter
             logger.warning("Could not persist legacy KA memory record: %s", exc)

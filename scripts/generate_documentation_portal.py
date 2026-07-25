@@ -78,7 +78,7 @@ def render(
         f"- CP16-F replacement status: `{closure.get('status', 'not_evaluated')}`",
         f"- Routed sources: `{summary.get('source_count', 0)}`; archived: `{summary.get('archived_source_count', 0)}`; unmigrated links: `{summary.get('unmigrated_link_count', 0)}`",
         f"- Current program checkpoint: {current_phase}",
-        "- Current KA evidence: Phase 19 CP19-A passed with 213 canonical capabilities, 213 unique implementation owners, one primary subsystem owner per KA, 16 workflow dispositions, one runtime manifest, and 726 passing KA tests. CP19-B contract parity is active; the rebuild remains blocked through CP19-L.",
+        "- Current KA evidence: Phase 19 CP19-A/CP19-B passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, one runtime manifest, 18 typed caller/API/SDK surfaces, zero legacy production result calls, 738 passing KA/Python-SDK tests, and 2,486 full-suite tests passed with 18 skipped. CP19-C selector/DAG integration is active; the rebuild remains blocked through CP19-L.",
         "- Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.",
         "",
         "The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root",

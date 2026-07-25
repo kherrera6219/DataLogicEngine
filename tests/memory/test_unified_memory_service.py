@@ -193,12 +193,11 @@ async def test_truthcore_reads_and_writes_memory_each_layer(tmp_path, monkeypatc
     service = UnifiedMemoryService(storage_path=tmp_path / "memory_graph.json", auto_load=False)
     monkeypatch.setattr("backend.memory.get_unified_memory_service", lambda: service)
 
-    class MockKAController:
-        llm_gateway = None
-        def execute(self, ka_id, ka_input):
-            return {"coordinates": {}, "evidence": []}
+    from backend.knowledge_algorithms.ka_master_controller import (
+        KAMasterController,
+    )
 
-    engine = TruthCoreEngine(ka_controller=MockKAController())
+    engine = TruthCoreEngine(ka_controller=KAMasterController({}))
     result = await engine._execute_workflow(
         "Assess compliance risk",
         {"session_id": "session-1"},

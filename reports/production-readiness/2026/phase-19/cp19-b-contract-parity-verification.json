@@ -1,0 +1,96 @@
+{
+  "schema_version": "dle.cp19-b-contract-parity-verification.v1",
+  "status": "pass",
+  "production_python_files_scanned": 621,
+  "migrated_caller_surfaces": 18,
+  "caller_status": {
+    "api": {
+      "path": "backend/routes/ka_routes.py",
+      "typed_boundary_present": true
+    },
+    "ka_master": {
+      "path": "backend/knowledge_algorithms/ka_master_controller.py",
+      "typed_boundary_present": true
+    },
+    "truthcore": {
+      "path": "backend/truth_engine/truth_core/engine.py",
+      "typed_boundary_present": true
+    },
+    "layer6": {
+      "path": "backend/truth_engine/truth_gate/quant.py",
+      "typed_boundary_present": true
+    },
+    "layer7": {
+      "path": "backend/truth_engine/truth_core/agi_planner.py",
+      "typed_boundary_present": true
+    },
+    "layer8": {
+      "path": "backend/truth_engine/truth_gate/trust_validation_gateway.py",
+      "typed_boundary_present": true
+    },
+    "layer9": {
+      "path": "backend/truth_engine/truth_core/meta_reasoning_controller.py",
+      "typed_boundary_present": true
+    },
+    "layer10": {
+      "path": "backend/truth_engine/truth_core/emergence_controller.py",
+      "typed_boundary_present": true
+    },
+    "personas": {
+      "path": "backend/truth_engine/truth_core/personas.py",
+      "typed_boundary_present": true
+    },
+    "refinement": {
+      "path": "backend/truth_engine/truth_core/refinement_orchestrator.py",
+      "typed_boundary_present": true
+    },
+    "core_engine_adapter": {
+      "path": "core/engine/ka_engine.py",
+      "typed_boundary_present": true
+    },
+    "core_loader_adapter": {
+      "path": "core/knowledge_algorithm/ka_loader.py",
+      "typed_boundary_present": true
+    },
+    "query_persona": {
+      "path": "core/simulation/query_persona_engine.py",
+      "typed_boundary_present": true
+    },
+    "pov": {
+      "path": "core/simulation/pov_engine.py",
+      "typed_boundary_present": true
+    },
+    "simulation": {
+      "path": "core/simulation/simulation_engine.py",
+      "typed_boundary_present": true
+    },
+    "sekre": {
+      "path": "core/self_evolving/sekre_engine.py",
+      "typed_boundary_present": true
+    },
+    "python_sdk": {
+      "path": "sdk/UKG_Python_SDK/ukg_sdk/ka/executor.py",
+      "typed_boundary_present": true
+    },
+    "typescript_sdk": {
+      "path": "sdk/DataLogicEngine_TypeScript_SDK/src/ka-types.ts",
+      "typed_boundary_present": true
+    }
+  },
+  "typed_execution_call_sites": 32,
+  "legacy_execution_call_sites": [],
+  "canonical_result_schema": "dle.ka-execution-result.v1",
+  "required_failure_policy": "raise_or_fail_closed",
+  "remaining_semantic_integration": {
+    "layer9_layer10_identity": "CP19-E",
+    "selector_and_dependency_dag": "CP19-C",
+    "ten_layer_product_path": "CP19-D",
+    "persona_and_dsqp": "CP19-F",
+    "twelve_step_workflow": "CP19-G",
+    "data_knowledge_lifecycle": "CP19-H",
+    "simulation_mcp_provider_operations_effects": "CP19-I",
+    "api_sdk_desktop_accessibility": "CP19-J"
+  },
+  "rebuild_authorized": false,
+  "errors": []
+}

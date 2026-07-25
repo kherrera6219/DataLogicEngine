@@ -131,6 +131,20 @@ class KAExecutionError(BaseModel):
     internal_details: dict[str, Any] = Field(default_factory=dict, exclude=True)
 
 
+class KAExecutionContractError(RuntimeError):
+    """Raised when an internal caller requires output from a failed KA result."""
+
+    def __init__(self, result: KAExecutionResult):
+        code = result.error.code.value if result.error else "KA_RESULT_UNAVAILABLE"
+        message = (
+            result.error.message
+            if result.error
+            else "Knowledge Algorithm did not return a successful result."
+        )
+        super().__init__(f"{result.canonical_id} [{code}]: {message}")
+        self.result = result
+
+
 class KAExecutionResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -152,3 +166,9 @@ class KAExecutionResult(BaseModel):
     completed_at: datetime = Field(default_factory=utc_now)
     duration_ms: float = Field(default=0.0, ge=0.0)
     implementation_adapter: str | None = None
+
+    def require_output(self) -> dict[str, Any]:
+        """Return typed output or raise instead of allowing an optimistic default."""
+        if not self.success:
+            raise KAExecutionContractError(self)
+        return self.output

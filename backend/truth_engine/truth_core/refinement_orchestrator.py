@@ -1,7 +1,10 @@
-import logging
 import asyncio
-from typing import Dict, Any
-from datetime import datetime, UTC
+import logging
+from datetime import UTC, datetime
+from functools import partial
+from typing import Any
+
+from backend.knowledge_algorithms.consumer import execute_required_ka
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +39,7 @@ class RefinementOrchestrator:
     def __init__(self, ka_controller: Any):
         self.ka_controller = ka_controller
 
-    async def refine(self, initial_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    async def refine(self, initial_response: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         """
         Executes the 12-step refinement loop with hardening and confidence gating.
         """
@@ -85,8 +88,23 @@ class RefinementOrchestrator:
             except Exception as e:
                 logger.error(f"Refinement step {step.name} critical failure: {e}. Reverting to last known good state.")
                 current_response = last_good_state.copy()
+                history.append(
+                    {
+                        "step": step.name,
+                        "ka_id": step.ka_id,
+                        "timestamp": datetime.now(UTC).isoformat(),
+                        "status": "failed",
+                        "error": "Knowledge Algorithm refinement step failed.",
+                    }
+                )
 
         current_response['refinement_history'] = history
+        current_response["refinement_status"] = (
+            "completed"
+            if len(history) == len(self.STEPS)
+            and all(item.get("status", "executed") != "failed" for item in history)
+            else "incomplete"
+        )
         try:
             drl_result = self._run_drl_convergence(current_response, context)
             current_response['drl_convergence'] = drl_result
@@ -100,7 +118,7 @@ class RefinementOrchestrator:
         
         return current_response
 
-    def _run_drl_convergence(self, current_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_drl_convergence(self, current_response: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         """Evaluate explicit validator observations; content hashes are not evidence."""
 
         validators = [
@@ -139,7 +157,7 @@ class RefinementOrchestrator:
             "failed_validator_ids": failed,
         }
 
-    async def _execute_step(self, step: RefinementStep, content: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_step(self, step: RefinementStep, content: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         """Invokes a specific KA for refinement via the Master Controller."""
         try:
             # Prepare KA payload
@@ -158,23 +176,46 @@ class RefinementOrchestrator:
             # Note: Using run_in_executor if the KA-Master is purely synchronous
             loop = asyncio.get_event_loop()
             result = await loop.run_in_executor(
-                None, 
-                self.ka_controller.execute_algorithm, 
-                step.ka_id, 
-                ka_input
+                None,
+                partial(
+                    execute_required_ka,
+                    self.ka_controller,
+                    step.ka_id,
+                    ka_input,
+                ),
             )
+            output = result.require_output()
             
-            # Extract refined output. KAs should return 'refined_content' or 'response'
-            refined_content = result.get('refined_content', result.get('response', content.get('content', '')))
-            # Confidence should be returned by the KA based on its specific audit logic
-            new_confidence = result.get('confidence', content.get('confidence'))
+            refined_content = content.get("content", "")
+            content_changed = False
+            for field in ("refined_content", "redacted_content", "response"):
+                candidate = output.get(field)
+                if isinstance(candidate, str) and candidate:
+                    refined_content = candidate
+                    content_changed = candidate != content.get("content", "")
+                    break
+
+            prior_confidence = content.get("confidence")
+            measured_confidence = output.get("confidence")
+            confidence_changed = isinstance(measured_confidence, (int, float))
+            new_confidence = (
+                measured_confidence
+                if confidence_changed
+                else prior_confidence
+            )
             
             return {
                 "content": refined_content,
                 "confidence": new_confidence,
                 f"{step.name}_status": "executed",
-                "ka_id": step.ka_id,
-                "audit_meta": result.get('audit_meta', {})
+                "ka_id": result.canonical_id,
+                "content_changed": content_changed,
+                "confidence_changed": confidence_changed,
+                "audit_meta": {
+                    "trace_id": result.trace_id,
+                    "outcome_type": result.outcome_type.value,
+                    "output": output,
+                },
             }
         except Exception as e:
             logger.error(f"KA Execution Failed for {step.name} ({step.ka_id}): {e}")

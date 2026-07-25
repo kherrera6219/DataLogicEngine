@@ -8,21 +8,30 @@ Integrates with:
 - 17-Axis System
 """
 
+import asyncio
 import logging
 import time
 import uuid
-import asyncio
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional
+from datetime import UTC, datetime
+from functools import partial
+from typing import Any
 
-from backend.truth_engine.truth_core.personas import PersonaEnhancer
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
+)
+from backend.truth_engine.truth_core.historical_embeddings import serialize_embedding
 from backend.truth_engine.truth_core.persona_scaling_bridge import (
     orchestration_summary,
     scaling_decision_from_sufficiency,
 )
-from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
-from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
-from backend.truth_engine.truth_core.historical_embeddings import serialize_embedding
+from backend.truth_engine.truth_core.personas import PersonaEnhancer
+from backend.truth_engine.truth_core.refinement_orchestrator import (
+    RefinementOrchestrator,
+)
+from core.persona.quad.persona_scaling.sufficiency import (
+    GatewayPersonaSufficiencyTool as PersonaSufficiencyTool,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +72,8 @@ class TruthCoreEngine:
     def get_workflow_steps(
         self,
         tier: str,
-        axis17_context: Optional[Dict[str, Any]] = None,
-    ) -> List[str]:
+        axis17_context: dict[str, Any] | None = None,
+    ) -> list[str]:
         """Dynamically define steps for each complexity tier.
 
         Phase B wires Axis 17 as the FROST mode selector. When supplied, its
@@ -123,7 +132,9 @@ class TruthCoreEngine:
         
         # Initialize Layer 8 Trust Validation Gateway
         try:
-            from backend.truth_engine.truth_gate.trust_validation_gateway import TrustValidationGateway
+            from backend.truth_engine.truth_gate.trust_validation_gateway import (
+                TrustValidationGateway,
+            )
             self.trust_gateway = TrustValidationGateway(ka_controller=ka_controller)
         except ImportError:
             logger.warning("Layer 8 TrustValidationGateway not found, skipping.")
@@ -131,7 +142,9 @@ class TruthCoreEngine:
         
         # Initialize Layer 9 MetaReasoningController
         try:
-            from backend.truth_engine.truth_core.meta_reasoning_controller import MetaReasoningController
+            from backend.truth_engine.truth_core.meta_reasoning_controller import (
+                MetaReasoningController,
+            )
             self.meta_reasoning = MetaReasoningController(ka_controller=ka_controller)
         except ImportError:
             logger.warning("Layer 9 MetaReasoningController not found, skipping.")
@@ -139,7 +152,9 @@ class TruthCoreEngine:
         
         # Initialize Layer 10 EmergenceDetectionController
         try:
-            from backend.truth_engine.truth_core.emergence_controller import EmergenceDetectionController
+            from backend.truth_engine.truth_core.emergence_controller import (
+                EmergenceDetectionController,
+            )
             self.emergence_gate = EmergenceDetectionController(ka_controller=ka_controller)
         except ImportError:
             logger.warning("Layer 10 EmergenceDetectionController not found, skipping.")
@@ -148,7 +163,9 @@ class TruthCoreEngine:
         # Initialize Persona Enhancer and Sufficiency Tool
         self.persona_enhancer = PersonaEnhancer(quad_persona_engine=self.ka_controller if hasattr(self.ka_controller, 'process_with_persona') else None)
         try:
-            from core.system.persona_construction_service import PersonaConstructionService
+            from core.system.persona_construction_service import (
+                PersonaConstructionService,
+            )
 
             self.persona_construction = PersonaConstructionService()
         except Exception as exc:
@@ -170,10 +187,10 @@ class TruthCoreEngine:
     async def execute_governed_preflight(
         self,
         query: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         *,
         mode: str = "standard",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute the deterministic TruthCore work selected for a governed run.
 
         Provider invocation and final output validation are owned by the
@@ -186,8 +203,8 @@ class TruthCoreEngine:
         if mode == "enhanced":
             selected.append(("algorithm_of_thought", "KA-001"))
 
-        executed: list[Dict[str, Any]] = []
-        transitions: list[Dict[str, Any]] = [
+        executed: list[dict[str, Any]] = []
+        transitions: list[dict[str, Any]] = [
             {"from": "initialized", "to": "running", "reason": "contract_admitted"}
         ]
         for step_name, ka_id in selected:
@@ -210,34 +227,33 @@ class TruthCoreEngine:
                 break
             try:
                 ka_input = {"query": query, "_production_workflow": True}
-                output = await asyncio.to_thread(
-                    self.ka_controller.execute_algorithm,
+                result = await asyncio.to_thread(
+                    execute_required_ka,
+                    self.ka_controller,
                     ka_id,
                     ka_input,
+                    production_workflow=True,
                 )
-                status = "completed" if output.get("success", True) else "failed"
+                status = "completed"
                 item = {
                     "step": step_name,
-                    "ka_id": ka_id,
+                    "ka_id": result.canonical_id,
                     "status": status,
                     "input": ka_input,
-                    "output": output,
+                    "output": result.output,
+                    "trace_id": result.trace_id,
                     "started_at": started_at.isoformat(),
                     "completed_at": datetime.now(UTC).isoformat(),
                     "duration_ms": max(0, int((time.perf_counter() - start) * 1000)),
                 }
-                if status == "failed":
-                    item["error"] = str(output.get("error") or "ka_execution_failed")
                 executed.append(item)
                 transitions.append(
                     {
                         "from": "running",
-                        "to": "running" if status == "completed" else "failed",
+                        "to": "running",
                         "reason": f"{ka_id}:{status}",
                     }
                 )
-                if status == "failed":
-                    break
             except Exception as exc:
                 executed.append(
                     {
@@ -291,7 +307,7 @@ class TruthCoreEngine:
             "failure": failure,
         }
 
-    async def determine_tier(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
+    async def determine_tier(self, query: str, context: dict[str, Any] | None = None) -> str:
         """Determines workflow tier using rule-based fallback and AI-driven KA-005."""
         context = context or {}
         if context.get('force_tier'):
@@ -302,12 +318,15 @@ class TruthCoreEngine:
             if self.ka_controller:
                 loop = asyncio.get_event_loop()
                 ka_result = await loop.run_in_executor(
-                    None, 
-                    self.ka_controller.execute_algorithm, 
-                    "KA-005", 
-                    {"query": query, "context": context}
+                    None,
+                    partial(
+                        execute_required_ka,
+                        self.ka_controller,
+                        "KA-005",
+                        {"query": query, "context": context},
+                    ),
                 )
-                tier = ka_result.get('suggested_tier', ka_result.get('tier'))
+                tier = require_output_field(ka_result, "suggested_tier")
                 if tier in self.TIERS:
                     return tier
         except Exception as e:
@@ -321,7 +340,7 @@ class TruthCoreEngine:
             return 'high_stakes'
         return 'moderate'
 
-    async def get_routing_profile(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
+    async def get_routing_profile(self, query: str, context: dict[str, Any] | None = None) -> str:
         """Determines routing profile using AI-driven KA-113."""
         context = context or {}
         if context.get('routing_profile'):
@@ -331,16 +350,30 @@ class TruthCoreEngine:
             if self.ka_controller:
                 loop = asyncio.get_event_loop()
                 ka_result = await loop.run_in_executor(
-                    None, 
-                    self.ka_controller.execute_algorithm, 
-                    "KA-113", 
-                    {"query": query, "context": context}
+                    None,
+                    partial(
+                        execute_required_ka,
+                        self.ka_controller,
+                        "KA-113",
+                        {"query": query, "context": context},
+                    ),
                 )
-                profile = ka_result.get('routing_profile', ka_result.get('profile'))
-                if profile:
-                    return profile
-        except Exception:
-            pass # Revert to heuristics
+                target_pipeline = require_output_field(
+                    ka_result,
+                    "target_pipeline",
+                )
+                profile_by_pipeline = {
+                    "standard_pipeline": "default",
+                    "enhanced_pipeline": "long_context",
+                    "code_pipeline": "code",
+                }
+                if target_pipeline in profile_by_pipeline:
+                    return profile_by_pipeline[target_pipeline]
+        except Exception as exc:
+            logger.warning(
+                "KA-113 routing failed: %s. Reverting to explicit heuristics.",
+                exc,
+            )
 
         query_lower = query.lower()
         if any(kw in query_lower for kw in ['code', 'function', 'program', 'script']):
@@ -350,7 +383,7 @@ class TruthCoreEngine:
         return 'default'
 
     async def create_session(self, query: str, user_id: int = None, tenant_id: str = None, 
-                           context: Dict[str, Any] = None, tier: str = None) -> Dict[str, Any]:
+                           context: dict[str, Any] = None, tier: str = None) -> dict[str, Any]:
         """Create a new TruthCore processing session."""
         session_id = str(uuid.uuid4())
         tier = tier or await self.determine_tier(query, context)
@@ -398,7 +431,7 @@ class TruthCoreEngine:
         
         return session
 
-    async def process(self, session_id: str) -> Dict[str, Any]:
+    async def process(self, session_id: str) -> dict[str, Any]:
         """Process a compatibility session through the canonical orchestrator.
 
         ``_execute_workflow`` remains an internal Phase 6 remediation surface;
@@ -429,7 +462,10 @@ class TruthCoreEngine:
         context = session.get('context') or session.get('axis_context') or {}
 
         try:
-            from backend.governed_execution.contracts import GovernedMode, GovernedRequest
+            from backend.governed_execution.contracts import (
+                GovernedMode,
+                GovernedRequest,
+            )
             from backend.llm_gateway.gateway import LLMGateway
 
             mode = (
@@ -490,7 +526,7 @@ class TruthCoreEngine:
 
         return session
 
-    def _refresh_graph_context(self, query: str, working_context: Dict[str, Any]) -> None:
+    def _refresh_graph_context(self, query: str, working_context: dict[str, Any]) -> None:
         """Populate live graph anchors from text and any available 17-axis vector."""
         try:
             from backend.storage import get_graph_store, get_uskd_memory_graph
@@ -512,10 +548,10 @@ class TruthCoreEngine:
             logger.debug("Graph-grounded context bootstrap skipped: %s", exc)
 
     @staticmethod
-    def _axis_queries_from_coordinate_vector(coordinate_vector: Dict[str, Any]) -> List[tuple[int, str]]:
+    def _axis_queries_from_coordinate_vector(coordinate_vector: dict[str, Any]) -> list[tuple[int, str]]:
         if not isinstance(coordinate_vector, dict):
             return []
-        queries: List[tuple[int, str]] = []
+        queries: list[tuple[int, str]] = []
         active_axes = coordinate_vector.get('active_axes')
         axes = coordinate_vector.get('axes') if isinstance(coordinate_vector.get('axes'), dict) else coordinate_vector
         candidates = active_axes if isinstance(active_axes, list) else list(axes.keys())
@@ -533,7 +569,7 @@ class TruthCoreEngine:
         return queries
 
     @staticmethod
-    def _dedupe_graph_nodes(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _dedupe_graph_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
         seen = set()
         deduped = []
         for node in nodes:
@@ -546,13 +582,13 @@ class TruthCoreEngine:
         return deduped
 
     @staticmethod
-    def _active_persona_axes(working_context: Dict[str, Any]) -> List[int]:
+    def _active_persona_axes(working_context: dict[str, Any]) -> list[int]:
         """Return active persona axes, defaulting to the canonical 8-11 set."""
         coordinate_vector = working_context.get('coordinate_vector') or {}
         active_axes = coordinate_vector.get('active_axes') if isinstance(coordinate_vector, dict) else None
         if not active_axes:
             return [8, 9, 10, 11]
-        axes: List[int] = []
+        axes: list[int] = []
         for raw_axis in active_axes:
             try:
                 axis_number = int(str(raw_axis).removeprefix('axis_').removeprefix('A'))
@@ -563,7 +599,7 @@ class TruthCoreEngine:
         return axes or [8, 9, 10, 11]
 
     @staticmethod
-    def _coordinate_path_for_axis(axis_number: int, working_context: Dict[str, Any]) -> str:
+    def _coordinate_path_for_axis(axis_number: int, working_context: dict[str, Any]) -> str:
         coordinate_vector = working_context.get('coordinate_vector') or {}
         axes = coordinate_vector.get('axes') if isinstance(coordinate_vector, dict) and isinstance(coordinate_vector.get('axes'), dict) else coordinate_vector
         raw_value = axes.get(axis_number) or axes.get(str(axis_number)) or axes.get(f'axis_{axis_number}') or axes.get(f'A{axis_number}')
@@ -571,11 +607,11 @@ class TruthCoreEngine:
             raw_value = raw_value.get('uid') or raw_value.get('code') or raw_value.get('value') or raw_value.get('label')
         return str(raw_value or f"axis_{axis_number}.default").strip()
 
-    def _construct_l5_personas(self, working_context: Dict[str, Any]) -> Dict[str, Any]:
+    def _construct_l5_personas(self, working_context: dict[str, Any]) -> dict[str, Any]:
         """Construct 7-part profiles for persona axes 8-11."""
         if not self.persona_construction:
             return {}
-        profiles: Dict[str, Any] = {}
+        profiles: dict[str, Any] = {}
         persona_context = {**working_context, "dsqp_mode": working_context.get("dsqp_mode", True)}
         for axis_number in self._active_persona_axes(working_context):
             coordinate_path = self._coordinate_path_for_axis(axis_number, working_context)
@@ -604,7 +640,7 @@ class TruthCoreEngine:
         return layer_map.get(step, "global")
 
     @staticmethod
-    def _memory_vertex_payload(vertex: Any) -> Dict[str, Any]:
+    def _memory_vertex_payload(vertex: Any) -> dict[str, Any]:
         return {
             "vertex_id": getattr(vertex, "vertex_id", ""),
             "content": getattr(vertex, "content", ""),
@@ -613,7 +649,7 @@ class TruthCoreEngine:
             "metadata": getattr(vertex, "metadata", {}),
         }
 
-    async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
+    async def _execute_workflow(self, query: str, context: dict[str, Any], steps: list[str], tier: str) -> dict[str, Any]:
         """Unified execution loop for all tiers."""
         workflow_start = time.perf_counter()
         executed_steps = []
@@ -720,7 +756,9 @@ class TruthCoreEngine:
                     if sufficiency['mode'] == 'expanded_committee':
                         logger.info(f"SUFFICIENCY TRIGGER: Expanding committee. Reasons: {sufficiency['reasons']}")
                         try:
-                            from core.persona.quad.pod_orchestrator import create_pod_orchestrator
+                            from core.persona.quad.pod_orchestrator import (
+                                create_pod_orchestrator,
+                            )
 
                             scaling_decision = scaling_decision_from_sufficiency(sufficiency)
                             orchestration_state = create_pod_orchestrator().orchestrate(
@@ -783,7 +821,16 @@ class TruthCoreEngine:
                         logger.info("Invoking 12-Step Refinement Orchestrator.")
                         try:
                             refined_result = await self.refinement_orchestrator.refine(
-                                {"content": step_result.get('final_answer', ''), "confidence": step_result.get('confidence', 0.95)},
+                                {
+                                    "content": step_result.get(
+                                        'final_answer',
+                                        '',
+                                    ),
+                                    "confidence": step_result.get(
+                                        'confidence',
+                                        0.0,
+                                    ),
+                                },
                                 working_context
                             )
                             step_result['final_answer'] = refined_result['content']
@@ -811,14 +858,18 @@ class TruthCoreEngine:
         return {
             'tier': tier,
             'response': final_answer,
-            'confidence': executed_steps[-1].get('confidence', 0.95) if executed_steps else 0.0,
+            'confidence': (
+                executed_steps[-1].get('confidence', 0.0)
+                if executed_steps
+                else 0.0
+            ),
             'steps_executed': executed_steps,
             'personas_used': list(personas_used) if personas_used else ['sentinel'],
             'processing_time_ms': int((time.perf_counter() - workflow_start) * 1000),
             'context': working_context # Include for audit parity
         }
 
-    def _execute_refinement_step(self, step: str, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _execute_refinement_step(self, step: str, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute a single layer/step and return its results."""
         mapping = {
             'intent_parsing': 'KA-011',        # L1: Intent Parsing 
@@ -847,7 +898,11 @@ class TruthCoreEngine:
                     'ka_id': 'L6-QUANT-SERVICE',
                     'status': 'completed',
                     'output': result.model_dump() if hasattr(result, 'model_dump') else result,
-                    'confidence': result.confidence if hasattr(result, 'confidence') else 0.9
+                    'confidence': (
+                        result.confidence
+                        if hasattr(result, 'confidence')
+                        else 0.0
+                    ),
                 }
             except Exception as e:
                 logger.error(f"Layer 6 Service failed: {e}")
@@ -863,7 +918,11 @@ class TruthCoreEngine:
                     'ka_id': 'L7-AGI-PLANNER',
                     'status': 'completed',
                     'output': plan.model_dump() if hasattr(plan, 'model_dump') else plan,
-                    'confidence': plan.convergence_score if hasattr(plan, 'convergence_score') else 0.95
+                    'confidence': (
+                        plan.convergence_score
+                        if hasattr(plan, 'convergence_score')
+                        else 0.0
+                    ),
                 }
             except Exception as e:
                 logger.error(f"Layer 7 Service failed: {e}")
@@ -980,17 +1039,25 @@ class TruthCoreEngine:
         if ka_id and self.ka_controller:
             try:
                 ka_input = {'query': query, **context}
-                if hasattr(self.ka_controller, 'execute_algorithm'):
-                    result = self.ka_controller.execute_algorithm(ka_id, ka_input)
-                else:
-                    result = self.ka_controller.execute(ka_id, ka_input)
+                result = execute_required_ka(
+                    self.ka_controller,
+                    ka_id,
+                    ka_input,
+                )
+                output = result.require_output()
+                confidence = (
+                    output["confidence"]
+                    if "confidence" in output
+                    else output.get("weighted_confidence")
+                )
                 
                 return {
                     'step': step,
-                    'ka_id': ka_id,
+                    'ka_id': result.canonical_id,
                     'status': 'completed',
-                    'output': result.get('output', result),
-                    'confidence': result.get('confidence', result.get('weighted_confidence', 0.9))
+                    'output': output,
+                    'confidence': confidence,
+                    'trace_id': result.trace_id,
                 }
             except Exception as e:
                 logger.error(f"KA {ka_id} failed for step {step}: {e}")
@@ -1010,22 +1077,28 @@ class TruthCoreEngine:
             'reason': 'no executor available (KA controller not configured or step unmapped)',
         }
 
-    def _invoke_ka_algorithms(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _invoke_ka_algorithms(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Invoke relevant Knowledge Algorithms dynamically based on complexity."""
         if not self.ka_controller:
             return {'status': 'skipped', 'reason': 'No KA controller configured'}
         
         # Initial complexity assessment
-        router_result = {}
         try:
-            if hasattr(self.ka_controller, 'execute_algorithm'):
-                router_result = self.ka_controller.execute_algorithm('KA-113', {'query': query})
-            else:
-                router_result = self.ka_controller.execute('KA-113', {'query': query})
-        except Exception:
-            pass
-            
-        tier = router_result.get('output', {}).get('tier', 'medium')
+            router_result = execute_required_ka(
+                self.ka_controller,
+                "KA-113",
+                {"query": query},
+            )
+            tier = require_output_field(
+                router_result,
+                "complexity_tier",
+            )
+        except Exception as exc:
+            return {
+                "status": "failed",
+                "reason": "KA-113 routing failed",
+                "error": str(exc),
+            }
         
         # Select KAs based on tier
         if tier == 'high':
@@ -1036,23 +1109,27 @@ class TruthCoreEngine:
         results = {}
         for ka_id in relevant_kas:
             try:
-                if hasattr(self.ka_controller, 'execute_algorithm'):
-                    result = self.ka_controller.execute_algorithm(ka_id, {'query': query, **context})
-                else:
-                    result = self.ka_controller.execute(ka_id, {'query': query, **context})
-                results[ka_id] = {'status': 'success', 'result': result}
+                result = execute_required_ka(
+                    self.ka_controller,
+                    ka_id,
+                    {'query': query, **context},
+                )
+                results[ka_id] = {
+                    'status': 'success',
+                    'result': result.model_dump(mode="json", exclude_none=True),
+                }
             except Exception as e:
                 results[ka_id] = {'status': 'error', 'error': str(e)}
         
         return results
 
-    def get_session_status(self, session_id: str) -> Dict[str, Any]:
+    def get_session_status(self, session_id: str) -> dict[str, Any]:
         """Get current status of a session."""
         if session_id not in self.active_sessions:
             return {'error': 'Session not found'}
         return self.active_sessions[session_id]
 
-    def get_tier_info(self, tier: str = None) -> Dict[str, Any]:
+    def get_tier_info(self, tier: str = None) -> dict[str, Any]:
         """Get information about processing tiers."""
         if tier:
             return self.TIERS.get(tier, {})

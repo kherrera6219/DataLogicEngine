@@ -1,6 +1,26 @@
 import pytest
 from unittest.mock import MagicMock
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator, RefinementStep
+
+
+def _typed_result(ka_id, output):
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output,
+        request_id="request-test",
+        run_id="run-test",
+        trace_id=f"trace-{ka_id}",
+    )
 
 @pytest.fixture
 def orchestrator():
@@ -33,10 +53,23 @@ async def test_simulated_user_journey(orchestrator):
         "session_id": "sess_999"
     }
 
-    # We mock execute_algorithm directly to avoid complex KA registry loading
-    orchestrator.ka_controller.execute_algorithm.side_effect = [
-        {"refined_content": "Step 1: Mapping found", "confidence": 0.7, "audit_meta": {"ka": "KA-016"}},
-        {"refined_content": "Step 2: Nurnburg naming applied", "confidence": 0.9, "audit_meta": {"ka": "KA-075"}}
+    orchestrator.ka_controller.execute_typed.side_effect = [
+        _typed_result(
+            "KA-016",
+            {
+                "refined_content": "Step 1: Mapping found",
+                "confidence": 0.7,
+                "audit_meta": {"ka": "KA-016"},
+            },
+        ),
+        _typed_result(
+            "KA-075",
+            {
+                "refined_content": "Step 2: Nurnburg naming applied",
+                "confidence": 0.9,
+                "audit_meta": {"ka": "KA-075"},
+            },
+        ),
     ]
 
     refined_output = await orchestrator.refine(initial_response, context)

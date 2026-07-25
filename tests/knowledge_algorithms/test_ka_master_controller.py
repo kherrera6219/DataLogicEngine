@@ -6,7 +6,30 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
+
+
+def _typed_result(
+    ka_id: str = "MOCK-001",
+    output: dict | None = None,
+) -> KAExecutionResult:
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output or {"status": "success", "data": "mock_result"},
+        request_id="request-test",
+        run_id="run-test",
+        trace_id="trace-test",
+    )
 
 
 class TestKAMasterController:
@@ -31,8 +54,8 @@ class TestKAMasterController:
         }
         self.patcher = patch.object(
             self.controller._canonical_controller,
-            "execute_legacy",
-            return_value={"status": "success", "data": "mock_result"},
+            "execute",
+            return_value=_typed_result(),
         )
         self.mock_execute = self.patcher.start()
 
@@ -66,12 +89,14 @@ class TestKAMasterController:
         result = self.controller.execute_algorithm("MOCK-001", {"input": "test"})
         
         assert result is not None
-        assert result.get('status') == 'success'
-        self.mock_execute.assert_called_once_with(
-            "MOCK-001",
-            {"input": "test"},
-            production_workflow=False,
-        )
+        assert result["output"]["status"] == "success"
+        self.mock_execute.assert_called_once()
+
+    def test_execute_typed_returns_canonical_result(self):
+        result = self.controller.execute_typed("MOCK-001", {"input": "test"})
+
+        assert isinstance(result, KAExecutionResult)
+        assert result.require_output()["data"] == "mock_result"
 
     def test_execute_nonexistent_algorithm_raises_error(self):
         """Test executing non-existent algorithm raises KAError."""
@@ -93,8 +118,8 @@ class TestErrorHandling:
         }
         self.patcher = patch.object(
             self.controller._canonical_controller,
-            "execute_legacy",
-            return_value={"status": "success", "data": "mock_result"},
+            "execute",
+            return_value=_typed_result(),
         )
         self.patcher.start()
 
@@ -114,7 +139,7 @@ class TestErrorHandling:
         # Try with empty context - mock should run fine
         result = self.controller.execute_algorithm(ka_id, {})
         assert result is not None
-        assert result['status'] == 'success'
+        assert result["output"]["status"] == "success"
 
 
 if __name__ == '__main__':

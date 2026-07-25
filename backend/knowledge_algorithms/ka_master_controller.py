@@ -13,6 +13,12 @@ from typing import Any
 from celery import Celery
 from pydantic import BaseModel
 
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionContext,
+    KAExecutionMode,
+    KAExecutionRequest,
+    KAExecutionResult,
+)
 from backend.knowledge_algorithms.controller import get_ka_controller
 from backend.knowledge_algorithms.manifest import KADefinition, normalize_ka_id
 from core.knowledge_algorithm.exceptions import KAConfigError, KAError
@@ -128,7 +134,7 @@ class KAMasterController(KnowledgeAlgorithm):
             return normalize_ka_id(str(ka_id))
 
     def execute_algorithm(self, ka_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
-        """Dynamically imports and executes a specific Knowledge Algorithm with error propagation."""
+        """Return the versioned compatibility envelope for external legacy callers."""
         norm_id = self._normalize_ka_id(ka_id)
         is_async = input_data.get("async", False)
         
@@ -148,34 +154,77 @@ class KAMasterController(KnowledgeAlgorithm):
             task = run_ka_task.delay(norm_id, input_data)
             return {"success": True, "ka_id": norm_id, "mode": "async", "task_id": task.id, "status": "PENDING"}
 
+        result = self.execute_typed(
+            norm_id,
+            input_data,
+            production_workflow=bool(input_data.get("_production_workflow")),
+        )
+        payload = result.model_dump(mode="json", exclude_none=True)
+        return {
+            "success": result.success,
+            "ka_id": result.canonical_id,
+            "output": result.output,
+            "execution_time_ms": result.duration_ms,
+            "trace_id": result.trace_id,
+            "canonical_result": payload,
+            **(
+                {
+                    "error": result.error.message,
+                    "error_code": result.error.code.value,
+                }
+                if result.error
+                else {}
+            ),
+        }
+
+    def execute_typed(
+        self,
+        ka_id: str,
+        input_data: dict[str, Any] | None = None,
+        *,
+        production_workflow: bool = False,
+        context: KAExecutionContext | None = None,
+    ) -> KAExecutionResult:
+        """Execute one KA for internal callers using only the canonical typed result."""
+        norm_id = self._normalize_ka_id(ka_id)
+        if norm_id not in self.algorithms:
+            raise KAError(
+                f"Algorithm {norm_id} not registered.",
+                error_code="E404",
+            )
+
+        payload = dict(input_data or {})
+        payload.pop("async", None)
+        production_workflow = bool(
+            production_workflow or payload.pop("_production_workflow", False)
+        )
+        request = KAExecutionRequest(
+            ka_id=norm_id,
+            input=payload,
+            context=context or KAExecutionContext(),
+            mode=(
+                KAExecutionMode.PRODUCTION
+                if production_workflow
+                else KAExecutionMode.EVALUATION
+            ),
+        )
         started_at = datetime.now(UTC)
         start_time = time.perf_counter()
-        try:
-            result = self._canonical_controller.execute_legacy(
-                norm_id,
-                input_data,
-                production_workflow=bool(input_data.get("_production_workflow")),
-            )
-            self._record_ka_execution(
-                norm_id,
-                input_data,
-                output_data=result,
-                elapsed_ms=(time.perf_counter() - start_time) * 1000,
-                started_at=started_at,
-                completed_at=datetime.now(UTC),
-            )
-            return result
-        except Exception as e:  # noqa: BLE001 - compatibility execution boundary
-            self._record_ka_execution(
-                norm_id,
-                input_data,
-                error=e,
-                elapsed_ms=(time.perf_counter() - start_time) * 1000,
-                started_at=started_at,
-                completed_at=datetime.now(UTC),
-            )
-            self.logger.error(f"Execution of {norm_id} failed: {e}")
-            raise KAError(f"Recursive Execution Failure on {norm_id}", error_code="E502", details={"inner_error": str(e)})
+        result = self._canonical_controller.execute(request)
+        self._record_ka_execution(
+            norm_id,
+            payload,
+            output_data=result.model_dump(mode="json", exclude_none=True),
+            error=None if result.success else RuntimeError(
+                result.error.message
+                if result.error
+                else "Knowledge Algorithm execution failed."
+            ),
+            elapsed_ms=(time.perf_counter() - start_time) * 1000,
+            started_at=started_at,
+            completed_at=datetime.now(UTC),
+        )
+        return result
 
     def _record_ka_execution(
         self,
@@ -267,12 +316,15 @@ class KAMasterController(KnowledgeAlgorithm):
         step_results = []
         for ka_id, payload in flow:
             try:
-                result = self.execute_algorithm(ka_id, payload)
+                result = self.execute_typed(ka_id, payload)
                 step_results.append(
                     {
                         "ka_id": ka_id,
-                        "success": bool(result.get("success", True)),
-                        "result": self._json_safe(result),
+                        "success": result.success,
+                        "result": result.model_dump(
+                            mode="json",
+                            exclude_none=True,
+                        ),
                     }
                 )
             except Exception as exc:  # noqa: BLE001 - per-step failure isolation
@@ -543,7 +595,12 @@ def run_ka_task(ka_id: str, input_data: dict[str, Any]):
     """Background task for long-running KAs."""
     from backend.knowledge_algorithms.ka_master_controller import get_controller
     master = get_controller()
-    return master.execute_algorithm(ka_id, {**input_data, "async": False})
+    result = master.execute_typed(
+        ka_id,
+        {**input_data, "async": False},
+        production_workflow=bool(input_data.get("_production_workflow")),
+    )
+    return result.model_dump(mode="json", exclude_none=True)
 
 _controller_instance = None
 

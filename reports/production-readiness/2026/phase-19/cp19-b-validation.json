@@ -1,0 +1,30 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-B",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "source_contract_parity",
+  "results": {
+    "production_python_files_scanned": 621,
+    "migrated_caller_surfaces": 18,
+    "typed_execution_call_sites": 32,
+    "legacy_execution_call_sites": 0,
+    "real_controller_layer9": "pass",
+    "real_controller_layer10_fail_closed": "pass",
+    "ka_python_sdk_tests_passed": 738,
+    "ka_python_sdk_warnings": 3,
+    "full_source_tests_passed": 2486,
+    "full_source_tests_skipped": 18,
+    "full_source_test_warnings": 21,
+    "contract_parity_verifier": "pass",
+    "critical_ruff": "pass",
+    "typescript_sdk_build": "pass",
+    "documentation_gates": "pass"
+  },
+  "limitations": [
+    "This checkpoint establishes source-level typed contract parity; it does not claim rebuilt-installed acceptance.",
+    "Selector planning and dependency-DAG execution remain assigned to CP19-C.",
+    "Layer identity, ten-layer product routing, personas, refinement, data lifecycle, simulation, MCP, providers, operational effects, desktop surfaces, and accessibility retain their later Phase 19 checkpoint ownership."
+  ],
+  "next_checkpoint": "CP19-C"
+}

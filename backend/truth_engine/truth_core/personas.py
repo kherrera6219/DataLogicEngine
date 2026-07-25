@@ -4,11 +4,15 @@ TruthCore Persona Enhancement
 Extends QuadPersonaEngine with multi-persona reasoning.
 """
 
-import logging
 import asyncio
-from typing import Dict, Any, List
-from datetime import datetime, UTC
+import logging
+from datetime import UTC, datetime
+from typing import Any
 
+from backend.knowledge_algorithms.consumer import (
+    execute_required_ka,
+    require_output_field,
+)
 from backend.knowledge_algorithms.ka_master_controller import get_controller
 from core.persona.quad.mathematical_framework import IntegrationFunction
 
@@ -72,8 +76,8 @@ class PersonaEnhancer:
         self.integration_function = IntegrationFunction()
         logger.info("PersonaEnhancer initialized")
 
-    def enhance_query(self, query: str, context: Dict[str, Any] = None,
-                      personas: List[str] = None) -> Dict[str, Any]:
+    def enhance_query(self, query: str, context: dict[str, Any] = None,
+                      personas: list[str] = None) -> dict[str, Any]:
         """
         Enhance query processing with multi-persona reasoning.
         
@@ -123,8 +127,8 @@ class PersonaEnhancer:
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             return executor.submit(asyncio.run, value).result()
 
-    async def _get_persona_response(self, persona_name: str, persona_config: Dict[str, Any],
-                                     query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_persona_response(self, persona_name: str, persona_config: dict[str, Any],
+                                     query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Get response from a specific persona with production fallback to KA-Master."""
         if self.quad_persona_engine:
             try:
@@ -135,7 +139,7 @@ class PersonaEnhancer:
                     'persona': persona_name,
                     'role': persona_config['role'],
                     'response': result.get('response', ''),
-                    'confidence': result.get('confidence', 0.8),
+                    'confidence': result.get('confidence', 0.0),
                     'source': 'quad_persona_engine'
                 }
             except Exception as e:
@@ -145,30 +149,79 @@ class PersonaEnhancer:
         # This replaces the hardcoded placeholder strings.
         try:
             master = get_controller()
-            ka_result = master.execute_algorithm("KA-012", {
-                "query": query,
-                "persona_config": persona_config,
-                "context": context
-            })
-            return {
-                'persona': persona_name,
-                'role': persona_config['role'],
-                'response': ka_result.get('simulation_output', ka_result.get('response', '')),
-                'confidence': ka_result.get('confidence', 0.8),
-                'source': 'KA-012'
+            ka_result = execute_required_ka(
+                master,
+                "KA-012",
+                {
+                    "query": query,
+                    "persona_config": persona_config,
+                    "context": context,
+                },
+            )
+            persona_results = require_output_field(
+                ka_result,
+                "persona_results",
+            )
+            persona_type_by_name = {
+                "knowledge_expert": "knowledge",
+                "sector_expert": "sector",
+                "regulatory_expert": "regulatory",
+                "compliance_expert": "compliance",
             }
-        except Exception:
-            # Absolute last resort fallback
+            expected_type = persona_type_by_name.get(persona_name, persona_name)
+            selected = next(
+                (
+                    item
+                    for item in persona_results
+                    if isinstance(item, dict)
+                    and item.get("persona_type") == expected_type
+                ),
+                None,
+            )
+            if selected is None:
+                raise RuntimeError(
+                    f"KA-012 returned no result for persona {expected_type!r}"
+                )
+            response = selected.get("response")
+            if not isinstance(response, str) or not response:
+                raise RuntimeError(
+                    f"KA-012 returned no response for persona {expected_type!r}"
+                )
+            measured_confidence = selected.get("confidence")
             return {
                 'persona': persona_name,
                 'role': persona_config['role'],
-                'response': f"Critical reasoning failure for {persona_name}. Reverting to base knowledge safety.",
-                'confidence': 0.4,
-                'source': 'system_safety'
+                'response': response,
+                'confidence': (
+                    float(measured_confidence)
+                    if isinstance(measured_confidence, (int, float))
+                    else 0.0
+                ),
+                'measurement_status': selected.get(
+                    "measurement_status",
+                    "not_measured",
+                ),
+                'source': 'KA-012',
+                'trace_id': ka_result.trace_id,
+            }
+        except Exception as exc:
+            logger.error(
+                "KA-012 persona execution failed for %s: %s",
+                persona_name,
+                exc,
+            )
+            return {
+                'persona': persona_name,
+                'role': persona_config['role'],
+                'response': '',
+                'confidence': 0.0,
+                'measurement_status': 'failed',
+                'source': 'ka_failure',
+                'error': 'Persona reasoning was unavailable.',
             }
 
-    def _synthesize_responses(self, responses: Dict[str, Dict[str, Any]],
-                               weights: Dict[str, float]) -> Dict[str, Any]:
+    def _synthesize_responses(self, responses: dict[str, dict[str, Any]],
+                               weights: dict[str, float]) -> dict[str, Any]:
         """Synthesize multiple persona responses with quad IntegrationFunction."""
         if not responses:
             return {'content': '', 'confidence': 0}
@@ -222,13 +275,13 @@ class PersonaEnhancer:
             'dynamic_weights': dynamic_weights,
         }
 
-    def get_persona_info(self, persona: str = None) -> Dict[str, Any]:
+    def get_persona_info(self, persona: str = None) -> dict[str, Any]:
         """Get information about personas."""
         if persona:
             return self.TRUTH_PERSONAS.get(persona, {})
         return self.TRUTH_PERSONAS
 
-    def spawn_specialists(self, lane: str, count: int) -> List[Dict[str, Any]]:
+    def spawn_specialists(self, lane: str, count: int) -> list[dict[str, Any]]:
         """
         Spawns a pod of specialists for a specific lane.
         """
@@ -263,12 +316,12 @@ class PersonaPod:
     """
     A collection of specialists working within one of the 4 categories.
     """
-    def __init__(self, lane: str, specialists: List[Dict[str, Any]]):
+    def __init__(self, lane: str, specialists: list[dict[str, Any]]):
         self.lane = lane
         self.specialists = specialists
         self.results = []
 
-    async def execute(self, query: str, context: Dict[str, Any], engine_instance: Any):
+    async def execute(self, query: str, context: dict[str, Any], engine_instance: Any):
         """Executes reasoning for all specialists in the pod in parallel."""
         tasks = []
         for spec_config in self.specialists:
@@ -289,7 +342,7 @@ class PersonaPod:
             spec_config['role'], spec_config, query, context
         )
 
-    def synthesize(self) -> Dict[str, Any]:
+    def synthesize(self) -> dict[str, Any]:
         """Synthesizes pod results into a single lane output."""
         if not self.results:
             return {}

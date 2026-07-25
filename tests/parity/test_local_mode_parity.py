@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from config import DesktopConfig, ProductionConfig, get_config
+import config as config_module
 
 
 def _desktop_headers() -> dict[str, str]:
@@ -58,9 +58,9 @@ def test_runtime_config_parity_switches_between_desktop_and_cloud(monkeypatch) -
     monkeypatch.setenv("FLASK_ENV", "production")
 
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
-    desktop_config = get_config()
-    assert isinstance(desktop_config, DesktopConfig)
+    desktop_config = config_module.get_config()
+    assert isinstance(desktop_config, config_module.DesktopConfig)
 
     monkeypatch.setenv("IS_DESKTOP_APP", "false")
-    cloud_config = get_config()
-    assert isinstance(cloud_config, ProductionConfig)
+    cloud_config = config_module.get_config()
+    assert isinstance(cloud_config, config_module.ProductionConfig)

@@ -11,6 +11,12 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionContext,
+    KAExecutionMode,
+    KAExecutionRequest,
+    KAExecutionResult,
+)
 from backend.knowledge_algorithms.controller import (
     CanonicalKAController,
     get_ka_controller,
@@ -105,42 +111,80 @@ class KAEngine:
         params: dict[str, Any] | None = None,
         session_id: str | None = None,
     ) -> dict[str, Any]:
+        """Return the historical execution record for compatibility callers."""
+        result = self.execute_typed(
+            ka_id,
+            params,
+            session_id=session_id,
+            production_workflow=bool(
+                (params or {}).get("_production_workflow", False)
+            ),
+        )
+        return self._legacy_execution_record(result, params, session_id)
+
+    def execute_typed(
+        self,
+        ka_id: str,
+        params: dict[str, Any] | None = None,
+        *,
+        session_id: str | None = None,
+        production_workflow: bool = False,
+    ) -> KAExecutionResult:
+        """Execute through the canonical typed boundary for internal callers."""
+        payload = dict(params or {})
+        production_workflow = bool(
+            production_workflow
+            or payload.pop("_production_workflow", False)
+        )
+        return self.controller.execute(
+            KAExecutionRequest(
+                ka_id=ka_id,
+                input=payload,
+                context=KAExecutionContext(session_id=session_id),
+                mode=(
+                    KAExecutionMode.PRODUCTION
+                    if production_workflow
+                    else KAExecutionMode.EVALUATION
+                ),
+            )
+        )
+
+    def _legacy_execution_record(
+        self,
+        result: KAExecutionResult,
+        params: dict[str, Any] | None,
+        session_id: str | None,
+    ) -> dict[str, Any]:
         execution_id = (
-            f"EXEC_{normalize_ka_id(ka_id)}_{str(uuid.uuid4())[:8]}_"
+            f"EXEC_{result.canonical_id}_{str(uuid.uuid4())[:8]}_"
             f"{int(datetime.now(UTC).timestamp())}"
         )
-        started_at = datetime.now(UTC)
         payload = dict(params or {})
-        production_workflow = bool(payload.pop("_production_workflow", False))
-        canonical = self.controller.execute_legacy(
-            ka_id,
-            payload,
-            production_workflow=production_workflow,
-        )
-        completed_at = datetime.now(UTC)
-        success = bool(canonical.get("success"))
+        payload.pop("_production_workflow", None)
         record = {
             "execution_id": execution_id,
-            "ka_id": canonical.get("ka_id", normalize_ka_id(ka_id)),
+            "ka_id": result.canonical_id,
             "session_id": session_id,
             "params": payload,
-            "status": "completed" if success else "failed",
-            "start_time": started_at.isoformat(),
-            "end_time": completed_at.isoformat(),
-            "duration_ms": canonical.get(
-                "execution_time_ms",
-                (completed_at - started_at).total_seconds() * 1000,
+            "status": "completed" if result.success else "failed",
+            "start_time": result.started_at.isoformat(),
+            "end_time": result.completed_at.isoformat(),
+            "duration_ms": result.duration_ms,
+            "results": result.output,
+            "error": result.error.message if result.error else None,
+            "error_code": result.error.code.value if result.error else None,
+            "trace_id": result.trace_id,
+            "canonical_result": result.model_dump(
+                mode="json",
+                exclude_none=True,
             ),
-            "results": canonical.get("output", {}),
-            "error": canonical.get("error"),
-            "error_code": canonical.get("error_code"),
-            "trace_id": canonical.get("trace_id"),
-            "canonical_result": canonical.get("canonical_result"),
         }
         self.execution_history.append(record)
         self.stats["total_executions"] += 1
         self.stats[
-            "successful_executions" if success else "failed_executions"
+            "successful_executions"
+            if result.success
+            else "failed_executions"
         ] += 1
         return record
 
@@ -171,8 +215,13 @@ class KAEngine:
                     f"Pipeline step {index + 1} missing required 'ka_id'"
                 )
                 break
-            execution = self.execute_algorithm(
+            execution_result = self.execute_typed(
                 ka_id,
+                step.get("params", {}),
+                session_id=session_id,
+            )
+            execution = self._legacy_execution_record(
+                execution_result,
                 step.get("params", {}),
                 session_id,
             )

@@ -99,8 +99,11 @@ effect/transaction boundary, evidence destinations, and later qualification
 owners. Sixteen orchestrator/workflow variants have explicit canonical,
 compatibility, reference, migration, or prohibited-path dispositions. This
 metadata is carried by the one generated backend/Python/TypeScript manifest;
-it is not a second runtime registry. The full KA suite is 726 passed. CP19-B
-typed caller migration is active.
+it is not a second runtime registry. CP19-B subsequently migrated every
+existing production caller to the typed canonical result: 18 caller/API/SDK
+surfaces, 32 typed execution/helper sites, and zero legacy result calls across
+621 scanned production Python files. The KA/Python-SDK suite is 738 passed.
+CP19-C selector and bounded dependency-DAG integration is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,

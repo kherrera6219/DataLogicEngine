@@ -1,5 +1,10 @@
 import pytest
 from unittest.mock import MagicMock
+from backend.knowledge_algorithms.contracts import (
+    KAExecutionResult,
+    KAExecutionState,
+    KAOutcomeType,
+)
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
 from backend.knowledge_algorithms.ka_16_regulatory_mapping import KA016RegulatoryMapping, KA016Input
 from backend.knowledge_algorithms.ka_75_schema_mapping import KA075SchemaMapping, KA075MappingInput
@@ -12,6 +17,21 @@ def mock_ka_controller():
 def orchestrator(mock_ka_controller):
     return RefinementOrchestrator(ka_controller=mock_ka_controller)
 
+
+def _typed_result(ka_id, output):
+    return KAExecutionResult(
+        canonical_id=ka_id,
+        ka_version="1.0.0",
+        manifest_version="test",
+        state=KAExecutionState.SUCCEEDED,
+        outcome_type=KAOutcomeType.VALUE,
+        success=True,
+        output=output,
+        request_id="request-test",
+        run_id="run-test",
+        trace_id=f"trace-{ka_id}",
+    )
+
 @pytest.mark.asyncio
 async def test_refinement_orchestrator_loop(orchestrator, mock_ka_controller):
     """Verify that orchestrator executes all 12 steps and handles success/failure."""
@@ -20,22 +40,35 @@ async def test_refinement_orchestrator_loop(orchestrator, mock_ka_controller):
     
     # Mock execute_algorithm to return improving results
     def mock_execute(ka_id, ka_input):
-        return {
-            "refined_content": f"Refined by {ka_id}",
-            "confidence": min(0.999, 0.82 + (0.01 * int(ka_id.split('-')[-1] if '-' in ka_id else 1))),
-            "audit_meta": {"status": "ok"}
-        }
+        return _typed_result(
+            ka_id,
+            {
+                "refined_content": f"Refined by {ka_id}",
+                "confidence": min(
+                    0.999,
+                    0.82
+                    + (
+                        0.01
+                        * int(
+                            ka_id.split('-')[-1]
+                            if '-' in ka_id
+                            else 1
+                        )
+                    ),
+                ),
+                "audit_meta": {"status": "ok"},
+            },
+        )
     
     # Need to handle both synchronous and asynchronous calls if run_in_executor is used
-    # RefinementOrchestrator uses loop.run_in_executor(None, self.ka_controller.execute_algorithm, ...)
-    mock_ka_controller.execute_algorithm.side_effect = mock_execute
+    mock_ka_controller.execute_typed.side_effect = mock_execute
     
     result = await orchestrator.refine(initial_response, context)
     
     assert "refinement_history" in result
     assert len(result["refinement_history"]) == 12
     assert result["final_confidence"] >= 0.82
-    assert mock_ka_controller.execute_algorithm.call_count == 12
+    assert mock_ka_controller.execute_typed.call_count == 12
 
 @pytest.mark.asyncio
 async def test_refinement_orchestrator_recovery(orchestrator, mock_ka_controller):
@@ -52,10 +85,16 @@ async def test_refinement_orchestrator_recovery(orchestrator, mock_ka_controller
         nonlocal call_count
         call_count += 1
         if call_count == 2:
-            return {"confidence": 0.5, "refined_content": "Garbage"}
-        return {"confidence": 0.91, "refined_content": "Better"}
-    
-    mock_ka_controller.execute_algorithm.side_effect = mock_execute
+            return _typed_result(
+                ka_id,
+                {"confidence": 0.5, "refined_content": "Garbage"},
+            )
+        return _typed_result(
+            ka_id,
+            {"confidence": 0.91, "refined_content": "Better"},
+        )
+
+    mock_ka_controller.execute_typed.side_effect = mock_execute
     
     result = await orchestrator.refine(initial_response, context)
     

@@ -25,23 +25,25 @@ Required KAs (L9 Suite):
 
 import logging
 import time
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any
 
+from backend.knowledge_algorithms.consumer import execute_required_ka
+
+from .historical_embeddings import cosine_similarity, parse_embedding, text_to_embedding
 from .l9_schemas import (
-    L9Decision,
-    RefinementSeverity,
     BeliefDriftReport,
+    EpistemicReport,
+    L9Decision,
+    L9Input,
+    L9Result,
+    MetaEvaluationReport,
     PersonaAgreementItem,
     PersonaAgreementMatrix,
-    TraceIntegrityReport,
-    MetaEvaluationReport,
     RefinementDirective,
     RefinementPlan,
-    EpistemicReport,
-    L9Input,
-    L9Result
+    RefinementSeverity,
+    TraceIntegrityReport,
 )
-from .historical_embeddings import cosine_similarity, parse_embedding, text_to_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -92,15 +94,15 @@ class MetaReasoningController:
         "L9-KA-007",  # Loop Controller
     ]
     
-    # Canonical KAs from registry (inherited from user docs)
+    # Canonical KAs from the live registry
     CANONICAL_KAS = [
         "KA-008",  # Self-Critique & Reflection
         "KA-010",  # Bias Detection
-        "KA-022",  # Memory Drift
-        "KA-025",  # Self-Awareness Scoring
+        "KA-022",  # Risk Assessment
+        "KA-025",  # Dependency Mapping
     ]
     
-    def __init__(self, ka_controller=None, config: Optional[Dict] = None):
+    def __init__(self, ka_controller=None, config: dict | None = None):
         """
         Initialize the MetaReasoningController.
         
@@ -126,6 +128,28 @@ class MetaReasoningController:
         self.refine_count = 0
         
         logger.info("MetaReasoningController initialized with 7 L9 KAs + 4 canonical KAs")
+
+    def _execute_ka(
+        self,
+        ka_id: str,
+        payload: dict[str, Any],
+        kas_invoked: list[str],
+    ) -> dict[str, Any]:
+        result = execute_required_ka(self.ka_controller, ka_id, payload)
+        kas_invoked.append(result.canonical_id)
+        return result.output
+
+    @staticmethod
+    def _required_value(
+        ka_id: str,
+        output: dict[str, Any],
+        field: str,
+    ) -> Any:
+        if field not in output:
+            raise RuntimeError(
+                f"{ka_id} output is missing required field {field!r}"
+            )
+        return output[field]
     
     def evaluate(self, input_data: L9Input) -> L9Result:
         """
@@ -172,11 +196,17 @@ class MetaReasoningController:
                     "severity": "high",
                     "description": "KA-010 detected potential bias in reasoning"
                 })
-            if canonical_results.get("memory_drift_score", 0) > 0.2:
+            if canonical_results.get("risk_score", 0) > 0.2:
                 meta_report.failure_modes.append({
-                    "scenario": "memory_drift",
-                    "probability": canonical_results["memory_drift_score"],
+                    "scenario": "recommendation_risk",
+                    "probability": canonical_results["risk_score"],
                     "impact": "medium"
+                })
+            if not canonical_results.get("dependency_dag_valid", False):
+                meta_report.failure_modes.append({
+                    "scenario": "invalid_reasoning_dependency_graph",
+                    "probability": 1.0,
+                    "impact": "high",
                 })
             
             # Phase 5: Calculate Readiness Score
@@ -242,7 +272,7 @@ class MetaReasoningController:
                 decision=L9Decision.REFINE,
                 severity=RefinementSeverity.MAJOR,
                 readiness_score=0.0,
-                disclosure_flags=[f"L9 error: {str(e)}"],
+                disclosure_flags=[f"L9 error: {e!s}"],
                 kas_invoked=kas_invoked,
                 processing_time_ms=processing_time_ms
             )
@@ -261,7 +291,7 @@ class MetaReasoningController:
             return self.persona_thresholds.get("high_risk", 0.99)
         return self.persona_thresholds.get("standard", 0.95)
     
-    def _check_iteration_limits(self, input_data: L9Input) -> Optional[L9Result]:
+    def _check_iteration_limits(self, input_data: L9Input) -> L9Result | None:
         """Check if we've hit iteration limits."""
         iteration_state = input_data.iteration_state
         current_iter = iteration_state.get("current_iteration", 1)
@@ -294,7 +324,7 @@ class MetaReasoningController:
         
         return None
     
-    def _analyze_trace_integrity(self, input_data: L9Input, kas_invoked: List[str]) -> TraceIntegrityReport:
+    def _analyze_trace_integrity(self, input_data: L9Input, kas_invoked: list[str]) -> TraceIntegrityReport:
         """Analyze reasoning trace integrity (L1-L8)."""
         trace = input_data.reasoning_trace
         issues = []
@@ -318,15 +348,20 @@ class MetaReasoningController:
         # KA integration (L9-KA-001)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-001", {
-                    "trace": trace,
-                    "layers": layers_reviewed
-                })
-                kas_invoked.append("L9-KA-001")
+                result = self._execute_ka(
+                    "L9-KA-001",
+                    {
+                        "trace": trace,
+                        "layers": layers_reviewed,
+                    },
+                    kas_invoked,
+                )
                 # Merge any additional issues
-                issues.extend(result.get("issues", []))
+                issues.extend(
+                    self._required_value("L9-KA-001", result, "issues")
+                )
             except Exception as e:
-                logger.debug(f"L9-KA-001 skipped: {e}")
+                raise RuntimeError("L9-KA-001 trace analysis failed") from e
         
         integrity_score = 1.0 - (len(issues) * 0.1)
         integrity_score = max(0.0, min(1.0, integrity_score))
@@ -339,7 +374,7 @@ class MetaReasoningController:
             unresolved_branches=len([i for i in issues if i.get("type") == "unresolved_branch"])
         )
     
-    def _detect_belief_drift(self, input_data: L9Input, kas_invoked: List[str]) -> BeliefDriftReport:
+    def _detect_belief_drift(self, input_data: L9Input, kas_invoked: list[str]) -> BeliefDriftReport:
         """Detect belief drift between original query and final solution."""
         problem_spec = input_data.problem_spec
         l8_result = input_data.l8_gate_result
@@ -397,17 +432,39 @@ class MetaReasoningController:
         # KA integration (L9-KA-002)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-002", {
-                    "original_query": original_query,
-                    "final_solution": final_solution[:500]
-                })
-                kas_invoked.append("L9-KA-002")
-                if result.get("drift_detected"):
+                result = self._execute_ka(
+                    "L9-KA-002",
+                    {
+                        "original_query": original_query,
+                        "final_solution": final_solution[:500],
+                    },
+                    kas_invoked,
+                )
+                if self._required_value(
+                    "L9-KA-002",
+                    result,
+                    "drift_detected",
+                ):
                     drift_detected = True
-                    drift_score = max(drift_score, result.get("drift_score", 0.0))
-                    drift_type = result.get("drift_type", drift_type)
+                    drift_score = max(
+                        drift_score,
+                        float(
+                            self._required_value(
+                                "L9-KA-002",
+                                result,
+                                "drift_score",
+                            )
+                        ),
+                    )
+                    drift_type = str(
+                        self._required_value(
+                            "L9-KA-002",
+                            result,
+                            "drift_type",
+                        )
+                    )
             except Exception as e:
-                logger.debug(f"L9-KA-002 skipped: {e}")
+                raise RuntimeError("L9-KA-002 belief-drift analysis failed") from e
         
         return BeliefDriftReport(
             drift_detected=drift_detected,
@@ -420,7 +477,7 @@ class MetaReasoningController:
         )
 
     @staticmethod
-    def _search_audit_evidence(original_query: str, final_solution: str) -> List[Dict[str, Any]]:
+    def _search_audit_evidence(original_query: str, final_solution: str) -> list[dict[str, Any]]:
         """Search semantically similar prior sessions from audit_evidence."""
         try:
             from backend.services.rag_service import RAGService, get_rag_service
@@ -437,7 +494,7 @@ class MetaReasoningController:
             return []
 
     @staticmethod
-    def _search_db_similar_sessions(original_query: str) -> List[Dict[str, Any]]:
+    def _search_db_similar_sessions(original_query: str) -> list[dict[str, Any]]:
         """Search TruthSession.input_embedding for local historical drift baseline."""
         if not original_query:
             return []
@@ -470,7 +527,7 @@ class MetaReasoningController:
         except Exception:
             return []
     
-    def _audit_persona_agreement(self, input_data: L9Input, threshold: float, kas_invoked: List[str]) -> PersonaAgreementMatrix:
+    def _audit_persona_agreement(self, input_data: L9Input, threshold: float, kas_invoked: list[str]) -> PersonaAgreementMatrix:
         """Audit persona agreement for silent dissent."""
         l8_result = input_data.l8_gate_result
         
@@ -478,13 +535,13 @@ class MetaReasoningController:
         domain_confs = l8_result.get("domain_confidences", [])
         
         matrix = []
-        min_score = 1.0
+        min_score = 0.0
         flagged = []
         
         for dc in domain_confs:
             if isinstance(dc, dict):
                 persona = dc.get("domain", "unknown")
-                confidence = dc.get("confidence", 1.0)
+                confidence = dc.get("confidence", 0.0)
                 
                 item = PersonaAgreementItem(
                     persona=persona,
@@ -493,22 +550,25 @@ class MetaReasoningController:
                 )
                 matrix.append(item)
                 
-                if confidence < min_score:
-                    min_score = confidence
+                min_score = min(min_score, confidence)
                 
                 if confidence < threshold:
                     item.concern = f"Satisfaction {confidence:.1%} below threshold {threshold:.1%}"
                     flagged.append(item)
+
+        if matrix:
+            min_score = min(item.score for item in matrix)
         
         # KA integration (L9-KA-003)
         if self.ka_controller:
             try:
-                self.ka_controller.execute_algorithm("L9-KA-003", {
-                    "domain_confidences": domain_confs
-                })
-                kas_invoked.append("L9-KA-003")
+                self._execute_ka(
+                    "L9-KA-003",
+                    {"domain_confidences": domain_confs},
+                    kas_invoked,
+                )
             except Exception as e:
-                logger.debug(f"L9-KA-003 skipped: {e}")
+                raise RuntimeError("L9-KA-003 persona-agreement audit failed") from e
         
         return PersonaAgreementMatrix(
             matrix=matrix,
@@ -518,7 +578,7 @@ class MetaReasoningController:
             flagged_combinations=flagged
         )
     
-    def _run_meta_evaluation(self, input_data: L9Input, kas_invoked: List[str]) -> MetaEvaluationReport:
+    def _run_meta_evaluation(self, input_data: L9Input, kas_invoked: list[str]) -> MetaEvaluationReport:
         """Run meta-cognitive self-evaluation."""
         weakness_hotspots = []
         failure_modes = []
@@ -527,16 +587,31 @@ class MetaReasoningController:
         # KA integration (L9-KA-004)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-004", {
-                    "solution": input_data.l8_gate_result,
-                    "trace": input_data.reasoning_trace
-                })
-                kas_invoked.append("L9-KA-004")
-                weakness_hotspots = result.get("weaknesses", [])
-                failure_modes = result.get("failure_modes", [])
-                alternatives = result.get("alternatives", [])
+                result = self._execute_ka(
+                    "L9-KA-004",
+                    {
+                        "solution": input_data.l8_gate_result,
+                        "trace": input_data.reasoning_trace,
+                    },
+                    kas_invoked,
+                )
+                weakness_hotspots = self._required_value(
+                    "L9-KA-004",
+                    result,
+                    "weaknesses",
+                )
+                failure_modes = self._required_value(
+                    "L9-KA-004",
+                    result,
+                    "failure_modes",
+                )
+                alternatives = self._required_value(
+                    "L9-KA-004",
+                    result,
+                    "alternatives",
+                )
             except Exception as e:
-                logger.debug(f"L9-KA-004 skipped: {e}")
+                raise RuntimeError("L9-KA-004 meta-evaluation failed") from e
         
         # Calculate meta score
         num_issues = len(weakness_hotspots) + len(failure_modes)
@@ -549,17 +624,17 @@ class MetaReasoningController:
             alternative_approaches=alternatives
         )
     
-    def _run_canonical_ka_checks(self, input_data: L9Input, kas_invoked: List[str]) -> Dict[str, Any]:
+    def _run_canonical_ka_checks(self, input_data: L9Input, kas_invoked: list[str]) -> dict[str, Any]:
         """
         Run canonical KAs from the registry (KA-008, KA-010, KA-022, KA-025).
         
         These are the regular KAs that the user's notes specify for Layer 9.
         """
         results = {
-            "self_critique_score": 1.0,
+            "self_critique_score": 0.0,
             "bias_detected": False,
-            "memory_drift_score": 0.0,
-            "self_awareness_score": 1.0
+            "risk_score": 0.0,
+            "dependency_dag_valid": False,
         }
         
         if not self.ka_controller:
@@ -567,49 +642,93 @@ class MetaReasoningController:
         
         # KA-008: Self-Critique & Reflection
         try:
-            result = self.ka_controller.execute_algorithm("KA-008", {
-                "output": str(input_data.l8_gate_result)[:1000],
-                "context": input_data.problem_spec
-            })
-            kas_invoked.append("KA-008")
-            results["self_critique_score"] = result.get("quality_score", 1.0)
+            result = self._execute_ka(
+                "KA-008",
+                {
+                    "output_content": str(input_data.l8_gate_result)[:1000],
+                    "query": str(
+                        input_data.problem_spec.get("original_query", "")
+                    ),
+                    "required_points": [],
+                },
+                kas_invoked,
+            )
+            results["self_critique_score"] = self._required_value(
+                "KA-008",
+                result,
+                "overall_score",
+            )
         except Exception as e:
-            logger.debug(f"KA-008 skipped: {e}")
+            raise RuntimeError("KA-008 self-critique failed") from e
         
         # KA-010: Bias Detection
         try:
-            result = self.ka_controller.execute_algorithm("KA-010", {
-                "content": str(input_data.l8_gate_result)[:500],
-                "context": input_data.reasoning_trace
-            })
-            kas_invoked.append("KA-010")
-            results["bias_detected"] = result.get("bias_detected", False)
+            result = self._execute_ka(
+                "KA-010",
+                {
+                    "content": str(input_data.l8_gate_result)[:500],
+                    "context": input_data.reasoning_trace,
+                },
+                kas_invoked,
+            )
+            results["bias_detected"] = self._required_value(
+                "KA-010",
+                result,
+                "is_biased",
+            )
         except Exception as e:
-            logger.debug(f"KA-010 skipped: {e}")
-        
-        # KA-022: Memory Drift
+            raise RuntimeError("KA-010 bias detection failed") from e
+
+        # KA-022: Risk Assessment
         try:
-            result = self.ka_controller.execute_algorithm("KA-022", {
-                "original_context": input_data.problem_spec,
-                "current_state": input_data.l8_gate_result
-            })
-            kas_invoked.append("KA-022")
-            results["memory_drift_score"] = result.get("drift_score", 0.0)
+            result = self._execute_ka(
+                "KA-022",
+                {
+                    "recommendation": str(input_data.l8_gate_result),
+                    "impact_scores": {},
+                },
+                kas_invoked,
+            )
+            results["risk_score"] = self._required_value(
+                "KA-022",
+                result,
+                "overall_risk_score",
+            )
         except Exception as e:
-            logger.debug(f"KA-022 skipped: {e}")
-        
-        # KA-025: Self-Awareness Scoring
+            raise RuntimeError("KA-022 risk assessment failed") from e
+
+        # KA-025: Dependency Mapping
         try:
-            result = self.ka_controller.execute_algorithm("KA-025", {
-                "system_state": input_data.l8_gate_result,
-                "trace": input_data.reasoning_trace
-            })
-            kas_invoked.append("KA-025")
-            results["self_awareness_score"] = result.get("awareness_score", 1.0)
+            nodes = self._dependency_nodes(input_data.reasoning_trace)
+            result = self._execute_ka(
+                "KA-025",
+                {"nodes": nodes},
+                kas_invoked,
+            )
+            meta = self._required_value("KA-025", result, "meta")
+            results["dependency_dag_valid"] = bool(
+                self._required_value("KA-025", meta, "is_dag")
+            )
         except Exception as e:
-            logger.debug(f"KA-025 skipped: {e}")
+            raise RuntimeError("KA-025 dependency mapping failed") from e
         
         return results
+
+    @staticmethod
+    def _dependency_nodes(
+        reasoning_trace: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Translate the ordered layer trace into KA-025 dependency nodes."""
+        nodes: list[dict[str, Any]] = []
+        previous_id: str | None = None
+        for layer_id in sorted(reasoning_trace):
+            node = {
+                "id": str(layer_id),
+                "deps": [previous_id] if previous_id else [],
+            }
+            nodes.append(node)
+            previous_id = str(layer_id)
+        return nodes
 
     
     def _calculate_readiness(
@@ -619,12 +738,12 @@ class MetaReasoningController:
         drift_report: BeliefDriftReport,
         persona_report: PersonaAgreementMatrix,
         meta_report: MetaEvaluationReport,
-        kas_invoked: List[str]
-    ) -> Tuple[float, Dict[str, float]]:
+        kas_invoked: list[str]
+    ) -> tuple[float, dict[str, float]]:
         """Calculate composite readiness score."""
         
         # Get L8 confidence
-        l8_confidence = input_data.l8_gate_result.get("overall_confidence", 0.9)
+        l8_confidence = input_data.l8_gate_result.get("overall_confidence", 0.0)
         
         # Components with weights
         components = {
@@ -647,11 +766,20 @@ class MetaReasoningController:
         # KA integration (L9-KA-006)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-006", components)
-                kas_invoked.append("L9-KA-006")
-                readiness = result.get("readiness_score", readiness)
+                result = self._execute_ka(
+                    "L9-KA-006",
+                    components,
+                    kas_invoked,
+                )
+                readiness = float(
+                    self._required_value(
+                        "L9-KA-006",
+                        result,
+                        "readiness_score",
+                    )
+                )
             except Exception as e:
-                logger.debug(f"L9-KA-006 skipped: {e}")
+                raise RuntimeError("L9-KA-006 readiness scoring failed") from e
         
         return readiness, components
     
@@ -664,8 +792,8 @@ class MetaReasoningController:
         persona_report: PersonaAgreementMatrix,
         meta_report: MetaEvaluationReport,
         input_data: L9Input,
-        kas_invoked: List[str]
-    ) -> Tuple[L9Decision, Optional[RefinementSeverity], Optional[RefinementPlan]]:
+        kas_invoked: list[str]
+    ) -> tuple[L9Decision, RefinementSeverity | None, RefinementPlan | None]:
         """Make FINALIZE or REFINE decision."""
         
         # Determine issues and target layer for refinement
@@ -686,15 +814,36 @@ class MetaReasoningController:
         # KA integration (L9-KA-005 + L9-KA-007)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-005", {
-                    "readiness": readiness_score,
-                    "issues": issues
-                })
-                kas_invoked.append("L9-KA-005")
-                if result.get("trigger_refinement"):
-                    issues.append(("ka_triggered", result.get("target_layer", 5), result.get("reason", "")))
+                result = self._execute_ka(
+                    "L9-KA-005",
+                    {
+                        "readiness": readiness_score,
+                        "issues": issues,
+                    },
+                    kas_invoked,
+                )
+                if self._required_value(
+                    "L9-KA-005",
+                    result,
+                    "trigger_refinement",
+                ):
+                    issues.append(
+                        (
+                            "ka_triggered",
+                            self._required_value(
+                                "L9-KA-005",
+                                result,
+                                "target_layer",
+                            ),
+                            self._required_value(
+                                "L9-KA-005",
+                                result,
+                                "reason",
+                            ),
+                        )
+                    )
             except Exception as e:
-                logger.debug(f"L9-KA-005 skipped: {e}")
+                raise RuntimeError("L9-KA-005 recursion decision failed") from e
         
         # Decision logic
         if readiness_score >= threshold and not issues:
@@ -758,7 +907,7 @@ class MetaReasoningController:
         else:
             self.refine_count += 1
     
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get controller statistics."""
         return {
             "total_processed": self.total_processed,
