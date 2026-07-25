@@ -80,6 +80,8 @@ administration, audit, observability, and validation application.
 > with 567 KA tests passing.
 > Batch 06 adds eight policy/release KAs, advancing the authority to 172
 > implementations/41 gaps with 592 KA tests passing.
+> Batch 07 adds eight system-control KAs, advancing the authority to 180
+> implementations/33 gaps with 617 KA tests passing.
 > Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
@@ -167,9 +169,9 @@ Current production-completion focus:
   Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
   implementation sources have unique canonical owners, the 81 gaps are explicit,
   and duplicate canonical collisions are zero
-- Phase 18 CP18-C Batches 01-06 passed: 11 existing implementations qualified,
-  40 distinct missing capabilities restored, 172 implementations/41 gaps,
-  592 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
+- Phase 18 CP18-C Batches 01-07 passed: 11 existing implementations qualified,
+  48 distinct missing capabilities restored, 180 implementations/33 gaps,
+  617 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
   remains active and the release-candidate rebuild remains paused through CP18-G
 - Production behavior, dynamic application call path, and one individually
   named functional test for every canonical KA

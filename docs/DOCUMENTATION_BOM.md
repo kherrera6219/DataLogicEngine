@@ -5,7 +5,7 @@
 
 ## Control status
 
-- Authority version: `2026.07.25-phase18-cp18c-batch6`
+- Authority version: `2026.07.25-phase18-cp18c-batch7`
 - Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`

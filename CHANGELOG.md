@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C system-controls Batch 07**: restored eight deterministic
+  capabilities for bounded performance tuning, benchmark-result evaluation,
+  system-integrity auditing, controlled evolution, chaos-plan admission,
+  entropy quantification, simulation rollback planning, and truth-versus-
+  utility arbitration. Effect-oriented outputs remain unapplied and truth
+  constraints are never relaxed. The authority advances to 180
+  implementations/33 gaps and the KA suite passes 617 tests.
 - **Phase 18 CP18-C policy/release Batch 06**: restored eight deterministic
   capabilities for policy evolution, compliance regression, scenario archive
   planning, dependency impact, trust decay, quarantine admission, human

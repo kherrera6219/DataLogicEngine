@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.31.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.32.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -110,6 +110,13 @@ compliance regression, scenario archives, dependency impact, trust decay,
 quarantine, human escalation, and release staging. No effect is reported as
 applied. The authority is now 172 implementations/41 gaps and the KA suite is
 592 passed.
+
+CP18-C Batch 07 passed for eight system-control KAs covering bounded
+performance tuning, benchmark-result evaluation, system integrity, controlled
+evolution, chaos-plan admission, entropy, simulation rollback planning, and
+truth-versus-utility arbitration. Effects remain unapplied and the truth floor
+is never relaxed. The authority is now 180 implementations/33 gaps and the KA
+suite is 617 passed.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -729,9 +736,9 @@ replacement. See
 ## Exact next action
 
 1. Continue Phase 18 CP18-C against the approved 213-capability manifest:
-   Batches 01-06 qualified 11 existing implementations and restored 40
+   Batches 01-07 qualified 11 existing implementations and restored 48
    missing capabilities; qualify the remaining existing implementations and
-   build the 41 explicit gaps in semantic batches
+   build the 33 explicit gaps in semantic batches
    with strict schemas, limits, failure behavior, and authoritative
    effect/service integration.
 2. Preserve canonical IDs and behavior until parity proof permits each

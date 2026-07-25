@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "2b06acd41e08ed09e7d1343d9f79388efe0f987ffd17cb8e47d404519baf775f",
+  "source_input_sha256": "8b1df64b5d1b230c6b38e980819724db88e48bfd5ea1f77b27643990428e6ef9",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 172,
-    "implementation_required_proposals": 41,
+    "existing_implementation_proposals": 180,
+    "implementation_required_proposals": 33,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 172,
+    "implementation_surfaces": 180,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 135,
-    "canonical_with_named_test_function": 130
+    "canonical_with_test_reference": 142,
+    "canonical_with_named_test_function": 137
   },
   "canonical_capabilities": [
     {
@@ -288,6 +288,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
@@ -1956,6 +1964,9 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -2123,6 +2134,11 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer"
       ],
       "phase6_production_metadata": {
@@ -18761,6 +18777,9 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge",
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
         "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
         "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
       ],
@@ -19737,10 +19756,10 @@
       "name": "System Performance Optimizer",
       "purpose": "Tune overall KA/layer performance and defaults",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1097_system_performance_optimizer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Metrics",
         "perf profiles"
@@ -19835,30 +19854,46 @@
         "design-v1:KA-097"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1097_system_performance_optimizer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_metric_identity",
+          "validate_setting_bounds"
+        ],
+        "classes": [
+          "KA1097Input",
+          "KA1097SystemPerformanceOptimizer",
+          "PerformanceMetric"
+        ],
+        "nonblank_noncomment_loc": 94,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1098",
       "name": "Self-Evaluation & Benchmarking",
       "purpose": "Measure accuracy vs benchmarks/test suites",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1098_self_evaluation_benchmarking.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Test suites",
         "outputs"
@@ -19951,30 +19986,45 @@
         "design-v1:KA-098"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1098_self_evaluation_benchmarking.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "BenchmarkResult",
+          "KA1098Input",
+          "KA1098SelfEvaluationBenchmarking"
+        ],
+        "nonblank_noncomment_loc": 87,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1099",
       "name": "System Integrity Auditor",
       "purpose": "Audit full system consistency and health",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1099_system_integrity_auditor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Full snapshot"
       ],
@@ -20075,20 +20125,35 @@
         "design-v1:KA-099"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1099_system_integrity_auditor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_components"
+        ],
+        "classes": [
+          "ComponentIntegrity",
+          "KA1099Input",
+          "KA1099SystemIntegrityAuditor"
+        ],
+        "nonblank_noncomment_loc": 95,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-110",
@@ -20159,7 +20224,12 @@
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-110",
@@ -20183,10 +20253,10 @@
       "name": "Autonomous System Evolution Controller",
       "purpose": "Govern safe self-improvement with bounded rules",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1100_autonomous_system_evolution_controller.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Learning signals",
         "approvals"
@@ -20289,30 +20359,45 @@
         "design-v1:KA-100"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1100_autonomous_system_evolution_controller.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "EvolutionProposal",
+          "KA1100AutonomousSystemEvolutionController",
+          "KA1100Input"
+        ],
+        "nonblank_noncomment_loc": 86,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1101",
       "name": "Chaos Injection Governor",
       "purpose": "Policy control for chaos injection magnitude and scope",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1101_chaos_injection_governor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Entropy",
         "mode",
@@ -20439,13 +20524,24 @@
         "generated-v1:KA-133"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1101_chaos_injection_governor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ChaosProposal",
+          "KA1101ChaosInjectionGovernor",
+          "KA1101Input"
+        ],
+        "nonblank_noncomment_loc": 93,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [
         "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py"
@@ -20453,24 +20549,26 @@
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_runtime_manifest_is_current_and_deduplicated"
       ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1102",
       "name": "Global Entropy Quantifier",
       "purpose": "Compute normalized entropy score for simulation",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1102_global_entropy_quantifier.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Branch variance",
         "evidence variance",
@@ -20573,30 +20671,45 @@
         "design-v1:KA-102"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1102_global_entropy_quantifier.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_distribution"
+        ],
+        "classes": [
+          "EntropyCategory",
+          "KA1102GlobalEntropyQuantifier",
+          "KA1102Input"
+        ],
+        "nonblank_noncomment_loc": 64,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1103",
       "name": "Simulation State Rollback Manager",
       "purpose": "Checkpoint and rollback simulation state",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1103_simulation_state_rollback_manager.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Checkpoint state",
         "failure flags"
@@ -20701,30 +20814,45 @@
         "design-v1:KA-103"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1103_simulation_state_rollback_manager.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_chain"
+        ],
+        "classes": [
+          "KA1103Input",
+          "KA1103SimulationStateRollbackManager",
+          "SimulationCheckpoint"
+        ],
+        "nonblank_noncomment_loc": 99,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1104",
       "name": "Truth vs Utility Arbiter",
       "purpose": "Balance correctness vs operational safety/utility",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1104_truth_vs_utility_arbiter.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Truth scores",
         "audience",
@@ -20829,20 +20957,35 @@
         "design-v1:KA-104"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1104_truth_vs_utility_arbiter.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ArbitrationOption",
+          "KA1104Input",
+          "KA1104TruthVsUtilityArbiter"
+        ],
+        "nonblank_noncomment_loc": 100,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1105",

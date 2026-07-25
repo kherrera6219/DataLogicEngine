@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "2b06acd41e08ed09e7d1343d9f79388efe0f987ffd17cb8e47d404519baf775f",
+  "source_input_sha256": "8b1df64b5d1b230c6b38e980819724db88e48bfd5ea1f77b27643990428e6ef9",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -12,8 +12,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 172,
-    "implementation_required_proposals": 41,
+    "existing_implementation_proposals": 180,
+    "implementation_required_proposals": 33,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -25,13 +25,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 172,
+    "implementation_surfaces": 180,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 135,
-    "canonical_with_named_test_function": 130
+    "canonical_with_test_reference": 142,
+    "canonical_with_named_test_function": 137
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -9495,6 +9495,30 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1097_system_performance_optimizer.py",
+      "canonical_ids": [
+        "KA-1097"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1098_self_evaluation_benchmarking.py",
+      "canonical_ids": [
+        "KA-1098"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1099_system_integrity_auditor.py",
+      "canonical_ids": [
+        "KA-1099"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_109_system_health.py",
       "canonical_ids": [
         "KA-109"
@@ -9506,6 +9530,46 @@
       "path": "backend/knowledge_algorithms/ka_10_bias_detection.py",
       "canonical_ids": [
         "KA-010"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1100_autonomous_system_evolution_controller.py",
+      "canonical_ids": [
+        "KA-1100"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1101_chaos_injection_governor.py",
+      "canonical_ids": [
+        "KA-1101"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1102_global_entropy_quantifier.py",
+      "canonical_ids": [
+        "KA-1102"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1103_simulation_state_rollback_manager.py",
+      "canonical_ids": [
+        "KA-1103"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_1104_truth_vs_utility_arbiter.py",
+      "canonical_ids": [
+        "KA-1104"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"
