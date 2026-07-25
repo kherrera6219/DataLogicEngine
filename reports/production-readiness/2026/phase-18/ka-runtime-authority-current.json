@@ -13,9 +13,9 @@
     "class_execute": 7
   },
   "generated_catalogs": {
-    "backend/knowledge_algorithms/ka_manifest.v1.generated.json": "3e499976bfa45f7b5772f5d9d6fd3c11635897710a1231334a18fd60dc0849e1",
-    "sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json": "3e499976bfa45f7b5772f5d9d6fd3c11635897710a1231334a18fd60dc0849e1",
-    "sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts": "4865f0bd7ca3e7db0f8326a312e0e2755814c11a05b756ec8c2d693411bfd4ea"
+    "backend/knowledge_algorithms/ka_manifest.v1.generated.json": "4ee332f40b5ea4f044649f45a1d988c27f3f8b6af77abaa0731f09df583ee7d2",
+    "sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json": "4ee332f40b5ea4f044649f45a1d988c27f3f8b6af77abaa0731f09df583ee7d2",
+    "sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts": "f613aacb26d28a699de6d3dc12df0e2532c3ba8a5133bf7b931d790803f238a9"
   },
   "single_controller": "backend.knowledge_algorithms.controller.CanonicalKAController",
   "private_sdk_handler_runtime_present": false,
