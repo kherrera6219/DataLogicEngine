@@ -8,7 +8,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "3e419822d534794e308c52a5d2b30f00e0e2d9dc4659fabcb8a9c965889341d7",
+    "crosswalk_source_input_sha256": "104aad06a16c8519d6a6bdd63532d1e10319fb84c324c94c548e4b13468a7214",
     "duplicate_policy": "one_semantic_capability_one_canonical_id"
   },
   "capability_count": 213,
@@ -7295,13 +7295,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1071_knowledge_provenance_tracker.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1071_knowledge_provenance_tracker",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Source metadata",
           "commit log"
@@ -7486,13 +7490,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1074_privacy_preserver.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1074_privacy_preserver",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Draft output",
           "trace"
@@ -7551,13 +7559,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1075_bias_mitigation_engine.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1075_bias_mitigation_engine",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Bias vectors",
           "draft output"
@@ -7614,13 +7626,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1076_knowledge_graph_pruner.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1076_knowledge_graph_pruner",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "KB snapshot",
           "importance scores"
@@ -7679,13 +7695,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1077_knowledge_importance_scorer.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1077_knowledge_importance_scorer",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Usage metrics",
           "citations"
@@ -7740,13 +7760,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1078_memory_tier_classifier.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1078_memory_tier_classifier",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Knowledge candidate",
           "risk/containment"
@@ -8055,13 +8079,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1082_confidence_drift_monitor.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1082_confidence_drift_monitor",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Confidence history"
         ],
@@ -8115,13 +8143,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1083_knowledge_revalidation_scheduler.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1083_knowledge_revalidation_scheduler",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Drift alerts",
           "time"
@@ -8305,13 +8337,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1086_knowledge_usage_analytics.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1086_knowledge_usage_analytics",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Execution logs"
         ],
@@ -8431,13 +8467,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1088_knowledge_lifecycle_manager.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1088_knowledge_lifecycle_manager",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "KB state",
           "policies"

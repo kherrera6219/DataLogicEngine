@@ -188,6 +188,10 @@ drift/alignment, lineage, composition, patch-plan, and conflict-resolution
 semantics. It advances the authority to 154 implementations/59 gaps and 536
 passing KA tests while keeping mutation claims false and the no-duplicate gate
 clean.
+Batch 05 adds ten lifecycle-governance KAs and advances the authority to 164
+implementations/49 gaps and 567 passing KA tests. Provenance remains distinct
+from lineage, privacy output excludes declared non-public values, and all
+mutation-oriented results remain unapplied proposals.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is

@@ -74,6 +74,10 @@ administration, audit, observability, and validation application.
 > ontological conflict resolution. The authority is now 154
 > implementations/59 gaps with 536 KA tests passing and unique-owner/
 > no-duplicate gates clean.
+> Batch 05 adds ten lifecycle-governance KAs for provenance, privacy, bias
+> mitigation, graph pruning, importance/tiering, drift, revalidation, usage,
+> and lifecycle planning. The authority is now 164 implementations/49 gaps
+> with 567 KA tests passing.
 > Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
@@ -161,9 +165,9 @@ Current production-completion focus:
   Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
   implementation sources have unique canonical owners, the 81 gaps are explicit,
   and duplicate canonical collisions are zero
-- Phase 18 CP18-C Batches 01-04 passed: 11 existing implementations qualified,
-  22 distinct missing capabilities restored, 154 implementations/59 gaps,
-  536 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
+- Phase 18 CP18-C Batches 01-05 passed: 11 existing implementations qualified,
+  32 distinct missing capabilities restored, 164 implementations/49 gaps,
+  567 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
   remains active and the release-candidate rebuild remains paused through CP18-G
 - Production behavior, dynamic application call path, and one individually
   named functional test for every canonical KA

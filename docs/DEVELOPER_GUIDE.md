@@ -162,6 +162,11 @@ versioned proposals for owning-service authorization. Each canonical ID has one
 source owner and one named semantic test. Current authority is 154
 implementations and 59 gaps; the KA suite is 536 passed.
 
+CP18-C Batch 05 restores ten lifecycle-governance KAs. Keep provenance,
+privacy, scoring, drift, and usage algorithms observational; keep graph,
+schedule, tier, and lifecycle outputs as owning-service proposals. The
+authority is 164 implementations and 49 gaps; the KA suite is 567 passed.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate

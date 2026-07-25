@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C lifecycle-governance Batch 05**: restored ten deterministic
+  capabilities for evidence provenance, privacy transformation, representation
+  reweighting, graph-pruning proposals, importance scoring, memory tiering,
+  confidence drift, revalidation scheduling, usage aggregation, and lifecycle
+  transition planning. All have strict schemas/examples, unique owners, named
+  tests, and honest read-only/proposal semantics. The authority advances to 164
+  implementations/49 gaps and the KA suite passes 567 tests.
 - **Phase 18 CP18-C knowledge-evolution Batch 04**: restored six distinct
   original-design capabilities for ontology drift, semantic alignment,
   knowledge lineage, bounded evidence-linked composition, hierarchical

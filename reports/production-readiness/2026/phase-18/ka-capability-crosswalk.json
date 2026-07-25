@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "3e419822d534794e308c52a5d2b30f00e0e2d9dc4659fabcb8a9c965889341d7",
+  "source_input_sha256": "104aad06a16c8519d6a6bdd63532d1e10319fb84c324c94c548e4b13468a7214",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 154,
-    "implementation_required_proposals": 59,
+    "existing_implementation_proposals": 164,
+    "implementation_required_proposals": 49,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 154,
+    "implementation_surfaces": 164,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 117,
-    "canonical_with_named_test_function": 112
+    "canonical_with_test_reference": 127,
+    "canonical_with_named_test_function": 122
   },
   "canonical_capabilities": [
     {
@@ -262,6 +262,16 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1044_composer_generates_traceable_unverified_hypothesis",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1046_memory_patcher_plans_tier_without_applying_effect",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1048_conflict_resolver_prefers_declared_authority_without_mutation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1071_provenance_tracker_validates_source_to_claim_reachability",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1076_graph_pruner_preserves_referenced_low_value_nodes",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1077_importance_scorer_ranks_declared_signals",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1078_memory_tier_classifier_separates_validated_and_disputed",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1082_confidence_drift_monitor_flags_declared_degradation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -1912,6 +1922,16 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1044_composer_generates_traceable_unverified_hypothesis",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1046_memory_patcher_plans_tier_without_applying_effect",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1048_conflict_resolver_prefers_declared_authority_without_mutation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1071_provenance_tracker_validates_source_to_claim_reachability",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1076_graph_pruner_preserves_referenced_low_value_nodes",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1077_importance_scorer_ranks_declared_signals",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1078_memory_tier_classifier_separates_validated_and_disputed",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1082_confidence_drift_monitor_flags_declared_degradation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -15918,7 +15938,13 @@
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1073_intent_clarifier_requires_missing_declared_slot",
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1071_provenance_tracker_validates_source_to_claim_reachability",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1076_graph_pruner_preserves_referenced_low_value_nodes",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1077_importance_scorer_ranks_declared_signals",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1078_memory_tier_classifier_separates_validated_and_disputed"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-107",
@@ -15942,10 +15968,10 @@
       "name": "Knowledge Provenance Tracker",
       "purpose": "Maintain evidence trees for stored knowledge",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1071_knowledge_provenance_tracker.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Source metadata",
         "commit log"
@@ -16045,20 +16071,36 @@
         "design-v1:KA-071"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1071_knowledge_provenance_tracker.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids",
+          "validate_parents"
+        ],
+        "classes": [
+          "KA1071Input",
+          "KA1071KnowledgeProvenanceTracker",
+          "ProvenanceNode"
+        ],
+        "nonblank_noncomment_loc": 123,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1071_provenance_tracker_validates_source_to_claim_reachability"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1072",
@@ -16328,10 +16370,10 @@
       "name": "Privacy Preserver",
       "purpose": "Remove/anonymize sensitive data in outputs/logs",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1074_privacy_preserver.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Draft output",
         "trace"
@@ -16435,30 +16477,46 @@
         "design-v1:KA-074"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1074_privacy_preserver.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "reject_sensitive_retention",
+          "run",
+          "validate_fields"
+        ],
+        "classes": [
+          "KA1074Input",
+          "KA1074PrivacyPreserver",
+          "PrivacyField"
+        ],
+        "nonblank_noncomment_loc": 92,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1075",
       "name": "Bias Mitigation Engine",
       "purpose": "Correct detected bias while preserving truth",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1075_bias_mitigation_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Bias vectors",
         "draft output"
@@ -16557,30 +16615,45 @@
         "design-v1:KA-075"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1075_bias_mitigation_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1075BiasMitigationEngine",
+          "KA1075Input",
+          "MitigationRecord"
+        ],
+        "nonblank_noncomment_loc": 85,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1076",
       "name": "Knowledge Graph Pruner",
       "purpose": "Remove outdated/low-value/misleading nodes",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1076_knowledge_graph_pruner.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "KB snapshot",
         "importance scores"
@@ -16683,30 +16756,46 @@
         "design-v1:KA-076"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1076_knowledge_graph_pruner.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_graph"
+        ],
+        "classes": [
+          "GraphEdge",
+          "KA1076Input",
+          "KA1076KnowledgeGraphPruner",
+          "PrunableNode"
+        ],
+        "nonblank_noncomment_loc": 115,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1076_graph_pruner_preserves_referenced_low_value_nodes"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1077",
       "name": "Knowledge Importance Scorer",
       "purpose": "Rank knowledge by relevance/reuse",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1077_knowledge_importance_scorer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Usage metrics",
         "citations"
@@ -16801,30 +16890,45 @@
         "design-v1:KA-077"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1077_knowledge_importance_scorer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ImportanceCandidate",
+          "KA1077Input",
+          "KA1077KnowledgeImportanceScorer"
+        ],
+        "nonblank_noncomment_loc": 87,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1077_importance_scorer_ranks_declared_signals"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1078",
       "name": "Memory Tier Classifier",
       "purpose": "Assign short-term vs long-term vs archive",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1078_memory_tier_classifier.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Knowledge candidate",
         "risk/containment"
@@ -16923,20 +17027,35 @@
         "design-v1:KA-078"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1078_memory_tier_classifier.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1078Input",
+          "KA1078MemoryTierClassifier",
+          "TierCandidate"
+        ],
+        "nonblank_noncomment_loc": 90,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1078_memory_tier_classifier_separates_validated_and_disputed"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1079",
@@ -17158,7 +17277,11 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1085_anomaly_engine_flags_declared_z_score_threshold",
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1082_confidence_drift_monitor_flags_declared_degradation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-108",
@@ -17448,10 +17571,10 @@
       "name": "Confidence Drift Monitor",
       "purpose": "Detect gradual confidence degradation",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1082_confidence_drift_monitor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Confidence history"
       ],
@@ -17544,30 +17667,47 @@
         "design-v1:KA-082"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1082_confidence_drift_monitor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids",
+          "validate_timestamps"
+        ],
+        "classes": [
+          "ConfidenceObservation",
+          "ConfidenceSeries",
+          "KA1082ConfidenceDriftMonitor",
+          "KA1082Input"
+        ],
+        "nonblank_noncomment_loc": 102,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1082_confidence_drift_monitor_flags_declared_degradation"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1083",
       "name": "Knowledge Revalidation Scheduler",
       "purpose": "Schedule periodic re-checks of stored knowledge",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1083_knowledge_revalidation_scheduler.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Drift alerts",
         "time"
@@ -17662,20 +17802,35 @@
         "design-v1:KA-083"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1083_knowledge_revalidation_scheduler.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1083Input",
+          "KA1083KnowledgeRevalidationScheduler",
+          "RevalidationCandidate"
+        ],
+        "nonblank_noncomment_loc": 92,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1084",
@@ -17957,10 +18112,10 @@
       "name": "Knowledge Usage Analytics",
       "purpose": "Track knowledge usage across queries",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1086_knowledge_usage_analytics.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Execution logs"
       ],
@@ -18053,20 +18208,35 @@
         "design-v1:KA-086"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1086_knowledge_usage_analytics.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1086Input",
+          "KA1086KnowledgeUsageAnalytics",
+          "UsageEvent"
+        ],
+        "nonblank_noncomment_loc": 89,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1087",
@@ -18209,10 +18379,10 @@
       "name": "Knowledge Lifecycle Manager",
       "purpose": "Coordinate create→validate→decay→archive",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1088_knowledge_lifecycle_manager.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "KB state",
         "policies"
@@ -18317,20 +18487,35 @@
         "design-v1:KA-088"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1088_knowledge_lifecycle_manager.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1088Input",
+          "KA1088KnowledgeLifecycleManager",
+          "LifecycleRecord"
+        ],
+        "nonblank_noncomment_loc": 96,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1089",
