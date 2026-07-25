@@ -83,14 +83,24 @@ Legacy hash-vector DRL output is not a production convergence signal.
 ### Phase 19 Knowledge Algorithm target architecture
 
 Phase 18 retained one 213-capability authority, 213 unique implementation
-owners, zero source gaps, one generated manifest/controller, and the 721-test
-source baseline. It closed incomplete after CP18-D proved the application does
+owners, zero source gaps, and one generated manifest/controller. It closed
+incomplete after CP18-D proved the application does
 not yet use that authority as the documented dynamic system. Only 42 KAs had a
 statically detected call site, 41 lacked a detected individually named test,
 only 11 were production enabled, and the public preflight ran one KA in standard
 mode or two in enhanced mode. The ten-layer, L9/L10, refinement, persona, and
 simulation paths were disconnected or contract-incompatible. Phase 19 owns the
 integration and the signed rebuild remains blocked through CP19-L.
+
+CP19-A passed on 2026-07-25. Integration authority
+`2026.07.25-cp19a.1` assigns each of the 213 KAs exactly one primary subsystem
+owner and declares governed consumers, lifecycle stage, selector policy,
+effect/transaction boundary, evidence destinations, and later qualification
+owners. Sixteen orchestrator/workflow variants have explicit canonical,
+compatibility, reference, migration, or prohibited-path dispositions. This
+metadata is carried by the one generated backend/Python/TypeScript manifest;
+it is not a second runtime registry. The full KA suite is 726 passed. CP19-B
+typed caller migration is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,

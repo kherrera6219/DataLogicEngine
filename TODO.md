@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.37.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.38.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-A active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-B active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -31,15 +31,18 @@ conditions, and exit gates remain authoritative in the active root plan.
 Phase 18 closed incomplete after CP18-D proved the source-complete KA catalog is
 not yet the product's dynamic production system. The signed rebuild remains
 paused. Retain 213 canonical capabilities, 213 unique implementation owners,
-zero source gaps, the one manifest/controller boundary, and the 721-test source
-baseline while completing the whole-application wiring.
+zero source gaps, the one manifest/controller boundary, and the retained
+Phase 18 source baseline while completing the whole-application wiring.
 
-- [ ] **CP19-A — transfer and architecture authority:** freeze the 213-row
+- [x] **CP19-A — transfer and architecture authority:** froze the 213-row
       primary-owner/consumer-path matrix, canonical ten-layer lifecycle,
       duplicate-prevention rule, workflow dispositions, finding transfers, and
       evidence destinations; migrate current Phase 18 qualification labels in
       manifest/inventory generators and generated SDK/runtime/documentation
       outputs while retaining CP18 labels only as historical provenance.
+      Authority version `2026.07.25-cp19a.1` verifies 213/213 implementation
+      owners, 213/213 primary subsystem owners, 16 workflow dispositions, zero
+      new runtime registries, and a 726-test KA suite.
 - [ ] **CP19-B — contract parity:** migrate TruthCore, L9/L10, persona,
       refinement, simulation, SEKrE, data, MCP, provider, operations, API, and
       SDK callers to typed canonical result variants; repair the current real-
@@ -90,6 +93,12 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-A passed 2026-07-25:** generated and verified the 213-row
+  integration authority, one primary subsystem owner per KA, governed consumer
+  paths, selector/test/trace/effect evidence destinations, 16 explicit workflow
+  dispositions, and generated backend/Python/TypeScript integration metadata.
+  Both authority verifiers pass and the KA suite is 726 passed. CP19-A did not
+  activate selectors/effects, authorize a rebuild, or change the release NO-GO.
 - Phase 18 closed incomplete on 2026-07-25. CP18-A/CP18-B remain passed and
   CP18-C Batches 01-11 retain 213 unique implementation owners, zero source
   gaps, and the 721-test source baseline. CP18-D failed the whole-application
@@ -742,7 +751,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A authority/transfer is next and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A passed 2026-07-25, CP19-B contract parity active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -760,10 +769,11 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Begin CP19-A by generating and reviewing the 213-row primary-owner/consumer-
-path matrix and freezing the canonical ten-layer/persona/refinement lifecycle.
-Then complete CP19-B contract parity before adding selector or subsystem wiring.
-Proceed through CP19-C to CP19-K in the plan's mandatory order.
+Complete CP19-B contract parity by inventorying every real KA caller, migrating
+TruthCore/L9/L10/persona/refinement/simulation/SEKrE/data/MCP/provider/
+operations/API/SDK consumers to typed canonical result variants, repairing the
+real-controller Layer-10 failure, and eliminating optimistic defaults. Then
+proceed through CP19-C to CP19-K in the plan's mandatory order.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

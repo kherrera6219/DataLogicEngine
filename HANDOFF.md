@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.37.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.38.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-A active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-B active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -69,7 +69,7 @@ dispatch is broken, and owning subsystems do not select the wider catalog.
 
 Phase 19 is now the sole KA integration authority. Its mandatory order is:
 
-1. CP19-A transfer/ownership/architecture freeze;
+1. CP19-A transfer/ownership/architecture freeze - passed 2026-07-25;
 2. CP19-B canonical result-contract parity;
 3. CP19-C manifest selector and bounded dependency DAG;
 4. CP19-D ten layers inside `GovernedExecutionOrchestrator`;
@@ -106,6 +106,22 @@ Read these Phase 18 closeout inputs before Phase 19 code changes:
 - `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`;
 - Section 27 of `PRODUCTION_COMPLETION_PLAN_2026.md`; and
 - the current `TODO.md`.
+
+CP19-A is complete. Read its current authority before further integration work:
+
+- `reports/production-readiness/2026/phase-19/cp19-a-integration-authority.md`;
+- `reports/production-readiness/2026/phase-19/ka-integration-authority.json`;
+- `reports/production-readiness/2026/phase-19/cp19-a-integration-authority-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-a-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-runtime-authority-current.json`.
+
+Authority version `2026.07.25-cp19a.1` verifies all 213 KAs have one
+implementation owner and one primary subsystem owner, all required integration
+and evidence destinations are classified, 16 competing/adjacent workflow
+surfaces have explicit dispositions, and no second runtime registry exists.
+Focused authority/runtime tests and the full KA suite pass at 726 tests. This
+authorizes CP19-B only; selector activation, effects, rebuilding, installed
+acceptance, and production launch remain unauthorized.
 
 ## Approved product boundary
 
@@ -722,22 +738,18 @@ replacement. See
 
 ## Exact next action
 
-1. Begin CP19-A by generating the 213-row primary-owner/consumer-path matrix,
-   classifying every parallel engine/workflow, and freezing the canonical
-   ten-layer/persona/refinement lifecycle and evidence destinations. Migrate
-   current Phase 18 qualification labels in generators and generated consumers,
-   retaining CP18 labels only as dated historical provenance.
-2. Complete CP19-B contract parity before adding new selector/call-path wiring;
-   the current real-controller L10 failure must become a regression test and
-   pass without flattening the canonical result.
-3. Proceed through CP19-C to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-B contract parity before adding new selector/call-path wiring.
+   Inventory every real caller, migrate it to canonical typed result variants,
+   and make the current real-controller L10 failure a passing regression
+   without flattening the canonical result or retaining optimistic defaults.
+2. Proceed through CP19-C to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
-4. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
+3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
    execute CP19-M plus the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,
    gateway, pilot, and soak acceptance.
-5. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
+4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
    NO-GO, automatic-update disablement, and object-store production-approval
    false until their exact installed and independent evidence exists.
 

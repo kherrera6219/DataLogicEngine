@@ -128,6 +128,11 @@ generic `allow_nonproduction` flag is not an adequate authorization/
 confirmation model, and the SDK/desktop do not share a complete typed
 execute/history/trace workflow. Phase 18 closed incomplete after CP18-D failed.
 Phase 19 owns correction and keeps the signed rebuild blocked through CP19-L.
+CP19-A now supplies the verified one-primary-owner and governed-consumer
+authority for all 213 KAs through the canonical generated manifest. CP19-B is
+actively migrating every real caller to the typed canonical result variants;
+the compatibility envelope is not acceptable as a long-term internal contract,
+and no caller may replace a missing required value with an optimistic default.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

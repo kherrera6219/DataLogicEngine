@@ -82,6 +82,20 @@ class KAAdmission(BaseModel):
     direct_execution: str
 
 
+class KAIntegration(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    authority_version: str
+    primary_owner: str
+    consumer_paths: list[str] = Field(min_length=1)
+    selector_policy: str
+    required_or_optional: str
+    stage: str
+    effect_port: str | None = None
+    effect_transaction: str
+    qualification: dict[str, Any]
+
+
 class KADefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -94,6 +108,7 @@ class KADefinition(BaseModel):
     implementation: KAImplementation
     contract: KAContract
     admission: KAAdmission
+    integration: KAIntegration
     migration_notes: str
 
 
@@ -149,6 +164,19 @@ class KAManifest(BaseModel):
                 definition.implementation.entrypoint
             ):
                 raise ValueError(f"{key}: implementation source/entrypoint mismatch")
+            if not definition.integration.primary_owner:
+                raise ValueError(f"{key}: primary integration owner is missing")
+            if definition.integration.effect_port and (
+                definition.contract.effect_class
+                != "effect_oriented_review_required"
+            ):
+                raise ValueError(f"{key}: pure/advisory KA declares an effect port")
+            if (
+                definition.contract.effect_class
+                == "effect_oriented_review_required"
+                and not definition.integration.effect_port
+            ):
+                raise ValueError(f"{key}: effect-oriented KA lacks an effect port")
             for dependency in definition.contract.dependencies:
                 if dependency not in self.entries:
                     raise ValueError(f"{key}: unknown dependency {dependency}")

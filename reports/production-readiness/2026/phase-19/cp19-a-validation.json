@@ -1,0 +1,31 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-A",
+  "date": "2026-07-25",
+  "status": "pass",
+  "authority_version": "2026.07.25-cp19a.1",
+  "scope": "source_authority_only",
+  "results": {
+    "canonical_capabilities": 213,
+    "unique_implementation_owners": 213,
+    "primary_subsystem_owners": 213,
+    "unowned_capabilities": 0,
+    "duplicate_primary_owners": 0,
+    "workflow_dispositions": 16,
+    "runtime_registries_added": 0,
+    "focused_tests_passed": 18,
+    "full_ka_tests_passed": 726,
+    "full_ka_test_warnings": 3,
+    "authority_verifier": "pass",
+    "runtime_authority_verifier": "pass",
+    "changed_python_ruff": "pass"
+  },
+  "limitations": [
+    "Selector activation is not authorized.",
+    "Subsystem effects are not authorized by this checkpoint.",
+    "CP19-B through CP19-M remain open.",
+    "Rebuilding and installed acceptance remain unauthorized.",
+    "Production and public release remain NO-GO."
+  ],
+  "next_checkpoint": "CP19-B"
+}

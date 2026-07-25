@@ -3,12 +3,14 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp18b.1",
-  "status": "cp18_b_migration_active",
+  "manifest_version": "2026.07.25-cp19a.1",
+  "status": "cp19_a_integration_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
     "crosswalk_source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
+    "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
+    "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id"
   },
   "capability_count": 213,
@@ -163,7 +165,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_01_algorithm_of_thought.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -173,7 +175,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Raw query",
           "initial context",
@@ -218,6 +220,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-002": {
@@ -231,7 +260,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_02_tree_of_thought.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -241,7 +270,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Task graph",
           "context state"
@@ -286,7 +315,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -301,7 +358,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_03_gap_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -311,7 +368,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Context state",
           "evidence set"
@@ -353,7 +410,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -371,7 +455,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_04_input_validation__normalization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -381,7 +465,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "User input",
           "auth context",
@@ -424,6 +508,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-005": {
@@ -437,7 +548,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_05_query_classification.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -447,7 +558,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Normalized query",
           "user/org policy"
@@ -487,7 +598,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -502,7 +640,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_06_deep_planning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -512,7 +650,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Gap vector",
           "constraints",
@@ -557,7 +695,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -572,7 +737,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_07_recursive_reasoning_control.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -582,7 +747,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Entropy/confidence",
           "branch stats",
@@ -627,7 +792,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -645,7 +838,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_08_self_critique__reflection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -655,7 +848,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Draft answer object",
           "reasoning trace"
@@ -694,7 +887,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -709,7 +929,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_09_evidence_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -719,7 +939,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Evidence matrix",
           "claims list"
@@ -762,6 +982,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-010": {
@@ -775,7 +1022,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_10_bias_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -785,7 +1032,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Reasoning trace",
           "draft output"
@@ -825,7 +1072,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -840,7 +1115,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_11_analytical_modeling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -850,7 +1125,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Data model",
           "constraints"
@@ -888,7 +1163,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -903,7 +1205,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_12_persona_simulation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -913,7 +1215,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Persona specs",
           "context state"
@@ -956,7 +1258,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "persona_analysis",
+        "effect_port": "persona_context_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -971,7 +1301,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_13_persona_weighting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -981,7 +1311,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "domain tags"
@@ -1018,7 +1348,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1033,7 +1390,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_14_confidence_scoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1043,7 +1400,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Truth scores",
           "conflict metrics",
@@ -1088,7 +1445,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1103,7 +1487,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_15_temporal_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1113,7 +1497,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Time-tagged facts",
           "events"
@@ -1153,7 +1537,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1168,7 +1579,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_16_regulatory_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1178,7 +1589,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Jurisdiction",
           "policy corpus",
@@ -1221,7 +1632,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1238,7 +1677,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_17_spatial_jurisdiction_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1248,7 +1687,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Location metadata",
           "entity scope"
@@ -1285,7 +1724,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1300,7 +1766,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_18_source_provenance.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1310,7 +1776,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Source metadata",
           "doc hashes"
@@ -1347,7 +1813,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1362,7 +1855,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_19_knowledge_synthesis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1372,7 +1865,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Validated evidence",
           "resolved state"
@@ -1412,7 +1905,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1427,7 +1947,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_20_loopback_trigger.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1437,7 +1957,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Confidence/entropy fail",
           "missing obligations"
@@ -1479,7 +1999,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1494,7 +2040,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_21_emergence_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1504,7 +2050,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Reasoning graph",
           "agent behaviors"
@@ -1544,7 +2090,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "containment_and_release",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1559,7 +2132,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_22_risk_assessment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1569,7 +2142,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Draft plan",
           "domain constraints"
@@ -1606,7 +2179,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1621,7 +2222,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_23_belief_decay.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1631,7 +2232,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Knowledge timestamps",
           "usage"
@@ -1670,7 +2271,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1685,7 +2314,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_24_trust_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1695,7 +2324,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Risk profile",
           "policy",
@@ -1741,6 +2370,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-025": {
@@ -1754,7 +2411,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_25_dependency_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1764,7 +2421,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Task graph",
           "claims"
@@ -1801,7 +2458,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1816,7 +2500,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_26_contradiction_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1826,7 +2510,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "branches",
@@ -1869,7 +2553,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1884,7 +2596,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_27_ethical_impact_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1894,7 +2606,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Draft output",
           "domain context"
@@ -1932,7 +2644,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -1949,7 +2689,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_28_point_of_view_expansion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1959,7 +2699,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Context state",
           "debate state"
@@ -1998,7 +2738,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "persona_analysis",
+        "effect_port": "persona_context_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2013,7 +2781,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_29_knowledge_expansion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2023,7 +2791,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Axis coordinates",
           "entity seeds"
@@ -2061,7 +2829,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2076,7 +2871,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2086,7 +2881,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Conflict set",
           "priority rules"
@@ -2126,7 +2921,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2141,7 +2963,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2151,7 +2973,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Query class",
           "budget",
@@ -2194,7 +3016,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2209,7 +3058,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_32_simulation_orchestration_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2219,7 +3068,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KA pipeline",
           "simulation state"
@@ -2261,7 +3110,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "simulation_job",
+        "effect_port": "simulation_job_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2278,7 +3155,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_33_reserved_expansion_slot.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2288,7 +3165,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -2317,7 +3194,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "placeholder_not_production_enabled",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "never_select_until_manifest_revision",
+        "required_or_optional": "reserved_disabled",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2332,7 +3236,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_34_adversarial_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2342,7 +3246,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Scenario",
           "threat model"
@@ -2382,7 +3286,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": "policy_decision_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2397,7 +3330,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_35_bayesian_gap_imputation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2407,7 +3340,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Gap vector",
           "priors"
@@ -2445,7 +3378,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2462,7 +3422,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_36_complexity_estimator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2472,7 +3432,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2495,7 +3455,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2512,7 +3499,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_37_resource_allocator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2522,7 +3509,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2545,7 +3532,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "simulation_job",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2562,7 +3576,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_38_consensus_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2572,7 +3586,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2595,7 +3609,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2612,7 +3653,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_39_anomaly_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2622,7 +3663,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2645,7 +3686,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2662,7 +3730,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_40_hypothesis_generation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2672,7 +3740,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2695,7 +3763,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2712,7 +3807,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_41_abductive_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2722,7 +3817,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2745,7 +3840,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2762,7 +3884,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_42_counterfactual_simulator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2772,7 +3894,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2795,7 +3917,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "simulation_job",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2812,7 +3961,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_43_causal_inference.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2822,7 +3971,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2845,7 +3994,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2862,7 +4038,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_44_analogical_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2872,7 +4048,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2895,7 +4071,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2912,7 +4115,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_45_pattern_recognition.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2922,7 +4125,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2945,7 +4148,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -2962,7 +4192,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_46_trend_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2972,7 +4202,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -2995,7 +4225,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3012,7 +4269,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_47_sentiment_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3022,7 +4279,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3045,7 +4302,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3062,7 +4346,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_48_entity_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3072,7 +4356,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3095,7 +4379,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3112,7 +4423,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_49_relation_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3122,7 +4433,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3145,7 +4456,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3162,7 +4500,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_50_summarization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3172,7 +4510,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3195,7 +4533,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3212,7 +4577,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_51_self_correcting_knowledge_distillation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3222,7 +4587,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Validated traces",
           "commitments"
@@ -3264,7 +4629,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3279,7 +4672,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_52_temporal_knowledge_evolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3289,7 +4682,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Time axis data",
           "policy updates"
@@ -3330,7 +4723,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3345,7 +4766,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_53_dynamic_knowledge_compression.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3355,7 +4776,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Graph segments",
           "usage metrics"
@@ -3397,7 +4818,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3414,7 +4863,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_54_cross_lingual_knowledge_fusion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3424,7 +4873,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Multilingual sources",
           "embeddings"
@@ -3466,7 +4915,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3483,7 +4960,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_55_adaptive_multi_modal_integration.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3493,7 +4970,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Modal evidence",
           "trust weights"
@@ -3534,7 +5011,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3549,7 +5054,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_56_narrative_explainability_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3559,7 +5064,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Trace DAG",
           "decision log"
@@ -3596,7 +5101,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3613,7 +5145,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_57_persona_emotion_adaptation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3623,7 +5155,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "User profile",
           "output object",
@@ -3660,7 +5192,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3678,7 +5237,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_58_interactive_clarification_learning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3688,7 +5247,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Ambiguity metrics",
           "competing intents"
@@ -3729,7 +5288,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3744,7 +5330,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_59_predictive_layer_preemption.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3754,7 +5340,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Complexity tier",
           "budget"
@@ -3794,7 +5380,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3809,7 +5422,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_60_cognitive_load_balancer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3819,7 +5432,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Branch stats",
           "cost estimate"
@@ -3862,7 +5475,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -3877,7 +5518,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_61_adversarial_input_shield.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3887,7 +5528,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Raw query",
           "metadata"
@@ -3930,6 +5571,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-062": {
@@ -3943,7 +5611,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_62_decentralized_trust_scoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3953,7 +5621,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Evidence hashes",
           "provenance graph"
@@ -3993,7 +5661,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4008,7 +5703,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_63_continuous_performance_learning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4018,7 +5713,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Outcome metrics",
           "feedback"
@@ -4057,7 +5752,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4072,7 +5795,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_64_failure_pattern_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4082,7 +5805,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Error logs",
           "traces"
@@ -4121,7 +5844,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4136,7 +5887,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_65_knowledge_regression_tester.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4146,7 +5897,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "tests"
@@ -4188,7 +5939,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4203,7 +5981,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_66_causal_inference_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4213,7 +5991,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Events",
           "dependencies",
@@ -4252,7 +6030,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4267,7 +6072,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_67_analogical_reasoning_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4277,7 +6082,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Source/target structures"
         ],
@@ -4315,7 +6120,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4330,7 +6163,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_68_domain_specialization_tuner.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4340,7 +6173,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Domain context",
           "persona set"
@@ -4378,7 +6211,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4393,7 +6253,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_69_cultural_context_adapter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4403,7 +6263,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Locale",
           "audience"
@@ -4439,7 +6299,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4454,7 +6341,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_70_counterfactual_scenario_simulator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4464,7 +6351,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Base model",
           "interventions"
@@ -4506,7 +6393,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "simulation_job",
+        "effect_port": "simulation_job_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4523,7 +6438,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_71_data_ingestion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4533,7 +6448,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4556,7 +6471,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "ingestion_pipeline",
+        "effect_port": "ingestion_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4573,7 +6515,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_72_data_cleaning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4583,7 +6525,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4606,7 +6548,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4623,7 +6591,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_73_data_transformation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4633,7 +6601,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4656,7 +6624,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4673,7 +6667,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_74_data_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4683,7 +6677,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4708,6 +6702,32 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-075": {
@@ -4723,7 +6743,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_75_schema_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4733,7 +6753,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4756,7 +6776,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4773,7 +6819,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_76_entity_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4783,7 +6829,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4806,7 +6852,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4823,7 +6895,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_77_data_enrichment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4833,7 +6905,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4856,7 +6928,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4873,7 +6971,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_78_data_archival.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4883,7 +6981,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4906,7 +7004,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "ingestion",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "ingestion_pipeline",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4923,7 +7047,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_79_data_retrieval.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4933,7 +7057,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4956,7 +7080,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -4973,7 +7124,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_80_cache_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4983,7 +7134,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5006,7 +7157,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5023,7 +7202,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_81_model_training.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5033,7 +7212,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5056,7 +7235,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "provider_and_external_capability",
+        "effect_port": "provider_gateway_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5073,7 +7280,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_82_model_evaluation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5083,7 +7290,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5106,7 +7313,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5123,7 +7357,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_83_model_deployment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5133,7 +7367,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5156,7 +7390,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "provider_and_external_capability",
+        "effect_port": "provider_gateway_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5173,7 +7435,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_84_model_monitoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5183,7 +7445,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5206,7 +7468,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5223,7 +7512,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_85_feature_engineering.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5233,7 +7522,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5256,7 +7545,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5273,7 +7589,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_86_hyperparameter_tuning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5283,7 +7599,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5306,7 +7622,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5323,7 +7666,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_87_model_versioning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5333,7 +7676,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5356,7 +7699,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5373,7 +7743,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_88_ab_testing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5383,7 +7753,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5406,7 +7776,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5423,7 +7820,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_89_model_pruning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5433,7 +7830,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5456,7 +7853,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5473,7 +7897,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_90_model_quantization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5483,7 +7907,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5506,7 +7930,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5523,7 +7974,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_91_visualization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5533,7 +7984,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5556,7 +8007,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5573,7 +8053,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_92_dashboarding.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5583,7 +8063,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5606,7 +8086,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5623,7 +8132,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_93_notification.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5633,7 +8142,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5656,7 +8165,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5673,7 +8212,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_94_reporting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5683,7 +8222,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5706,7 +8245,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5723,7 +8291,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_95_alerting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5733,7 +8301,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5756,7 +8324,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5773,7 +8370,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_96_logging.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5783,7 +8380,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5806,7 +8403,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5823,7 +8449,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_97_auditing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5833,7 +8459,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5856,7 +8482,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5873,7 +8528,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_98_profiling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5883,7 +8538,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5906,7 +8561,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5923,7 +8607,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_99_debugging.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5933,7 +8617,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -5956,7 +8640,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -5973,7 +8686,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_100_optimization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5983,7 +8696,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6006,7 +8719,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -6023,7 +8765,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_101_environment_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6033,7 +8775,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6056,7 +8798,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -6073,7 +8845,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_102_dependency_injection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6083,7 +8855,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6106,7 +8878,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -6123,7 +8925,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_103_service_mesh.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6133,7 +8935,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6156,7 +8958,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -6173,7 +9005,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1036_pareto_optimization_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6183,7 +9015,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Objectives",
           "constraints",
@@ -6213,15 +9045,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6238,7 +9097,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1037_norm_emergence_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6248,7 +9107,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "debate trace"
@@ -6281,15 +9140,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6307,7 +9193,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1038_cross_modal_synthesis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6317,7 +9203,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Text+tables+images+code evidence"
         ],
@@ -6345,15 +9231,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6370,7 +9283,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1039_ontology_drift_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6380,7 +9293,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Ontology snapshots"
         ],
@@ -6411,15 +9324,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6436,7 +9377,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_104_load_balancing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6446,7 +9387,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6469,7 +9410,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -6486,7 +9456,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1040_semantic_alignment_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6496,7 +9466,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Concept sets",
           "embeddings"
@@ -6528,15 +9498,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6553,7 +9551,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1041_concept_confidence_normalization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6563,7 +9561,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Confidence vectors"
         ],
@@ -6590,15 +9588,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6615,7 +9640,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1042_contradiction_propagation_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6625,7 +9650,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Conflict set",
           "dependency graph"
@@ -6657,15 +9682,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6682,7 +9734,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1043_knowledge_lineage_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6692,7 +9744,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Commit logs",
           "provenance"
@@ -6723,15 +9775,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6748,7 +9828,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1044_creative_knowledge_composer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6758,7 +9838,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Knowledge graph",
           "constraints"
@@ -6789,15 +9869,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "candidate_validation",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6814,7 +9922,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6824,7 +9932,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Traces over time",
           "outputs corpus"
@@ -6853,15 +9961,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6878,7 +10014,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1046_hierarchical_memory_patcher.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6888,7 +10024,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Validated knowledge",
           "containment class"
@@ -6921,15 +10057,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -6947,7 +10111,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6957,7 +10121,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Performance history",
           "problem signature"
@@ -6990,15 +10154,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7015,7 +10206,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1048_ontological_conflict_resolver.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7025,7 +10216,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Ontology graphs",
           "conflict map"
@@ -7056,15 +10247,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7081,7 +10300,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1049_knowledge_redundancy_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7091,7 +10310,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Knowledge nodes",
           "similarity metrics"
@@ -7120,15 +10339,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7145,7 +10391,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_105_scalability_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7155,7 +10401,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7178,7 +10424,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -7195,7 +10470,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_106_fault_tolerance.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7205,7 +10480,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7228,7 +10503,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -7245,7 +10549,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_107_disaster_recovery.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7255,7 +10559,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7278,7 +10582,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -7295,7 +10629,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1071_knowledge_provenance_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7305,7 +10639,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Source metadata",
           "commit log"
@@ -7337,15 +10671,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7362,7 +10724,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1072_context_window_optimizer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7372,7 +10734,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Candidate context",
           "budget"
@@ -7401,15 +10763,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "provider_and_external_capability",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7426,7 +10815,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1073_intent_clarifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7436,7 +10825,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Parsed query",
           "entities"
@@ -7465,15 +10854,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7490,7 +10906,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1074_privacy_preserver.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7500,7 +10916,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Draft output",
           "trace"
@@ -7534,15 +10950,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7559,7 +11003,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1075_bias_mitigation_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7569,7 +11013,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Bias vectors",
           "draft output"
@@ -7601,15 +11045,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7626,7 +11097,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1076_knowledge_graph_pruner.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7636,7 +11107,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "importance scores"
@@ -7670,15 +11141,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7695,7 +11194,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1077_knowledge_importance_scorer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7705,7 +11204,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Usage metrics",
           "citations"
@@ -7735,15 +11234,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7760,7 +11287,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1078_memory_tier_classifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7770,7 +11297,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Knowledge candidate",
           "risk/containment"
@@ -7802,15 +11329,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_data_plane",
+        "effect_port": "knowledge_store_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7827,7 +11382,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1079_knowledge_promotion_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7837,7 +11392,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Confidence",
           "containment",
@@ -7873,15 +11428,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -7898,7 +11480,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_108_backup_strategy.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7908,7 +11490,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7931,7 +11513,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -7948,7 +11560,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1080_simulation_cost_estimator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7958,7 +11570,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Complexity tier",
           "branch count"
@@ -7988,15 +11600,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "simulation_job",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8013,7 +11652,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1081_simulation_budget_enforcer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8023,7 +11662,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Cost estimate",
           "policy caps"
@@ -8054,15 +11693,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "simulation_job",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8079,7 +11745,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1082_confidence_drift_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8089,7 +11755,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Confidence history"
         ],
@@ -8118,15 +11784,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8143,7 +11837,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1083_knowledge_revalidation_scheduler.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8153,7 +11847,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Drift alerts",
           "time"
@@ -8183,15 +11877,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8209,7 +11931,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1084_cross_instance_consensus_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8219,7 +11941,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Parallel outputs",
           "trust scores"
@@ -8249,15 +11971,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "dsqp_quad_persona",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "persona_analysis",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-F",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8274,7 +12023,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1085_anomaly_detection_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8284,7 +12033,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Trace stats",
           "outputs"
@@ -8312,15 +12061,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8337,7 +12113,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1086_knowledge_usage_analytics.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8347,7 +12123,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Execution logs"
         ],
@@ -8376,15 +12152,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8401,7 +12205,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1087_explainability_coverage_checker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8411,7 +12215,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Trace DAG",
           "explanation"
@@ -8442,15 +12246,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8467,7 +12298,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1088_knowledge_lifecycle_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8477,7 +12308,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KB state",
           "policies"
@@ -8512,15 +12343,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8537,7 +12396,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1089_policy_evolution_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8547,7 +12406,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Policy updates",
           "feeds"
@@ -8579,15 +12438,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8604,7 +12491,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_109_system_health.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8614,7 +12501,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8637,7 +12524,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -8654,7 +12570,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1090_compliance_regression_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8664,7 +12580,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Updated KB",
           "controls"
@@ -8699,15 +12615,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8724,7 +12668,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1091_scenario_outcome_archivist.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8734,7 +12678,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Final outputs",
           "traces"
@@ -8764,15 +12708,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "simulation_job",
+        "effect_port": "simulation_job_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8789,7 +12761,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1092_knowledge_dependency_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8799,7 +12771,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Changed nodes",
           "dependency graph"
@@ -8829,15 +12801,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "retrieval_graph_memory",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_data_plane",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8854,7 +12853,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1093_trust_decay_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8864,7 +12863,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Usage+time"
         ],
@@ -8893,15 +12892,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8918,7 +12945,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1094_knowledge_quarantine_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8928,7 +12955,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Anomalies",
           "conflicts"
@@ -8963,15 +12990,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -8988,7 +13043,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1095_human_in_the_loop_escalation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8998,7 +13053,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Low confidence",
           "high risk"
@@ -9028,15 +13083,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9053,7 +13135,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1096_knowledge_release_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9063,7 +13145,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Approved updates"
         ],
@@ -9093,15 +13175,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9118,7 +13228,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1097_system_performance_optimizer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9128,7 +13238,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Metrics",
           "perf profiles"
@@ -9158,15 +13268,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9183,7 +13323,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1098_self_evaluation_benchmarking.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9193,7 +13333,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Test suites",
           "outputs"
@@ -9222,15 +13362,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9247,7 +13416,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1099_system_integrity_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9257,7 +13426,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Full snapshot"
         ],
@@ -9290,15 +13459,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9315,7 +13512,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_110_integration_bus.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9325,7 +13522,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -9348,7 +13545,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -9365,7 +13592,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1100_autonomous_system_evolution_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9375,7 +13602,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Learning signals",
           "approvals"
@@ -9409,15 +13636,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9435,7 +13692,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1101_chaos_injection_governor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9445,7 +13702,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Entropy",
           "mode",
@@ -9484,15 +13741,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "simulation_job",
+        "effect_port": "simulation_job_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9509,7 +13794,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1102_global_entropy_quantifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9519,7 +13804,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Branch variance",
           "evidence variance",
@@ -9553,15 +13838,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l6_l8",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthgate"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_validation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9578,7 +13890,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1103_simulation_state_rollback_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9588,7 +13900,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Checkpoint state",
           "failure flags"
@@ -9623,15 +13935,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "simulation",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "providers_gateway",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "simulation_job",
+        "effect_port": "simulation_job_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9648,7 +13988,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1104_truth_vs_utility_arbiter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9658,7 +13998,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Truth scores",
           "audience",
@@ -9693,15 +14033,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9718,7 +14086,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1105_conceptual_obsolescence_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9728,7 +14096,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Contradiction trends",
           "citations",
@@ -9763,15 +14131,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9788,7 +14184,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1106_human_override_reason_capture.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9798,7 +14194,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Human decision",
           "rationale"
@@ -9831,15 +14227,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "containment_and_release",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9856,7 +14279,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9866,7 +14289,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Policy",
           "planned pipeline",
@@ -9903,15 +14326,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9928,7 +14378,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9938,7 +14388,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KA interaction patterns",
           "emergence flags"
@@ -9973,15 +14423,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -9998,7 +14476,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1109_knowledge_containment_classifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10008,7 +14486,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Knowledge candidate",
           "risk signals"
@@ -10043,15 +14521,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "knowledge_lifecycle",
+        "effect_port": "knowledge_lifecycle_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -10068,7 +14574,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_111_api_gateway.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10078,7 +14584,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10101,7 +14607,35 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "provider_and_external_capability",
+        "effect_port": "provider_gateway_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -10118,7 +14652,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10128,7 +14662,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Domain tags",
           "knowledge links",
@@ -10164,15 +14698,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -10189,7 +14751,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1111_long_horizon_goal_drift_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10199,7 +14761,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Evolution actions",
           "traces"
@@ -10233,15 +14795,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -10258,7 +14847,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1112_system_self_introspection_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10268,7 +14857,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "System metrics",
           "logs"
@@ -10299,15 +14888,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "containment_and_release",
+        "effect_port": "governed_execution_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -10324,7 +14940,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10334,7 +14950,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Sub-question",
           "policy",
@@ -10373,15 +14989,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "provider_gateway",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "mcp_connectors",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "provider_and_external_capability",
+        "effect_port": "provider_gateway_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Implement under the restored canonical ID; retain the conflicting historical numeric ID only as a design-v1 scoped alias."
     },
@@ -10398,7 +15042,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_112_message_broker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10408,7 +15052,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10431,7 +15075,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -10448,7 +15122,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_113_complexity_router.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10458,7 +15132,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "Normalized query",
           "org mode",
@@ -10503,6 +15177,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-114": {
@@ -10518,7 +15219,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_114_federated_outbox.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10528,7 +15229,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10551,7 +15252,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -10568,7 +15299,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_115_federated_inbox.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10578,7 +15309,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10601,7 +15332,37 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -10618,7 +15379,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_116_entropy_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10628,7 +15389,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10651,7 +15412,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -10668,7 +15455,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_117_knowledge_integrity_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10678,7 +15465,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "constraints"
@@ -10722,6 +15509,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthmemory_truthlink_frost",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "retrieval_graph_memory",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "knowledge_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-H",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "KA-136": {
@@ -10735,7 +15549,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_136_threat_model_agent.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10745,7 +15559,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -10762,15 +15576,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -10785,7 +15628,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_137_sensitive_data_discovery.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10795,7 +15638,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -10812,15 +15655,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -10835,7 +15707,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_138_predictive_health.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10845,7 +15717,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -10862,15 +15734,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -10885,7 +15786,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_139_purple_team.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10895,7 +15796,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -10912,15 +15813,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -10935,7 +15865,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_161_translation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10945,7 +15875,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -10962,15 +15892,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -10985,7 +15942,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_162_paraphrasing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10995,7 +15952,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11012,15 +15969,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11035,7 +16019,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_163_style_transfer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11045,7 +16029,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11062,15 +16046,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11085,7 +16096,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_165_topic_modeling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11095,7 +16106,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11112,15 +16123,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11135,7 +16173,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_167_keyword_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11145,7 +16183,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11162,15 +16200,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11185,7 +16250,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_168_explainability.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11195,7 +16260,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11212,15 +16277,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11235,7 +16327,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_169_fairness_audit.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11245,7 +16337,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11262,15 +16354,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11285,7 +16405,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_172_safety_check.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11295,7 +16415,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11312,15 +16432,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11335,7 +16483,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_173_privacy_filter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11345,7 +16493,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11362,15 +16510,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11385,7 +16561,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_174_compliance_check.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11395,7 +16571,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11412,15 +16588,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11435,7 +16639,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_175_security_audit.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11445,7 +16649,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11462,15 +16666,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11485,7 +16718,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_176_governance_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11495,7 +16728,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11512,15 +16745,43 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11535,7 +16796,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_177_policy_enforcement.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11545,7 +16806,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11562,15 +16823,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthgate",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "entry_and_l8_policy",
+        "effect_port": "policy_decision_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11585,7 +16875,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_178_identity_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11595,7 +16885,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11612,15 +16902,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l1_l5",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "candidate_preparation",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11635,7 +16952,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_179_access_control.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11645,7 +16962,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11662,15 +16979,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11685,7 +17032,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11695,7 +17042,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11712,15 +17059,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11735,7 +17112,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_181_key_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11745,7 +17122,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11762,15 +17139,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11785,7 +17192,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_182_threat_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11795,7 +17202,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11812,15 +17219,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11835,7 +17271,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11845,7 +17281,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11862,15 +17298,44 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "security_operations_lifecycle",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11885,7 +17350,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_184_incident_response.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11895,7 +17360,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11912,15 +17377,45 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "security_operations_lifecycle",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "authoritative_effect_service",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "ingestion",
+          "mcp_connectors",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional_effect_proposal",
+        "stage": "security_operations_lifecycle",
+        "effect_port": "operations_control_service",
+        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-I",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Author and qualify a distinct production contract before enabling."
     },
@@ -11937,7 +17432,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/ka_master_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11947,7 +17442,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -11972,7 +17467,34 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "governed_request_dmrf",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "providers_gateway",
+          "simulation",
+          "trace_evaluation",
+          "truthcore"
+        ],
+        "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
+        "required_or_optional": "conditional",
+        "stage": "admission_and_routing",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-D",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -11987,7 +17509,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11997,7 +17519,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12022,7 +17544,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12037,7 +17585,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_002_self_awareness.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12047,7 +17595,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12072,7 +17620,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12087,7 +17661,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_003_pii_redactor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12097,7 +17671,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12123,6 +17697,32 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "classification": "production_validator",
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12137,7 +17737,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_004_ethics_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12147,7 +17747,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12172,7 +17772,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12187,7 +17813,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12197,7 +17823,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12223,6 +17849,32 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "classification": "production_validator",
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12237,7 +17889,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_006_trust_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12247,7 +17899,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12274,6 +17926,32 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "deterministic": true,
         "direct_execution": "legacy_production_enabled"
       },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
+      },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L10-KA-007": {
@@ -12287,7 +17965,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12297,7 +17975,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12322,7 +18000,33 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l10",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "knowledge_lifecycle",
+          "trace_evaluation"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "containment_and_release",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
@@ -12337,7 +18041,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12348,7 +18052,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12365,15 +18069,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12388,7 +18119,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12399,7 +18130,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12416,15 +18147,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12439,7 +18197,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_003_persona_auditor.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12450,7 +18208,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12467,15 +18225,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12490,7 +18275,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_004_meta_evaluator.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12501,7 +18286,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12518,15 +18303,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12541,7 +18353,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12552,7 +18364,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12569,15 +18381,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12592,7 +18431,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12603,7 +18442,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12620,15 +18459,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     },
@@ -12643,7 +18509,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "existing_requires_phase18_qualification",
+        "status": "implemented_pending_phase19_integration",
         "source": "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -12654,7 +18520,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_schema_review_required",
+        "status": "pending_cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12671,15 +18537,42 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 18 production limitation review required.",
-        "guarantee": "No production guarantee until Phase 18 qualification passes.",
+        "limitations": "Phase 19 capability limitation review required.",
+        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
         "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_phase18_qualification"
+        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+      },
+      "integration": {
+        "authority_version": "2026.07.25-cp19a.1",
+        "primary_owner": "truthcore_l9",
+        "consumer_paths": [
+          "api_sdk_desktop_evaluation",
+          "canonical_controller",
+          "contract_parity",
+          "governed_request",
+          "refinement",
+          "trace_evaluation",
+          "truthcore_l10"
+        ],
+        "selector_policy": "required_for_applicable_stage_and_policy_context",
+        "required_or_optional": "required_when_stage_applicable",
+        "stage": "meta_evaluation_and_loop_control",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
+        "qualification": {
+          "contract": "CP19-B",
+          "selector": "CP19-C",
+          "owning_path": "CP19-E",
+          "product_workflow": "CP19-J",
+          "per_ka_proof": "CP19-K",
+          "source_exit": "CP19-L",
+          "installed_exit": "CP19-M"
+        }
       },
       "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
     }

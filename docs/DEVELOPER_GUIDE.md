@@ -129,12 +129,22 @@ frontend prompt
 
 Retained CP18-B work replaced the conflicting KA registries/engines with one
 generated manifest and canonical controller. Phase 18 subsequently reached 213
-unique implementation owners, zero source gaps, and a 721-test KA baseline, but
+unique implementation owners and zero source gaps, but
 CP18-D failed the whole-application wiring audit. Phase 19 is therefore the
 active integration authority and the signed rebuild remains paused through
 CP19-L. Before changing a KA identity or purpose, update the reviewed CP18-A
 crosswalk and preserve compatible aliases. Do not join historical metadata to
 an implementation by numeric ID unless the manifest proves semantic identity.
+
+CP19-A passed on 2026-07-25. Run
+`python scripts/build_ka_integration_authority.py --check` and
+`python scripts/verify_ka_integration_authority.py` after changing owner,
+consumer, stage, selector, effect-port, workflow-disposition, or evidence
+metadata. The generated 213-row JSON/CSV authority under
+`reports/production-readiness/2026/phase-19/` is planning and verification
+metadata carried by the one runtime manifest, not another executable registry.
+The checkpoint baseline is 726 passing KA tests. CP19-B typed caller migration
+is now active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected
@@ -213,7 +223,8 @@ Every canonical KA requires:
 Run the focused KA/manifest/call-path tests before the full backend, SDK,
 frontend, Electron/browser, security, documentation, and packaging-smoke gates.
 Phase evidence belongs under
-`reports/production-readiness/2026/phase-18/`.
+`reports/production-readiness/2026/phase-19/`; retained Phase 18 identity and
+source evidence remains under its historical phase directory.
 
 ## Local run modes
 

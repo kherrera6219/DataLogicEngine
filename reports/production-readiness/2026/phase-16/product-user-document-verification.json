@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.product-user-document-verification.v1",
-  "generated_at": "2026-07-25T22:26:43.688595+00:00",
-  "authority_version": "2026.07.25-phase19-ka-system-integration-plan",
+  "generated_at": "2026-07-25T22:55:42.736951+00:00",
+  "authority_version": "2026.07.25-phase19-cp19a-integration-authority",
   "status": "pass",
   "target_count": 5,
   "verified_count": 5,

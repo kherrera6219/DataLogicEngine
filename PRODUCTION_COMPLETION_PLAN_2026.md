@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.37.0 |
+| Document version | v1.38.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4692,6 +4692,39 @@ contracts:
   provider, five-service, gateway, object-store, pilot, and soak gates and binds
   its manifest/hash to the release record.
 
+### CP19-A checkpoint result - passed 2026-07-25
+
+CP19-A passed its source authority gate. Authority version
+`2026.07.25-cp19a.1` retains all 213 canonical identities and 213 unique
+implementation owners, assigns every KA exactly one primary subsystem owner,
+and records governed consumer paths, selection policy, required/optional
+classification, lifecycle stage, effect-port/transaction boundary, test and
+selector-fixture destinations, trace assertions, and CP19-B through CP19-M
+qualification ownership. There are zero unowned capabilities, duplicate
+primary owners, duplicate runtime registries, or waived CP18-D findings.
+
+Sixteen competing or adjacent orchestrator, ten-layer, refinement, DSQP/persona,
+and legacy workflow surfaces now have explicit canonical, compatibility,
+reference-only, migration, or prohibited-product-path dispositions. The one
+runtime manifest remains authoritative and carries the reviewed integration
+metadata into the backend and generated Python/TypeScript catalogs.
+
+Validation passed the CP19-A authority verifier, runtime-authority verifier,
+focused manifest/controller/authority tests, Ruff for the changed Python
+surfaces, and the full Knowledge Algorithm suite at 726 passed. This checkpoint
+authorizes CP19-B contract migration only. It does not activate selectors,
+authorize effects, permit rebuilding, establish installed acceptance, or change
+the production/public release NO-GO.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-a-integration-authority.md`;
+- `reports/production-readiness/2026/phase-19/ka-integration-authority.json`;
+- `reports/production-readiness/2026/phase-19/ka-integration-authority.csv`;
+- `reports/production-readiness/2026/phase-19/cp19-a-integration-authority-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-a-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-runtime-authority-current.json`.
+
 ### Stop conditions
 
 Stop the current checkpoint and keep the rebuild or release blocked if:
@@ -5131,11 +5164,12 @@ exit gate.
 
 ## 34. Immediate next action
 
-Begin Phase 19 CP19-A from the failed CP18-D audit. Freeze the 213-row primary-
-owner/consumer-path transfer matrix, the canonical whole-application lifecycle,
-the duplicate-prevention rule, and the finding-to-checkpoint evidence map.
-Then execute CP19-B contract parity before selector or subsystem wiring so no
-new integration can consume or hide the wrong result shape.
+CP19-A passed on 2026-07-25 with the 213-row owner/consumer authority, canonical
+lifecycle, workflow dispositions, evidence destinations, and one generated
+runtime manifest verified. Begin CP19-B contract parity: inventory every real
+caller, migrate it to the canonical typed result variants, repair the existing
+real-controller Layer-10 failure, and remove optimistic defaults before
+selector or subsystem wiring can consume or hide the wrong result shape.
 
 Proceed through CP19-C to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

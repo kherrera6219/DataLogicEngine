@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-A integration authority**: generated and verified a 213-row
+  owner/consumer/evidence matrix that preserves 213 unique implementation
+  owners and assigns every canonical KA exactly one primary subsystem owner.
+  The one runtime manifest and generated Python/TypeScript catalogs now carry
+  reviewed integration metadata; 16 orchestrator, ten-layer, refinement,
+  DSQP/persona, and legacy workflow surfaces have explicit dispositions. Both
+  authority verifiers and the 726-test KA suite pass. CP19-B contract parity is
+  active; selectors, effects, rebuilding, installed acceptance, and production
+  launch remain unauthorized.
 - **Phase 19 canonical KA system-of-systems integration plan**: closed Phase 18
   incomplete without waiver after its whole-application audit proved that
   source completeness did not establish product integration. The new phase

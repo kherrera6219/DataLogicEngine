@@ -94,11 +94,14 @@ class KAMasterController(KnowledgeAlgorithm):
             ),
             "Audit_Events": "Yes" if definition.contract.audit_events else "No",
             "Version": definition.version,
-            "Owner": (
-                definition.contract.subsystems[0]
-                if definition.contract.subsystems
-                else "DataLogicEngine"
-            ),
+            "Owner": definition.integration.primary_owner,
+            "Primary_Owner": definition.integration.primary_owner,
+            "Consumer_Paths": definition.integration.consumer_paths,
+            "Integration_Stage": definition.integration.stage,
+            "Required_Or_Optional": definition.integration.required_or_optional,
+            "Selector_Policy": definition.integration.selector_policy,
+            "Effect_Port": definition.integration.effect_port,
+            "Design_Owners": definition.contract.subsystems,
             "Status": (
                 "Active"
                 if definition.implementation.entrypoint

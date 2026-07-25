@@ -1,14 +1,25 @@
-"""Generate the canonical Phase 18 Knowledge Algorithm runtime manifest."""
+"""Generate the canonical Knowledge Algorithm runtime manifest."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.build_ka_integration_authority import (
+    DEFAULT_JSON_PATH as INTEGRATION_AUTHORITY_PATH,
+)
+from scripts.build_ka_integration_authority import (
+    build_authority as build_integration_authority,
+)
+
 CROSSWALK_PATH = (
     ROOT
     / "reports"
@@ -89,6 +100,13 @@ def build_manifest() -> dict[str, Any]:
     crosswalk = json.loads(CROSSWALK_PATH.read_text(encoding="utf-8"))
     if crosswalk.get("status") != "approved_cp18_a_authority":
         raise ValueError("CP18-A crosswalk is not approved")
+    integration_authority = build_integration_authority()
+    if integration_authority.get("status") != "approved_cp19_a_authority":
+        raise ValueError("CP19-A integration authority is not approved")
+    integration_by_id = {
+        row["canonical_id"]: row
+        for row in integration_authority["canonical_capabilities"]
+    }
 
     rows = crosswalk["canonical_capabilities"]
     scoped_alias_index = {
@@ -106,6 +124,7 @@ def build_manifest() -> dict[str, Any]:
 
     entries: dict[str, dict[str, Any]] = {}
     for row in rows:
+        integration = integration_by_id[row["canonical_id"]]
         design_contracts = row.get("design_contracts", [])
         versions = [
             str(contract["version"])
@@ -132,7 +151,7 @@ def build_manifest() -> dict[str, Any]:
             },
             "implementation": {
                 "status": (
-                    "existing_requires_phase18_qualification"
+                    "implemented_pending_phase19_integration"
                     if existing
                     else "implementation_required"
                 ),
@@ -141,7 +160,7 @@ def build_manifest() -> dict[str, Any]:
             },
             "contract": {
                 "version": "dle.ka-execution.v1",
-                "status": row["contract_status"],
+                "status": "pending_cp19_b_contract_parity",
                 "inputs": row.get("input_descriptions", []),
                 "outputs": row.get("output_descriptions", []),
                 "categories": row.get("categories", []),
@@ -169,9 +188,12 @@ def build_manifest() -> dict[str, Any]:
                     for contract in design_contracts
                 ),
                 "limitations": production.get("limitations")
-                or "Phase 18 production limitation review required.",
+                or "Phase 19 capability limitation review required.",
                 "guarantee": production.get("guarantee")
-                or "No production guarantee until Phase 18 qualification passes.",
+                or (
+                    "No production guarantee until CP19-K per-KA proof and "
+                    "CP19-M rebuilt-installed acceptance pass."
+                ),
                 "performance_budget_ms": production.get(
                     "performance_budget_ms", 1000
                 ),
@@ -184,20 +206,39 @@ def build_manifest() -> dict[str, Any]:
                 "direct_execution": (
                     "legacy_production_enabled"
                     if production.get("production_enabled")
-                    else "blocked_pending_phase18_qualification"
+                    else "blocked_pending_cp19_c_selector_qualification"
                 ),
+            },
+            "integration": {
+                "authority_version": integration_authority[
+                    "authority_version"
+                ],
+                "primary_owner": integration["primary_owner"],
+                "consumer_paths": integration["consumer_paths"],
+                "selector_policy": integration["selector_policy"],
+                "required_or_optional": integration["required_or_optional"],
+                "stage": integration["stage"],
+                "effect_port": integration["effect_port"],
+                "effect_transaction": integration["effect_transaction"],
+                "qualification": integration["qualification"],
             },
             "migration_notes": row["migration_notes"],
         }
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp18b.1",
-        "status": "cp18_b_migration_active",
+        "manifest_version": "2026.07.25-cp19a.1",
+        "status": "cp19_a_integration_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
             "crosswalk_source_input_sha256": crosswalk["source_input_sha256"],
+            "integration_authority": INTEGRATION_AUTHORITY_PATH.relative_to(
+                ROOT
+            ).as_posix(),
+            "integration_authority_version": integration_authority[
+                "authority_version"
+            ],
             "duplicate_policy": "one_semantic_capability_one_canonical_id",
         },
         "capability_count": len(entries),

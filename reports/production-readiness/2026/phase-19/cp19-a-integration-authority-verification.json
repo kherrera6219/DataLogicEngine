@@ -1,0 +1,30 @@
+{
+  "schema_version": "dle.cp19-a-integration-authority-verification.v1",
+  "status": "pass",
+  "authority_version": "2026.07.25-cp19a.1",
+  "canonical_capabilities": 213,
+  "unique_implementation_owners": 213,
+  "primary_owner_counts": {
+    "api_sdk_desktop": 0,
+    "dsqp_quad_persona": 11,
+    "governed_request_dmrf": 12,
+    "ingestion": 8,
+    "mcp_connectors": 0,
+    "provider_gateway": 13,
+    "refinement": 0,
+    "retrieval_graph_memory": 15,
+    "security_operations_lifecycle": 37,
+    "simulation": 9,
+    "truthcore_l10": 12,
+    "truthcore_l1_l5": 24,
+    "truthcore_l6_l8": 17,
+    "truthcore_l9": 12,
+    "truthgate": 19,
+    "truthmemory_truthlink_frost": 24
+  },
+  "workflow_dispositions": 16,
+  "finding_transfers": 14,
+  "runtime_registries_added": 0,
+  "rebuild_authorized": false,
+  "errors": []
+}

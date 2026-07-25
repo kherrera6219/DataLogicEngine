@@ -1,4 +1,4 @@
-"""Verify the Phase 18 single-manifest, single-controller runtime boundary."""
+"""Verify the canonical single-manifest, single-controller runtime boundary."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ DEFAULT_EVIDENCE_PATH = (
     / "reports"
     / "production-readiness"
     / "2026"
-    / "phase-18"
+    / "phase-19"
     / "ka-runtime-authority-current.json"
 )
 
@@ -241,7 +241,7 @@ def main() -> int:
         if evidence["status"] == "pass"
         else "FAIL: " + "; ".join(evidence["errors"])
     )
-    print(f"Phase 18 KA runtime authority verification: {summary}")
+    print(f"Phase 19 KA runtime authority verification: {summary}")
     return 0 if evidence["status"] == "pass" else 1
 
 

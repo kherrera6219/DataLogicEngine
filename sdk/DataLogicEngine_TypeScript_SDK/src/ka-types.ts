@@ -57,6 +57,17 @@ export type KARuntimeDefinition = {
     deterministic: boolean | null;
     direct_execution: string;
   };
+  integration: {
+    authority_version: string;
+    primary_owner: string;
+    consumer_paths: string[];
+    selector_policy: string;
+    required_or_optional: string;
+    stage: string;
+    effect_port: string | null;
+    effect_transaction: string;
+    qualification: Record<string, string>;
+  };
   migration_notes: string;
 };
 

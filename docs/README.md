@@ -7,12 +7,12 @@
 ## Authority and release status
 
 - Generated: `2026-07-25`
-- Documentation authority: `2026.07.25-phase19-ka-system-integration-plan` (`approved_phase16_replacement_closed`)
+- Documentation authority: `2026.07.25-phase19-cp19a-integration-authority` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-A active
-- Current KA evidence: Phase 18 closed incomplete after retaining 213 canonical capabilities, 213 unique implementation owners, zero source gaps, and 721 KA tests. CP18-D failed; Phase 19 owns whole-application integration and keeps the rebuild blocked through CP19-L.
+- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-B active
+- Current KA evidence: Phase 19 CP19-A passed with 213 canonical capabilities, 213 unique implementation owners, one primary subsystem owner per KA, 16 workflow dispositions, one runtime manifest, and 726 passing KA tests. CP19-B contract parity is active; the rebuild remains blocked through CP19-L.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

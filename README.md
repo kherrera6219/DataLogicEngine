@@ -139,11 +139,15 @@ Major subsystems in the current local-first desktop build:
 Current production-completion focus:
 
 - Phase 18 closed incomplete: retain CP18-A/CP18-B, the 213 unique
-  implementation owners, zero source gaps, and the 721-test source baseline;
+  implementation owners and zero source gaps;
   CP18-D failed and CP18-E-H transferred without waiver
-- Active Phase 19 CP19-A: freeze one primary owning subsystem and governed
-  consumer paths for every canonical KA with zero duplicate implementation
-  authority
+- Phase 19 CP19-A passed: all 213 KAs have one primary subsystem owner,
+  governed consumer/evidence destinations, and one runtime manifest; 16
+  competing workflow surfaces have explicit dispositions and the KA suite is
+  726 passed
+- Active Phase 19 CP19-B: migrate every real caller to the canonical typed
+  result variants, repair the real-controller Layer-10 failure, and eliminate
+  optimistic defaults
 - Canonical result parity, manifest selector/dependency DAG, ten-layer path,
   fail-closed L9/L10, KA-backed Quad Persona/DSQP, and one 12-step workflow
 - Ingestion, retrieval, graph, memory, simulation, MCP, provider, gateway,
