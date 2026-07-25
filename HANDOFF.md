@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.33.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.34.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -123,6 +123,12 @@ obsolescence, human-override rationale, reasoning boundaries, capability
 escalation, knowledge containment, cross-domain coupling, long-horizon goal
 drift, and self-introspection. Effects remain unapplied. The authority is now
 188 implementations/25 gaps and the KA suite is 642 passed.
+
+CP18-C Batch 09 passed for eight security/health/fairness KAs covering threat
+modeling, sensitive-data discovery, predictive health, purple-team coverage,
+fairness, safety, privacy filtering, and current-state compliance. Preserved
+three-digit sources now use the same unique-owner discovery guard. The
+authority is now 196 implementations/17 gaps and the KA suite is 668 passed.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -742,9 +748,9 @@ replacement. See
 ## Exact next action
 
 1. Continue Phase 18 CP18-C against the approved 213-capability manifest:
-   Batches 01-08 qualified 11 existing implementations and restored 56
+   Batches 01-09 qualified 11 existing implementations and restored 64
    missing capabilities; qualify the remaining existing implementations and
-   build the 25 explicit gaps in semantic batches
+   build the 17 explicit gaps in semantic batches
    with strict schemas, limits, failure behavior, and authoritative
    effect/service integration.
 2. Preserve canonical IDs and behavior until parity proof permits each

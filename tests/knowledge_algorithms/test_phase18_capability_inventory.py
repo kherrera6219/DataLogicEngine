@@ -95,6 +95,17 @@ def test_phase18_crosswalk_classifies_generic_scaffolds_as_history():
     assert "KA-277" not in canonical_ids
 
 
+def test_phase18_crosswalk_discovers_preserved_named_implementation_owners():
+    _inventory, crosswalk = INVENTORY_MODULE.build_inventory()
+    rows = {row["canonical_id"]: row for row in crosswalk["canonical_capabilities"]}
+
+    for canonical_id in ("KA-136", "KA-137", "KA-138", "KA-139"):
+        assert rows[canonical_id]["implementation"]
+        assert rows[canonical_id]["implementation"].startswith(
+            "backend/knowledge_algorithms/"
+        )
+
+
 def test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas():
     _inventory, crosswalk = INVENTORY_MODULE.build_inventory()
     rows = {row["canonical_id"]: row for row in crosswalk["canonical_capabilities"]}

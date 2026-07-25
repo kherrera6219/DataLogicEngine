@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "de66a0e6c8caf614916f8571b8d85fd73135ea44574d51e389595684711cb984",
+  "source_input_sha256": "0a815fb92d6e7e63caf9570f695945d81bc9b11d8a1fe937c0fc29c2e715df1d",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 188,
-    "implementation_required_proposals": 25,
+    "existing_implementation_proposals": 196,
+    "implementation_required_proposals": 17,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 188,
+    "implementation_surfaces": 196,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 150,
-    "canonical_with_named_test_function": 145
+    "canonical_with_test_reference": 158,
+    "canonical_with_named_test_function": 155
   },
   "canonical_capabilities": [
     {
@@ -300,6 +300,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_138_predictive_health_projects_declared_linear_trend",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_169_fairness_audit_measures_group_disparity",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
@@ -2489,7 +2497,12 @@
       ],
       "execution_call_sites": [],
       "test_references": [],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_138_predictive_health_projects_declared_linear_trend",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-013",
         "implementation": "backend.knowledge_algorithms.ka_13_persona_weighting.run",
@@ -2993,7 +3006,8 @@
       ],
       "named_test_functions": [
         "tests/compliance/test_fullstack_compliance.py::test_ka_016_regulatory_mapping",
-        "tests/end_to_end/test_e2e_scenarios.py::test_simulated_user_journey"
+        "tests/end_to_end/test_e2e_scenarios.py::test_simulated_user_journey",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_169_fairness_audit_measures_group_disparity"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-016",
@@ -3158,7 +3172,11 @@
         "core/simulation/refinement_workflow.py:145"
       ],
       "test_references": [],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-017",
         "implementation": "backend.knowledge_algorithms.ka_17_spatial_jurisdiction_mapping.run",
@@ -23104,10 +23122,10 @@
       "name": "Threat Model Agent",
       "purpose": "Functional logic for Threat Model Agent",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_136_threat_model_agent.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23156,30 +23174,48 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_136_threat_model_agent.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_graph"
+        ],
+        "classes": [
+          "KA136Input",
+          "KA136ThreatModelAgent",
+          "ThreatAsset",
+          "ThreatDataFlow"
+        ],
+        "nonblank_noncomment_loc": 119,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-137",
       "name": "Sensitive Data Discovery",
       "purpose": "Functional logic for Sensitive Data Discovery",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_137_sensitive_data_discovery.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23228,30 +23264,46 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_137_sensitive_data_discovery.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "DiscoveryDocument",
+          "KA137Input",
+          "KA137SensitiveDataDiscovery"
+        ],
+        "nonblank_noncomment_loc": 74,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-138",
       "name": "Predictive Health",
       "purpose": "Functional logic for Predictive Health",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_138_predictive_health.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23300,30 +23352,47 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_138_predictive_health.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_thresholds"
+        ],
+        "classes": [
+          "HealthSeries",
+          "KA138Input",
+          "KA138PredictiveHealth"
+        ],
+        "nonblank_noncomment_loc": 94,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_138_predictive_health_projects_declared_linear_trend"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-139",
       "name": "Purple Team",
       "purpose": "Functional logic for Purple Team",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_139_purple_team.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23372,20 +23441,37 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_139_purple_team.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA139Input",
+          "KA139PurpleTeam",
+          "PurpleScenario"
+        ],
+        "nonblank_noncomment_loc": 82,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-161",
@@ -23824,10 +23910,10 @@
       "name": "Fairness Audit",
       "purpose": "Functional logic for Fairness Audit",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_169_fairness_audit.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23876,30 +23962,45 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_169_fairness_audit.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_counts"
+        ],
+        "classes": [
+          "FairnessGroup",
+          "KA169FairnessAudit",
+          "KA169Input"
+        ],
+        "nonblank_noncomment_loc": 105,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_169_fairness_audit_measures_group_disparity"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-172",
       "name": "Safety Check",
       "purpose": "Functional logic for Safety Check",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_172_safety_check.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23948,30 +24049,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_172_safety_check.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA172Input",
+          "KA172SafetyCheck",
+          "SafetyCandidate"
+        ],
+        "nonblank_noncomment_loc": 74,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-173",
       "name": "Privacy Filter",
       "purpose": "Functional logic for Privacy Filter",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_173_privacy_filter.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24020,30 +24135,45 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_173_privacy_filter.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_values"
+        ],
+        "classes": [
+          "KA173Input",
+          "KA173PrivacyFilter",
+          "PrivacyValue"
+        ],
+        "nonblank_noncomment_loc": 71,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-174",
       "name": "Compliance Check",
       "purpose": "Functional logic for Compliance Check",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_174_compliance_check.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24092,20 +24222,35 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_174_compliance_check.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ComplianceControl",
+          "KA174ComplianceCheck",
+          "KA174Input"
+        ],
+        "nonblank_noncomment_loc": 87,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-175",

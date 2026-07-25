@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C security/health/fairness Batch 09**: restored eight
+  deterministic preserved-ID capabilities for threat modeling, sensitive-data
+  discovery, predictive health, purple-team coverage, fairness, safety, privacy
+  filtering, and current-state compliance. The builder now discovers reviewed
+  three-digit owners under the same duplicate guard. The authority advances to
+  196 implementations/17 gaps and the KA suite passes 668 tests.
 - **Phase 18 CP18-C containment/oversight Batch 08**: restored eight
   deterministic capabilities for conceptual-obsolescence monitoring,
   human-override rationale, reasoning boundaries, capability escalation,

@@ -1101,15 +1101,20 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             canonical[match]["scoped_aliases"].append(f"generated-v1:{source_id}")
             core_appended_dispositions.append(item.to_dict())
             continue
+        restored_implementation = restored_implementation_module(source_id)
         add_canonical(
             ka_id=source_id,
             name=name,
             purpose=purpose,
             identity_class="preserved_generated_named_capability",
-            implementation=None,
+            implementation=restored_implementation,
             source=CORE_METADATA_PATH.relative_to(ROOT).as_posix(),
             source_id=source_id,
-            implementation_status="implementation_required",
+            implementation_status=(
+                "restored_implementation_requires_qualification"
+                if restored_implementation
+                else "implementation_required"
+            ),
         )
         apply_design_contract(
             source_id,
