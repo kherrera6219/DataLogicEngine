@@ -1,16 +1,14 @@
-"""
-KA-004: Input Validation & Normalization
-Purpose: Sanitize, normalize, and validate query and metadata with local rules and SDK delegation.
-"""
-import logging
+"""KA-004: deterministic input validation and normalization."""
+
 import json
+import logging
 import os
 import re
-from typing import Dict, Any
-import importlib
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from typing import Any
 
 from pydantic import BaseModel, Field
+
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
@@ -19,28 +17,25 @@ class KA004Input(BaseModel):
     query: str = Field(..., description="The input query to validate and normalize")
 
 class KA004InputValidation(KnowledgeAlgorithm):
-    """
-    KA-004: Performs local pre-validation and normalization before delegating to SDK.
-    """
+    """Validate and normalize input through the canonical backend implementation."""
     input_schema = KA004Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-004"
         self.config = self._load_config()
-        self.sdk_module = "ukg_sdk.ka.handlers.ka_004"
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_04_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
             return {}
-        except Exception:
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError):
             return {}
 
-    def _run_logic(self, input_data: KA004Input) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA004Input) -> dict[str, Any]:
         query = input_data.query
         
         # 1. Local Validation
@@ -56,21 +51,22 @@ class KA004InputValidation(KnowledgeAlgorithm):
         # 2. Local Normalization
         normalized_query = self._perform_local_normalization(query)
         
-        # 3. SDK Delegation
-        self.log_execution_step("Delegating to SDK for advanced validation", {"query_len": len(normalized_query)})
-        sdk_result = self._delegate_to_sdk({"query": normalized_query})
-        
-        final_query = sdk_result.get("normalized_query", normalized_query)
-        final_valid = sdk_result.get("is_valid", True)
-        
+        self.log_execution_step(
+            "Canonical normalization complete",
+            {"query_len": len(normalized_query)},
+        )
         return {
             "success": True,
-            "is_valid": final_valid,
-            "normalized_query": final_query,
-            "sdk_response": sdk_result
+            "is_valid": True,
+            "normalized_query": normalized_query,
+            "sdk_response": {
+                "source": "canonical_backend",
+                "normalized_query": normalized_query,
+                "is_valid": True,
+            },
         }
 
-    def _perform_local_validation(self, query: str) -> Dict[str, Any]:
+    def _perform_local_validation(self, query: str) -> dict[str, Any]:
         if not query:
             return {"is_valid": False, "reason": "Empty query"}
         
@@ -99,24 +95,10 @@ class KA004InputValidation(KnowledgeAlgorithm):
             processed = processed.lower()
         return processed
 
-    def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        try:
-            mod = importlib.import_module(self.sdk_module)
-            if hasattr(mod, "run"):
-                return mod.run(data)
-            else:
-                func = getattr(mod, "ka_004", None) or getattr(mod, "calculate_validation_result", None)
-                if func:
-                    return func(data)
-                return {"is_valid": True, "normalized_query": data.get("query")}
-        except Exception as e:
-            logger.warning(f"KA-004 SDK fallback triggered: {e}")
-            return {"is_valid": True, "normalized_query": data.get("query")}
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
         algo = KA004InputValidation(context)
         return algo.run(context)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - KA boundary returns a stable failure
         logger.error(f"KA-004 Failed: {e}")
         return {"success": False, "error": str(e)}

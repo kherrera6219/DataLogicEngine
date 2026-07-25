@@ -1,10 +1,21 @@
-from .executor import KAExecutor, KAExecutionContext, KAExecutionResult
-from .registry import load_registry_from_json, load_default_registry
+from .executor import (
+    AsyncKAExecutor,
+    KAExecutionContext,
+    KAExecutionResult,
+    KAExecutor,
+)
+from .registry import (
+    load_default_registry,
+    load_registry_from_json,
+    load_registry_from_manifest,
+)
 
 __all__ = [
-    "KAExecutor",
+    "AsyncKAExecutor",
     "KAExecutionContext",
     "KAExecutionResult",
-    "load_registry_from_json",
+    "KAExecutor",
     "load_default_registry",
+    "load_registry_from_json",
+    "load_registry_from_manifest",
 ]

@@ -1,3 +1,12 @@
+import type {
+  KAExecutionEnvelope,
+  KAExecutionRequest,
+  KAListResponse,
+} from "./ka-types.js";
+
+export { KA_RUNTIME_MANIFEST } from "./ka-manifest.generated.js";
+export type * from "./ka-types.js";
+
 export const GATEWAY_CONTRACT_VERSION = "dle-gateway.v1" as const;
 
 export type GatewayMessage = {
@@ -222,6 +231,40 @@ export class DataLogicEngineClient {
 
   async capabilities(signal?: AbortSignal): Promise<GatewayCapabilities> {
     return (await this.request("GET", "/gateway/capabilities", undefined, signal)) as GatewayCapabilities;
+  }
+
+  async knowledgeAlgorithms(signal?: AbortSignal): Promise<KAListResponse> {
+    return await this.request(
+      "GET",
+      "/ka/algorithms?per_page=300",
+      undefined,
+      signal,
+    ) as KAListResponse;
+  }
+
+  async knowledgeAlgorithm(
+    kaId: string,
+    signal?: AbortSignal,
+  ): Promise<Record<string, unknown>> {
+    return this.request(
+      "GET",
+      `/ka/algorithms/${encodeURIComponent(kaId)}`,
+      undefined,
+      signal,
+    );
+  }
+
+  async executeKnowledgeAlgorithm(
+    kaId: string,
+    execution: KAExecutionRequest,
+    signal?: AbortSignal,
+  ): Promise<KAExecutionEnvelope> {
+    return await this.request(
+      "POST",
+      `/ka/algorithms/${encodeURIComponent(kaId)}/execute`,
+      execution as unknown as Record<string, unknown>,
+      signal,
+    ) as KAExecutionEnvelope;
   }
 
   async cancel(requestId: string, signal?: AbortSignal): Promise<Record<string, unknown>> {

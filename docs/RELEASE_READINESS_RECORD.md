@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Phase 6 safety contracts and Phase 18 CP18-A 213-capability no-duplicate authority pass; CP18-B is active | CP18-B-G full-KA contract/implementation/wiring/individual-test source gate, then CP18-H installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded human acceptance |
+| Governed path/evidence/KA | Phase 6 safety contracts plus Phase 18 CP18-A 213-capability no-duplicate authority and CP18-B single runtime/controller pass | CP18-C-G full-KA implementation/wiring/individual-test source gate, then CP18-H installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |

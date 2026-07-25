@@ -86,10 +86,13 @@ The Phase 6 production-enabled filter remains a safety control, but the
 2026-07-25 review proved the KA subsystem is not complete. The current 125-entry
 executable registry, 277-row metadata catalog, 114-row SDK/design catalog,
 unregistered Layer-9 suite, multiple engines/loaders, partial selector, and
-sample SDK handlers are conflicting authorities. The signed rebuild is paused
-while Phase 18 resolves them without capability loss.
+sample SDK handlers were conflicting authorities. CP18-B now replaces those
+runtime authorities with one generated manifest and controller without
+capability loss. The signed rebuild remains paused while CP18-C through CP18-G
+finish and qualify the implementations, dynamic paths, product workflow, and
+individual evidence.
 
-The target architecture has one versioned KA manifest and one controller. The
+The active CP18-B architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
 layer/persona/subsystem, dependencies, selector triggers, determinism/seed,
 evidence and service requirements, risk, confirmation, budgets, side-effect

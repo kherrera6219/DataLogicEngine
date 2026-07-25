@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +20,7 @@ except ModuleNotFoundError:
 
 
 DEFAULT_OUTPUT = ROOT / "docs" / "README.md"
+DEFAULT_TODO = ROOT / "TODO.md"
 DEFAULT_CLOSURE = (
     ROOT / "reports" / "production-readiness" / "2026" / "phase-16"
     / "document-replacement-closure.json"
@@ -44,7 +45,22 @@ def _load_closure(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def render(authority: dict[str, Any], closure: dict[str, Any]) -> str:
+def _todo_field(path: Path, field: str) -> str:
+    if not path.is_file():
+        return "not_evaluated"
+    prefix = f"| {field} |"
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith(prefix):
+            return line.split("|", 3)[2].strip()
+    return "not_evaluated"
+
+
+def render(
+    authority: dict[str, Any],
+    closure: dict[str, Any],
+    *,
+    current_phase: str = "not_evaluated",
+) -> str:
     summary = closure.get("summary", {})
     canonical = authority["canonical_documents"]
     lines = [
@@ -56,11 +72,13 @@ def render(authority: dict[str, Any], closure: dict[str, Any]) -> str:
         "",
         "## Authority and release status",
         "",
-        f"- Generated: `{date.today().isoformat()}`",
+        f"- Generated: `{datetime.now(UTC).date().isoformat()}`",
         f"- Documentation authority: `{authority['program_version']}` (`{authority['status']}`)",
         f"- Canonical hand-maintained documents: `{len(canonical)}` of `{authority['max_hand_maintained_canonical_documents']}`",
         f"- CP16-F replacement status: `{closure.get('status', 'not_evaluated')}`",
         f"- Routed sources: `{summary.get('source_count', 0)}`; archived: `{summary.get('archived_source_count', 0)}`; unmigrated links: `{summary.get('unmigrated_link_count', 0)}`",
+        f"- Current program checkpoint: {current_phase}",
+        "- Current KA evidence: CP18-A deduplicated authority and CP18-B single runtime/controller pass; CP18-C implementation parity is active.",
         "- Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.",
         "",
         "The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root",
@@ -134,10 +152,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--closure", type=Path, default=DEFAULT_CLOSURE)
+    parser.add_argument("--todo", type=Path, default=DEFAULT_TODO)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args(argv)
     args.output.write_text(
-        render(load_authority(args.config), _load_closure(args.closure)),
+        render(
+            load_authority(args.config),
+            _load_closure(args.closure),
+            current_phase=_todo_field(args.todo, "Current phase"),
+        ),
         encoding="utf-8",
     )
     print(f"Documentation portal generated: {args.output}")

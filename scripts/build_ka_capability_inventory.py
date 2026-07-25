@@ -244,6 +244,8 @@ def source_input_sha256(extra_paths: Iterable[Path] = ()) -> str:
         ROOT / "backend" / "knowledge_algorithms" / "production_catalog.py",
         ROOT / "core" / "engine" / "ka_engine.py",
         ROOT / "core" / "knowledge_algorithm" / "ka_loader.py",
+        ROOT / "scripts" / "build_ka_runtime_manifest.py",
+        ROOT / "scripts" / "verify_ka_runtime_authority.py",
         ROOT / "scripts" / "verify_ka_capability_inventory.py",
     }
     paths.update(path for path in extra_paths if path.exists())
@@ -256,7 +258,11 @@ def source_input_sha256(extra_paths: Iterable[Path] = ()) -> str:
         if not scan_root.exists():
             continue
         for pattern in patterns:
-            paths.update(scan_root.rglob(pattern))
+            paths.update(
+                path
+                for path in scan_root.rglob(pattern)
+                if ".generated." not in path.name
+            )
 
     digest = hashlib.sha256()
     paths = {path for path in paths if path.exists()}
@@ -518,6 +524,7 @@ def classify_integration_surfaces(
             if (
                 not path.is_file()
                 or path.suffix.lower() not in allowed_suffixes
+                or ".generated." in path.name
                 or any(part in {"node_modules", "__pycache__"} for part in path.parts)
                 or path.resolve() in implementation_files
             ):
@@ -848,6 +855,11 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             entry["purpose"] = str(
                 row.get("Purpose") or row.get("purpose") or ""
             ).strip() or None
+        design_name = str(row.get("KA_Name") or row.get("name") or "").strip()
+        if design_name and normalize_name(design_name) == normalize_name(
+            entry["name"]
+        ):
+            entry["name"] = design_name
         entry["design_contracts"].append(contract)
         entry["input_descriptions"] = sorted(
             set(entry["input_descriptions"]) | set(inputs)
@@ -884,7 +896,7 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
             name = CANONICAL_NAME_OVERRIDES.get(
                 ka_id, implementation_name(implementation, ka_id)
             )
-            purpose = None
+            purpose = f"Layer 10 {name}" if ka_id.startswith("L10-") else None
         add_canonical(
             ka_id=ka_id,
             name=name,

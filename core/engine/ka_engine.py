@@ -1,499 +1,245 @@
-"""
-Knowledge Algorithm Engine
+"""Compatibility adapter to the canonical Knowledge Algorithm controller.
 
-This module provides the core functionality for managing and executing
-Knowledge Algorithms (KAs) within the UKG system.
+This module retains the historical ``KAEngine`` API for legacy core callers.
+It no longer loads a private registry or imports guessed implementation paths.
 """
+
+from __future__ import annotations
 
 import logging
 import uuid
-import importlib
-import os
-import yaml
-from datetime import datetime
-from typing import Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
+
+from backend.knowledge_algorithms.controller import (
+    CanonicalKAController,
+    get_ka_controller,
+)
+from backend.knowledge_algorithms.manifest import normalize_ka_id
+
+logger = logging.getLogger(__name__)
+
 
 class KAEngine:
-    """
-    Knowledge Algorithm Engine
-    
-    This component manages the registration, execution, and tracking of
-    Knowledge Algorithms (KAs) in the UKG system.
-    """
-    
-    def __init__(self, config=None, graph_manager=None, memory_manager=None):
-        """
-        Initialize the KA Engine.
-        
-        Args:
-            config (dict, optional): Configuration dictionary
-            graph_manager: Graph Manager instance
-            memory_manager: Memory Manager instance
-        """
-        logging.info(f"[{datetime.now()}] Initializing KAEngine...")
+    """Legacy API facade backed exclusively by the canonical KA controller."""
+
+    def __init__(
+        self,
+        config: dict[str, Any] | None = None,
+        graph_manager: Any = None,
+        memory_manager: Any = None,
+    ):
         self.config = config or {}
         self.graph_manager = graph_manager
         self.memory_manager = memory_manager
-        
-        # KA registry
-        self.ka_registry = {}
-        
-        # Load KA configurations
-        self._load_ka_registry()
-        
-        # Execution history
-        self.execution_history = []
-        
-        # Stats
+        self.controller: CanonicalKAController = get_ka_controller()
+        self.execution_history: list[dict[str, Any]] = []
         self.stats = {
-            'total_executions': 0,
-            'successful_executions': 0,
-            'failed_executions': 0
+            "total_executions": 0,
+            "successful_executions": 0,
+            "failed_executions": 0,
         }
-        
-        logging.info(f"[{datetime.now()}] KAEngine initialized with {len(self.ka_registry)} KAs registered")
-    
-    def _load_ka_registry(self):
-        """
-        Load Knowledge Algorithm registry from the enterprise-grade YAML.
-        """
-        registry_path = self.config.get(
-            'ka_registry_path', 
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
-                         "backend", "knowledge_algorithm", "registry", "ka_registry_enterprise.yaml")
+        self.ka_registry = {
+            definition.canonical_id: self._definition_info(definition)
+            for definition in self.controller.list_definitions()
+        }
+        logger.info(
+            "KAEngine compatibility adapter initialized with %d canonical KAs",
+            len(self.ka_registry),
         )
-        
-        try:
-            if not os.path.exists(registry_path):
-                logging.warning(f"[{datetime.now()}] KA registry file not found: {registry_path}")
-                return
-            
-            with open(registry_path, 'r', encoding='utf-8') as f:
-                ka_config = yaml.safe_load(f)
-            
-            # The enterprise registry uses sheets.KA_Catalog.rows
-            ka_rows = ka_config.get('sheets', {}).get('KA_Catalog', {}).get('rows', [])
-            
-            for row in ka_rows:
-                ka_id = row.get('KA_ID')
-                if not ka_id:
-                    continue
-                    
-                # Map registry fields to engine internal structure
-                # Note: We derive module_path and class_name from the standardized module system
-                # if they aren't explicitly in the registry (the enterprise registry focus is on spec)
-                short_name = row.get('Short_Name', '').lower().replace(' ', '_')
-                module_name = ka_id.lower().replace('-', '') + "_" + short_name
-                
-                self.register_algorithm(
-                    ka_id=ka_id,
-                    name=row.get('KA_Name'),
-                    description=row.get('Purpose'),
-                    module_path=f"backend.knowledge_algorithm.modules.{module_name}",
-                    class_name=row.get('Short_Name', 'Algorithm'),
-                    version=row.get('Version', '1.0.0'),
-                    parameters=row.get('Default_Params', {}),
-                    hard_dependencies=row.get('Hard_Dependencies')
-                )
-            
-            logging.info(f"[{datetime.now()}] Loaded {len(self.ka_registry)} KAs from enterprise registry")
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] Error loading KA registry: {str(e)}")
-    
-    def register_algorithm(self, ka_id: str, name: str, description: str, 
-                         module_path: str, class_name: str, version: str = '1.0.0',
-                         parameters: Dict = None, hard_dependencies: Optional[str] = None) -> bool:
-        """
-        Register a Knowledge Algorithm.
-        
-        Args:
-            ka_id: Algorithm ID
-            name: Algorithm name
-            description: Algorithm description
-            module_path: Python module path
-            class_name: Algorithm class name
-            version: Algorithm version
-            parameters: Parameter defaults
-            
-        Returns:
-            bool: True if registration was successful
-        """
-        # Check if already registered
-        if ka_id in self.ka_registry:
-            logging.warning(f"[{datetime.now()}] KA with ID {ka_id} already registered")
-            return False
-        
-        # Create KA entry
-        ka_entry = {
-            'ka_id': ka_id,
-            'name': name,
-            'description': description,
-            'module_path': module_path,
-            'class_name': class_name,
-            'version': version,
-            'parameters': parameters or {},
-            'hard_dependencies': hard_dependencies,
-            'registered_at': datetime.now().isoformat(),
-            'instance': None
-        }
-        
-        # Add to registry
-        self.ka_registry[ka_id] = ka_entry
-        logging.info(f"[{datetime.now()}] Registered KA: {ka_id} - {name} (v{version})")
-        
-        return True
-    
-    def get_algorithm_info(self, ka_id: str) -> Optional[Dict]:
-        """
-        Get information about a registered Knowledge Algorithm.
-        
-        Args:
-            ka_id: Algorithm ID
-            
-        Returns:
-            dict: Algorithm information or None if not found
-        """
-        if ka_id not in self.ka_registry:
-            return None
-        
-        # Return a copy without the instance
-        ka_info = self.ka_registry[ka_id].copy()
-        ka_info.pop('instance', None)
-        
-        return ka_info
-    
-    def list_algorithms(self) -> List[Dict]:
-        """
-        List all registered Knowledge Algorithms.
-        
-        Returns:
-            list: List of algorithm information dictionaries
-        """
-        result = []
-        
-        for ka_id, ka_info in self.ka_registry.items():
-            # Create a copy without the instance
-            info = ka_info.copy()
-            info.pop('instance', None)
-            result.append(info)
-        
-        return result
-    
-    def execute_algorithm(self, ka_id: str, params: Optional[Dict] = None, 
-                        session_id: Optional[str] = None) -> Dict:
-        """
-        Execute a Knowledge Algorithm.
-        
-        Args:
-            ka_id: Algorithm ID
-            params: Execution parameters
-            session_id: Optional session ID
-            
-        Returns:
-            dict: Execution results
-        """
-        execution_id = f"EXEC_{ka_id}_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
-        start_time = datetime.now()
-        
-        # Initialize execution record
-        execution_record = {
-            'execution_id': execution_id,
-            'ka_id': ka_id,
-            'session_id': session_id,
-            'params': params or {},
-            'status': 'started',
-            'start_time': start_time.isoformat(),
-            'end_time': None,
-            'duration_ms': None,
-            'results': None,
-            'error': None
-        }
-        
-        # Check if KA exists
-        if ka_id not in self.ka_registry:
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds() * 1000
-            
-            execution_record.update({
-                'status': 'failed',
-                'end_time': end_time.isoformat(),
-                'duration_ms': duration,
-                'error': f"KA with ID {ka_id} not found"
-            })
-            
-            self.execution_history.append(execution_record)
-            self.stats['total_executions'] += 1
-            self.stats['failed_executions'] += 1
-            
-            return execution_record
 
-        # Resolve Hard Dependencies
-        ka_info = self.ka_registry[ka_id]
-        if ka_info.get('hard_dependencies'):
-            dep_list = [d.strip() for d in ka_info['hard_dependencies'].split(',')]
-            for dep_id in dep_list:
-                # Check if dependency was already run in this session
-                # For simplicity, we trigger it if it exists in the registry
-                if dep_id in self.ka_registry:
-                    logging.info(f"[{datetime.now()}] Resolving hard dependency: {dep_id} for {ka_id}")
-                    dep_result = self.execute_algorithm(dep_id, params, session_id)
-                    if dep_result['status'] == 'failed':
-                        return {
-                            'status': 'failed',
-                            'error': f"Hard dependency {dep_id} failed for {ka_id}: {dep_result['error']}"
-                        }
-        
-        try:
-            # Get KA info
-            ka_info = self.ka_registry[ka_id]
-            
-            # Load KA class if not already loaded
-            if not ka_info.get('instance'):
-                # Try KARegistry first (modern class-based system)
-                from backend.knowledge_algorithm.registry import KARegistry  # inversion:ok — lazy optional KA class registry lookup
-                ka_class = KARegistry.get_ka(ka_id)
-                
-                if ka_class:
-                    ka_info['instance'] = ka_class()
-                else:
-                    # Fallback to manual import (legacy/guessed path)
-                    module = importlib.import_module(ka_info['module_path'])
-                    ka_class = getattr(module, ka_info['class_name'])
-                    
-                    # Initialize with dependencies
-                    ka_instance = ka_class(
-                        graph_manager=self.graph_manager,
-                        memory_manager=self.memory_manager
-                    )
-                    ka_info['instance'] = ka_instance
-            
-            # Merge parameters with defaults
-            merged_params = ka_info['parameters'].copy()
-            if params:
-                merged_params.update(params)
-            
-            # Execute the algorithm (Standardized signature: state, context)
-            from backend.knowledge_algorithm.context import create_default_context  # inversion:ok — lazy optional KA execution context
-            engine_context = create_default_context()
-            
-            # If the instance has a modern execute(state, context) signature
-            try:
-                # Use positional arguments to be name-independent
-                results = ka_info['instance'].execute(merged_params, engine_context)
-            except TypeError:
-                # Fallback for legacy/other signatures
-                try:
-                    results = ka_info['instance'].execute(
-                        execution_id=execution_id,
-                        params=merged_params,
-                        session_id=session_id
-                    )
-                except TypeError as e:
-                    # Final fallback: try just params
-                    try:
-                        results = ka_info['instance'].execute(merged_params)
-                    except Exception:
-                         raise e # Raise original if even this fails
-            
-            # Record successful execution
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds() * 1000
-            
-            # Normalize results (KAResult -> Dict)
-            final_results = results
-            if hasattr(results, 'output'): # modern class-based KA result
-                final_results = {
-                    'response': results.output,
-                    'artifacts': results.artifacts,
-                    'flags': results.flags,
-                    'log': results.log,
-                    'success': results.success
-                }
-            
-            execution_record.update({
-                'status': 'completed',
-                'end_time': end_time.isoformat(),
-                'duration_ms': duration,
-                'results': final_results
-            })
-            
-            self.stats['total_executions'] += 1
-            self.stats['successful_executions'] += 1
-            
-        except Exception as e:
-            # Record failed execution
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds() * 1000
-            
-            execution_record.update({
-                'status': 'failed',
-                'end_time': end_time.isoformat(),
-                'duration_ms': duration,
-                'error': str(e)
-            })
-            
-            self.stats['total_executions'] += 1
-            self.stats['failed_executions'] += 1
-            
-            logging.error(f"[{datetime.now()}] Error executing KA {ka_id}: {str(e)}")
-        
-        # Add to execution history
-        self.execution_history.append(execution_record)
-        
-        # Update execution record in database if connected
-        if hasattr(self, 'db_manager') and self.db_manager:
-            self.db_manager.create_ka_execution(execution_record)
-        
-        return execution_record
-    
-    def execute_pipeline(self, pipeline: List[Dict], session_id: Optional[str] = None) -> Dict:
-        """
-        Execute a pipeline of Knowledge Algorithms.
-        
-        Args:
-            pipeline: List of pipeline steps with 'ka_id' and 'params'
-            session_id: Optional session ID
-            
-        Returns:
-            dict: Pipeline execution results
-        """
-        pipeline_id = f"PIPE_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
-        start_time = datetime.now()
-        
-        # Initialize pipeline results
-        pipeline_results = {
-            'pipeline_id': pipeline_id,
-            'session_id': session_id,
-            'start_time': start_time.isoformat(),
-            'end_time': None,
-            'duration_ms': None,
-            'steps': [],
-            'overall_status': 'started',
-            'error': None
+    @staticmethod
+    def _definition_info(definition) -> dict[str, Any]:
+        return {
+            "ka_id": definition.canonical_id,
+            "name": definition.name,
+            "description": definition.purpose,
+            "version": definition.version,
+            "parameters": {},
+            "hard_dependencies": ",".join(definition.contract.dependencies),
+            "implementation_status": definition.implementation.status,
+            "production_enabled": definition.admission.production_enabled,
+            "manifest_version": definition.contract.version,
         }
-        
+
+    def register_algorithm(
+        self,
+        ka_id: str,
+        name: str,
+        description: str,
+        module_path: str,
+        class_name: str,
+        version: str = "1.0.0",
+        parameters: dict[str, Any] | None = None,
+        hard_dependencies: str | None = None,
+    ) -> bool:
+        """Reject private runtime registration.
+
+        New capabilities must enter through the reviewed canonical manifest.
+        The signature remains for callers that need an explicit migration
+        failure instead of an ``AttributeError``.
+        """
+
+        del name, description, module_path, class_name, version, parameters
+        del hard_dependencies
+        normalized = normalize_ka_id(ka_id)
+        logger.warning(
+            "Private KA registration rejected for %s; update the canonical manifest",
+            normalized,
+        )
+        return False
+
+    def get_algorithm_info(self, ka_id: str) -> dict[str, Any] | None:
         try:
-            # Execute each step in the pipeline
-            for i, step in enumerate(pipeline):
-                ka_id = step.get('ka_id')
-                params = step.get('params', {})
-                
-                if not ka_id:
-                    raise ValueError(f"Pipeline step {i+1} missing required 'ka_id'")
-                
-                # Execute the algorithm
-                execution_result = self.execute_algorithm(
-                    ka_id=ka_id,
-                    params=params,
-                    session_id=session_id
+            canonical_id = self.controller.manifest.resolve_id(ka_id)
+        except KeyError:
+            return None
+        return dict(self.ka_registry[canonical_id])
+
+    def list_algorithms(self) -> list[dict[str, Any]]:
+        return [dict(self.ka_registry[key]) for key in sorted(self.ka_registry)]
+
+    def execute_algorithm(
+        self,
+        ka_id: str,
+        params: dict[str, Any] | None = None,
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
+        execution_id = (
+            f"EXEC_{normalize_ka_id(ka_id)}_{str(uuid.uuid4())[:8]}_"
+            f"{int(datetime.now(UTC).timestamp())}"
+        )
+        started_at = datetime.now(UTC)
+        payload = dict(params or {})
+        production_workflow = bool(payload.pop("_production_workflow", False))
+        canonical = self.controller.execute_legacy(
+            ka_id,
+            payload,
+            production_workflow=production_workflow,
+        )
+        completed_at = datetime.now(UTC)
+        success = bool(canonical.get("success"))
+        record = {
+            "execution_id": execution_id,
+            "ka_id": canonical.get("ka_id", normalize_ka_id(ka_id)),
+            "session_id": session_id,
+            "params": payload,
+            "status": "completed" if success else "failed",
+            "start_time": started_at.isoformat(),
+            "end_time": completed_at.isoformat(),
+            "duration_ms": canonical.get(
+                "execution_time_ms",
+                (completed_at - started_at).total_seconds() * 1000,
+            ),
+            "results": canonical.get("output", {}),
+            "error": canonical.get("error"),
+            "error_code": canonical.get("error_code"),
+            "trace_id": canonical.get("trace_id"),
+            "canonical_result": canonical.get("canonical_result"),
+        }
+        self.execution_history.append(record)
+        self.stats["total_executions"] += 1
+        self.stats[
+            "successful_executions" if success else "failed_executions"
+        ] += 1
+        return record
+
+    def execute_pipeline(
+        self,
+        pipeline: list[dict[str, Any]],
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
+        pipeline_id = (
+            f"PIPE_{str(uuid.uuid4())[:8]}_{int(datetime.now(UTC).timestamp())}"
+        )
+        started_at = datetime.now(UTC)
+        result = {
+            "pipeline_id": pipeline_id,
+            "session_id": session_id,
+            "start_time": started_at.isoformat(),
+            "end_time": None,
+            "duration_ms": None,
+            "steps": [],
+            "overall_status": "started",
+            "error": None,
+        }
+        for index, step in enumerate(pipeline):
+            ka_id = step.get("ka_id")
+            if not ka_id:
+                result["overall_status"] = "failed"
+                result["error"] = (
+                    f"Pipeline step {index + 1} missing required 'ka_id'"
                 )
-                
-                # Add to pipeline steps
-                pipeline_results['steps'].append(execution_result)
-                
-                # If step failed and not configured to continue on failure, stop pipeline
-                if execution_result['status'] == 'failed' and not step.get('continue_on_failure', False):
-                    pipeline_results['overall_status'] = 'failed'
-                    pipeline_results['error'] = f"Pipeline failed at step {i+1}: {execution_result['error']}"
-                    break
-            
-            # If we completed all steps and haven't already marked as failed
-            if pipeline_results['overall_status'] != 'failed':
-                pipeline_results['overall_status'] = 'completed'
-            
-        except Exception as e:
-            pipeline_results['overall_status'] = 'failed'
-            pipeline_results['error'] = str(e)
-            logging.error(f"[{datetime.now()}] Error executing pipeline: {str(e)}")
-        
-        # Record end time and duration
-        end_time = datetime.now()
-        duration = (end_time - start_time).total_seconds() * 1000
-        
-        pipeline_results['end_time'] = end_time.isoformat()
-        pipeline_results['duration_ms'] = duration
-        
-        return pipeline_results
-    
-    def get_execution_history(self, ka_id: Optional[str] = None, 
-                           session_id: Optional[str] = None,
-                           limit: int = 100, offset: int = 0) -> List[Dict]:
-        """
-        Get execution history for Knowledge Algorithms.
-        
-        Args:
-            ka_id: Optional Algorithm ID to filter by
-            session_id: Optional session ID to filter by
-            limit: Maximum number of records to return
-            offset: Offset for pagination
-            
-        Returns:
-            list: List of execution records
-        """
-        # If connected to database, query from there
-        if hasattr(self, 'db_manager') and self.db_manager:
-            filters = {}
-            if ka_id:
-                filters['ka_id'] = ka_id
-            if session_id:
-                filters['session_id'] = session_id
-            
-            return self.db_manager.get_ka_executions(filters, limit, offset)
-        
-        # Otherwise, use in-memory history
-        filtered = self.execution_history
-        
+                break
+            execution = self.execute_algorithm(
+                ka_id,
+                step.get("params", {}),
+                session_id,
+            )
+            result["steps"].append(execution)
+            if (
+                execution["status"] == "failed"
+                and not step.get("continue_on_failure", False)
+            ):
+                result["overall_status"] = "failed"
+                result["error"] = (
+                    f"Pipeline failed at step {index + 1}: "
+                    f"{execution.get('error')}"
+                )
+                break
+        if result["overall_status"] != "failed":
+            result["overall_status"] = "completed"
+        completed_at = datetime.now(UTC)
+        result["end_time"] = completed_at.isoformat()
+        result["duration_ms"] = (
+            completed_at - started_at
+        ).total_seconds() * 1000
+        return result
+
+    def get_execution_history(
+        self,
+        ka_id: str | None = None,
+        session_id: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        rows = self.execution_history
         if ka_id:
-            filtered = [r for r in filtered if r.get('ka_id') == ka_id]
-        
+            normalized = normalize_ka_id(ka_id)
+            rows = [row for row in rows if row.get("ka_id") == normalized]
         if session_id:
-            filtered = [r for r in filtered if r.get('session_id') == session_id]
-        
-        # Apply pagination
-        paginated = filtered[offset:offset+limit]
-        
-        return paginated
-    
+            rows = [
+                row for row in rows if row.get("session_id") == session_id
+            ]
+        return [dict(row) for row in rows[offset : offset + limit]]
+
     def clear_execution_history(self) -> bool:
-        """
-        Clear execution history.
-        
-        Returns:
-            bool: True if successful
-        """
         self.execution_history = []
         return True
-    
-    def get_algorithm_stats(self, ka_id: Optional[str] = None) -> Dict:
-        """
-        Get execution statistics for Knowledge Algorithms.
-        
-        Args:
-            ka_id: Optional Algorithm ID to filter by
-            
-        Returns:
-            dict: Statistics dictionary
-        """
+
+    def get_algorithm_stats(
+        self, ka_id: str | None = None
+    ) -> dict[str, Any]:
         if not ka_id:
-            return self.stats
-        
-        # Calculate stats for a specific KA
-        executions = [r for r in self.execution_history if r.get('ka_id') == ka_id]
-        
-        total = len(executions)
-        successful = len([r for r in executions if r.get('status') == 'completed'])
-        failed = len([r for r in executions if r.get('status') == 'failed'])
-        
-        avg_duration = 0
-        if total > 0:
-            durations = [r.get('duration_ms', 0) for r in executions]
-            avg_duration = sum(durations) / total
-        
+            return dict(self.stats)
+        normalized = normalize_ka_id(ka_id)
+        rows = [
+            row
+            for row in self.execution_history
+            if row.get("ka_id") == normalized
+        ]
+        successful = sum(row.get("status") == "completed" for row in rows)
+        failed = sum(row.get("status") == "failed" for row in rows)
+        durations = [float(row.get("duration_ms") or 0) for row in rows]
         return {
-            'ka_id': ka_id,
-            'total_executions': total,
-            'successful_executions': successful,
-            'failed_executions': failed,
-            'success_rate': (successful / total) * 100 if total > 0 else 0,
-            'avg_duration_ms': avg_duration
+            "ka_id": normalized,
+            "total_executions": len(rows),
+            "successful_executions": successful,
+            "failed_executions": failed,
+            "success_rate": (
+                (successful / len(rows)) * 100 if rows else 0
+            ),
+            "avg_duration_ms": (
+                sum(durations) / len(durations) if durations else 0
+            ),
         }

@@ -1,95 +1,197 @@
+"""API-backed Knowledge Algorithm client.
+
+The SDK no longer owns a private handler registry. All execution is sent to the
+installed DataLogicEngine service, which applies the canonical manifest,
+authorization, policy, trace, and effect contracts.
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional
 import time
+from dataclasses import dataclass, field
+from typing import Any, Protocol
+
+
+class KAAPITransport(Protocol):
+    def get(
+        self, path: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]: ...
+
+    def post(
+        self, path: str, json: dict[str, Any] | None = None
+    ) -> dict[str, Any]: ...
+
+
+class AsyncKAAPITransport(Protocol):
+    async def get(
+        self, path: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]: ...
+
+    async def post(
+        self, path: str, json: dict[str, Any] | None = None
+    ) -> dict[str, Any]: ...
 
 
 @dataclass
 class KAExecutionContext:
-    """Runtime context passed to KA handlers."""
-    ka_id: str
-    input: Dict[str, Any]
-    meta: Dict[str, Any] = field(default_factory=dict)
+    """Compatibility request model sent to the canonical service."""
 
-    # Backward-compatible alias
+    ka_id: str
+    input: dict[str, Any]
+    meta: dict[str, Any] = field(default_factory=dict)
+
     @property
-    def inputs(self) -> Dict[str, Any]:
+    def inputs(self) -> dict[str, Any]:
         return self.input
+
 
 @dataclass
 class KAExecutionResult:
-    """Standardized execution result (backward compatible)."""
-    ok: bool
-    output: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
-    duration_ms: int = 0
-    ka_id: Optional[str] = None
+    """Normalized SDK view of a canonical service execution."""
 
-    # Backward-compatible alias
+    ok: bool
+    output: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    error_code: str | None = None
+    duration_ms: int = 0
+    ka_id: str | None = None
+    trace_id: str | None = None
+    canonical_result: dict[str, Any] | None = None
+
     @property
-    def outputs(self) -> Dict[str, Any]:
+    def outputs(self) -> dict[str, Any]:
         return self.output
 
-KAHandler = Callable[[KAExecutionContext], KAExecutionResult]
 
 class KAExecutor:
-    """Executes KAs by ID using a live handler map."""
+    """Compatibility name for the authenticated KA API client."""
 
-    def __init__(self, registry_path: Optional[str] = None, registry: Any = None):
-        self.handlers: Dict[str, KAHandler] = {}
-        self.registry_path = registry_path
-        self.registry = registry
+    def __init__(
+        self,
+        client: KAAPITransport | None = None,
+        *,
+        registry_path: str | None = None,
+        registry: Any = None,
+    ):
+        if registry_path is not None or registry is not None:
+            raise TypeError(
+                "Client-side KA registries were removed; use the generated "
+                "manifest and installed DataLogicEngine service"
+            )
+        if client is None:
+            raise TypeError(
+                "KAExecutor requires an authenticated UKGClient transport"
+            )
+        self.client = client
 
-    def register(self, ka_id: str, handler: KAHandler):
-        self.handlers[ka_id] = handler
+    def register(self, ka_id: str, handler: Any) -> None:
+        del ka_id, handler
+        raise TypeError(
+            "Client-side KA handlers are not a production execution surface"
+        )
 
-    def execute(self, ka_id: str, inputs: Optional[Dict[str, Any]] = None, meta: Optional[Dict[str, Any]] = None, **kwargs) -> KAExecutionResult:
-        """
-        Execute a Knowledge Agent by ID.
-        Supports both 'inputs' (plural) and 'input' (singular) for backward compatibility with overlay.py.
-        All extra keyword arguments are merged into 'meta'.
-        """
-        start = time.time()
-        
-        # Handle input name variation
-        actual_input = inputs or kwargs.pop("input", {})
-        
-        # Merge extra kwargs into meta
-        actual_meta = meta or {}
-        if kwargs:
-            actual_meta.update(kwargs)
-            
-        ctx = KAExecutionContext(ka_id=ka_id, input=actual_input, meta=actual_meta)
-        handler = self.handlers.get(ka_id)
-        if handler is None:
-            dur = int((time.time() - start) * 1000)
-            return KAExecutionResult(ok=False, output={}, error=f"No handler registered for {ka_id}", duration_ms=dur, ka_id=ka_id)
-        try:
-            res = handler(ctx)
-            dur = int((time.time() - start) * 1000)
-            if isinstance(res, KAExecutionResult):
-                res.duration_ms = dur
-                res.ka_id = res.ka_id or ka_id
-                return res
-            # if handler returned dict
-            return KAExecutionResult(ok=True, output=dict(res or {}), duration_ms=dur, ka_id=ka_id)
-        except Exception as e:
-            dur = int((time.time() - start) * 1000)
-            return KAExecutionResult(ok=False, output={}, error=str(e), duration_ms=dur, ka_id=ka_id)
+    def list(self, **params: Any) -> dict[str, Any]:
+        return self.client.get("ka/algorithms", params=params or None)
 
-    def run_all(self, inputs: Dict[str, Any], tier: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Run all registered KAs (optionally filtering by tier if logic permits).
-        Returns a dict of {ka_id: output_dict}.
-        """
-        results = {}
-        # Simple iteration over all registered handlers
-        # In a real system, we would filter based on 'tier' vs KA metadata (layers, etc.)
-        for ka_id in self.handlers:
-            res = self.execute(ka_id, input=inputs)
-            if res.ok:
-                results[ka_id] = res.output
-            else:
-                results[ka_id] = {"error": res.error}
-        return results
+    def get(self, ka_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/algorithms/{ka_id}")
+
+    def execute(
+        self,
+        ka_id: str,
+        inputs: dict[str, Any] | None = None,
+        meta: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> KAExecutionResult:
+        started = time.perf_counter()
+        actual_input = dict(inputs or kwargs.pop("input", {}) or {})
+        metadata = dict(meta or {})
+        metadata.update(kwargs)
+        request: dict[str, Any] = {"input": actual_input}
+        if metadata:
+            request["context"] = metadata
+        payload = self.client.post(
+            f"ka/algorithms/{ka_id}/execute",
+            json=request,
+        )
+        duration_ms = int((time.perf_counter() - started) * 1000)
+        return _normalize_result(payload, ka_id=ka_id, duration_ms=duration_ms)
+
+    def run_all(self, inputs: dict[str, Any], tier: str | None = None) -> dict[str, Any]:
+        del inputs, tier
+        raise TypeError(
+            "Run-all is forbidden; the server selects an applicable bounded KA DAG"
+        )
+
+
+class AsyncKAExecutor:
+    """Asynchronous authenticated client for the canonical KA service."""
+
+    def __init__(self, client: AsyncKAAPITransport | None = None):
+        if client is None:
+            raise TypeError(
+                "AsyncKAExecutor requires an authenticated UKGAsyncClient transport"
+            )
+        self.client = client
+
+    async def list(self, **params: Any) -> dict[str, Any]:
+        return await self.client.get("ka/algorithms", params=params or None)
+
+    async def get(self, ka_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/algorithms/{ka_id}")
+
+    async def execute(
+        self,
+        ka_id: str,
+        inputs: dict[str, Any] | None = None,
+        meta: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> KAExecutionResult:
+        started = time.perf_counter()
+        actual_input = dict(inputs or kwargs.pop("input", {}) or {})
+        metadata = dict(meta or {})
+        metadata.update(kwargs)
+        request: dict[str, Any] = {"input": actual_input}
+        if metadata:
+            request["context"] = metadata
+        payload = await self.client.post(
+            f"ka/algorithms/{ka_id}/execute",
+            json=request,
+        )
+        duration_ms = int((time.perf_counter() - started) * 1000)
+        return _normalize_result(payload, ka_id=ka_id, duration_ms=duration_ms)
+
+    async def run_all(
+        self, inputs: dict[str, Any], tier: str | None = None
+    ) -> dict[str, Any]:
+        del inputs, tier
+        raise TypeError(
+            "Run-all is forbidden; the server selects an applicable bounded KA DAG"
+        )
+
+
+def _normalize_result(
+    payload: dict[str, Any],
+    *,
+    ka_id: str,
+    duration_ms: int,
+) -> KAExecutionResult:
+    result = payload.get("result")
+    if not isinstance(result, dict):
+        result = {}
+    canonical = result.get("canonical_result")
+    if not isinstance(canonical, dict):
+        canonical = payload.get("canonical_result")
+    output = result.get("output", {})
+    if not isinstance(output, dict):
+        output = {}
+    return KAExecutionResult(
+        ok=bool(payload.get("success")),
+        output=output,
+        error=payload.get("error") or result.get("error"),
+        error_code=payload.get("code") or result.get("error_code"),
+        duration_ms=int(result.get("execution_time_ms", duration_ms)),
+        ka_id=result.get("algorithm_id", ka_id),
+        trace_id=result.get("trace_id"),
+        canonical_result=canonical if isinstance(canonical, dict) else None,
+    )

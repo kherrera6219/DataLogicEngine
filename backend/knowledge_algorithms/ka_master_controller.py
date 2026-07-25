@@ -5,19 +5,18 @@ providing a unified interface for complex query resolution and system self-manag
 """
 import logging
 import os
-import importlib
-import ast
-import json
 import time
 import uuid
-import yaml
-from datetime import datetime, UTC
-from typing import Dict, Any
-from pydantic import BaseModel
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from celery import Celery
+from datetime import UTC, datetime
+from typing import Any
 
-from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+from celery import Celery
+from pydantic import BaseModel
+
+from backend.knowledge_algorithms.controller import get_ka_controller
+from backend.knowledge_algorithms.manifest import KADefinition, normalize_ka_id
+from core.knowledge_algorithm.exceptions import KAConfigError, KAError
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
@@ -28,132 +27,104 @@ class KAMasterController(KnowledgeAlgorithm):
     """
     KA-Master: The supreme orchestrator and system state machine.
     """
-    def __init__(self, context: Dict[str, Any] = None):
+    def __init__(self, context: dict[str, Any] | None = None):
         super().__init__(context or {}, None, None, None)
         self.ka_id = "KA-Master"
         self.llm_gateway = (context or {}).get("llm_gateway") if isinstance(context, dict) else None
-        self._registry_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
+        self._canonical_controller = get_ka_controller()
         self.algorithms = self._load_registry()
 
-    def _load_registry(self) -> Dict[str, Any]:
-        """Load executable KAs and merge catalog metadata for UI/API descriptions."""
+    def _load_registry(self) -> dict[str, Any]:
+        """Expose a compatibility view generated from the canonical manifest."""
         try:
-            if os.path.exists(self._registry_path):
-                with open(self._registry_path, "r", encoding="utf-8") as f:
-                    data = yaml.safe_load(f) or {}
-                    reg = data.get("ka_registry", {})
-                    catalog = self._load_catalog_metadata()
-                    from backend.knowledge_algorithms.production_catalog import (
-                        load_production_catalog,
-                        validate_production_catalog,
-                    )
-
-                    production = load_production_catalog(self._registry_path)
-                    errors = validate_production_catalog(production)
-                    if errors:
-                        raise KAConfigError("Invalid KA production catalog: " + "; ".join(errors))
-                    output = {}
-                    for ka_id, implementation in reg.items():
-                        metadata = self._build_algorithm_metadata(ka_id, implementation, catalog)
-                        metadata.update(production[ka_id].to_dict())
-                        output[ka_id] = {"id": ka_id, "metadata": metadata}
-                    return output
-            return {}
-        except Exception as e:
-            raise KAConfigError(f"Failed to load KA registry: {str(e)}")
-
-    def _load_catalog_metadata(self) -> Dict[str, Dict[str, Any]]:
-        """Load descriptive KA metadata from the canonical catalog when available."""
-        catalog_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "core", "data", "ka_registry.json")
-        )
-        if not os.path.exists(catalog_path):
-            return {}
-
-        with open(catalog_path, "r", encoding="utf-8") as f:
-            rows = json.load(f)
-
-        catalog: Dict[str, Dict[str, Any]] = {}
-        for row in rows if isinstance(rows, list) else []:
-            if not isinstance(row, dict):
-                continue
-            ka_id = row.get("KA_ID") or row.get("id")
-            if not ka_id:
-                continue
-            catalog[str(ka_id).upper()] = dict(row)
-        return catalog
-
-    def _build_algorithm_metadata(
-        self,
-        ka_id: str,
-        implementation_path: str,
-        catalog: Dict[str, Dict[str, Any]],
-    ) -> Dict[str, Any]:
-        metadata = dict(catalog.get(str(ka_id).upper(), {}))
-        metadata.setdefault("KA_ID", ka_id)
-        metadata.setdefault("KA_Name", self._humanize_ka_id(ka_id))
-        metadata.setdefault("Status", "Active")
-        metadata["Implementation"] = implementation_path
-
-        if not metadata.get("Purpose"):
-            purpose = self._implementation_docstring_summary(implementation_path, ka_id)
-            if purpose:
-                metadata["Purpose"] = purpose
-
-        return metadata
-
-    def _implementation_docstring_summary(self, implementation_path: str, ka_id: str) -> str | None:
-        module_path = implementation_path.rsplit(".", 1)[0]
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        source_path = os.path.join(root_dir, *module_path.split(".")) + ".py"
-        if not os.path.exists(source_path):
-            return None
-
-        try:
-            with open(source_path, "r", encoding="utf-8") as f:
-                module = ast.parse(f.read())
-            docstring = ast.get_docstring(module)
-        except Exception:
-            return None
-
-        if not docstring:
-            return None
-
-        first_line = docstring.strip().splitlines()[0].strip()
-        prefix = f"{ka_id}:"
-        if first_line.upper().startswith(prefix.upper()):
-            first_line = first_line[len(prefix):].strip()
-        return first_line[:1].upper() + first_line[1:] if first_line else None
+            return {
+                definition.canonical_id: {
+                    "id": definition.canonical_id,
+                    "metadata": self._compatibility_metadata(definition),
+                }
+                for definition in self._canonical_controller.list_definitions()
+            }
+        except Exception as e:  # noqa: BLE001 - configuration boundary
+            raise KAConfigError(f"Failed to load KA manifest: {e!s}")
 
     @staticmethod
-    def _humanize_ka_id(ka_id: str) -> str:
-        if not isinstance(ka_id, str):
-            return str(ka_id)
-        if ka_id.upper().startswith("L10-KA-"):
-            return f"Layer 10 KA {ka_id.rsplit('-', 1)[-1]}"
-        if ka_id.upper() == "KA-MASTER":
-            return "KA Master Controller"
-        return ka_id
+    def _compatibility_metadata(definition: KADefinition) -> dict[str, Any]:
+        entrypoint = definition.implementation.entrypoint
+        implementation = (
+            f"{entrypoint.module}.{entrypoint.callable}"
+            if entrypoint and entrypoint.adapter == "module_run"
+            else definition.implementation.source
+        )
+        trigger_set = set(definition.contract.triggers)
+        return {
+            "KA_ID": definition.canonical_id,
+            "KA_Name": definition.name,
+            "Purpose": definition.purpose,
+            "Category": (
+                definition.contract.categories[0]
+                if definition.contract.categories
+                else None
+            ),
+            "Primary_Layers": ",".join(definition.contract.layers),
+            "Allowed_Layers": ",".join(definition.contract.layers),
+            "Inputs": "; ".join(definition.contract.inputs),
+            "Outputs": "; ".join(definition.contract.outputs),
+            "Reads_Memory": "Yes" if definition.contract.reads_memory else "No",
+            "Writes_Memory": "Yes" if definition.contract.writes_memory else "No",
+            "Can_Invoke_Chaos": (
+                "Yes" if "may_invoke_chaos" in trigger_set else "No"
+            ),
+            "Can_Invoke_External_Research": (
+                "Yes"
+                if "may_invoke_external_research" in trigger_set
+                else "No"
+            ),
+            "Can_Trigger_Recursion": (
+                "Yes" if "may_trigger_recursion" in trigger_set else "No"
+            ),
+            "Can_Veto": "Yes" if "may_veto" in trigger_set else "No",
+            "Risk_Class": (
+                definition.contract.risk_classes[0]
+                if definition.contract.risk_classes
+                else None
+            ),
+            "Dependencies": ",".join(definition.contract.dependencies),
+            "Produces_Artifacts": (
+                "Yes" if definition.contract.produces_artifacts else "No"
+            ),
+            "Audit_Events": "Yes" if definition.contract.audit_events else "No",
+            "Version": definition.version,
+            "Owner": (
+                definition.contract.subsystems[0]
+                if definition.contract.subsystems
+                else "DataLogicEngine"
+            ),
+            "Status": (
+                "Active"
+                if definition.implementation.entrypoint
+                else "Implementation Required"
+            ),
+            "Implementation": implementation,
+            "classification": definition.admission.classification,
+            "production_enabled": definition.admission.production_enabled,
+            "deterministic": definition.admission.deterministic,
+            "guarantee": definition.contract.guarantee,
+            "limitations": definition.contract.limitations,
+            "performance_budget_ms": definition.contract.performance_budget_ms,
+            "manifest_version": definition.contract.version,
+            "effect_class": definition.contract.effect_class,
+        }
 
-    def get_available_algorithms(self) -> Dict[str, Any]:
+    def get_available_algorithms(self) -> dict[str, Any]:
         return self.algorithms
 
     def _normalize_ka_id(self, ka_id: str) -> str:
-        if not isinstance(ka_id, str):
-            ka_id = str(ka_id)
-        clean_id = ka_id.upper().strip()
-        if clean_id.startswith("KA-"):
-            if len(clean_id) == 6:
-                return clean_id
-            num_part = clean_id.replace("KA-", "").lstrip("0") or "0"
-        else:
-            num_part = clean_id.lstrip("0") or "0"
         try:
-            return f"KA-{int(num_part):03d}"
-        except ValueError:
-            return clean_id
+            return self._canonical_controller.manifest.resolve_id(str(ka_id))
+        except KeyError:
+            return normalize_ka_id(str(ka_id))
 
-    def execute_algorithm(self, ka_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute_algorithm(self, ka_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Dynamically imports and executes a specific Knowledge Algorithm with error propagation."""
         norm_id = self._normalize_ka_id(ka_id)
         is_async = input_data.get("async", False)
@@ -174,14 +145,14 @@ class KAMasterController(KnowledgeAlgorithm):
             task = run_ka_task.delay(norm_id, input_data)
             return {"success": True, "ka_id": norm_id, "mode": "async", "task_id": task.id, "status": "PENDING"}
 
-        impl_path = self.algorithms[norm_id]["metadata"]["Implementation"]
         started_at = datetime.now(UTC)
         start_time = time.perf_counter()
         try:
-            module_path, function_name = impl_path.rsplit(".", 1)
-            module = importlib.import_module(module_path)
-            run_func = getattr(module, function_name)
-            result = run_func(input_data)
+            result = self._canonical_controller.execute_legacy(
+                norm_id,
+                input_data,
+                production_workflow=bool(input_data.get("_production_workflow")),
+            )
             self._record_ka_execution(
                 norm_id,
                 input_data,
@@ -191,7 +162,7 @@ class KAMasterController(KnowledgeAlgorithm):
                 completed_at=datetime.now(UTC),
             )
             return result
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - compatibility execution boundary
             self._record_ka_execution(
                 norm_id,
                 input_data,
@@ -206,8 +177,8 @@ class KAMasterController(KnowledgeAlgorithm):
     def _record_ka_execution(
         self,
         ka_id: str,
-        input_data: Dict[str, Any],
-        output_data: Dict[str, Any] | None = None,
+        input_data: dict[str, Any],
+        output_data: dict[str, Any] | None = None,
         error: Exception | None = None,
         elapsed_ms: float = 0.0,
         started_at: datetime | None = None,
@@ -229,18 +200,22 @@ class KAMasterController(KnowledgeAlgorithm):
                 input_data=self._json_safe(input_data),
                 output_data=self._json_safe(output_data) if output_data is not None else None,
                 error_message=str(error) if error else None,
-                execution_time_ms=max(0, int(round(elapsed_ms))),
+                execution_time_ms=max(0, round(elapsed_ms)),
                 tenant_id=(input_data or {}).get("tenant_id"),
                 started_at=started_at or datetime.now(UTC),
                 completed_at=completed_at or datetime.now(UTC),
             )
             session.add(execution)
             session.commit()
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - optional persistence boundary
             try:
                 session.rollback()
-            except Exception:
-                pass
+            except Exception as rollback_exc:  # noqa: BLE001
+                logger.debug(
+                    "KAExecution rollback skipped for %s: %s",
+                    ka_id,
+                    rollback_exc,
+                )
             logger.debug(f"KAExecution timing persistence skipped for {ka_id}: {exc}")
 
     def _ensure_ka_catalog_entry(self, session, ka_id: str) -> None:
@@ -257,7 +232,7 @@ class KAMasterController(KnowledgeAlgorithm):
                 name=ka_id,
                 description="Auto-registered by KA execution telemetry.",
             ))
-        except Exception:
+        except Exception:  # noqa: BLE001 - optional catalog persistence
             return
 
     @staticmethod
@@ -278,10 +253,10 @@ class KAMasterController(KnowledgeAlgorithm):
             from extensions import db
 
             return db.session
-        except Exception:
+        except Exception:  # noqa: BLE001 - optional Flask database binding
             return None
 
-    def _run_logic(self, input_data: BaseModel) -> Dict[str, Any]:
+    def _run_logic(self, input_data: BaseModel) -> dict[str, Any]:
         """High-level query orchestration."""
         data = input_data.data if hasattr(input_data, "data") else {}
         query = data.get("query", "status_check")
@@ -297,7 +272,7 @@ class KAMasterController(KnowledgeAlgorithm):
                         "result": self._json_safe(result),
                     }
                 )
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - per-step failure isolation
                 step_results.append(
                     {
                         "ka_id": ka_id,
@@ -318,11 +293,11 @@ class KAMasterController(KnowledgeAlgorithm):
             "final_conclusion": self._summarize_flow(query, successful, failed),
         }
 
-    def _select_flow(self, query: str, data: Dict[str, Any]) -> list[tuple[str, Dict[str, Any]]]:
+    def _select_flow(self, query: str, data: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         """Choose a bounded local KA chain for the current request."""
         query_text = str(query or "")
         lower = query_text.lower()
-        flow: list[tuple[str, Dict[str, Any]]] = [
+        flow: list[tuple[str, dict[str, Any]]] = [
             ("KA-004", {"query": query_text}),
             ("KA-005", {"query": query_text}),
         ]
@@ -543,14 +518,14 @@ class KAMasterController(KnowledgeAlgorithm):
         return [(ka_id, payload) for ka_id, payload in flow if ka_id in self.algorithms]
 
     @staticmethod
-    def _summarize_flow(query: str, successful: list[Dict[str, Any]], failed: list[Dict[str, Any]]) -> str:
+    def _summarize_flow(query: str, successful: list[dict[str, Any]], failed: list[dict[str, Any]]) -> str:
         if not successful:
             return f"Could not resolve query '{query}' because all selected KAs failed."
         if failed:
             return f"Resolved query '{query}' with {len(successful)} KA step(s); {len(failed)} step(s) degraded."
         return f"Resolved query '{query}' via {len(successful)} selected KA step(s)."
 
-    def _fallback_logic(self, input_data: BaseModel, error: Exception) -> Dict[str, Any]:
+    def _fallback_logic(self, input_data: BaseModel, error: Exception) -> dict[str, Any]:
         """Master-level fallback for orchestration failures."""
         return {
             "success": False,
@@ -561,7 +536,7 @@ class KAMasterController(KnowledgeAlgorithm):
         }
 
 @celery_app.task(name="ka_engine.run_ka_task")
-def run_ka_task(ka_id: str, input_data: Dict[str, Any]):
+def run_ka_task(ka_id: str, input_data: dict[str, Any]):
     """Background task for long-running KAs."""
     from backend.knowledge_algorithms.ka_master_controller import get_controller
     master = get_controller()
@@ -575,7 +550,7 @@ def get_controller() -> KAMasterController:
         _controller_instance = KAMasterController({})
     return _controller_instance
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+def run(context: dict[str, Any]) -> dict[str, Any]:
     # Redundant wrapper kept for compatibility, base class .run() handles internal logic
     algo = get_controller()
     return algo.run(context)

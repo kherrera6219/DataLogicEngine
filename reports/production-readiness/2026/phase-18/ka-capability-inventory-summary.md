@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Schema | `dle.ka-capability-inventory.v1` |
-| Source-input SHA-256 | `3d43643e0e6a57f9dc864d20e4af495a570184b5024c92dd959c67dee0373dd6` |
+| Source-input SHA-256 | `ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4` |
 | Status | `cp18_a_inventory_verified` |
 
 ## Counts
@@ -31,7 +31,7 @@
 | Exact canonical purpose/input/output contract collisions | 0 |
 | Classified implementation surfaces | 132 |
 | Unclassified implementation surfaces | 0 |
-| Classified integration/API/SDK/UI surfaces | 132 |
+| Classified integration/API/SDK/UI surfaces | 134 |
 | Unclassified integration/API/SDK/UI surfaces | 0 |
 | Canonical capabilities with literal runtime execution call sites | 42 |
 | Canonical capabilities with any test reference | 92 |

@@ -57,7 +57,7 @@ acceptance. This report is not a production approval.
 |---|---|---|
 | Runtime/trust/readiness | Factory isolation, phased startup, truthful capabilities, supervisor/lock tests | Signed collision/lifecycle/Windows protection matrix |
 | Data/migration/recovery | Five-service and populated migration/backup/restore/deletion drills | Exact installed delivery, 0.1.1 upgrade, clean restore/remnant/independent review |
-| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, Phase 6 safety classifications, and CP18-A 213-capability no-duplicate authority pass; Phase 18 implementation remains open | CP18-B-G contract/implementation/wiring/individual-test evidence, then CP18-H installed provider traces, per-KA sample/performance/effects, corpus rows, and blinded human acceptance |
+| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, Phase 6 safety classifications, CP18-A 213-capability no-duplicate authority, and CP18-B single runtime/controller pass; production implementation remains open | CP18-C-G implementation/wiring/individual-test evidence, then CP18-H installed provider traces, per-KA sample/performance/effects, corpus rows, and blinded human acceptance |
 | Providers/privacy/offline | OpenAI/Google adapters, budgets, deadlines, ledger, replay contracts | Live installed provider failure/cancel/spend/privacy matrix |
 | Gateway/SDK | Native, SSE, async/cancel, scopes, SDK/compatibility tests | Signed same-host/private TLS/firewall/two-machine/load/soak |
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
@@ -97,7 +97,7 @@ passes.
 | 15 | Release-candidate engineering checkpoint; CP15-A through CP15-H retained |
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
-| 18 | CP18-A Knowledge Algorithm authority/crosswalk passed 2026-07-25; CP18-B active, CP18-C through CP18-H open, and signed rebuild paused |
+| 18 | CP18-A authority/crosswalk and CP18-B single runtime/controller passed 2026-07-25; CP18-C active, CP18-D through CP18-H open, and signed rebuild paused |
 
 ## Phase 18 KA verification method
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "3d43643e0e6a57f9dc864d20e4af495a570184b5024c92dd959c67dee0373dd6",
+  "source_input_sha256": "ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -41,7 +41,7 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 132,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 132,
+    "integration_surfaces": 134,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
     "canonical_with_test_reference": 92,
@@ -50,7 +50,7 @@
   "canonical_capabilities": [
     {
       "canonical_id": "KA-001",
-      "name": "Algorithm Of Thought",
+      "name": "Algorithm of Thought",
       "purpose": "Decompose query into ordered tasks and dependencies",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_01_algorithm_of_thought.py",
@@ -200,9 +200,8 @@
         "core/simulation/layer1_entry.py",
         "core/simulation/refinement_workflow.py",
         "core/simulation/simulation_engine.py",
+        "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py",
         "sdk/UKG_Python_SDK/tests/test_workflow.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py",
         "sdk/UKG_Python_SDK/ukg_sdk/ka/models.py",
         "sdk/UKG_Python_SDK/ukg_sdk/ka/registry.py"
       ],
@@ -215,6 +214,8 @@
         "tests/knowledge_algorithms/test_ka_master_controller.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_ka_suite.py",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/knowledge_algorithms/test_registry_governance.py",
         "tests/test_production_fidelity.py",
@@ -243,6 +244,8 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_reads_only_the_canonical_manifest",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer",
@@ -271,7 +274,7 @@
     },
     {
       "canonical_id": "KA-002",
-      "name": "Tree Of Thought",
+      "name": "Tree of Thought",
       "purpose": "Generate and score parallel reasoning branches",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_02_tree_of_thought.py",
@@ -431,10 +434,12 @@
         "core/simulation/refinement_workflow.py:137"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase_e_depth.py",
         "tests/truth_engine/test_layer7_agi.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_blocks_unqualified_production_execution",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka002_returns_three_deterministic_sub_goals",
         "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_falls_back_to_ka040",
         "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_uses_ka002_when_available",
@@ -625,7 +630,7 @@
     },
     {
       "canonical_id": "KA-004",
-      "name": "Input Validation Normalization",
+      "name": "Input Validation & Normalization",
       "purpose": "Sanitize, normalize, and validate query and metadata",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_04_input_validation__normalization.py",
@@ -766,7 +771,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_delegate_to_sdk",
           "_load_config",
           "_perform_local_normalization",
           "_perform_local_validation",
@@ -777,7 +781,7 @@
           "KA004Input",
           "KA004InputValidation"
         ],
-        "nonblank_noncomment_loc": 99,
+        "nonblank_noncomment_loc": 83,
         "signals": [],
         "imports_celery": false
       },
@@ -787,22 +791,30 @@
         "backend/knowledge_algorithms/production_catalog.py",
         "core/simulation/layer2_knowledge.py",
         "core/simulation/refinement_workflow.py",
-        "sdk/UKG_Python_SDK/tests/test_workflow.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+        "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py",
+        "sdk/UKG_Python_SDK/tests/test_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:157"
+        "core/simulation/refinement_workflow.py:157",
+        "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:37",
+        "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:86"
       ],
       "test_references": [
         "tests/integration/test_gateway_api_coverage.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_production_invariants.py"
       ],
       "named_test_functions": [
         "tests/integration/test_gateway_api_coverage.py::test_api_key_auth_header",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_executes_through_canonical_controller",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_legacy_loader_accepts_numeric_ids_without_private_scanning",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_existing_module_through_typed_contract",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_honors_cancellation_and_deadline"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-004",
@@ -953,7 +965,7 @@
           "KA005Input",
           "KA005QueryClassification"
         ],
-        "nonblank_noncomment_loc": 83,
+        "nonblank_noncomment_loc": 82,
         "signals": [],
         "imports_celery": false
       },
@@ -964,9 +976,7 @@
         "backend/truth_engine/truth_core/engine.py",
         "core/simulation/layer2_knowledge.py",
         "core/simulation/refinement_workflow.py",
-        "sdk/UKG_Python_SDK/tests/test_workflow.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+        "sdk/UKG_Python_SDK/tests/test_workflow.py"
       ],
       "execution_call_sites": [
         "core/simulation/refinement_workflow.py:149"
@@ -974,6 +984,7 @@
       "test_references": [
         "tests/knowledge_algorithms/test_ka_05_suggested_tier.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
         "tests/test_production_fidelity.py",
         "tests/truth_engine/test_truth_engine_coverage.py",
         "tests/truth_engine/test_truth_infrastructure.py"
@@ -981,6 +992,7 @@
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
         "tests/test_production_fidelity.py::test_production_tiering_and_routing",
         "tests/truth_engine/test_truth_infrastructure.py::test_determine_tier_ai"
       ],
@@ -1355,7 +1367,7 @@
     },
     {
       "canonical_id": "KA-008",
-      "name": "Self Critique Reflection",
+      "name": "Self-Critique & Reflection",
       "purpose": "Attack draft output for flaws and assumptions",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_08_self_critique__reflection.py",
@@ -1669,7 +1681,6 @@
         "functions": [
           "__init__",
           "_calculate_local_score",
-          "_delegate_to_sdk",
           "_load_config",
           "_run_logic",
           "run"
@@ -1678,14 +1689,13 @@
           "KA009EvidenceValidation",
           "KA009Input"
         ],
-        "nonblank_noncomment_loc": 94,
+        "nonblank_noncomment_loc": 75,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
         "backend/knowledge_algorithms/production_catalog.py",
-        "core/simulation/layer3_expert.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+        "core/simulation/layer3_expert.py"
       ],
       "execution_call_sites": [],
       "test_references": [
@@ -2523,8 +2533,7 @@
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
-        "core/simulation/simulation_engine.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+        "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [
         "backend/truth_engine/truth_gate/trust_validation_gateway.py:449"
@@ -2884,7 +2893,7 @@
     },
     {
       "canonical_id": "KA-017",
-      "name": "Spatial Jurisdiction Mapping",
+      "name": "Spatial/Jurisdiction Mapping",
       "purpose": "Resolve geography/jurisdiction applicability",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_17_spatial_jurisdiction_mapping.py",
@@ -3335,8 +3344,7 @@
       },
       "runtime_references": [
         "backend/knowledge_algorithms/ka_master_controller.py",
-        "core/simulation/simulation_engine.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py"
+        "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [],
       "test_references": [],
@@ -4674,7 +4682,7 @@
     },
     {
       "canonical_id": "KA-028",
-      "name": "Point Of View Expansion",
+      "name": "Point-of-View Expansion",
       "purpose": "Add alternate viewpoints beyond base personas",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_28_point_of_view_expansion.py",
@@ -5523,7 +5531,7 @@
     },
     {
       "canonical_id": "KA-033",
-      "name": "Reserved Expansion Slot",
+      "name": "Reserved (Expansion Slot)",
       "purpose": "Reserved ID for future algorithm",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_33_reserved_expansion_slot.py",
@@ -7409,7 +7417,7 @@
     },
     {
       "canonical_id": "KA-051",
-      "name": "Self Correcting Knowledge Distillation",
+      "name": "Self-Correcting Knowledge Distillation",
       "purpose": "Distill high-confidence outcomes into reusable abstractions",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_51_self_correcting_knowledge_distillation.py",
@@ -7892,7 +7900,7 @@
     },
     {
       "canonical_id": "KA-054",
-      "name": "Cross Lingual Knowledge Fusion",
+      "name": "Cross-Lingual Knowledge Fusion",
       "purpose": "Align and merge concepts across languages",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_54_cross_lingual_knowledge_fusion.py",
@@ -8063,7 +8071,7 @@
     },
     {
       "canonical_id": "KA-055",
-      "name": "Adaptive Multi Modal Integration",
+      "name": "Adaptive Multi-Modal Integration",
       "purpose": "Resolve conflicts across modalities",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_55_adaptive_multi_modal_integration.py",
@@ -8357,8 +8365,7 @@
         "imports_celery": false
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/production_catalog.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py"
+        "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
       "test_references": [],
@@ -8382,7 +8389,7 @@
     },
     {
       "canonical_id": "KA-057",
-      "name": "Persona Emotion Adaptation",
+      "name": "Persona/Emotion Adaptation",
       "purpose": "Adapt tone/structure to stakeholder role",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_57_persona_emotion_adaptation.py",
@@ -8546,7 +8553,7 @@
     },
     {
       "canonical_id": "KA-058",
-      "name": "Interactive Clarification Learning",
+      "name": "Interactive Clarification & Learning",
       "purpose": "Decide when to ask user follow-ups",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/ka_58_interactive_clarification_learning.py",
@@ -13678,10 +13685,15 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_executes_through_canonical_controller",
+        "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_reports_missing_implementation_without_false_success"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "implementation_required"
@@ -19672,13 +19684,17 @@
           "implementation_required"
         ]
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_runtime_manifest_is_current_and_deduplicated"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "implementation_required"
@@ -21557,9 +21573,7 @@
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_core/engine.py",
-        "core/simulation/simulation_engine.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/builtins.py",
-        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+        "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [
         "backend/truth_engine/truth_core/engine.py:1022",
@@ -23811,14 +23825,11 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_build_algorithm_metadata",
+          "_compatibility_metadata",
           "_ensure_ka_catalog_entry",
           "_fallback_logic",
           "_get_db_session",
-          "_humanize_ka_id",
-          "_implementation_docstring_summary",
           "_json_safe",
-          "_load_catalog_metadata",
           "_load_registry",
           "_normalize_ka_id",
           "_record_ka_execution",
@@ -23834,12 +23845,13 @@
         "classes": [
           "KAMasterController"
         ],
-        "nonblank_noncomment_loc": 538,
+        "nonblank_noncomment_loc": 523,
         "signals": [],
         "imports_celery": true
       },
       "runtime_references": [
         "backend/knowledge_algorithms/ka_99_debugging.py",
+        "backend/knowledge_algorithms/manifest.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/personas.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
@@ -23849,6 +23861,7 @@
         "tests/knowledge_algorithms/test_ka_master_controller.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_ka_suite.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/test_production_fidelity.py",
         "tests/truth_engine/test_layer10_ka_suite.py",
@@ -23857,7 +23870,8 @@
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_suite.py::test_ka_instantiation_and_run"
+        "tests/knowledge_algorithms/test_ka_suite.py::test_ka_instantiation_and_run",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-Master",
@@ -23879,7 +23893,7 @@
     {
       "canonical_id": "L10-KA-001",
       "name": "Entropy Scorer",
-      "purpose": null,
+      "purpose": "Layer 10 Entropy Scorer",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -23903,7 +23917,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-001",
           "name": "Entropy Scorer",
-          "purpose": null,
+          "purpose": "Layer 10 Entropy Scorer",
           "disposition": "canonical",
           "canonical_id": "L10-KA-001",
           "rationale": "current_executable"
@@ -23958,7 +23972,7 @@
     {
       "canonical_id": "L10-KA-002",
       "name": "Self Awareness",
-      "purpose": null,
+      "purpose": "Layer 10 Self Awareness",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_002_self_awareness.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -23982,7 +23996,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-002",
           "name": "Self Awareness",
-          "purpose": null,
+          "purpose": "Layer 10 Self Awareness",
           "disposition": "canonical",
           "canonical_id": "L10-KA-002",
           "rationale": "current_executable"
@@ -24035,7 +24049,7 @@
     {
       "canonical_id": "L10-KA-003",
       "name": "PII Redactor",
-      "purpose": null,
+      "purpose": "Layer 10 PII Redactor",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_003_pii_redactor.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -24059,7 +24073,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-003",
           "name": "PII Redactor",
-          "purpose": null,
+          "purpose": "Layer 10 PII Redactor",
           "disposition": "canonical",
           "canonical_id": "L10-KA-003",
           "rationale": "current_executable"
@@ -24113,7 +24127,7 @@
     {
       "canonical_id": "L10-KA-004",
       "name": "Ethics Validator",
-      "purpose": null,
+      "purpose": "Layer 10 Ethics Validator",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_004_ethics_validator.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -24137,7 +24151,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-004",
           "name": "Ethics Validator",
-          "purpose": null,
+          "purpose": "Layer 10 Ethics Validator",
           "disposition": "canonical",
           "canonical_id": "L10-KA-004",
           "rationale": "current_executable"
@@ -24191,7 +24205,7 @@
     {
       "canonical_id": "L10-KA-005",
       "name": "Containment",
-      "purpose": null,
+      "purpose": "Layer 10 Containment",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -24215,7 +24229,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-005",
           "name": "Containment",
-          "purpose": null,
+          "purpose": "Layer 10 Containment",
           "disposition": "canonical",
           "canonical_id": "L10-KA-005",
           "rationale": "current_executable"
@@ -24268,7 +24282,7 @@
     {
       "canonical_id": "L10-KA-006",
       "name": "Layer-10 Belief-Decay Trust Gate",
-      "purpose": null,
+      "purpose": "Layer 10 Layer-10 Belief-Decay Trust Gate",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_006_trust_gate.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -24292,7 +24306,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-006",
           "name": "Layer-10 Belief-Decay Trust Gate",
-          "purpose": null,
+          "purpose": "Layer 10 Layer-10 Belief-Decay Trust Gate",
           "disposition": "canonical",
           "canonical_id": "L10-KA-006",
           "rationale": "current_executable"
@@ -24321,11 +24335,13 @@
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
@@ -24348,7 +24364,7 @@
     {
       "canonical_id": "L10-KA-007",
       "name": "Escalation Router",
-      "purpose": null,
+      "purpose": "Layer 10 Escalation Router",
       "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py",
       "implementation_status": "existing_requires_phase18_qualification",
@@ -24372,7 +24388,7 @@
           "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L10-KA-007",
           "name": "Escalation Router",
-          "purpose": null,
+          "purpose": "Layer 10 Escalation Router",
           "disposition": "canonical",
           "canonical_id": "L10-KA-007",
           "rationale": "current_executable"
@@ -24479,10 +24495,13 @@
         "backend/truth_engine/truth_core/meta_reasoning_controller.py:321"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_layer9_class_adapter",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_l9_kas_defined",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_trace_analyzer_ka",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
@@ -26381,8 +26400,8 @@
           "KA-002"
         ],
         "names": [
-          "Algorithm Of Thought",
-          "Tree Of Thought"
+          "Algorithm of Thought",
+          "Tree of Thought"
         ],
         "token_similarity": 0.5,
         "disposition": "reviewed_materially_distinct",

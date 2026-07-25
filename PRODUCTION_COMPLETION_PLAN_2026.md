@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.24.0 |
+| Document version | v1.25.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -219,8 +219,17 @@ duplicate to a scoped alias, reviews 11 similar-name pairs as materially
 distinct, and reports zero exact name/purpose/contract collisions and zero
 unresolved duplicate candidates. It also classifies 62 identity conflicts, 64
 generic historical scaffolds, and 132 implementation plus 132 integration,
-caller, API, SDK, and UI surfaces with zero unclassified records. CP18-B is
-active; these counts are a work authority, not a production-readiness claim.
+caller, API, SDK, and UI surfaces with zero unclassified records.
+
+CP18-B passed on 2026-07-25. One generated runtime manifest now drives a typed
+execution/effect/trace contract and `CanonicalKAController`; KA-Master no
+longer merges the conflicting metadata catalog, the core engine/loader are thin
+adapters, and Python/TypeScript SDK catalogs and clients are generated from the
+same authority. The private SDK handler runtime and backend fallback imports
+were removed. The runtime gate verifies 213 canonical capabilities, 132
+one-to-one implementation owners, 81 explicit gaps, one reviewed scoped alias,
+zero duplicate canonical collisions, and zero unclassified surfaces. CP18-C is
+active; these counts remain a work authority, not a production-readiness claim.
 
 ## 1. Purpose
 
@@ -3971,11 +3980,13 @@ artifact rather than against a known-incomplete subsystem.
   trace/replay acceptance and binds the final manifest/hash to the release
   record.
 
-**Checkpoint status 2026-07-25:** CP18-A passed. The approved authority and
-verification gate are
-`reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json` and
-`scripts/verify_ka_capability_inventory.py`. CP18-B is active. CP18-C through
-CP18-H remain open, and the signed rebuild remains blocked.
+**Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. The approved
+capability authority is
+`reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
+`scripts/verify_ka_capability_inventory.py` and
+`scripts/verify_ka_runtime_authority.py` enforce the deduplicated identity and
+single-runtime boundaries. CP18-C is active; CP18-C through CP18-H remain open,
+and the signed rebuild remains blocked.
 
 ### Stop conditions
 
@@ -4387,13 +4398,15 @@ exit gate.
 
 ## 33. Immediate next action
 
-Execute Phase 18 CP18-B against the approved 213-capability authority. Establish
-one versioned runtime manifest, typed definition/request/context/result/failure/
-effect/trace contracts, one governed controller, and compatibility adapters for
-the current backend, core, and SDK entry points. Generate catalogs and clients
-from that authority without changing or losing existing behavior.
+Execute Phase 18 CP18-C against the approved 213-capability manifest. Qualify
+the 132 existing implementations and build the 81 explicit gaps in validated
+batches. Replace every placeholder, metadata-only facade, mock/simulated
+operation, weak or unrecorded random default, and false success with bounded
+typed production behavior or an honest prerequisite failure through an
+authoritative app-owned service. Preserve every approved capability and keep the
+no-duplicate runtime gate mandatory.
 
-Then complete CP18-C through CP18-G in validated implementation batches. The
+Then complete CP18-D through CP18-G in validated implementation batches. The
 signed release-candidate rebuild is explicitly paused until the Phase 18
 source/contract/integration exit gate passes. After that gate, rebuild the exact
 candidate with SeaweedFS 4.40-dle.1, execute CP18-H, bind CP16-G/CP17-E, and run

@@ -56,9 +56,11 @@ administration, audit, observability, and validation application.
 > machine-verified authority for 213 distinct capabilities: 132 existing
 > implementations to qualify and 81 missing implementations to build. One true
 > semantic duplicate is now a scoped alias; exact name/purpose/contract
-> collisions and unresolved duplicate candidates are zero. CP18-B is active to establish the
-> single manifest, typed contract, controller, and compatibility adapters.
-> Phase 18 will finish production implementations and application
+> collisions and unresolved duplicate candidates are zero. CP18-B has now
+> passed with one generated manifest, typed runtime contract, canonical
+> controller, generated Python/TypeScript clients, compatibility adapters, and
+> no private SDK handler runtime. CP18-C is active for production implementation
+> completion. Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
 > frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
@@ -140,11 +142,13 @@ Current production-completion focus:
   passed: 213 canonical capabilities, 132 existing implementations, 81
   implementation gaps, one duplicate collapsed to an alias, and zero exact or
   unresolved semantic duplicates or unclassified definitions/surfaces
-- Phase 18 CP18-B single authoritative manifest, typed execution/effect/trace
-  contract, governed controller, generated clients/catalogs, and compatibility
-  migration; the release-candidate rebuild remains paused through CP18-G
-- One authoritative KA manifest, execution/effect/trace contract, controller,
-  generated SDK/catalog, and compatibility migration without capability loss
+- Phase 18 CP18-B passed: one authoritative KA manifest,
+  execution/effect/trace contract, canonical controller, generated
+  Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
+  implementation sources have unique canonical owners, the 81 gaps are explicit,
+  and duplicate canonical collisions are zero
+- Phase 18 CP18-C production implementation parity is active; the
+  release-candidate rebuild remains paused through CP18-G
 - Production behavior, dynamic application call path, and one individually
   named functional test for every canonical KA
 - Authenticated KA API/SDK and accessible Algorithms detail/input/plan/confirm/

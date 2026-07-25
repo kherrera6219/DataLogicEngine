@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "3d43643e0e6a57f9dc864d20e4af495a570184b5024c92dd959c67dee0373dd6",
+  "source_input_sha256": "ac66ac16f94d7b25275825d14dbc2f0f55ac3ca04f0ec6315f130aa1992f6ec4",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -27,7 +27,7 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 132,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 132,
+    "integration_surfaces": 134,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
     "canonical_with_test_reference": 92,
@@ -1114,7 +1114,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-001",
       "name": "Entropy Scorer",
-      "purpose": null,
+      "purpose": "Layer 10 Entropy Scorer",
       "disposition": "canonical",
       "canonical_id": "L10-KA-001",
       "rationale": "current_executable"
@@ -1123,7 +1123,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-002",
       "name": "Self Awareness",
-      "purpose": null,
+      "purpose": "Layer 10 Self Awareness",
       "disposition": "canonical",
       "canonical_id": "L10-KA-002",
       "rationale": "current_executable"
@@ -1132,7 +1132,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-003",
       "name": "PII Redactor",
-      "purpose": null,
+      "purpose": "Layer 10 PII Redactor",
       "disposition": "canonical",
       "canonical_id": "L10-KA-003",
       "rationale": "current_executable"
@@ -1141,7 +1141,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-004",
       "name": "Ethics Validator",
-      "purpose": null,
+      "purpose": "Layer 10 Ethics Validator",
       "disposition": "canonical",
       "canonical_id": "L10-KA-004",
       "rationale": "current_executable"
@@ -1150,7 +1150,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-005",
       "name": "Containment",
-      "purpose": null,
+      "purpose": "Layer 10 Containment",
       "disposition": "canonical",
       "canonical_id": "L10-KA-005",
       "rationale": "current_executable"
@@ -1159,7 +1159,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-006",
       "name": "Layer-10 Belief-Decay Trust Gate",
-      "purpose": null,
+      "purpose": "Layer 10 Layer-10 Belief-Decay Trust Gate",
       "disposition": "canonical",
       "canonical_id": "L10-KA-006",
       "rationale": "current_executable"
@@ -1168,7 +1168,7 @@
       "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L10-KA-007",
       "name": "Escalation Router",
-      "purpose": null,
+      "purpose": "Layer 10 Escalation Router",
       "disposition": "canonical",
       "canonical_id": "L10-KA-007",
       "rationale": "current_executable"
@@ -8886,8 +8886,8 @@
           "KA-002"
         ],
         "names": [
-          "Algorithm Of Thought",
-          "Tree Of Thought"
+          "Algorithm of Thought",
+          "Tree of Thought"
         ],
         "token_similarity": 0.5,
         "disposition": "reviewed_materially_distinct",
@@ -10117,6 +10117,13 @@
       "target_checkpoint": "CP18-B"
     },
     {
+      "path": "backend/knowledge_algorithms/controller.py",
+      "exists": true,
+      "kind": "backend_ka_governance_or_package_surface",
+      "disposition": "merge_into_canonical_manifest_and_controller",
+      "target_checkpoint": "CP18-B"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_registry.yaml",
       "exists": true,
       "kind": "current_executable_registry",
@@ -10915,6 +10922,20 @@
       "target_checkpoint": "CP18-E"
     },
     {
+      "path": "sdk/DataLogicEngine_TypeScript_SDK/src/index.ts",
+      "exists": true,
+      "kind": "sdk_contract_or_catalog_surface",
+      "disposition": "generate_from_canonical_manifest",
+      "target_checkpoint": "CP18-B"
+    },
+    {
+      "path": "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py",
+      "exists": true,
+      "kind": "sdk_contract_or_catalog_surface",
+      "disposition": "generate_from_canonical_manifest",
+      "target_checkpoint": "CP18-B"
+    },
+    {
       "path": "sdk/UKG_Python_SDK/ukg_sdk/api.py",
       "exists": true,
       "kind": "sdk_contract_or_catalog_surface",
@@ -10965,13 +10986,6 @@
     },
     {
       "path": "sdk/UKG_Python_SDK/ukg_sdk/ka/executor.py",
-      "exists": true,
-      "kind": "private_sdk_runtime",
-      "disposition": "replace_with_generated_canonical_api_client",
-      "target_checkpoint": "CP18-B"
-    },
-    {
-      "path": "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py",
       "exists": true,
       "kind": "private_sdk_runtime",
       "disposition": "replace_with_generated_canonical_api_client",

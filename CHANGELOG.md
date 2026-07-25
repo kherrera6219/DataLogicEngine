@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-B single Knowledge Algorithm runtime**: added one generated
+  213-capability manifest, typed definition/request/context/budget/result/
+  failure/artifact/effect/trace contracts, and one canonical controller.
+  KA-Master no longer merges the conflicting metadata catalog; the core engine
+  and loader are compatibility adapters; Python sync/async and TypeScript
+  catalogs/clients are generated from the same authority; and the SDK sample
+  handler runtime plus backend fallbacks were removed. The new runtime gate
+  verifies 132 unique implementation owners, 81 explicit gaps, one reviewed
+  scoped alias, zero duplicate canonical collisions, identical generated
+  catalogs, and no private runtime bypass. CP18-C is active; production
+  qualification is not yet claimed.
 - **Phase 18 CP18-A Knowledge Algorithm authority**: approved a reproducible,
   lossless 213-capability crosswalk covering 132 existing implementations, 81
   implementation gaps, 62 classified identity conflicts, 64 historical generic

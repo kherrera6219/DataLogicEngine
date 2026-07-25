@@ -1,154 +1,120 @@
-import importlib
-import inspect
-import os
+"""Compatibility loader backed by the canonical KA controller.
+
+The former directory scanner guessed class names and maintained a private
+runtime registry. This adapter preserves the historical API without a second
+execution authority.
+"""
+
+from __future__ import annotations
+
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
+from typing import Any
+
+from backend.knowledge_algorithms.controller import (
+    CanonicalKAController,
+    get_ka_controller,
+)
+from backend.knowledge_algorithms.manifest import normalize_ka_id
+
+logger = logging.getLogger(__name__)
+
 
 class KALoader:
-    """
-    The KALoader is responsible for loading and executing Knowledge Algorithms (KAs).
-    It dynamically imports KA classes from the implementations directory and manages
-    their execution.
-    """
-    
-    def __init__(self, config, graph_manager, memory_manager, united_system_manager):
-        """
-        Initialize the KALoader.
-        
-        Args:
-            config (dict): Configuration dictionary
-            graph_manager (GraphManager): Reference to the GraphManager
-            memory_manager (StructuredMemoryManager): Reference to the StructuredMemoryManager
-            united_system_manager (UnitedSystemManager): Reference to the UnitedSystemManager
-        """
-        self.config = config
+    """Legacy ``execute_ka`` facade over the canonical controller."""
+
+    def __init__(
+        self,
+        config: dict[str, Any] | None = None,
+        graph_manager: Any = None,
+        memory_manager: Any = None,
+        united_system_manager: Any = None,
+    ):
+        self.config = config or {}
         self.gm = graph_manager
         self.smm = memory_manager
         self.usm = united_system_manager
-        
-        self.ka_implementations_path = config.get('ka_implementations_path', 'core/knowledge_algorithm/implementations')
-        self.default_ka_confidence_threshold = config.get('default_ka_confidence_threshold', 0.7)
-        
-        # Create a dictionary to store loaded KA classes
-        self.ka_classes = {}
-        
-        # Load all KA implementations
-        self._load_ka_implementations()
-        
-        logging.info(f"[{datetime.now()}] KALoader initialized with {len(self.ka_classes)} Knowledge Algorithms")
-    
-    def _load_ka_implementations(self):
-        """Load all KA implementations from the implementations directory."""
-        # Convert module path to Python package notation
-        module_path = self.ka_implementations_path.replace('/', '.')
-        
-        # Get the directory path
-        dir_path = os.path.join(*self.ka_implementations_path.split('/'))
-        
-        if not os.path.exists(dir_path):
-            logging.warning(f"[{datetime.now()}] KALoader: KA implementations directory not found: {dir_path}")
-            return
-        
-        # Find all Python files in the directory that match the KA naming pattern
-        for filename in os.listdir(dir_path):
-            if filename.startswith('ka') and filename.endswith('.py'):
-                try:
-                    # Extract KA number from filename (e.g., 'ka01_query_analyzer.py' -> '01')
-                    ka_id_str = filename[2:4]
-                    if not ka_id_str.isdigit():
-                        continue
-                    
-                    ka_id = int(ka_id_str)
-                    
-                    # Import the module
-                    module_name = f"{module_path}.{filename[:-3]}"  # Remove .py extension
-                    module = importlib.import_module(module_name)
-                    
-                    # Find the KA class in the module
-                    for name, obj in inspect.getmembers(module):
-                        if inspect.isclass(obj) and name.startswith('KA') and name.endswith(ka_id_str):
-                            self.ka_classes[ka_id] = obj
-                            logging.info(f"[{datetime.now()}] KALoader: Loaded KA{ka_id}: {name}")
-                            break
-                    
-                except Exception as e:
-                    logging.error(f"[{datetime.now()}] KALoader: Error loading KA from {filename}: {str(e)}")
-    
-    def execute_ka(self, ka_id, input_data, session_id=None, pass_num=None, layer_num=None):
-        """
-        Execute a Knowledge Algorithm.
-        
-        Args:
-            ka_id (int): The ID of the KA to execute
-            input_data (dict): Input data for the KA
-            session_id (str, optional): The session ID
-            pass_num (int, optional): Pass number within the session
-            layer_num (int, optional): Layer number
-            
-        Returns:
-            dict: The result of the KA execution
-        """
-        if ka_id not in self.ka_classes:
-            error_msg = f"KA{ka_id} not found"
-            logging.error(f"[{datetime.now()}] KALoader: {error_msg}")
-            return {
-                "status": "error",
-                "error_message": error_msg,
-                "ka_confidence": 0.0,
-                "findings": {}
-            }
-        
-        try:
-            # Create a new instance of the KA
-            ka_instance = self.ka_classes[ka_id](
-                config=self.config,
-                graph_manager=self.gm,
-                memory_manager=self.smm,
-                united_system_manager=self.usm
+        self.default_ka_confidence_threshold = float(
+            self.config.get("default_ka_confidence_threshold", 0.7)
+        )
+        self.controller: CanonicalKAController = get_ka_controller()
+        self.ka_classes = {
+            definition.canonical_id: definition.implementation.entrypoint
+            for definition in self.controller.list_definitions()
+            if definition.implementation.entrypoint is not None
+        }
+        logger.info(
+            "KALoader compatibility adapter initialized with %d implementations",
+            len(self.ka_classes),
+        )
+
+    def execute_ka(
+        self,
+        ka_id: int | str,
+        input_data: dict[str, Any],
+        session_id: str | None = None,
+        pass_num: int | None = None,
+        layer_num: int | None = None,
+    ) -> dict[str, Any]:
+        canonical_id = normalize_ka_id(str(ka_id))
+        started_at = datetime.now(UTC)
+        result = self.controller.execute_legacy(canonical_id, input_data)
+        success = bool(result.get("success"))
+        output = result.get("output", {})
+        response = {
+            "status": "success" if success else "error",
+            "ka_id": result.get("ka_id", canonical_id),
+            "ka_confidence": float(
+                output.get("confidence", self.default_ka_confidence_threshold)
+                if isinstance(output, dict)
+                else self.default_ka_confidence_threshold
+            ),
+            "findings": output if isinstance(output, dict) else {},
+            "error_message": result.get("error"),
+            "error_code": result.get("error_code"),
+            "execution_time": (
+                datetime.now(UTC) - started_at
+            ).total_seconds(),
+            "trace_id": result.get("trace_id"),
+            "canonical_result": result.get("canonical_result"),
+        }
+        if session_id and self.smm is not None:
+            self._record_memory(
+                session_id=session_id,
+                pass_num=pass_num,
+                layer_num=layer_num,
+                ka_id=response["ka_id"],
+                input_data=input_data,
+                result=response,
             )
-            
-            # Execute the KA
-            start_time = datetime.now()
-            result = ka_instance.run(input_data)
-            end_time = datetime.now()
-            
-            # Log execution time
-            execution_time = (end_time - start_time).total_seconds()
-            logging.info(f"[{datetime.now()}] KALoader: Executed KA{ka_id} in {execution_time:.3f} seconds")
-            
-            # Log the execution in SMM if session_id is provided
-            if session_id:
-                self.smm.add_memory_entry(
-                    session_id=session_id,
-                    pass_num=pass_num if pass_num is not None else 0,
-                    layer_num=layer_num if layer_num is not None else 0,
-                    entry_type='ka_execution_log',
-                    content={
-                        'ka_id': ka_id,
-                        'input_data': input_data,
-                        'result': result,
-                        'execution_time': execution_time
-                    },
-                    confidence=result.get('ka_confidence', self.default_ka_confidence_threshold)
-                )
-            
-            return result
-        
-        except Exception as e:
-            error_msg = f"Error executing KA{ka_id}: {str(e)}"
-            logging.error(f"[{datetime.now()}] KALoader: {error_msg}", exc_info=True)
-            return {
-                "status": "error",
-                "error_message": error_msg,
-                "ka_confidence": 0.0,
-                "findings": {}
-            }
-    
-    def get_available_kas(self):
-        """
-        Get a list of available KAs.
-        
-        Returns:
-            list: List of available KA IDs
-        """
-        return list(self.ka_classes.keys())
+        return response
+
+    def _record_memory(
+        self,
+        *,
+        session_id: str,
+        pass_num: int | None,
+        layer_num: int | None,
+        ka_id: str,
+        input_data: dict[str, Any],
+        result: dict[str, Any],
+    ) -> None:
+        try:
+            self.smm.add_memory_entry(
+                session_id=session_id,
+                pass_num=pass_num if pass_num is not None else 0,
+                layer_num=layer_num if layer_num is not None else 0,
+                entry_type="ka_execution_log",
+                content={
+                    "ka_id": ka_id,
+                    "input_data": input_data,
+                    "result": result,
+                    "execution_time": result["execution_time"],
+                },
+                confidence=result["ka_confidence"],
+            )
+        except Exception as exc:  # noqa: BLE001 - optional legacy memory adapter
+            logger.warning("Could not persist legacy KA memory record: %s", exc)
+
+    def get_available_kas(self) -> list[str]:
+        return sorted(self.ka_classes)

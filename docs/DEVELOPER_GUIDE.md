@@ -127,11 +127,18 @@ frontend prompt
 
 ### Phase 18 KA development boundary
 
-The signed rebuild is paused while Phase 18 replaces the conflicting KA
-registries/engines with one versioned manifest and controller. Before changing a
-KA identity or purpose, update the reviewed CP18-A crosswalk and preserve
-compatible aliases. Do not join historical metadata to an implementation by
-numeric ID unless the manifest proves semantic identity.
+CP18-B replaced the conflicting KA registries/engines with one generated
+manifest and canonical controller. The signed rebuild remains paused while
+CP18-C through CP18-G complete and qualify behavior and integration. Before
+changing a KA identity or purpose, update the reviewed CP18-A crosswalk and
+preserve compatible aliases. Do not join historical metadata to an
+implementation by numeric ID unless the manifest proves semantic identity.
+
+Run both `python scripts/verify_ka_capability_inventory.py` and
+`python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
+adapter, SDK catalog, or KA identity change. These gates reject duplicate
+canonical semantics, multiple owners for one implementation, stale generated
+catalogs, and private runtime bypasses.
 
 All production KA work uses the canonical typed execution context/result/effect/
 trace contract. Pure algorithms return typed values or proposals. Effectful

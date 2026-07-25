@@ -1,29 +1,15 @@
-# ruff: noqa: E402
 """
 UKG API Client - Sync and Async implementations.
 """
 
 from __future__ import annotations
 
+import logging
 import time
-from typing import Any, Optional, TypeVar
+from typing import Any, Self, TypeVar
 
 import httpx
-import logging
 
-logger = logging.getLogger("ukg_sdk")
-
-from ukg_sdk.exceptions import (
-    AuthenticationError,
-    AuthorizationError,
-    ConflictError,
-    NotFoundError,
-    RateLimitError,
-    ServerError,
-    UKGError,
-    UKGHTTPError,
-    ValidationError,
-)
 from ukg_sdk.api_models import (
     AxisVector,
     ChatSession,
@@ -43,7 +29,19 @@ from ukg_sdk.api_models import (
     StageLog,
     TraceSpan,
 )
+from ukg_sdk.exceptions import (
+    AuthenticationError,
+    AuthorizationError,
+    ConflictError,
+    NotFoundError,
+    RateLimitError,
+    ServerError,
+    UKGError,
+    UKGHTTPError,
+    ValidationError,
+)
 
+logger = logging.getLogger("ukg_sdk")
 
 T = TypeVar("T")
 
@@ -54,7 +52,7 @@ class BaseClient:
     def __init__(
         self,
         base_url: str = "http://localhost:5000/api/v1",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
         retry_delay: float = 1.0,
@@ -78,7 +76,7 @@ class BaseClient:
         return headers
 
     @staticmethod
-    def _retry_is_safe(method: str, payload: Optional[dict[str, Any]]) -> bool:
+    def _retry_is_safe(method: str, payload: dict[str, Any] | None) -> bool:
         """Retry reads or explicitly idempotent writes only."""
         return method.upper() in {"GET", "HEAD", "OPTIONS"} or bool(
             isinstance(payload, dict) and payload.get("idempotency_key")
@@ -86,15 +84,14 @@ class BaseClient:
     
     def _build_url(self, path: str) -> str:
         """Build full URL from path."""
-        if path.startswith("/"):
-            path = path[1:]
+        path = path.removeprefix("/")
         return f"{self.base_url}/{path}"
     
     def _handle_error(self, response: httpx.Response) -> None:
         """Handle HTTP error responses."""
         try:
             body = response.json()
-        except Exception:
+        except ValueError:
             body = {"message": response.text}
         
         raw_error = body.get("error")
@@ -148,24 +145,28 @@ class UKGClient(BaseClient):
         self.exports = ExportsClient(self)
         self.compliance = ComplianceClient(self)
         from ukg_sdk.gateway import GatewayClient
+        from ukg_sdk.ka.executor import KAExecutor
+
         self.gateway = GatewayClient(self)
+        self.knowledge_algorithms = KAExecutor(self)
+        self.ka = self.knowledge_algorithms
     
     def close(self) -> None:
         """Close the HTTP client."""
         self._client.close()
     
-    def __enter__(self) -> "UKGClient":
+    def __enter__(self) -> Self:
         return self
     
-    def __exit__(self, *args: Any) -> None:
+    def __exit__(self, *args: object) -> None:
         self.close()
     
     def _request(
         self,
         method: str,
         path: str,
-        params: Optional[dict[str, Any]] = None,
-        json: Optional[dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Make HTTP request with retry logic."""
         url = self._build_url(path)
@@ -175,7 +176,7 @@ class UKGClient(BaseClient):
         if params:
             params = {k: v for k, v in params.items() if v is not None}
         
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         attempts = self.max_retries if self._retry_is_safe(method, json) else 1
         for attempt in range(attempts):
             try:
@@ -210,18 +211,18 @@ class UKGClient(BaseClient):
         
         raise UKGError(f"Request failed after {attempts} attempt(s): {last_error}")
     
-    def get(self, path: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """GET request."""
         return self._request("GET", path, params=params)
     
     def post(
-        self, path: str, json: Optional[dict[str, Any]] = None
+        self, path: str, json: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """POST request."""
         return self._request("POST", path, json=json)
     
     def patch(
-        self, path: str, json: Optional[dict[str, Any]] = None
+        self, path: str, json: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """PATCH request."""
         return self._request("PATCH", path, json=json)
@@ -244,24 +245,28 @@ class UKGAsyncClient(BaseClient):
         self.exports = AsyncExportsClient(self)
         self.compliance = AsyncComplianceClient(self)
         from ukg_sdk.gateway import AsyncGatewayClient
+        from ukg_sdk.ka.executor import AsyncKAExecutor
+
         self.gateway = AsyncGatewayClient(self)
+        self.knowledge_algorithms = AsyncKAExecutor(self)
+        self.ka = self.knowledge_algorithms
     
     async def close(self) -> None:
         """Close the HTTP client."""
         await self._client.aclose()
     
-    async def __aenter__(self) -> "UKGAsyncClient":
+    async def __aenter__(self) -> Self:
         return self
     
-    async def __aexit__(self, *args: Any) -> None:
+    async def __aexit__(self, *args: object) -> None:
         await self.close()
     
     async def _request(
         self,
         method: str,
         path: str,
-        params: Optional[dict[str, Any]] = None,
-        json: Optional[dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Make async HTTP request with retry logic."""
         import asyncio
@@ -272,7 +277,7 @@ class UKGAsyncClient(BaseClient):
         if params:
             params = {k: v for k, v in params.items() if v is not None}
         
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         attempts = self.max_retries if self._retry_is_safe(method, json) else 1
         for attempt in range(attempts):
             try:
@@ -307,13 +312,13 @@ class UKGAsyncClient(BaseClient):
         
         raise UKGError(f"Request failed after {attempts} attempt(s): {last_error}")
     
-    async def get(self, path: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    async def get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         return await self._request("GET", path, params=params)
     
-    async def post(self, path: str, json: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    async def post(self, path: str, json: dict[str, Any] | None = None) -> dict[str, Any]:
         return await self._request("POST", path, json=json)
     
-    async def patch(self, path: str, json: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    async def patch(self, path: str, json: dict[str, Any] | None = None) -> dict[str, Any]:
         return await self._request("PATCH", path, json=json)
     
     async def delete(self, path: str) -> dict[str, Any]:
@@ -342,9 +347,9 @@ class SessionsClient:
     
     def create(
         self,
-        title: Optional[str] = None,
+        title: str | None = None,
         mode: str = "chat",
-        constraints: Optional[dict[str, Any]] = None,
+        constraints: dict[str, Any] | None = None,
     ) -> ChatSession:
         """Create a new chat session."""
         data = self._client.post("/trace/sessions", json={
@@ -362,9 +367,9 @@ class SessionsClient:
     def update(
         self,
         session_id: str,
-        title: Optional[str] = None,
-        mode: Optional[str] = None,
-        constraints: Optional[dict[str, Any]] = None,
+        title: str | None = None,
+        mode: str | None = None,
+        constraints: dict[str, Any] | None = None,
     ) -> ChatSession:
         """Update a session."""
         body = {}
@@ -389,7 +394,7 @@ class RunsClient:
         self,
         page: int = 1,
         per_page: int = 20,
-        status: Optional[str] = None,
+        status: str | None = None,
     ) -> RunsResponse:
         """List runs."""
         data = self._client.get("/trace/runs", params={
@@ -457,8 +462,8 @@ class RunsClient:
     def logs(
         self,
         run_id: str,
-        stage_id: Optional[str] = None,
-        level: Optional[str] = None,
+        stage_id: str | None = None,
+        level: str | None = None,
     ) -> list[StageLog]:
         """Get logs for a run."""
         data = self._client.get(f"/trace/runs/{run_id}/logs", params={
@@ -475,7 +480,7 @@ class RunsClient:
         self,
         run_id: str,
         same_seed: bool = True,
-        from_stage: Optional[str] = None,
+        from_stage: str | None = None,
     ) -> dict[str, Any]:
         """Replay a run."""
         return self._client.post(f"/trace/runs/{run_id}/replay", json={
@@ -514,7 +519,7 @@ class ComplianceClient:
     def get(
         self,
         run_id: str,
-        framework: Optional[str] = None,
+        framework: str | None = None,
     ) -> ComplianceResponse:
         """Get compliance mappings for a run."""
         data = self._client.get(f"/trace/runs/{run_id}/compliance", params={
@@ -527,8 +532,8 @@ class ComplianceClient:
         run_id: str,
         framework: str,
         control_id: str,
-        relevance_reason: Optional[str] = None,
-        evidence_ids: Optional[list[str]] = None,
+        relevance_reason: str | None = None,
+        evidence_ids: list[str] | None = None,
     ) -> ComplianceMapping:
         """Add a compliance mapping."""
         data = self._client.post(f"/trace/runs/{run_id}/compliance", json={
@@ -553,7 +558,7 @@ class AsyncSessionsClient:
         return SessionsResponse(**data)
     
     async def create(
-        self, title: Optional[str] = None, mode: str = "chat", constraints: Optional[dict[str, Any]] = None
+        self, title: str | None = None, mode: str = "chat", constraints: dict[str, Any] | None = None
     ) -> ChatSession:
         data = await self._client.post("/trace/sessions", json={"title": title, "mode": mode, "constraints": constraints})
         return ChatSession(**data)
@@ -563,7 +568,7 @@ class AsyncSessionsClient:
         return ChatSession(**data)
     
     async def update(
-        self, session_id: str, title: Optional[str] = None, mode: Optional[str] = None, constraints: Optional[dict[str, Any]] = None
+        self, session_id: str, title: str | None = None, mode: str | None = None, constraints: dict[str, Any] | None = None
     ) -> ChatSession:
         body = {k: v for k, v in {"title": title, "mode": mode, "constraints": constraints}.items() if v is not None}
         data = await self._client.patch(f"/trace/sessions/{session_id}", json=body)
@@ -576,7 +581,7 @@ class AsyncRunsClient:
     def __init__(self, client: UKGAsyncClient):
         self._client = client
     
-    async def list(self, page: int = 1, per_page: int = 20, status: Optional[str] = None) -> RunsResponse:
+    async def list(self, page: int = 1, per_page: int = 20, status: str | None = None) -> RunsResponse:
         data = await self._client.get("/trace/runs", params={"page": page, "per_page": per_page, "status": status})
         return RunsResponse(**data)
     
@@ -624,14 +629,14 @@ class AsyncRunsClient:
         data = await self._client.get(f"/trace/runs/{run_id}/spans")
         return [TraceSpan(**s) for s in data.get("spans", [])]
     
-    async def logs(self, run_id: str, stage_id: Optional[str] = None, level: Optional[str] = None) -> list[StageLog]:
+    async def logs(self, run_id: str, stage_id: str | None = None, level: str | None = None) -> list[StageLog]:
         data = await self._client.get(f"/trace/runs/{run_id}/logs", params={"stage_id": stage_id, "level": level})
         return [StageLog(**log_entry) for log_entry in data.get("logs", [])]
     
     async def export(self, run_id: str) -> dict[str, Any]:
         return await self._client.post(f"/trace/runs/{run_id}/export")
     
-    async def replay(self, run_id: str, same_seed: bool = True, from_stage: Optional[str] = None) -> dict[str, Any]:
+    async def replay(self, run_id: str, same_seed: bool = True, from_stage: str | None = None) -> dict[str, Any]:
         return await self._client.post(f"/trace/runs/{run_id}/replay", json={"same_seed": same_seed, "from_stage": from_stage})
 
 
@@ -659,12 +664,12 @@ class AsyncComplianceClient:
     def __init__(self, client: UKGAsyncClient):
         self._client = client
     
-    async def get(self, run_id: str, framework: Optional[str] = None) -> ComplianceResponse:
+    async def get(self, run_id: str, framework: str | None = None) -> ComplianceResponse:
         data = await self._client.get(f"/trace/runs/{run_id}/compliance", params={"framework": framework})
         return ComplianceResponse(**data)
     
     async def add(
-        self, run_id: str, framework: str, control_id: str, relevance_reason: Optional[str] = None, evidence_ids: Optional[list[str]] = None
+        self, run_id: str, framework: str, control_id: str, relevance_reason: str | None = None, evidence_ids: list[str] | None = None
     ) -> ComplianceMapping:
         data = await self._client.post(f"/trace/runs/{run_id}/compliance", json={
             "framework": framework, "control_id": control_id, "relevance_reason": relevance_reason, "evidence_ids": evidence_ids

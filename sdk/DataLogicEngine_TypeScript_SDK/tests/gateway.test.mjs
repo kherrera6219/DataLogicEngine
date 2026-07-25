@@ -5,6 +5,7 @@ import {
   DataLogicEngineClient,
   DataLogicEngineError,
   GATEWAY_CONTRACT_VERSION,
+  KA_RUNTIME_MANIFEST,
 } from "../dist/index.js";
 
 const result = {
@@ -138,4 +139,40 @@ test("durable run methods preserve typed job state and idempotency", async () =>
   assert.equal(cancelled.status, "cancelled");
   const createBody = JSON.parse(seen[0].init.body);
   assert.ok(createBody.idempotency_key.length >= 8);
+});
+
+test("generated KA catalog is deduplicated and the client uses canonical routes", async () => {
+  assert.equal(KA_RUNTIME_MANIFEST.capability_count, 213);
+  assert.equal("KA-133" in KA_RUNTIME_MANIFEST.entries, false);
+  assert.equal(
+    KA_RUNTIME_MANIFEST.alias_index["generated-v1:KA-133"],
+    "KA-1101",
+  );
+
+  const seen = [];
+  const client = new DataLogicEngineClient({
+    apiKey: "ukg_test",
+    fetch: async (url, init) => {
+      seen.push({ url: String(url), init });
+      return Response.json({
+        success: true,
+        result: {
+          algorithm_id: "KA-004",
+          executed_at: "2026-07-25T00:00:00Z",
+          status: "completed",
+          output: { is_valid: true },
+          log: "",
+          execution_time_ms: 4,
+        },
+      });
+    },
+  });
+
+  const response = await client.executeKnowledgeAlgorithm("KA-004", {
+    input: { query: "validate" },
+    mode: "production",
+  });
+
+  assert.equal(response.result.output.is_valid, true);
+  assert.ok(seen[0].url.endsWith("/ka/algorithms/KA-004/execute"));
 });

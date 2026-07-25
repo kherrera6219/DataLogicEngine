@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.24.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.25.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
-| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-B active |
+| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -55,11 +55,15 @@ implementation gaps, 62 classified identity conflicts, 64 historical generic
 scaffolds, one confirmed semantic duplicate collapsed to an alias, zero exact
 name/purpose/contract collisions, zero unresolved duplicate candidates, and
 zero unclassified definitions or implementation/integration surfaces. CP18-B
-now owns the single contract/controller,
-production implementations, dynamic wiring, API/SDK/desktop workflow, one named
-functional test per canonical KA, and clean full source qualification through
-CP18-G. Only that exit gate permits the signed rebuild; CP18-H and every retained
-installed/manual/independent gate still apply to the rebuilt artifact.
+then passed with one generated manifest, typed execution/effect/trace
+contracts, one canonical controller, generated Python/TypeScript clients and
+catalogs, thin KA-Master/core adapters, no private SDK sample runtime, 132
+one-to-one implementation owners, 81 explicit gaps, and zero duplicate
+canonical collisions. CP18-C now owns production implementation completion;
+CP18-D through CP18-G retain dynamic wiring, product workflow, individual proof,
+and clean full-source qualification. Only that exit gate permits the signed
+rebuild; CP18-H and every retained installed/manual/independent gate still apply
+to the rebuilt artifact.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -678,14 +682,16 @@ replacement. See
 
 ## Exact next action
 
-1. Execute Phase 18 CP18-B against the approved 213-capability crosswalk:
-   establish one manifest, typed execution/effect/trace contracts, one
-   controller, generated clients/catalogs, and compatibility adapters.
-2. Preserve current IDs and behavior behind adapters until parity proof permits
-   each migration; do not reintroduce ambiguous historical numeric aliases.
-3. Execute CP18-C through CP18-G in validated, documented implementation
-   batches; every canonical KA needs production behavior, a dynamic call path,
-   its own named functional test, and trace/effect proof.
+1. Execute Phase 18 CP18-C against the approved 213-capability manifest:
+   qualify the 132 existing implementations and build the 81 explicit gaps in
+   semantic batches with strict schemas, limits, failure behavior, and
+   authoritative effect/service integration.
+2. Preserve canonical IDs and behavior until parity proof permits each
+   migration; keep the zero-duplicate gate mandatory and do not reintroduce
+   ambiguous historical numeric aliases or private runtimes.
+3. Execute CP18-D through CP18-G in validated, documented implementation
+   batches; every canonical KA still needs a dynamic call path, its own named
+   functional test, and trace/effect proof.
 4. Only after CP18-G, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
    execute CP18-H plus the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,

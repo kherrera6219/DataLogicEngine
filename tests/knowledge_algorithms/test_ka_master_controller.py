@@ -2,8 +2,10 @@
 Comprehensive tests for KA Master Controller.
 Tests validate Phase 2 KA integration completeness.
 """
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 
 
@@ -27,16 +29,12 @@ class TestKAMasterController:
                 }
             }
         }
-        # We also need to patch importlib at class/method level, but setup_method can't easily patch context managers for the whole test execution flow without start/stop.
-        # So we will rely on patching in methods or use a simpler approach: patching execute_algorithm directly?
-        # No, we want to test execute_algorithm logic.
-        # We will patch importlib in each test or use a global patcher.
-        
-        self.patcher = patch('importlib.import_module')
-        self.mock_import = self.patcher.start()
-        self.mock_module = MagicMock()
-        self.mock_module.mock_run = self.mock_run
-        self.mock_import.return_value = self.mock_module
+        self.patcher = patch.object(
+            self.controller._canonical_controller,
+            "execute_legacy",
+            return_value={"status": "success", "data": "mock_result"},
+        )
+        self.mock_execute = self.patcher.start()
 
     def teardown_method(self):
         self.patcher.stop()
@@ -57,8 +55,8 @@ class TestKAMasterController:
         assert ka001["Implementation"].endswith("ka_01_algorithm_of_thought.run")
 
         l10 = controller.algorithms["L10-KA-001"]["metadata"]
-        assert l10["KA_Name"] == "Layer 10 KA 001"
-        assert l10["Purpose"] == "Entropy-based emergence scorer."
+        assert l10["KA_Name"] == "Entropy Scorer"
+        assert l10["Purpose"] == "Layer 10 Entropy Scorer"
 
     def test_execute_registered_algorithm(self):
         """Test executing a registered algorithm."""
@@ -69,7 +67,11 @@ class TestKAMasterController:
         
         assert result is not None
         assert result.get('status') == 'success'
-        self.mock_run.assert_called_once()
+        self.mock_execute.assert_called_once_with(
+            "MOCK-001",
+            {"input": "test"},
+            production_workflow=False,
+        )
 
     def test_execute_nonexistent_algorithm_raises_error(self):
         """Test executing non-existent algorithm raises KAError."""
@@ -89,11 +91,12 @@ class TestErrorHandling:
         self.controller.algorithms = {
             "MOCK-001": {"metadata": {"Implementation": "mock_module.mock_run"}}
         }
-        self.patcher = patch('importlib.import_module')
-        self.mock_import = self.patcher.start()
-        self.mock_module = MagicMock()
-        self.mock_module.mock_run = self.mock_run
-        self.mock_import.return_value = self.mock_module
+        self.patcher = patch.object(
+            self.controller._canonical_controller,
+            "execute_legacy",
+            return_value={"status": "success", "data": "mock_result"},
+        )
+        self.patcher.start()
 
     def teardown_method(self):
         self.patcher.stop()
