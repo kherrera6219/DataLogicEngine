@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-A Knowledge Algorithm authority**: approved a reproducible,
+  lossless 213-capability crosswalk covering 132 existing implementations, 81
+  implementation gaps, 62 classified identity conflicts, 64 historical generic
+  scaffolds, and 132 implementation plus 132 integration/API/SDK/UI surfaces
+  with zero unclassified records. One true semantic duplicate is collapsed to a
+  scoped alias; 11 similar-name pairs have recorded material contract
+  boundaries; exact name/purpose/contract collisions and unresolved duplicate
+  candidates are zero. Added deterministic inventory generation, source-input
+  hashing, semantic-alias decisions, and a failing verification gate. CP18-B is
+  active; production qualification is not claimed.
 - **Release-blocking Phase 18 Knowledge Algorithm completion plan**: paused the
   signed rebuild after a documentation-first review found conflicting
   114/125/277 catalogs, seven unregistered Layer-9 implementations, multiple

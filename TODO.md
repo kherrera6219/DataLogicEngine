@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.23.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.24.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
-| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-A active |
+| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-B active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -37,9 +37,15 @@ partial and contains a malformed branch; effect-oriented KAs can report
 operations without authoritative service receipts; and the Algorithms page is
 catalog-only.
 
-- [ ] **CP18-A — authority and crosswalk:** classify every definition,
+- [x] **CP18-A — authority and crosswalk:** classified every definition,
       implementation, historical alias, duplicate/scaffold, caller, test,
       SDK/UI surface, and ID/name/purpose collision with zero capability loss.
+      The approved authority contains 213 canonical capabilities, 132 existing
+      implementations, 81 implementation gaps, 62 classified identity
+      conflicts, 64 historical generic scaffolds, one confirmed duplicate
+      collapsed to an alias, zero exact name/purpose/contract collisions, zero
+      unresolved duplicate candidates, and zero unclassified definitions or
+      surfaces.
 - [ ] **CP18-B — one contract/controller:** establish one versioned manifest,
       typed execution/effect/trace contract, controller, generated catalogs, and
       compatibility adapters; remove private sample runtimes.
@@ -66,6 +72,9 @@ catalog-only.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
+Approved CP18-A evidence:
+`reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`;
+verification gate: `scripts/verify_ka_capability_inventory.py`.
 
 ## Completed checkpoints
 
@@ -714,7 +723,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 15 | System qualification and release candidate | **Release-candidate engineering checkpoint complete 2026-07-14; installed/signed exit gates retained** |
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
-| 18 | Knowledge Algorithm production completion and dynamic integration | **Active; CP18-A authority/crosswalk in progress** |
+| 18 | Knowledge Algorithm production completion and dynamic integration | **Active; CP18-A passed 2026-07-25, CP18-B in progress** |
 | 19 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -732,12 +741,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete Phase 18 CP18-A before changing KA identities or implementation
-semantics: generate the lossless machine-readable inventory/crosswalk, classify
-every registry row, implementation, alias, caller, test, SDK/UI surface, and
-conflict, and approve the one-manifest migration with zero capability loss.
+Complete Phase 18 CP18-B against the approved 213-capability crosswalk:
+establish one versioned manifest, typed execution/effect/trace contract, one
+governed controller, generated catalogs/clients, and compatibility adapters
+without capability loss.
 
-Then execute CP18-B through CP18-G in validated batches. Do not rebuild the
+Then execute CP18-C through CP18-G in validated batches. Do not rebuild the
 signed RC until that source/contract/integration exit gate passes. Afterward,
 rebuild with the locked SeaweedFS 4.40-dle.1 image, execute CP18-H, bind
 CP16-G/CP17-E, and run all retained installed gates against the exact artifact.

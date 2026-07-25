@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.23.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.24.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
-| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-A active |
+| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-B active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -49,9 +49,13 @@ selection reaches only part of the catalog and contains a malformed branch,
 some operational KAs report effects without authoritative service receipts, and
 the Algorithms page is catalog-only.
 
-Phase 18 is now the release-blocking prerequisite. Preserve every distinct
-documented or executable capability while CP18-A creates the reviewed
-identity/capability crosswalk. Then complete the single contract/controller,
+Phase 18 is now the release-blocking prerequisite. CP18-A passed with a reviewed
+213-capability authority: 132 existing implementations to qualify, 81
+implementation gaps, 62 classified identity conflicts, 64 historical generic
+scaffolds, one confirmed semantic duplicate collapsed to an alias, zero exact
+name/purpose/contract collisions, zero unresolved duplicate candidates, and
+zero unclassified definitions or implementation/integration surfaces. CP18-B
+now owns the single contract/controller,
 production implementations, dynamic wiring, API/SDK/desktop workflow, one named
 functional test per canonical KA, and clean full source qualification through
 CP18-G. Only that exit gate permits the signed rebuild; CP18-H and every retained
@@ -674,12 +678,12 @@ replacement. See
 
 ## Exact next action
 
-1. Complete Phase 18 CP18-A: generate and verify the lossless machine-readable
-   inventory/crosswalk across every KA registry, implementation, alias, caller,
-   test, SDK/UI surface, and ID/name/purpose conflict.
-2. Do not change implementation identities until CP18-A proves zero
-   unclassified capability and approves the single-manifest migration.
-3. Execute CP18-B through CP18-G in validated, documented implementation
+1. Execute Phase 18 CP18-B against the approved 213-capability crosswalk:
+   establish one manifest, typed execution/effect/trace contracts, one
+   controller, generated clients/catalogs, and compatibility adapters.
+2. Preserve current IDs and behavior behind adapters until parity proof permits
+   each migration; do not reintroduce ambiguous historical numeric aliases.
+3. Execute CP18-C through CP18-G in validated, documented implementation
    batches; every canonical KA needs production behavior, a dynamic call path,
    its own named functional test, and trace/effect proof.
 4. Only after CP18-G, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

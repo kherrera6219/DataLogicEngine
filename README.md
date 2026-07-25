@@ -52,8 +52,13 @@ administration, audit, observability, and validation application.
 > catalogs, seven unregistered Layer-9 implementations, multiple incompatible
 > runtimes, partial/defective dynamic selection, operational façades without
 > authoritative effect receipts, only 11 production-enabled entries, and a
-> catalog-only Algorithms page. Phase 18 will preserve and reconcile every
-> distinct capability, finish production implementations and application
+> catalog-only Algorithms page. CP18-A now passes with an approved,
+> machine-verified authority for 213 distinct capabilities: 132 existing
+> implementations to qualify and 81 missing implementations to build. One true
+> semantic duplicate is now a scoped alias; exact name/purpose/contract
+> collisions and unresolved duplicate candidates are zero. CP18-B is active to establish the
+> single manifest, typed contract, controller, and compatibility adapters.
+> Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
 > frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
@@ -131,9 +136,13 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
-- Phase 18 CP18-A lossless Knowledge Algorithm capability/identity inventory and
-  crosswalk; the release-candidate rebuild is paused until CP18-A through
-  CP18-G complete
+- Phase 18 CP18-A lossless Knowledge Algorithm capability/identity authority
+  passed: 213 canonical capabilities, 132 existing implementations, 81
+  implementation gaps, one duplicate collapsed to an alias, and zero exact or
+  unresolved semantic duplicates or unclassified definitions/surfaces
+- Phase 18 CP18-B single authoritative manifest, typed execution/effect/trace
+  contract, governed controller, generated clients/catalogs, and compatibility
+  migration; the release-candidate rebuild remains paused through CP18-G
 - One authoritative KA manifest, execution/effect/trace contract, controller,
   generated SDK/catalog, and compatibility migration without capability loss
 - Production behavior, dynamic application call path, and one individually

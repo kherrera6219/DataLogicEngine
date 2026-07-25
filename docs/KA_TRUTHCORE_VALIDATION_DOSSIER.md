@@ -41,8 +41,13 @@ not proof that every KA was production implemented or wired. Phase 18 now owns
 the lossless crosswalk across every distinct documented/executable capability,
 historical alias, duplicate and generic scaffold; one canonical manifest;
 production implementation; dynamic call-path coverage; individual functional
-tests; and rebuilt-installed acceptance. Until CP18-A resolves the catalog, no
-unverified numeric metadata match may define a KA's name or purpose.
+tests; and rebuilt-installed acceptance. CP18-A passed on 2026-07-25 with an
+approved machine-verified authority for 213 distinct capabilities: 132 existing
+implementations to qualify and 81 implementation gaps. One confirmed semantic
+duplicate is a scoped alias; exact name/purpose/contract collisions, unresolved
+duplicate candidates, and unclassified definitions/surfaces are zero. No
+unverified numeric metadata match may define a KA's name or purpose. CP18-B is
+active.
 
 ## KA validation controls
 
@@ -165,9 +170,10 @@ second reviewer is still pending.
 ## Current disposition
 
 Repository and deterministic components support CP6-A through CP6-E and the
-local portion of CP6-F. Phase 18 CP18-A is active because the whole KA subsystem
-does not yet meet `DLE-FR-011`; CP18-B through CP18-H remain open and the signed
-rebuild is paused. Installed OpenAI and Google rows, blinded human sample,
+local portion of CP6-F. Phase 18 CP18-A passed its identity/capability authority
+gate, but the whole KA subsystem does not yet meet `DLE-FR-011`; CP18-B is
+active, CP18-C through CP18-H remain open, and the signed rebuild is paused.
+Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is
 **NO-GO**.

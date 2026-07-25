@@ -96,9 +96,11 @@ CP18-A must produce a lossless crosswalk that distinguishes:
 - Layer-9, Layer-10, and master controllers;
 - implementation gaps requiring a new stable canonical ID.
 
-Every distinct preserved capability must resolve to one stable ID,
-implementation, schema, selector/call path, individual test, documentation,
-limitation, and trace contract before CP18-A can close.
+CP18-A must resolve every distinct preserved capability to one stable ID and an
+explicit existing-or-required implementation disposition. The implementation,
+schema, selector/call path, individual test, documentation, limitation, and
+trace requirements become the verified CP18-B through CP18-G work queue and
+must all pass before the source exit gate can permit a rebuild.
 
 ## Approved implementation sequence
 
@@ -120,3 +122,42 @@ crosswalk without changing implementation identities. Its verifier must report
 zero unclassified definitions, implementations, callers, tests, SDK/UI
 surfaces, aliases, duplicates, and conflicts before the manifest migration is
 approved.
+
+## CP18-A completion
+
+CP18-A passed on 2026-07-25. The deterministic generator and independent
+repository gate produced and verified:
+
+| Measure | Verified result |
+|---|---:|
+| Canonical distinct capabilities | 213 |
+| Existing implementation surfaces requiring qualification | 132 |
+| Implementation gaps to build | 81 |
+| Classified identity conflicts | 62 |
+| Generic generated scaffolds retained as history | 64 |
+| Confirmed semantic duplicates collapsed to aliases | 1 |
+| Similar-name pairs reviewed as materially distinct | 11 |
+| Exact name/purpose/contract collisions | 0 |
+| Unresolved semantic duplicate candidates | 0 |
+| Classified implementation surfaces | 132 |
+| Classified integration, caller, API, SDK, and UI surfaces | 132 |
+| Unclassified definitions or surfaces | 0 |
+
+The authority keeps current executable IDs stable, restores displaced original
+design capabilities under collision-free `KA-1xxx` identities, and scopes
+ambiguous historical IDs to their source generation. The existing `KA-113`
+router is explicitly reviewed as semantically equivalent to the original
+“Query Analysis & Complexity Router” instead of being incorrectly duplicated.
+
+Evidence:
+
+- `ka-capability-inventory.json`
+- `ka-capability-crosswalk.json`
+- `ka-capability-crosswalk.csv`
+- `ka-capability-inventory-summary.md`
+- `scripts/build_ka_capability_inventory.py`
+- `scripts/verify_ka_capability_inventory.py`
+
+The crosswalk is approved for the CP18-B manifest migration. It does not claim
+that the 132 existing implementations are production-qualified or that the 81
+missing implementations exist. The signed rebuild remains blocked.

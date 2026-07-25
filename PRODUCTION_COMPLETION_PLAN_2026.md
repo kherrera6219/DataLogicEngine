@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.23.0 |
+| Document version | v1.24.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -211,6 +211,16 @@ therefore inserted as a release-blocking Knowledge Algorithm production
 completion phase. The previous production-launch Phase 18 becomes Phase 19.
 The signed rebuild, CP16-G/CP17-E binding, and retained installed gates may
 resume only after the Phase 18 source/contract/integration exit gate passes.
+
+CP18-A passed on 2026-07-25. The approved machine-readable authority preserves
+213 distinct capabilities: 132 existing implementation surfaces requiring
+qualification and 81 implementation gaps. It collapses one confirmed semantic
+duplicate to a scoped alias, reviews 11 similar-name pairs as materially
+distinct, and reports zero exact name/purpose/contract collisions and zero
+unresolved duplicate candidates. It also classifies 62 identity conflicts, 64
+generic historical scaffolds, and 132 implementation plus 132 integration,
+caller, API, SDK, and UI surfaces with zero unclassified records. CP18-B is
+active; these counts are a work authority, not a production-readiness claim.
 
 ## 1. Purpose
 
@@ -3961,6 +3971,12 @@ artifact rather than against a known-incomplete subsystem.
   trace/replay acceptance and binds the final manifest/hash to the release
   record.
 
+**Checkpoint status 2026-07-25:** CP18-A passed. The approved authority and
+verification gate are
+`reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json` and
+`scripts/verify_ka_capability_inventory.py`. CP18-B is active. CP18-C through
+CP18-H remain open, and the signed rebuild remains blocked.
+
 ### Stop conditions
 
 Stop the checkpoint and keep rebuild blocked if any capability is unclassified,
@@ -4371,13 +4387,13 @@ exit gate.
 
 ## 33. Immediate next action
 
-Execute Phase 18 CP18-A. Freeze a read-only baseline of every KA definition,
-implementation, caller, test, SDK/UI surface, and historical alias; produce the
-lossless machine-readable capability/identity crosswalk; resolve every
-ID/name/purpose collision; and approve the single manifest migration before
-changing implementation identities or behavior.
+Execute Phase 18 CP18-B against the approved 213-capability authority. Establish
+one versioned runtime manifest, typed definition/request/context/result/failure/
+effect/trace contracts, one governed controller, and compatibility adapters for
+the current backend, core, and SDK entry points. Generate catalogs and clients
+from that authority without changing or losing existing behavior.
 
-Then complete CP18-B through CP18-G in validated implementation batches. The
+Then complete CP18-C through CP18-G in validated implementation batches. The
 signed release-candidate rebuild is explicitly paused until the Phase 18
 source/contract/integration exit gate passes. After that gate, rebuild the exact
 candidate with SeaweedFS 4.40-dle.1, execute CP18-H, bind CP16-G/CP17-E, and run
