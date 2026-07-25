@@ -7,7 +7,7 @@
 ## Authority and release status
 
 - Generated: `2026-07-25`
-- Documentation authority: `2026.07.25-phase18-cp18c-batch7` (`approved_phase16_replacement_closed`)
+- Documentation authority: `2026.07.25-phase18-cp18c-batch8` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`

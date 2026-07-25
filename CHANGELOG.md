@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C containment/oversight Batch 08**: restored eight
+  deterministic capabilities for conceptual-obsolescence monitoring,
+  human-override rationale, reasoning boundaries, capability escalation,
+  knowledge containment, cross-domain coupling, long-horizon goal drift, and
+  system self-introspection. Governance outputs remain unapplied and advisory
+  containment stays distinct from the Layer-10 persistence decision. The
+  authority advances to 188 implementations/25 gaps and the KA suite passes
+  642 tests.
 - **Phase 18 CP18-C system-controls Batch 07**: restored eight deterministic
   capabilities for bounded performance tuning, benchmark-result evaluation,
   system-integrity auditing, controlled evolution, chaos-plan admission,

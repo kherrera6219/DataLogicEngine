@@ -3,19 +3,19 @@
   "status": "pass",
   "manifest_version": "2026.07.25-cp18b.1",
   "canonical_capabilities": 213,
-  "existing_implementations": 180,
-  "implementation_gaps": 33,
+  "existing_implementations": 188,
+  "implementation_gaps": 25,
   "duplicate_canonical_collisions": 0,
   "reviewed_duplicate_aliases": 1,
   "scoped_aliases": 137,
   "adapter_counts": {
-    "module_run": 173,
+    "module_run": 181,
     "class_execute": 7
   },
   "generated_catalogs": {
-    "backend/knowledge_algorithms/ka_manifest.v1.generated.json": "d19b0ac18a73ad187a3b78876d053645d48def1f8fc50c932e738886b8741d87",
-    "sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json": "d19b0ac18a73ad187a3b78876d053645d48def1f8fc50c932e738886b8741d87",
-    "sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts": "b6348a1853a258beecba0f572b9d602617eb164442c3a53cf198d42ceb979ed3"
+    "backend/knowledge_algorithms/ka_manifest.v1.generated.json": "a86c131f1f0a36dbc1dd2202242b5c720bd5e6b8c9588a3a5a3a6dc7664921c3",
+    "sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json": "a86c131f1f0a36dbc1dd2202242b5c720bd5e6b8c9588a3a5a3a6dc7664921c3",
+    "sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts": "23f436c2e0f88876899b0c2ad80512ecc0e07324066c511acdd9dc5fa5a2383f"
   },
   "single_controller": "backend.knowledge_algorithms.controller.CanonicalKAController",
   "private_sdk_handler_runtime_present": false,

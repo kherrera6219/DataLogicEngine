@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "8b1df64b5d1b230c6b38e980819724db88e48bfd5ea1f77b27643990428e6ef9",
+  "source_input_sha256": "de66a0e6c8caf614916f8571b8d85fd73135ea44574d51e389595684711cb984",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 180,
-    "implementation_required_proposals": 33,
+    "existing_implementation_proposals": 188,
+    "implementation_required_proposals": 25,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 180,
+    "implementation_surfaces": 188,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 142,
-    "canonical_with_named_test_function": 137
+    "canonical_with_test_reference": 150,
+    "canonical_with_named_test_function": 145
   },
   "canonical_capabilities": [
     {
@@ -191,6 +191,9 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
+        "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
+        "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py",
@@ -215,6 +218,7 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_ka_suite.py",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/knowledge_algorithms/test_registry_governance.py",
@@ -245,6 +249,14 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_reads_only_the_canonical_manifest",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1105_conceptual_obsolescence_requires_paradigm_level_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1106_human_override_capture_builds_stable_unapplied_signal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1107_reasoning_boundary_blocks_unauthorized_layer_entry",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1110_cross_domain_coupling_blocks_unauthorized_critical_link",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1111_long_horizon_monitor_flags_recurring_undeclared_goal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
@@ -471,6 +483,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/agi_planner.py",
         "backend/truth_engine/truth_core/engine.py",
@@ -485,11 +498,13 @@
         "core/simulation/refinement_workflow.py:137"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase_e_depth.py",
         "tests/truth_engine/test_layer7_agi.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_blocks_unqualified_production_execution",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka002_returns_three_deterministic_sub_goals",
         "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_falls_back_to_ka040",
@@ -2132,6 +2147,14 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka011_supports_structural_and_bayesian_models",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1105_conceptual_obsolescence_requires_paradigm_level_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1106_human_override_capture_builds_stable_unapplied_signal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1107_reasoning_boundary_blocks_unauthorized_layer_entry",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1110_cross_domain_coupling_blocks_unauthorized_critical_link",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1111_long_horizon_monitor_flags_recurring_undeclared_goal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
@@ -20224,6 +20247,11 @@
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1105_conceptual_obsolescence_requires_paradigm_level_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1106_human_override_capture_builds_stable_unapplied_signal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1107_reasoning_boundary_blocks_unauthorized_layer_entry",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
@@ -20992,10 +21020,10 @@
       "name": "Conceptual Obsolescence Monitor",
       "purpose": "Detect paradigm-level obsolescence (not just staleness)",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1105_conceptual_obsolescence_monitor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Contradiction trends",
         "citations",
@@ -21100,30 +21128,45 @@
         "design-v1:KA-105"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1105_conceptual_obsolescence_monitor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ConceptEvidence",
+          "KA1105ConceptualObsolescenceMonitor",
+          "KA1105Input"
+        ],
+        "nonblank_noncomment_loc": 91,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1105_conceptual_obsolescence_requires_paradigm_level_evidence"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1106",
       "name": "Human Override Reason Capture",
       "purpose": "Capture human correction rationale in structured form",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1106_human_override_reason_capture.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Human decision",
         "rationale"
@@ -21224,30 +21267,45 @@
         "design-v1:KA-106"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1106_human_override_reason_capture.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "HumanOverride",
+          "KA1106HumanOverrideReasonCapture",
+          "KA1106Input"
+        ],
+        "nonblank_noncomment_loc": 89,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1106_human_override_capture_builds_stable_unapplied_signal"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1107",
       "name": "Reasoning Boundary Enforcer",
       "purpose": "Enforce hard boundaries on capabilities and layer entry",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Policy",
         "planned pipeline",
@@ -21357,30 +21415,44 @@
         "design-v1:KA-107"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1107Input",
+          "KA1107ReasoningBoundaryEnforcer",
+          "PlannedReasoningStep"
+        ],
+        "nonblank_noncomment_loc": 75,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1107_reasoning_boundary_blocks_unauthorized_layer_entry"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1108",
       "name": "Capability Escalation Detector",
       "purpose": "Detect unsafe capability drift/escalation patterns",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "KA interaction patterns",
         "emergence flags"
@@ -21486,30 +21558,44 @@
         "design-v1:KA-108"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "CapabilityInteraction",
+          "KA1108CapabilityEscalationDetector",
+          "KA1108Input"
+        ],
+        "nonblank_noncomment_loc": 79,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1109",
       "name": "Knowledge Containment Classifier",
       "purpose": "Classify knowledge persistence safety (public/restricted/never)",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1109_knowledge_containment_classifier.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Knowledge candidate",
         "risk signals"
@@ -21614,20 +21700,35 @@
         "design-v1:KA-109"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1109_knowledge_containment_classifier.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1109Input",
+          "KA1109KnowledgeContainmentClassifier",
+          "KnowledgeCandidate"
+        ],
+        "nonblank_noncomment_loc": 108,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-111",
@@ -21707,7 +21808,10 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1110_cross_domain_coupling_blocks_unauthorized_critical_link",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1111_long_horizon_monitor_flags_recurring_undeclared_goal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-111",
@@ -21731,10 +21835,10 @@
       "name": "Cross-Domain Coupling Risk Analyzer",
       "purpose": "Detect risky cross-domain coupling pathways",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Domain tags",
         "knowledge links",
@@ -21842,30 +21946,44 @@
         "design-v1:KA-110"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "DomainLink",
+          "KA1110CrossDomainCouplingRiskAnalyzer",
+          "KA1110Input"
+        ],
+        "nonblank_noncomment_loc": 90,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1110_cross_domain_coupling_blocks_unauthorized_critical_link"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1111",
       "name": "Long-Horizon Goal Drift Monitor",
       "purpose": "Detect latent goal persistence across runs",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1111_long_horizon_goal_drift_monitor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Evolution actions",
         "traces"
@@ -21968,30 +22086,45 @@
         "design-v1:KA-111"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1111_long_horizon_goal_drift_monitor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_runs"
+        ],
+        "classes": [
+          "GoalTrace",
+          "KA1111Input",
+          "KA1111LongHorizonGoalDriftMonitor"
+        ],
+        "nonblank_noncomment_loc": 81,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1111_long_horizon_monitor_flags_recurring_undeclared_goal"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1112",
       "name": "System Self-Introspection Auditor",
       "purpose": "Audit system-level behavior: chaos usage, overrides, drift",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1112_system_self_introspection_auditor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "System metrics",
         "logs"
@@ -22088,20 +22221,34 @@
         "design-v1:KA-112"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1112_system_self_introspection_auditor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1112Input",
+          "KA1112SystemSelfIntrospectionAuditor",
+          "SystemBehaviorWindow"
+        ],
+        "nonblank_noncomment_loc": 86,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1114",
