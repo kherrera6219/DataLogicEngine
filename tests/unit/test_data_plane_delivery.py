@@ -7,7 +7,6 @@ import pytest
 
 from backend.runtime import data_plane_delivery as delivery
 
-
 LOCK_PATH = "deploy/internal-data-plane.candidate-lock.json"
 INSTALLATION_ID = "0123456789abcdef0123456789abcdef"
 
@@ -16,7 +15,8 @@ def test_candidate_lock_is_immutable_and_not_self_approved():
     payload, artifacts = delivery.load_candidate_lock(LOCK_PATH)
 
     assert payload["production_provisioning_authorized"] is False
-    assert payload["architecture_change_authorized"] is False
+    assert payload["architecture_change_authorized"] is True
+    assert payload["services"]["object_store_candidate"]["production_approved"] is False
     assert set(artifacts) == set(delivery.REQUIRED_SERVICES)
     assert all("@sha256:" in artifact.image for artifact in artifacts.values())
     assert all(artifact.production_approved is False for artifact in artifacts.values())
@@ -74,7 +74,9 @@ def test_generated_credentials_are_unique_and_reject_known_defaults():
     assert credentials["redis_recovery"].password != credentials["redis"].password
 
 
-def test_credential_vault_is_encrypted_installation_bound_and_atomic(tmp_path, monkeypatch):
+def test_credential_vault_is_encrypted_installation_bound_and_atomic(
+    tmp_path, monkeypatch
+):
     def encrypt(value: str) -> str:
         return base64.b64encode(value.encode()).decode()
 

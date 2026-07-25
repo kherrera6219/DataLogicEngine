@@ -23,7 +23,7 @@
 DataLogicEngine 4.3.0 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
-ChromaDB, and MinIO production responsibilities; externally managed databases
+ChromaDB, and app-owned S3-compatible object store production responsibilities; externally managed databases
 and public web/SaaS operation are outside the approved contract.
 
 This guide describes the intended production operating model, but the signed
@@ -71,11 +71,12 @@ unapproved release policy.
 | Redis | Session/cache, rate/concurrency, content-free coordination, queue, stream, and cancellation | Not ready; no silent memory substitute |
 | Neo4j | Durable graph authority | Degraded/not ready according to required capability; no fabricated graph result |
 | ChromaDB | Vector storage and semantic retrieval | Required retrieval capability fails closed |
-| MinIO | App-owned S3-compatible objects and required buckets | Required artifact path fails closed; no filesystem production fallback |
+| app-owned S3-compatible object store | App-owned S3-compatible objects and required buckets | Required artifact path fails closed; no filesystem production fallback |
 
-SeaweedFS is qualification-only under ADR-0004 and is not the selected production
-object store. Internal database, object, supervisor, and diagnostic ports must
-not be exposed to client machines.
+ADR-0010 selects SeaweedFS 4.40-dle.1 as the implementation for rebuilt
+installed qualification. It is not production-authorized until the installed
+independent gates pass. Internal database, object, supervisor, and diagnostic
+ports must not be exposed to client machines.
 
 ## Provider operations
 
@@ -136,7 +137,7 @@ usage metadata, logs, support bundles, exports, and backups. Provider and
 connector copies follow their external contracts.
 
 Use the canonical deletion operation. Success requires reconciliation across all
-applicable PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, memory/local, and log
+applicable PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store, memory/local, and log
 surfaces. A partial failure must be visible and repairable. Non-PII audit
 tombstones and time-bounded backup remnants may remain only with a documented
 basis. Exported files and snapshots are separate operator responsibilities.

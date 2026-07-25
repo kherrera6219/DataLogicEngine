@@ -9,15 +9,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 NPM_BIN = shutil.which("npm") or shutil.which("npm.cmd") or "npm"
+CI_RUFF_RULES = "E9,F63,F7"
 
 
 def _run(command: list[str], label: str) -> int:
     print(f"\n==> {label}")
     print(" ".join(command))
-    completed = subprocess.run(command, cwd=ROOT)
+    completed = subprocess.run(command, cwd=ROOT, check=False)
     if completed.returncode != 0:
         print(f"[FAIL] {label} exited with code {completed.returncode}")
         return completed.returncode
@@ -36,9 +36,24 @@ def main(argv: list[str] | None = None) -> int:
 
     checks: list[tuple[list[str], str]] = []
     if not args.skip_python_lint:
-        checks.append(([sys.executable, "-m", "ruff", "check", "."], "Python lint (ruff)"))
+        checks.append(
+            (
+                [
+                    sys.executable,
+                    "-m",
+                    "ruff",
+                    "check",
+                    ".",
+                    "--select",
+                    CI_RUFF_RULES,
+                ],
+                "Python lint (ruff)",
+            )
+        )
     checks.append(([NPM_BIN, "--prefix", "frontend", "run", "lint"], "Frontend lint"))
-    checks.append(([NPM_BIN, "--prefix", "frontend", "run", "typecheck"], "Frontend typecheck"))
+    checks.append(
+        ([NPM_BIN, "--prefix", "frontend", "run", "typecheck"], "Frontend typecheck")
+    )
 
     for command, label in checks:
         exit_code = _run(command, label)

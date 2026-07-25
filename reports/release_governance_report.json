@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-14T05:31:25.458318+00:00",
+  "generated_at": "2026-07-25T06:44:20.442194+00:00",
   "findings": [
     {
       "level": "OK",
@@ -78,67 +78,62 @@
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Found docs\\RELEASE_CHECKLIST.md"
+      "scope": "release-readiness",
+      "message": "Found docs\\RELEASE_READINESS_RECORD.md"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/dev_doctor.py --skip-ports"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Current decision"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process"
+      "scope": "release-readiness",
+      "message": "Contains required token: **Production/public release: NO-GO.**"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/verify_lockfiles.py"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Candidate identity"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/verify_docs_references.py"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Gate summary"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/validate_schema_parity.py"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Finding policy"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: python scripts/verify_release_governance.py"
+      "scope": "release-readiness",
+      "message": "Contains required token: Release requires zero open P0/P1 findings"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: .\\.venv\\Scripts\\python.exe scripts\\verify_installer_integrity.py --require-artifacts"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Required final evidence bundle"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows\\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation"
+      "scope": "release-readiness",
+      "message": "Contains required token: ## GO authorization template"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: Deployment health checks validated."
+      "scope": "release-readiness",
+      "message": "Contains required token: `production_authorized=false`"
     },
     {
       "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: Error rates and latency reviewed for first 30 minutes after rollout."
-    },
-    {
-      "level": "OK",
-      "scope": "release-checklist",
-      "message": "Contains required token: Disaster recovery restore drill reviewed within the required window"
+      "scope": "release-readiness",
+      "message": "Contains required token: installed and independent acceptance of the ADR-0010 object-store selection"
     }
   ],
   "summary": {
-    "ok": 27,
+    "ok": 26,
     "error": 0
   }
 }

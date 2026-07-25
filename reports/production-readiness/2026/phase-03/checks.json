@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "captured_at": "2026-07-13",
+  "captured_at": "2026-07-24",
   "phase": 3,
   "status": "engineering_checkpoint_passed_release_no_go",
   "checks": {
@@ -11,10 +11,12 @@
       "production_authorized": false
     },
     "seaweedfs_replacement_qualification": {
-      "status": "partial",
+      "status": "pass_for_release_qualification",
       "evidence": "seaweedfs-replacement-qualification-windows.json",
       "candidate_contract_passed": true,
-      "production_selected": false
+      "production_selected": true,
+      "production_approved": false,
+      "architecture_change_authorized": true
     },
     "backend_pytest": {
       "status": "pass",
@@ -46,8 +48,8 @@
       "reason": "external authority not yet completed"
     },
     "final_object_store_replacement_decision": {
-      "status": "blocked",
-      "reason": "ADR-0004 remains Proposed and explicit production approval is absent"
+      "status": "pass_for_release_qualification",
+      "reason": "ADR-0010 selects SeaweedFS 4.40-dle.1 under the capability requirement; installed production approval remains false"
     }
   },
   "release_verdict": "NO-GO"

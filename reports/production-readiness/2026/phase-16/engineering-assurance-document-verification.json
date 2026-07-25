@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.engineering-assurance-document-verification.v1",
-  "generated_at": "2026-07-15T10:11:52.345214+00:00",
-  "authority_version": "2026.07.15-approved2",
+  "generated_at": "2026-07-25T06:42:12.990572+00:00",
+  "authority_version": "2026.07.24-approved3",
   "status": "pass",
   "target_count": 12,
   "verified_count": 12,

@@ -82,8 +82,12 @@ class FakeNeo4jSession:
         if "RETURN count(n)" in query:
             return FakeResult({"count": 1 if self.driver.version else 0})
         if "RETURN v.version" in query:
-            return FakeResult({"version": self.driver.version} if self.driver.version else None)
-        return FakeResult(callback=lambda: setattr(self.driver, "version", params["version"]))
+            return FakeResult(
+                {"version": self.driver.version} if self.driver.version else None
+            )
+        return FakeResult(
+            callback=lambda: setattr(self.driver, "version", params["version"])
+        )
 
 
 class FakeNeo4j:
@@ -99,7 +103,9 @@ def test_postgresql_adapter_bootstraps_alembic_head():
 
     def upgrade(target):
         with engine.begin() as connection:
-            connection.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32))"))
+            connection.execute(
+                text("CREATE TABLE alembic_version (version_num VARCHAR(32))")
+            )
             connection.execute(
                 text("INSERT INTO alembic_version (version_num) VALUES (:target)"),
                 {"target": target},
@@ -128,7 +134,7 @@ def test_redis_neo4j_and_chroma_bootstrap_version_ledgers():
         assert adapter.probe_version() == target
 
 
-def test_minio_contract_manifest_keeps_product_authority(tmp_path):
+def test_object_store_manifest_records_capability_and_selected_implementation(tmp_path):
     backend = LocalFileBackend(str(tmp_path / "objects"))
     buckets = (
         "audit-logs",
@@ -147,8 +153,9 @@ def test_minio_contract_manifest_keeps_product_authority(tmp_path):
 
     assert adapter.probe_version() == "dle.minio.v1"
     payload = backend.get("audit-logs", "_system/data-plane-schema.json").decode()
-    assert '"object_store_architecture": "minio"' in payload
-    assert '"seaweedfs_production_selected": false' in payload
+    assert '"object_store_architecture": "app_owned_s3_compatible"' in payload
+    assert '"seaweedfs_production_selected": true' in payload
+    assert '"object_store_production_approved": false' in payload
 
 
 def test_local_json_and_retained_configuration_are_versioned_atomically(tmp_path):

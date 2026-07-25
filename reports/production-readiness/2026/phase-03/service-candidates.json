@@ -1,12 +1,14 @@
 {
   "schema_version": "1.0.0",
-  "captured_at": "2026-07-13T12:30:00-07:00",
-  "status": "engineering_qualification_complete_production_approval_blocked",
+  "captured_at": "2026-07-24T12:30:00-07:00",
+  "status": "replacement_control_passed_for_release_qualification",
   "target_platform": "windows_11_x64_rootless_podman_linux_amd64",
   "runtime": {
     "name": "podman",
-    "version": "5.8.2",
-    "windows_x64_msi_sha256": "eda54f26f9695d198d9a679fa45ae24ba35b78444f432b5fe0c122c5a3624c57",
+    "version": "6.0.1",
+    "machine_server_version": "5.8.5",
+    "windows_x64_msi_sha256": "3b65848f2d9ae652a15c35f2496a9ece2e07f28746fa651415d519ae7c5902ad",
+    "windows_x64_remote_zip_sha256": "127d02930ac25c80088817502e833916cd3ee1ed1e771dbd42a4ce81b2e0d415",
     "license": "Apache-2.0",
     "candidate_status": "recommended"
   },
@@ -41,20 +43,23 @@
     },
     "object_store": {
       "required_contract": "app_owned_s3_compatible",
-      "current_plan_product": "minio",
-      "candidate_status": "engineering_qualified_pending_independent_review_and_final_owner_approval",
+      "current_plan_product": "app_owned_s3_compatible_object_store",
+      "candidate_status": "selected_for_rebuilt_installed_qualification",
       "blocker": "minio_community_archived_source_only_agpl_no_production_support",
-      "recommended_replacement": {
+      "selected_implementation": {
         "product": "seaweedfs",
-        "image": "docker.io/chrislusf/seaweedfs:4.29",
-        "index_digest": "sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
-        "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+        "version": "4.40-dle.1",
+        "image": "localhost/datalogicengine/seaweedfs@sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b",
+        "image_id": "sha256:b41f8b293049bf79045ff9c8216a9dccf0ce99ee6a4e32d174c6b320659e2b3e",
+        "oci_archive_sha256": "1f48d45b87554b6008bc086b101f58887ba360a214e928ccc23a216f804bdfbc",
         "license": "Apache-2.0"
       },
       "alternative": "procure_minio_aistor_commercial_license_and_supported_artifact"
     }
   },
   "qualification_authorized": true,
-  "production_selected": false,
+  "production_selected": true,
+  "production_approved": false,
+  "architecture_change_authorized": true,
   "provisioning_authorized": false
 }

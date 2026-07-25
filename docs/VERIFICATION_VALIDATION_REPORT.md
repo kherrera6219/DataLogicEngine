@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -129,13 +129,15 @@ bounded resources, no silent degradation, and causal incident evidence.
 
 Every failure records severity, affected requirement, environment/artifact,
 reproduction, actual/expected, safe evidence, owner, correction or accepted
-disposition/expiration, and retest. P0/P1 and unaccepted P2 findings block release.
-Critical dependency alert 389 is open. A result is current only for the exact
-commit/artifact and configuration it names.
+disposition/expiration, and retest. P0/P1 and unaccepted P2 findings block
+release. Dependabot alert 389 is fixed through removal and qualification of the
+vulnerable SDK replacement. A result is current only for the exact commit/
+artifact and configuration it names.
 
 ## Release decision
 
-Required signed installed, manual, independent, legal/distribution, final object-
-store, reproducibility, accessibility, pilot, and soak evidence is incomplete.
-Critical alert 389 remains open. Production/public release is **NO-GO**. The
-future release-readiness record, not this report alone, records final approval.
+Required signed installed, manual, independent, legal/distribution,
+object-store installed acceptance, reproducibility, accessibility, pilot, and
+soak evidence is incomplete. Alert 389 is fixed. Production/public release is **NO-GO**.
+The future release-readiness record, not this report alone, records final
+approval.

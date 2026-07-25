@@ -14,6 +14,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `CONTRIBUTING.md` | `engineering_maintenance` | authoritative input | `CONTRIBUTING.md` | selected canonical document |
 | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | authoritative input | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | selected canonical document |
 | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | `user_admin_support` | authoritative input | `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md` | selected canonical document |
+| `docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md` | `engineering_maintenance` | authoritative input | `docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md` | normative legal or temporary program authority outside the final canonical cap |
 | `docs/adr/README.md` | `engineering_maintenance` | generated replacement | `docs/adr/README.md` | generated companion artifact |
 | `docs/ARCHITECTURE.md` | `engineering_maintenance` | authoritative input | `docs/ARCHITECTURE.md` | selected canonical document |
 | `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` | `historical_research` | historical archive | `docs/archive/ARCHIVE_MARKDOWN_REVIEW_2026-07-06.md` | historical audit, research, wireframe, whitepaper, or session material |

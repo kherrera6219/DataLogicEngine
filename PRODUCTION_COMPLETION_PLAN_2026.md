@@ -4,12 +4,12 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.21.0 |
+| Document version | v1.22.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
-| Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO services |
+| Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
 | Current evidence baseline | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` |
 | Execution ledger | Root `TODO.md` |
@@ -93,8 +93,8 @@ This checkpoint does not close the installed production exit gates for Phases
 3-13 and does not change the overall release verdict from **NO-GO**. The
 supported 0.1.1 retained-
 data upgrade, signed clean-machine recovery drill, protected-volume/ACL Windows
-matrix, exact Podman artifact qualification, independent recovery/security/
-license review, final object-store decision, and real installed OpenAI/Gemini
+matrix, independent recovery/security/license acceptance, installed acceptance
+of the selected object store, and real installed OpenAI/Gemini
 trace proof, installed OpenAI/Google corpus results, live Phase 7 provider
 acceptance, signed blinded human acceptance, and Phase 8 same-host/private,
 TLS/firewall, backup/restore, UI, failure/load/soak, two-machine acceptance, and
@@ -171,9 +171,10 @@ represent Windows paths and desktop bootstrap authority consistently. A clean
 broken requirements, the dependency audit had zero unignored findings, and the
   full backend suite passed 2,177 tests with 18 skipped.
 
-SeaweedFS is a qualified candidate only; ADR-0004 remains Proposed, production
-selection is false, and MinIO remains the product-specific architecture until
-Replacement Control passes in full and the owner gives final approval.
+Replacement Control passed for release qualification on 2026-07-24. ADR-0010
+supersedes the historical Proposed ADR-0004, defines the capability
+**app-owned S3-compatible object store**, and selects SeaweedFS 4.40-dle.1 for
+rebuilt installed qualification. Production authorization remains false.
 
 Because no patched ChromaDB SDK release exists, the 2026-07-15 replacement
 removes the vulnerable Python SDK from both dependency authorities. The locked
@@ -182,7 +183,7 @@ client that allows only loopback endpoints, caller-supplied vectors, and inert
 no-embedding configuration. Eighteen adversarial/contract regressions, an
 isolated zero-finding dependency audit, and a live five-service collection,
   query, deletion, restart, status, and cleanup qualification pass. GitHub alert
-  389 still requires server-side closure after the replacement manifest is pushed;
+  389 is confirmed fixed;
   installed service/security/recovery approval remains a later release gate.
 
 The subsequent consolidation-integrity audit expanded CP16-F verification from
@@ -250,7 +251,7 @@ is not enabled by default and is not part of this completion program.
 
 ### 2.2 Required internal data services
 
-PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are intentional parts of the
+PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are intentional parts of the
 production architecture. They are not cleanup candidates and are not optional
 substitutes for one another.
 
@@ -260,7 +261,7 @@ substitutes for one another.
 | Redis | Cache, rate-limit state, idempotency, queue/broker behavior, background-job coordination, and TruthLink/event streams | Expiration, atomic operations, queue semantics, and stream behavior must be preserved. |
 | Neo4j | Durable graph-native relationships, traversal, provenance paths, and graph query behavior | Graph traversal semantics, relationship constraints, indexes, and durable graph state must be preserved. |
 | ChromaDB | Local vector collections for embeddings and semantic retrieval | Collection schema, embedding dimensions, metadata, source identity, and rebuild behavior must be versioned. |
-| MinIO | Internal S3-compatible object storage for trace bundles, audit artifacts, simulations, exports, deliverables, graph snapshots, and evaluation data | Bucket isolation, object metadata, integrity hashes, retention, export, and restore behavior must be preserved. |
+| app-owned S3-compatible object store | Internal S3-compatible object storage for trace bundles, audit artifacts, simulations, exports, deliverables, graph snapshots, and evaluation data | Bucket isolation, object metadata, integrity hashes, retention, export, and restore behavior must be preserved. |
 
 SQLite, the local filesystem object backend, JSON memory files, and in-memory
 NetworkX graphs may remain useful for bootstrap, development, staging, repair,
@@ -270,7 +271,7 @@ responsibilities above. In particular:
 - SQLite is not the production substitute for PostgreSQL.
 - An in-memory graph is not the durable substitute for Neo4j.
 - A directory that resembles object buckets is not the production substitute
-  for MinIO unless a separately approved parity study proves otherwise.
+  for app-owned S3-compatible object store unless a separately approved parity study proves otherwise.
 - In-memory queues are not the production substitute for Redis.
 
 ### 2.3 Replacement control
@@ -367,7 +368,7 @@ model rather than copied as cloud requirements:
 7. [GitHub artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations): build provenance and SBOM linkage for released binaries.
 8. Current vendor guidance for every bundled internal service, including current
    supported PostgreSQL, Redis-compatible Windows delivery, Neo4j/JDK, Chroma,
-   and MinIO versions.
+   and app-owned S3-compatible object store versions.
 
 Passing a named framework does not create a certification claim. The release
 evidence must identify which requirements were tested, which were not
@@ -473,13 +474,13 @@ flowchart TD
     Services --> Redis["Internal Redis-compatible service"]
     Services --> Neo4j["Internal Neo4j"]
     Services --> Chroma["Internal ChromaDB Rust service"]
-    Services --> MinIO["Internal MinIO"]
+    Services --> ObjectStore["Internal S3-compatible object store<br/>(SeaweedFS)"]
 
     Orchestrator --> PG
     Orchestrator --> Redis
     Orchestrator --> Neo4j
     Orchestrator --> Chroma
-    Orchestrator --> MinIO
+    Orchestrator --> ObjectStore
     Orchestrator --> Provider["Google or OpenAI, only when enabled"]
     Orchestrator --> MCP["Explicitly enabled scoped MCP connector"]
 ```
@@ -497,7 +498,7 @@ Compose and portable Windows sidecars. Production must select one supported,
 versioned mechanism instead of mixing both silently.
 
 The recommended first production path is an app-managed local container profile
-using pinned PostgreSQL, Redis, Neo4j, and MinIO images because it preserves the
+using pinned PostgreSQL, Redis, Neo4j, and app-owned S3-compatible object store images because it preserves the
 intended services and avoids shipping the obsolete unofficial Redis 5 Windows
 port. This path is acceptable only after the Phase 0 owner checkpoint confirms
 that Docker/its licensing and hardware requirements are acceptable for the
@@ -509,7 +510,7 @@ If Docker is not acceptable, Phase 3 must deliver supported native sidecars:
 - an approved supported Redis-compatible Windows runtime with verified command,
   stream, persistence, and licensing parity;
 - Neo4j Windows ZIP plus a supported bundled JRE;
-- a supported MinIO Windows binary;
+- a supported app-owned S3-compatible object store Windows binary;
 - the app-managed pinned ChromaDB Rust single-node service, with the Python
   package used only as a constrained client.
 
@@ -524,7 +525,7 @@ Production binaries and mutable data must be separated:
 | Signed application binaries | `Program Files` or the installer-selected application directory; read-only during normal use |
 | Per-install machine configuration | Restrictive app-owned directory under `ProgramData` where machine-level install requires it |
 | Per-user secrets and preferences | Per-user application data, protected with DPAPI and restrictive ACLs |
-| PostgreSQL/Redis/Neo4j/MinIO/Chroma data | Version-independent app-owned data root outside the binary directory |
+| PostgreSQL/Redis/Neo4j/app-owned S3-compatible object store/Chroma data | Version-independent app-owned data root outside the binary directory |
 | Logs and support bundles | Per-user or machine data directory with rotation, redaction, and retention limits |
 | Backups | User-selected or policy-selected directory, never inside the active data directory |
 | Temporary extraction/cache | Per-user local cache with bounded size and cleanup policy |
@@ -594,7 +595,7 @@ release evidence:
 
 1. A clean signed installation starts the full internal data plane and the app
    without manual source-tree setup.
-2. PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are all used for their approved
+2. PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are all used for their approved
    production responsibilities.
 3. Every service is loopback/private, authenticated where applicable, version
    pinned, health checked, supervised, upgraded, backed up, and restored.
@@ -653,7 +654,7 @@ inherits every applicable checkpoint and stop condition from earlier phases.
 | 0 | Scope, baseline, and authority lock | Approved production contract and reproducible baseline |
 | 1 | Trust boundary and public error closure | Every entry point classified and fail-closed |
 | 2 | Runtime factory, startup, and capability state | Deterministic startup/shutdown with truthful health |
-| 3 | Full internal service delivery and supervision | PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO managed as one local system |
+| 3 | Full internal service delivery and supervision | PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store managed as one local system |
 | 4 | Data contracts, migrations, backup, and recovery | Safe schema/data lifecycle across every store |
 | 5 | Canonical governed reasoning path | One real end-to-end path from user request to trace |
 | 6 | Evidence, confidence, convergence, TruthCore, and KA validity | No synthetic governance claims |
@@ -924,7 +925,7 @@ deterministic and testable.
    - start the internal service supervisor;
    - verify service versions and credentials;
    - run migrations and data compatibility checks;
-   - initialize Chroma, MinIO buckets, Neo4j schema, and caches;
+   - initialize Chroma, app-owned S3-compatible object store buckets, Neo4j schema, and caches;
    - register routes and workers;
    - publish core readiness and feature capabilities.
 3. Prohibit route modules and optional integrations from creating stores,
@@ -938,7 +939,7 @@ deterministic and testable.
    occupied.
 8. Detect foreign port owners and choose a safe configured port or fail with a
    repair action; never assume an unknown listener is the app service.
-9. Define dependency order and time budgets for PostgreSQL, Redis, Neo4j, MinIO,
+9. Define dependency order and time budgets for PostgreSQL, Redis, Neo4j, app-owned S3-compatible object store,
    Chroma, workers, and backend readiness.
 10. Implement graceful shutdown with write drain, queue pause, provider-call
     cancellation, database checkpoint, worker stop, and bounded forced cleanup.
@@ -1044,7 +1045,7 @@ engineering from defining and proving the data contracts those final gates need.
 
 ### Objective
 
-Make PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO a real, supported, app-owned
+Make PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store a real, supported, app-owned
 production data plane installed and controlled with the Windows application.
 
 ### Work packages
@@ -1061,7 +1062,7 @@ production data plane installed and controlled with the Windows application.
 4. Upgrade Neo4j and its JRE as a tested pair. Keep binary, configuration, data,
    logs, plugins, and dump directories separate so binary upgrades cannot remove
    data.
-5. Pin PostgreSQL, MinIO, Chroma, Python drivers, and command-line tools used for
+5. Pin PostgreSQL, app-owned S3-compatible object store, Chroma, Python drivers, and command-line tools used for
    migrations and backup.
 6. Produce a third-party notices file and redistribution/license matrix for all
    shipped binaries, images, JRE files, Python wheels, Node packages, and native
@@ -1073,7 +1074,7 @@ production data plane installed and controlled with the Windows application.
    supervisor, not through unrelated scripts with different defaults.
 2. Bind every published service port to `127.0.0.1` only. Container mappings must
    use explicit loopback host bindings.
-3. Generate unique per-install PostgreSQL, Redis, Neo4j, and MinIO credentials
+3. Generate unique per-install PostgreSQL, Redis, Neo4j, and app-owned S3-compatible object store credentials
    with a cryptographic random generator.
 4. Protect credentials with DPAPI and restrictive ACLs. Never use `postgres`,
    `neo4jpassword`, `minioadmin`, `minioadmin123`, or another known default in a
@@ -1156,11 +1157,11 @@ production data plane installed and controlled with the Windows application.
 6. Back up Chroma consistently with its source manifest and verify a restored
    collection through search parity.
 
-#### 11.7 MinIO production integration
+#### 11.7 app-owned S3-compatible object store production integration
 
-1. Restore MinIO as the active production `ObjectStore` backend. The current
+1. Restore app-owned S3-compatible object store as the active production `ObjectStore` backend. The current
    forced filesystem backend is a temporary implementation gap, not the target.
-2. Add MinIO provisioning and lifecycle ownership to the selected service
+2. Add app-owned S3-compatible object store provisioning and lifecycle ownership to the selected service
    supervisor; current portable setup omits it.
 3. Configure internal S3 endpoint, TLS policy where applicable, generated access
    credentials, bucket policies, lifecycle, versioning/retention as required,
@@ -1168,14 +1169,14 @@ production data plane installed and controlled with the Windows application.
 4. Create and validate all required buckets idempotently: audit logs, simulation
    artifacts, deliverables, graphs, evaluation data, trace exports, and any
    approved additional bucket.
-5. Use least-privilege application credentials rather than the MinIO root account
+5. Use least-privilege application credentials rather than the app-owned S3-compatible object store root account
    after bootstrap.
 6. Preserve content type, metadata, SHA-256, logical owner, trace/run ID,
    retention class, encryption state, and creation time for every object.
 7. Add real put/get/head/list/delete/presigned-access tests through the production
    backend.
 8. Keep local filesystem storage only as a bounded staging/cache area with
-   reconciliation into MinIO, or remove it from production behavior.
+   reconciliation into app-owned S3-compatible object store, or remove it from production behavior.
 
 #### 11.8 Unified service status and UI
 
@@ -1254,7 +1255,8 @@ rollback preservation, and seven-surface deletion drill all succeeded.
 
 The full exit gate remains open for the supported 0.1.1 retained-data upgrade,
 signed clean-machine restore, supported-Windows BitLocker/ACL and key-recovery
-matrix, independent backup/restore review, and final object-store decision.
+matrix, independent backup/restore review, and installed release acceptance of
+the ADR-0010 object-store selection.
 These are retained release blockers under the owner-authorized installed-gate
 deferral and do not block Phase 5 engineering. Evidence is under
 `reports/production-readiness/2026/phase-04/`.
@@ -1274,12 +1276,12 @@ repair, uninstall, and rollback for every required store.
    audit events.
 2. Assign one authoritative store for each data class and define materialized
    copies/indexes explicitly.
-3. Use stable IDs across PostgreSQL, Neo4j, Chroma, Redis jobs, and MinIO objects.
+3. Use stable IDs across PostgreSQL, Neo4j, Chroma, Redis jobs, and app-owned S3-compatible object store objects.
 4. Record schema/version and source revision on every cross-store record.
 5. Define transaction boundaries and compensating actions where one transaction
    cannot span stores.
 6. Implement an outbox/reconciliation pattern for PostgreSQL-to-Neo4j,
-   PostgreSQL-to-Chroma, and PostgreSQL-to-MinIO work.
+   PostgreSQL-to-Chroma, and PostgreSQL-to-app-owned S3-compatible object store work.
 7. Make partial success visible and retryable; never mark a corpus, trace, export,
    or simulation complete until required stores agree.
 
@@ -1291,7 +1293,7 @@ repair, uninstall, and rollback for every required store.
 4. Add Neo4j schema/data revisions for constraints, indexes, labels,
    relationships, and property transformations.
 5. Add Chroma collection revisions and rebuild plans.
-6. Add MinIO bucket/object metadata revisions and retention-policy revisions.
+6. Add app-owned S3-compatible object store bucket/object metadata revisions and retention-policy revisions.
 7. Add Redis key namespace/version migration or intentional cache invalidation.
 8. Add JSON memory and local configuration migrations for retained files.
 9. Record overall and per-store migration versions in a durable migration ledger.
@@ -1311,7 +1313,7 @@ repair, uninstall, and rollback for every required store.
 5. Capture Redis RDB/AOF or an approved durable-state export; list intentionally
    disposable keys separately.
 6. Snapshot Chroma with collection manifests and source hashes.
-7. Mirror/export MinIO buckets, versions, metadata, policies, and object hashes.
+7. Mirror/export app-owned S3-compatible object store buckets, versions, metadata, policies, and object hashes.
 8. Capture retained configuration and JSON memory files without plaintext
    secrets.
 9. Build a signed backup manifest containing product version, service versions,
@@ -1329,7 +1331,7 @@ repair, uninstall, and rollback for every required store.
 4. Restore each store, apply required forward migrations, and run integrity and
    referential checks.
 5. Compare cross-store IDs, counts, hashes, queue state, graph links, vector
-   sources, and MinIO object references.
+   sources, and app-owned S3-compatible object store object references.
 6. Swap the restored data root atomically only after all checks pass.
 7. Preserve the prior data root until owner-confirmed success or retention expiry.
 8. Test rollback to the prior root after a failed post-restore validation.
@@ -1343,7 +1345,7 @@ repair, uninstall, and rollback for every required store.
    content, exports, backups, and cache.
 2. Implement cross-store delete orchestration and tombstone/reconciliation.
 3. Prove that user deletion removes or expires matching PostgreSQL, Neo4j,
-   Chroma, Redis, MinIO, log, and memory data.
+   Chroma, Redis, app-owned S3-compatible object store, log, and memory data.
 4. Preserve immutable audit requirements only where policy explicitly requires
    them and disclose the retention basis.
 5. Make uninstall choices explicit: keep data, export then delete, or secure
@@ -1359,7 +1361,7 @@ repair, uninstall, and rollback for every required store.
    BitLocker/device encryption on supported data volumes, implement reviewed
    application/store-level encryption, or define a documented combination. ACLs
    and non-obvious file locations are not encryption.
-3. Protect PostgreSQL, Redis persistence, Neo4j, Chroma, MinIO, retained SQLite/
+3. Protect PostgreSQL, Redis persistence, Neo4j, Chroma, app-owned S3-compatible object store, retained SQLite/
    JSON, temporary files, staging directories, exports, and crash artifacts
    consistently with their classifications.
 4. Separate encryption keys from encrypted data. Protect local wrapping keys with
@@ -1405,7 +1407,7 @@ tests/packaging/test_retained_data_reinstall.py
 
 Required store-native checks include PostgreSQL constraint/query checks, Neo4j
 schema and traversal checks, Redis persistence/stream checks, Chroma query parity,
-MinIO object hash/metadata checks, and integrity checks for retained SQLite/JSON
+app-owned S3-compatible object store object hash/metadata checks, and integrity checks for retained SQLite/JSON
 files.
 
 ### Exit gate
@@ -1924,7 +1926,7 @@ qualification pass. Evidence is under
 4. Create and verify Windows Firewall rules only with explicit owner approval;
    restrict profile, interface, address ranges, and port. Remove or disable rules
    during profile shutdown and uninstall according to the retention choice.
-5. Keep internal PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, supervisor, diagnostic,
+5. Keep internal PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store, supervisor, diagnostic,
    and administrative ports private. Only the approved gateway listener may be
    reachable by client applications.
 6. Generate high-entropy `ukg_` client secrets, return them only once, persist
@@ -2054,7 +2056,7 @@ qualification pass. Evidence is under
 3. Use Neo4j, ChromaDB, and PostgreSQL retrieval data only through the canonical
    authorized context path; client applications never receive direct database
    credentials or unrestricted store access.
-4. Use MinIO for approved large request artifacts, evidence bundles, exports, and
+4. Use app-owned S3-compatible object store for approved large request artifacts, evidence bundles, exports, and
    retained job results with hashes, encryption/ACL policy, retention, and source
    identity.
 5. Define outbox/reconciliation behavior for request, usage, trace, evidence, and
@@ -2144,7 +2146,7 @@ qualification pass. Evidence is under
   persistence, or audit.
 - **CP8-F - Control plane:** every gateway frontend control changes real backend
   state and every displayed status/trace/metric is sourced and truthful.
-- **CP8-G - Data plane:** PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO perform
+- **CP8-G - Data plane:** PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store perform
   their approved gateway responsibilities without production fallback.
 - **CP8-H - SDK and docs:** OpenAPI, supported SDKs, examples, compatibility
   matrix, API version, and installed behavior agree.
@@ -2222,7 +2224,7 @@ to governed responses.
    network paths, and special-file abuse.
 6. Persist ingestion jobs, files, chunks, attempts, errors, and checkpoints in
    PostgreSQL; use Redis for queue/lease/event behavior.
-7. Store approved original/normalized artifacts in MinIO with hashes and
+7. Store approved original/normalized artifacts in app-owned S3-compatible object store with hashes and
    retention metadata.
 8. Run canonical prompt-injection/content-defense policy on extracted content and
    record the result.
@@ -2236,7 +2238,7 @@ to governed responses.
 3. Write graph entities/relationships to Neo4j through the outbox/reconciliation
    path.
 4. Write vectors and metadata to the versioned Chroma collection.
-5. Store large source/artifact payloads in MinIO.
+5. Store large source/artifact payloads in app-owned S3-compatible object store.
 6. Use Redis for jobs, locks, deduplication windows, and progress events.
 7. Mark the job complete only when all required stores confirm the expected
    revision.
@@ -2264,7 +2266,7 @@ to governed responses.
 #### 17.4 Memory model
 
 1. Define the distinct roles of chat history, TruthMemory, UnifiedMemory, Redis
-   cache, PostgreSQL records, Neo4j graph, and MinIO artifacts.
+   cache, PostgreSQL records, Neo4j graph, and app-owned S3-compatible object store artifacts.
 2. Remove duplicate memory authorities or define synchronization and conflict
    behavior.
 3. Prevent memory poisoning by requiring source/run identity, policy result,
@@ -2320,7 +2322,7 @@ deletion, and packaged Knowledge/Graph proof remain explicit CP9 gates.
 - **CP9-A - Durable jobs:** ingestion survives backend/Electron restart without
   losing or duplicating work.
 - **CP9-B - Cross-store consistency:** corpus scanner reports no unexplained
-  PostgreSQL/Neo4j/Chroma/MinIO divergence.
+  PostgreSQL/Neo4j/Chroma/app-owned S3-compatible object store divergence.
 - **CP9-C - Security:** malicious archive/path/content fixtures are contained and
   reported.
 - **CP9-D - Causal retrieval:** source changes alter citations, validation, or
@@ -2367,12 +2369,12 @@ durable progress, evidence-backed results, and safe cancellation.
 5. Calculate and display the maximum provider/tool call count and estimated cost
    before execution.
 6. Persist simulation, steps, events, calls, evidence, checkpoints, artifacts,
-   cancellation, and final status in PostgreSQL/Redis/MinIO.
+   cancellation, and final status in PostgreSQL/Redis/app-owned S3-compatible object store.
 7. Emit real progress events consumed by the UI.
 8. Support pause, resume, cancel, retry failed step, and app restart.
 9. Derive confidence from explicit validators/evidence, not turn count or textual
    agreement.
-10. Store large transcripts and artifacts in MinIO, relationship/provenance data
+10. Store large transcripts and artifacts in app-owned S3-compatible object store, relationship/provenance data
     in Neo4j, and searchable summaries in Chroma where approved.
 11. Apply the same privacy, policy, trace, timeout, cancellation, and error
     taxonomy as the canonical request path.
@@ -2399,7 +2401,7 @@ npm --prefix frontend test -- app/simulations
 
 Add deterministic assertions for maximum provider/tool calls, persisted step
 order, progress event parity, pause/resume, cancellation, restart recovery,
-artifact presence in MinIO, graph links in Neo4j, and zero recursive invocation
+artifact presence in app-owned S3-compatible object store, graph links in Neo4j, and zero recursive invocation
 of the full governed pipeline from individual debate turns.
 
 ### Engineering checkpoint status - complete 2026-07-14
@@ -2460,7 +2462,7 @@ authority or placeholder production behavior.
 11. Route sampling through the approved provider path with call budgets and
     trace/egress records.
 12. Persist server/client configuration, lifecycle events, tool calls, consent,
-    results, and errors in PostgreSQL; use Redis for live events and MinIO for
+    results, and errors in PostgreSQL; use Redis for live events and app-owned S3-compatible object store for
     large artifacts.
 13. Add connector health, capability discovery, partial-discovery error state,
     restart, timeout, cancellation, and version compatibility.
@@ -2675,7 +2677,7 @@ or presenting heuristic controls as certifications.
 
 1. Use one correlation/run ID across Electron, loopback API, orchestrator,
    workers, providers, PostgreSQL, Redis jobs, Neo4j sync, Chroma operations,
-   MinIO artifacts, simulations, and MCP.
+   app-owned S3-compatible object store artifacts, simulations, and MCP.
 2. Emit structured JSON logs with component, event, severity, safe error code,
    duration, state transition, and redaction classification.
 3. Define fields that must never be logged: secrets, authorization headers,
@@ -2814,7 +2816,7 @@ the exact reviewed application and internal service data plane.
    runtime ranges in the release build.
 5. Pin internal service images/binaries by version and digest/hash.
 6. Record Electron, Chromium, Node, Python, PyInstaller, PostgreSQL, Redis,
-   Neo4j, JRE, Chroma, MinIO, SDK, driver, and native library versions in the
+   Neo4j, JRE, Chroma, app-owned S3-compatible object store, SDK, driver, and native library versions in the
    release manifest.
 7. Define supported upgrade cadence and emergency dependency-update procedure.
 
@@ -3085,7 +3087,7 @@ Complete the real installed-app workflows from Phase 12 using:
 - Redis queues/streams/cache/rate-limit state;
 - Neo4j graph persistence/traversal;
 - Chroma vector retrieval;
-- MinIO object/artifact storage;
+- app-owned S3-compatible object store object/artifact storage;
 - valid owner-supplied Google and OpenAI keys;
 - provider-disabled/offline mode;
 - a real local MCP fixture and malicious fixture;
@@ -3109,7 +3111,7 @@ Inject at minimum:
 - PostgreSQL migration/constraint/deadlock/connection failure;
 - Redis eviction, restart, duplicate job, stuck lease, and stream replay;
 - Neo4j sync divergence, missing constraint, transaction failure, and restart;
-- MinIO missing bucket, permission denial, partial upload, corrupt object, and
+- app-owned S3-compatible object store missing bucket, permission denial, partial upload, corrupt object, and
   restart;
 - provider invalid key, unauthorized model, quota, rate limit, timeout, malformed
   response, partial stream, and cancellation;
@@ -3243,7 +3245,7 @@ This phase does not polish every existing Markdown file. It builds the minimum
 sufficient production set from approved requirements, verified code, generated
 contracts, test evidence, and the signed release candidate; then it merges,
 archives, or deletes the superseded material. External review readiness must not
-change or remove PostgreSQL, Redis, Neo4j, ChromaDB, or MinIO responsibilities.
+change or remove PostgreSQL, Redis, Neo4j, ChromaDB, or app-owned S3-compatible object store responsibilities.
 
 ### CP16-A information-architecture checkpoint - complete 2026-07-14
 
@@ -3343,7 +3345,7 @@ may be retained only when they meet the same role and control standard.
 13. System architecture description with context, container, component, runtime,
     deployment, and lifecycle views.
 14. Data architecture and schema specification covering PostgreSQL, Redis, Neo4j,
-    ChromaDB, MinIO, cross-store IDs, migrations, reconciliation, retention,
+    ChromaDB, app-owned S3-compatible object store, cross-store IDs, migrations, reconciliation, retention,
     backup, restore, and encryption.
 15. Interface and client-integration specification for native HTTP/OpenAPI,
     bounded OpenAI compatibility, SDKs, sync/SSE/async/cancel behavior, client
@@ -3829,7 +3831,7 @@ These checks are cumulative. Later phases run all earlier applicable gates.
 ### 28.1 Every code checkpoint
 
 ```powershell
-python -m ruff check .
+python -m ruff check . --select E9,F63,F7
 python -m pytest -q
 npm --prefix frontend run lint
 npm --prefix frontend run typecheck
@@ -3944,7 +3946,7 @@ them:
 | Documentation | zero errors and zero active-doc style/heading warnings |
 
 Resource budgets for RAM, CPU, disk, log growth, Chroma/Neo4j cache, Redis memory,
-MinIO capacity, and worker concurrency must be derived from the full five-service
+app-owned S3-compatible object store capacity, and worker concurrency must be derived from the full five-service
 profile. They must not be set by measuring the current SQLite/filesystem fallback
 profile.
 
@@ -3955,7 +3957,7 @@ The release is **GO** only when every item is `PASS` with linked evidence:
 ### Product and architecture
 
 - [ ] Local-first Windows scope is unchanged and documented.
-- [ ] PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are present and actively used.
+- [ ] PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are present and actively used.
 - [ ] No cloud database, SaaS control plane, or unsupported provider is required.
 - [ ] One canonical governed path matches the architecture and UI.
 - [ ] The API gateway is the primary integration surface and the desktop is its
@@ -4088,10 +4090,8 @@ exit gate.
 
 ## 32. Immediate next action
 
-Resolve the remaining data-plane blocker next: complete the final object-store
-Replacement Control with contract parity, durability, backup/restore, security,
-licensing, Windows delivery, migration/rollback, and the recorded owner decision.
-Then rebuild the exact signed release candidate, bind CP16-G, execute CP17-E, and
+Rebuild the exact signed release candidate with SeaweedFS 4.40-dle.1, bind
+CP16-G, execute CP17-E, and
 run the retained installed/manual/external gates. Do not imply that document
 consolidation closes installed/manual/external release gates.
 
@@ -4102,6 +4102,5 @@ Documentation work may proceed, but it cannot convert source or unsigned
 qualification evidence into installed production acceptance.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
-all independent-review requirements, and the SeaweedFS candidate-
-only Replacement Control boundary until their named evidence and owner
-approvals exist.
+all independent-review requirements, and object-store production-approval false
+until their named installed evidence and owner approvals exist.

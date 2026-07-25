@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-authority.v1",
-  "program_version": "2026.07.15-approved2",
+  "program_version": "2026.07.24-approved3",
   "status": "approved_phase16_replacement_closed",
   "approval": {
     "status": "approved",
@@ -64,6 +64,7 @@
     "CODE_OF_CONDUCT.md",
     "COMMERCIAL_LICENSE.md",
     "PRODUCTION_COMPLETION_PLAN_2026.md",
+    "docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md",
     "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md"
   ],
   "historical_prefixes": [

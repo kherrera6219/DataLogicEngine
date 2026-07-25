@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-07-15T10:10:15.161816+00:00",
-  "authority_version": "2026.07.15-approved2",
+  "generated_at": "2026-07-25T06:46:23.265566+00:00",
+  "authority_version": "2026.07.24-approved3",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 153,
+    "markdown_file_count": 154,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -14,7 +14,7 @@
     "unclassified_count": 0,
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
-      "authoritative": 34,
+      "authoritative": 35,
       "generated": 6,
       "historical": 113
     }
@@ -69,6 +69,14 @@
       "target": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md",
+      "cap_counted": false,
+      "basis": "normative legal or temporary program authority outside the final canonical cap"
     },
     {
       "path": "docs/adr/README.md",

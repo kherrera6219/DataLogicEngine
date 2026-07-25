@@ -46,15 +46,16 @@ policy. The approved product is not a vendor-operated multi-tenant SaaS.
 | Integration | Versioned same-host API gateway; private Windows gateway only after its separate qualification |
 | Identity | Single owner/operator with Windows and installation-bound controls; not multi-tenant identity |
 | Providers | Owner-configured OpenAI or Google credentials and approved manifest models |
-| Data plane | App-owned PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO production services |
+| Data plane | App-owned PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store production services |
 | Connectors | Owner-approved local MCP stdio processes within recorded scope and consent |
 | Distribution | Signed, timestamped Windows installer after all release authorities pass |
 
-SeaweedFS remains a qualification-only MinIO replacement candidate under
-ADR-0004. It becomes the selected implementation only after contract parity,
-durability, backup/restore, security, licensing, migration/rollback, Windows
-delivery, and final approval pass. Until then, MinIO remains the product-specific
-object-store requirement.
+The product requirement is the capability **app-owned S3-compatible object
+store**. ADR-0010 selects SeaweedFS 4.40-dle.1 for rebuilt installed
+qualification after the engineering contract, durability, backup/restore,
+security, licensing, migration/rollback, Windows, and owner-decision gates
+passed. Production authorization remains false until installed release
+acceptance passes.
 
 ## Explicit exclusions
 
@@ -129,9 +130,10 @@ Engineering checkpoints exist for Phases 0 through 15, but the signed installed
 acceptance matrices and independent/manual gates remain open. Two clean candidate
 builds still differ at the byte level, the current candidate is unsigned, and
 its packaged backend correctly refused startup when protected-volume readiness
-could not be proved. Critical dependency alert 389, legal/distribution authority,
-final object-store selection, accessibility/manual review, pilot, and soak gates
-also remain open. Production/public release is **NO-GO**.
+could not be proved. Installed and independent acceptance of the selected object
+store, legal/distribution authority, accessibility/manual review, pilot, and
+soak gates also remain open. Dependabot alert 389 is fixed.
+Production/public release is **NO-GO**.
 
 ## Change control
 

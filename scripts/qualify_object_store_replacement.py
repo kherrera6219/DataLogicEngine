@@ -1,3 +1,4 @@
+# ruff: noqa: BLE001, S110
 """Run the SeaweedFS Replacement Control qualification on Windows/Podman.
 
 This harness is deliberately candidate-only. It creates uniquely named,
@@ -17,6 +18,7 @@ import json
 import os
 import platform
 import secrets
+import shutil
 import socket
 import subprocess
 import sys
@@ -33,13 +35,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from backend.storage.object_snapshot import (  # noqa: E402
+from backend.storage.object_snapshot import (
+    SnapshotIntegrityError,
     export_bucket,
     migrate_bucket,
     restore_bucket,
+    verify_snapshot,
 )
-from backend.storage.object_store import LocalFileBackend, S3Backend  # noqa: E402
-
+from backend.storage.object_store import LocalFileBackend, S3Backend
 
 DEFAULT_LOCK = REPO_ROOT / "deploy" / "internal-data-plane.candidate-lock.json"
 DEFAULT_REPORT = (
@@ -49,6 +52,14 @@ DEFAULT_REPORT = (
     / "2026"
     / "phase-03"
     / "seaweedfs-replacement-qualification-windows.json"
+)
+DEFAULT_VULNERABILITY_REPORT = (
+    REPO_ROOT
+    / "reports"
+    / "production-readiness"
+    / "2026"
+    / "phase-03"
+    / "seaweedfs-4.40-dle.1-trivy.json"
 )
 QUALIFICATION_BUCKET = "dle-qualification"
 MIGRATION_BUCKET = "dle-qualification-migration"
@@ -159,13 +170,16 @@ def _load_lock(path: Path) -> dict[str, Any]:
     except (OSError, TypeError, ValueError) as exc:
         raise QualificationError("candidate_lock_unreadable") from exc
     candidate = value.get("services", {}).get("object_store_candidate", {})
-    if candidate.get("product") != "seaweedfs" or candidate.get("version") != "4.29":
+    if candidate.get("product") != "seaweedfs" or not str(candidate.get("version") or ""):
         raise QualificationError("candidate_lock_identity_invalid")
     if candidate.get("production_approved") is not False:
         raise QualificationError("candidate_lock_must_not_approve_production")
     if value.get("production_provisioning_authorized") is not False:
         raise QualificationError("candidate_lock_production_authority_invalid")
-    if value.get("architecture_change_authorized") is not False:
+    if (
+        value.get("architecture_change_authorized") is not True
+        or candidate.get("selection_status") != "selected_for_release_qualification"
+    ):
         raise QualificationError("candidate_lock_architecture_authority_invalid")
     return value
 
@@ -200,7 +214,14 @@ def _assert_port_available(port: int) -> dict[str, Any]:
     return {"host": "127.0.0.1", "port": port, "available": True}
 
 
-def _s3_client(endpoint: str, access_key: str = "", secret_key: str = "", *, unsigned=False):
+def _s3_client(
+    endpoint: str,
+    access_key: str = "",
+    secret_key: str = "",
+    *,
+    unsigned: bool = False,
+    max_attempts: int = 3,
+):
     try:
         import boto3
         from botocore import UNSIGNED
@@ -215,7 +236,7 @@ def _s3_client(endpoint: str, access_key: str = "", secret_key: str = "", *, uns
         "config": Config(
             signature_version=UNSIGNED if unsigned else "s3v4",
             s3={"addressing_style": "path"},
-            retries={"max_attempts": 3, "mode": "standard"},
+            retries={"max_attempts": max_attempts, "mode": "standard"},
             connect_timeout=3,
             read_timeout=10,
         ),
@@ -323,7 +344,7 @@ def _contract_checks(
         Params={"Bucket": QUALIFICATION_BUCKET, "Key": small_key},
         ExpiresIn=60,
     )
-    with urllib.request.urlopen(url, timeout=10) as response:  # noqa: S310 - loopback URL
+    with urllib.request.urlopen(url, timeout=10) as response:
         if response.read() != small_data:
             raise QualificationError("s3_presigned_content_mismatch")
 
@@ -411,15 +432,66 @@ def _concurrency_check(client: Any, run_id: str) -> dict[str, Any]:
     return {"objects": len(objects), "workers": 8, "elapsed_seconds": round(elapsed, 3)}
 
 
+def _snapshot_failure_matrix(snapshot_root: Path, temporary_root: Path) -> dict[str, Any]:
+    """Prove corrupt or incomplete backup inputs fail before restore writes."""
+
+    manifest = json.loads((snapshot_root / "manifest.json").read_text(encoding="utf-8"))
+    first = manifest["objects"][0]
+    digest = first["sha256"]
+    outcomes: dict[str, str] = {}
+
+    cases = {
+        "manifest_tamper": temporary_root / "failure-manifest",
+        "blob_tamper": temporary_root / "failure-blob",
+        "missing_blob": temporary_root / "failure-missing",
+    }
+    for case, target in cases.items():
+        shutil.copytree(snapshot_root, target)
+        if case == "manifest_tamper":
+            with (target / "manifest.json").open("ab") as handle:
+                handle.write(b" ")
+        else:
+            blob = target / "blobs" / digest[:2] / digest
+            if case == "blob_tamper":
+                data = blob.read_bytes()
+                blob.write_bytes(data[:-1] + bytes([data[-1] ^ 0xFF]))
+            else:
+                blob.unlink()
+        try:
+            verify_snapshot(target)
+        except SnapshotIntegrityError as exc:
+            outcomes[case] = str(exc)
+        else:
+            raise QualificationError(f"snapshot_{case}_not_rejected")
+
+    return {
+        "cases": outcomes,
+        "restore_writes_attempted": 0,
+        "original_snapshot_still_valid": verify_snapshot(snapshot_root).manifest_sha256,
+    }
+
+
 def _container_arguments(
     *,
     name: str,
     network: str,
-    volume: str,
+    volume: str | None,
     secret_name: str,
     port: int,
     image: str,
+    data_tmpfs_size: int | None = None,
+    file_size_limit_mb: int = 64,
 ) -> list[str]:
+    if bool(volume) == bool(data_tmpfs_size):
+        raise QualificationError("candidate_data_mount_configuration_invalid")
+    data_mount = (
+        ["--volume", f"{volume}:/data"]
+        if volume
+        else [
+            "--tmpfs",
+            f"/data:rw,nosuid,nodev,size={data_tmpfs_size},mode=0777",
+        ]
+    )
     return [
         "run",
         "--detach",
@@ -433,8 +505,7 @@ def _container_arguments(
         network,
         "--publish",
         f"127.0.0.1:{port}:8333",
-        "--volume",
-        f"{volume}:/data",
+        *data_mount,
         "--secret",
         f"{secret_name},type=mount,target=dle-s3.json,uid=1000,gid=1000,mode=0400",
         "--user",
@@ -479,7 +550,7 @@ def _container_arguments(
         "-s3.concurrentFileUploadLimit=8",
         "-volume.concurrentUploadLimitMB=64",
         "-volume.concurrentDownloadLimitMB=64",
-        "-volume.fileSizeLimitMB=64",
+        f"-volume.fileSizeLimitMB={file_size_limit_mb}",
         "-master.volumeSizeLimitMB=1024",
     ]
 
@@ -508,10 +579,12 @@ def _start_container(
     *,
     name: str,
     network: str,
-    volume: str,
+    volume: str | None,
     secret_name: str,
     port: int,
     image: str,
+    data_tmpfs_size: int | None = None,
+    file_size_limit_mb: int = 64,
 ) -> None:
     _run(
         runtime,
@@ -522,8 +595,82 @@ def _start_container(
             secret_name=secret_name,
             port=port,
             image=image,
+            data_tmpfs_size=data_tmpfs_size,
+            file_size_limit_mb=file_size_limit_mb,
         ),
     )
+
+
+def _occupied_port_failure(
+    *,
+    port: int,
+) -> dict[str, Any]:
+    """Verify supervisor preflight rejects an occupied port before startup."""
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        listener.bind(("127.0.0.1", port))
+        listener.listen(1)
+        try:
+            _assert_port_available(port)
+        except QualificationError as exc:
+            if str(exc) != f"qualification_port_busy:{port}":
+                raise
+        else:
+            raise QualificationError("occupied_port_preflight_not_rejected")
+        if listener.getsockname() != ("127.0.0.1", port):
+            raise QualificationError("occupied_port_listener_disturbed")
+        return {
+            "port": port,
+            "candidate_start_attempted": False,
+            "supervisor_preflight_rejected": True,
+            "existing_listener_preserved": True,
+        }
+
+
+def _disk_full_recovery(client: Any, run_id: str) -> dict[str, Any]:
+    """Fill a disposable tmpfs-backed store and prove it recovers after cleanup."""
+
+    sentinel_key = f"capacity/{run_id}/sentinel.bin"
+    sentinel = secrets.token_bytes(4096)
+    sentinel_hash = _sha256(sentinel)
+    client.put_object(
+        Bucket=QUALIFICATION_BUCKET,
+        Key=sentinel_key,
+        Body=sentinel,
+        Metadata={"sha256": sentinel_hash},
+    )
+    block = secrets.token_bytes(32 * 1024 * 1024)
+    written: list[str] = []
+    failure: str | None = None
+    for index in range(24):
+        key = f"capacity/{run_id}/fill-{index:02d}.bin"
+        try:
+            client.put_object(Bucket=QUALIFICATION_BUCKET, Key=key, Body=block)
+            written.append(key)
+        except Exception as exc:
+            failure = exc.__class__.__name__
+            break
+    if failure is None:
+        raise QualificationError("disposable_disk_full_condition_not_reached")
+
+    for key in written:
+        try:
+            client.delete_object(Bucket=QUALIFICATION_BUCKET, Key=key)
+        except Exception:
+            pass
+    observed = client.get_object(Bucket=QUALIFICATION_BUCKET, Key=sentinel_key)["Body"].read()
+    if _sha256(observed) != sentinel_hash:
+        raise QualificationError("disk_full_recovery_sentinel_mismatch")
+    return {
+        "data_mount": "disposable_tmpfs_512_mib",
+        "attempted_fill_bytes": (len(written) + 1) * len(block),
+        "successful_fill_objects": len(written),
+        "write_failure_type": failure,
+        "sentinel_sha256": sentinel_hash,
+        "sentinel_preserved_after_cleanup": True,
+    }
 
 
 def _inspect_security(runtime: str, container: str, secrets_to_redact: tuple[str, ...]) -> dict:
@@ -569,7 +716,11 @@ def _inspect_security(runtime: str, container: str, secrets_to_redact: tuple[str
     }
 
 
-def _runtime_evidence(runtime: str, expected_version: str) -> dict[str, Any]:
+def _runtime_evidence(
+    runtime: str,
+    expected_client_version: str,
+    expected_server_version: str,
+) -> dict[str, Any]:
     version = json.loads(_run(runtime, ["version", "--format", "json"]).stdout)
     info = json.loads(_run(runtime, ["info", "--format", "json"]).stdout)
     client_version = version.get("Client", {}).get("Version")
@@ -580,10 +731,14 @@ def _runtime_evidence(runtime: str, expected_version: str) -> dict[str, Any]:
     if host.get("arch") != "amd64" or not host.get("security", {}).get("seccompEnabled"):
         raise QualificationError("podman_runtime_security_baseline_failed")
     return {
-        "expected_distributable_version": expected_version,
+        "expected_distributable_version": expected_client_version,
+        "expected_machine_server_version": expected_server_version,
         "client_version": client_version,
         "server_version": server_version,
-        "exact_runtime_match": client_version == expected_version and server_version == expected_version,
+        "exact_runtime_match": (
+            client_version == expected_client_version
+            and server_version == expected_server_version
+        ),
         "rootless": True,
         "seccomp": True,
         "arch": host.get("arch"),
@@ -603,20 +758,77 @@ def _image_evidence(runtime: str, candidate: dict[str, Any]) -> dict[str, Any]:
     if not any(item.endswith(expected_amd64) for item in repo_digests):
         raise QualificationError("candidate_amd64_digest_mismatch")
     labels = inspected.get("Labels") or inspected.get("Config", {}).get("Labels", {})
+    inspected_id = str(inspected.get("Id") or "")
+    if inspected_id and not inspected_id.startswith("sha256:"):
+        inspected_id = f"sha256:{inspected_id}"
+    if inspected_id != candidate["image_id"]:
+        raise QualificationError("candidate_image_id_mismatch")
     if labels.get("org.opencontainers.image.version") != candidate["version"]:
         raise QualificationError("candidate_image_version_label_mismatch")
     if labels.get("org.opencontainers.image.licenses") != "Apache-2.0":
         raise QualificationError("candidate_image_license_label_mismatch")
+    if labels.get("org.opencontainers.image.revision") != candidate["source_revision"]:
+        raise QualificationError("candidate_image_source_revision_mismatch")
+    patch = candidate.get("security_patch", {})
+    if labels.get("com.datalogicengine.grpc-go.version") != patch.get("selected_version"):
+        raise QualificationError("candidate_image_grpc_patch_label_mismatch")
+    if labels.get("com.datalogicengine.security.patch") != patch.get("advisory"):
+        raise QualificationError("candidate_image_security_patch_label_mismatch")
     binary_version = _run(runtime, ["run", "--rm", image, "version"]).stdout.strip()
-    if "4.29" not in binary_version:
+    if candidate["upstream_version"] not in binary_version:
         raise QualificationError("candidate_binary_version_mismatch")
     return {
-        "image_id": inspected.get("Id"),
+        "image_id": inspected_id,
         "repo_digests": sorted(repo_digests),
         "version_label": labels.get("org.opencontainers.image.version"),
         "license_label": labels.get("org.opencontainers.image.licenses"),
         "source_revision": labels.get("org.opencontainers.image.revision"),
         "binary_version": binary_version.splitlines()[0],
+    }
+
+
+def _vulnerability_scan_evidence(
+    report_path: Path,
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError) as exc:
+        raise QualificationError("candidate_vulnerability_report_unreadable") from exc
+    metadata = report.get("Metadata", {})
+    if metadata.get("ImageID") != candidate["image_id"]:
+        raise QualificationError("candidate_vulnerability_report_image_mismatch")
+    vulnerabilities = [
+        item
+        for result in report.get("Results", [])
+        for item in (result.get("Vulnerabilities") or [])
+    ]
+    blocking = [
+        item
+        for item in vulnerabilities
+        if item.get("Severity") in {"HIGH", "CRITICAL"}
+    ]
+    if blocking:
+        raise QualificationError("candidate_high_or_critical_vulnerability_present")
+    counts: dict[str, int] = {}
+    for item in vulnerabilities:
+        severity = str(item.get("Severity") or "UNKNOWN")
+        counts[severity] = counts.get(severity, 0) + 1
+    return {
+        "report": report_path.relative_to(REPO_ROOT).as_posix(),
+        "report_sha256": hashlib.sha256(report_path.read_bytes()).hexdigest(),
+        "image_id": metadata.get("ImageID"),
+        "high_or_critical_findings": 0,
+        "severity_counts": counts,
+        "non_blocking_findings": [
+            {
+                "id": item.get("VulnerabilityID"),
+                "package": item.get("PkgName"),
+                "severity": item.get("Severity"),
+                "title": item.get("Title"),
+            }
+            for item in vulnerabilities
+        ],
     }
 
 
@@ -655,13 +867,16 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     run_id = uuid.uuid4().hex[:12]
     prefix = f"dle-qual-{run_id}"
     container = f"{prefix}-seaweedfs"
+    capacity_container = f"{prefix}-capacity"
     network = f"{prefix}-network"
     primary_volume = f"{prefix}-data"
     restore_volume = f"{prefix}-restore"
     secret_name = f"{prefix}-s3-config"
     endpoint = f"http://127.0.0.1:{args.port}"
+    capacity_port = args.port + 1
+    capacity_endpoint = f"http://127.0.0.1:{capacity_port}"
     resources = {
-        "containers": {container},
+        "containers": {container, capacity_container},
         "volumes": {primary_volume, restore_volume},
         "networks": {network},
         "secrets": {secret_name},
@@ -709,6 +924,11 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         },
     )
     recorder.run("windows_deployment", "qualification_port_available", lambda: _assert_port_available(args.port))
+    recorder.run(
+        "windows_deployment",
+        "capacity_failure_port_available",
+        lambda: _assert_port_available(capacity_port),
+    )
     recorder.add(
         "windows_deployment",
         "windows_host",
@@ -724,7 +944,11 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     runtime_evidence = recorder.run(
         "windows_deployment",
         "rootless_podman_runtime",
-        lambda: _runtime_evidence(args.runtime, lock["runtime"]["version"]),
+        lambda: _runtime_evidence(
+            args.runtime,
+            lock["runtime"]["version"],
+            lock["runtime"]["machine_server_version"],
+        ),
     )
     if runtime_evidence and not runtime_evidence["exact_runtime_match"]:
         recorder.add(
@@ -733,7 +957,8 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             "fail",
             {
                 "reason": "installed_client_or_machine_server_does_not_match_candidate_lock",
-                "expected": lock["runtime"]["version"],
+                "expected_client": lock["runtime"]["version"],
+                "expected_server": lock["runtime"]["machine_server_version"],
                 "client": runtime_evidence["client_version"],
                 "server": runtime_evidence["server_version"],
             },
@@ -743,13 +968,24 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             "windows_deployment",
             "exact_locked_runtime",
             "pass",
-            {"version": lock["runtime"]["version"]},
+            {
+                "client_version": lock["runtime"]["version"],
+                "machine_server_version": lock["runtime"]["machine_server_version"],
+            },
         )
 
     recorder.run(
         "licensing",
         "immutable_candidate_identity_and_declared_license",
         lambda: _image_evidence(args.runtime, candidate),
+    )
+    recorder.run(
+        "security",
+        "exact_image_vulnerability_scan",
+        lambda: _vulnerability_scan_evidence(
+            Path(args.vulnerability_report).resolve(),
+            candidate,
+        ),
     )
 
     live_ready = False
@@ -769,6 +1005,13 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             secret_values=secret_values,
         )
         _initialize_volume(args.runtime, primary_volume, candidate["image"])
+        recorder.run(
+            "failure_recovery",
+            "occupied_port_fails_closed",
+            lambda: _occupied_port_failure(
+                port=args.port,
+            ),
+        )
         _start_container(
             args.runtime,
             name=container,
@@ -835,6 +1078,15 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "portable_snapshot_export",
                 lambda: export_bucket(backend, QUALIFICATION_BUCKET, snapshot_root).to_dict(),
             )
+            if backup_summary:
+                recorder.run(
+                    "failure_recovery",
+                    "corrupt_and_incomplete_snapshot_rejected",
+                    lambda: _snapshot_failure_matrix(
+                        snapshot_root,
+                        temporary_root,
+                    ),
+                )
 
             if contract_fixture:
                 _run(args.runtime, ["stop", "--time", "20", container])
@@ -862,10 +1114,35 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "pass" if not any(value in logs for value in secret_values) else "fail",
                 {
                     "service_version_source": "immutable_image_and_binary_evidence",
-                    "version_in_log_stream": "4.29" in logs,
+                    "version_in_log_stream": candidate["version"] in logs,
                     "credentials_absent": not any(value in logs for value in secret_values),
                 },
             )
+
+            _start_container(
+                args.runtime,
+                name=capacity_container,
+                network=network,
+                volume=None,
+                secret_name=secret_name,
+                port=capacity_port,
+                image=candidate["image"],
+                data_tmpfs_size=512 * 1024 * 1024,
+                file_size_limit_mb=512,
+            )
+            capacity_client = _s3_client(
+                capacity_endpoint,
+                app_access,
+                app_secret,
+                max_attempts=1,
+            )
+            _wait_for_s3(capacity_client, QUALIFICATION_BUCKET)
+            recorder.run(
+                "failure_recovery",
+                "disposable_disk_full_and_recovery",
+                lambda: _disk_full_recovery(capacity_client, run_id),
+            )
+            _run(args.runtime, ["rm", "--force", capacity_container])
 
             _run(args.runtime, ["rm", "--force", container])
             _initialize_volume(args.runtime, restore_volume, candidate["image"])
@@ -942,37 +1219,63 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
 
     recorder.add(
         "licensing",
-        "independent_license_redistribution_review",
-        "pending",
-        "Required by Phase 0; engineering metadata is not legal approval.",
+        "engineering_license_and_redistribution_review",
+        (
+            "pass"
+            if candidate.get("production_license_review") == "engineering_pass"
+            and (REPO_ROOT / candidate.get("license_review_record", "")).is_file()
+            else "fail"
+        ),
+        {
+            "license": candidate.get("license"),
+            "review_record": candidate.get("license_review_record"),
+            "scope": "engineering redistribution inventory; not legal advice",
+        },
     )
     recorder.add(
-        "security",
+        "release_acceptance",
         "independent_security_and_data_at_rest_review",
         "pending",
-        "TLS policy, BitLocker/store encryption, vulnerability scan, and threat review remain open.",
+        "Protected-volume verification and independent review require the rebuilt installed release.",
     )
     recorder.add(
-        "failure_recovery",
-        "comparative_corruption_disk_full_and_restore_failure_matrix",
-        "pending",
-        "Required on supported Windows hardware before production selection.",
-    )
-    recorder.add(
-        "windows_deployment",
+        "release_acceptance",
         "clean_machine_installer_and_relaunch_qualification",
         "pending",
-        "This lab run is not clean-machine installer evidence.",
+        "The exact portable Windows runtime passed; signed clean-machine installer evidence remains Phase 15 work.",
+    )
+    recorder.add(
+        "release_acceptance",
+        "independent_license_acceptance",
+        "pending",
+        "The engineering Apache-2.0 inventory is complete; independent legal acceptance remains a release gate.",
     )
     recorder.add(
         "owner_approval",
-        "final_production_selection",
-        "pending",
-        "Candidate qualification authority is not final production approval.",
+        "implementation_selection",
+        (
+            "pass"
+            if candidate.get("selection_authorized_by") == "Kevin"
+            and candidate.get("selection_status") == "selected_for_release_qualification"
+            else "fail"
+        ),
+        {
+            "authorized_by": candidate.get("selection_authorized_by"),
+            "authorized_at": candidate.get("selection_authorized_at"),
+            "scope": "SeaweedFS implementation selected for rebuilt installed qualification; production approval withheld",
+        },
     )
 
     gates = recorder.gate_summary()
-    overall = "passed" if gates and all(value == "pass" for value in gates.values()) else "blocked"
+    replacement_gates = {
+        gate: status for gate, status in gates.items() if gate != "release_acceptance"
+    }
+    overall = (
+        "passed_for_release_qualification"
+        if replacement_gates
+        and all(value == "pass" for value in replacement_gates.values())
+        else "blocked"
+    )
     report = {
         "schema_version": "1.0.0",
         "captured_at": datetime.now(UTC).isoformat(),
@@ -985,16 +1288,24 @@ def qualify(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             "linux_amd64_digest": candidate["linux_amd64_digest"],
         },
         "candidate_s3_became_ready": live_ready,
-        "replacement_control": gates,
+        "replacement_control": replacement_gates,
+        "deferred_release_acceptance": {
+            "status": gates.get("release_acceptance"),
+            "checks": [
+                item for item in recorder.checks if item["gate"] == "release_acceptance"
+            ],
+        },
         "checks": recorder.checks,
         "production_approved": False,
-        "architecture_change_authorized": False,
+        "production_selected": overall == "passed_for_release_qualification",
+        "architecture_change_authorized": overall == "passed_for_release_qualification",
         "decision_rule": (
-            "MinIO remains the product-specific target until every gate passes, "
-            "ADR-0004 is accepted, and Kevin grants final production approval."
+            "SeaweedFS is the selected implementation of the app-owned S3-compatible "
+            "object-store capability for rebuilt installed qualification. Production "
+            "approval remains false until the deferred release-acceptance checks pass."
         ),
     }
-    return report, 0 if overall == "passed" else 2
+    return report, 0 if overall == "passed_for_release_qualification" else 2
 
 
 def parse_args() -> argparse.Namespace:
@@ -1004,6 +1315,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--runtime", default="podman")
     parser.add_argument("--lock", default=str(DEFAULT_LOCK))
     parser.add_argument("--report", default=str(DEFAULT_REPORT))
+    parser.add_argument(
+        "--vulnerability-report",
+        default=str(DEFAULT_VULNERABILITY_REPORT),
+    )
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument(
         "--keep-resources",

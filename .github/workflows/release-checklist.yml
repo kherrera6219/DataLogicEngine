@@ -23,10 +23,10 @@ jobs:
       with:
         node-version: '24'
 
-    - name: Validate release checklist docs exist
+    - name: Validate canonical release governance docs exist
       run: |
-        test -f docs/RELEASE_CHECKLIST.md
-        test -f docs/BRANCH_PROTECTION_POLICY.md
+        test -f docs/RELEASE_READINESS_RECORD.md
+        test -f docs/SOFTWARE_LIFECYCLE_PLAN.md
         test -f docs/DOCS_VERSION.json
 
     - name: Validate changelog entry for tag

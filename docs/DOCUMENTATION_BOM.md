@@ -5,7 +5,7 @@
 
 ## Control status
 
-- Authority version: `2026.07.15-approved2`
+- Authority version: `2026.07.24-approved3`
 - Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`

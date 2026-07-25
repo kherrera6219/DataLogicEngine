@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.product-version-parity.v1",
-  "generated_at": "2026-07-15T10:11:50.985201+00:00",
+  "generated_at": "2026-07-25T06:46:26.781226+00:00",
   "authority": "config/product-versions.json",
   "checks": [
     {

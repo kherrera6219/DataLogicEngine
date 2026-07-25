@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-15 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-18 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -26,14 +26,16 @@ This record does not authorize distribution. Engineering checkpoints through
 Phase 15 and Phase 16 documentation construction show substantial implemented
 controls, but the exact signed installed release, reproducibility, legal,
 security, accessibility, human, independent, and operational acceptance gates
-are incomplete. Critical dependency alert 389 remains open.
+are incomplete. Dependabot alert 389 is fixed by removal of the vulnerable
+Python SDK; its adversarial replacement evidence remains part of the release
+record.
 
 The 2026-07-15 CI/security maintenance checkpoint passes locally: a clean
 short-path Windows environment installs the complete hash lock with no broken
 requirements, the dependency audit has zero unignored findings, and 2,177
 backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
 These maintenance results do not substitute for the signed installed release
-evidence or close alert 389.
+evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
 ## Candidate identity
 
@@ -70,8 +72,8 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Reproducibility | Two clean builds completed | Approved equality/normalization rule passes; nondeterminism resolved |
 | Signing/update | Trust and fail-closed update controls exist | Approved publisher; all binaries signed/timestamped; adversarial update matrix |
 | Supply chain/legal | Exact locks/SBOM/manifest foundations exist | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
-| Dependency risk | Alert mitigations documented | Alert 389 fixed/replaced/requalified or policy-compliant approved disposition |
-| Object store | MinIO architecture; SeaweedFS candidate evidence | Final Replacement Control, migration/rollback, legal/security, owner decision |
+| Dependency risk | Alert 389 fixed through SDK replacement and adversarial requalification | Re-run exact release scans and retain zero-blocker evidence |
+| Object store | ADR-0010 capability architecture; SeaweedFS 4.40-dle.1 selected; engineering Replacement Control passed | Rebuilt-installed protected-volume, recovery, independent legal/security, signing, and release acceptance |
 | Documentation/external review | CP16 authority and content construction active | All canonical/external records, walkthroughs, link/archive closure, independent reviews |
 | Pilot and owner approval | Protocol exists | Named multi-day two-machine pilot and signed final owner GO decision |
 
@@ -108,8 +110,9 @@ upstream fix, or checkpoint does not silently close a blocker.
 - packaged visual/scaling/contrast, keyboard/NVDA, documentation walkthrough;
 - blinded AI sample, independent architecture/security/API/accessibility/
   operations/legal/documentation reviews, and two-machine pilot;
-- final object-store, publisher/signing, update/feed, support/maintenance,
-  Microsoft/distribution route, and owner approvals.
+- installed and independent acceptance of the ADR-0010 object-store selection,
+  publisher/signing, update/feed, support/maintenance, Microsoft/distribution
+  route, and final owner release approvals.
 
 Each item resolves to immutable redacted evidence and the exact artifact. Missing,
 not-evaluated, qualification-only, or different-artifact evidence remains open.

@@ -31,7 +31,7 @@ certified by default.
 1. Windows owner and protected installation/runtime root.
 2. Electron main/preload versus the untrusted renderer surface.
 3. Loopback backend authentication and versioned API envelope.
-4. App-owned PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO service identities.
+4. App-owned PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store service identities.
 5. Owner-configured OpenAI or Google provider egress.
 6. Same-host Client Gateway applications and copy-once scoped keys.
 7. Owner-approved MCP child processes, file roots, scopes, and credentials.

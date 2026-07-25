@@ -2,71 +2,66 @@
 
 ## Decision
 
-SeaweedFS remains a qualification candidate and is **not** the approved
-production object store. The MinIO product-specific target architecture remains
-unchanged under Replacement Control.
+ADR-0010 defines the product requirement as **app-owned S3-compatible object
+store** and selects SeaweedFS 4.40-dle.1 for rebuilt installed qualification.
+Production provisioning and production approval remain false until the retained
+installed and independent release gates pass.
 
-## Live Windows lab result
+## Exact selected implementation
 
-The 2026-07-13 run used the immutable SeaweedFS 4.29 image on the dedicated
-rootless DataLogicEngine Podman Machine. The candidate became ready and all
-uniquely named containers, volumes, networks, and secrets were removed after the
-run.
+| Field | Value |
+|---|---|
+| Upstream | SeaweedFS 4.40 |
+| DataLogicEngine build | 4.40-dle.1 |
+| Source revision | `875cd1f67ea25e8965a4f5ba1e6aaf501ba6b6fa` |
+| Image digest | `sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b` |
+| Image ID | `sha256:b41f8b293049bf79045ff9c8216a9dccf0ce99ee6a4e32d174c6b320659e2b3e` |
+| Security dependency | gRPC-Go 1.82.1 |
+| License | Apache-2.0 |
+| Windows runtime | Podman client 6.0.1 / rootless machine server 5.8.5 |
 
-### Passed
+The official 4.40 image embeds gRPC-Go 1.81.1, which is affected by
+`GHSA-hrxh-6v49-42gf`. The selected app-owned image reproducibly rebuilds the
+exact 4.40 source with the fixed 1.82.1 dependency.
 
-- immutable index and Linux amd64 digest verification;
-- SeaweedFS binary/version and declared Apache-2.0 image metadata;
-- loopback-only S3 publication on `127.0.0.1`;
-- non-root UID/GID 1000 process, read-only root filesystem, no effective
-  capabilities, no-new-privileges, memory/PID/CPU budgets, and runtime-secret
-  credential delivery;
+## Passed engineering gates
+
+- immutable image ID/digest, source revision, version, security-patch, and
+  Apache-2.0 labels;
+- exact-image vulnerability scan with zero High or Critical findings;
+- loopback-only S3 publication and occupied-port fail-closed preflight;
+- non-root execution, read-only root filesystem, zero capabilities,
+  no-new-privileges, CPU/memory/PID budgets, and protected runtime credentials;
 - anonymous, invalid-credential, and unauthorized bucket-creation denial;
-- put/get/head/prefix-list/delete, content type, metadata, SHA-256 integrity,
-  multipart upload, and presigned GET;
-- 32-object, eight-worker concurrent write/read/hash smoke in 0.276 seconds;
-- graceful restart and forced-termination durability with exact read-back hash;
-- portable backup of 34 objects / 2,359,345 bytes and verified clean-data-root
-  restore;
-- local-to-candidate migration and candidate-to-local rollback with object,
-  metadata, and hash parity;
-- credential absence from container inspection and captured logs;
-- complete cleanup of disposable qualification resources.
+- put/get/head/list/delete, metadata, integrity, multipart, and presigned GET;
+- 32-object/eight-worker concurrent write/read/hash exercise;
+- graceful restart and forced-termination read-back durability;
+- 34-object portable backup and clean-data-root restore;
+- rejection of tampered manifest, tampered blob, and missing blob before any
+  restore write;
+- disposable 512 MiB disk-full failure and sentinel recovery;
+- local-to-candidate migration and candidate-to-local rollback;
+- complete cleanup of disposable containers, volumes, network, and secret;
+- engineering license/redistribution inventory; and
+- Kevin's recorded implementation selection.
 
-### Failed or incomplete
+## Retained release gates
 
-- the installed Windows Podman client is 5.8.3 and the machine server is 5.8.5,
-  while the distributable candidate lock records official Podman 5.8.2;
-- version/identity observability now uses the immutable image, binary, and
-  supervisor identity evidence because the mini-server log stream does not emit
-  a standalone version record;
-- independent SeaweedFS license/redistribution/notices/support review is pending;
-- independent security, TLS, data-at-rest, BitLocker/store-encryption, and
-  vulnerability review is pending;
-- corruption, disk-full, port-conflict, backup-failure, restore-failure, and
-  comparative recovery tests are pending;
-- a clean-machine signed installer/supervisor/relaunch qualification is pending;
-- required audit, simulation, and deliverable object writes now fail closed in
-  the managed profile, and Boto3 is a direct pinned dependency;
-- supervisor and source-tested Storage UI integration are complete, but the
-  rebuilt installed-shell qualification remains pending;
-- final ADR acceptance and final owner production approval are pending.
+- signed clean-machine installer, relaunch, lifecycle, and upgrade/recovery;
+- installed protected-volume and data-at-rest verification;
+- independent security and license acceptance;
+- exact signed-release SBOM/notices/malware/signature evidence; and
+- final production GO decision.
 
 ## Evidence
 
 - `seaweedfs-replacement-qualification-windows.json`
+- `seaweedfs-4.40-dle.1-trivy.json`
+- `seaweedfs-4.40-license-redistribution-review.md`
 - `object-store-caller-contract-inventory.md`
 - `cp3-a-version-license-audit.md`
-- `service-candidates.json`
-- `docs/adr/ADR-0004-seaweedfs-replacement-qualification.md`
-
-The JSON report intentionally returns a blocked result while any required gate
-is failed or pending. No architecture rename or production provisioning is
-authorized by this lab result.
-
-## Five-service integration result
-
-`internal-data-plane-qualification.json` separately records a passing live run
-of the complete PostgreSQL/Redis/Neo4j/Chroma/SeaweedFS qualification profile,
-including restart durability, truthful identities, and full cleanup. That run
-is an engineering checkpoint and retains `production_authorized: false`.
+- `risk-register.md`
+- `rollback.md`
+- `deploy/seaweedfs/Dockerfile`
+- `deploy/internal-data-plane.candidate-lock.json`
+- `docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md`

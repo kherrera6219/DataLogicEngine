@@ -35,7 +35,8 @@ commit, supported Windows matrix, and accepted lifecycle evidence.
 
 The approved target is Windows 11 x64 on a user-controlled desktop or Windows
 VM. The installed application uses Electron, a loopback backend, and app-owned
-PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO services. Public cloud/SaaS,
+app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store
+services. Public cloud/SaaS,
 macOS, Linux, mobile, and public-internet gateway deployments are unsupported.
 
 The final release must document required disk, memory, CPU, virtualization,

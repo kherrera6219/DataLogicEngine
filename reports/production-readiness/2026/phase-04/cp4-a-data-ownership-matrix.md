@@ -3,10 +3,10 @@
 ## Status
 
 - Contract schema: `1.0.0`
-- Captured: `2026-07-14T20:13:13.349557+00:00`
+- Captured: `2026-07-25T06:27:01.394644+00:00`
 - PostgreSQL entities covered: **86**
 - Registry errors: **0**
-- Production object-store authority: **minio**
+- Production object-store authority: **app_owned_s3_compatible**
 - SeaweedFS production selected: **No**
 - Managed coordinated backup authorized: **No**
 
@@ -20,32 +20,32 @@ target gaps are assigned to their owning later production-plan phases.
 | Data class | Authority | Stable ID | Materializations | Transaction boundary | Compensation | Status |
 |---|---|---|---|---|---|---|
 | admission_counters | redis | admission:{principal_id}:{window}:{policy_revision} | none | authority_store_transaction | fail_closed_when_counter_state_is_unavailable | implemented |
-| asynchronous_jobs_and_results | postgresql | gateway_async_runs.id | redis, minio | authority_store_transaction | requeue_only_from_committed_authority_state | implemented |
-| audit_artifact_bundles | minio | audit-logs/{run_id}.json | postgresql | postgres_outbox_then_required_object_put | keep_audit_commit_incomplete_and_retry_object_put | implemented |
+| asynchronous_jobs_and_results | postgresql | gateway_async_runs.id | redis, object_store | authority_store_transaction | requeue_only_from_committed_authority_state | implemented |
+| audit_artifact_bundles | object_store | audit-logs/{run_id}.json | postgresql | postgres_outbox_then_required_object_put | keep_audit_commit_incomplete_and_retry_object_put | implemented |
 | chat_transcripts | postgresql | chat_sessions.id/chat_messages.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
-| coordinated_backup_manifest | local_filesystem | backup_id:manifest_schema_version | minio | maintenance_mode_multi_store_checkpoint | discard_incomplete_backup_and_resume_only_after_visible_failure | current_version_engineering_qualified_release_authorization_deferred |
+| coordinated_backup_manifest | local_filesystem | backup_id:manifest_schema_version | object_store | maintenance_mode_multi_store_checkpoint | discard_incomplete_backup_and_resume_only_after_visible_failure | current_version_engineering_qualified_release_authorization_deferred |
 | deletion_tombstones | postgresql | deletion_id:subject_digest:policy_version | none | cross_store_delete_then_remnant_reconciliation | retain_non_pii_tombstone_and_retry_failed_store | implemented |
-| deliverables | minio | deliverables/{workflow}/{deliverable_id} | postgresql | postgres_outbox_then_required_object_put | do_not_mark_deliverable_complete_until_object_hash_matches | object_write_implemented_durable_index_incomplete |
-| evaluation_data | minio | evaluation-data/{dataset_revision}/{object_id} | postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_workflow_contract_pending |
+| deliverables | object_store | deliverables/{workflow}/{deliverable_id} | postgresql | postgres_outbox_then_required_object_put | do_not_mark_deliverable_complete_until_object_hash_matches | object_write_implemented_durable_index_incomplete |
+| evaluation_data | object_store | evaluation-data/{dataset_revision}/{object_id} | postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_workflow_contract_pending |
 | external_api_clients_and_scopes | postgresql | external_api_keys.id | redis | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
-| gateway_audit_events | postgresql | ai_audit_events.id | minio | authority_store_transaction | keep_request_incomplete_until_audit_bundle_is_verified | implemented |
+| gateway_audit_events | postgresql | ai_audit_events.id | object_store | authority_store_transaction | keep_request_incomplete_until_audit_bundle_is_verified | implemented |
 | graph_nodes_and_relationships | postgresql | ukg_knowledge_nodes.uid/ukg_knowledge_edges.source_node_id:type:target_node_id | neo4j | postgres_outbox_then_idempotent_neo4j_merge | retain_outbox_pending_and_report_graph_degraded | implemented |
-| graph_snapshots | minio | graphs/{graph_revision}/{object_id} | neo4j, postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_snapshot_workflow_pending |
+| graph_snapshots | object_store | graphs/{graph_revision}/{object_id} | neo4j, postgresql | authority_store_transaction | mark_partial_and_retry_from_authority | bucket_created_snapshot_workflow_pending |
 | idempotency_records | postgresql | gateway_idempotency_records.id | redis | authority_store_transaction | reject_duplicate_or_retry_pending_authority_record | implemented |
-| ingestion_jobs_and_corpus_revisions | postgresql | ingestion_jobs.id/ingestion_files.id/ingestion_chunks.id | redis, neo4j, chroma, minio | postgres_job_and_outbox_then_required_materializations | retain_checkpoint_and_resume_only_from_committed_authority | implemented |
-| mcp_metadata | postgresql | mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id | redis, minio, dpapi_vault | postgres_configuration_consent_and_execution_authority | refuse_start_or_result_use_until_authority_and_artifact_hashes_match | implemented |
+| ingestion_jobs_and_corpus_revisions | postgresql | ingestion_jobs.id/ingestion_files.id/ingestion_chunks.id | redis, neo4j, chroma, object_store | postgres_job_and_outbox_then_required_materializations | retain_checkpoint_and_resume_only_from_committed_authority | implemented |
+| mcp_metadata | postgresql | mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id | redis, object_store, dpapi_vault | postgres_configuration_consent_and_execution_authority | refuse_start_or_result_use_until_authority_and_artifact_hashes_match | implemented |
 | owner_identity_and_sessions | postgresql | users.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_configuration | postgresql | llm_providers.id | dpapi_vault | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | provider_usage | postgresql | llm_provider_usage.id | none | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | retained_configuration | local_json | configuration_file:schema_version | dpapi_vault | validated_atomic_file_replace | retain_last_valid_configuration | implemented |
-| retained_gateway_job_results | minio | gateway-results/jobs/{job_id}/result.enc | postgresql | postgres_job_then_required_object_put | keep_result_pending_until_ciphertext_hash_verifies | implemented |
+| retained_gateway_job_results | object_store | gateway-results/jobs/{job_id}/result.enc | postgresql | postgres_job_then_required_object_put | keep_result_pending_until_ciphertext_hash_verifies | implemented |
 | routing_policies | postgresql | model_routing_policies.id | redis | authority_store_transaction | mark_partial_and_retry_from_authority | implemented |
 | runtime_cache | redis | cache_namespace:key:source_revision | none | authority_store_transaction | invalidate_and_recompute_from_authority | implemented |
 | service_credentials | dpapi_vault | installation_id:credential_schema_version | none | dpapi_encrypt_then_atomic_file_replace | retain_previous_vault_and_refuse_service_start | implemented |
-| simulation_artifacts | minio | simulation-artifacts/{snapshot_id}.json | postgresql | postgres_outbox_then_required_object_put | mark_simulation_artifact_pending_and_retry | implemented |
-| simulation_execution_state | postgresql | simulation_sessions.session_id/simulation_steps.id | redis, neo4j, chroma, minio | postgres_step_checkpoint_then_required_artifact_materialization | resume_only_from_verified_checkpoint_and_remaining_budget | durable_authority_implemented_engine_execution_in_progress |
-| trace_exports | minio | trace-exports/{export_id} | postgresql | postgres_outbox_then_required_object_put | keep_trace_export_pending_and_retry | bucket_contract_implemented_workflow_migration_pending |
-| trace_records | postgresql | trace_runs.run_id | minio | authority_store_transaction | mark_trace_artifact_pending_and_reconcile | implemented |
+| simulation_artifacts | object_store | simulation-artifacts/{snapshot_id}.json | postgresql | postgres_outbox_then_required_object_put | mark_simulation_artifact_pending_and_retry | implemented |
+| simulation_execution_state | postgresql | simulation_sessions.session_id/simulation_steps.id | redis, neo4j, chroma, object_store | postgres_step_checkpoint_then_required_artifact_materialization | resume_only_from_verified_checkpoint_and_remaining_budget | durable_authority_implemented_engine_execution_in_progress |
+| trace_exports | object_store | trace-exports/{export_id} | postgresql | postgres_outbox_then_required_object_put | keep_trace_export_pending_and_retry | bucket_contract_implemented_workflow_migration_pending |
+| trace_records | postgresql | trace_runs.run_id | object_store | authority_store_transaction | mark_trace_artifact_pending_and_reconcile | implemented |
 | truthlink_events | postgresql | truth_link_messages.id | redis | postgres_outbox_then_redis_stream_publish | replay_unpublished_event_from_postgresql | implemented |
 | unified_memory_graph | local_json | vertex.vertex_id/edge.source_id:target_id:edge_type | postgresql | atomic_file_replace | retain_previous_file_and_rebuild_from_last_valid_revision | versioned_session_working_memory_not_trusted_knowledge_authority |
 | vector_embeddings | postgresql | source_type:source_id:embedding_model:source_revision | chroma | postgres_outbox_then_idempotent_chroma_upsert | retain_source_revision_pending_and_rebuild_collection_entry | implemented |

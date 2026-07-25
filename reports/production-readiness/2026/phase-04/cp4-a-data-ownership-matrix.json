@@ -369,7 +369,7 @@
       "source_revision": "postgresql:monotonic_revision",
       "materializations": [
         "redis",
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "authority_store_transaction",
       "compensating_action": "requeue_only_from_committed_authority_state",
@@ -379,10 +379,10 @@
     },
     {
       "key": "audit_artifact_bundles",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "audit-logs/{run_id}.json",
       "schema_version": "audit_artifact_bundles.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -412,7 +412,7 @@
       "schema_version": "coordinated_backup_manifest.v1",
       "source_revision": "local_filesystem:monotonic_revision",
       "materializations": [
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "maintenance_mode_multi_store_checkpoint",
       "compensating_action": "discard_incomplete_backup_and_resume_only_after_visible_failure",
@@ -435,10 +435,10 @@
     },
     {
       "key": "deliverables",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "deliverables/{workflow}/{deliverable_id}",
       "schema_version": "deliverables.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -450,10 +450,10 @@
     },
     {
       "key": "evaluation_data",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "evaluation-data/{dataset_revision}/{object_id}",
       "schema_version": "evaluation_data.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -485,7 +485,7 @@
       "schema_version": "gateway_audit_events.v1",
       "source_revision": "postgresql:monotonic_revision",
       "materializations": [
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "authority_store_transaction",
       "compensating_action": "keep_request_incomplete_until_audit_bundle_is_verified",
@@ -510,10 +510,10 @@
     },
     {
       "key": "graph_snapshots",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "graphs/{graph_revision}/{object_id}",
       "schema_version": "graph_snapshots.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "neo4j",
         "postgresql"
@@ -549,7 +549,7 @@
         "redis",
         "neo4j",
         "chroma",
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "postgres_job_and_outbox_then_required_materializations",
       "compensating_action": "retain_checkpoint_and_resume_only_from_committed_authority",
@@ -565,7 +565,7 @@
       "source_revision": "postgresql:monotonic_revision",
       "materializations": [
         "redis",
-        "minio",
+        "object_store",
         "dpapi_vault"
       ],
       "transaction_boundary": "postgres_configuration_consent_and_execution_authority",
@@ -632,10 +632,10 @@
     },
     {
       "key": "retained_gateway_job_results",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "gateway-results/jobs/{job_id}/result.enc",
       "schema_version": "retained_gateway_job_results.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -688,10 +688,10 @@
     },
     {
       "key": "simulation_artifacts",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "simulation-artifacts/{snapshot_id}.json",
       "schema_version": "simulation_artifacts.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -711,7 +711,7 @@
         "redis",
         "neo4j",
         "chroma",
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "postgres_step_checkpoint_then_required_artifact_materialization",
       "compensating_action": "resume_only_from_verified_checkpoint_and_remaining_budget",
@@ -721,10 +721,10 @@
     },
     {
       "key": "trace_exports",
-      "authority": "minio",
+      "authority": "object_store",
       "stable_id": "trace-exports/{export_id}",
       "schema_version": "trace_exports.v1",
-      "source_revision": "minio:monotonic_revision",
+      "source_revision": "object_store:monotonic_revision",
       "materializations": [
         "postgresql"
       ],
@@ -741,7 +741,7 @@
       "schema_version": "trace_records.v1",
       "source_revision": "postgresql:monotonic_revision",
       "materializations": [
-        "minio"
+        "object_store"
       ],
       "transaction_boundary": "authority_store_transaction",
       "compensating_action": "mark_trace_artifact_pending_and_reconcile",
@@ -810,13 +810,14 @@
   ],
   "validation_errors": [],
   "release_constraints": {
-    "object_store_architecture": "minio",
+    "object_store_architecture": "app_owned_s3_compatible",
     "seaweedfs_qualification_authorized": true,
-    "seaweedfs_production_selected": false,
+    "seaweedfs_production_selected": true,
+    "object_store_production_approved": false,
     "coordinated_backup_restore_engineering_qualified": true,
     "managed_backup_production_authorized": false,
     "supported_prior_release_upgrade_qualified": false,
     "at_rest_production_qualified": false
   },
-  "captured_at": "2026-07-14T20:13:13.349557+00:00"
+  "captured_at": "2026-07-25T06:27:01.394644+00:00"
 }

@@ -13,11 +13,13 @@
 
 DataLogicEngine recovery is an offline, all-store operation. A production backup
 is one encrypted `.dlebackup` archive containing PostgreSQL, Redis durable state,
-Neo4j, ChromaDB, MinIO, and approved retained configuration/JSON components under
+Neo4j, ChromaDB, app-owned S3-compatible object store, and approved retained configuration/JSON components under
 one signed manifest. A per-store copy is not a supported recovery set.
 
-MinIO remains the production object-store authority. SeaweedFS qualification
-artifacts do not change the restore target or authorize production use.
+The app-owned S3-compatible object-store capability remains the object
+authority. ADR-0010 selects SeaweedFS 4.40-dle.1 for rebuilt installed
+qualification; production use remains disabled until the installed recovery and
+independent gates pass.
 
 ## Create a backup
 
@@ -74,7 +76,7 @@ artifact readback before approving deletion of the prior root.
 The Phase 4 populated engineering drill passed encrypted backup, clean-root
 isolated restore, restart activation, prior-root preservation, PostgreSQL user
 and pending-outbox recovery, Redis key recovery, Neo4j node recovery, Chroma
-record recovery, MinIO object-hash parity, retained JSON recovery, and
+record recovery, app-owned S3-compatible object store object-hash parity, retained JSON recovery, and
 cross-store deletion parity.
 
 Production/public recovery remains **NO-GO** until the signed installer completes

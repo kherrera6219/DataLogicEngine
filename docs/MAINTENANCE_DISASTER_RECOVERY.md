@@ -37,7 +37,7 @@ exposure, silent data loss, or false readiness.
 ## Protected recovery set
 
 The coordinated set includes PostgreSQL, required Redis durable/coordination
-state where specified, Neo4j, ChromaDB, MinIO objects/namespaces, Unified/Truth
+state where specified, Neo4j, ChromaDB, app-owned S3-compatible object store objects/namespaces, Unified/Truth
 memory and approved local records, installation/product/schema identity,
 migration ledgers, and manifests/references required to reconcile sessions,
 traces, knowledge, simulations, gateway jobs, MCP state, and audit.

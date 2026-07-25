@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-13T08:00:10.324995+00:00",
+  "generated_at": "2026-07-25T06:44:20.851827+00:00",
   "status": "phase targets assigned; acceptance evidence pending",
   "requirements": [
     {
@@ -155,7 +155,7 @@
       "product_intent": "Store and recover object artifacts with integrity metadata",
       "ui_surface": "Exports and diagnostics",
       "contract": "S3-compatible object contract",
-      "owning_service_or_store": "MinIO",
+      "owning_service_or_store": "App-owned S3-compatible object store",
       "implementation": "Phase 4 work package",
       "automated_tests": [
         "backup restore suite"
@@ -396,7 +396,7 @@
       ],
       "evidence": "phase-14",
       "user_documentation": [
-        "docs/RELEASE_CHECKLIST.md"
+        "docs/RELEASE_READINESS_RECORD.md"
       ],
       "target_phase": 14,
       "status": "finish",

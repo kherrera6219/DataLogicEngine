@@ -52,17 +52,18 @@ essential services.
 |---|---|---|---|
 | Identity/configuration | Windows/install identity, sessions, preferences, provider/client/connector config | PostgreSQL and protected local settings | None by default |
 | Restricted secrets | Provider/connector/service keys, install secret, certificate key, recovery passphrase | DPAPI/approved protected store; passphrase not persisted | Provider/connector auth only; never UI/support/log |
-| User content | Prompts, messages, documents, notes, uploads, normalized/chunked content | PostgreSQL, MinIO, Neo4j, ChromaDB, memory | Selected provider/connector/client/export path |
+| User content | Prompts, messages, documents, notes, uploads, normalized/chunked content | PostgreSQL, app-owned S3-compatible object store, Neo4j, ChromaDB, memory | Selected provider/connector/client/export path |
 | AI context/output | Retrieved evidence, personas/context, tool results, model input/output | Trace/data authorities according to workflow | One configured provider when owner initiates |
 | Trace/audit | Runs, stages, policy, claims/citations, confidence, convergence, safe errors | PostgreSQL/object/memory/log authorities | Scoped client/export/support metadata |
-| Knowledge/simulation | Sources, provenance, graph/vector revisions, checkpoints/artifacts/results | PostgreSQL, MinIO, Neo4j, ChromaDB, memory | Provider/tool/export if initiated |
-| Gateway/MCP | Client identity/scopes/jobs, connector fingerprint/consent/calls/result hashes | PostgreSQL, Redis, encrypted MinIO objects | Approved client or local connector |
+| Knowledge/simulation | Sources, provenance, graph/vector revisions, checkpoints/artifacts/results | PostgreSQL, app-owned S3-compatible object store, Neo4j, ChromaDB, memory | Provider/tool/export if initiated |
+| Gateway/MCP | Client identity/scopes/jobs, connector fingerprint/consent/calls/result hashes | PostgreSQL, Redis, encrypted app-owned S3-compatible object store objects | Approved client or local connector |
 | Operational | Health/readiness, resource state, content-free usage, redacted logs/crash/support manifests | Local app-owned records/logs | External telemetry only by explicit opt-in; reviewed bundle sharing |
 | Backup/export | Encrypted coordinated backups, trace/data exports, bundle archives | Owner-selected protected local/off-device storage | Wherever owner explicitly stores/shares |
 
-MinIO remains the approved production object-store requirement. SeaweedFS is a
-qualification-only candidate; its telemetry/logging/TLS/at-rest/retention/
-deletion/security/license behavior requires final review before selection.
+The approved requirement is the capability **app-owned S3-compatible object
+store**. ADR-0010 selects SeaweedFS 4.40-dle.1 for rebuilt installed
+qualification; telemetry/logging, protected-volume, retention, deletion,
+security, and independent license behavior remain installed release gates.
 
 ## Data flows and recipients
 
@@ -103,7 +104,7 @@ results, usage metadata, logs, bundles, exports, and backups. Historical example
 are not policy. Provider/connector/client copies follow their contracts.
 
 The canonical deletion path reconciles applicable PostgreSQL, Redis, Neo4j,
-ChromaDB, MinIO, memory/local, and log surfaces and reports partial failure.
+ChromaDB, app-owned S3-compatible object store, memory/local, and log surfaces and reports partial failure.
 Shared chunks remain only while referenced. Non-PII tombstones and backup
 remnants require a documented basis/expiry. Exports, snapshots, immutable media,
 and external copies require separate action; secure erasure cannot be guaranteed
@@ -121,7 +122,7 @@ for every SSD, snapshot, or third party.
 | Untrusted AI/tool output | Injection/secret checks, evidence/claim validation, human oversight | Live provider/hostile connector/human acceptance |
 | Endpoint compromise | Protected volume/ACL, DPAPI, least privilege | Supported-Windows matrix and endpoint operating policy |
 | Misleading AI reliance | Limitations, not-measured, trace/evidence review | Packaged copy/usability and blinded human review |
-| Candidate object-store privacy drift | Replacement Control and production selection false | Full security/privacy/license/Windows qualification |
+| Selected object-store privacy drift | Production authorization false and exact locked implementation | Installed security/privacy/license/Windows qualification |
 
 ## Individual/owner controls
 

@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -42,7 +42,7 @@ TARGETS = {
             "Supported product boundary",
             "Explicit exclusions",
             "Production/public release is **NO-GO**",
-            "SeaweedFS remains a qualification-only",
+            "ADR-0010 selects SeaweedFS 4.40-dle.1",
         },
     },
     "docs/INSTALLATION_GUIDE.md": {
@@ -68,7 +68,7 @@ TARGETS = {
             "Redis",
             "Neo4j",
             "ChromaDB",
-            "MinIO",
+            "app-owned S3-compatible object store",
             "Backup",
             "Restore and disaster recovery",
             "Client Gateway",

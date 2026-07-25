@@ -59,10 +59,11 @@ Depending on enabled workflows, local app-owned stores may contain:
 - content-free diagnostics, resource/health state, redacted logs, crash IDs,
   support-bundle manifests, and update/release state.
 
-Production responsibilities span PostgreSQL, Redis, Neo4j, ChromaDB, MinIO,
+Production responsibilities span PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store,
 app-owned memory/local records, and approved log/export/backup locations.
-SeaweedFS is a qualification-only object-store candidate and has not replaced
-MinIO in the approved production architecture.
+ADR-0010 selects SeaweedFS 4.40-dle.1 as the implementation of the app-owned
+S3-compatible object-store capability for rebuilt installed qualification.
+Production use remains disabled until installed privacy/security acceptance.
 
 ## OpenAI and Google processing
 
@@ -156,7 +157,7 @@ sources, memory, traces, simulations, connectors, client keys/jobs, exports,
 support bundles, and deletion operations.
 
 The canonical deletion path reconciles every applicable PostgreSQL, Redis,
-Neo4j, ChromaDB, MinIO, memory/local, and log surface and reports partial failure.
+Neo4j, ChromaDB, app-owned S3-compatible object store, memory/local, and log surface and reports partial failure.
 Shared chunks remain only while an active source still references them. Exported
 files, provider/connector copies, backups, snapshots, immutable media, and legal/
 security holds may require separate action. Secure deletion cannot be guaranteed

@@ -24,7 +24,14 @@ qualification-only installation identity and were deleted after verification.
 
 ## Object-store candidate rollback
 
-The candidate qualification separately proved S3-to-local export/rollback with
-key, content, metadata, and SHA-256 parity. This is engineering evidence only;
-production migration and rollback remain prohibited until ADR-0004 is accepted
-and Phase 4 recovery contracts pass.
+The selected implementation qualification separately proved app-owned
+S3-compatible object-store export, clean restore, local-to-S3 migration, and
+S3-to-local rollback with key, content, metadata, and SHA-256 parity. Corrupt
+manifest, corrupt blob, and missing-blob backups were rejected before restore
+writes. ADR-0010 accepts SeaweedFS `4.40-dle.1` for rebuilt installed
+qualification and supersedes the historical Proposed ADR-0004.
+
+This remains engineering evidence only. Production migration and rollback stay
+prohibited while `production_approved=false`; the rebuilt signed application
+must pass clean-machine delivery, protected-volume, coordinated backup/restore,
+independent security/license, and final owner release gates first.

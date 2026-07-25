@@ -6,8 +6,8 @@
 
 ## Authority and release status
 
-- Generated: `2026-07-15`
-- Documentation authority: `2026.07.15-approved2` (`approved_phase16_replacement_closed`)
+- Generated: `2026-07-24`
+- Documentation authority: `2026.07.24-approved3` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`

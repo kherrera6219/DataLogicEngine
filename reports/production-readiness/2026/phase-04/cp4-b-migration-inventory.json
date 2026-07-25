@@ -253,7 +253,7 @@
       "version_probe": "HEAD app-owned schema manifest object and verify metadata/hash",
       "forward_migration": "version object metadata, bucket policies, lifecycle, and retention contracts",
       "rollback_policy": "restore portable bucket snapshot with key/metadata/hash parity",
-      "status": "minio_schema_manifest_portable_restore_and_hash_parity_passed",
+      "status": "legacy_key_vendor_neutral_s3_manifest_restore_and_hash_parity_passed",
       "blocker": "supported_0_1_1_minio_adoption_not_qualified"
     },
     {
@@ -293,13 +293,15 @@
     "supported_0_1_1_upgrade_not_qualified"
   ],
   "release_constraints": {
-    "production_object_store": "minio",
-    "seaweedfs_production_selected": false,
+    "production_object_store": "app_owned_s3_compatible",
+    "selected_object_store_implementation": "seaweedfs_4.40-dle.1",
+    "seaweedfs_production_selected": true,
+    "object_store_production_approved": false,
     "coordinated_backup_available": true,
     "coordinated_restore_available": true,
     "current_version_populated_restore_qualified": true,
     "supported_prior_release_upgrade_qualified": false,
     "downgrade_against_newer_data_allowed": false
   },
-  "captured_at": "2026-07-14T20:13:11.040318+00:00"
+  "captured_at": "2026-07-25T06:26:59.415207+00:00"
 }

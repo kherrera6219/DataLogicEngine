@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
-from datetime import UTC, datetime
 import hashlib
 import json
 import os
+from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -32,7 +32,11 @@ class PostgreSQLMigrationAdapter:
         if "alembic_version" not in inspector.get_table_names():
             return None
         with self.engine.connect() as connection:
-            rows = connection.execute(text("SELECT version_num FROM alembic_version")).scalars().all()
+            rows = (
+                connection.execute(text("SELECT version_num FROM alembic_version"))
+                .scalars()
+                .all()
+            )
         if len(rows) != 1:
             raise StoreMigrationError("postgresql_alembic_version_count_invalid")
         return str(rows[0])
@@ -163,7 +167,11 @@ class ChromaMigrationAdapter:
 
 
 class MinIOMigrationAdapter:
-    """Version the product-specific MinIO object contract through ObjectStore."""
+    """Version the vendor-neutral S3 object contract through ObjectStore.
+
+    The class and stored schema key retain their legacy names so existing
+    installations can be upgraded without silently changing persisted identity.
+    """
 
     VERSION_BUCKET = "audit-logs"
     VERSION_KEY = "_system/data-plane-schema.json"
@@ -188,10 +196,7 @@ class MinIOMigrationAdapter:
         for bucket in self.buckets:
             for item in self.store.list(bucket):
                 key = str(getattr(item, "key", "") or "")
-                if not (
-                    bucket == self.VERSION_BUCKET
-                    and key == self.VERSION_KEY
-                ):
+                if not (bucket == self.VERSION_BUCKET and key == self.VERSION_KEY):
                     return False
         return True
 
@@ -203,8 +208,9 @@ class MinIOMigrationAdapter:
         payload = json.dumps(
             {
                 "schema_version": target_version,
-                "object_store_architecture": "minio",
-                "seaweedfs_production_selected": False,
+                "object_store_architecture": "app_owned_s3_compatible",
+                "seaweedfs_production_selected": True,
+                "object_store_production_approved": False,
             },
             sort_keys=True,
         ).encode("utf-8")
@@ -242,7 +248,11 @@ class LocalJsonMemoryMigrationAdapter:
         if payload is None or payload.get("version") is None:
             return None
         version = str(payload["version"])
-        return version if version.startswith("unified-memory.v") else f"unified-memory.v{version}"
+        return (
+            version
+            if version.startswith("unified-memory.v")
+            else f"unified-memory.v{version}"
+        )
 
     def is_empty(self) -> bool:
         return self._payload() is None
@@ -255,18 +265,21 @@ class LocalJsonMemoryMigrationAdapter:
         except (IndexError, ValueError) as exc:
             raise StoreMigrationError("local_json_memory_target_invalid") from exc
         payload = {
-                "version": version,
-                "saved_at": datetime.now(UTC).isoformat(),
-                "last_recall_timestamp": None,
-                "vertices": [],
-                "edges": [],
-            }
+            "version": version,
+            "saved_at": datetime.now(UTC).isoformat(),
+            "last_recall_timestamp": None,
+            "vertices": [],
+            "edges": [],
+        }
         if version >= 2:
             payload["integrity_sha256"] = self._integrity(payload)
         self._atomic_write(payload)
 
     def migrate(self, current_version: str, target_version: str) -> None:
-        if current_version != "unified-memory.v1" or target_version != "unified-memory.v2":
+        if (
+            current_version != "unified-memory.v1"
+            or target_version != "unified-memory.v2"
+        ):
             raise StoreMigrationError(
                 f"local_json_memory_migration_path_not_implemented:{current_version}:{target_version}"
             )
@@ -276,7 +289,11 @@ class LocalJsonMemoryMigrationAdapter:
         for vertex in payload.get("vertices", []):
             if not isinstance(vertex, dict):
                 continue
-            metadata = vertex.get("metadata") if isinstance(vertex.get("metadata"), dict) else {}
+            metadata = (
+                vertex.get("metadata")
+                if isinstance(vertex.get("metadata"), dict)
+                else {}
+            )
             metadata.setdefault("validation_state", "working")
             metadata.setdefault("policy_result", "legacy_working_only")
             metadata.setdefault("retention_class", "session_working_memory")
@@ -292,9 +309,9 @@ class LocalJsonMemoryMigrationAdapter:
         canonical = dict(payload)
         canonical.pop("integrity_sha256", None)
         return hashlib.sha256(
-            json.dumps(canonical, sort_keys=True, separators=(",", ":"), default=str).encode(
-                "utf-8"
-            )
+            json.dumps(
+                canonical, sort_keys=True, separators=(",", ":"), default=str
+            ).encode("utf-8")
         ).hexdigest()
 
     def _atomic_write(self, payload: dict[str, Any]) -> None:
@@ -333,7 +350,9 @@ class RetainedConfigurationMigrationAdapter:
         try:
             return all(bool(validator()) for validator in self.validators)
         except Exception as exc:
-            raise StoreMigrationError("retained_configuration_validation_failed") from exc
+            raise StoreMigrationError(
+                "retained_configuration_validation_failed"
+            ) from exc
 
     def bootstrap(self, target_version: str) -> None:
         if not self.is_empty():

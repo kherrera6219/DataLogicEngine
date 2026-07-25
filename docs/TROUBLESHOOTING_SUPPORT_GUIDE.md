@@ -131,9 +131,10 @@ job state, idempotency key, and cancellation state.
 5. Use the coordinated repair or isolated restore; do not copy individual store
    directories or substitute a development backend.
 
-SeaweedFS is not the approved production replacement for MinIO. A
-qualification-only SeaweedFS result cannot close a MinIO/object-store release
-gate until ADR-0004 Replacement Control passes and the selection is approved.
+ADR-0010 selects SeaweedFS 4.40-dle.1 for rebuilt installed qualification of the
+app-owned S3-compatible object-store capability. Do not enable production use or
+substitute a different image: installed protected-volume, recovery,
+independent-review, signing, and release gates still control production approval.
 
 ### Ingestion or knowledge data is inconsistent
 

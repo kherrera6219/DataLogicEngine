@@ -2,23 +2,35 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 
-# Import models/extensions for mocking
-try:
-    from app import app, db
-except ImportError:
-    # Handle environment where app isn't fully set up for direct model imports
-    pass
+# Import the factory instead of the process-global lazy app proxy. Each test
+# receives an isolated runtime root so an unrelated or earlier test runtime lock
+# cannot make these route checks order-dependent.
+from app import create_app
+from extensions import db
 
 @pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['WTF_CSRF_ENABLED'] = False
-    with app.test_client() as client:
-        with app.app_context():
+def client(tmp_path):
+    application = create_app(
+        "testing",
+        {
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path / 'additional-coverage.db'}",
+            "WTF_CSRF_ENABLED": False,
+            "DLE_RUNTIME_ROOT": str(tmp_path / "runtime"),
+            "DLE_INITIALIZE_SCHEMA": False,
+            "DLE_INITIALIZE_STORES": False,
+            "DLE_START_MANAGED_SERVICES": False,
+            "DLE_START_BACKGROUND_WORKERS": False,
+        },
+        start_runtime=True,
+    )
+    with application.test_client() as client:
+        with application.app_context():
             db.create_all()
             # Create a test user for auth mocking if needed
         yield client
+    with application.app_context():
+        db.session.remove()
 
 @pytest.fixture
 def authenticated_client(client, monkeypatch):

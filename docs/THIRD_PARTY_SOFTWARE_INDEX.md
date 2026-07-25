@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Exact dependency locks, service candidate lock, SBOMs, release manifest, ownership/legal registers, and review evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-15 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Dependency/service/artifact, license, notice, vulnerability, provider/model, asset, redistribution, region, or release change |
 | Requirements and evidence | Product requirement DLE-QR-002/004/006, exact locks, SBOMs, manifests, scans, legal actions, and approved notice bundle |
 
@@ -24,8 +24,8 @@ This index is an engineering inventory, not legal advice, redistribution
 approval, a complete notice bundle, or a SLSA conformance claim. Product 4.3.0
 remains release-blocked: ten legal/distribution actions, final exact-artifact
 SBOM/notices reconciliation, publisher/signing, vulnerability/malware scans,
-service redistribution, object-store selection, export/region review, and owner/
-independent approvals remain open.
+service redistribution, installed object-store acceptance, export/region review,
+and owner/independent approvals remain open.
 
 ## Dependency authorities
 
@@ -49,7 +49,8 @@ inventories for:
 - frozen Python/backend components;
 - frontend production dependencies and Electron/Chromium/embedded Node;
 - installer/portable payload, native binaries, DLLs, executables, and helper tools;
-- app-owned PostgreSQL, Redis, Neo4j, ChromaDB, MinIO/object-store implementation,
+- app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store
+  implementations,
   Podman/WSL2/runtime layers, and any JRE/native transitive components;
 - Python/TypeScript SDK packages, examples/templates, fonts, icons, images,
   schemas, test/evaluation data shipped to users, and other redistributable assets;
@@ -64,8 +65,8 @@ signed candidate; prior/different-hash candidate data is not final evidence.
 
 The current engineering manifest identifies CPython 3.11, PyInstaller 6.18.0,
 Electron 43.1.1, electron-builder 26.8.1, Next.js 16.2.7, PostgreSQL 18.4,
-Redis 8.8.0, Neo4j, the Chroma Rust service 1.5.9, Podman 5.8.2, and the qualification object-
-store candidate set. Exact image versions/digests and license fields are recorded
+Redis 8.8.0, Neo4j, the Chroma Rust service 1.5.9, Podman 6.0.1, and the selected
+SeaweedFS 4.40-dle.1 object-store build. Exact image versions/digests and license fields are recorded
 in the service candidate lock and release manifest.
 
 Redis is recorded as an AGPL-3.0 selection from a tri-license and explicitly
@@ -73,9 +74,10 @@ requires redistribution review. Podman redistribution review is pending. Every
 service currently has `production_approved=false` in the engineering manifest.
 These fields intentionally prevent inventory from becoming approval.
 
-MinIO remains the required production object store. SeaweedFS is qualification-
-only and may be selected only after Replacement Control, licensing/
-redistribution, migration/rollback, Windows delivery, and owner approval pass.
+The required capability is **app-owned S3-compatible object store**. ADR-0010
+selects the locked SeaweedFS 4.40-dle.1 build for rebuilt installed
+qualification. Its Apache-2.0 engineering redistribution inventory is complete;
+independent legal acceptance and installed release approval remain open.
 
 ## Providers, models, connectors, and content
 
@@ -107,7 +109,13 @@ ChromaDB Python SDK. The SDK has been removed from direct and locked transitive
 dependencies and replaced by a restricted loopback-only, caller-vector-only HTTP
 client. The digest-pinned Rust service remains. Focused adversarial tests, live
 five-service compatibility/restart qualification, and an isolated dependency
-audit with zero vulnerabilities pass; GitHub closure awaits manifest rescan.
+audit with zero vulnerabilities pass; GitHub alert 389 is confirmed fixed.
+
+The official SeaweedFS 4.40 image was not selected unchanged because it embeds
+gRPC-Go 1.81.1 affected by `GHSA-hrxh-6v49-42gf`. The locked DataLogicEngine
+build uses the upstream-fixed 1.82.1 dependency. Its exact-image Trivy report
+contains zero High or Critical findings and retains one unscored
+`GO-2026-5932` OpenPGP maintenance notice without suppression.
 
 The 2026-07-15 lock refresh includes Flask async support plus Pillow 12.3.0,
 Starlette 1.3.1, and Transformers 5.13.0. The post-replacement lock contains 290

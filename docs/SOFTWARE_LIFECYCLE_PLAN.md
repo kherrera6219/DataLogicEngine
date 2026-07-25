@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -99,9 +99,10 @@ or manual evidence stays visible as a release blocker.
 Findings are severity-classified, reproducible, assigned an owner and due date,
 linked to affected requirements and evidence, fixed or explicitly removed from
 scope, regression-tested, and closed only against the corrected commit/artifact.
-P0/P1 findings and unaccepted P2 findings block release. Critical dependency
-alert 389 remains open and release-blocking until a reviewed patched ChromaDB
-version is qualified or an owner-approved policy disposition exists.
+P0/P1 findings and unaccepted P2 findings block release. Dependabot alert 389
+was fixed by removing the vulnerable ChromaDB Python SDK from both dependency
+authorities and qualifying the restricted replacement client. The replacement
+evidence remains bound to the release record.
 
 Vulnerabilities use private disclosure, coordinated remediation, affected-version
 analysis, secret/key rotation where needed, SBOM/advisory updates, and signed
@@ -158,6 +159,8 @@ eligible for production support.
 
 Product 4.3.0 has engineering checkpoints through Phase 15, completed CP16-F
 documentation replacement, and completed CP17-A through CP17-D consolidation.
-CP17-E remains an exact signed clean-installed walkthrough. The unsigned candidate, differing independent build
-hashes, installed/manual/independent gates, legal/signing/object-store decisions,
-and alert 389 keep production/public release at **NO-GO**.
+CP17-E remains an exact signed clean-installed walkthrough. The unsigned
+candidate, differing independent build hashes, installed/manual/independent
+gates, legal/signing decisions, and installed/independent acceptance of the
+selected object store keep production/public release at **NO-GO**. Alert 389 is
+fixed.

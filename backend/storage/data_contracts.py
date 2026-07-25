@@ -8,26 +8,25 @@ consume this registry instead of inventing store ownership locally.
 
 from __future__ import annotations
 
+import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import re
 from types import MappingProxyType
-from typing import Iterable, Mapping
-
 
 DATA_CONTRACT_SCHEMA_VERSION = "1.0.0"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class StoreAuthority(str, Enum):
-    """Approved authority names; candidates are deliberately excluded."""
+    """Approved capability authorities, independent of selected vendors."""
 
     POSTGRESQL = "postgresql"
     REDIS = "redis"
     NEO4J = "neo4j"
     CHROMA = "chroma"
-    MINIO = "minio"
+    OBJECT_STORE = "object_store"
     LOCAL_JSON = "local_json"
     LOCAL_FILESYSTEM = "local_filesystem"
     DPAPI_VAULT = "dpapi_vault"
@@ -259,7 +258,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
         "asynchronous_jobs_and_results",
         StoreAuthority.POSTGRESQL,
         "gateway_async_runs.id",
-        materializations=(StoreAuthority.REDIS, StoreAuthority.MINIO),
+        materializations=(StoreAuthority.REDIS, StoreAuthority.OBJECT_STORE),
         compensation="requeue_only_from_committed_authority_state",
     ),
     _contract(
@@ -270,7 +269,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
             StoreAuthority.REDIS,
             StoreAuthority.NEO4J,
             StoreAuthority.CHROMA,
-            StoreAuthority.MINIO,
+            StoreAuthority.OBJECT_STORE,
         ),
         status="implemented",
         transaction="postgres_job_and_outbox_then_required_materializations",
@@ -279,7 +278,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "retained_gateway_job_results",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "gateway-results/jobs/{job_id}/result.enc",
         materializations=(StoreAuthority.POSTGRESQL,),
         transaction="postgres_job_then_required_object_put",
@@ -291,16 +290,20 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
         "gateway_audit_events",
         StoreAuthority.POSTGRESQL,
         "ai_audit_events.id",
-        materializations=(StoreAuthority.MINIO,),
+        materializations=(StoreAuthority.OBJECT_STORE,),
         compensation="keep_request_incomplete_until_audit_bundle_is_verified",
         retention="audit_policy",
     ),
-    _contract("chat_transcripts", StoreAuthority.POSTGRESQL, "chat_sessions.id/chat_messages.id"),
+    _contract(
+        "chat_transcripts",
+        StoreAuthority.POSTGRESQL,
+        "chat_sessions.id/chat_messages.id",
+    ),
     _contract(
         "trace_records",
         StoreAuthority.POSTGRESQL,
         "trace_runs.run_id",
-        materializations=(StoreAuthority.MINIO,),
+        materializations=(StoreAuthority.OBJECT_STORE,),
         compensation="mark_trace_artifact_pending_and_reconcile",
         retention="trace_policy",
     ),
@@ -342,7 +345,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "audit_artifact_bundles",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "audit-logs/{run_id}.json",
         materializations=(StoreAuthority.POSTGRESQL,),
         transaction="postgres_outbox_then_required_object_put",
@@ -357,7 +360,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
             StoreAuthority.REDIS,
             StoreAuthority.NEO4J,
             StoreAuthority.CHROMA,
-            StoreAuthority.MINIO,
+            StoreAuthority.OBJECT_STORE,
         ),
         status="durable_authority_implemented_engine_execution_in_progress",
         transaction="postgres_step_checkpoint_then_required_artifact_materialization",
@@ -366,7 +369,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "simulation_artifacts",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "simulation-artifacts/{snapshot_id}.json",
         materializations=(StoreAuthority.POSTGRESQL,),
         transaction="postgres_outbox_then_required_object_put",
@@ -375,7 +378,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "deliverables",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "deliverables/{workflow}/{deliverable_id}",
         materializations=(StoreAuthority.POSTGRESQL,),
         status="object_write_implemented_durable_index_incomplete",
@@ -385,7 +388,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "trace_exports",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "trace-exports/{export_id}",
         materializations=(StoreAuthority.POSTGRESQL,),
         status="bucket_contract_implemented_workflow_migration_pending",
@@ -395,7 +398,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "evaluation_data",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "evaluation-data/{dataset_revision}/{object_id}",
         materializations=(StoreAuthority.POSTGRESQL,),
         status="bucket_created_workflow_contract_pending",
@@ -403,7 +406,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
     ),
     _contract(
         "graph_snapshots",
-        StoreAuthority.MINIO,
+        StoreAuthority.OBJECT_STORE,
         "graphs/{graph_revision}/{object_id}",
         materializations=(StoreAuthority.NEO4J, StoreAuthority.POSTGRESQL),
         status="bucket_created_snapshot_workflow_pending",
@@ -413,7 +416,11 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
         "mcp_metadata",
         StoreAuthority.POSTGRESQL,
         "mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id",
-        materializations=(StoreAuthority.REDIS, StoreAuthority.MINIO, StoreAuthority.DPAPI_VAULT),
+        materializations=(
+            StoreAuthority.REDIS,
+            StoreAuthority.OBJECT_STORE,
+            StoreAuthority.DPAPI_VAULT,
+        ),
         transaction="postgres_configuration_consent_and_execution_authority",
         compensation="refuse_start_or_result_use_until_authority_and_artifact_hashes_match",
         retention="connector_audit_policy",
@@ -446,7 +453,7 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
         "coordinated_backup_manifest",
         StoreAuthority.LOCAL_FILESYSTEM,
         "backup_id:manifest_schema_version",
-        materializations=(StoreAuthority.MINIO,),
+        materializations=(StoreAuthority.OBJECT_STORE,),
         status="current_version_engineering_qualified_release_authorization_deferred",
         transaction="maintenance_mode_multi_store_checkpoint",
         compensation="discard_incomplete_backup_and_resume_only_after_visible_failure",
@@ -509,7 +516,9 @@ def build_contract_manifest(live_postgresql_tables: Iterable[str]) -> dict[str, 
                 "stable_id": contract.stable_id,
                 "schema_version": contract.schema_version,
                 "source_revision": contract.source_revision,
-                "materializations": [store.value for store in contract.materializations],
+                "materializations": [
+                    store.value for store in contract.materializations
+                ],
                 "transaction_boundary": contract.transaction_boundary,
                 "compensating_action": contract.compensating_action,
                 "retention_class": contract.retention_class,
@@ -520,9 +529,10 @@ def build_contract_manifest(live_postgresql_tables: Iterable[str]) -> dict[str, 
         ],
         "validation_errors": validate_contract_registry(live),
         "release_constraints": {
-            "object_store_architecture": StoreAuthority.MINIO.value,
+            "object_store_architecture": "app_owned_s3_compatible",
             "seaweedfs_qualification_authorized": True,
-            "seaweedfs_production_selected": False,
+            "seaweedfs_production_selected": True,
+            "object_store_production_approved": False,
             "coordinated_backup_restore_engineering_qualified": True,
             "managed_backup_production_authorized": False,
             "supported_prior_release_upgrade_qualified": False,

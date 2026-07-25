@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-07-15T10:11:52.158962+00:00",
+  "generated_at": "2026-07-25T06:46:28.285736+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -50,12 +50,11 @@
       "name": "generated_contract_index",
       "command": [
         "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
-        "scripts/generate_documentation_contract_index.py",
-        "--check"
+        "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index matches authorities\n",
+      "stdout": "Generated documentation contract index: C:\\software\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
       "stderr": ""
     },
     {
@@ -77,7 +76,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=153 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=154 errors=0\n",
       "stderr": ""
     },
     {
@@ -121,7 +120,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 39 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 40 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

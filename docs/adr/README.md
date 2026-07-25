@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.12.0 |
-| Last updated | 2026-07-14 |
+| Document version | v2.13.0 |
+| Last updated | 2026-07-24 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -25,12 +25,13 @@ ADRs are historical decision records. Accepted ADRs should not be rewritten to m
 | [ADR-0001 engineering governance baseline](../archive/phase-16/adr/ADR-0001-engineering-governance-baseline.md) | Engineering governance baseline | Accepted / historical source |
 | [ADR-0002 PQ/gRPC transport](../archive/phase-16/adr/ADR-0002-pq-grpc-transport.md) | PQ/gRPC transport decision | Accepted / historical source |
 | [ADR-0003 internal service delivery](../archive/phase-16/adr/ADR-0003-internal-service-delivery.md) | App-owned pinned OCI containers through rootless Podman Machine/WSL2 | Accepted / Phase 0 CP0-B |
-| [ADR-0004 SeaweedFS replacement qualification](../archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md) | SeaweedFS candidate replacement qualification | Proposed / candidate only |
+| [ADR-0004 SeaweedFS replacement qualification](../archive/phase-16/adr/ADR-0004-seaweedfs-replacement-qualification.md) | Historical SeaweedFS candidate replacement proposal | Superseded by ADR-0010 |
 | [ADR-0005 external gateway boundary](../archive/phase-16/adr/ADR-0005-external-gateway-boundary.md) | External principal, network profile, virtual-model, and compatibility boundary | Accepted / Phase 8 implementation |
 | [ADR-0006 memory authority](../archive/phase-16/adr/ADR-0006-memory-authority-and-trust-boundary.md) | Memory authority, trust-state, lifecycle, and migration boundary | Accepted / Phase 9 implementation |
 | [ADR-0007 authoritative simulation engine](../archive/phase-16/adr/ADR-0007-authoritative-simulation-engine.md) | Multi-agent debate authority, bounded provider adapter, durable lifecycle, and FROST component boundary | Accepted / Phase 10 engineering selection |
 | [ADR-0008 governed MCP connector boundary](../archive/phase-16/adr/ADR-0008-governed-mcp-connector-boundary.md) | MCP 2025-11-25 stdio, exact consent, Windows containment, durable authority, and governed-result boundary | Accepted / Phase 11 engineering selection |
 | [ADR-0009 session library product model](../archive/phase-16/adr/ADR-0009-session-library-product-model.md) | Session Library over an implied independent Project/workspace model | Accepted / Phase 12 product semantics |
+| [ADR-0010 app-owned S3-compatible object store](ADR-0010-app-owned-s3-compatible-object-store.md) | Capability requirement and SeaweedFS implementation selection | Accepted for rebuilt installed qualification; production approval withheld |
 
 ---
 
@@ -103,6 +104,14 @@ Positive, negative, and operational consequences.
 - Supersedes: none
 - Superseded by: none
 ```
+
+## Change notes for v2.13.0
+
+1. Added ADR-0010, superseding the historical Proposed ADR-0004 and selecting
+   SeaweedFS as the implementation of the app-owned S3-compatible object-store
+   capability for rebuilt installed qualification.
+2. Kept production provisioning and approval false until the installed release
+   gates pass.
 
 ## Change notes for v2.12.0
 

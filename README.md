@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-15 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -28,11 +28,11 @@ administration, audit, observability, and validation application.
 > sources are hash-frozen, link-migrated, technically reviewed, and retained
 > intact under the historical archive; all 30 canonical targets pass their
 > controls across the exact 154-file inventory. CP16-G signed-artifact binding
-> and the installed/manual/external exits remain retained. Phase 17 authority,
-> archive, generated-parity, and zero-warning consolidation is active.
-> CP17-A through CP17-D now pass with 47/47 historical dispositions, a 10/10
-> generated truth gate, 38 active maintained Markdown files, and zero document
-> errors or warnings. CP17-E remains tied to the signed clean-installed RC.
+> and the installed/manual/external exits remain retained. Phase 17 CP17-A
+> through CP17-D authority, archive, generated-parity, and zero-warning
+> consolidation is complete with 47/47 historical dispositions, a 10/10
+> generated truth gate, and zero document errors or warnings. CP17-E remains
+> tied to the signed clean-installed RC.
 > The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
 > backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
 > passes 2,177 backend tests and the full hashed Windows dependency install.
@@ -42,7 +42,14 @@ administration, audit, observability, and validation application.
 > frontend images' product-version input. The isolated backend result is 2,181
 > passed with 18 skipped, and both production frontend Docker targets pass.
 > Replacement Security, CI, and Deploy workflows all pass, and GitHub reports
-> zero open CodeQL findings.
+> zero open CodeQL findings, and Dependabot alert 389 is fixed.
+> Replacement Control now passes for rebuilt installed qualification: ADR-0010
+> defines the capability **app-owned S3-compatible object store** and selects
+> the exact security-patched SeaweedFS 4.40-dle.1 image. Production approval
+> remains false until the installed and independent release gates pass.
+> The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
+> frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
+> and the 10/10 documentation truth gate.
 > Phase 15 freezes clean
 > 4.3.0 candidate inputs, separates unsigned qualification from production
 > signing, and produces a 299,129,416-byte integrity-verified candidate whose
@@ -51,7 +58,7 @@ administration, audit, observability, and validation application.
 > cannot be proved. Two clean GitHub builds have equal file counts but differing
 > payload hashes, so byte reproducibility is also still open. The signed installer,
 > clean lifecycle/Windows/provider/five-
-> service matrices, legal authority, object-store decision, independent reviews,
+> service matrices, legal authority, installed object-store acceptance, independent reviews,
 > human pilot, and 24/72-hour soaks remain open, so production/public release is
 > **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md),
 > [`TODO.md`](TODO.md), the generated [`documentation BOM`](docs/DOCUMENTATION_BOM.md),
@@ -86,7 +93,7 @@ are evidence-guided design references, not formal certification claims.
 
 **Production architecture:** DataLogicEngine is an owner-operated, local-first
 Windows application. The Electron + Next.js desktop runs over a Flask + SQLAlchemy
-backend. PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are intentional app-owned
+backend. PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are intentional app-owned
 internal production services with separate responsibilities. The gateway is
 loopback-only by default and may later be explicitly enabled for qualified
 private Windows clients; it is not a public or multi-tenant SaaS service. Model
@@ -109,7 +116,7 @@ Major subsystems in the current local-first desktop build:
 - Knowledge Ingestion Pipeline
 - Trace Viewer
 - MCP Integration Framework
-- PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO lifecycle foundations
+- PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store lifecycle foundations
 - Enterprise Audit & Governance Framework
 - Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.1-pro-preview (BYOK)
 
@@ -120,7 +127,7 @@ Current production-completion focus:
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
   vector-only HTTP client; focused adversarial tests, the live five-service
   contract/restart qualification, and a zero-finding isolated dependency audit
-  pass. GitHub alert 389 awaits the replacement-manifest rescan
+  pass. GitHub alert 389 is confirmed fixed
 - Completed Phase 16 CP16-F source replacement: 72/72 retained hashes, zero
   active legacy sources, zero unmigrated links, and 18/18 routed target reviews;
   the strengthened all-document verifier migrated 175 previously missed path
@@ -137,8 +144,12 @@ Current production-completion focus:
 - Deferred rebuilt-installed Phase 9 causal retrieval and Knowledge/Graph acceptance
 - Deferred installed OpenAI/Google provider, corpus, and blinded-human acceptance
 - Deferred clean-installed data-plane, gateway, upgrade/recovery, and independent review gates
-- Final Replacement Control qualification and owner decision for the object-store implementation
-- GitHub verification that alert 389 closed after the vulnerable SDK replacement
+- Completed source/lab Replacement Control: ADR-0010 selects SeaweedFS
+  4.40-dle.1 as the app-owned S3-compatible object-store implementation with
+  all engineering gates passing and production authorization still false
+- Rebuilt-installed protected-volume, independent security/license, and
+  clean-machine object-store acceptance for the selected SeaweedFS implementation
+- GitHub verification of the full Replacement Control checkpoint after this push
 - Installed-system, accessibility, security, signing, and release qualification
 
 What Makes DataLogicEngine Different?
@@ -440,7 +451,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 | Desktop control plane | Production configuration, administration, audit, observability, support, and validation application. Built-in chat is the reference client for the canonical gateway behavior. |
 | Governance | Owner and client identity, scoped authorization, prompt/content defenses, request budgets, provider disclosure, evidence, trace, and durable audit contracts. |
 | Local-first distribution | Signed Windows desktop package for the owner-operated machine or user-controlled Windows VM; loopback by default with separately qualified private gateway access. |
-| Production operations | Supervised PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO; truthful health/readiness; backup/restore; diagnostics; CI/security; signed packaging and release evidence. |
+| Production operations | Supervised PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store; truthful health/readiness; backup/restore; diagnostics; CI/security; signed packaging and release evidence. |
 
 ## Architecture
 
@@ -461,7 +472,7 @@ flowchart LR
   Stores --> Redis["Redis"]
   Stores --> Neo4j["Neo4j"]
   Stores --> Chroma["ChromaDB"]
-  Stores --> MinIO["MinIO"]
+  Stores --> ObjectStore["App-owned S3-compatible object store<br/>(SeaweedFS)"]
 ```
 
 The Phase 5 engineering checkpoint establishes `governed.v1` and one
@@ -477,7 +488,7 @@ not itself proof that an answer is correct.
 | --- | --- | --- |
 | Frontend | Next.js 16, React 18, Electron 40 | Desktop control, configuration, administration, audit, observability, support, graph visualization, and built-in reference client. |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | Desktop API, external gateway, identity/policy, canonical orchestration, audit, tracing, and service supervision. |
-| Data | PostgreSQL 15+, Redis 7+, Neo4j 5+, ChromaDB, MinIO | Relational authority, queues/limits/events, graph provenance, vector retrieval, and artifact/evidence storage. |
+| Data | PostgreSQL 15+, Redis 7+, Neo4j 5+, ChromaDB, app-owned S3-compatible object store | Relational authority, queues/limits/events, graph provenance, vector retrieval, and artifact/evidence storage. |
 | AI | OpenAI (gpt-5.5), Google/Gemini (gemini-3.1-pro-preview) | One user-selected cloud model handles every request. Provider key resolved at runtime from the app DB (Settings) or environment. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
@@ -517,7 +528,7 @@ and deletion workflows remain mediated and audited by DataLogicEngine.
 | Redis | Atomic limits, cache, idempotency, queues/jobs, cancellation, and TruthLink/event streams |
 | Neo4j | Durable graph-native relationships, traversal, and provenance paths |
 | ChromaDB | Versioned local vector collections, embeddings, and semantic retrieval |
-| MinIO | Internal S3-compatible source, evidence, trace, simulation, export, backup, and support artifacts |
+| app-owned S3-compatible object store | Internal S3-compatible source, evidence, trace, simulation, export, backup, and support artifacts |
 | USKD NetworkX and other working state | Bounded materialized runtime state loaded from a durable revision; never a silent replacement for a required service |
 | SQLite, JSON, or filesystem fallbacks | Bootstrap, development, staging, or repair only unless a separately approved parity decision changes the contract |
 
@@ -812,7 +823,7 @@ cleanup/disposition inputs and must not be used to represent a supported release
 ### Production Direction
 
 - Build and qualify one signed Windows installer from a clean pinned source tree.
-- Provision app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO with unique
+- Provision app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store with unique
   protected credentials, migrations, supervision, backup, and restore.
 - Keep the desktop API and internal services loopback/private.
 - Keep external gateway access loopback-only by default. Enable a private Windows
@@ -882,7 +893,7 @@ Production observability direction:
 # Backend
 python -m pytest tests/
 python -m pytest tests/ --cov=backend --cov=models --cov-report=html --cov-report=term-missing --cov-report=json --cov-fail-under=70
-python -m ruff check .
+python -m ruff check . --select E9,F63,F7
 python -m pip_audit -r requirements.txt --desc
 
 # Frontend

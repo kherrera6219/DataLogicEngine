@@ -16,12 +16,12 @@
 | Confidentiality | Public |
 | Last reviewed | 2026-07-14 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
-| Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0004/0006, and Phase 3/4/9/11 evidence |
+| Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 
 ## Scope and invariants
 
 Production data is app-owned, installation-bound, and local to the supported
-Windows desktop or VM. PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are required
+Windows desktop or VM. PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are required
 production services; SQLite, memory-only coordination, embedded vector mode, and
 filesystem object storage are development/bootstrap/repair boundaries only.
 Production readiness must not silently substitute them.
@@ -38,13 +38,13 @@ must report partial/inconsistent state instead of fabricating success.
 | Redis | Sessions/cache, rate and concurrency limits, bounded queues/streams, cancellation, and content-free job/event coordination | Durable content authority or silent in-memory fallback |
 | Neo4j | Durable knowledge graph nodes, edges, provenance, and graph revisions | Unverified external/Aura authority |
 | ChromaDB | Vector collections, embeddings, semantic retrieval, and revision state | Hosted vector authority or untracked embedded fallback |
-| MinIO | Required original/normalized knowledge objects, trace exports, simulation artifacts, deliverables, graph/evaluation assets, gateway results, MCP results, audit objects | Filesystem or public cloud bucket production fallback |
+| app-owned S3-compatible object store | Required original/normalized knowledge objects, trace exports, simulation artifacts, deliverables, graph/evaluation assets, gateway results, MCP results, audit objects | Filesystem or public cloud bucket production fallback |
 | Unified/Truth memory | Structured reasoning memory, governed trust/promotion, explainability, integrity/recovery state | Independent source of truth that bypasses PostgreSQL/provenance authority |
 
-SeaweedFS remains qualification-only under Proposed ADR-0004. The architecture
-may change to an app-owned S3-compatible object-store capability and select
-SeaweedFS only after contract parity, durability, backup/restore, security,
-licensing, migration/rollback, Windows delivery, and final approval pass.
+ADR-0010 defines the app-owned S3-compatible object-store capability and selects
+SeaweedFS 4.40-dle.1 for rebuilt installed qualification after the engineering
+Replacement Control gates passed. Production authorization remains false until
+the retained installed and independent release gates pass.
 
 ## Required object namespaces
 

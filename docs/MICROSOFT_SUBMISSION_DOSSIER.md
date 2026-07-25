@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current official Microsoft Store/Partner Center guidance, exact signed artifact, canonical product records, and submission results |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Microsoft policy/guidance, route/package, Partner Center field, artifact/signature, privacy/legal, certification, or submission-result change |
 | Requirements and evidence | Official Microsoft policy snapshot, Partner Center submission, signed installer, WACK/applicable tests, metadata/assets, and certification correspondence |
 
@@ -81,7 +81,7 @@ remain open.
 | Privacy policy for Win32/personal information | Canonical privacy notice and PIA exist | Public stable privacy URL, deployment legal review, accurate access/use/store/security/disclosure/control statements |
 | Consent for external personal-information sharing | Provider/connector preflight/control foundations exist | Installed opt-in/withdrawal behavior and legal applicability review |
 | Content/metadata rights | Third-party index and legal actions exist | Final icons/screenshots/text/data/model/provider/trademark/license permissions |
-| Security/safety | Threat/release controls exist | Signed artifact, scans, no-egress/penetration, alert 389, independent review |
+| Security/safety | Threat/release controls exist; alert 389 is fixed | Signed artifact, final scans, no-egress/penetration, and independent review |
 | Support | Troubleshooting/operations docs exist | Public support contact/process, response/maintenance policy, data recovery/uninstall guidance |
 | Accessibility | Automated evidence exists | Manual packaged NVDA/scaling/contrast and truthful accessibility disclosure |
 | Updates | Auto-update disabled/fail-closed | Store/direct-channel update ownership, signed metadata, replay/downgrade/rollback evidence |
@@ -128,8 +128,10 @@ basis. No WACK run has been performed for the signed 4.3.0 release candidate.
 - Reproducibility hashes differ; exact final artifact is not frozen.
 - Signed install/repair/upgrade/rollback/uninstall and silent/offline behavior are
   not accepted.
-- Required service delivery, licensing/redistribution, legal actions, final
-  object-store selection, privacy/legal review, and alert 389 remain open.
+- Required service delivery, licensing/redistribution, legal actions,
+  independent object-store license/security acceptance, and privacy/legal
+  review remain open. The engineering object-store selection is recorded in
+  ADR-0010 and Dependabot alert 389 is fixed.
 - Packaged accessibility/NVDA, provider/service, security/no-egress, failure/
   recovery, performance/soak, pilot, and independent reviews are incomplete.
 - Partner Center identity/listing/assets/privacy/support/package URL and WACK/

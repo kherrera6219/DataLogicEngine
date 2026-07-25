@@ -22,7 +22,7 @@
 
 ## Internal service candidate lock
 
-Status: `engineering_candidates_not_production_approved`. Runtime: `podman 5.8.2`. Production provisioning authorized: `false`.
+Status: `engineering_candidates_not_production_approved`. Runtime: `podman 6.0.1`. Production provisioning authorized: `false`.
 
 | Service key | Product | Version | Production approved | Candidate identity |
 |---|---|---|---|---|
@@ -30,7 +30,7 @@ Status: `engineering_candidates_not_production_approved`. Runtime: `podman 5.8.2
 | `redis` | `redis` | `8.8.0` | `false` | `docker.io/library/redis@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32` |
 | `neo4j` | `neo4j` | `5.26.28` | `false` | `docker.io/library/neo4j@sha256:4bae36aff76271e27fd6a6ed0835413f86a284cd179cfb1cb7d188f5f7533aca` |
 | `chromadb` | `chromadb` | `1.5.9` | `false` | `docker.io/chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6` |
-| `object_store_candidate` | `seaweedfs` | `4.29` | `false` | `docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5` |
+| `object_store_candidate` | `seaweedfs` | `4.40-dle.1` | `false` | `localhost/datalogicengine/seaweedfs@sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b` |
 
 ## API and live route inventory
 

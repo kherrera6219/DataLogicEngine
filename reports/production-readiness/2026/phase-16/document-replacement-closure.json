@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.document-replacement-closure.v1",
-  "generated_at": "2026-07-15T10:11:51.575417+00:00",
-  "authority_version": "2026.07.15-approved2",
+  "generated_at": "2026-07-25T06:46:27.577517+00:00",
+  "authority_version": "2026.07.24-approved3",
   "status": "pass",
   "reviewed_at": "2026-07-15",
   "reviewed_by": "Codex implementation review under Kevin Herrera product-owner authority",

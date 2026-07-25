@@ -21,7 +21,6 @@ from backend.storage.store_migration_adapters import (
     RetainedConfigurationMigrationAdapter,
 )
 
-
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRESQL_TARGET_REVISION = CONTRACT_VERSIONS["data_plane_schema"]
 MANAGED_STORE_TARGETS = {
@@ -54,7 +53,7 @@ class RuntimeMigrationResources:
                     close()
                 elif callable(dispose):
                     dispose()
-            except Exception:
+            except Exception:  # noqa: BLE001, S112
                 # Startup success/failure is determined by the verified migration
                 # result. Cleanup failures must not replace its safe reason.
                 continue
@@ -89,12 +88,11 @@ def build_managed_migration_coordinator(app, runtime, resources):
     migration_url = str(migration_settings["database_url"])
     app.config["DLE_MIGRATION_DATABASE_URL"] = migration_url
 
-    postgres_engine = resources.own(
-        create_engine(migration_url, pool_pre_ping=True)
-    )
+    postgres_engine = resources.own(create_engine(migration_url, pool_pre_ping=True))
 
     import redis
     from neo4j import GraphDatabase
+
     from backend.storage.chroma_http import ChromaHttpClient
 
     redis_client = resources.own(
@@ -128,8 +126,9 @@ def build_managed_migration_coordinator(app, runtime, resources):
         "local_json_memory": LocalJsonMemoryMigrationAdapter(
             runtime.runtime_root / "databases" / "memory" / "memory_graph.json"
         ),
-        # The product authority remains MinIO. The currently locked SeaweedFS
-        # artifact is qualification-only and does not change this contract.
+        # "minio" is retained as the persisted migration component key for
+        # upgrade compatibility. ADR-0010 makes the contract vendor-neutral and
+        # selects SeaweedFS for rebuilt installed qualification.
         "minio": MinIOMigrationAdapter(object_store, settings["object_buckets"]),
         "neo4j": Neo4jMigrationAdapter(neo4j_driver),
         "postgresql": PostgreSQLMigrationAdapter(

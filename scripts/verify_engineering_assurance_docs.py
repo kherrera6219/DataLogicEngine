@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -46,7 +46,7 @@ TARGETS = {
             "Classification and protection",
             "Migration and schema rules",
             "Backup, restore, and deletion",
-            "SeaweedFS remains qualification-only",
+            "SeaweedFS 4.40-dle.1 for rebuilt installed qualification",
         },
     },
     "docs/INTERFACE_INTEGRATION.md": {

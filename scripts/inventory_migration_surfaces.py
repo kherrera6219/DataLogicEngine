@@ -3,20 +3,23 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
 import json
-from pathlib import Path
 import sys
+from datetime import UTC, datetime
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from backend.storage.migration_inventory import build_migration_inventory  # noqa: E402
+from backend.storage.migration_inventory import build_migration_inventory
 
-
-DEFAULT_JSON = ROOT / "reports/production-readiness/2026/phase-04/cp4-b-migration-inventory.json"
-DEFAULT_MARKDOWN = ROOT / "reports/production-readiness/2026/phase-04/cp4-b-migration-inventory.md"
+DEFAULT_JSON = (
+    ROOT / "reports/production-readiness/2026/phase-04/cp4-b-migration-inventory.json"
+)
+DEFAULT_MARKDOWN = (
+    ROOT / "reports/production-readiness/2026/phase-04/cp4-b-migration-inventory.md"
+)
 
 
 def _cell(value: object) -> str:
@@ -87,9 +90,11 @@ def _render_markdown(inventory: dict[str, object]) -> str:
             "",
             "## Release constraints",
             "",
-            "- MinIO remains the production object-store migration authority.",
-            "- SeaweedFS candidate evidence may test contract portability but is not",
-            "  a production migration target.",
+            "- The production capability authority is an app-owned S3-compatible",
+            "  object store; the legacy `minio` migration key is retained for",
+            "  persisted upgrade compatibility.",
+            "- SeaweedFS 4.40-dle.1 is selected for rebuilt installed qualification;",
+            "  production approval remains false until the installed gates pass.",
             "- Startup against a newer incompatible data version must fail closed.",
             "- Partial store migration must remain visible and rollback/retryable.",
             "",
@@ -101,7 +106,9 @@ def _render_markdown(inventory: dict[str, object]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", dest="json_path", default=str(DEFAULT_JSON))
-    parser.add_argument("--markdown", dest="markdown_path", default=str(DEFAULT_MARKDOWN))
+    parser.add_argument(
+        "--markdown", dest="markdown_path", default=str(DEFAULT_MARKDOWN)
+    )
     args = parser.parse_args()
 
     inventory = build_migration_inventory(ROOT)

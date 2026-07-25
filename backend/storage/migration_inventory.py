@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
-
 
 from backend.product_version import SUPPORTED_UPGRADE_SOURCES
-
 
 MIGRATION_INVENTORY_SCHEMA_VERSION = "1.0.0"
 
@@ -68,7 +66,7 @@ MIGRATION_SURFACES: tuple[MigrationSurface, ...] = (
         version_probe="HEAD app-owned schema manifest object and verify metadata/hash",
         forward_migration="version object metadata, bucket policies, lifecycle, and retention contracts",
         rollback_policy="restore portable bucket snapshot with key/metadata/hash parity",
-        status="minio_schema_manifest_portable_restore_and_hash_parity_passed",
+        status="legacy_key_vendor_neutral_s3_manifest_restore_and_hash_parity_passed",
         blocker="supported_0_1_1_minio_adoption_not_qualified",
     ),
     MigrationSurface(
@@ -112,7 +110,9 @@ def _assignment_value(tree: ast.Module, name: str) -> object:
         else:
             targets = (node.target,)
             value_node = node.value
-        if any(isinstance(target, ast.Name) and target.id == name for target in targets):
+        if any(
+            isinstance(target, ast.Name) and target.id == name for target in targets
+        ):
             return ast.literal_eval(value_node)
     raise ValueError(f"migration_assignment_missing:{name}")
 
@@ -122,7 +122,9 @@ def _normalize_parents(value: object) -> tuple[str, ...]:
         return ()
     if isinstance(value, str):
         return (value,)
-    if isinstance(value, (tuple, list)) and all(isinstance(item, str) for item in value):
+    if isinstance(value, (tuple, list)) and all(
+        isinstance(item, str) for item in value
+    ):
         return tuple(value)
     raise ValueError("migration_down_revision_invalid")
 
@@ -233,8 +235,10 @@ def build_migration_inventory(root: str | Path) -> dict[str, object]:
         ],
         "blockers": blockers,
         "release_constraints": {
-            "production_object_store": "minio",
-            "seaweedfs_production_selected": False,
+            "production_object_store": "app_owned_s3_compatible",
+            "selected_object_store_implementation": "seaweedfs_4.40-dle.1",
+            "seaweedfs_production_selected": True,
+            "object_store_production_approved": False,
             "coordinated_backup_available": True,
             "coordinated_restore_available": True,
             "current_version_populated_restore_qualified": True,

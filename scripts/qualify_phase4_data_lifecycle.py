@@ -1,40 +1,40 @@
 """Run the populated Phase 4 backup, clean-root restore, and delete-parity drill."""
 
+# ruff: noqa: BLE001, S112
+
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
 import hashlib
 import json
-from pathlib import Path
 import shutil
 import sys
 import tempfile
-from typing import Any
 import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from sqlalchemy import text
-
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app import create_app  # noqa: E402
-from backend.runtime.podman_data_plane import APP_SERVICE_KEYS  # noqa: E402
-from backend.security.windows_acl import verify_restricted_user_acl  # noqa: E402
-from backend.storage.chroma_security import (  # noqa: E402
+from app import create_app
+from backend.runtime.podman_data_plane import APP_SERVICE_KEYS
+from backend.security.windows_acl import verify_restricted_user_acl
+from backend.storage.chroma_security import (
     safe_create_collection,
     safe_get_collection,
 )
-from backend.storage.data_at_rest import build_at_rest_report  # noqa: E402
-from backend.storage.managed_backup import create_managed_backup  # noqa: E402
-from backend.storage.managed_restore import restore_managed_backup_offline  # noqa: E402
-from backend.storage.outbox import CrossStoreOutbox  # noqa: E402
-from backend.storage.retention import DeletionSubject  # noqa: E402
-from backend.storage.user_deletion import run_user_deletion  # noqa: E402
-from extensions import db  # noqa: E402
-
+from backend.storage.data_at_rest import build_at_rest_report
+from backend.storage.managed_backup import create_managed_backup
+from backend.storage.managed_restore import restore_managed_backup_offline
+from backend.storage.outbox import CrossStoreOutbox
+from backend.storage.retention import DeletionSubject
+from backend.storage.user_deletion import run_user_deletion
+from extensions import db
 
 DEFAULT_LOCK = ROOT / "deploy" / "internal-data-plane.candidate-lock.json"
 DEFAULT_REPORT = (
@@ -108,8 +108,8 @@ def _populate(app, run_id: str) -> dict[str, Any]:
         import redis
         from neo4j import GraphDatabase
 
-        from backend.storage.chroma_http import ChromaHttpClient
         from backend.storage import get_object_store
+        from backend.storage.chroma_http import ChromaHttpClient
 
         redis_client = redis.Redis.from_url(settings["redis_url"])
         neo4j_driver = GraphDatabase.driver(
@@ -185,7 +185,9 @@ def _populate(app, run_id: str) -> dict[str, Any]:
     memory_path.write_text(json.dumps(memory, sort_keys=True) + "\n", encoding="utf-8")
     log_path = runtime_root / "logs" / "phase4-qualification.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_path.write_text(f"qualification user {user_id} run {run_id}\n", encoding="utf-8")
+    log_path.write_text(
+        f"qualification user {user_id} run {run_id}\n", encoding="utf-8"
+    )
     return {
         "user_id": user_id,
         "redis_key": redis_key,
@@ -202,8 +204,8 @@ def _verify_restored(app, expected: dict[str, Any], run_id: str) -> dict[str, An
     import redis
     from neo4j import GraphDatabase
 
-    from backend.storage.chroma_http import ChromaHttpClient
     from backend.storage import get_object_store
+    from backend.storage.chroma_http import ChromaHttpClient
 
     with app.app_context():
         sql_count = int(
@@ -267,13 +269,17 @@ def _verify_restored(app, expected: dict[str, Any], run_id: str) -> dict[str, An
         values = {
             "postgresql_user": sql_count,
             "postgresql_pending_outbox": pending_count,
-            "redis_durable_key": 1 if redis_value == f"durable-{run_id}".encode() else 0,
+            "redis_durable_key": 1
+            if redis_value == f"durable-{run_id}".encode()
+            else 0,
             "neo4j_node": neo4j_count,
             "chroma_record": chroma_count,
             "minio_object_hash": object_hash,
             "local_json_vertex": memory_count,
         }
-        if any(value != 1 for key, value in values.items() if key != "minio_object_hash"):
+        if any(
+            value != 1 for key, value in values.items() if key != "minio_object_hash"
+        ):
             raise RuntimeError("restored_store_count_mismatch")
         if object_hash != expected["object_sha256"]:
             raise RuntimeError("restored_object_hash_mismatch")
@@ -363,8 +369,10 @@ def qualify(args: argparse.Namespace) -> dict[str, Any]:
             "status": "passed",
             "release_gate": "engineering_qualification_only",
             "production_authorized": False,
-            "object_store_architecture": "minio",
-            "seaweedfs_production_selected": False,
+            "object_store_architecture": "app_owned_s3_compatible",
+            "selected_object_store_implementation": "seaweedfs_4.40-dle.1",
+            "seaweedfs_production_selected": True,
+            "object_store_production_approved": False,
             "run_id_sha256": _sha256(run_id),
             "checks": checks,
             "deferred_release_gates": [
@@ -372,7 +380,7 @@ def qualify(args: argparse.Namespace) -> dict[str, Any]:
                 "supported_0_1_1_retained_data_upgrade",
                 "bitlocker_and_acl_supported_windows_matrix",
                 "independent_backup_restore_review",
-                "final_object_store_replacement_decision",
+                "installed_object_store_release_acceptance",
             ],
         }
     except Exception as exc:
@@ -384,7 +392,8 @@ def qualify(args: argparse.Namespace) -> dict[str, Any]:
             if str(exc).replace("_", "").replace(":", "").isalnum()
             else type(exc).__name__,
             "production_authorized": False,
-            "seaweedfs_production_selected": False,
+            "seaweedfs_production_selected": True,
+            "object_store_production_approved": False,
             "checks": checks,
         }
     finally:
@@ -419,7 +428,9 @@ def main() -> int:
     args = parse_args()
     report = qualify(args)
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    args.report.write_text(json.dumps(report, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    args.report.write_text(
+        json.dumps(report, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(report, sort_keys=True, indent=2))
     return 0 if report["status"] == "passed" else 1
 

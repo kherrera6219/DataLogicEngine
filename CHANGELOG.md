@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-15 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,13 +26,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Object-store Replacement Control selection**: accepted ADR-0010, replaced
+  the product-specific object-store requirement with the capability
+  **app-owned S3-compatible object store**, and selected SeaweedFS 4.40-dle.1
+  for rebuilt installed qualification. Production authorization remains false.
+- **SeaweedFS security rebuild and qualification**: rebuilt the exact 4.40
+  source revision with `google.golang.org/grpc` 1.82.1 for
+  `GHSA-hrxh-6v49-42gf`; pinned the image, OCI archive, Windows runtime,
+  license inventory, and Trivy report; and passed the S3, concurrency,
+  restart/kill, backup/restore, corrupt-evidence, occupied-port, disk-full,
+  migration/rollback, Windows, security, licensing, and owner-selection gates
+  with zero High or Critical scan findings.
+- **Replacement Control validation**: passed 2,192 backend tests with 18 skips,
+  all 422 frontend tests, frontend lint/typecheck/production build, the CI Ruff
+  rule set, and the 10/10 documentation truth gate; isolated legacy integration
+  fixtures now prevent Windows runtime-lock contention between tests.
+- **Pre-commit/CI lint parity**: aligned the tracked pre-commit runner and active
+  contributor/build commands with the CI-blocking Ruff rules
+  `E9,F63,F7`, preventing unrelated non-blocking style debt from making every
+  local commit fail while CI reports the lint job as green.
 - **ChromaDB SDK replacement for critical alert 389**: removed the affected
   `chromadb` Python package from both dependency authorities and added a
   restricted loopback-only Chroma v2 HTTP client that accepts only caller-
   supplied vectors and inert embedding configuration. Eighteen focused
   regressions, a zero-finding isolated dependency audit, and live five-service
-  collection/query/restart qualification pass; GitHub alert closure awaits the
-  pushed manifest rescan.
+  collection/query/restart qualification pass; GitHub alert 389 is confirmed
+  fixed.
 - **Phase 16/17 consolidation integrity repair**: expanded active-document
   verification from index-only links to every Markdown link and backtick path,
   migrated 175 retained references to canonical or exact archived targets,
@@ -209,7 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it to version 0.7.0 with chat, streaming, durable jobs, cancellation,
   capabilities, trace, and result retrieval.
 - **Phase 4 data-lifecycle engineering checkpoint**: added a generated 67-entity/28-contract ownership registry (extended to 70 entities by the Phase 6 trace-quality schema), transactional cross-store outbox and reconciliation state, fail-closed per-store startup migration coordinator, encrypted signed six-component backup, offline isolated clean-root restore with atomic activation/rollback, retention/deletion tombstones, uninstall dispositions, and a Windows volume/ACL plus DPAPI/AES-256-GCM protection standard.
-- **Populated recovery evidence**: a live five-service drill recovered PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, retained JSON, and pending outbox state with exact object-hash parity and prior-root preservation, then passed deletion across PostgreSQL, Redis, Neo4j, ChromaDB, MinIO, JSON, and logs.
+- **Populated recovery evidence**: a live five-service drill recovered PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store, retained JSON, and pending outbox state with exact object-hash parity and prior-root preservation, then passed deletion across PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store, JSON, and logs.
 - **Phase 3 internal data-plane engineering checkpoint**: added a per-install, digest-pinned rootless Podman profile for PostgreSQL, Redis, Neo4j, ChromaDB, and a candidate-only S3 service; protected service credentials; verified container identity; loopback-only endpoints; resource/security limits; supervisor lifecycle integration; and a live qualification gate covering real operations, restart durability, truthful status, and cleanup.
 - **Object-store Replacement Control evidence**: added caller/contract inventory, snapshot migration/rollback tooling, SeaweedFS candidate qualification, ADR-0004, candidate locks, risk/rollback records, and machine-readable Phase 3 results. SeaweedFS remains unselected for production pending all independent, installer, failure, recovery, and final approval gates.
 

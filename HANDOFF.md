@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-15 |
+| Last reviewed | 2026-07-24 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.20.0 |
-| Completed phase | Phase 17 CP17-A through CP17-D; CP17-E clean-installed walkthrough retained |
-| Current phase | Replacement Control and data-plane release-blocker closure |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.22.0 |
+| Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
+| Current phase | Rebuild, sign, install, and execute retained release-acceptance gates |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -44,7 +44,7 @@ execution plan; archived plans and testing queues are historical evidence only.
 - Electron is the complete control, configuration, administration, audit,
   observability, support, and validation application.
 - Built-in chat is the reference client for the same canonical governed request path used by approved clients.
-- PostgreSQL, Redis, Neo4j, ChromaDB, and MinIO are required app-owned production services.
+- PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are required app-owned production services.
 - OpenAI and Google are the supported optional model providers.
 - Cloud SaaS, multi-tenancy, Kubernetes, mobile, macOS/Linux packaging, public
   registration, and public-internet gateway exposure are out of scope.
@@ -140,16 +140,18 @@ Key results:
 - Final validation passed 1,814 backend tests with 18 skipped, 402 frontend
   tests, frontend lint/typecheck/build, and Ruff.
 
-This is not the clean installed-production exit gate. Exact Podman 5.8.2
-artifact qualification, clean signed-installer proof, installed recovery and
-extended failure testing, independent security/license review, and
-final object-store selection remain explicit blockers for the rebuilt release
-candidate. No deferred item is counted as passed.
+This is not the clean installed-production exit gate. Exact Podman 6.0.1
+portable-client qualification passed against the documented WSL machine server
+5.8.5, and the exact SeaweedFS image is selected. Clean signed-installer
+delivery, packaged protected-volume/recovery and extended failure testing,
+independent security/license review, and final release approval remain explicit
+blockers for the rebuilt release candidate. No deferred item is counted as
+passed.
 
-SeaweedFS 4.29 is a qualification candidate only. ADR-0004 remains Proposed,
-`production_authorized` is false, and MinIO remains the product-specific target
-architecture until Replacement Control passes fully and Kevin gives final
-production approval.
+ADR-0010 supersedes the historical Proposed ADR-0004. The product requirement
+is now the capability **app-owned S3-compatible object store**, and SeaweedFS
+4.40-dle.1 is selected for rebuilt installed qualification.
+`production_authorized` remains false until the installed independent gates pass.
 
 ## Phase 4 engineering checkpoint
 
@@ -160,9 +162,9 @@ Key results:
 
 - The versioned ownership matrix covers 70 PostgreSQL entities and 28 logical
   data contracts with one authority and explicit materializations.
-- PostgreSQL-authoritative Neo4j/Chroma materializations and required MinIO
+- PostgreSQL-authoritative Neo4j/Chroma materializations and required app-owned S3-compatible object store
   artifact writes use a transactional, idempotent outbox with retries and
-  reconciliation state; declared artifacts remain MinIO-authoritative.
+  reconciliation state; declared artifacts remain app-owned S3-compatible object store-authoritative.
 - Startup runs a fail-closed 14-revision SQL/per-store migration coordinator
   before readiness and refuses newer, unsupported, or unversioned populated data.
 - The desktop creates an encrypted, signed six-component `.dlebackup` archive
@@ -171,35 +173,37 @@ Key results:
   recovery credentials, cross-store verification, atomic activation, prior-root
   preservation, and rollback on failed post-validation.
 - Live populated qualification recovered PostgreSQL, Redis, Neo4j, Chroma,
-  MinIO, and retained JSON values, including exact object hash and pending outbox
+  app-owned S3-compatible object store, and retained JSON values, including exact object hash and pending outbox
   state, then passed deletion across all seven required surfaces.
 - Retention, tombstones, uninstall dispositions, data classification, and the
   Windows volume/ACL + DPAPI + portable AES-256-GCM protection model are explicit.
 
 The full installed exit gate remains open for the supported 0.1.1 retained-data
 upgrade, rebuilt signed clean-machine restore, protected-volume/ACL Windows
-matrix, independent recovery review, and final object-store decision. Kevin
+matrix, independent recovery review, and final object-store release acceptance. Kevin
 authorized these installed-only checks to remain release blockers while the plan
 continues. Production/public release remains **NO-GO**.
 
-SeaweedFS remains candidate-only. ADR-0004 is Proposed,
-`production_authorized=false`, `production_selected=false`, and MinIO remains
-the product-specific production architecture.
+SeaweedFS 4.40-dle.1 is the selected implementation under ADR-0010.
+`production_selected=true` for rebuilt installed qualification while
+`production_authorized=false`.
 
 The vulnerable ChromaDB Python SDK identified by Dependabot alert 389 has been
 removed from both dependency authorities. An app-owned restricted Chroma v2 HTTP
 client now permits only loopback endpoints, caller-supplied vectors, and inert
 no-embedding configuration. Eighteen focused regressions, an isolated zero-
 finding dependency audit, and the real five-service collection/query/restart
-qualification pass. GitHub alert closure awaits the pushed manifest rescan;
-installed service/security/recovery approval remains part of the signed RC gate.
+qualification pass. GitHub reports alert 389 fixed as of 2026-07-15; installed
+service/security/recovery approval remains part of the signed RC gate.
 
 The Phase 16/17 integrity follow-up strengthened link verification from two
-indexes to all 39 active Markdown documents, migrated 175 previously missed
+indexes to all 40 active Markdown documents, migrated 175 previously missed
 references to canonical or exact archived targets, rebound KA/provider/ADR
 source references, and isolated test runtime ownership. Replacement closure,
 documentation truth, all assurance document gates, and the full backend suite
-pass; the full result is 2,192 passed and 18 skipped.
+pass; the full result is 2,192 passed and 18 skipped. All 422 frontend tests,
+lint, typecheck, production build, the CI Ruff rules, and the 10/10
+documentation truth gate also pass.
 
 ## Phase 5 engineering checkpoint
 
@@ -304,9 +308,10 @@ under `reports/production-readiness/2026/phase-09/`.
 Installed portions of CP9-A/B/C/D/E remain explicit release gates. In particular,
 the rebuilt application must prove restart/recovery, populated cross-store
 parity, hostile-corpus containment, causal answer change, deletion, and packaged
-Knowledge/Graph truth. Earlier installed gates, alert 389, and final object-store
-Replacement Control also remain open; SeaweedFS is still candidate-only and
-MinIO remains the production architecture.
+Knowledge/Graph truth. Earlier installed gates remain open. Alert 389 is fixed
+and Replacement Control is complete for release qualification; the capability
+architecture and selected SeaweedFS implementation now advance into rebuilt
+installed acceptance.
 
 ## Phase 10 engineering checkpoint
 
@@ -340,9 +345,9 @@ typecheck/lint/build and Ruff. Evidence is under
 
 Installed CP10 live-provider, restart, event/UI, five-service materialization,
 artifact, and visual proof remain release-blocking until the application is
-rebuilt and installed. Earlier installed gates, alert 389, and final object-store
-Replacement Control remain open. SeaweedFS is candidate-only and MinIO remains
-the production architecture.
+rebuilt and installed. Earlier installed gates remain open. Alert 389 and
+source/lab Replacement Control are closed; SeaweedFS now requires rebuilt
+installed and independent release acceptance.
 
 ## Phase 11 engineering checkpoint
 
@@ -450,8 +455,8 @@ is always enabled while automatic update remains policy-disabled.
 The Windows signature inventory covers 158 current executable/script payload
 files and correctly fails because the canonical 4.3.0 installer and approved
 publisher do not yet exist. Legal/distribution structure passes but ten actions
-remain open. Legacy WiX/PowerShell payloads are excluded; SeaweedFS remains a
-production-disabled qualification candidate.
+remain open. Legacy WiX/PowerShell payloads are excluded; SeaweedFS is selected
+but remains production-disabled until installed release acceptance passes.
 
 Focused validation passes 27 Phase 14 Python tests, Ruff, product/dependency/
 workflow/legacy/NSIS governance, PowerShell 5.1 parsing/execution, frontend
@@ -515,7 +520,7 @@ Five canonical product/user targets now exist: product requirements,
 installation/lifecycle, administrator/operations, troubleshooting/support, and
 privacy/provider/retention/AI limitations. Each is built from its approved
 source map and preserves the current product boundary, qualification-only and
-NO-GO language, MinIO/SeaweedFS decision state, provider/connector egress,
+NO-GO language, app-owned S3-compatible object store/SeaweedFS decision state, provider/connector egress,
 release gaps, and installed/manual evidence gates.
 
 The authority now reports 15 existing and 15 planned canonical targets and 139
@@ -640,22 +645,22 @@ Compose rendering, repository Ruff gate, both real frontend Docker targets, and
 full isolated backend suite pass; the backend result is 2,181 passed and 18
 skipped. Replacement Security run 29401695782, CI run 29401695732, and Deploy
 run 29401695777 all pass. The live GitHub query reports zero open CodeQL
-findings; Dependabot alert 389 remains open and critical. CP16-F may resume. See
+findings; Dependabot alert 389 was subsequently fixed by the restricted client
+replacement. See
 `reports/code_scanning_alerts_2026-07-15.md`.
 
 ## Exact next action
 
-1. Push the completed ChromaDB SDK replacement and verify Dependabot alert 389
-   closes against the replacement dependency manifests.
-2. Complete the object-store Replacement Control and record the final owner/ADR
-   decision before rebuilding the signed RC.
+1. Rebuild the exact signed RC with the locked SeaweedFS 4.40-dle.1 image.
+2. Execute clean-machine object-store delivery, protected-volume,
+   backup/restore, and independent security/license acceptance.
 3. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
    a clean-machine documentation-only walkthrough can be performed.
 4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
    CP16-D/CP16-E policy/reviewer/acceptance gates.
 5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO,
-   automatic-update disablement, and SeaweedFS candidate-only status until
-   their required installed and independent evidence exists.
+   automatic-update disablement, and object-store production-approval false
+   until their required installed and independent evidence exists.
 
 ## Phase rules
 

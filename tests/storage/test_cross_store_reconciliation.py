@@ -56,11 +56,11 @@ def test_plan_required_logical_data_classes_have_explicit_authority():
     )
 
 
-def test_object_authority_remains_minio_until_replacement_control_passes():
+def test_object_authority_is_vendor_neutral_after_replacement_control():
     object_contracts = [
         contract
         for contract in LOGICAL_DATA_CONTRACTS
-        if contract.authority is StoreAuthority.MINIO
+        if contract.authority is StoreAuthority.OBJECT_STORE
     ]
 
     assert object_contracts
@@ -101,5 +101,9 @@ def test_contract_manifest_is_deterministic_and_machine_readable():
     assert first["schema_version"] == DATA_CONTRACT_SCHEMA_VERSION
     assert first["postgresql_entity_count"] == 86
     assert first["validation_errors"] == []
-    assert first["release_constraints"]["object_store_architecture"] == "minio"
-    assert first["release_constraints"]["seaweedfs_production_selected"] is False
+    assert (
+        first["release_constraints"]["object_store_architecture"]
+        == "app_owned_s3_compatible"
+    )
+    assert first["release_constraints"]["seaweedfs_production_selected"] is True
+    assert first["release_constraints"]["object_store_production_approved"] is False

@@ -12,8 +12,13 @@
   },
   "runtime": {
     "name": "podman",
-    "version": "5.8.2",
-    "windows_x64_msi_sha256": "eda54f26f9695d198d9a679fa45ae24ba35b78444f432b5fe0c122c5a3624c57",
+    "version": "6.0.1",
+    "machine_server_version": "5.8.5",
+    "windows_x64_msi_sha256": "3b65848f2d9ae652a15c35f2496a9ece2e07f28746fa651415d519ae7c5902ad",
+    "windows_x64_msi_size": 27414528,
+    "windows_x64_remote_zip_sha256": "127d02930ac25c80088817502e833916cd3ee1ed1e771dbd42a4ce81b2e0d415",
+    "windows_x64_remote_zip_size": 30837400,
+    "release_url": "https://github.com/containers/podman/releases/tag/v6.0.1",
     "license": "Apache-2.0",
     "production_redistribution_review": "pending"
   },
@@ -58,17 +63,38 @@
     },
     "object_store_candidate": {
       "product": "seaweedfs",
-      "version": "4.29",
-      "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
-      "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+      "version": "4.40-dle.1",
+      "upstream_version": "4.40",
+      "image": "localhost/datalogicengine/seaweedfs@sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b",
+      "linux_amd64_digest": "sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b",
+      "image_id": "sha256:b41f8b293049bf79045ff9c8216a9dccf0ce99ee6a4e32d174c6b320659e2b3e",
+      "oci_archive_sha256": "1f48d45b87554b6008bc086b101f58887ba360a214e928ccc23a216f804bdfbc",
+      "oci_archive_size": 192970240,
       "license": "Apache-2.0",
+      "source_revision": "875cd1f67ea25e8965a4f5ba1e6aaf501ba6b6fa",
+      "release_url": "https://github.com/seaweedfs/seaweedfs/releases/tag/4.40",
+      "windows_amd64_zip_sha256": "6713c300fe8bcc807bbdd73fe9e6753e96cb08905568102e0b842c686cfa8f3e",
+      "windows_amd64_zip_size": 44782260,
+      "minimum_security_version": "4.34",
+      "security_patch": {
+        "advisory": "GHSA-hrxh-6v49-42gf",
+        "dependency": "google.golang.org/grpc",
+        "upstream_version": "v1.81.1",
+        "selected_version": "v1.82.1"
+      },
+      "build_recipe": "deploy/seaweedfs/Dockerfile",
+      "vulnerability_report": "reports/production-readiness/2026/phase-03/seaweedfs-4.40-dle.1-trivy.json",
       "qualification_authorized_by": "Kevin",
       "qualification_authorized_at": "2026-07-13",
-      "production_license_review": "pending",
-      "replacement_control": "pending",
+      "selection_authorized_by": "Kevin",
+      "selection_authorized_at": "2026-07-13",
+      "selection_status": "selected_for_release_qualification",
+      "production_license_review": "engineering_pass",
+      "license_review_record": "reports/production-readiness/2026/phase-03/seaweedfs-4.40-license-redistribution-review.md",
+      "replacement_control": "passed_for_release_qualification",
       "production_approved": false
     }
   },
   "production_provisioning_authorized": false,
-  "architecture_change_authorized": false
+  "architecture_change_authorized": true
 }

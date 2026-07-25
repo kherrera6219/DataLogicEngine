@@ -9,11 +9,10 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 DEPLOY_WORKFLOW = ROOT / ".github" / "workflows" / "deploy.yml"
-RELEASE_CHECKLIST = ROOT / "docs" / "RELEASE_CHECKLIST.md"
+RELEASE_READINESS_RECORD = ROOT / "docs" / "RELEASE_READINESS_RECORD.md"
 
 REQUIRED_CI_TOKENS = (
     "lint:",
@@ -34,18 +33,17 @@ REQUIRED_DEPLOY_TOKENS = (
     "Production health check",
 )
 
-REQUIRED_RELEASE_CHECKLIST_TOKENS = (
-    "python scripts/dev_doctor.py --skip-ports",
-    "python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process",
-    "python scripts/verify_lockfiles.py",
-    "python scripts/verify_docs_references.py",
-    "python scripts/validate_schema_parity.py",
-    "python scripts/verify_release_governance.py",
-    r".\.venv\Scripts\python.exe scripts\verify_installer_integrity.py --require-artifacts",
-    r"powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation",
-    "Deployment health checks validated.",
-    "Error rates and latency reviewed for first 30 minutes after rollout.",
-    "Disaster recovery restore drill reviewed within the required window",
+REQUIRED_RELEASE_READINESS_TOKENS = (
+    "## Current decision",
+    "**Production/public release: NO-GO.**",
+    "## Candidate identity",
+    "## Gate summary",
+    "## Finding policy",
+    "Release requires zero open P0/P1 findings",
+    "## Required final evidence bundle",
+    "## GO authorization template",
+    "`production_authorized=false`",
+    "installed and independent acceptance of the ADR-0010 object-store selection",
 )
 
 
@@ -69,11 +67,15 @@ def _display_path(path: Path) -> str:
         return str(path)
 
 
-def _check_required_tokens(path: Path, scope: str, tokens: tuple[str, ...]) -> list[Finding]:
+def _check_required_tokens(
+    path: Path, scope: str, tokens: tuple[str, ...]
+) -> list[Finding]:
     findings: list[Finding] = []
     text = _read_text(path)
     if text is None:
-        return [Finding("ERROR", scope, f"Missing required file: {_display_path(path)}")]
+        return [
+            Finding("ERROR", scope, f"Missing required file: {_display_path(path)}")
+        ]
 
     findings.append(Finding("OK", scope, f"Found {_display_path(path)}"))
     for token in tokens:
@@ -87,12 +89,14 @@ def _check_required_tokens(path: Path, scope: str, tokens: tuple[str, ...]) -> l
 def run_checks() -> list[Finding]:
     findings: list[Finding] = []
     findings.extend(_check_required_tokens(CI_WORKFLOW, "ci", REQUIRED_CI_TOKENS))
-    findings.extend(_check_required_tokens(DEPLOY_WORKFLOW, "deploy", REQUIRED_DEPLOY_TOKENS))
+    findings.extend(
+        _check_required_tokens(DEPLOY_WORKFLOW, "deploy", REQUIRED_DEPLOY_TOKENS)
+    )
     findings.extend(
         _check_required_tokens(
-            RELEASE_CHECKLIST,
-            "release-checklist",
-            REQUIRED_RELEASE_CHECKLIST_TOKENS,
+            RELEASE_READINESS_RECORD,
+            "release-readiness",
+            REQUIRED_RELEASE_READINESS_TOKENS,
         )
     )
     return findings

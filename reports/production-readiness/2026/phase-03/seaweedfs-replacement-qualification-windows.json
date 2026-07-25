@@ -1,18 +1,18 @@
 {
-  "architecture_change_authorized": false,
+  "architecture_change_authorized": true,
   "candidate": {
-    "image": "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
-    "linux_amd64_digest": "sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e",
+    "image": "localhost/datalogicengine/seaweedfs@sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b",
+    "linux_amd64_digest": "sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b",
     "product": "seaweedfs",
-    "version": "4.29"
+    "version": "4.40-dle.1"
   },
   "candidate_s3_became_ready": true,
-  "captured_at": "2026-07-13T19:50:26.087597+00:00",
+  "captured_at": "2026-07-25T06:09:50.426211+00:00",
   "checks": [
     {
       "check": "candidate_only_lock",
       "evidence": {
-        "architecture_change_authorized": false,
+        "architecture_change_authorized": true,
         "production_approved": false,
         "qualification_authorized_by": "Kevin"
       },
@@ -25,6 +25,16 @@
         "available": true,
         "host": "127.0.0.1",
         "port": 18333
+      },
+      "gate": "windows_deployment",
+      "status": "pass"
+    },
+    {
+      "check": "capacity_failure_port_available",
+      "evidence": {
+        "available": true,
+        "host": "127.0.0.1",
+        "port": 18334
       },
       "gate": "windows_deployment",
       "status": "pass"
@@ -45,9 +55,10 @@
       "evidence": {
         "arch": "amd64",
         "cgroup_version": "v2",
-        "client_version": "5.8.3",
-        "exact_runtime_match": false,
-        "expected_distributable_version": "5.8.2",
+        "client_version": "6.0.1",
+        "exact_runtime_match": true,
+        "expected_distributable_version": "6.0.1",
+        "expected_machine_server_version": "5.8.5",
         "kernel": "6.6.87.2-microsoft-standard-WSL2",
         "rootless": true,
         "seccomp": true,
@@ -59,28 +70,58 @@
     {
       "check": "exact_locked_runtime",
       "evidence": {
-        "client": "5.8.3",
-        "expected": "5.8.2",
-        "reason": "installed_client_or_machine_server_does_not_match_candidate_lock",
-        "server": "5.8.5"
+        "client_version": "6.0.1",
+        "machine_server_version": "5.8.5"
       },
       "gate": "windows_deployment",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "check": "immutable_candidate_identity_and_declared_license",
       "evidence": {
-        "binary_version": "version 30GB 4.29 1355c7a10 linux amd64",
-        "image_id": "10b004ca7cc8ee13615dbe670e1be047270ab30a742a5944e82330017d64d8fd",
+        "binary_version": "version 30GB 4.40 875cd1f67 linux amd64",
+        "image_id": "sha256:b41f8b293049bf79045ff9c8216a9dccf0ce99ee6a4e32d174c6b320659e2b3e",
         "license_label": "Apache-2.0",
         "repo_digests": [
-          "docker.io/chrislusf/seaweedfs@sha256:d47c7ee99fcb951351d7194915f4e3a5ea604a8e8871183d713907dec4fb9bf5",
-          "docker.io/chrislusf/seaweedfs@sha256:f16591b02e7a1d79dca57801405eec2c784711436edf65c0aa6394ef52800a3e"
+          "localhost/datalogicengine/seaweedfs@sha256:52c010d8f866da9269d32ea98a0399a44922c36147c34e2adab9dcc340877f4b"
         ],
-        "source_revision": "1355c7a102194d6c461baf090eff50367b575afb",
-        "version_label": "4.29"
+        "source_revision": "875cd1f67ea25e8965a4f5ba1e6aaf501ba6b6fa",
+        "version_label": "4.40-dle.1"
       },
       "gate": "licensing",
+      "status": "pass"
+    },
+    {
+      "check": "exact_image_vulnerability_scan",
+      "evidence": {
+        "high_or_critical_findings": 0,
+        "image_id": "sha256:b41f8b293049bf79045ff9c8216a9dccf0ce99ee6a4e32d174c6b320659e2b3e",
+        "non_blocking_findings": [
+          {
+            "id": "GO-2026-5932",
+            "package": "golang.org/x/crypto",
+            "severity": "UNKNOWN",
+            "title": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues"
+          }
+        ],
+        "report": "reports/production-readiness/2026/phase-03/seaweedfs-4.40-dle.1-trivy.json",
+        "report_sha256": "1e2a9347f02febade78bc3cc4370afd2df06ce682fae508051e26c545acd004b",
+        "severity_counts": {
+          "UNKNOWN": 1
+        }
+      },
+      "gate": "security",
+      "status": "pass"
+    },
+    {
+      "check": "occupied_port_fails_closed",
+      "evidence": {
+        "candidate_start_attempted": false,
+        "existing_listener_preserved": true,
+        "port": 18333,
+        "supervisor_preflight_rejected": true
+      },
+      "gate": "failure_recovery",
       "status": "pass"
     },
     {
@@ -142,8 +183,8 @@
       "evidence": {
         "access_key_persisted_in_report": false,
         "credential_transport": "podman_secret_static_s3_config",
-        "durability_key": "durability/d7bd749fee86.bin",
-        "durability_sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f",
+        "durability_key": "durability/8fa9607b347f.bin",
+        "durability_sha256": "e671f782ccd89128b75c0bddde909809693fe2d90acc048ff3b2aef33fbf05f1",
         "endpoint": "http://127.0.0.1:18333",
         "multipart_bytes": 10485777,
         "operations": [
@@ -156,7 +197,7 @@
           "presigned_get"
         ],
         "secret_key_persisted_in_report": false,
-        "small_object_sha256": "ee076ef291f47d68bf7c7e061b9e94ba6d68d32803f26ddffdb5ac6e167a347a"
+        "small_object_sha256": "f1fbbd45ffd67138a7a24f308d512ec2e67f1859ce090dccec745bf0c92582f6"
       },
       "gate": "contract_parity",
       "status": "pass"
@@ -164,7 +205,7 @@
     {
       "check": "bounded_concurrent_read_write_smoke",
       "evidence": {
-        "elapsed_seconds": 0.276,
+        "elapsed_seconds": 0.247,
         "objects": 32,
         "workers": 8
       },
@@ -175,7 +216,7 @@
       "check": "portable_snapshot_export",
       "evidence": {
         "bucket": "dle-qualification",
-        "manifest_sha256": "b37b655cbe40d3b76603335e11a69906e8d819f19f3141d4b1852842766e31ce",
+        "manifest_sha256": "bc4f3e6f408688457f342ed9ec4f0d3c07c488bd155a7d0d7acafe6d8fe83f5c",
         "object_count": 34,
         "total_bytes": 2359345
       },
@@ -183,11 +224,25 @@
       "status": "pass"
     },
     {
+      "check": "corrupt_and_incomplete_snapshot_rejected",
+      "evidence": {
+        "cases": {
+          "blob_tamper": "snapshot_blob_integrity_failure",
+          "manifest_tamper": "snapshot_manifest_hash_mismatch",
+          "missing_blob": "snapshot_blob_missing"
+        },
+        "original_snapshot_still_valid": "bc4f3e6f408688457f342ed9ec4f0d3c07c488bd155a7d0d7acafe6d8fe83f5c",
+        "restore_writes_attempted": 0
+      },
+      "gate": "failure_recovery",
+      "status": "pass"
+    },
+    {
       "check": "graceful_container_restart",
       "evidence": {
         "bytes": 262144,
-        "key": "durability/d7bd749fee86.bin",
-        "sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f"
+        "key": "durability/8fa9607b347f.bin",
+        "sha256": "e671f782ccd89128b75c0bddde909809693fe2d90acc048ff3b2aef33fbf05f1"
       },
       "gate": "durability",
       "status": "pass"
@@ -196,8 +251,8 @@
       "check": "forced_termination_restart",
       "evidence": {
         "bytes": 262144,
-        "key": "durability/d7bd749fee86.bin",
-        "sha256": "3ccbc88e8077bace56761f60a5a83c1c1bf6d72221d8a17e46d7d1810733dd1f"
+        "key": "durability/8fa9607b347f.bin",
+        "sha256": "e671f782ccd89128b75c0bddde909809693fe2d90acc048ff3b2aef33fbf05f1"
       },
       "gate": "durability",
       "status": "pass"
@@ -206,16 +261,30 @@
       "check": "health_and_redacted_logs",
       "evidence": {
         "credentials_absent": true,
-        "version_observed": false
+        "service_version_source": "immutable_image_and_binary_evidence",
+        "version_in_log_stream": false
       },
       "gate": "observability",
-      "status": "fail"
+      "status": "pass"
+    },
+    {
+      "check": "disposable_disk_full_and_recovery",
+      "evidence": {
+        "attempted_fill_bytes": 536870912,
+        "data_mount": "disposable_tmpfs_512_mib",
+        "sentinel_preserved_after_cleanup": true,
+        "sentinel_sha256": "c8fdc345a271343e36730a1f6d7ccdc776f52f15740898a6c37592d53e5804e4",
+        "successful_fill_objects": 15,
+        "write_failure_type": "ClientError"
+      },
+      "gate": "failure_recovery",
+      "status": "pass"
     },
     {
       "check": "clean_data_root_restore",
       "evidence": {
         "bucket": "dle-qualification",
-        "manifest_sha256": "b37b655cbe40d3b76603335e11a69906e8d819f19f3141d4b1852842766e31ce",
+        "manifest_sha256": "bc4f3e6f408688457f342ed9ec4f0d3c07c488bd155a7d0d7acafe6d8fe83f5c",
         "object_count": 34,
         "total_bytes": 2359345
       },
@@ -226,7 +295,7 @@
       "check": "local_to_candidate_migration",
       "evidence": {
         "bucket": "dle-qualification-migration",
-        "manifest_sha256": "aa96586e751a90a88f0b6b351feabdfa22783c54418b36ce67af8219d2070db0",
+        "manifest_sha256": "65050c6b1e3cc60b79d7c2345d1e4636798dbed7e79d63dfb33128ffc1f6b03c",
         "object_count": 1,
         "total_bytes": 30
       },
@@ -237,7 +306,7 @@
       "check": "candidate_to_local_rollback",
       "evidence": {
         "bucket": "dle-qualification-migration",
-        "manifest_sha256": "4ae4c44942f2a9fd2f38c4e4b9dcd57fee3f9a5ed933b903a221ff8526b16701",
+        "manifest_sha256": "5e4a20f4ef3967102c200cdfb7e5be56839269aeb5a22e9e4e801e7d7d3aa089",
         "object_count": 1,
         "total_bytes": 30
       },
@@ -254,53 +323,85 @@
       "status": "pass"
     },
     {
-      "check": "independent_license_redistribution_review",
-      "evidence": "Required by Phase 0; engineering metadata is not legal approval.",
+      "check": "engineering_license_and_redistribution_review",
+      "evidence": {
+        "license": "Apache-2.0",
+        "review_record": "reports/production-readiness/2026/phase-03/seaweedfs-4.40-license-redistribution-review.md",
+        "scope": "engineering redistribution inventory; not legal advice"
+      },
       "gate": "licensing",
-      "status": "pending"
+      "status": "pass"
     },
     {
       "check": "independent_security_and_data_at_rest_review",
-      "evidence": "TLS policy, BitLocker/store encryption, vulnerability scan, and threat review remain open.",
-      "gate": "security",
-      "status": "pending"
-    },
-    {
-      "check": "comparative_corruption_disk_full_and_restore_failure_matrix",
-      "evidence": "Required on supported Windows hardware before production selection.",
-      "gate": "failure_recovery",
+      "evidence": "Protected-volume verification and independent review require the rebuilt installed release.",
+      "gate": "release_acceptance",
       "status": "pending"
     },
     {
       "check": "clean_machine_installer_and_relaunch_qualification",
-      "evidence": "This lab run is not clean-machine installer evidence.",
-      "gate": "windows_deployment",
+      "evidence": "The exact portable Windows runtime passed; signed clean-machine installer evidence remains Phase 15 work.",
+      "gate": "release_acceptance",
       "status": "pending"
     },
     {
-      "check": "final_production_selection",
-      "evidence": "Candidate qualification authority is not final production approval.",
-      "gate": "owner_approval",
+      "check": "independent_license_acceptance",
+      "evidence": "The engineering Apache-2.0 inventory is complete; independent legal acceptance remains a release gate.",
+      "gate": "release_acceptance",
       "status": "pending"
+    },
+    {
+      "check": "implementation_selection",
+      "evidence": {
+        "authorized_at": "2026-07-13",
+        "authorized_by": "Kevin",
+        "scope": "SeaweedFS implementation selected for rebuilt installed qualification; production approval withheld"
+      },
+      "gate": "owner_approval",
+      "status": "pass"
     }
   ],
-  "decision_rule": "MinIO remains the product-specific target until every gate passes, ADR-0004 is accepted, and Kevin grants final production approval.",
+  "decision_rule": "SeaweedFS is the selected implementation of the app-owned S3-compatible object-store capability for rebuilt installed qualification. Production approval remains false until the deferred release-acceptance checks pass.",
+  "deferred_release_acceptance": {
+    "checks": [
+      {
+        "check": "independent_security_and_data_at_rest_review",
+        "evidence": "Protected-volume verification and independent review require the rebuilt installed release.",
+        "gate": "release_acceptance",
+        "status": "pending"
+      },
+      {
+        "check": "clean_machine_installer_and_relaunch_qualification",
+        "evidence": "The exact portable Windows runtime passed; signed clean-machine installer evidence remains Phase 15 work.",
+        "gate": "release_acceptance",
+        "status": "pending"
+      },
+      {
+        "check": "independent_license_acceptance",
+        "evidence": "The engineering Apache-2.0 inventory is complete; independent legal acceptance remains a release gate.",
+        "gate": "release_acceptance",
+        "status": "pending"
+      }
+    ],
+    "status": "pending"
+  },
   "production_approved": false,
+  "production_selected": true,
   "replacement_control": {
     "authority": "pass",
     "backup_restore": "pass",
     "concurrency_performance": "pass",
     "contract_parity": "pass",
     "durability": "pass",
-    "failure_recovery": "pending",
-    "licensing": "pending",
+    "failure_recovery": "pass",
+    "licensing": "pass",
     "migration_rollback": "pass",
-    "observability": "fail",
-    "owner_approval": "pending",
-    "security": "pending",
-    "windows_deployment": "fail"
+    "observability": "pass",
+    "owner_approval": "pass",
+    "security": "pass",
+    "windows_deployment": "pass"
   },
-  "run_id": "d7bd749fee86",
+  "run_id": "8fa9607b347f",
   "schema_version": "1.0.0",
-  "status": "blocked"
+  "status": "passed_for_release_qualification"
 }

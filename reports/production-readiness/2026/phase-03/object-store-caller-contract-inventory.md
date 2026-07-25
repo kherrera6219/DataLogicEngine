@@ -4,10 +4,10 @@
 
 | Field | Value |
 |---|---|
-| Captured | 2026-07-13 |
-| Replacement candidate | SeaweedFS 4.29 |
-| Production architecture changed | No |
-| Inventory result | Complete for current Python runtime callers; managed-profile failure semantics implemented |
+| Captured | 2026-07-24 |
+| Selected implementation | SeaweedFS 4.40-dle.1 |
+| Production architecture changed | Yes - capability requirement is an app-owned S3-compatible object store |
+| Inventory result | Complete for current Python runtime callers; managed-profile failure semantics and Replacement Control matrix passed for rebuilt installed qualification |
 
 ## Runtime callers
 
@@ -37,13 +37,20 @@ The replacement test matrix additionally covers:
 - presigned GET;
 - graceful restart and forced-termination durability;
 - portable export, clean-root restore, local-to-S3 migration, and S3-to-local
-  rollback.
+  rollback;
+- tampered-manifest, tampered-blob, and missing-blob rejection before restore
+  writes;
+- fail-closed supervisor behavior when a required port is occupied;
+- bounded disk-full failure on a disposable 512 MiB volume and successful
+  recovery after space is restored; and
+- exact image identity/labels plus a zero-High/Critical vulnerability gate.
 
 ## Current implementation gaps
 
-1. Production construction is intentionally locked because no object-store
-   implementation is production-approved. The qualification profile supplies
-   the supervised S3 endpoint; development retains the local backend.
+1. SeaweedFS `4.40-dle.1` is selected for rebuilt installed qualification, but
+   production construction remains locked while `production_approved=false`.
+   The qualification profile supplies the supervised S3 endpoint; development
+   retains the local backend and cannot act as a production fallback.
 2. Six required buckets are now defined: audit logs, simulation artifacts,
    deliverables, graphs, evaluation data, and trace exports. Some planned future
    contracts still have no active workflow caller.
@@ -60,9 +67,16 @@ The replacement test matrix additionally covers:
 
 ## Decision impact
 
-The live lab proves that SeaweedFS can satisfy the exercised S3 data operations,
-durability smoke, portable backup/restore, migration/rollback, managed caller
-failure, and supervisor contracts. Future workflow buckets, pagination,
-lifecycle/retention, coordinated recovery, and installed-shell qualification
-remain required before ADR-0004 can be accepted or the architecture wording can
-change.
+The live lab proves that the exact SeaweedFS `4.40-dle.1` image satisfies the
+exercised S3 data operations, concurrency, restart/kill durability, portable
+backup/restore, corrupt-backup rejection, disk-full recovery,
+migration/rollback, managed caller failure, supervisor, least-privilege, image
+identity, and vulnerability contracts. ADR-0010 therefore changes the
+architecture from a vendor-specific product to the capability requirement
+**app-owned S3-compatible object store** and selects this implementation for the
+rebuilt installed qualification.
+
+Production approval remains false. Future workflow buckets, pagination,
+lifecycle/retention, coordinated packaged recovery, protected-volume behavior,
+clean-machine delivery, independent security/license acceptance, and
+installed-shell qualification remain release gates.

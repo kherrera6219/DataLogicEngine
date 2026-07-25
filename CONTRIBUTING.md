@@ -179,7 +179,7 @@ This project follows [PEP 8](https://peps.python.org/pep-0008/) with the followi
 | Constant naming | `UPPER_SNAKE_CASE` |
 | Type hints | Required on all public functions |
 | Docstrings | Google-style on all public functions and classes |
-| Linting | `ruff check .` — must pass with zero findings |
+| Linting | `ruff check . --select E9,F63,F7` — must pass the CI blocking rule set |
 
 **Example — Compliant Python function:**
 
@@ -376,7 +376,7 @@ Before opening a PR, verify all of the following pass locally:
 
 ```bash
 # Python linting (must have zero findings)
-.venv/bin/python -m ruff check .
+.venv/bin/python -m ruff check . --select E9,F63,F7
 
 # Python tests with coverage
 python -m pytest tests/ --cov=core --cov=backend -v

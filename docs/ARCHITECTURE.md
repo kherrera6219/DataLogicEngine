@@ -141,11 +141,10 @@ truthful identity/status, and cleanup for the complete profile. This is not a
 clean installed-production qualification. Exact runtime packaging, independent
 review, coordinated recovery, and final installed-system gates remain open.
 
-MinIO remains the product-specific object-store architecture. SeaweedFS is used
-only by a production-disabled qualification profile under Proposed ADR-0004; the
-architecture may change to the capability requirement "app-owned S3-compatible
-object store" only after every Replacement Control gate and final owner approval
-pass.
+ADR-0010 defines the capability requirement **app-owned S3-compatible object
+store** and selects SeaweedFS 4.40-dle.1 for rebuilt installed qualification.
+The service remains production-disabled until the retained installed and
+independent release gates pass.
 
 DataLogicEngine is a local-first AI governance and knowledge-reasoning platform. It is not centered on a single LLM call. The architecture is built around a governed request lifecycle:
 
@@ -285,7 +284,7 @@ flowchart TD
 | Relational store | PostgreSQL production authority; SQLite bootstrap/development/repair only | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
-| Object store | MinIO production authority; filesystem bootstrap/development/repair only | Deliverables, graphs, eval data, audit logs, trace exports. |
+| Object store | app-owned S3-compatible object store production authority; filesystem bootstrap/development/repair only | Deliverables, graphs, eval data, audit logs, trace exports. |
 | Cache/queue | Required Redis production service | Session/cache/rate-limit/streams/queue behavior. |
 | Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |
 
@@ -654,8 +653,8 @@ The platform uses a multi-store architecture with clear separation of responsibi
 | Neo4j | Durable graph store for knowledge graph relationships. |
 | USKD NetworkX graph | RAM-resident graph for fast reasoning traversal. |
 | ChromaDB | Local vector/embedding storage. |
-| MinIO | Required production S3-compatible artifacts, exports, evidence, retained large gateway results, and backups. |
-| Local object store | Bootstrap/development/repair role only; not the production MinIO substitute. |
+| app-owned S3-compatible object store | Required production S3-compatible artifacts, exports, evidence, retained large gateway results, and backups. |
+| Local object store | Bootstrap/development/repair role only; not the production app-owned S3-compatible object store substitute. |
 | UnifiedMemoryService | Structured reasoning memory graph persisted to JSON. |
 | TruthMemory | Audit/explainability memory for Truth Engine and DMRF sessions. |
 
@@ -878,8 +877,9 @@ Then inspect these implementation files:
 
 1. Recorded the qualified five-service Podman engineering profile, supervisor-
    owned fail-closed adapters, and retained installed-production gates.
-2. Preserved MinIO as the target architecture while SeaweedFS remains a
-   qualification-only candidate under Proposed ADR-0004.
+2. Replaced the product-specific object-store target with the capability
+   requirement and selected SeaweedFS 4.40-dle.1 under ADR-0010 while retaining
+   production authorization false.
 
 ## Change notes for v3.2.0
 
