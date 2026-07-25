@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C governed-decision Batch 03**: restored eight deterministic,
+  read-only capabilities for context selection, intent clarification, knowledge
+  promotion admission, simulation cost/budget admission, cross-instance
+  agreement, reasoning anomaly measurement, and explainability coverage. The
+  authority advances to 148 implementations/65 gaps, the KA suite passes 517
+  tests, and all duplicate, collision, unclassified, and honesty gates pass.
 - **Phase 18 CP18-C restored-analysis Batch 02**: restored eight distinct
   original-design capabilities under their collision-free canonical IDs:
   Pareto optimization, norm emergence detection, cross-modal evidence

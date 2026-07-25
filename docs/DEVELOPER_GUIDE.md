@@ -148,6 +148,12 @@ Schema example to every new top-level input model so API/UI tooling and the
 generic contract harness can construct a valid representative request. Current
 authority is 140 implementations and 73 gaps; the KA suite is 493 passed.
 
+CP18-C Batch 03 restores eight governed decision-support KAs. Keep admission,
+measurement, and coverage algorithms read-only: they return a decision and
+limitations, never start work, mutate state, or convert agreement/statistical
+deviation into truth. Current authority is 148 implementations and 65 gaps; the
+KA suite is 517 passed.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate

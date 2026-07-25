@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.27.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.28.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -82,6 +82,12 @@ The canonical authority remains 213 capabilities and one reviewed alias while
 implementation progress advances to 140 real sources and 73 gaps. The full KA
 suite passes 493 tests, and duplicate collisions, unresolved duplicates,
 unclassified surfaces, and static honesty flags remain zero.
+
+CP18-C Batch 03 passed for eight governed decision-support KAs. They make
+read-only context, intent, promotion, simulation-budget, consensus, anomaly,
+and explainability-coverage decisions without starting work or claiming truth.
+The authority is now 148 implementations/65 gaps and the KA suite is 517
+passed; no duplicate, collision, unclassified, or honesty finding remains.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -701,9 +707,9 @@ replacement. See
 ## Exact next action
 
 1. Continue Phase 18 CP18-C against the approved 213-capability manifest:
-   Batches 01-02 qualified 11 existing implementations and restored eight
+   Batches 01-03 qualified 11 existing implementations and restored 16
    missing capabilities; qualify the remaining existing implementations and
-   build the 73 explicit gaps in semantic batches
+   build the 65 explicit gaps in semantic batches
    with strict schemas, limits, failure behavior, and authoritative
    effect/service integration.
 2. Preserve canonical IDs and behavior until parity proof permits each

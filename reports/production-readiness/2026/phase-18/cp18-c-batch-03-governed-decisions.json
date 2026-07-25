@@ -1,0 +1,62 @@
+{
+  "schema_version": "dle.phase18.cp18c.implementation-qualification.v1",
+  "checkpoint": "CP18-C",
+  "batch": "03-governed-decisions",
+  "evaluated_at": "2026-07-25",
+  "status": "pass",
+  "release_decision": "no-go",
+  "implemented_capabilities": [
+    "KA-1072",
+    "KA-1073",
+    "KA-1079",
+    "KA-1080",
+    "KA-1081",
+    "KA-1084",
+    "KA-1085",
+    "KA-1087"
+  ],
+  "authority": {
+    "canonical_capabilities": 213,
+    "existing_implementations": 148,
+    "implementation_required": 65,
+    "implementation_delta": 8,
+    "semantic_duplicate_aliases": 1,
+    "unresolved_semantic_duplicate_candidates": 0,
+    "exact_canonical_collisions": 0,
+    "unclassified_surfaces": 0,
+    "existing_implementation_static_honesty_flags": 0
+  },
+  "proof": {
+    "individually_named_batch_tests": 8,
+    "implemented_capabilities_with_named_tests": 105,
+    "unique_named_test_functions": 144,
+    "knowledge_algorithm_suite": {
+      "passed": 517,
+      "failed": 0,
+      "warnings": 3
+    },
+    "focused_semantic_tests": {
+      "passed": 8,
+      "failed": 0
+    },
+    "generic_contract_cases": {
+      "passed": 16,
+      "failed": 0
+    },
+    "ruff": "pass",
+    "capability_inventory": "pass",
+    "runtime_authority": "pass",
+    "generated_manifest_parity": "pass"
+  },
+  "production_controls": [
+    "All eight capabilities are deterministic and bounded with schema examples.",
+    "No capability starts execution, mutates state, promotes knowledge, or generates an explanation.",
+    "Agreement, anomaly, and intent outputs retain explicit measurement and inference limitations.",
+    "The 213-capability no-duplicate authority remains unchanged."
+  ],
+  "open_work": [
+    "Build and qualify the remaining 65 missing canonical implementations.",
+    "Qualify remaining legacy implementation surfaces and effect-service integration.",
+    "Complete CP18-D through CP18-H before rebuilding or releasing."
+  ]
+}

@@ -67,7 +67,9 @@ administration, audit, observability, and validation application.
 > 493-test KA suite passes, implementation progress is 140/213 with 73 gaps,
 > and the no-duplicate authority remains clean. CP18-C is active for the
 > remaining implementation
-> completion. Phase 18 will finish production implementations and application
+> completion. Batch 03 adds eight governed decision-support KAs, advancing the
+> verified authority to 148 implementations/65 gaps and 517 passing KA tests.
+> Phase 18 will finish production implementations and application
 > wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
 > frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
@@ -154,9 +156,9 @@ Current production-completion focus:
   Python/TypeScript SDK catalogs/clients, and compatibility adapters; 132
   implementation sources have unique canonical owners, the 81 gaps are explicit,
   and duplicate canonical collisions are zero
-- Phase 18 CP18-C Batches 01-02 passed: 11 existing implementations qualified,
-  eight distinct missing capabilities restored, 140 implementations/73 gaps,
-  493 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
+- Phase 18 CP18-C Batches 01-03 passed: 11 existing implementations qualified,
+  16 distinct missing capabilities restored, 148 implementations/65 gaps,
+  517 KA tests passing, and zero duplicate or static-honesty findings; CP18-C
   remains active and the release-candidate rebuild remains paused through CP18-G
 - Production behavior, dynamic application call path, and one individually
   named functional test for every canonical KA

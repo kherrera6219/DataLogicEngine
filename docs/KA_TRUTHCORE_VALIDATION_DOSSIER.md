@@ -180,6 +180,9 @@ and zero static randomness/mock-honesty flags. Batch 02 restored eight distinct
 analysis KAs, advancing the authority to 140 implementations/73 gaps with 493
 KA tests passing and zero duplicate findings. CP18-C is still active, CP18-D
 through CP18-H remain open, and the signed rebuild is paused.
+Batch 03 adds eight governed decision-support KAs, advancing the verified
+authority to 148 implementations/65 gaps and 517 passing KA tests without
+changing the release decision.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is

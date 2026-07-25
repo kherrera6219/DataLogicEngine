@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "ebf9e71c63a278baacf974d39ccceb47dc1b2a7d71859c8492fb4c5428edcf92",
+  "source_input_sha256": "0da795247287a6e2d0c062d8b0a35a75fe015c83bf47c33235d84df3e4096b0c",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 140,
-    "implementation_required_proposals": 73,
+    "existing_implementation_proposals": 148,
+    "implementation_required_proposals": 65,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 140,
+    "implementation_surfaces": 148,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 104,
-    "canonical_with_named_test_function": 98
+    "canonical_with_test_reference": 112,
+    "canonical_with_named_test_function": 107
   },
   "canonical_capabilities": [
     {
@@ -248,6 +248,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1073_intent_clarifier_requires_missing_declared_slot",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1085_anomaly_engine_flags_declared_z_score_threshold",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -1884,6 +1892,14 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka106_uses_deterministic_circuit_breaker_policy",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1073_intent_clarifier_requires_missing_declared_slot",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1085_anomaly_engine_flags_declared_z_score_threshold",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -15780,7 +15796,11 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1073_intent_clarifier_requires_missing_declared_slot",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-107",
         "implementation": "backend.knowledge_algorithms.ka_107_disaster_recovery.run",
@@ -15926,10 +15946,10 @@
       "name": "Context Window Optimizer",
       "purpose": "Select optimal context elements under token budget",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1072_context_window_optimizer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Candidate context",
         "budget"
@@ -16023,30 +16043,45 @@
         "design-v1:KA-072"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1072_context_window_optimizer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ContextElement",
+          "KA1072ContextWindowOptimizer",
+          "KA1072Input"
+        ],
+        "nonblank_noncomment_loc": 113,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1073",
       "name": "Intent Clarifier",
       "purpose": "Resolve linguistic ambiguity; extract intent",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1073_intent_clarifier.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Parsed query",
         "entities"
@@ -16139,20 +16174,35 @@
         "design-v1:KA-073"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1073_intent_clarifier.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_candidates"
+        ],
+        "classes": [
+          "IntentCandidate",
+          "KA1073Input",
+          "KA1073IntentClarifier"
+        ],
+        "nonblank_noncomment_loc": 119,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1073_intent_clarifier_requires_missing_declared_slot"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1074",
@@ -16774,10 +16824,10 @@
       "name": "Knowledge Promotion Gate",
       "purpose": "Enforce criteria before long-term commit",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1079_knowledge_promotion_gate.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Confidence",
         "containment",
@@ -16884,20 +16934,33 @@
         "design-v1:KA-079"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1079_knowledge_promotion_gate.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1079Input",
+          "KA1079KnowledgePromotionGate"
+        ],
+        "nonblank_noncomment_loc": 75,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-108",
@@ -16971,7 +17034,12 @@
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1085_anomaly_engine_flags_declared_z_score_threshold",
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-108",
@@ -16995,10 +17063,10 @@
       "name": "Simulation Cost Estimator",
       "purpose": "Estimate compute/time cost of deeper simulation",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1080_simulation_cost_estimator.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Complexity tier",
         "branch count"
@@ -17094,30 +17162,44 @@
         "design-v1:KA-080"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1080_simulation_cost_estimator.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1080Input",
+          "KA1080SimulationCostEstimator",
+          "SimulationStepEstimate"
+        ],
+        "nonblank_noncomment_loc": 84,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1081",
       "name": "Simulation Budget Enforcer",
       "purpose": "Enforce compute/recursion limits",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1081_simulation_budget_enforcer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Cost estimate",
         "policy caps"
@@ -17214,20 +17296,33 @@
         "design-v1:KA-081"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1081_simulation_budget_enforcer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1081Input",
+          "KA1081SimulationBudgetEnforcer"
+        ],
+        "nonblank_noncomment_loc": 98,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1082",
@@ -17468,10 +17563,10 @@
       "name": "Cross-Instance Consensus Engine",
       "purpose": "Compare answers across UKG instances for consensus",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1084_cross_instance_consensus_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Parallel outputs",
         "trust scores"
@@ -17577,30 +17672,46 @@
         "generated-v1:KA-281"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1084_cross_instance_consensus_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "_signature",
+          "run",
+          "validate_instances"
+        ],
+        "classes": [
+          "InstanceAnswer",
+          "KA1084CrossInstanceConsensusEngine",
+          "KA1084Input"
+        ],
+        "nonblank_noncomment_loc": 89,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1085",
       "name": "Anomaly Detection Engine",
       "purpose": "Detect unusual reasoning/output patterns",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1085_anomaly_detection_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Trace stats",
         "outputs"
@@ -17691,20 +17802,36 @@
         "design-v1:KA-085"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1085_anomaly_detection_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_features"
+        ],
+        "classes": [
+          "FeatureBaseline",
+          "KA1085AnomalyDetectionEngine",
+          "KA1085Input",
+          "ReasoningObservation"
+        ],
+        "nonblank_noncomment_loc": 108,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1085_anomaly_engine_flags_declared_z_score_threshold"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1086",
@@ -17827,10 +17954,10 @@
       "name": "Explainability Coverage Checker",
       "purpose": "Ensure explanations cover critical reasoning steps",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1087_explainability_coverage_checker.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Trace DAG",
         "explanation"
@@ -17927,20 +18054,36 @@
         "design-v1:KA-087"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1087_explainability_coverage_checker.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_references"
+        ],
+        "classes": [
+          "CriticalReasoningStep",
+          "ExplanationSegment",
+          "KA1087ExplainabilityCoverageChecker",
+          "KA1087Input"
+        ],
+        "nonblank_noncomment_loc": 109,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1087_explainability_checker_requires_step_evidence_link"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1088",

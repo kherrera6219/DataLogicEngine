@@ -92,6 +92,8 @@ Phase 18 KA production completion passed CP18-A and CP18-B. CP18-C Batches
 capabilities; the authority is now 140 implementations and 73 gaps with 493 KA
 tests passing. CP18-C remains active for the remaining existing
 implementations, implementation gaps, and authoritative effect integration.
+Batch 03 advances source coverage to 148 implementations/65 gaps and 517
+passing KA tests; it does not authorize a rebuild or production release.
 The signed rebuild remains blocked until CP18-C through CP18-G pass; CP18-H and
 CP17-E then require the exact signed installed artifact. Phase 19 launch remains
 blocked by every prior gate.
