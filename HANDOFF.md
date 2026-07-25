@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.22.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.23.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
-| Current phase | Rebuild, sign, install, and execute retained release-acceptance gates |
+| Current phase | Phase 18 Knowledge Algorithm production completion; CP18-A active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -36,6 +36,29 @@ Read these documents in order before changing code or making a readiness claim:
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
 execution plan; archived plans and testing queues are historical evidence only.
+
+## Phase 18 supersedes the immediate rebuild
+
+Do not rebuild or sign the next release candidate yet. The 2026-07-25
+documentation-first KA review found that a major product subsystem is not
+complete: only 11 of 125 executable-registry entries are production enabled,
+seven implemented Layer-9 KAs are missing from the registry and silently
+skipped, live implementations are described through a conflicting 277-row
+metadata catalog, multiple incompatible engines/SDK handlers exist, dynamic
+selection reaches only part of the catalog and contains a malformed branch,
+some operational KAs report effects without authoritative service receipts, and
+the Algorithms page is catalog-only.
+
+Phase 18 is now the release-blocking prerequisite. Preserve every distinct
+documented or executable capability while CP18-A creates the reviewed
+identity/capability crosswalk. Then complete the single contract/controller,
+production implementations, dynamic wiring, API/SDK/desktop workflow, one named
+functional test per canonical KA, and clean full source qualification through
+CP18-G. Only that exit gate permits the signed rebuild; CP18-H and every retained
+installed/manual/independent gate still apply to the rebuilt artifact.
+
+Baseline evidence:
+`reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
 
 ## Approved product boundary
 
@@ -258,10 +281,10 @@ Key results:
 - TruthCore publishes `truthcore-preflight.v1` input/output/state/failure records.
   Stale `codestral`/`grok-4-fast` routing and legacy hash-vector convergence are
   outside the production contract.
-- Every one of the 125 registered KAs has category, determinism, contract,
-  evidence, semantic test, performance, documentation, guarantee, version, and
-  limitation metadata. Only semantically tested deterministic entries are
-  production enabled; experimental/placeholder entries are disabled by default.
+- Phase 6 classified the 125 then-registered KAs and enabled 11 deterministic
+  entries, but it did not establish production implementation, dynamic
+  reachability, individual functional proof, or identity parity for the whole
+  subsystem. Phase 18 now owns that completion without reducing capability.
 - Alembic head `c2d3e4f5a6b7` persists provenance, claim links, citations,
   validators, confidence measurements, and convergence decisions.
 - Corpus `2026.07.13.1`, thresholds, provider/model drift gate, human rubric,
@@ -651,16 +674,21 @@ replacement. See
 
 ## Exact next action
 
-1. Rebuild the exact signed RC with the locked SeaweedFS 4.40-dle.1 image.
-2. Execute clean-machine object-store delivery, protected-volume,
-   backup/restore, and independent security/license acceptance.
-3. Retain CP16-G and CP17-E until the exact signed installed RC can be bound and
-   a clean-machine documentation-only walkthrough can be performed.
-4. Retain the CP16-B/CP16-C signed/manual/installed/independent gates and the
-   CP16-D/CP16-E policy/reviewer/acceptance gates.
-5. Preserve CP15-A through CP15-H, production signing/distribution NO-GO,
-   automatic-update disablement, and object-store production-approval false
-   until their required installed and independent evidence exists.
+1. Complete Phase 18 CP18-A: generate and verify the lossless machine-readable
+   inventory/crosswalk across every KA registry, implementation, alias, caller,
+   test, SDK/UI surface, and ID/name/purpose conflict.
+2. Do not change implementation identities until CP18-A proves zero
+   unclassified capability and approves the single-manifest migration.
+3. Execute CP18-B through CP18-G in validated, documented implementation
+   batches; every canonical KA needs production behavior, a dynamic call path,
+   its own named functional test, and trace/effect proof.
+4. Only after CP18-G, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
+   execute CP18-H plus the retained clean-machine object-store,
+   protected-volume, backup/restore, security/license, accessibility, provider,
+   gateway, pilot, and soak acceptance.
+5. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
+   NO-GO, automatic-update disablement, and object-store production-approval
+   false until their exact installed and independent evidence exists.
 
 ## Phase rules
 

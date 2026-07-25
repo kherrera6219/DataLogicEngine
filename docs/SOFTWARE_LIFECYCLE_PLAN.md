@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -43,6 +43,14 @@ demonstration pressure does not waive an exit gate.
 Generated inventories, schemas, OpenAPI, SBOMs, attestations, and evidence are
 derived outputs and identify their generation authority. Historical plans and
 session records are not current requirements.
+
+Phase 18 applies a stricter identity-migration rule to Knowledge Algorithms.
+Before changing a KA ID, name, purpose, or runtime mapping, CP18-A must classify
+every historical/executable definition and preserve distinct capability through
+an approved canonical ID or compatible alias. The approved KA manifest will
+become configuration authority only after the crosswalk reports zero
+unclassified capability and zero unresolved semantic collision. The signed
+release-candidate rebuild is paused through the CP18-G source gate.
 
 ## Change lifecycle
 

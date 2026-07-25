@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -28,18 +28,21 @@ human review, and release authority for the exact installed artifact.
 
 ## Registry and classification
 
-The live registry contains 125 KAs. `production_catalog.py` is the production
-classification overlay and is merged into API/UI metadata at startup. Every
-entry declares category, production-enabled state, determinism, version, input
-contract, evidence requirement, guarantee, limitation, performance budget,
-semantic test reference, and documentation reference.
+The current executable registry exposes 125 IDs: 117 numeric KAs, seven
+Layer-10 KAs, and KA-Master. That count is not yet the canonical capability
+count. Seven implemented Layer-9 KAs are absent and silently skipped by their
+live caller; a 277-row historical/generated metadata file is merged by numeric
+ID despite many name/purpose conflicts; and the Python SDK retains a separate
+114-row registry and sample handlers.
 
-Only `production_validator` and selected `deterministic_heuristic` entries may be
-enabled for production. The Phase 6 snapshot classified all 125 and enabled 11
-that met the contract. Experimental methods, presentation helpers, placeholders,
-stochastic code, missing implementations, or incomplete contract metadata remain
-disabled. Owner opt-in may execute a disabled entry for explicit nonproduction
-work, but governed production traces reject it.
+Phase 6 classified the 125 then-registered entries and enabled 11 that met its
+limited deterministic invariant contract. That was a truthful safety boundary,
+not proof that every KA was production implemented or wired. Phase 18 now owns
+the lossless crosswalk across every distinct documented/executable capability,
+historical alias, duplicate and generic scaffold; one canonical manifest;
+production implementation; dynamic call-path coverage; individual functional
+tests; and rebuilt-installed acceptance. Until CP18-A resolves the catalog, no
+unverified numeric metadata match may define a KA's name or purpose.
 
 ## KA validation controls
 
@@ -54,10 +57,33 @@ work, but governed production traces reject it.
 | Performance | Named bounded fixture meets the recorded runtime budget |
 | Trace binding | Execution records exact KA ID/version/input/result/evidence and causal run identity |
 | Failure behavior | Invalid input, missing evidence, disabled KA, timeout, exception, and budget failure are explicit |
+| Identity parity | Canonical ID/name/purpose/version resolves identically in runtime, API, UI, SDK, trace, tests, and documentation |
+| Call-path coverage | Every canonical KA has at least one reachable owning-subsystem path and positive/negative selector fixture |
+| Individual proof | Every canonical KA has its own named functional test of the production entry point |
+| Side-effect truth | Effectful KAs use an authoritative app-owned service port and return a policy/idempotency-bound receipt |
+| Capability preservation | Every distinct historical or executable capability is implemented or compatibly aliased before old identity removal |
 
-The authoritative invariant suite is
-`tests/knowledge_algorithms/test_production_invariants.py`; broader registry,
-route, orchestration, and trace suites provide cross-system coverage.
+`tests/knowledge_algorithms/test_production_invariants.py` remains Phase 6
+evidence. It is insufficient by itself for Phase 18. The new manifest,
+per-KA-function, selector/call-path, side-effect, route/SDK/UI, orchestration,
+security, performance, and trace/replay suites collectively become the
+authority.
+
+## Phase 18 production completion contract
+
+KAs are selected when needed; they are not all run for every request. A single
+versioned selector evaluates intent, domain, risk, tier/layer/persona, evidence
+state, dependencies, policy, budget, and live service capabilities, then
+validates a bounded dependency DAG. Every selected execution receives
+server-owned principal, request/run/session, deadline, cancellation, budget,
+configuration, capability, and seed context.
+
+Pure KAs return typed analysis/validation proposals. Effectful KAs use only the
+approved app-owned service adapter after authorization, confirmation,
+idempotency, and transaction checks and return the authoritative receipt. The
+orchestrator remains the single writer. Planned, selected, executed, skipped
+with reason, blocked, failed, and applied-effect states are separate, and only
+executed outputs may affect answers, evidence, confidence, state, or traces.
 
 ## DSQP and 17-axis boundary
 
@@ -96,7 +122,7 @@ hash-derived convergence.
 | CP6-A evidence model | Passed persisted source/claim/citation causality tests | Installed provider/evidence trace walkthrough |
 | CP6-B no synthetic metrics | Passed strict null/not-measured API/UI tests | Packaged visual/manual interpretation review |
 | CP6-C bounded refinement | Passed finalize/refine/abstain/block/failure tests | Live installed provider cancellation/budget evidence |
-| CP6-D KA catalog | 125 classified; 11 enabled entries passed invariants | Exact release registry/hash and installed performance sample |
+| CP6-D KA catalog | Historical safety classification: 125 classified and 11 enabled entries passed limited invariants | Superseded for subsystem-completion scope by Phase 18 CP18-A through CP18-H |
 | CP6-E TruthCore | Passed preflight/state/failure/orchestrator tests | Installed end-to-end causal traces |
 | CP6-F quality evaluation | Local deterministic corpus contract exists | OpenAI/Google rows, blinded sample, second reviewer, owner approval |
 
@@ -139,6 +165,9 @@ second reviewer is still pending.
 ## Current disposition
 
 Repository and deterministic components support CP6-A through CP6-E and the
-local portion of CP6-F. Installed OpenAI and Google rows, blinded human sample,
+local portion of CP6-F. Phase 18 CP18-A is active because the whole KA subsystem
+does not yet meet `DLE-FR-011`; CP18-B through CP18-H remain open and the signed
+rebuild is paused. Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
-and owner release approval remain open. Production/public release is **NO-GO**.
+and owner release approval also remain open. Production/public release is
+**NO-GO**.

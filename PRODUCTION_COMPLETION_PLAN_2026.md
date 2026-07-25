@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.22.0 |
+| Document version | v1.23.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -192,6 +192,25 @@ index-only links to every active Markdown link and backtick path. It migrated
 rebound KA/provider/ADR source references, and passed replacement closure,
 documentation truth, all engineering/assurance document gates, and the complete
 test suite (2,192 passed, 18 skipped).
+
+The 2026-07-25 Knowledge Algorithm architecture review found that the Phase 6
+classification checkpoint did not finish the KA subsystem to the product
+contract. The executable registry exposes 125 IDs, but only 11 are enabled for
+governed production use. Seven implemented Layer-9 KAs are absent from that
+registry and are silently skipped by live TruthCore callers. The runtime also
+merges descriptive metadata from a conflicting 277-row catalog, the Python SDK
+ships a separate 114-row catalog plus sample/stub handlers, and the repository
+retains multiple execution engines with incompatible contracts. At least one
+live KA-Master selection branch is structurally invalid, and the Algorithms
+page is catalog-only rather than the documented detail/input/execute/history
+workflow.
+
+Rebuilding the release candidate before correcting this major subsystem would
+bind installed evidence to behavior already known to be incomplete. Phase 18 is
+therefore inserted as a release-blocking Knowledge Algorithm production
+completion phase. The previous production-launch Phase 18 becomes Phase 19.
+The signed rebuild, CP16-G/CP17-E binding, and retained installed gates may
+resume only after the Phase 18 source/contract/integration exit gate passes.
 
 ## 1. Purpose
 
@@ -643,10 +662,15 @@ release evidence:
 25. Production documentation has been rebuilt as a concise, controlled product
     set and professional external-review dossier rather than retained session
     history.
+26. Every preserved Knowledge Algorithm capability has one canonical stable
+    identity, a production implementation, a reachable dynamic call path, an
+    individual functional test, explicit failure and side-effect semantics, and
+    trace evidence; no placeholder, sample handler, catalog collision, or silent
+    skip is shipped as working behavior.
 
 ## 7. Program overview
 
-The program contains 19 gated phases numbered 0 through 18. Each later phase
+The program contains 20 gated phases numbered 0 through 19. Each later phase
 inherits every applicable checkpoint and stop condition from earlier phases.
 
 | Phase | Name | Primary result |
@@ -669,7 +693,8 @@ inherits every applicable checkpoint and stop condition from earlier phases.
 | 15 | System qualification and release candidate | Real installed-app matrix passes without mocked APIs |
 | 16 | Production documentation replacement and professional review dossier | Submission-quality product, engineering, assurance, and Microsoft review set |
 | 17 | Documentation consolidation and release lock | One coherent active documentation set with historical material removed |
-| 18 | Production launch and maintenance | Controlled release, monitoring, response, and servicing |
+| 18 | Knowledge Algorithm production completion and dynamic integration | Every preserved KA is real, reachable, tested, governed, and traceable |
+| 19 | Production launch and maintenance | Controlled release, monitoring, response, and servicing |
 
 ## 8. Phase 0 - Scope, baseline, and authority lock
 
@@ -3709,7 +3734,263 @@ generated contract/evidence index, root `README.md`, `TODO.md`, `HANDOFF.md`,
 `CHANGELOG.md`, and every retained canonical authority affected by final
 clean-machine verification.
 
-## 26. Phase 18 - Production launch and maintenance
+## 26. Phase 18 - Knowledge Algorithm production completion and dynamic integration
+
+### Objective
+
+Finish the Knowledge Algorithm subsystem as a production application capability
+before rebuilding the release candidate. Every preserved KA capability must have
+one authoritative identity and contract, production behavior, a reachable
+dynamic application call path, an individual functional test, truthful
+side-effect and failure semantics, and persisted trace evidence. This phase does
+not run every KA for every request; it makes the orchestrator and owning
+subsystems select only the applicable KAs from declared triggers, dependencies,
+budgets, policy, and runtime capability state.
+
+### Entry condition and current findings
+
+The documentation-first review used the active product, architecture, interface,
+traceability, V&V, AI-assurance, user, and developer authorities plus retained
+whitepapers as design context. The code/history reconciliation found:
+
+1. `backend/knowledge_algorithms/ka_registry.yaml` exposes 125 executable IDs:
+   117 numeric KAs, seven Layer-10 KAs, and KA-Master.
+2. Seven additional Layer-9 implementations are called by the live
+   meta-reasoning controller but are not in the executable registry; their
+   failures are caught and logged as skipped.
+3. `core/data/ka_registry.json` contains 277 metadata rows and disagrees with
+   the implementation name/purpose for many live numeric IDs. It expanded from
+   the original 114-row design catalog by generated scaffolding and must not be
+   merged by numeric ID without a reviewed crosswalk.
+4. The Python SDK retains a separate 114-row registry and explicitly
+   sample/stub handlers, while `core/engine/ka_engine.py`,
+   `core/knowledge_algorithm/ka_loader.py`, and KA-Master implement incompatible
+   execution contracts.
+5. Only 11 current entries are production enabled. Classification and import
+   tests prove catalog shape, not complete production behavior.
+6. KA-Master uses a bounded keyword chain that reaches only part of the catalog;
+   one hypothesis-selection tuple has an invalid shape. Several effect-oriented
+   KAs report operations without invoking an authoritative subsystem.
+7. The Algorithms UI lists searchable cards but does not provide the documented
+   detail, typed input, governed execution, history, limitation, and trace
+   workflow.
+
+The signed rebuild is paused until the source/contract/integration exit gate
+below passes. Retained installed acceptance will then run against the rebuilt
+artifact rather than against a known-incomplete subsystem.
+
+### 26.1 Lossless capability and identity authority
+
+1. Inventory every KA definition and implementation from the original 114-row
+   design registry, the 277-row metadata file, the 125-entry executable registry,
+   Layer 9, Layer 10, KA-Master, SDK data/handlers, call sites, tests, archived
+   catalogs, and retained design reports.
+2. Create a reviewed machine-readable crosswalk with source identity, historical
+   ID/name/purpose, canonical capability ID, aliases, duplicate/superseded
+   relationship, implementation, inputs/outputs, layer/persona/subsystem,
+   dependencies, risk, side-effect class, triggers, and migration notes.
+3. Classify generated generic scaffolds and true semantic duplicates as
+   historical aliases rather than inventing multiple indistinguishable
+   production algorithms. Preserve every distinct documented or executable
+   capability; do not delete, renumber, or semantically overwrite one before a
+   compatible alias/migration and regression proof exists.
+4. Select one versioned runtime manifest as the authority. Generate API/UI/SDK
+   catalogs and documentation evidence from it. Stop loading descriptive metadata
+   by matching an unverified historical numeric ID.
+5. Register Layer-9, Layer-10, and KA-Master through the same authority and
+   support numeric, Layer-9, Layer-10, canonical, and approved alias formats
+   without ID collisions.
+6. Retire or convert duplicate engines/loaders into explicit compatibility
+   adapters to the one controller. No production subsystem may retain a private
+   handler registry or sample implementation.
+
+### 26.2 Standard execution and state contract
+
+1. Define a typed, versioned KA definition, execution context, request, result,
+   failure, artifact, effect proposal, and trace contract.
+2. Server-owned context includes principal/scope, request/run/session identity,
+   workflow mode/tier/layer/persona, policy decisions, data/service capability
+   state, deadline, cancellation, call/token/resource budget, configuration
+   revision, and recorded random seed when applicable.
+3. Results distinguish deterministic output, measured score, recommendation,
+   validation decision, artifact, effect proposal, applied effect, unavailable
+   prerequisite, blocked policy, invalid input, timeout, cancellation, and
+   internal failure. A missing service or dependency never becomes success.
+4. Preserve the orchestrator as the single writer. Pure KAs return typed values;
+   effectful KAs call an approved app-owned service port only after policy,
+   authorization, confirmation, idempotency, and transaction checks. They report
+   the authoritative effect receipt, not a simulated operation.
+5. Bind every execution to canonical KA ID and version, input/output schema
+   versions, dependency executions, start/end/duration, seed, evidence/artifacts,
+   effect receipt, failure code, and causal run/trace identity.
+6. Redact secrets and disallowed content before persistence or UI/API return.
+   Public errors remain code-owned and internal diagnostics remain access
+   controlled.
+
+### 26.3 Production implementation completion
+
+1. Replace every placeholder, echo, random default, mock operation, metadata-only
+   façade, and generic sample handler with the documented algorithm or an honest
+   fail-closed unavailable result while its named prerequisite is absent.
+2. Implement pure analysis KAs as bounded, typed, deterministic algorithms where
+   their contract permits. Stochastic/search/model-assisted algorithms require a
+   recorded seed or provider/model/prompt identity, explicit budget, cancellation,
+   evaluation thresholds, and no factual-guarantee overclaim.
+3. Connect data, graph, retrieval, memory, provider, simulation, MCP, gateway,
+   ingestion, backup/recovery, diagnostics, training/model-management, messaging,
+   and other effect-oriented capabilities only to the repository's authoritative
+   app-owned services. A KA must not create a second database, queue, provider,
+   connector, model-training, or network path.
+4. Give every KA strict input/output schemas, boundary validation, stable
+   failure codes, deterministic ordering, performance/resource budgets,
+   documentation, limitations, risk and confirmation rules, and observable
+   execution.
+5. Keep all existing working behavior until parity tests prove its replacement.
+   Capability completion may strengthen validation and truthfulness but shall not
+   reduce an approved input, output, workflow, or integration surface.
+
+### 26.4 Dynamic routing and application wiring
+
+1. Replace the partial keyword `elif` chain with a versioned capability selector
+   that evaluates normalized intent, domain, risk, tier/layer, persona, evidence
+   state, dependency graph, policy, budget, and live service capabilities.
+2. Validate the selected dependency DAG before execution; reject cycles,
+   incompatible schemas, unavailable mandatory dependencies, unbounded fan-out,
+   and budget overflow.
+3. Wire applicable KAs into the canonical governed request path, TruthCore
+   Layers 1-10, Layer-9 meta-reasoning, Layer-10 safety, the 12-step refinement
+   workflow, DMRF, DSQP/personas, retrieval/graph/memory, ingestion, simulation,
+   MCP, providers, client gateway, and operations workflows without creating a
+   second answer-producing path.
+4. Give every canonical KA at least one real reachable production call path and
+   a selector fixture proving when it is selected and when it is not. Remove
+   broad exception catches that silently convert required KA failure to a skip.
+5. Persist planned, selected, dependency, executed, skipped-with-reason, blocked,
+   failed, and applied-effect states separately. Only executed output may affect
+   the answer, state, evidence, confidence, or trace conclusion.
+6. Replay deterministic portions from recorded inputs and versions and reproduce
+   selection, ordering, and outputs. Provider/model-assisted replay identifies
+   the immutable recorded result instead of pretending it is deterministic.
+
+### 26.5 API, SDK, desktop, and operator workflow
+
+1. Consolidate list, search, detail, schema, dependency, dry-run/plan, governed
+   execute, cancel, result, history, trace, capability, and health contracts
+   under the authenticated versioned KA API.
+2. Require production scope and risk-appropriate confirmation for direct
+   execution. High-risk or effectful KAs cannot be enabled through a generic
+   `allow_nonproduction` boolean.
+3. Generate Python and TypeScript SDK models/clients from the same manifest and
+   remove SDK sample handlers from production execution.
+4. Complete the Algorithms desktop workflow with category/search filters,
+   canonical detail and limitation views, typed inputs, dependency/side-effect
+   preview, confirmation, execute/cancel, result/artifact/effect receipt,
+   history, trace navigation, empty/loading/blocked/failed/offline states, and
+   accessible keyboard/screen-reader behavior.
+5. Show unavailable capabilities and prerequisites honestly. UI labels and
+   controls must reflect the same policy and capability decision returned by the
+   backend.
+
+### 26.6 Security, reliability, and operations
+
+1. Threat-model direct and dynamically selected KA execution for privilege
+   escalation, prompt injection, path/network abuse, unsafe deserialization,
+   dependency cycles, recursion/fan-out, resource exhaustion, sensitive data,
+   provider/store bypass, replay, and forged effect receipts.
+2. Enforce per-KA and workflow deadlines, cancellation, concurrency, memory/CPU,
+   data-size, provider/tool, recursion, and side-effect budgets.
+3. Make async work durable through the approved PostgreSQL/Redis/object-store
+   ownership contract; do not use an unmanaged Celery default as a second queue.
+4. Include KA catalog/version/readiness, recent failures, effect reconciliation,
+   and trace correlation in Diagnostics and redacted support evidence.
+5. Verify restart/recovery, dependency failure, service loss, cancellation,
+   duplicate request/idempotency, partial effect, and trace-persistence failure
+   behavior.
+
+### 26.7 Required test function and evidence contract
+
+1. Provide one individually named functional test function for every canonical
+   KA. The test must execute its production entry point with a representative
+   typed fixture and assert the documented semantic output or real effect
+   receipt; an import test, shared shape assertion, or blanket parameter loop
+   alone does not satisfy this requirement.
+2. Add per-KA invalid/boundary/missing-prerequisite/failure tests and,
+   where applicable, determinism/seed, security, cancellation, idempotency,
+   side-effect, rollback, and performance tests.
+3. Add manifest completeness gates proving every preserved capability has one
+   canonical ID, implementation, schema, individual test function, selector
+   fixture, call path, documentation, limitation, and trace contract.
+4. Add cross-subsystem integration tests for selection/DAG execution, TruthCore
+   L1-L10 including all L9/L10 KAs, DSQP/refinement, canonical chat, ingestion,
+   retrieval/graph/memory, simulation, MCP, providers, gateway, and operational
+   adapters as applicable.
+5. Add authenticated API/SDK contract tests and real-backend desktop tests for
+   detail, typed execute, confirmation, cancellation, history, effect receipt,
+   trace navigation, failure, and accessibility.
+6. Run focused KA tests first, then the full backend, SDK, frontend,
+   Electron/browser, security, documentation, packaging-smoke, and governed
+   request suites. Store a machine-readable per-KA result matrix and coverage
+   evidence under `reports/production-readiness/2026/phase-18/`.
+
+### Checkpoints
+
+- **CP18-A - Authority and crosswalk:** every definition, implementation, alias,
+  duplicate, scaffold, caller, test, and UI/SDK surface is classified with zero
+  unresolved ID/name/purpose collisions and zero capability loss.
+- **CP18-B - One contract and controller:** one manifest, one execution contract,
+  one controller, generated clients/catalogs, and compatibility adapters replace
+  private registries and incompatible engines.
+- **CP18-C - Implementation parity:** every canonical KA has production behavior,
+  schema, limits, failure semantics, and authoritative effect integration; no
+  placeholder, sample, mock operation, or false success remains.
+- **CP18-D - Dynamic integration:** every KA has a reachable application call
+  path and selector proof; Layer-9/Layer-10, TruthCore/refinement, and owning
+  subsystems execute without silent skips or duplicate reasoning paths.
+- **CP18-E - Product workflow:** authenticated API/SDK and accessible desktop
+  detail/input/execute/cancel/history/trace/effect workflows pass against the
+  real backend.
+- **CP18-F - Individual proof:** every canonical KA has its own named functional
+  test plus applicable boundary, failure, determinism, security, side-effect,
+  cancellation, recovery, and performance evidence.
+- **CP18-G - Source qualification:** focused and full suites, security scans,
+  docs/governance, packaging smoke, catalog/trace completeness, and no-capability-
+  reduction gates pass from a clean source state.
+- **CP18-H - Rebuilt installed acceptance:** after CP18-G permits the rebuild,
+  the exact signed installed artifact passes representative selection,
+  cross-subsystem, effect, failure/recovery, performance, UI/accessibility, and
+  trace/replay acceptance and binds the final manifest/hash to the release
+  record.
+
+### Stop conditions
+
+Stop the checkpoint and keep rebuild blocked if any capability is unclassified,
+an ID collision can route to the wrong purpose, a required caller silently skips
+execution, a KA fabricates a service effect, a private engine bypasses the
+canonical controller, an effect lacks authorization/idempotency/receipt, any KA
+lacks its individual functional test or real call path, or API/UI/trace state
+overstates execution or readiness.
+
+### Source/contract/integration exit gate
+
+CP18-A through CP18-G pass with zero unresolved capability/identity conflicts,
+zero production placeholders or simulated operational claims, zero unreachable
+canonical KAs, zero missing individual functional tests, one governed execution
+path, complete per-KA traceability, clean full validation, and explicit retained
+installed evidence. Passing this gate permits rebuilding the signed release
+candidate; it does not by itself satisfy CP18-H or any earlier installed/manual/
+independent release gate.
+
+### Documents updated
+
+`PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, `HANDOFF.md`, `README.md`,
+`docs/PRODUCT_REQUIREMENTS.md`, `docs/ARCHITECTURE.md`,
+`docs/INTERFACE_INTEGRATION.md`, `docs/REQUIREMENTS_TRACEABILITY.md`,
+`docs/VERIFICATION_VALIDATION_REPORT.md`,
+`docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`, `docs/evaluation/AI_SYSTEM_CARD.md`,
+`docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`, generated API/SDK/catalog
+references, the KA manifest/crosswalk, and Phase 18 evidence.
+
+## 27. Phase 19 - Production launch and maintenance
 
 ### Objective
 
@@ -3756,12 +4037,12 @@ evidence to drift.
 
 ### Checkpoints
 
-- **CP18-A - Final approval:** all required signoffs and evidence are present.
-- **CP18-B - Published artifact:** downloaded artifact verifies and matches the
+- **CP19-A - Final approval:** all required signoffs and evidence are present.
+- **CP19-B - Published artifact:** downloaded artifact verifies and matches the
   qualified hash/signature/attestation.
-- **CP18-C - Post-release smoke:** clean installation and primary workflow smoke
+- **CP19-C - Post-release smoke:** clean installation and primary workflow smoke
   pass from the published package.
-- **CP18-D - Servicing ready:** vulnerability, hotfix, rollback, backup, support,
+- **CP19-D - Servicing ready:** vulnerability, hotfix, rollback, backup, support,
   and end-of-support processes are operational.
 
 ### Self-checks
@@ -3791,7 +4072,7 @@ compatibility matrices, security/advisory policy, support and end-of-life policy
 published artifact verification instructions, post-release smoke evidence, and
 the immutable release documentation index.
 
-## 27. Audit finding closure map
+## 28. Audit finding closure map
 
 | Finding | Owning phase(s) | Closure evidence |
 |---|---|---|
@@ -3809,7 +4090,7 @@ the immutable release documentation index.
 | P1-8 nonfunctional controls | 12 | Control inventory and real-backend Electron E2E |
 | P1-9 weak readiness | 2, 3 | Liveness/readiness/capability contract |
 | P1-10 MCP scope bypass | 1, 11 | Server-owned context and adversarial MCP tests |
-| P2-1 uneven KA depth | 6 | KA classification and semantic gates |
+| P2-1 uneven KA depth | 6, 18 | Lossless KA authority, production implementations, dynamic call paths, individual functional tests, and installed trace/effect evidence |
 | P2-2 TruthCore scaffolds/defaults | 5, 6 | Production contract and actual workflow execution |
 | P2-3 offline queue hides defects | 7 | Failure taxonomy and queue eligibility tests |
 | P2-4 side-effect-heavy startup | 2 | Isolated app factory and startup failure matrix |
@@ -3824,11 +4105,11 @@ the immutable release documentation index.
 | Added control: legal/distribution and legacy paths | 0, 14 | Approved authority register and unreachable-path report |
 | Added control: accumulated documentation | 16, 17 | Controlled production set, review dossier, and archive/delete evidence |
 
-## 28. Mandatory self-check matrix
+## 29. Mandatory self-check matrix
 
 These checks are cumulative. Later phases run all earlier applicable gates.
 
-### 28.1 Every code checkpoint
+### 29.1 Every code checkpoint
 
 ```powershell
 python -m ruff check . --select E9,F63,F7
@@ -3844,7 +4125,7 @@ git diff --check
 The exact environment and commands must be standardized in CI. A local pass on a
 different dependency set is not equivalent.
 
-### 28.2 Every API/security checkpoint
+### 29.2 Every API/security checkpoint
 
 - route manifest classification;
 - anonymous/authenticated/owner authorization matrix;
@@ -3860,7 +4141,7 @@ different dependency set is not equivalent.
 - secret/PII log and support-bundle canaries;
 - CodeQL, dependency, and secret scans.
 
-### 28.3 Every data-plane checkpoint
+### 29.3 Every data-plane checkpoint
 
 - exact version/digest and process identity;
 - loopback/private binding;
@@ -3874,7 +4155,7 @@ different dependency set is not equivalent.
 - low disk, crash, wrong credentials, and corrupt-data response;
 - no production fallback.
 
-### 28.4 Every governed-path checkpoint
+### 29.4 Every governed-path checkpoint
 
 - one stable run ID;
 - stage causality;
@@ -3891,7 +4172,7 @@ different dependency set is not equivalent.
 - client policy, virtual-model routing, idempotency, stream, and async-job
   causality.
 
-### 28.5 Every release candidate
+### 29.5 Every release candidate
 
 - clean build and stale-output protection;
 - full backend/frontend/Electron suites;
@@ -3912,7 +4193,7 @@ different dependency set is not equivalent.
 - versioned golden AI evaluation and human acceptance pilot;
 - professional review/Microsoft dossier and documentation bill of materials.
 
-## 29. Provisional quality budgets
+## 30. Provisional quality budgets
 
 Phase 0 must establish and owner-approve final numeric budgets on named reference
 hardware. The following are initial targets, not waivers if the baseline misses
@@ -3950,7 +4231,7 @@ app-owned S3-compatible object store capacity, and worker concurrency must be de
 profile. They must not be set by measuring the current SQLite/filesystem fallback
 profile.
 
-## 30. Final production go/no-go checklist
+## 31. Final production go/no-go checklist
 
 The release is **GO** only when every item is `PASS` with linked evidence:
 
@@ -4058,7 +4339,7 @@ The release is **GO** only when every item is `PASS` with linked evidence:
 Any unchecked item makes the release **NO-GO**. Percent-complete scores do not
 override a failed binary gate.
 
-## 31. Expected delivery scale
+## 32. Expected delivery scale
 
 This is a multi-month production program, not a final polish sprint. A realistic
 planning range is:
@@ -4088,18 +4369,25 @@ choice, data migration complexity, and the number of defects exposed by real
 installed-app tests can change them. No schedule pressure changes a production
 exit gate.
 
-## 32. Immediate next action
+## 33. Immediate next action
 
-Rebuild the exact signed release candidate with SeaweedFS 4.40-dle.1, bind
-CP16-G, execute CP17-E, and
-run the retained installed/manual/external gates. Do not imply that document
-consolidation closes installed/manual/external release gates.
+Execute Phase 18 CP18-A. Freeze a read-only baseline of every KA definition,
+implementation, caller, test, SDK/UI surface, and historical alias; produce the
+lossless machine-readable capability/identity crosswalk; resolve every
+ID/name/purpose collision; and approve the single manifest migration before
+changing implementation identities or behavior.
+
+Then complete CP18-B through CP18-G in validated implementation batches. The
+signed release-candidate rebuild is explicitly paused until the Phase 18
+source/contract/integration exit gate passes. After that gate, rebuild the exact
+candidate with SeaweedFS 4.40-dle.1, execute CP18-H, bind CP16-G/CP17-E, and run
+the retained installed/manual/external gates.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,
 independent-review, human-pilot, and 24/72-hour evidence as release blockers.
-Documentation work may proceed, but it cannot convert source or unsigned
-qualification evidence into installed production acceptance.
+Phase 18 source evidence cannot convert unsigned qualification into installed
+production acceptance.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
 all independent-review requirements, and object-store production-approval false

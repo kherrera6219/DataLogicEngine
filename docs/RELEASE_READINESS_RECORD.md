@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,9 +14,9 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
-| Requirements and evidence | Product requirements, Phase 0-18 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
+| Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
 
@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Source contracts and deterministic evidence pass | Installed provider causal traces, corpus rows, blinded human acceptance |
+| Governed path/evidence/KA | Phase 6 safety contracts pass; Phase 18 CP18-A authority reconciliation is active | CP18-A-G full-KA implementation/wiring/individual-test source gate, then CP18-H installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -87,7 +87,10 @@ hashes retained, zero active legacy sources, and zero unmigrated links. Its
 signed/manual/independent/external exits and CP16-G exact-artifact binding remain
 open. Phase 17 CP17-A through CP17-D pass with 47/47 historical dispositions,
 10/10 generated-truth checks, and zero active documentation warnings/errors.
-CP17-E and Phase 18 remain blocked until the signed installed prerequisites close.
+Phase 18 KA production completion is active at CP18-A and blocks the signed
+rebuild until CP18-A through CP18-G pass; CP18-H and CP17-E then require the
+exact signed installed artifact. Phase 19 launch remains blocked by every prior
+gate.
 
 ## Finding policy
 

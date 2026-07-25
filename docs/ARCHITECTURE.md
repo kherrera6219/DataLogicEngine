@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v4.6.0 |
+| Document version | v4.7.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
@@ -79,6 +79,40 @@ TruthCore's production preflight publishes `truthcore-preflight.v1` state and
 failure transitions and can execute only production-enabled KA catalog entries.
 Experimental and placeholder KAs are disabled in governed production traces.
 Legacy hash-vector DRL output is not a production convergence signal.
+
+### Phase 18 Knowledge Algorithm target architecture
+
+The Phase 6 production-enabled filter remains a safety control, but the
+2026-07-25 review proved the KA subsystem is not complete. The current 125-entry
+executable registry, 277-row metadata catalog, 114-row SDK/design catalog,
+unregistered Layer-9 suite, multiple engines/loaders, partial selector, and
+sample SDK handlers are conflicting authorities. The signed rebuild is paused
+while Phase 18 resolves them without capability loss.
+
+The target architecture has one versioned KA manifest and one controller. The
+manifest owns canonical identity and aliases, purpose, schemas, version,
+layer/persona/subsystem, dependencies, selector triggers, determinism/seed,
+evidence and service requirements, risk, confirmation, budgets, side-effect
+class, implementation, limitation, test, and documentation references. API,
+desktop, SDK, trace, and generated catalogs consume that manifest rather than
+joining historical metadata by numeric ID.
+
+The controller receives server-owned governed context and selects only
+applicable KAs using intent, domain, risk, tier/layer/persona, evidence state,
+policy, budget, dependency DAG, and live service capability. Pure KAs return
+typed results or state-change proposals. Effectful KAs use approved app-owned
+service ports after authorization, confirmation, idempotency, and transaction
+checks and return authoritative receipts. The orchestrator remains the single
+writer. Planned, selected, dependency, executed, skipped-with-reason, blocked,
+failed, cancelled, unavailable, and applied-effect states are trace-distinct.
+
+Layer 9, Layer 10, TruthCore/refinement, DMRF, DSQP/personas, retrieval/graph/
+memory, ingestion, simulation, MCP, providers, gateway, and operations reuse the
+same controller. Compatibility adapters may preserve older callers, but no
+private engine, SDK handler map, unmanaged Celery queue, or direct provider/
+store path is a production authority. Every canonical KA has a real owning
+call path and its own named functional test before the source exit gate permits
+the rebuild.
 
 ### Phase 10 durable simulation architecture
 

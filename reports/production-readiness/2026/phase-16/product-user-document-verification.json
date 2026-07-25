@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.product-user-document-verification.v1",
-  "generated_at": "2026-07-25T06:42:12.582032+00:00",
-  "authority_version": "2026.07.24-approved3",
+  "generated_at": "2026-07-25T07:24:30.115934+00:00",
+  "authority_version": "2026.07.25-phase18",
   "status": "pass",
   "target_count": 5,
   "verified_count": 5,

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -117,6 +117,31 @@ budget/deadline, and do not silently switch providers or duplicate spend.
 Cancellation propagates through gateway, governed execution, provider/tool call,
 durable job, and trace state where applicable. A cancelled operation must not be
 reported completed merely because a late result arrived.
+
+## Knowledge Algorithm interface contract
+
+The current `/api/v1/ka` surface is an authenticated engineering catalog and
+partial numeric-ID executor. It does not yet satisfy the production product
+contract: Layer-9/Layer-10/master identity formats are inconsistent, a generic
+`allow_nonproduction` flag is not an adequate authorization/confirmation model,
+and the SDK/desktop do not share a complete typed execute/history/trace
+workflow. Phase 18 keeps the signed rebuild blocked while this is corrected.
+
+The target versioned interface is generated from the canonical KA manifest and
+provides list/search, canonical detail, input/output schema, dependency and
+side-effect plan, capability/prerequisite state, governed execute, cancel,
+result, history, effect receipt, trace link, and health. Canonical and approved
+alias IDs resolve to the same manifest entry; unknown, ambiguous, or retired
+aliases fail with a stable public error.
+
+Direct execution derives principal and scope on the server, applies per-KA risk,
+policy, confirmation, budget, idempotency, deadline, cancellation, and service-
+capability rules, and cannot bypass the canonical controller. High-risk or
+effectful operations require their named confirmation contract. Responses
+distinguish planned, selected, executed, blocked, unavailable, failed,
+cancelled, and applied-effect states and never report a simulated service action
+as success. Python and TypeScript SDKs are clients for this contract, not
+alternate local KA runtimes.
 
 ## MCP integration contract
 

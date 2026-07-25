@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -47,6 +47,14 @@ administration, audit, observability, and validation application.
 > defines the capability **app-owned S3-compatible object store** and selects
 > the exact security-patched SeaweedFS 4.40-dle.1 image. Production approval
 > remains false until the installed and independent release gates pass.
+> The signed rebuild is now paused behind the new Phase 18 Knowledge Algorithm
+> completion gate. A documentation-first review found conflicting 114/125/277
+> catalogs, seven unregistered Layer-9 implementations, multiple incompatible
+> runtimes, partial/defective dynamic selection, operational façades without
+> authoritative effect receipts, only 11 production-enabled entries, and a
+> catalog-only Algorithms page. Phase 18 will preserve and reconcile every
+> distinct capability, finish production implementations and application
+> wiring, and require one named functional test per canonical KA before rebuild.
 > The completed checkpoint passes 2,192 backend tests with 18 skips, all 422
 > frontend tests, frontend lint/typecheck/production build, the CI Ruff rules,
 > and the 10/10 documentation truth gate.
@@ -110,7 +118,8 @@ Major subsystems in the current local-first desktop build:
 - 17-Axis Knowledge Framework
 - 10-Layer Truth Engine
 - 12-Step Refinement Workflow
-- Knowledge Algorithm Framework (100+ KAs)
+- Knowledge Algorithm Framework (catalog and full production integration under
+  active Phase 18 reconciliation)
 - Multi-Agent Orchestration
 - GraphRAG Integration
 - Knowledge Ingestion Pipeline
@@ -122,6 +131,15 @@ Major subsystems in the current local-first desktop build:
 
 Current production-completion focus:
 
+- Phase 18 CP18-A lossless Knowledge Algorithm capability/identity inventory and
+  crosswalk; the release-candidate rebuild is paused until CP18-A through
+  CP18-G complete
+- One authoritative KA manifest, execution/effect/trace contract, controller,
+  generated SDK/catalog, and compatibility migration without capability loss
+- Production behavior, dynamic application call path, and one individually
+  named functional test for every canonical KA
+- Authenticated KA API/SDK and accessible Algorithms detail/input/plan/confirm/
+  execute/cancel/history/trace/effect workflow
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -147,9 +165,9 @@ Current production-completion focus:
 - Completed source/lab Replacement Control: ADR-0010 selects SeaweedFS
   4.40-dle.1 as the app-owned S3-compatible object-store implementation with
   all engineering gates passing and production authorization still false
-- Rebuilt-installed protected-volume, independent security/license, and
-  clean-machine object-store acceptance for the selected SeaweedFS implementation
-- GitHub verification of the full Replacement Control checkpoint after this push
+- After Phase 18 CP18-G: rebuilt-installed protected-volume, independent
+  security/license, clean-machine object-store, and KA CP18-H acceptance for the
+  selected SeaweedFS implementation
 - Installed-system, accessibility, security, signing, and release qualification
 
 What Makes DataLogicEngine Different?

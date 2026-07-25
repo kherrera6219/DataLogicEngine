@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-003 |
 | Title | AI system card and evaluation report |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
 | Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
 
@@ -41,6 +41,14 @@ tier classification, 17-axis routing, deterministic DSQP persona construction,
 production-enabled TruthCore KAs, bounded local retrieval, and a configured
 OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
+
+The current 11-entry production-enabled KA subset is a Phase 6 safety boundary,
+not final subsystem completion. Phase 18 is reconciling conflicting catalogs and
+runtimes, restoring the unregistered Layer-9 suite, completing every preserved
+KA implementation and dynamic call path, and requiring one individually named
+functional test per canonical KA. The signed rebuild is paused until the
+source/contract/integration gate passes. No catalog entry, imported module, or
+nonproduction opt-in alone establishes production capability.
 
 The trace records request and workflow identity, provider/model selection,
 policy and routing decisions, evidence and claim relationships, convergence,
@@ -90,6 +98,13 @@ of 1.00, complete required trace stages, and no metric regression greater than
 0.02 from the approved baseline. A displayed `dle-confidence.v1` number is named
 evidence-support coverage, not a probability of correctness. Missing quality,
 freshness, provenance, claim support, or validator inputs produce `not measured`.
+
+Phase 18 adds a per-KA evidence matrix: canonical identity/version, typed
+schemas, representative semantic fixture, individually named functional test,
+positive/negative selector fixture, real owning call path, dependency/failure/
+side-effect/seed rules, performance budget, limitation, and causal trace
+assertions. Effect-oriented KAs must return a receipt from the authoritative
+app-owned service; plausible metadata or a simulated operation is a failure.
 
 ## Risk management and human oversight
 

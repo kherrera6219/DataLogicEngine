@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -124,6 +124,38 @@ frontend prompt
   -> memory/audit/artifact persistence
   -> trace review/export
 ```
+
+### Phase 18 KA development boundary
+
+The signed rebuild is paused while Phase 18 replaces the conflicting KA
+registries/engines with one versioned manifest and controller. Before changing a
+KA identity or purpose, update the reviewed CP18-A crosswalk and preserve
+compatible aliases. Do not join historical metadata to an implementation by
+numeric ID unless the manifest proves semantic identity.
+
+All production KA work uses the canonical typed execution context/result/effect/
+trace contract. Pure algorithms return typed values or proposals. Effectful
+algorithms call only approved app-owned service ports after policy,
+authorization, confirmation, idempotency, and transaction checks and must return
+the authoritative receipt. Do not add direct provider/database/queue/network
+paths, SDK-local handlers, generic success fallbacks, or silent exception skips.
+
+Every canonical KA requires:
+
+1. strict input/output schemas, version, limitations, prerequisites,
+   determinism/seed policy, risk, budgets, and stable failures;
+2. a selector fixture proving when it is and is not chosen;
+3. at least one real owning-subsystem call path;
+4. one individually named functional test of its production entry point;
+5. applicable boundary, failure, security, cancellation, idempotency,
+   side-effect/recovery, and performance tests;
+6. causal trace assertions covering ID/version/input/output/dependencies/status/
+   duration/evidence/effect receipt.
+
+Run the focused KA/manifest/call-path tests before the full backend, SDK,
+frontend, Electron/browser, security, documentation, and packaging-smoke gates.
+Phase evidence belongs under
+`reports/production-readiness/2026/phase-18/`.
 
 ## Local run modes
 

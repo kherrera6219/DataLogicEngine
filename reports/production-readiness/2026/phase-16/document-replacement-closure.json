@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.document-replacement-closure.v1",
-  "generated_at": "2026-07-25T06:46:27.577517+00:00",
-  "authority_version": "2026.07.24-approved3",
+  "generated_at": "2026-07-25T07:25:20.498483+00:00",
+  "authority_version": "2026.07.25-phase18",
   "status": "pass",
   "reviewed_at": "2026-07-15",
   "reviewed_by": "Codex implementation review under Kevin Herrera product-owner authority",
@@ -785,6 +785,7 @@
         "Client Gateway profiles",
         "Native request modes",
         "Rate, budget, retry, and cancellation",
+        "Knowledge Algorithm interface contract",
         "MCP integration contract",
         "Private Windows gateway qualification boundary",
         "Integration acceptance"
@@ -798,6 +799,7 @@
         "Assurance boundary",
         "Registry and classification",
         "KA validation controls",
+        "Phase 18 production completion contract",
         "DSQP and 17-axis boundary",
         "TruthCore and evidence model",
         "Phase 6 checkpoint evidence",
@@ -936,6 +938,7 @@
         "Test domains and acceptance",
         "Current candidate evidence",
         "Phase evidence disposition",
+        "Phase 18 KA verification method",
         "Human and independent validation",
         "Performance and reliability validation",
         "Finding and retest policy",

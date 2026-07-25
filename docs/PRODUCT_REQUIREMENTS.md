@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
@@ -79,6 +79,7 @@ connectors are also excluded unless a later approved requirement reopens them.
 | DLE-FR-008 | Simulations shall enforce budgets and lifecycle states, retain checkpoints and artifacts, and expose truthful UI and API outcomes. | Simulation tests and installed provider/restart/artifact matrix |
 | DLE-FR-009 | MCP registration shall not execute a connector; first use shall require exact command fingerprint, scope, file-root, and owner consent. | MCP policy tests and installed lifecycle/containment matrix |
 | DLE-FR-010 | Same-host client keys shall be copy-once, least-privilege, revocable, bounded, and isolated across client jobs and traces. | Gateway key/job tests, SDK compatibility, installed acceptance |
+| DLE-FR-011 | Every preserved Knowledge Algorithm capability shall have one canonical stable identity, production implementation, typed governed contract, reachable dynamic application call path, individually named functional test, explicit limitation/failure/side-effect semantics, and causal trace record without reducing an approved capability. | Phase 18 manifest/crosswalk gates, per-KA tests, selector/call-path matrix, API/SDK/UI integration, effect receipts, trace/replay evidence, and rebuilt-installed acceptance |
 
 ## Data and lifecycle requirements
 
@@ -126,13 +127,15 @@ release-blocked behavior.
 
 ## Current acceptance status
 
-Engineering checkpoints exist for Phases 0 through 15, but the signed installed
+Engineering checkpoints exist for Phases 0 through 17, but the signed installed
 acceptance matrices and independent/manual gates remain open. Two clean candidate
 builds still differ at the byte level, the current candidate is unsigned, and
 its packaged backend correctly refused startup when protected-volume readiness
 could not be proved. Installed and independent acceptance of the selected object
 store, legal/distribution authority, accessibility/manual review, pilot, and
-soak gates also remain open. Dependabot alert 389 is fixed.
+soak gates also remain open. Phase 18 KA production completion is now active and
+the signed rebuild is paused until CP18-A through CP18-G pass. Dependabot alert
+389 is fixed.
 Production/public release is **NO-GO**.
 
 ## Change control

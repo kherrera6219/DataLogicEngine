@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -57,7 +57,7 @@ acceptance. This report is not a production approval.
 |---|---|---|
 | Runtime/trust/readiness | Factory isolation, phased startup, truthful capabilities, supervisor/lock tests | Signed collision/lifecycle/Windows protection matrix |
 | Data/migration/recovery | Five-service and populated migration/backup/restore/deletion drills | Exact installed delivery, 0.1.1 upgrade, clean restore/remnant/independent review |
-| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, KA invariants | Installed provider traces, corpus rows, blinded human acceptance |
+| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, and Phase 6 safety classifications; Phase 18 full-KA completion is open | CP18-A-G lossless manifest/implementation/wiring/individual-test evidence, then installed provider traces, per-KA sample/performance/effects, corpus rows, and blinded human acceptance |
 | Providers/privacy/offline | OpenAI/Google adapters, budgets, deadlines, ledger, replay contracts | Live installed provider failure/cancel/spend/privacy matrix |
 | Gateway/SDK | Native, SSE, async/cancel, scopes, SDK/compatibility tests | Signed same-host/private TLS/firewall/two-machine/load/soak |
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
@@ -96,6 +96,25 @@ passes.
 | 14 | Packaging/supply-chain engineering checkpoint; signing/legal/reproducibility/lifecycle gates retained |
 | 15 | Release-candidate engineering checkpoint; CP15-A through CP15-H retained |
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
+| 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
+| 18 | CP18-A Knowledge Algorithm authority/crosswalk active; CP18-B through CP18-H open and signed rebuild paused |
+
+## Phase 18 KA verification method
+
+Phase 18 requires more than registry imports or a shared parameterized shape
+test. Every canonical KA must have its own named functional test that exercises
+the production entry point and asserts its semantic output or authoritative
+effect receipt. The manifest gate also requires a selector fixture, real owning
+call path, schemas, limitations, failure behavior, trace contract, and applicable
+security/performance evidence for every preserved capability.
+
+Cross-system validation covers selector/DAG behavior, all Layer-9 and Layer-10
+KAs, TruthCore/refinement, DMRF/DSQP, governed chat, retrieval/graph/memory,
+ingestion, simulation, MCP, providers, gateway, and operations. API/SDK/desktop
+tests cover detail, typed plan/execute/cancel/history/trace, confirmation,
+effects, failure states, and accessibility. CP18-G is the clean source gate that
+permits rebuilding; CP18-H repeats representative behavior against the exact
+signed installed artifact and does not replace the retained CP15/16/17 gates.
 
 Detailed evidence resides in `reports/production-readiness/2026/phase-*/` and
 must be read with the active plan/TODO. A summary cannot override a failed or

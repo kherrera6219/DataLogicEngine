@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented trust boundaries, threat controls, security tests, release policy, and evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Trust boundary, identity, network, provider, connector, data protection, dependency, incident, or release-policy change |
 | Requirements and evidence | Product requirements, source controls, threat tests, security workflows, SBOMs, and Phase 1/3/7/8/11/13/14 evidence |
 
@@ -96,6 +96,17 @@ distinguishes policy, validation, provider, quota/rate, timeout, cancellation,
 capability, readiness, and internal failures without exposing exception details
 or inventing safe-looking success.
 
+Phase 18 extends this boundary to every Knowledge Algorithm. Selection and
+direct execution use server-owned principal/scope, policy, dependency DAG,
+deadline, cancellation, recursion/fan-out, resource, provider/tool, and
+side-effect budgets. Effectful KAs require risk-specific confirmation,
+idempotency, an approved app-owned service port, and an authoritative receipt.
+SDK-local handlers, direct provider/store/network access, unmanaged queues,
+forged effects, dependency cycles, and silent exception skips are prohibited.
+Per-KA tests cover injection, path/network abuse, unsafe input, resource
+exhaustion, sensitive data, cancellation, duplicate requests, partial effects,
+recovery, and trace-persistence failure as applicable.
+
 ## Data and secret protection
 
 Production requires a protected Windows volume, restricted runtime-root ACLs,
@@ -132,6 +143,7 @@ unauthorized artifacts fail closed.
 |---|---|---|
 | Malicious renderer/client | Preload allowlist, opaque tokens, API auth/scopes, no secrets/direct stores | Packaged penetration and client isolation review |
 | Prompt/document/tool injection | Admission defense, untrusted labeling, bounds, secret/injection checks, evidence validation | Hostile installed corpus/connector matrix |
+| Malicious or over-privileged KA selection/effect | Canonical manifest, server-owned context, policy/scopes, bounded DAG, confirmation, idempotency, authoritative service receipt, causal trace | Phase 18 per-KA adversarial/effect matrix and rebuilt-installed acceptance |
 | Credential/content leakage | DPAPI/encryption, backend-owned calls, redaction, support preview, no direct provider access | Installed all-output canary/no-egress proof |
 | Foreign service/port/process | Installation identity, immutable service verification, lock, supervisor, Job Object | Installed collision/restart matrix |
 | Cross-store inconsistency or partial deletion | Durable authority, migrations, hashes/revisions, reconciliation, explicit partial failure | Populated installed repair/remnant evidence |
@@ -155,5 +167,7 @@ MCP consent/containment, diagnostics/support redaction, dependency/release trust
 and fail-closed update policy. Production remains **NO-GO** pending signed
 installed security/privacy/network/failure matrices, protected-volume/ACL and
 no-egress canaries, penetration and independent review, final legal/object-store
-authority, and resolution of critical dependency alert 389. No certification or
-formal conformance should be inferred from control mappings.
+authority, and Phase 18 KA security/effect qualification. Alert 389 is fixed by
+removing the affected SDK and qualifying the restricted replacement client; its
+release evidence remains required. No certification or formal conformance
+should be inferred from control mappings.

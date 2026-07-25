@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Product requirements, implemented architecture/contracts, tests, phase evidence, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Requirement, implementation, test, evidence, finding, risk acceptance, or release-decision change |
 | Requirements and evidence | `docs/PRODUCT_REQUIREMENTS.md`, source/tests, canonical documents, and `reports/production-readiness/2026/` |
 
@@ -41,6 +41,7 @@ record can promote the exact artifact to `Pass` for production.
 | DLE-FR-008 | Authoritative simulation lifecycle/budget/checkpoint/artifact/result | Simulation contract/failure tests; Phase 10 evidence | Partial: installed provider/restart/UI/artifact acceptance retained |
 | DLE-FR-009 | MCP registry/fingerprint/scope/consent, process loop, Job Object, result governance | MCP policy/lifecycle/hostile fixture tests; Phase 11 evidence | Partial: installed OS containment/Electron lifecycle retained |
 | DLE-FR-010 | Client-key verifier, scopes/limits/jobs/idempotency/trace ownership/SDKs | Gateway auth/isolation/SDK/compatibility tests; Phase 8 evidence | Partial: signed installed same-host/private acceptance retained |
+| DLE-FR-011 | Phase 18 canonical KA manifest/crosswalk, typed controller/selector, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test per KA, manifest/call-path/selector gates, effect receipts, integration/security/performance/trace/replay suites, and Phase 18 evidence | Open: CP18-A authority reconciliation active; CP18-B through CP18-H retained and rebuild paused |
 
 ## Data and lifecycle requirements
 
@@ -96,6 +97,7 @@ tests, canonical documents, migration/compatibility, and release evidence.
 
 ## Overall status
 
-All 28 product requirement IDs have an implementation/control and named
-verification path. None may be interpreted as final production pass while their
-retained gates are open. The exact 4.3.0 release remains **NO-GO**.
+All 29 product requirement IDs have an implementation/control or planned
+Phase 18 control and a named verification path. None may be interpreted as final
+production pass while their retained gates are open. The exact 4.3.0 release
+remains **NO-GO**.

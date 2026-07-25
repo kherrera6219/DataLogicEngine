@@ -83,7 +83,7 @@ TARGETS = {
             "Governed AI and content controls",
             "Release and update trust",
             "Principal threats and controls",
-            "alert 389",
+            "Alert 389 is fixed",
         },
     },
     "docs/SOFTWARE_LIFECYCLE_PLAN.md": {
@@ -127,7 +127,7 @@ TARGETS = {
             "DLE-PR-001",
             "DLE-AI-001",
             "DLE-QR-001",
-            "All 28 product requirement IDs",
+            "All 29 product requirement IDs",
         },
     },
     "docs/VERIFICATION_VALIDATION_REPORT.md": {
@@ -158,7 +158,7 @@ TARGETS = {
             "docs/adr/ADR-0007-authoritative-simulation-engine.md",
         },
         "markers": {
-            "live registry contains 125 KAs",
+            "current executable registry exposes 125 IDs",
             "enabled 11",
             "TruthCore and evidence model",
             "Phase 6 checkpoint evidence",

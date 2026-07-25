@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Release-blocking Phase 18 Knowledge Algorithm completion plan**: paused the
+  signed rebuild after a documentation-first review found conflicting
+  114/125/277 catalogs, seven unregistered Layer-9 implementations, multiple
+  incompatible runtimes, only 11 production-enabled entries, partial/defective
+  dynamic selection, unverified operational effect claims, incomplete
+  individual proof, and a catalog-only Algorithms UI. Added `DLE-FR-011` and
+  CP18-A through CP18-H for lossless identity reconciliation, one manifest and
+  controller, production implementation, full dynamic application wiring,
+  authenticated API/SDK/desktop workflows, one named functional test per
+  canonical KA, clean source qualification, and rebuilt-installed acceptance.
 - **Object-store Replacement Control selection**: accepted ADR-0010, replaced
   the product-specific object-store requirement with the capability
   **app-owned S3-compatible object store**, and selected SeaweedFS 4.40-dle.1

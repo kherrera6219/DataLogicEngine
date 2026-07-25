@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v3.6.0 |
+| Document version | v3.7.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-07-25 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -154,14 +154,28 @@ authoritative source and retry. The Algorithms page labels production-enabled,
 experimental, presentation-only, and placeholder entries and states each
 guarantee and limitation.
 
-### 4. Review sessions and projects
+### 4. Review Knowledge Algorithms
+
+The current `/algorithms` view is an engineering catalog only. It can search and
+show registry metadata, production classification, guarantee, and limitation,
+but it is not yet the approved production execute workflow. Do not treat a
+catalog card or a successful import/classification test as proof that the KA is
+fully implemented or dynamically wired.
+
+Phase 18 will add canonical detail and schemas, prerequisite and dependency
+preview, typed inputs, risk/side-effect confirmation, governed execute/cancel,
+result/effect receipts, history, trace navigation, and complete accessible
+states. Until CP18-E and CP18-H pass, direct KA execution remains an engineering
+evaluation surface and the signed rebuild remains paused.
+
+### 5. Review sessions and projects
 
 1. Open `/projects`.
 2. Search by title, session ID, or visible metadata.
 3. Open `/projects/view?id=<session_id>`.
 4. Review messages, run references, and session timeline.
 
-### 5. Review traces and evidence
+### 6. Review traces and evidence
 
 1. Open `/runs`.
 2. Select a run.
@@ -171,7 +185,7 @@ guarantee and limitation.
 
 Trace review is one of the main ways to understand why the system answered the way it did.
 
-### 6. Explore graph and knowledge data
+### 7. Explore graph and knowledge data
 
 1. Open `/graph`.
 2. Inspect available nodes and relationships.
@@ -180,7 +194,7 @@ Trace review is one of the main ways to understand why the system answered the w
 
 Graph/knowledge features may depend on local SQL, Neo4j, ChromaDB, object-store, or ingestion state.
 
-### 7. Run simulations
+### 8. Run simulations
 
 1. Open `/simulations`.
 2. Select **New Simulation**, enter a scenario, choose Quick, Standard, or Deep,
@@ -202,13 +216,13 @@ Fixed-seed mode is for deterministic qualification, does not call an external
 provider, and never establishes production result quality. Installed live-mode
 acceptance remains gated until the rebuilt application is qualified.
 
-### 8. Use Truth Engine monitoring
+### 9. Use Truth Engine monitoring
 
 1. Open `/truth-engine`.
 2. Review Truth Engine status where enabled.
 3. Inspect health, budget, gate, memory, or link/event information where exposed by the current build.
 
-### 9. Manage MCP connectors
+### 10. Manage MCP connectors
 
 1. Open `/admin/mcp/servers` and select **Register connector**.
 2. Enter the connector name, absolute executable path, arguments (one per line),
@@ -230,7 +244,7 @@ timeout, output-size, malformed-protocol, containment, or qualification error is
 a safety stop, not a prompt to bypass the control. Production Start remains
 blocked until the installed Windows connector qualification passes.
 
-### 10. Run storage checks and lifecycle actions
+### 11. Run storage checks and lifecycle actions
 
 1. Open `/settings`.
 2. Select `Storage`.
@@ -239,7 +253,7 @@ blocked until the installed Windows connector qualification passes.
 5. Use `Start All` / `Stop All` for local data services where available.
 6. Use auto-start toggle for local launch behavior.
 
-### 11. Use privacy tools
+### 12. Use privacy tools
 
 1. Open `/settings/privacy`.
 2. Use `Export My Data` for JSON export where enabled.
@@ -247,7 +261,7 @@ blocked until the installed Windows connector qualification passes.
 4. Review AI processing/history preferences where available.
 5. Review notification preferences where available.
 
-### 12. Review provider usage and offline replay
+### 13. Review provider usage and offline replay
 
 1. Open `/settings` and select **Provider Connections** for provider usage or
    **Client Gateway** for inbound client state.
@@ -274,7 +288,7 @@ The SSE route emits live governed stage events. Provider answer text is released
 only after validation as `validated_output` chunks; it is not raw provider-token
 streaming and v1 does not resume a disconnected stream.
 
-### 13. Review Diagnostics and export a support bundle
+### 14. Review Diagnostics and export a support bundle
 
 1. Open **Admin -> Diagnostics** (`/admin/diagnostics`).
 2. Review the content-free runtime, service, request, log, privacy, and external-
