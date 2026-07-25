@@ -1,0 +1,73 @@
+{
+  "schema_version": "dle.phase18.cp18c.implementation-qualification.v1",
+  "checkpoint": "CP18-C",
+  "batch": "10-language-governance-identity",
+  "evaluated_at": "2026-07-25",
+  "status": "pass",
+  "release_decision": "no-go",
+  "implemented_capabilities": [
+    "KA-161",
+    "KA-162",
+    "KA-163",
+    "KA-165",
+    "KA-167",
+    "KA-168",
+    "KA-175",
+    "KA-176",
+    "KA-177",
+    "KA-178"
+  ],
+  "authority": {
+    "canonical_capabilities": 213,
+    "existing_implementations": 206,
+    "implementation_required": 7,
+    "implementation_delta": 10,
+    "semantic_duplicate_aliases": 1,
+    "unresolved_semantic_duplicate_candidates": 0,
+    "exact_canonical_collisions": 0,
+    "unclassified_surfaces": 0
+  },
+  "proof": {
+    "individually_named_semantic_tests": 10,
+    "unique_implementation_owner_tests": 1,
+    "implemented_capabilities_with_named_tests": 164,
+    "knowledge_algorithm_suite": {
+      "passed": 699,
+      "failed": 0,
+      "warnings": 3
+    },
+    "focused_batch_tests": {
+      "passed": 11,
+      "failed": 0
+    },
+    "generic_contract_cases": {
+      "passed": 20,
+      "failed": 0
+    },
+    "python_sdk_tests": {
+      "passed": 34,
+      "failed": 0
+    },
+    "typescript_sdk_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "ruff_changed_files": "pass",
+    "capability_inventory": "pass",
+    "runtime_authority": "pass",
+    "generated_manifest_parity": "pass"
+  },
+  "production_controls": [
+    "Translation and paraphrasing validate and assemble supplied provider or translation-memory evidence rather than claiming local general-language generation.",
+    "Style, topic, and keyword behavior uses transparent deterministic methods with explicit limitations.",
+    "Explanation derives only from supplied factors and evidence and makes no hidden-state or causal claim.",
+    "Security, governance, and policy outputs remain assessments or unapplied decisions.",
+    "Identity resolution links only shared verified exact identifiers and applies no record merge.",
+    "All ten canonical IDs have one unique source owner and no unscoped alias."
+  ],
+  "open_work": [
+    "Build and qualify the remaining seven missing canonical implementations.",
+    "Qualify remaining legacy implementation surfaces and effect-service integration.",
+    "Complete CP18-D through CP18-H before rebuilding or releasing."
+  ]
+}

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.34.0 |
+| Document version | v1.35.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -320,6 +320,14 @@ current-state compliance checks. The builder now discovers preserved
 three-digit implementation owners under the same uniqueness guard. The
 authority advances to 196 implementations and 17 gaps; the full KA suite passes
 668 tests and all identity/classification gates remain clean.
+
+CP18-C Batch 10 passed on 2026-07-25 for ten language/governance/identity
+capabilities: translation evidence, paraphrase selection, style normalization,
+topic modeling, keywords, explanation derivation, security auditing, governance
+validation, policy enforcement, and exact identity resolution. Unsupported
+model generation and applied governance/merge effects are never claimed. The
+authority advances to 206 implementations and seven gaps; the full KA suite
+passes 699 tests and all identity/classification gates remain clean.
 
 ## 1. Purpose
 
@@ -4071,9 +4079,9 @@ artifact rather than against a known-incomplete subsystem.
   record.
 
 **Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batches 01
-through 09 also passed: 11 existing implementations were made honest and 64
+through 10 also passed: 11 existing implementations were made honest and 74
 preserved capabilities were restored as distinct production sources. The
-authority now reports 196 implementations and 17 gaps with 668 KA tests passing
+authority now reports 206 implementations and seven gaps with 699 KA tests passing
 and no duplicate, unclassified, or static-honesty finding. The approved
 capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
@@ -4496,8 +4504,8 @@ exit gate.
 ## 33. Immediate next action
 
 Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
-01-09 have qualified 11 existing implementations and restored 64 gaps; qualify
-the remaining existing implementations and build the 17 explicit gaps
+01-10 have qualified 11 existing implementations and restored 74 gaps; qualify
+the remaining existing implementations and build the seven explicit gaps
 in validated batches. Replace every placeholder, metadata-only facade, mock/simulated
 operation, weak or unrecorded random default, and false success with bounded
 typed production behavior or an honest prerequisite failure through an

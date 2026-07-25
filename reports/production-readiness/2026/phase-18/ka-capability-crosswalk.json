@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "de51a7c7e2336bcd43e6dc08655e734429d4c32c777baf855042355e5d2c9489",
+  "source_input_sha256": "4e435f4368552510b50c04cb69b0b7b5baf68a9b5e179ff532a7b58bcb3341dc",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 196,
-    "implementation_required_proposals": 17,
+    "existing_implementation_proposals": 206,
+    "implementation_required_proposals": 7,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 196,
+    "implementation_surfaces": 206,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 158,
-    "canonical_with_named_test_function": 155
+    "canonical_with_test_reference": 168,
+    "canonical_with_named_test_function": 165
   },
   "canonical_capabilities": [
     {
@@ -274,6 +274,16 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1044_composer_generates_traceable_unverified_hypothesis",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1046_memory_patcher_plans_tier_without_applying_effect",
         "tests/knowledge_algorithms/test_phase18_cp18c_knowledge_evolution_batch.py::test_ka_1048_conflict_resolver_prefers_declared_authority_without_mutation",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_161_translation_assembles_provenanced_accepted_segments",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_162_paraphrasing_selects_changed_candidate_with_required_terms",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_163_style_transfer_applies_transparent_plain_language_rules",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_165_topic_modeling_returns_auditable_hinted_term_counts",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_167_keyword_extraction_ranks_repeat_term_first",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_168_explainability_links_ranked_factor_to_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_176_governance_validation_requires_declared_approval_roles",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_178_identity_resolution_merges_only_verified_exact_identifier",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1071_provenance_tracker_validates_source_to_claim_reachability",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
@@ -3007,6 +3017,12 @@
       "named_test_functions": [
         "tests/compliance/test_fullstack_compliance.py::test_ka_016_regulatory_mapping",
         "tests/end_to_end/test_e2e_scenarios.py::test_simulated_user_journey",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_161_translation_assembles_provenanced_accepted_segments",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_162_paraphrasing_selects_changed_candidate_with_required_terms",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_163_style_transfer_applies_transparent_plain_language_rules",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_165_topic_modeling_returns_auditable_hinted_term_counts",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_167_keyword_extraction_ranks_repeat_term_first",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_168_explainability_links_ranked_factor_to_evidence",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_169_fairness_audit_measures_group_disparity"
       ],
       "phase6_production_metadata": {
@@ -3173,6 +3189,10 @@
       ],
       "test_references": [],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_176_governance_validation_requires_declared_approval_roles",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect",
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_178_identity_resolution_merges_only_verified_exact_identifier",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
@@ -23478,10 +23498,10 @@
       "name": "Translation",
       "purpose": "Functional logic for Translation",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_161_translation.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23530,30 +23550,45 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_161_translation.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_languages"
+        ],
+        "classes": [
+          "KA161Input",
+          "KA161Translation",
+          "TranslationSegment"
+        ],
+        "nonblank_noncomment_loc": 81,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_161_translation_assembles_provenanced_accepted_segments"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-162",
       "name": "Paraphrasing",
       "purpose": "Functional logic for Paraphrasing",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_162_paraphrasing.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23602,30 +23637,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_162_paraphrasing.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA162Input",
+          "KA162Paraphrasing",
+          "ParaphraseCandidate"
+        ],
+        "nonblank_noncomment_loc": 94,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_162_paraphrasing_selects_changed_candidate_with_required_terms"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-163",
       "name": "Style Transfer",
       "purpose": "Functional logic for Style Transfer",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_163_style_transfer.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23674,30 +23723,43 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_163_style_transfer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA163Input",
+          "KA163StyleTransfer"
+        ],
+        "nonblank_noncomment_loc": 67,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_163_style_transfer_applies_transparent_plain_language_rules"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-165",
       "name": "Topic Modeling",
       "purpose": "Functional logic for Topic Modeling",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_165_topic_modeling.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23746,30 +23808,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_165_topic_modeling.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA165Input",
+          "KA165TopicModeling",
+          "TopicDocument"
+        ],
+        "nonblank_noncomment_loc": 78,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_165_topic_modeling_returns_auditable_hinted_term_counts"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-167",
       "name": "Keyword Extraction",
       "purpose": "Functional logic for Keyword Extraction",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_167_keyword_extraction.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23818,30 +23894,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_167_keyword_extraction.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA167Input",
+          "KA167KeywordExtraction",
+          "KeywordDocument"
+        ],
+        "nonblank_noncomment_loc": 84,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_167_keyword_extraction_ranks_repeat_term_first"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-168",
       "name": "Explainability",
       "purpose": "Functional logic for Explainability",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_168_explainability.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -23890,20 +23980,34 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_168_explainability.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "DecisionFactor",
+          "KA168Explainability",
+          "KA168Input"
+        ],
+        "nonblank_noncomment_loc": 78,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_168_explainability_links_ranked_factor_to_evidence"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-169",
@@ -24257,10 +24361,10 @@
       "name": "Security Audit",
       "purpose": "Functional logic for Security Audit",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_175_security_audit.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24309,30 +24413,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_175_security_audit.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA175Input",
+          "KA175SecurityAudit",
+          "SecurityControlEvidence"
+        ],
+        "nonblank_noncomment_loc": 77,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-176",
       "name": "Governance Validation",
       "purpose": "Functional logic for Governance Validation",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_176_governance_validation.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24381,30 +24499,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_176_governance_validation.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "GovernanceDecision",
+          "KA176GovernanceValidation",
+          "KA176Input"
+        ],
+        "nonblank_noncomment_loc": 82,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_176_governance_validation_requires_declared_approval_roles"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-177",
       "name": "Policy Enforcement",
       "purpose": "Functional logic for Policy Enforcement",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_177_policy_enforcement.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24453,30 +24585,45 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_177_policy_enforcement.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_matches",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA177Input",
+          "KA177PolicyEnforcement",
+          "PolicyRule"
+        ],
+        "nonblank_noncomment_loc": 87,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-178",
       "name": "Identity Resolution",
       "purpose": "Functional logic for Identity Resolution",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_178_identity_resolution.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24525,20 +24672,39 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_178_identity_resolution.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_normalized",
+          "_run_logic",
+          "find",
+          "run",
+          "union",
+          "validate_ids"
+        ],
+        "classes": [
+          "IdentityIdentifier",
+          "IdentityRecord",
+          "KA178IdentityResolution",
+          "KA178Input"
+        ],
+        "nonblank_noncomment_loc": 111,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_178_identity_resolution_merges_only_verified_exact_identifier"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-179",

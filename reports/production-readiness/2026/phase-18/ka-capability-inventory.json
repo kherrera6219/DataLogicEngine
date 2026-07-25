@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "de51a7c7e2336bcd43e6dc08655e734429d4c32c777baf855042355e5d2c9489",
+  "source_input_sha256": "4e435f4368552510b50c04cb69b0b7b5baf68a9b5e179ff532a7b58bcb3341dc",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -12,8 +12,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 196,
-    "implementation_required_proposals": 17,
+    "existing_implementation_proposals": 206,
+    "implementation_required_proposals": 7,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -25,13 +25,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 196,
+    "implementation_surfaces": 206,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 158,
-    "canonical_with_named_test_function": 155
+    "canonical_with_test_reference": 168,
+    "canonical_with_named_test_function": 165
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -9775,6 +9775,54 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_161_translation.py",
+      "canonical_ids": [
+        "KA-161"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_162_paraphrasing.py",
+      "canonical_ids": [
+        "KA-162"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_163_style_transfer.py",
+      "canonical_ids": [
+        "KA-163"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_165_topic_modeling.py",
+      "canonical_ids": [
+        "KA-165"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_167_keyword_extraction.py",
+      "canonical_ids": [
+        "KA-167"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_168_explainability.py",
+      "canonical_ids": [
+        "KA-168"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_169_fairness_audit.py",
       "canonical_ids": [
         "KA-169"
@@ -9810,6 +9858,38 @@
       "path": "backend/knowledge_algorithms/ka_174_compliance_check.py",
       "canonical_ids": [
         "KA-174"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_175_security_audit.py",
+      "canonical_ids": [
+        "KA-175"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_176_governance_validation.py",
+      "canonical_ids": [
+        "KA-176"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_177_policy_enforcement.py",
+      "canonical_ids": [
+        "KA-177"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_178_identity_resolution.py",
+      "canonical_ids": [
+        "KA-178"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"

@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C language/governance/identity Batch 10**: restored ten
+  deterministic capabilities for translation evidence, paraphrase selection,
+  style normalization, hinted topics, TF-IDF keywords, evidence-linked
+  explanations, security auditing, governance validation, typed policy
+  enforcement, and exact identity resolution. Unsupported model generation and
+  applied governance/merge effects are not claimed. The authority advances to
+  206 implementations/seven gaps and the KA suite passes 699 tests.
 - **Phase 18 CP18-C security/health/fairness Batch 09**: restored eight
   deterministic preserved-ID capabilities for threat modeling, sensitive-data
   discovery, predictive health, purple-team coverage, fairness, safety, privacy
