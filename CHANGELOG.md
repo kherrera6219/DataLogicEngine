@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C zero-gap Batch 11**: restored the final seven capabilities
+  for access control, encryption admission, key governance, runtime threat
+  detection, vulnerability-result qualification, incident-response planning,
+  and bounded external research. All 213 canonical capabilities now have unique
+  implementation owners, zero implementation gaps remain, and the KA suite
+  passes 721 tests. Remaining pre-existing/effect integration qualification is
+  still release-blocking.
 - **Phase 18 CP18-C language/governance/identity Batch 10**: restored ten
   deterministic capabilities for translation evidence, paraphrase selection,
   style normalization, hinted topics, TF-IDF keywords, evidence-linked

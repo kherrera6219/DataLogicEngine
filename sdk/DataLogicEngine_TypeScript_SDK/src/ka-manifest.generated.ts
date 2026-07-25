@@ -8,7 +8,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "4e435f4368552510b50c04cb69b0b7b5baf68a9b5e179ff532a7b58bcb3341dc",
+    "crosswalk_source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
     "duplicate_policy": "one_semantic_capability_one_canonical_id"
   },
   "capability_count": 213,
@@ -10324,13 +10324,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_1114_external_deep_research_invocation",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [
           "Sub-question",
           "policy",
@@ -11631,13 +11635,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_179_access_control.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_179_access_control",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11677,13 +11685,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_180_encryption_manager",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11723,13 +11735,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_181_key_management.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_181_key_management",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11769,13 +11785,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_182_threat_detection.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_182_threat_detection",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11815,13 +11835,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_183_vulnerability_scanning",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -11861,13 +11885,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implementation_required",
-        "source": null,
-        "entrypoint": null
+        "status": "existing_requires_phase18_qualification",
+        "source": "backend/knowledge_algorithms/ka_184_incident_response.py",
+        "entrypoint": {
+          "adapter": "module_run",
+          "module": "backend.knowledge_algorithms.ka_184_incident_response",
+          "callable": "run"
+        }
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "phase18_b_implementation_and_schema_required",
+        "status": "phase18_b_schema_review_required",
         "inputs": [],
         "outputs": [],
         "categories": [

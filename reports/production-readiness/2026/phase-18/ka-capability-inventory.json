@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "4e435f4368552510b50c04cb69b0b7b5baf68a9b5e179ff532a7b58bcb3341dc",
+  "source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 125,
@@ -12,8 +12,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 206,
-    "implementation_required_proposals": 7,
+    "existing_implementation_proposals": 213,
+    "implementation_required_proposals": 0,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -25,13 +25,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 206,
+    "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 168,
-    "canonical_with_named_test_function": 165
+    "canonical_with_test_reference": 175,
+    "canonical_with_named_test_function": 172
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -9647,6 +9647,14 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
+      "canonical_ids": [
+        "KA-1114"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_111_api_gateway.py",
       "canonical_ids": [
         "KA-111"
@@ -9895,9 +9903,57 @@
       "disposition": "canonical_implementation_requires_phase18_qualification"
     },
     {
+      "path": "backend/knowledge_algorithms/ka_179_access_control.py",
+      "canonical_ids": [
+        "KA-179"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
       "path": "backend/knowledge_algorithms/ka_17_spatial_jurisdiction_mapping.py",
       "canonical_ids": [
         "KA-017"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
+      "canonical_ids": [
+        "KA-180"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_181_key_management.py",
+      "canonical_ids": [
+        "KA-181"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_182_threat_detection.py",
+      "canonical_ids": [
+        "KA-182"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
+      "canonical_ids": [
+        "KA-183"
+      ],
+      "exists": true,
+      "disposition": "canonical_implementation_requires_phase18_qualification"
+    },
+    {
+      "path": "backend/knowledge_algorithms/ka_184_incident_response.py",
+      "canonical_ids": [
+        "KA-184"
       ],
       "exists": true,
       "disposition": "canonical_implementation_requires_phase18_qualification"

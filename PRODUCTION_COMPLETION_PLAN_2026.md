@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.35.0 |
+| Document version | v1.36.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -328,6 +328,15 @@ validation, policy enforcement, and exact identity resolution. Unsupported
 model generation and applied governance/merge effects are never claimed. The
 authority advances to 206 implementations and seven gaps; the full KA suite
 passes 699 tests and all identity/classification gates remain clean.
+
+CP18-C Batch 11 passed on 2026-07-25 for the final seven missing capabilities:
+access control, encryption admission, key governance, threat detection,
+vulnerability-result qualification, incident-response planning, and bounded
+external deep-research invocation. The authority now reports all 213 canonical
+capabilities with 213 unique implementation owners and zero implementation
+gaps. The full KA suite passes 721 tests. This closes the 81 CP18-A/CP18-B
+implementation gaps but does not yet close remaining pre-existing surface,
+effect-service, dynamic workflow, or installed release qualification.
 
 ## 1. Purpose
 
@@ -4079,9 +4088,9 @@ artifact rather than against a known-incomplete subsystem.
   record.
 
 **Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batches 01
-through 10 also passed: 11 existing implementations were made honest and 74
+through 11 also passed: 11 existing implementations were made honest and all 81
 preserved capabilities were restored as distinct production sources. The
-authority now reports 206 implementations and seven gaps with 699 KA tests passing
+authority now reports 213 implementations and zero gaps with 721 KA tests passing
 and no duplicate, unclassified, or static-honesty finding. The approved
 capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
@@ -4504,8 +4513,8 @@ exit gate.
 ## 33. Immediate next action
 
 Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
-01-10 have qualified 11 existing implementations and restored 74 gaps; qualify
-the remaining existing implementations and build the seven explicit gaps
+01-11 have qualified 11 existing implementations and restored all 81 gaps.
+Qualify the remaining pre-existing implementations and authoritative effect paths
 in validated batches. Replace every placeholder, metadata-only facade, mock/simulated
 operation, weak or unrecorded random default, and false success with bounded
 typed production behavior or an honest prerequisite failure through an

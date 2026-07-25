@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "4e435f4368552510b50c04cb69b0b7b5baf68a9b5e179ff532a7b58bcb3341dc",
+  "source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 206,
-    "implementation_required_proposals": 7,
+    "existing_implementation_proposals": 213,
+    "implementation_required_proposals": 0,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 206,
+    "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 168,
-    "canonical_with_named_test_function": 165
+    "canonical_with_test_reference": 175,
+    "canonical_with_named_test_function": 172
   },
   "canonical_capabilities": [
     {
@@ -318,6 +318,13 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_180_encryption_manager_admits_metadata_only_crypto_request",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_181_key_management_proposes_rotation_without_returning_key_material",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_183_vulnerability_scanning_blocks_open_high_finding_without_scanning",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_184_incident_response_builds_ordered_unapplied_plan",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
@@ -2175,6 +2182,7 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
@@ -3195,7 +3203,8 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_178_identity_resolution_merges_only_verified_exact_identifier",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-017",
@@ -3348,6 +3357,11 @@
         "tests/unit/test_trace_viewer_contract.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_180_encryption_manager_admits_metadata_only_crypto_request",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_181_key_management_proposes_rotation_without_returning_key_material",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_183_vulnerability_scanning_blocks_open_high_finding_without_scanning",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_184_incident_response_builds_ordered_unapplied_plan",
         "tests/unit/test_trace_viewer_contract.py::test_trace_bundle_endpoint_returns_aggregate_contract"
       ],
       "phase6_production_metadata": {
@@ -21849,7 +21863,8 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1110_cross_domain_coupling_blocks_unauthorized_critical_link",
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1111_long_horizon_monitor_flags_recurring_undeclared_goal",
-        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason"
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1112_self_introspection_reports_missing_override_reason",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-111",
@@ -22293,10 +22308,10 @@
       "name": "External Deep Research Invocation",
       "purpose": "Invoke bounded Deep Research provider and return evidence packet",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Sub-question",
         "policy",
@@ -22409,20 +22424,33 @@
         "design-v1:KA-114"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA1114ExternalDeepResearchInvocation",
+          "KA1114Input"
+        ],
+        "nonblank_noncomment_loc": 77,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-112",
@@ -24711,10 +24739,10 @@
       "name": "Access Control",
       "purpose": "Functional logic for Access Control",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_179_access_control.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24763,30 +24791,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_179_access_control.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "AccessRule",
+          "KA179AccessControl",
+          "KA179Input"
+        ],
+        "nonblank_noncomment_loc": 89,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-180",
       "name": "Encryption Manager",
       "purpose": "Functional logic for Encryption Manager",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24835,30 +24877,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "EncryptionRequest",
+          "KA180EncryptionManager",
+          "KA180Input"
+        ],
+        "nonblank_noncomment_loc": 82,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_180_encryption_manager_admits_metadata_only_crypto_request"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-181",
       "name": "Key Management",
       "purpose": "Functional logic for Key Management",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_181_key_management.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24907,30 +24963,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_181_key_management.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA181Input",
+          "KA181KeyManagement",
+          "KeyRecord"
+        ],
+        "nonblank_noncomment_loc": 71,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_181_key_management_proposes_rotation_without_returning_key_material"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-182",
       "name": "Threat Detection",
       "purpose": "Functional logic for Threat Detection",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_182_threat_detection.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -24979,30 +25049,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_182_threat_detection.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA182Input",
+          "KA182ThreatDetection",
+          "ThreatSignal"
+        ],
+        "nonblank_noncomment_loc": 78,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-183",
       "name": "Vulnerability Scanning",
       "purpose": "Functional logic for Vulnerability Scanning",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -25051,30 +25135,44 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "KA183Input",
+          "KA183VulnerabilityScanning",
+          "VulnerabilityFinding"
+        ],
+        "nonblank_noncomment_loc": 77,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_183_vulnerability_scanning_blocks_open_high_finding_without_scanning"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-184",
       "name": "Incident Response",
       "purpose": "Functional logic for Incident Response",
       "identity_class": "preserved_generated_named_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_184_incident_response.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
       "output_descriptions": [],
       "categories": [
@@ -25123,20 +25221,34 @@
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_184_incident_response.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run"
+        ],
+        "classes": [
+          "IncidentRecord",
+          "KA184IncidentResponse",
+          "KA184Input"
+        ],
+        "nonblank_noncomment_loc": 88,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_184_incident_response_builds_ordered_unapplied_plan"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-Master",

@@ -17,7 +17,7 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.35.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.36.0 |
 | Completed phase | Object-store Replacement Control; SeaweedFS selected for rebuilt installed qualification |
 | Current phase | Phase 18 Knowledge Algorithm production completion; CP18-C active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -135,6 +135,13 @@ translation evidence, paraphrase selection, style, topics, keywords,
 explanations, security auditing, governance validation, policy enforcement, and
 exact identity resolution. The authority is now 206 implementations/seven gaps
 and the KA suite is 699 passed.
+
+CP18-C Batch 11 passed for the final seven missing KAs: access control,
+encryption admission, key governance, threat detection, vulnerability-result
+qualification, incident-response planning, and bounded external research. All
+213 canonical capabilities now have unique implementation owners, zero
+implementation gaps remain, and the KA suite is 721 passed. Remaining
+pre-existing/effect integration qualification keeps CP18-C active.
 
 Baseline evidence:
 `reports/production-readiness/2026/phase-18/baseline-and-plan.md`.
@@ -754,9 +761,9 @@ replacement. See
 ## Exact next action
 
 1. Continue Phase 18 CP18-C against the approved 213-capability manifest:
-   Batches 01-10 qualified 11 existing implementations and restored 74
-   missing capabilities; qualify the remaining existing implementations and
-   build the seven explicit gaps in semantic batches
+   Batches 01-11 qualified 11 existing implementations and restored all 81
+   missing capabilities; qualify the remaining pre-existing implementations
+   and authoritative effect paths in semantic batches
    with strict schemas, limits, failure behavior, and authoritative
    effect/service integration.
 2. Preserve canonical IDs and behavior until parity proof permits each
