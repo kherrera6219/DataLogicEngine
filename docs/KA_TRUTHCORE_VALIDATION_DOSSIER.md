@@ -192,6 +192,9 @@ Batch 05 adds ten lifecycle-governance KAs and advances the authority to 164
 implementations/49 gaps and 567 passing KA tests. Provenance remains distinct
 from lineage, privacy output excludes declared non-public values, and all
 mutation-oriented results remain unapplied proposals.
+Batch 06 adds eight policy/release KAs and advances the authority to 172
+implementations/41 gaps and 592 passing KA tests without changing the release
+decision.
 Installed OpenAI and Google rows, blinded human sample,
 independent reviewer, exact release-registry binding, packaged interpretation,
 and owner release approval also remain open. Production/public release is

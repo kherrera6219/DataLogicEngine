@@ -1,0 +1,70 @@
+{
+  "schema_version": "dle.phase18.cp18c.implementation-qualification.v1",
+  "checkpoint": "CP18-C",
+  "batch": "06-policy-release",
+  "evaluated_at": "2026-07-25",
+  "status": "pass",
+  "release_decision": "no-go",
+  "implemented_capabilities": [
+    "KA-1089",
+    "KA-1090",
+    "KA-1091",
+    "KA-1092",
+    "KA-1093",
+    "KA-1094",
+    "KA-1095",
+    "KA-1096"
+  ],
+  "authority": {
+    "canonical_capabilities": 213,
+    "existing_implementations": 172,
+    "implementation_required": 41,
+    "implementation_delta": 8,
+    "semantic_duplicate_aliases": 1,
+    "unresolved_semantic_duplicate_candidates": 0,
+    "exact_canonical_collisions": 0,
+    "unclassified_surfaces": 0
+  },
+  "proof": {
+    "individually_named_semantic_tests": 8,
+    "unique_implementation_owner_tests": 1,
+    "implemented_capabilities_with_named_tests": 130,
+    "knowledge_algorithm_suite": {
+      "passed": 592,
+      "failed": 0,
+      "warnings": 3
+    },
+    "focused_batch_tests": {
+      "passed": 9,
+      "failed": 0
+    },
+    "generic_contract_cases": {
+      "passed": 16,
+      "failed": 0
+    },
+    "python_sdk_tests": {
+      "passed": 34,
+      "failed": 0
+    },
+    "typescript_sdk_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "ruff_changed_files": "pass",
+    "capability_inventory": "pass",
+    "runtime_authority": "pass",
+    "generated_manifest_parity": "pass"
+  },
+  "production_controls": [
+    "Policy evolution compares declared versioned requirements without legal interpretation.",
+    "Compliance regression is distinct from a current-state compliance check.",
+    "Archive, quarantine, trust, human-review, and release outputs remain unapplied proposals.",
+    "Dependency impact reports graph reachability rather than contradiction propagation or causal severity.",
+    "All eight canonical IDs have one unique source owner and no unscoped alias."
+  ],
+  "open_work": [
+    "Build and qualify the remaining 41 missing canonical implementations.",
+    "Qualify remaining legacy implementation surfaces and effect-service integration.",
+    "Complete CP18-D through CP18-H before rebuilding or releasing."
+  ]
+}

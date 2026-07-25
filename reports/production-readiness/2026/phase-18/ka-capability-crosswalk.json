@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "104aad06a16c8519d6a6bdd63532d1e10319fb84c324c94c548e4b13468a7214",
+  "source_input_sha256": "2b06acd41e08ed09e7d1343d9f79388efe0f987ffd17cb8e47d404519baf775f",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -26,8 +26,8 @@
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
-    "existing_implementation_proposals": 164,
-    "implementation_required_proposals": 49,
+    "existing_implementation_proposals": 172,
+    "implementation_required_proposals": 41,
     "phase6_production_enabled": 11,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
@@ -39,13 +39,13 @@
     "exact_canonical_name_collisions": 0,
     "exact_canonical_purpose_collisions": 0,
     "exact_canonical_contract_collisions": 0,
-    "implementation_surfaces": 164,
+    "implementation_surfaces": 172,
     "unclassified_implementation_surfaces": 0,
     "integration_surfaces": 135,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 127,
-    "canonical_with_named_test_function": 122
+    "canonical_with_test_reference": 135,
+    "canonical_with_named_test_function": 130
   },
   "canonical_capabilities": [
     {
@@ -272,6 +272,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1092_dependency_auditor_traces_bounded_downstream_impact",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1093_trust_decay_applies_declared_half_life_without_update",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -1932,6 +1940,14 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1092_dependency_auditor_traces_bounded_downstream_impact",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1093_trust_decay_applies_declared_half_life_without_update",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1036_pareto_optimization_returns_only_non_dominated_options",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1038_cross_modal_synthesis_preserves_source_provenance",
@@ -17281,7 +17297,8 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1082_confidence_drift_monitor_flags_declared_degradation",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
-        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions"
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-108",
@@ -18522,10 +18539,10 @@
       "name": "Policy Evolution Tracker",
       "purpose": "Track changes in laws/policies/standards",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1089_policy_evolution_tracker.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Policy updates",
         "feeds"
@@ -18625,20 +18642,37 @@
         "design-v1:KA-089"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1089_policy_evolution_tracker.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_requirement_ids",
+          "validate_versions"
+        ],
+        "classes": [
+          "KA1089Input",
+          "KA1089PolicyEvolutionTracker",
+          "PolicyRequirement",
+          "PolicyVersion"
+        ],
+        "nonblank_noncomment_loc": 107,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-109",
@@ -18720,6 +18754,13 @@
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1092_dependency_auditor_traces_bounded_downstream_impact",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1093_trust_decay_applies_declared_half_life_without_update",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate",
         "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
         "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
       ],
@@ -18745,10 +18786,10 @@
       "name": "Compliance Regression Validator",
       "purpose": "Ensure updates don’t violate compliance baselines",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1090_compliance_regression_validator.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Updated KB",
         "controls"
@@ -18854,30 +18895,45 @@
         "design-v1:KA-090"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1090_compliance_regression_validator.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "ControlResult",
+          "KA1090ComplianceRegressionValidator",
+          "KA1090Input"
+        ],
+        "nonblank_noncomment_loc": 88,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1091",
       "name": "Scenario Outcome Archivist",
       "purpose": "Store major simulation outcomes for reuse",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1091_scenario_outcome_archivist.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Final outputs",
         "traces"
@@ -18972,30 +19028,45 @@
         "design-v1:KA-091"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1091_scenario_outcome_archivist.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1091Input",
+          "KA1091ScenarioOutcomeArchivist",
+          "ScenarioOutcome"
+        ],
+        "nonblank_noncomment_loc": 87,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1092",
       "name": "Knowledge Dependency Auditor",
       "purpose": "Audit downstream dependencies of changes",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1092_knowledge_dependency_auditor.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Changed nodes",
         "dependency graph"
@@ -19090,30 +19161,45 @@
         "design-v1:KA-092"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1092_knowledge_dependency_auditor.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_graph"
+        ],
+        "classes": [
+          "DependencyEdge",
+          "KA1092Input",
+          "KA1092KnowledgeDependencyAuditor"
+        ],
+        "nonblank_noncomment_loc": 95,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1092_dependency_auditor_traces_bounded_downstream_impact"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1093",
       "name": "Trust Decay Engine",
       "purpose": "Reduce trust for unused/stale knowledge",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1093_trust_decay_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Usage+time"
       ],
@@ -19206,30 +19292,45 @@
         "design-v1:KA-093"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1093_trust_decay_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_records"
+        ],
+        "classes": [
+          "KA1093Input",
+          "KA1093TrustDecayEngine",
+          "TrustRecord"
+        ],
+        "nonblank_noncomment_loc": 84,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1093_trust_decay_applies_declared_half_life_without_update"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1094",
       "name": "Knowledge Quarantine Engine",
       "purpose": "Isolate suspicious/disputed knowledge",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1094_knowledge_quarantine_engine.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Anomalies",
         "conflicts"
@@ -19334,30 +19435,45 @@
         "design-v1:KA-094"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1094_knowledge_quarantine_engine.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1094Input",
+          "KA1094KnowledgeQuarantineEngine",
+          "QuarantineCandidate"
+        ],
+        "nonblank_noncomment_loc": 83,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1095",
       "name": "Human-in-the-Loop Escalation",
       "purpose": "Escalate uncertain/high-risk cases to humans",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1095_human_in_the_loop_escalation.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Low confidence",
         "high risk"
@@ -19453,30 +19569,45 @@
         "design-v1:KA-095"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1095_human_in_the_loop_escalation.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "EscalationCase",
+          "KA1095HumanInTheLoopEscalation",
+          "KA1095Input"
+        ],
+        "nonblank_noncomment_loc": 91,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1096",
       "name": "Knowledge Release Manager",
       "purpose": "Stage and control when new knowledge becomes active",
       "identity_class": "restored_original_design_capability",
-      "implementation": null,
-      "implementation_status": "implementation_required",
+      "implementation": "backend/knowledge_algorithms/ka_1096_knowledge_release_manager.py",
+      "implementation_status": "restored_implementation_requires_qualification",
       "effect_class": "effect_oriented_review_required",
-      "contract_status": "phase18_b_implementation_and_schema_required",
+      "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [
         "Approved updates"
       ],
@@ -19571,20 +19702,35 @@
         "design-v1:KA-096"
       ],
       "implementation_analysis": {
-        "path": null,
-        "exists": false,
-        "has_run": false,
-        "nonblank_noncomment_loc": 0,
-        "signals": [
-          "implementation_required"
-        ]
+        "path": "backend/knowledge_algorithms/ka_1096_knowledge_release_manager.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_run_logic",
+          "run",
+          "validate_ids"
+        ],
+        "classes": [
+          "KA1096Input",
+          "KA1096KnowledgeReleaseManager",
+          "KnowledgeReleaseCandidate"
+        ],
+        "nonblank_noncomment_loc": 89,
+        "signals": [],
+        "imports_celery": false
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate"
+      ],
       "phase6_production_metadata": null,
-      "phase18_status": "implementation_required"
+      "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "KA-1097",

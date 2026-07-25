@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.30.0 |
+| Document version | v1.31.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -288,6 +288,13 @@ has one unique source owner. No capability fabricates telemetry or claims an
 unapplied graph, schedule, tier, or lifecycle mutation. The authority advances
 to 164 implementations and 49 gaps; the full KA suite passes 567 tests and all
 identity/classification gates remain clean.
+
+CP18-C Batch 06 passed on 2026-07-25 for eight policy/release capabilities:
+policy evolution, compliance regression, scenario archive planning, dependency
+impact, trust decay, quarantine admission, human escalation, and release
+staging. Every effect-oriented result remains an unapplied proposal. The
+authority advances to 172 implementations and 41 gaps; the full KA suite passes
+592 tests and all identity/classification gates remain clean.
 
 ## 1. Purpose
 
@@ -4039,9 +4046,9 @@ artifact rather than against a known-incomplete subsystem.
   record.
 
 **Checkpoint status 2026-07-25:** CP18-A and CP18-B passed. CP18-C Batches 01
-through 05 also passed: 11 existing implementations were made honest and 32
+through 06 also passed: 11 existing implementations were made honest and 40
 preserved capabilities were restored as distinct production sources. The
-authority now reports 164 implementations and 49 gaps with 567 KA tests passing
+authority now reports 172 implementations and 41 gaps with 592 KA tests passing
 and no duplicate, unclassified, or static-honesty finding. The approved
 capability authority is
 `reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json`.
@@ -4049,7 +4056,7 @@ capability authority is
 `scripts/verify_ka_runtime_authority.py` enforce the deduplicated identity and
 single-runtime boundaries. Batch evidence is under
 `reports/production-readiness/2026/phase-18/`, including
-`cp18-c-batch-05-lifecycle-governance.json`.
+`cp18-c-batch-06-policy-release.json`.
 CP18-C is active; CP18-C through CP18-H remain open, and the signed rebuild
 remains blocked.
 
@@ -4464,8 +4471,8 @@ exit gate.
 ## 33. Immediate next action
 
 Continue Phase 18 CP18-C against the approved 213-capability manifest. Batches
-01-05 have qualified 11 existing implementations and restored 32 gaps; qualify
-the remaining existing implementations and build the 49 explicit gaps
+01-06 have qualified 11 existing implementations and restored 40 gaps; qualify
+the remaining existing implementations and build the 41 explicit gaps
 in validated batches. Replace every placeholder, metadata-only facade, mock/simulated
 operation, weak or unrecorded random default, and false success with bounded
 typed production behavior or an honest prerequisite failure through an

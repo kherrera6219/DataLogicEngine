@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 18 CP18-C policy/release Batch 06**: restored eight deterministic
+  capabilities for policy evolution, compliance regression, scenario archive
+  planning, dependency impact, trust decay, quarantine admission, human
+  escalation, and knowledge release staging. All effect-oriented outputs remain
+  unapplied proposals. The authority advances to 172 implementations/41 gaps
+  and the KA suite passes 592 tests.
 - **Phase 18 CP18-C lifecycle-governance Batch 05**: restored ten deterministic
   capabilities for evidence provenance, privacy transformation, representation
   reweighting, graph-pruning proposals, importance scoring, memory tiering,

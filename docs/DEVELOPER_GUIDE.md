@@ -167,6 +167,11 @@ privacy, scoring, drift, and usage algorithms observational; keep graph,
 schedule, tier, and lifecycle outputs as owning-service proposals. The
 authority is 164 implementations and 49 gaps; the KA suite is 567 passed.
 
+CP18-C Batch 06 restores eight policy/release KAs. Policy and compliance
+algorithms compare declared versions/results; archive, trust, quarantine,
+review, and release outputs remain owning-service proposals. The authority is
+172 implementations and 41 gaps; the KA suite is 592 passed.
+
 Run both `python scripts/verify_ka_capability_inventory.py` and
 `python scripts/verify_ka_runtime_authority.py` after any manifest, controller,
 adapter, SDK catalog, or KA identity change. These gates reject duplicate
