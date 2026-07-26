@@ -11,6 +11,7 @@ from collections.abc import Callable
 from contextlib import suppress
 from contextvars import ContextVar
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Any
 
 from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
@@ -20,10 +21,16 @@ from backend.governed_execution.contracts import (
     GovernedFailure,
     GovernedFailureKind,
     GovernedMode,
+    GovernedPolicyDecision,
     GovernedRequest,
     GovernedResult,
     GovernedStage,
     GovernedStageStatus,
+)
+from backend.governed_execution.knowledge_lifecycle import (
+    KnowledgeLifecycleCoordinator,
+    KnowledgeLifecycleError,
+    LifecycleTransitionPublisher,
 )
 from backend.governed_execution.prompt import build_refinement_messages
 from backend.governed_execution.quality import (
@@ -62,6 +69,8 @@ class GovernedExecutionOrchestrator:
         truthcore: TruthCoreDMRFAdapter | None = None,
         rag_service: Any | None = None,
         event_sink: Callable[[str, dict[str, Any]], None] | None = None,
+        knowledge_lifecycle: KnowledgeLifecycleCoordinator | None = None,
+        transition_publisher: LifecycleTransitionPublisher | None = None,
     ) -> None:
         self.gateway = gateway
         self.dmrf_factory = dmrf_factory
@@ -72,6 +81,12 @@ class GovernedExecutionOrchestrator:
         self.layer_stages = GovernedTenLayerStages(self.truthcore)
         self.refinement_workflow = CanonicalRefinementWorkflow(
             ka_controller=self.layer_stages.ka_controller
+        )
+        self.knowledge_lifecycle = knowledge_lifecycle or KnowledgeLifecycleCoordinator(
+            ka_controller=self.layer_stages.ka_controller
+        )
+        self.transition_publisher = (
+            transition_publisher or LifecycleTransitionPublisher()
         )
         self.rag_service = rag_service
         self.event_sink = event_sink
@@ -183,13 +198,13 @@ class GovernedExecutionOrchestrator:
         query = request.query_text()
         decision = self.gateway._governance.prepare_request(request, query)
         context.policy_decisions.append(
-            {
-                "policy_id": "ai_governance_admission",
-                "decision": "allow" if decision.ok else "block",
-                "rationale": decision.error,
-                "flags": decision.governance_flags,
-                "stage": "admission",
-            }
+            GovernedPolicyDecision(
+                policy_id="ai_governance_admission",
+                decision="allow" if decision.ok else "block",
+                rationale=decision.error,
+                flags=list(decision.governance_flags),
+                stage="admission",
+            )
         )
         if not decision.ok:
             self._finish(
@@ -210,6 +225,26 @@ class GovernedExecutionOrchestrator:
 
         context.query = decision.query
         self._apply_governance_decision(request, decision)
+        entry_policy = await self._execute_entry_truthgate(context)
+        if entry_policy.blocked:
+            self._finish(
+                context,
+                admission,
+                GovernedStageStatus.BLOCKED,
+                outputs={
+                    "decision": "block",
+                    "governance_flags": decision.governance_flags,
+                    "truthgate": entry_policy.to_dict(),
+                },
+                error_code="TRUTHGATE_ENTRY_BLOCK",
+            )
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code="TRUTHGATE_ENTRY_BLOCK",
+                message="Request blocked by the canonical entry policy gate",
+                stage="admission",
+            )
         self._finish(
             context,
             admission,
@@ -218,6 +253,7 @@ class GovernedExecutionOrchestrator:
                 "decision": "allow",
                 "governance_flags": decision.governance_flags,
                 "estimated_request_tokens": decision.estimated_request_tokens,
+                "truthgate": entry_policy.to_dict(),
             },
         )
         if self._cancel_requested(request):
@@ -310,14 +346,14 @@ class GovernedExecutionOrchestrator:
             else {}
         )
         context.policy_decisions.append(
-            {
-                "policy_id": "dmrf_truth_gate",
-                "decision": "allow" if dmrf_result.ok else "block",
-                "rationale": gate_result.get("reason")
+            GovernedPolicyDecision(
+                policy_id="dmrf_truth_gate",
+                decision="allow" if dmrf_result.ok else "block",
+                rationale=gate_result.get("reason")
                 or "; ".join(dmrf_result.warnings),
-                "stage": "dmrf_routing",
-                "rule_id": gate_result.get("rule_id"),
-            }
+                stage="dmrf_routing",
+                rule_id=gate_result.get("rule_id"),
+            )
         )
         if not dmrf_result.ok:
             self._finish(
@@ -396,7 +432,9 @@ class GovernedExecutionOrchestrator:
             request,
             context.query,
             rag_service=self.rag_service,
+            memory_service=self.knowledge_lifecycle.memory_service,
         )
+        await self._execute_retrieval_owners(context)
         for item in context.evidence:
             item.bind_to_trace(context.trace_id)
             measure_evidence(item)
@@ -761,6 +799,7 @@ class GovernedExecutionOrchestrator:
                 "available sources. Review the cited evidence or provide additional sources."
             )
 
+        self._stage_memory_proposal(context, result_answer)
         l10_stage = self._begin_layer(
             context,
             "L10",
@@ -795,6 +834,18 @@ class GovernedExecutionOrchestrator:
             provider_result = self.layer_stages.redact_sensitive_value(provider_result)
             validation = self.layer_stages.redact_sensitive_value(validation)
         result_answer = str(l10.outputs.get("released_content") or result_answer)
+        if context.lifecycle_failures:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.INTERNAL_FAILURE,
+                code="LIFECYCLE_PUBLICATION_FAILURE",
+                message="The governed result was not released because lifecycle publication failed",
+                stage=l10_stage.name,
+                details={"failure_count": len(context.lifecycle_failures)},
+            )
+        if context.memory_proposal is not None:
+            context.memory_proposal.content = result_answer
+        await self._qualify_and_commit_memory(context)
 
         result = GovernedResult(
             trace_id=context.trace_id,
@@ -821,6 +872,9 @@ class GovernedExecutionOrchestrator:
             ),
         )
         if not await self._persist(context, result):
+            self.knowledge_lifecycle.rollback_validated_memory(
+                context.memory_proposal
+            )
             self._apply_persistence_failure(context, result)
         if request.session_id and result.ok:
             await self.gateway._save_chat_message(
@@ -927,7 +981,7 @@ class GovernedExecutionOrchestrator:
             },
             iteration=iteration,
         )
-        l8 = self.layer_stages.l8(context)
+        l8 = await self.layer_stages.l8(context)
         self._finish_layer(
             context,
             l8_stage,
@@ -993,6 +1047,511 @@ class GovernedExecutionOrchestrator:
             "convergence": convergence,
             "failure": None,
         }
+
+    async def _execute_entry_truthgate(
+        self,
+        context: GovernedContext,
+    ) -> GovernedPolicyDecision:
+        request = context.request
+        requested_ids = ["KA-022", "KA-172", "KA-174", "KA-176", "KA-177"]
+        sensitive_values = request.metadata.get("sensitive_values")
+        if isinstance(sensitive_values, list) and sensitive_values:
+            requested_ids.append("KA-173")
+        risk_level = str(
+            request.metadata.get("safety_risk_level") or "low"
+        ).lower()
+        if risk_level not in {"low", "medium", "high", "critical"}:
+            risk_level = "critical"
+        inputs = {
+            "KA-022": {
+                "recommendation": context.query or request.query_text(),
+                "impact_scores": dict(
+                    request.metadata.get("impact_scores")
+                    if isinstance(request.metadata.get("impact_scores"), dict)
+                    else {}
+                ),
+            },
+            "KA-172": {
+                "candidates": [
+                    {
+                        "candidate_id": request.request_id,
+                        "risk_level": risk_level,
+                        "hazard_ids": list(
+                            request.metadata.get("hazard_ids")
+                            if isinstance(request.metadata.get("hazard_ids"), list)
+                            else []
+                        ),
+                        "required_safeguard_ids": list(
+                            request.metadata.get("required_safeguard_ids")
+                            if isinstance(
+                                request.metadata.get("required_safeguard_ids"), list
+                            )
+                            else []
+                        ),
+                        "verified_safeguard_ids": list(
+                            request.metadata.get("verified_safeguard_ids")
+                            if isinstance(
+                                request.metadata.get("verified_safeguard_ids"), list
+                            )
+                            else []
+                        ),
+                        "human_reviewed": bool(
+                            request.metadata.get("human_reviewed")
+                        ),
+                    }
+                ]
+            },
+            "KA-173": {
+                "text": context.query or request.query_text(),
+                "sensitive_values": sensitive_values or [],
+            },
+            "KA-174": {
+                "controls": [
+                    {
+                        "control_id": "governed-entry-policy",
+                        "applicability": "applicable",
+                        "implementation_status": "implemented",
+                        "required_evidence_types": ["policy_decision"],
+                        "evidence": {
+                            "policy_decision": ["ai_governance_admission"]
+                        },
+                    }
+                ]
+            },
+            "KA-176": {
+                "decisions": [
+                    {
+                        "decision_id": "ai_governance_admission",
+                        "risk_class": risk_level,
+                        "policy_refs": ["governed.v1"],
+                        "evidence_refs": [context.trace_id],
+                        "approval_roles": [],
+                        "owner_recorded": True,
+                    }
+                ],
+                "required_approval_roles": {},
+            },
+            "KA-177": {
+                "attributes": {"gateway_admitted": True},
+                "rules": [
+                    {
+                        "rule_id": "allow-governed-admission",
+                        "attribute": "gateway_admitted",
+                        "operator": "equals",
+                        "expected": True,
+                        "effect": "allow",
+                    }
+                ],
+                "default_effect": "deny",
+            },
+        }
+        try:
+            execution = await self.knowledge_lifecycle.execute_operation(
+                owner="truthgate",
+                operation="entry",
+                requested_ids=requested_ids,
+                ka_inputs=inputs,
+                request_id=request.request_id,
+                run_id=context.trace_id,
+                session_id=request.session_id,
+                principal_id=request.principal_id,
+                tier="entry",
+                layer="L1",
+                service_capabilities={
+                    "truthgate_policy_service",
+                    "privacy_filter_service",
+                    "policy_decision_service",
+                },
+                deadline_ms=self._remaining_deadline_ms(context),
+            )
+            outputs = {
+                canonical_id: payload.get("output", {})
+                for canonical_id, payload in execution.results.items()
+            }
+            blocked = (
+                any(
+                    row.get("decision") == "block"
+                    for row in outputs.get("KA-172", {}).get("decisions", [])
+                    if isinstance(row, dict)
+                )
+                or outputs.get("KA-174", {}).get(
+                    "all_applicable_controls_pass"
+                )
+                is not True
+                or any(
+                    row.get("valid") is not True
+                    for row in outputs.get("KA-176", {}).get("assessments", [])
+                    if isinstance(row, dict)
+                )
+                or outputs.get("KA-177", {}).get("decision") != "allow"
+            )
+            policy = GovernedPolicyDecision(
+                policy_id="canonical_truthgate_entry",
+                decision="block" if blocked else "allow",
+                rationale=(
+                    "canonical_entry_ka_block"
+                    if blocked
+                    else "canonical_entry_ka_plan_committed"
+                ),
+                stage="admission",
+                flags=(
+                    ["truthgate_entry_ka_block"]
+                    if blocked
+                    else []
+                ),
+                ka_results=execution.results,
+            )
+        except KnowledgeLifecycleError as exc:
+            policy = GovernedPolicyDecision(
+                policy_id="canonical_truthgate_entry",
+                decision="block",
+                rationale=str(exc),
+                stage="admission",
+                flags=["truthgate_entry_execution_failure"],
+            )
+        context.policy_decisions.append(policy)
+        return policy
+
+    async def _execute_retrieval_owners(
+        self,
+        context: GovernedContext,
+    ) -> None:
+        records = [
+            {
+                "id": item.source_id,
+                "content": item.text,
+                "source_type": item.source_type,
+                "score": item.score,
+                "content_hash": item.content_hash,
+            }
+            for item in context.evidence
+        ]
+        first_source = records[0] if records else {
+            "id": "no-source",
+            "source_type": "none",
+            "content_hash": None,
+        }
+        execution = await self.knowledge_lifecycle.execute_operation(
+            owner="retrieval_graph_memory",
+            operation="retrieval",
+            requested_ids=["KA-018", "KA-079"],
+            ka_inputs={
+                "KA-018": {"source_metadata": first_source},
+                "KA-079": {
+                    "query": context.query,
+                    "records": records,
+                    "max_results": len(records) or 1,
+                },
+            },
+            request_id=context.request.request_id,
+            run_id=context.trace_id,
+            session_id=context.request.session_id,
+            principal_id=context.request.principal_id,
+            tier=context.reasoning.tier,
+            layer="L2",
+            service_capabilities={
+                "authorized_retrieval_service",
+                "provenance_service",
+            },
+            deadline_ms=self._remaining_deadline_ms(context),
+        )
+        retrieval_output = execution.results.get("KA-079", {}).get("output", {})
+        ranked_ids = [
+            str(row.get("id"))
+            for row in retrieval_output.get("results", [])
+            if isinstance(row, dict) and row.get("id")
+        ]
+        rank = {source_id: index for index, source_id in enumerate(ranked_ids)}
+        context.evidence.sort(
+            key=lambda item: (
+                rank.get(item.source_id, len(rank)),
+                -(item.score or 0.0),
+                item.source_id,
+            )
+        )
+        for index, item in enumerate(context.evidence, start=1):
+            item.citation_label = f"S{index}"
+        context.request.metadata.setdefault("_knowledge_lifecycle", {})[
+            "retrieval"
+        ] = execution.to_dict()
+        context.request.metadata.setdefault("_retrieval_decisions", []).append(
+            {
+                "disposition": "selected",
+                "reason": "canonical_ka_retrieval_order",
+                "ka_id": "KA-079",
+                "ranked_source_ids": ranked_ids,
+            }
+        )
+
+    def _stage_memory_proposal(
+        self,
+        context: GovernedContext,
+        content: str,
+    ) -> None:
+        if not context.request.session_id:
+            return
+        context.memory_proposal = self.knowledge_lifecycle.stage_validated_memory(
+            content=content,
+            session_id=context.request.session_id,
+            source_run_id=context.trace_id,
+            source_ids=[item.source_id for item in context.evidence],
+            owner_user_id=context.request.user_id,
+            principal_id=context.request.principal_id,
+            tenant_id=(
+                str(context.request.metadata.get("tenant_id"))
+                if context.request.metadata.get("tenant_id") is not None
+                else None
+            ),
+        )
+
+    async def _qualify_and_commit_memory(
+        self,
+        context: GovernedContext,
+    ) -> None:
+        proposal = context.memory_proposal
+        if proposal is None:
+            return
+        confidence = (
+            context.confidence_measurement.value
+            if context.confidence_measurement
+            and context.confidence_measurement.value is not None
+            else 0.0
+        )
+        contradiction_count = sum(
+            claim.status == "contradicted" for claim in context.claims
+        )
+        knowledge_id = context.trace_id
+        snapshot = {
+            "nodes": [
+                {
+                    "id": knowledge_id,
+                    "confidence": confidence,
+                    "content_hash": (
+                        sha256(
+                            context.reasoning.candidate.encode("utf-8")
+                        ).hexdigest()
+                        if context.reasoning.candidate
+                        else None
+                    ),
+                }
+            ],
+            "edges": [],
+        }
+        provenance_nodes = [
+            {
+                "node_id": f"source-{index}",
+                "node_type": "source",
+                "source_ref": item.source_id,
+                "content_sha256": item.content_hash,
+            }
+            for index, item in enumerate(context.evidence, start=1)
+        ]
+        if provenance_nodes:
+            provenance_nodes.append(
+                {
+                    "node_id": "released-knowledge",
+                    "node_type": "claim",
+                    "source_ref": knowledge_id,
+                    "parent_node_ids": [
+                        item["node_id"] for item in provenance_nodes
+                    ],
+                }
+            )
+        else:
+            provenance_nodes.append(
+                {
+                    "node_id": "request-source",
+                    "node_type": "source",
+                    "source_ref": context.request.source,
+                }
+            )
+        risk_class = str(
+            context.request.metadata.get("safety_risk_level") or "low"
+        ).lower()
+        if risk_class not in {"low", "medium", "high", "critical"}:
+            risk_class = "critical"
+        evidence_inputs = [
+            {
+                "source": item.source_type,
+                "source_id": item.source_id,
+                "content_hash": item.content_hash,
+            }
+            for item in context.evidence
+        ]
+        candidate = str(context.reasoning.candidate or proposal.content)
+        inputs = {
+            "KA-004": {"query": context.query},
+            "KA-005": {"query": context.query},
+            "KA-018": {
+                "source_metadata": (
+                    evidence_inputs[0]
+                    if evidence_inputs
+                    else {"source": context.request.source}
+                )
+            },
+            "KA-022": {
+                "recommendation": candidate,
+                "impact_scores": {"governed_risk": 0.0},
+            },
+            "KA-024": {"confidence": confidence, "risk_score": 0.0},
+            "KA-062": {"evidence": evidence_inputs},
+            "KA-065": {"snapshot": snapshot, "baseline": snapshot},
+            "KA-1071": {
+                "knowledge_id": knowledge_id,
+                "nodes": provenance_nodes,
+            },
+            "KA-1074": {
+                "fields": [
+                    {
+                        "field_id": "released_knowledge",
+                        "value": candidate,
+                        "classification": "public",
+                        "strategy": "retain",
+                    }
+                ]
+            },
+            "KA-1094": {
+                "candidates": [
+                    {
+                        "knowledge_id": knowledge_id,
+                        "validation_status": "validated",
+                        "confidence": confidence,
+                        "contradiction_count": contradiction_count,
+                        "integrity_valid": True,
+                        "provenance_complete": bool(context.evidence),
+                    }
+                ]
+            },
+            "KA-1107": {
+                "planned_steps": [
+                    {
+                        "step_id": "validated-memory-release",
+                        "capability_id": "KA-1096",
+                        "layer": "L10",
+                        "query_class": "knowledge_release",
+                    }
+                ],
+                "allowed_capability_ids": ["KA-1096"],
+                "allowed_layers": ["L10"],
+                "allowed_query_classes": ["knowledge_release"],
+            },
+            "KA-1109": {
+                "candidates": [
+                    {
+                        "knowledge_id": knowledge_id,
+                        "declared_sensitivity": "public",
+                        "contains_personal_data": False,
+                        "consent_verified": True,
+                        "redistribution_allowed": True,
+                        "risk_signals": [],
+                    }
+                ]
+            },
+            "KA-1079": {
+                "knowledge_id": knowledge_id,
+                "validation_status": "validated",
+                "confidence": confidence,
+                "evidence_count": len(context.evidence),
+                "citation_count": len(context.citations),
+                "contradiction_count": contradiction_count,
+                "provenance_complete": bool(context.evidence),
+                "risk_class": risk_class,
+            },
+            "KA-1096": {
+                "candidates": [
+                    {
+                        "release_id": f"release-{knowledge_id}",
+                        "knowledge_version_ids": [knowledge_id],
+                        "validation_status": "passed",
+                        "required_approvals": 0,
+                        "recorded_approvals": 0,
+                        "dependencies_ready": True,
+                        "rollback_plan_ref": f"rollback-{knowledge_id}",
+                        "rollout_percent": 100,
+                    }
+                ]
+            },
+            "KA-117": {"snapshot": snapshot},
+        }
+        try:
+            execution = await self.knowledge_lifecycle.execute_operation(
+                owner="truthmemory_truthlink_frost",
+                operation="release",
+                requested_ids=["KA-1096"],
+                ka_inputs=inputs,
+                request_id=context.request.request_id,
+                run_id=context.trace_id,
+                session_id=context.request.session_id,
+                principal_id=context.request.principal_id,
+                tier=context.reasoning.tier,
+                layer="L10",
+                service_capabilities={"knowledge_lifecycle_service"},
+                deadline_ms=self._remaining_deadline_ms(context),
+            )
+        except KnowledgeLifecycleError as exc:
+            proposal.state = "qualification_failed"
+            proposal.receipt = {
+                "service": "KnowledgeLifecycleCoordinator",
+                "status": "failed",
+                "error_type": type(exc).__name__,
+            }
+            context.warnings.append("validated_memory_qualification_failed")
+            return
+        context.request.metadata.setdefault("_knowledge_lifecycle", {})[
+            "release"
+        ] = execution.to_dict()
+        outputs = {
+            canonical_id: payload.get("output", {})
+            for canonical_id, payload in execution.results.items()
+        }
+        quarantine = any(
+            item.get("decision") == "quarantine"
+            for item in outputs.get("KA-1094", {}).get("decisions", [])
+            if isinstance(item, dict)
+        )
+        never_persist = any(
+            item.get("containment_class") == "never_persist"
+            for item in outputs.get("KA-1109", {}).get("decisions", [])
+            if isinstance(item, dict)
+        )
+        promotion = outputs.get("KA-1079", {}).get("decision")
+        release_staged = all(
+            item.get("decision") == "stage"
+            for item in outputs.get("KA-1096", {}).get("release_plans", [])
+            if isinstance(item, dict)
+        )
+        if (
+            quarantine
+            or never_persist
+            or promotion != "approve"
+            or not release_staged
+        ):
+            proposal.state = (
+                "quarantined" if quarantine or never_persist else "not_promoted"
+            )
+            proposal.receipt = {
+                "service": "KnowledgeLifecycleCoordinator",
+                "status": proposal.state,
+                "promotion_decision": promotion,
+                "release_staged": release_staged,
+            }
+            return
+        self.knowledge_lifecycle.commit_validated_memory(proposal)
+
+    @staticmethod
+    def _remaining_deadline_ms(context: GovernedContext) -> int:
+        if context.deadline_at_monotonic is None:
+            return 20_000
+        return max(
+            1,
+            min(
+                20_000,
+                int(
+                    (context.deadline_at_monotonic - time.monotonic())
+                    * 1000
+                ),
+            ),
+        )
 
     async def _execute_provider(
         self,
@@ -1387,6 +1946,7 @@ class GovernedExecutionOrchestrator:
                 "No matching local sources were retrieved."
             )
         context.reasoning.candidate = answer
+        self._stage_memory_proposal(context, answer)
         l10_stage = self._begin_layer(
             context,
             "L10",
@@ -1416,12 +1976,33 @@ class GovernedExecutionOrchestrator:
             {"source_ids": [item.source_id for item in context.evidence]},
         )
         answer = str(l10.outputs.get("released_content") or answer)
+        if context.lifecycle_failures:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.INTERNAL_FAILURE,
+                code="LIFECYCLE_PUBLICATION_FAILURE",
+                message="The local review was not released because lifecycle publication failed",
+                stage=l10_stage.name,
+                details={"failure_count": len(context.lifecycle_failures)},
+            )
+        if context.memory_proposal is not None:
+            context.memory_proposal.content = answer
+        await self._qualify_and_commit_memory(context)
         self._finish(
             context,
             stage,
             GovernedStageStatus.COMPLETED,
             outputs={"provider_called": False, "source_count": len(context.evidence)},
         )
+        if context.lifecycle_failures:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.INTERNAL_FAILURE,
+                code="LIFECYCLE_PUBLICATION_FAILURE",
+                message="The local review was not released because lifecycle publication failed",
+                stage=stage.name,
+                details={"failure_count": len(context.lifecycle_failures)},
+            )
         result = GovernedResult(
             trace_id=context.trace_id,
             ok=True,
@@ -1438,6 +2019,9 @@ class GovernedExecutionOrchestrator:
             metadata=self._metadata(context),
         )
         if not await self._persist(context, result):
+            self.knowledge_lifecycle.rollback_validated_memory(
+                context.memory_proposal
+            )
             self._apply_persistence_failure(context, result)
         return result
 
@@ -1545,7 +2129,9 @@ class GovernedExecutionOrchestrator:
             )
             if not persisted:
                 raise RuntimeError("governed trace transaction did not commit")
-            self._emit(context.trace_id, persistence)
+            self._emit(context, persistence)
+            if context.lifecycle_failures:
+                raise RuntimeError("lifecycle transition publication did not commit")
             result.stages = context.stages
             return True
         except Exception as exc:  # noqa: BLE001 - persistence boundary
@@ -1585,7 +2171,7 @@ class GovernedExecutionOrchestrator:
         inputs: dict[str, Any],
     ) -> GovernedStage:
         stage = context.add_stage(name, stage_type, inputs)
-        self._emit(context.trace_id, stage)
+        self._emit(context, stage)
         return stage
 
     def _begin_layer(
@@ -1629,6 +2215,7 @@ class GovernedExecutionOrchestrator:
             **execution.outputs,
             "ka_plan": execution.ka_plan,
             "selected_ka_ids": execution.selected_ka_ids,
+            "ka_results": execution.ka_results,
         }
         self._finish(
             context,
@@ -1661,10 +2248,35 @@ class GovernedExecutionOrchestrator:
         error_code: str | None = None,
     ) -> None:
         stage.finish(status, outputs=outputs, metrics=metrics, error_code=error_code)
-        self._emit(context.trace_id, stage)
+        self._emit(context, stage)
 
-    def _emit(self, trace_id: str, stage: GovernedStage) -> None:
+    def _emit(self, context: GovernedContext, stage: GovernedStage) -> None:
+        trace_id = context.trace_id
         payload = {"run_id": trace_id, **stage.to_dict()}
+        try:
+            transition = self.transition_publisher.publish_stage(trace_id, stage)
+            context.lifecycle_transitions.append(
+                {
+                    "stage_id": stage.stage_id,
+                    "status": stage.status.value,
+                    **transition,
+                }
+            )
+            if stage.status is not GovernedStageStatus.RUNNING:
+                context.lifecycle_transitions.extend(
+                    self.transition_publisher.publish_ka_results(trace_id, stage)
+                )
+        except Exception as exc:  # noqa: BLE001 - recorded release dependency
+            failure = {
+                "stage_id": stage.stage_id,
+                "stage_name": stage.name,
+                "status": stage.status.value,
+                "error_type": type(exc).__name__,
+            }
+            if failure not in context.lifecycle_failures:
+                context.lifecycle_failures.append(failure)
+            if "lifecycle_transition_publication_failed" not in context.warnings:
+                context.warnings.append("lifecycle_transition_publication_failed")
         if self.event_sink is not None:
             self.event_sink(trace_id, payload)
             return
@@ -1776,7 +2388,19 @@ class GovernedExecutionOrchestrator:
             "dsqp": context.dsqp,
             "truthcore": context.truthcore,
             "reasoning_state": context.reasoning.to_dict(),
-            "policy_decisions": context.policy_decisions,
+            "policy_decisions": [
+                decision.to_dict() for decision in context.policy_decisions
+            ],
+            "knowledge_lifecycle": dict(
+                context.request.metadata.get("_knowledge_lifecycle") or {}
+            ),
+            "lifecycle_transitions": list(context.lifecycle_transitions),
+            "lifecycle_failures": list(context.lifecycle_failures),
+            "memory_lifecycle": (
+                context.memory_proposal.to_dict()
+                if context.memory_proposal is not None
+                else None
+            ),
             "provider_call_count": context.provider_call_count,
             "provider_latency_ms": context.provider_latency_ms,
             "orchestration_overhead_ms": max(

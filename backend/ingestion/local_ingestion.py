@@ -171,6 +171,7 @@ class LocalKnowledgeIngestionService:
         parser_timeout_seconds: int = 60,
         supported_extensions: Iterable[str] | None = None,
         staging_root: str | os.PathLike[str] | None = None,
+        knowledge_lifecycle: Any | None = None,
     ) -> None:
         self.rag_service = rag_service
         self.document_processor = document_processor
@@ -210,6 +211,7 @@ class LocalKnowledgeIngestionService:
             if staging_root is not None
             else None
         )
+        self._knowledge_lifecycle = knowledge_lifecycle
 
     def ingest_path(
         self,
@@ -263,6 +265,13 @@ class LocalKnowledgeIngestionService:
                 len(acquired.files)
                 + len(acquired.rejected)
                 + len(preacquisition_rejected)
+            )
+            self._execute_ingestion_ka_plan(
+                result=result,
+                acquired=acquired,
+                user_id=user_id,
+                tenant_id=tenant_id,
+                job=job,
             )
             self._publish_progress(progress_callback, "acquired", result)
             for rejected in preacquisition_rejected:
@@ -646,7 +655,14 @@ class LocalKnowledgeIngestionService:
             job.completed_at = (
                 datetime.now(UTC) if job.status == "completed" else None
             )
-            job.result_summary = result.to_dict()
+            job.result_summary = {
+                **result.to_dict(),
+                **{
+                    key: value
+                    for key, value in dict(job.result_summary or {}).items()
+                    if key.startswith("_")
+                },
+            }
             attempt.status = "completed"
             attempt.checkpoint = job.current_checkpoint
             attempt.completed_at = datetime.now(UTC)
@@ -665,6 +681,69 @@ class LocalKnowledgeIngestionService:
             raise
         finally:
             acquisition.cleanup()
+
+    def _execute_ingestion_ka_plan(
+        self,
+        *,
+        result: IngestionResult,
+        acquired: Any,
+        user_id: int | None,
+        tenant_id: str | None,
+        job: Any,
+    ) -> None:
+        """Admit KA-071..078 before any SQL/vector/graph/object materialization."""
+        if self._knowledge_lifecycle is None:
+            from backend.governed_execution.knowledge_lifecycle import (
+                KnowledgeLifecycleCoordinator,
+            )
+
+            self._knowledge_lifecycle = KnowledgeLifecycleCoordinator()
+        records = [
+            {
+                "record_id": item.relative_path,
+                "relative_path": item.relative_path,
+                "source_sha256": item.sha256,
+                "size_bytes": item.size_bytes,
+                "detected_type": item.detected_type,
+            }
+            for item in acquired.files
+        ]
+        execution = self._knowledge_lifecycle.execute_operation_sync(
+            owner="ingestion",
+            operation="secure_pipeline",
+            requested_ids=["KA-078"],
+            ka_inputs={
+                "KA-071": {
+                    "source_type": "local_file",
+                    "payload": records,
+                },
+                "KA-072": {"records": records},
+                "KA-073": {"records": records},
+                "KA-074": {"records": records},
+                "KA-075": {
+                    "records": records,
+                    "target_schema": "knowledge_source",
+                },
+                "KA-076": {"records": records},
+                "KA-077": {"records": records},
+                "KA-078": {
+                    "record_ids": [
+                        str(item["record_id"]) for item in records
+                    ]
+                },
+            },
+            request_id=result.ingestion_id,
+            run_id=result.ingestion_id,
+            principal_id=(str(user_id) if user_id is not None else "desktop"),
+            tier="ingestion",
+            layer="data",
+            service_capabilities={"ingestion_service"},
+            deadline_ms=20_000,
+        )
+        summary = dict(job.result_summary or {})
+        summary["_ka_lifecycle"] = execution.to_dict()
+        job.result_summary = summary
+        job.current_checkpoint = "ka_admitted"
 
     @staticmethod
     def _raise_if_controlled(

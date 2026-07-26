@@ -3,12 +3,12 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19g.1",
-  "status": "cp19_g_refinement_authority",
+  "manifest_version": "2026.07.25-cp19h.1",
+  "status": "cp19_h_truth_data_knowledge_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
+    "crosswalk_source_input_sha256": "993d360ccfcece3297ee84781176012c71dd7aef092c515ccaf3524c5bb991fa",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id",
@@ -21,10 +21,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "KA-117": {
         "dependencies": [
-          "KA-065",
-          "KA-1094"
+          "KA-065"
         ],
-        "rationale": "Knowledge integrity consumes regression and contradiction evidence before persistence; the system-wide auditor is downstream."
+        "rationale": "Knowledge integrity consumes regression results before any quarantine or promotion decision."
       },
       "KA-1099": {
         "dependencies": [
@@ -106,17 +105,173 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       "KA-003": {
         "dependencies": [],
         "rationale": "Gap analysis compares committed current and desired state before synthesis and does not consume an ensemble result."
+      },
+      "KA-072": {
+        "dependencies": [
+          "KA-071"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-073": {
+        "dependencies": [
+          "KA-072"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-074": {
+        "dependencies": [
+          "KA-073"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-075": {
+        "dependencies": [
+          "KA-074"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-076": {
+        "dependencies": [
+          "KA-075"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-077": {
+        "dependencies": [
+          "KA-076"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-078": {
+        "dependencies": [
+          "KA-077"
+        ],
+        "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+      },
+      "KA-010": {
+        "dependencies": [],
+        "rationale": "Content bias scanning is self-contained; population disparity analysis remains a separate conditional cohort decision."
+      },
+      "KA-1071": {
+        "dependencies": [
+          "KA-018"
+        ],
+        "rationale": "Knowledge provenance tracking consumes the source provenance observation before lifecycle publication."
+      },
+      "KA-1094": {
+        "dependencies": [
+          "KA-117",
+          "KA-1071"
+        ],
+        "rationale": "Quarantine admission consumes committed integrity and provenance results and remains a proposal to the knowledge lifecycle service."
+      },
+      "KA-1109": {
+        "dependencies": [
+          "KA-024",
+          "KA-1074"
+        ],
+        "rationale": "Containment classification consumes the shared trust and privacy policy decisions before proposing an effect."
+      },
+      "KA-1079": {
+        "dependencies": [
+          "KA-117",
+          "KA-1094",
+          "KA-1109"
+        ],
+        "rationale": "Promotion is evaluated only after integrity, quarantine, and containment decisions have committed."
+      },
+      "KA-1096": {
+        "dependencies": [
+          "KA-1079"
+        ],
+        "rationale": "Knowledge release staging consumes the promotion decision and cannot release independently."
+      },
+      "KA-1107": {
+        "dependencies": [
+          "KA-004",
+          "KA-005"
+        ],
+        "rationale": "Reasoning-boundary enforcement consumes normalized input and classification; simulation cost is not an entry-policy prerequisite."
+      },
+      "KA-1108": {
+        "dependencies": [
+          "KA-1112"
+        ],
+        "rationale": "Capability escalation consumes the system-introspection record; experimental emergence research is not a production prerequisite."
       }
     },
-    "production_admission_checkpoint": "CP19-G",
+    "production_admission_checkpoint": "CP19-H",
     "production_admission_ids": [
       "KA-003",
       "KA-005",
+      "KA-010",
       "KA-011",
       "KA-012",
       "KA-013",
+      "KA-016",
+      "KA-017",
+      "KA-018",
+      "KA-022",
+      "KA-023",
+      "KA-024",
       "KA-025",
+      "KA-027",
       "KA-030",
+      "KA-052",
+      "KA-053",
+      "KA-062",
+      "KA-064",
+      "KA-065",
+      "KA-071",
+      "KA-072",
+      "KA-073",
+      "KA-074",
+      "KA-075",
+      "KA-076",
+      "KA-077",
+      "KA-078",
+      "KA-079",
+      "KA-080",
+      "KA-1039",
+      "KA-1040",
+      "KA-1043",
+      "KA-1045",
+      "KA-1046",
+      "KA-1048",
+      "KA-1049",
+      "KA-1071",
+      "KA-1074",
+      "KA-1076",
+      "KA-1077",
+      "KA-1078",
+      "KA-1079",
+      "KA-1082",
+      "KA-1083",
+      "KA-1086",
+      "KA-1088",
+      "KA-1089",
+      "KA-1090",
+      "KA-1092",
+      "KA-1093",
+      "KA-1094",
+      "KA-1095",
+      "KA-1096",
+      "KA-1099",
+      "KA-1104",
+      "KA-1105",
+      "KA-1107",
+      "KA-1108",
+      "KA-1109",
+      "KA-1110",
+      "KA-1111",
+      "KA-1112",
+      "KA-117",
+      "KA-169",
+      "KA-172",
+      "KA-173",
+      "KA-174",
+      "KA-176",
+      "KA-177",
       "L10-KA-001",
       "L10-KA-002",
       "L10-KA-003",
@@ -276,6 +431,97 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "execution_policy": "proposal_only"
         }
       ]
+    },
+    "subsystem_execution_registry": {
+      "schema_version": "dle.ka-subsystem-registry.v1",
+      "registry_version": "2026.07.25-cp19h.1",
+      "owners": {
+        "truthgate": {
+          "entry": [
+            "KA-022",
+            "KA-172",
+            "KA-173",
+            "KA-174",
+            "KA-176",
+            "KA-177"
+          ],
+          "layer_8": [
+            "KA-010",
+            "KA-016",
+            "KA-024",
+            "KA-027",
+            "KA-1045",
+            "KA-1074",
+            "KA-1090",
+            "KA-1099",
+            "KA-1104",
+            "KA-1108",
+            "KA-1110",
+            "KA-169"
+          ]
+        },
+        "ingestion": {
+          "secure_pipeline": [
+            "KA-071",
+            "KA-072",
+            "KA-073",
+            "KA-074",
+            "KA-075",
+            "KA-076",
+            "KA-077",
+            "KA-078"
+          ]
+        },
+        "retrieval_graph_memory": {
+          "retrieval": [
+            "KA-018",
+            "KA-079",
+            "KA-1049",
+            "KA-1077",
+            "KA-1092"
+          ],
+          "maintenance": [
+            "KA-080",
+            "KA-1039",
+            "KA-1040",
+            "KA-1043",
+            "KA-1046",
+            "KA-1048",
+            "KA-1076",
+            "KA-1078"
+          ],
+          "promotion": [
+            "KA-1079"
+          ]
+        },
+        "truthmemory_truthlink_frost": {
+          "release": [
+            "KA-065",
+            "KA-1071",
+            "KA-1094",
+            "KA-1109",
+            "KA-1079",
+            "KA-1096",
+            "KA-117"
+          ],
+          "maintenance": [
+            "KA-023",
+            "KA-052",
+            "KA-053",
+            "KA-062",
+            "KA-064",
+            "KA-1082",
+            "KA-1083",
+            "KA-1086",
+            "KA-1088",
+            "KA-1089",
+            "KA-1093",
+            "KA-1095",
+            "KA-1105",
+            "KA-1111"
+          ]
+        }
+      }
     }
   },
   "capability_count": 213,
@@ -1311,7 +1557,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Reasoning trace",
           "draft output"
@@ -1331,9 +1577,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-1045"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -1345,12 +1589,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -1882,7 +2126,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Jurisdiction",
           "policy corpus",
@@ -1919,12 +2163,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -1982,7 +2226,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Location metadata",
           "entity scope"
@@ -2013,12 +2257,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -2073,7 +2317,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Source metadata",
           "doc hashes"
@@ -2104,12 +2348,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -2447,7 +2691,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Draft plan",
           "domain constraints"
@@ -2478,12 +2722,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -2539,7 +2783,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Knowledge timestamps",
           "usage"
@@ -2572,12 +2816,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -2633,7 +2877,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Risk profile",
           "policy",
@@ -2671,9 +2915,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
@@ -2920,7 +3164,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Draft output",
           "domain context"
@@ -2952,12 +3196,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -5046,7 +5290,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Time axis data",
           "policy updates"
@@ -5081,12 +5325,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -5142,7 +5386,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Graph segments",
           "usage metrics"
@@ -5178,12 +5422,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -6005,7 +6249,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Evidence hashes",
           "provenance graph"
@@ -6039,12 +6283,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -6193,7 +6437,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Error logs",
           "traces"
@@ -6226,12 +6470,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -6287,7 +6531,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "KB snapshot",
           "tests"
@@ -6320,13 +6564,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "deterministic_heuristic",
+        "production_enabled": true,
+        "classification": "production_validator",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -6847,9 +7091,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_h_production_qualified",
+        "inputs": [
+          "Securely acquired bounded source records"
+        ],
+        "outputs": [
+          "Ingestion admission proposal",
+          "record count",
+          "no direct materialization"
+        ],
         "categories": [],
         "layers": [],
         "personas": [],
@@ -6864,12 +7114,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -6926,14 +7176,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-071"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -6943,12 +7195,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7004,14 +7256,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-072"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7021,12 +7275,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7082,14 +7336,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-073"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7099,9 +7355,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
@@ -7160,14 +7416,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-074"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7177,12 +7435,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7238,14 +7496,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-075"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7255,12 +7515,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7316,14 +7576,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-076"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7333,12 +7595,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7394,14 +7656,22 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_h_production_qualified",
+        "inputs": [
+          "Retention-eligible record identifiers"
+        ],
+        "outputs": [
+          "Archival proposal",
+          "retention destination and policy",
+          "no direct archive effect"
+        ],
         "categories": [],
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-077"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -7411,12 +7681,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7472,7 +7742,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7489,12 +7759,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -7551,7 +7821,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7568,12 +7838,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -9764,7 +10034,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Ontology snapshots"
         ],
@@ -9797,14 +10067,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -9941,7 +10211,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Concept sets",
           "embeddings"
@@ -9975,14 +10245,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -10225,7 +10495,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Commit logs",
           "provenance"
@@ -10258,14 +10528,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -10417,7 +10687,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Traces over time",
           "outputs corpus"
@@ -10448,14 +10718,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -10511,7 +10781,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Validated knowledge",
           "containment class"
@@ -10546,14 +10816,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -10707,7 +10977,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Ontology graphs",
           "conflict map"
@@ -10740,14 +11010,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -10803,7 +11073,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Knowledge nodes",
           "similarity metrics"
@@ -10834,14 +11104,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11140,7 +11410,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Source metadata",
           "commit log"
@@ -11160,7 +11430,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [],
+        "dependencies": [
+          "KA-018"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -11174,14 +11446,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11423,7 +11695,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Draft output",
           "trace"
@@ -11459,14 +11731,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11618,7 +11890,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "KB snapshot",
           "importance scores"
@@ -11654,14 +11926,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11717,7 +11989,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Usage metrics",
           "citations"
@@ -11749,14 +12021,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11812,7 +12084,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Knowledge candidate",
           "risk/containment"
@@ -11846,14 +12118,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -11909,7 +12181,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Confidence",
           "containment",
@@ -11930,8 +12202,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-014",
-          "KA-062",
+          "KA-117",
+          "KA-1094",
           "KA-1109"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
@@ -11947,14 +12219,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12280,7 +12552,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Confidence history"
         ],
@@ -12311,14 +12583,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12374,7 +12646,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Drift alerts",
           "time"
@@ -12406,14 +12678,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12656,7 +12928,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Execution logs"
         ],
@@ -12687,14 +12959,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12845,7 +13117,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "KB state",
           "policies"
@@ -12882,14 +13154,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12945,7 +13217,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Policy updates",
           "feeds"
@@ -12979,14 +13251,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13123,7 +13395,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Updated KB",
           "controls"
@@ -13160,14 +13432,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13318,7 +13590,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Changed nodes",
           "dependency graph"
@@ -13350,14 +13622,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13412,7 +13684,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Usage+time"
         ],
@@ -13443,14 +13715,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13506,7 +13778,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Anomalies",
           "conflicts"
@@ -13526,8 +13798,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-026",
-          "KA-1085"
+          "KA-117",
+          "KA-1071"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
@@ -13543,14 +13815,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13606,7 +13878,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Low confidence",
           "high risk"
@@ -13638,14 +13910,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13700,7 +13972,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Approved updates"
         ],
@@ -13718,7 +13990,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [],
+        "dependencies": [
+          "KA-1079"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -13732,14 +14006,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -13987,7 +14261,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Full snapshot"
         ],
@@ -14022,14 +14296,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -14571,7 +14845,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Truth scores",
           "audience",
@@ -14608,14 +14882,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -14671,7 +14945,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Contradiction trends",
           "citations",
@@ -14708,14 +14982,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -14868,7 +15142,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Policy",
           "planned pipeline",
@@ -14891,8 +15165,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         ],
         "dependencies": [
           "KA-004",
-          "KA-005",
-          "KA-113"
+          "KA-005"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
@@ -14907,14 +15180,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -14969,7 +15242,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "KA interaction patterns",
           "emergence flags"
@@ -14990,7 +15263,6 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-021",
           "KA-1112"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
@@ -15006,14 +15278,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -15069,7 +15341,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Knowledge candidate",
           "risk signals"
@@ -15106,14 +15378,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -15249,7 +15521,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Domain tags",
           "knowledge links",
@@ -15287,14 +15559,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -15350,7 +15622,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "Evolution actions",
           "traces"
@@ -15385,14 +15657,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -15447,7 +15719,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "System metrics",
           "logs"
@@ -15480,14 +15752,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": true,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -16069,7 +16341,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [
           "KB snapshot",
           "constraints"
@@ -16089,8 +16361,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-065",
-          "KA-1094"
+          "KA-065"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
@@ -16105,9 +16376,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
@@ -16963,7 +17234,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16982,14 +17253,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -17043,7 +17314,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17062,14 +17333,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -17123,7 +17394,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17142,14 +17413,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -17203,7 +17474,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17222,14 +17493,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -17364,7 +17635,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17383,14 +17654,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -17444,7 +17715,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17463,14 +17734,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
+        "guarantee": "Produces one bounded deterministic owning-subsystem decision from supplied service state through the canonical selector and controller.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {

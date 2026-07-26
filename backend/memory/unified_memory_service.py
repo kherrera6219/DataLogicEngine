@@ -208,19 +208,44 @@ class UnifiedMemoryService:
         query_vec = self._embedding(query)
         context = context or {}
         ranked: list[tuple[float, MemoryVertex]] = []
+        now = datetime.now(UTC)
         for vertex in self.graph.vertices.values():
+            metadata = vertex.metadata or {}
             validation_state = str(
-                vertex.metadata.get("validation_state") or "working"
+                metadata.get("validation_state") or "working"
             )
             same_working_session = bool(
                 context.get("session_id")
-                and vertex.metadata.get("session_id") == context.get("session_id")
+                and metadata.get("session_id") == context.get("session_id")
             )
             if validation_state != "validated" and not same_working_session:
                 continue
-            if layer and vertex.metadata.get("layer") not in {layer, "global", None}:
+            if bool(metadata.get("quarantined")) or str(
+                metadata.get("lifecycle_state") or ""
+            ).lower() in {"quarantined", "contained", "deleted", "expired"}:
                 continue
-            if persona and vertex.metadata.get("persona") not in {persona, "global", None}:
+            expires_at = metadata.get("expires_at")
+            if expires_at:
+                try:
+                    if self._parse_datetime(expires_at) <= now:
+                        continue
+                except (TypeError, ValueError):
+                    continue
+            authorization_fields = (
+                ("owner_user_id", "owner_user_id"),
+                ("principal_id", "principal_id"),
+                ("tenant_id", "tenant_id"),
+            )
+            if any(
+                metadata.get(memory_field) is not None
+                and str(metadata.get(memory_field))
+                != str(context.get(context_field) or "")
+                for memory_field, context_field in authorization_fields
+            ):
+                continue
+            if layer and metadata.get("layer") not in {layer, "global", None}:
+                continue
+            if persona and metadata.get("persona") not in {persona, "global", None}:
                 continue
             if vertex.embedding is None:
                 continue
@@ -233,7 +258,6 @@ class UnifiedMemoryService:
 
         ranked.sort(key=lambda item: item[0], reverse=True)
         memories = [vertex for _, vertex in ranked[:limit]]
-        now = datetime.now(UTC)
         self.last_recall_timestamp = now.isoformat()
         for vertex in memories:
             vertex.access_count += 1

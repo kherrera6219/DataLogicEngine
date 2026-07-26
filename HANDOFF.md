@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.44.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.45.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-H active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-I active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -80,8 +80,9 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 5. CP19-E correct fail-closed L9/L10 - passed 2026-07-25;
 6. CP19-F causal KA-backed Quad Persona/DSQP - passed 2026-07-25;
 7. CP19-G one production 12-step workflow - passed 2026-07-25;
-8. CP19-H Truth/data/knowledge lifecycle integration - active;
-9. CP19-I simulation/MCP/provider/security/operations/effect integration;
+8. CP19-H Truth/data/knowledge lifecycle integration - passed 2026-07-25;
+9. CP19-I simulation/MCP/provider/security/operations/effect integration -
+   active;
 10. CP19-J API/SDK/desktop/accessibility workflow;
 11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof;
 12. CP19-L clean source qualification; and
@@ -188,7 +189,25 @@ variants are explicit non-production references. The current manifest has 29
 production-enabled capabilities and 131 edges/zero cycles. Eight focused, 955
 broader subsystem, and 2,528 full-source tests pass.
 
-CP19-A through CP19-G authorize CP19-H only; extended subsystem/effect,
+CP19-H is also complete. Manifest `2026.07.25-cp19h.1` retains all 213
+canonical capabilities, production-admits the 60 distinct KAs owned by the
+Truth/data/knowledge lifecycle, and verifies 136 dependency edges with zero
+cycles. One typed policy decision governs entry and L8; the entry gate blocks
+before routing/provider. TruthCore remains a stage library rather than another
+answer path. Authorized, retention-valid, owner/principal/tenant-scoped memory
+may be recalled; new memory remains staged until L10 and the selected
+integrity/provenance/containment/quarantine/promotion chain pass, and a failed
+trace transaction rolls it back. TruthLink/FROST publish causal stage/KA
+transitions with verified snapshots and block release if publication fails.
+Secure ingestion executes `KA-071` through `KA-078` before any SQL/vector/
+graph/object/outbox materialization; a required KA failure records a failed job
+and zero effects. Existing service coordinators retain real effect, receipt,
+reconciliation, deletion, and recovery authority. The focused set is 13
+passed, the affected subsystem set is 79 passed, the complete KA suite is 767
+passed, the TypeScript SDK suite is six passed, and the full source suite is
+2,541 passed with 19 skipped and 21 known warnings.
+
+CP19-A through CP19-H authorize CP19-I only; remaining extended subsystem/effect,
 product, per-KA, rebuilding, installed acceptance, and production launch gates
 remain unauthorized. Read:
 
@@ -209,7 +228,10 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-f-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-g-canonical-refinement-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-g-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-g-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-g-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-h-truth-data-knowledge-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-h-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`.
 
 ## Approved product boundary
 
@@ -826,10 +848,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-H by connecting TruthGate, TruthCore, TruthMemory, TruthLink,
-   FROST, ingestion, retrieval, graph, memory, provenance, quarantine,
-   promotion, deletion, recovery, and transactional cross-store KA owners.
-2. Proceed through CP19-I to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-I by connecting simulation, MCP, providers, gateway, security,
+   operations, lifecycle, durable jobs, authoritative service ports, and
+   verified effect receipts.
+2. Proceed through CP19-J and CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

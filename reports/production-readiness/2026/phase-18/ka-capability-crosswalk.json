@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
+  "source_input_sha256": "993d360ccfcece3297ee84781176012c71dd7aef092c515ccaf3524c5bb991fa",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -44,8 +44,8 @@
     "integration_surfaces": 132,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 183,
-    "canonical_with_named_test_function": 181
+    "canonical_with_test_reference": 193,
+    "canonical_with_named_test_function": 188
   },
   "canonical_capabilities": [
     {
@@ -893,6 +893,7 @@
       },
       "runtime_references": [
         "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
@@ -1099,7 +1100,9 @@
       },
       "runtime_references": [
         "backend/dmrf/tier_classifier.py",
+        "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py",
@@ -1991,6 +1994,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_27_ethical_impact_analysis.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/simulation/multi_agent_engine.py",
@@ -2000,11 +2004,13 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_environment_management",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka106_uses_deterministic_circuit_breaker_policy",
@@ -3418,14 +3424,17 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_retrieval_graph_memory.py",
         "tests/unit/test_trace_viewer_contract.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_retrieval_graph_memory.py::test_cp19h_ka079_causally_changes_selected_evidence_order",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_180_encryption_manager_admits_metadata_only_crypto_request",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_181_key_management_proposes_rotation_without_returning_key_material",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
@@ -4065,17 +4074,21 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/knowledge_algorithms/test_phase_e_depth.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka022_returns_axis15_six_dimension_risk_schema",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
@@ -4400,7 +4413,9 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
@@ -4408,10 +4423,12 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/unit/test_axis_alignment.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
         "tests/unit/test_axis_alignment.py::test_axis_managers_resolve_canonical_phase_b_contexts"
       ],
       "phase6_production_metadata": {
@@ -4901,11 +4918,16 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthgate.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-027",
         "implementation": "backend.knowledge_algorithms.ka_27_ethical_impact_analysis.run",
@@ -5231,9 +5253,11 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py",
         "tests/unit/test_axis_alignment.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids",
         "tests/unit/test_axis_alignment.py::test_axis_managers_resolve_canonical_phase_b_contexts"
       ],
       "phase6_production_metadata": {
@@ -6070,9 +6094,11 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka031_selects_policy_aware_pipeline",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka034_scores_adversarial_assumption_risk_deterministically",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
@@ -7811,8 +7837,12 @@
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-051",
         "implementation": "backend.knowledge_algorithms.ka_51_self_correcting_knowledge_distillation.run",
@@ -8294,8 +8324,12 @@
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-054",
         "implementation": "backend.knowledge_algorithms.ka_54_cross_lingual_knowledge_fusion.run",
@@ -8463,8 +8497,12 @@
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-055",
         "implementation": "backend.knowledge_algorithms.ka_55_adaptive_multi_modal_integration.run",
@@ -9612,6 +9650,8 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
@@ -9769,8 +9809,12 @@
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-063",
         "implementation": "backend.knowledge_algorithms.ka_63_continuous_performance_learning.run",
@@ -9918,10 +9962,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/storage/retention.py"
+      ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_deletion_and_recovery_dispatch_owned_maintenance_kas"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-064",
         "implementation": "backend.knowledge_algorithms.ka_64_failure_pattern_detection.run",
@@ -10076,6 +10126,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
@@ -10956,16 +11007,20 @@
           "KA071DataIngestion",
           "KA071IngestionInput"
         ],
-        "nonblank_noncomment_loc": 80,
+        "nonblank_noncomment_loc": 83,
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/ingestion/local_ingestion.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_ingestion.py",
         "tests/knowledge_algorithms/test_phase19_integration_authority.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_ingestion.py::test_cp19h_ingestion_executes_ka071_through_ka078_in_order",
         "tests/knowledge_algorithms/test_phase19_integration_authority.py::test_cp19a_catalog_cards_expose_owner_and_selection_authority"
       ],
       "phase6_production_metadata": {
@@ -11048,10 +11103,13 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/ingestion/local_ingestion.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
+      "test_references": [
+        "tests/integration/phase19/test_ingestion.py"
+      ],
       "named_test_functions": [],
       "phase6_production_metadata": {
         "ka_id": "KA-072",
@@ -11133,10 +11191,13 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/ingestion/local_ingestion.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
+      "test_references": [
+        "tests/integration/phase19/test_ingestion.py"
+      ],
       "named_test_functions": [],
       "phase6_production_metadata": {
         "ka_id": "KA-073",
@@ -11220,10 +11281,12 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/ingestion/local_ingestion.py",
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_ingestion.py",
         "tests/knowledge_algorithms/test_production_invariants.py"
       ],
       "named_test_functions": [],
@@ -11307,13 +11370,15 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/ingestion/local_ingestion.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
       "test_references": [
         "tests/compliance/test_fullstack_compliance.py",
-        "tests/end_to_end/test_e2e_scenarios.py"
+        "tests/end_to_end/test_e2e_scenarios.py",
+        "tests/integration/phase19/test_ingestion.py"
       ],
       "named_test_functions": [
         "tests/compliance/test_fullstack_compliance.py::test_ka_075_schema_mapping",
@@ -11398,9 +11463,13 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/ingestion/local_ingestion.py"
+      ],
       "execution_call_sites": [],
-      "test_references": [],
+      "test_references": [
+        "tests/integration/phase19/test_ingestion.py"
+      ],
       "named_test_functions": [],
       "phase6_production_metadata": {
         "ka_id": "KA-076",
@@ -11484,9 +11553,12 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/ingestion/local_ingestion.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_ingestion.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
@@ -11567,14 +11639,20 @@
           "KA078ArchivalInput",
           "KA078DataArchival"
         ],
-        "nonblank_noncomment_loc": 53,
+        "nonblank_noncomment_loc": 67,
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/ingestion/local_ingestion.py"
+      ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/integration/phase19/test_ingestion.py"
+      ],
+      "named_test_functions": [
+        "tests/integration/phase19/test_ingestion.py::test_cp19h_ingestion_executes_ka071_through_ka078_in_order"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-078",
         "implementation": "backend.knowledge_algorithms.ka_78_data_archival.run",
@@ -11662,12 +11740,14 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/truth_engine/truth_core/engine.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_retrieval_graph_memory.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
@@ -11675,6 +11755,7 @@
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_retrieval_graph_memory.py::test_cp19h_ka079_causally_changes_selected_evidence_order",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka079_retrieves_ranked_local_records_with_filters",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
@@ -11768,13 +11849,16 @@
       "runtime_references": [
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
-        "backend/knowledge_algorithms/risk_classifier.py"
+        "backend/knowledge_algorithms/risk_classifier.py",
+        "backend/storage/retention.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_deletion_and_recovery_dispatch_owned_maintenance_kas",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka080_reports_cache_stats_and_operation_plan",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
       ],
@@ -16293,7 +16377,9 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
@@ -16699,12 +16785,17 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
+        "backend/governed_execution/ten_layers.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values"
       ],
       "phase6_production_metadata": null,
@@ -17394,18 +17485,21 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
         "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
         "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
         "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
         "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
@@ -19659,6 +19753,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
@@ -19931,7 +20026,9 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
@@ -21601,7 +21698,10 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
+        "backend/governed_execution/ten_layers.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
@@ -21895,6 +21995,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
@@ -23261,6 +23362,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/orchestrator.py",
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
@@ -23272,7 +23374,6 @@
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
-        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
       ],
       "phase6_production_metadata": {
@@ -24326,12 +24427,17 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_entry_policy_ka_block_prevents_routing_and_provider",
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review"
       ],
       "phase6_production_metadata": null,
@@ -24413,12 +24519,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output"
       ],
       "phase6_production_metadata": null,
@@ -24500,12 +24610,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
       ],
       "phase6_production_metadata": null,
@@ -24672,12 +24786,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_176_governance_validation_requires_declared_approval_roles"
       ],
       "phase6_production_metadata": null,
@@ -24759,12 +24877,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/orchestrator.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect"
       ],
       "phase6_production_metadata": null,

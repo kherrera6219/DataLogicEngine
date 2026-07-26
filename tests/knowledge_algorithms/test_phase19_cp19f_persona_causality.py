@@ -106,7 +106,7 @@ async def test_cp19f_persona_dag_executes_once_without_fake_confidence():
     plan = selector.plan(request)
 
     assert plan.valid is True
-    assert controller.manifest.status == "cp19_g_refinement_authority"
+    assert controller.manifest.status == "cp19_h_truth_data_knowledge_authority"
     assert controller.manifest.entries["KA-012"].contract.dependencies == []
     assert controller.manifest.entries["KA-013"].contract.dependencies == ["KA-012"]
     assert controller.manifest.entries["KA-030"].contract.dependencies == ["KA-013"]

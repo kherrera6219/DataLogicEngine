@@ -1,0 +1,37 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-H",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "truth_data_knowledge_lifecycle_integration",
+  "results": {
+    "canonical_capabilities": 213,
+    "production_enabled_capabilities": 89,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "subsystem_registry_distinct_ids": 60,
+    "focused_cp19h_tests_passed": 13,
+    "affected_subsystem_tests_passed": 79,
+    "knowledge_algorithm_tests_passed": 767,
+    "full_source_tests_passed": 2541,
+    "full_source_tests_skipped": 19,
+    "full_source_test_warnings": 21,
+    "typescript_sdk_tests_passed": 6,
+    "critical_ruff": "pass",
+    "python_compilation": "pass",
+    "authority_verifiers": "pass",
+    "documentation_gates": "pass",
+    "git_diff_check": "pass"
+  },
+  "known_warnings": [
+    "Python locale.getdefaultlocale deprecation in the retained KA-069 implementation.",
+    "SQLAlchemy Query.get legacy warnings in the existing API authentication decorator.",
+    "Flask-Session use_signer deprecation in the existing session-security fixture."
+  ],
+  "limitations": [
+    "CP19-I still owns simulation, MCP, provider, gateway, security, operations, durable-job, and authoritative effect-service integration.",
+    "CP19-J and CP19-K still own the complete product workflow and 213-row individual qualification.",
+    "Rebuilding remains blocked until CP19-L, and installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-I"
+}

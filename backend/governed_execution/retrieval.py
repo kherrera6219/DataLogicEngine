@@ -16,6 +16,7 @@ def retrieve_evidence(
     query: str,
     *,
     rag_service: Any | None = None,
+    memory_service: Any | None = None,
 ) -> tuple[list[EvidenceRecord], list[str]]:
     """Retrieve bounded document, knowledge, and prior-chat evidence.
 
@@ -71,6 +72,42 @@ def retrieve_evidence(
             )
         except Exception as exc:
             warnings.append(f"chat_memory_retrieval_failed:{type(exc).__name__}")
+
+    if memory_service is not None and request.session_id:
+        try:
+            memories = memory_service.recall(
+                query,
+                context={
+                    "session_id": request.session_id,
+                    "owner_user_id": request.user_id,
+                    "principal_id": request.principal_id,
+                    "tenant_id": request.metadata.get("tenant_id"),
+                },
+                limit=per_source,
+            )
+            for vertex in memories:
+                metadata = dict(vertex.metadata or {})
+                raw.append(
+                    (
+                        "truth_memory",
+                        {
+                            "id": f"memory_{vertex.vertex_id}",
+                            "text": vertex.content,
+                            "score": min(1.0, max(0.0, float(vertex.importance) / 2)),
+                            "metadata": {
+                                **metadata,
+                                "origin": "UnifiedMemoryService",
+                                "source_type": "validated_memory",
+                                "title": "Validated session knowledge",
+                                "content_hash": sha256(
+                                    vertex.content.encode("utf-8")
+                                ).hexdigest(),
+                            },
+                        },
+                    )
+                )
+        except Exception as exc:
+            warnings.append(f"truth_memory_retrieval_failed:{type(exc).__name__}")
 
     min_score = _score(request.constraints.get("min_relevance_score"), os.environ.get("RAG_MIN_SCORE", "0.15"))
     suspicious_markers = tuple(

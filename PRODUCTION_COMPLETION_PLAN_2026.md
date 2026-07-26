@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.44.0 |
+| Document version | v1.45.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4950,7 +4950,8 @@ governed assembly imports only the canonical workflow. Focused proof passes
 eight tests, the broader subsystem set passes 955, and the full source suite
 passes 2,528 with 19 skipped and 21 warnings.
 
-CP19-H is now active. CP19-G does not claim that the authoritative
+At the CP19-G checkpoint, CP19-H became active. CP19-G did not claim that the
+authoritative
 Truth/data/knowledge lifecycle, extended subsystem/effect/product workflows,
 clean-source rebuild gate, or installed acceptance are complete. Evidence:
 
@@ -4958,6 +4959,52 @@ clean-source rebuild gate, or installed acceptance are complete. Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-g-verification.json`;
 - `reports/production-readiness/2026/phase-19/cp19-g-validation.json`; and
 - `tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py`.
+
+### CP19-H checkpoint result - passed 2026-07-25
+
+CP19-H establishes one manifest-owned Truth/data/knowledge lifecycle without
+creating a second KA registry, answer path, provider path, or state-mutation
+authority. Manifest `2026.07.25-cp19h.1` retains all 213 canonical
+capabilities, production-admits the 60 distinct KAs assigned to the
+TruthGate, TruthCore, TruthMemory, TruthLink/FROST, ingestion, retrieval,
+graph, memory, provenance, quarantine, promotion, deletion, and recovery
+owners, and verifies a 136-edge zero-cycle dependency graph. The six
+experimental-only KAs remain disabled.
+
+The governed product now executes one typed fail-closed policy decision at
+entry and L8. TruthCore remains a stage library inside the one orchestrator.
+Authorized, retention-valid, tenant/principal/owner-scoped TruthMemory recall
+may contribute source-identified evidence; a response memory write is staged
+before release and may be promoted only after L10 plus the manifest-selected
+integrity, provenance, containment, quarantine, and promotion chain. Failed
+trace persistence rolls that write back.
+
+TruthLink and FROST record real stage and child-KA transitions with causal
+parent/child identifiers and verified snapshots. Publication failure is
+visible and prevents release. The secure ingestion boundary executes
+`KA-071` through `KA-078` in dependency order after acquisition and before
+SQL, vector, graph, object, or outbox materialization. Those KAs remain
+proposal-only; the existing authoritative services still own actual effects,
+receipts, reconciliation, deletion, and recovery. A KA failure records the
+job failed with zero materialized knowledge effects. Retention deletion now
+dispatches the owned cache-invalidation and recovery-analysis KAs while its
+cross-store coordinator remains fail closed.
+
+The focused CP19-H integration suite passes 13 tests, the affected subsystem
+set passes 79, and the complete KA suite passes 767. The TypeScript SDK suite
+passes six. The full source suite passes 2,541 with 19 skipped and 21 known
+warnings. Generated-authority, documentation, and source-hygiene results are
+recorded in the CP19-H validation evidence.
+
+CP19-I is now active. CP19-H does not claim simulation, MCP, provider,
+security/operations, durable-job/effect-service completion, the product
+API/SDK/desktop workflow, complete per-KA proof, rebuild authorization, or
+installed acceptance. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-h-truth-data-knowledge-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-h-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`; and
+- `tests/integration/phase19/`.
 
 Evidence:
 
@@ -5405,17 +5452,21 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-G passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-H passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, corrected 131-edge acyclic dependency graph, bounded structured
+fixtures, current 136-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
-verified. Begin CP19-H: connect TruthGate, TruthCore, TruthMemory, TruthLink,
-FROST, ingestion, retrieval, graph, memory, provenance, quarantine, promotion,
-deletion, recovery, and transactional cross-store boundaries.
+verified. The Truth/data/knowledge lifecycle now also executes through the one
+manifest/controller boundary with typed entry/L8 policy, authorized recall,
+release-gated memory promotion, causal TruthLink/FROST transitions, secure
+pre-materialization ingestion, and fail-closed deletion/recovery dispatch.
+Begin CP19-I: connect simulation, MCP, providers, gateway, security,
+operations, durable jobs, authoritative service ports, and verified effect
+receipts.
 
-Proceed through CP19-H to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-I to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

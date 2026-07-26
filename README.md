@@ -58,7 +58,7 @@ administration, audit, observability, and validation application.
 > simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
 > reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
 > CP18-H were not passed and no finding was waived.
-> Phase 19 CP19-A through CP19-G are complete. The one runtime manifest now
+> Phase 19 CP19-A through CP19-H are complete. The one runtime manifest now
 > drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
 > verify selection, and three reciprocal design relationships were corrected
 > into a current 131-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
@@ -77,10 +77,16 @@ administration, audit, observability, and validation application.
 > manifest-owned 12-step workflow that accounts for every step, makes zero
 > provider subcalls, permits one rewrite, re-enters L6-L10, and emits only an
 > unapplied lifecycle proposal. Five older variants are non-production
-> references. The CP19-G focused set passes eight tests, the broader subsystem
-> set passes 955, and the full source suite passes 2,528 with 19 skipped.
-> CP19-H is active for all data/
-> knowledge/simulation/MCP/provider/operations/effect integrations, the KA API/
+> references. CP19-H now connects typed entry/L8 policy, authorized and
+> retention-valid memory recall, release-gated and rollback-safe memory
+> promotion, causal TruthLink/FROST stage and KA publication, secure
+> pre-materialization ingestion, and fail-closed deletion/recovery through the
+> single manifest/controller boundary. It retains all 213 capabilities,
+> production-admits 60 distinct Truth/data/knowledge owner KAs, and verifies a
+> 136-edge zero-cycle graph. Thirteen focused, 79 affected-subsystem, 767 KA,
+> six TypeScript SDK, and 2,541 full-source tests pass; the full source result
+> has 19 skipped and 21 known warnings.
+> CP19-I is active for simulation/MCP/provider/operations/effect integrations, the KA API/
 > SDK/desktop workflow, and the complete 213-row semantic/selector/call-path/
 > trace proof. CP19-L is the source gate that may authorize a rebuild; CP19-M
 > retains exact rebuilt-installed acceptance.
@@ -180,8 +186,11 @@ Current production-completion focus:
 - Phase 19 CP19-G passed: one manifest-owned 12-step workflow accounts for
   every step, performs at most one rewrite, revalidates L6-L10, and keeps
   lifecycle effects proposal-only
-- Active Phase 19 CP19-H: connect the complete Truth/data/knowledge lifecycle
-- Ingestion, retrieval, graph, memory, simulation, MCP, provider, gateway,
+- Phase 19 CP19-H passed: one typed fail-closed Truth/data/knowledge lifecycle
+  owns policy, authorized recall, release-gated memory promotion, causal
+  TruthLink/FROST transitions, secure pre-materialization ingestion, and
+  deletion/recovery KA dispatch
+- Active Phase 19 CP19-I: simulation, MCP, provider, gateway,
   security, operations, lifecycle, and authoritative effect integration
 - One named semantic test, positive/negative selector proof, real owning call
   path, limitation, and causal trace assertion for every canonical KA

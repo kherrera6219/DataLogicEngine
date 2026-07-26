@@ -5,6 +5,7 @@ Purpose: Manage long-term data retention by migrating old data to cold storage a
 import logging
 import json
 import os
+import hashlib
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -44,16 +45,29 @@ class KA078DataArchival(KnowledgeAlgorithm):
         destination = self.config.get("archive_destination", "cold_storage")
         retention_days = self.config.get("retention_policy_days", 180)
         
-        archived_count = len(target_ids)
-        bytes_saved = archived_count * 1024
-        
+        proposal_id = hashlib.sha256(
+            json.dumps(
+                {
+                    "record_ids": sorted(target_ids),
+                    "destination": destination,
+                    "retention_days": retention_days,
+                },
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()
+
         return {
             "success": True,
-            "records_archived": archived_count,
+            "proposal_id": proposal_id,
+            "eligible_record_count": len(target_ids),
+            "records_archived": 0,
+            "applied": False,
+            "authoritative_service": "RetentionService",
+            "effect_prerequisite": "retention_policy_and_cross_store_receipt",
             "destination": destination,
             "retention_policy_applied": f"{retention_days} days",
             "compression_used": self.config.get("compression_format"),
-            "storage_saved_bytes": bytes_saved
+            "storage_saved_bytes": 0
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

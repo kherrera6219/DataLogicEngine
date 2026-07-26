@@ -1,0 +1,54 @@
+{
+  "schema_version": "dle.phase19-cp19h-verification.v1",
+  "checkpoint": "CP19-H",
+  "date": "2026-07-25",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19h.1",
+  "manifest_status": "cp19_h_truth_data_knowledge_authority",
+  "canonical_capabilities": 213,
+  "live_registry_entries": 132,
+  "production_enabled_capabilities": 89,
+  "dependency_edges": 136,
+  "dependency_cycles": 0,
+  "subsystem_registry": {
+    "schema_version": "dle.ka-subsystem-registry.v1",
+    "owners": 4,
+    "operation_references": 61,
+    "distinct_canonical_ids": 60,
+    "duplicate_canonical_ids": 0,
+    "experimental_ids_admitted": 0
+  },
+  "policy_and_release": {
+    "entry_policy_typed": true,
+    "entry_block_before_provider": true,
+    "layer8_policy_typed": true,
+    "truthcore_alternate_answer_path": false,
+    "truthlink_frost_causal_publication": true,
+    "publication_failure_blocks_release": true
+  },
+  "memory": {
+    "authorized_scoped_recall": true,
+    "retention_and_quarantine_filter": true,
+    "write_staged_before_release": true,
+    "l10_and_lifecycle_qualified_promotion": true,
+    "persistence_failure_rollback": true
+  },
+  "ingestion_and_effects": {
+    "secure_pipeline_ids": [
+      "KA-071",
+      "KA-072",
+      "KA-073",
+      "KA-074",
+      "KA-075",
+      "KA-076",
+      "KA-077",
+      "KA-078"
+    ],
+    "ka_execution_before_materialization": true,
+    "ka_outputs_proposal_only": true,
+    "required_failure_zero_materialization": true,
+    "authoritative_service_effect_owner_retained": true,
+    "partial_cross_store_completion_allowed": false
+  },
+  "errors": []
+}

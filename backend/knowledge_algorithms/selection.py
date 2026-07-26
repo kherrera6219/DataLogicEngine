@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import importlib
+import inspect
 import json
 import re
 import time
@@ -1021,11 +1023,15 @@ class KAPlanExecutor:
         )
         payload = dict(request.shared_input)
         payload.update(request.ka_inputs.get(canonical_id, {}))
-        payload[entry.dependency_input_field] = {
-            dependency: results[dependency].output
-            for dependency in entry.dependencies
-            if dependency in results and results[dependency].success
-        }
+        if entry.dependencies and self._implementation_accepts_field(
+            canonical_id,
+            entry.dependency_input_field,
+        ):
+            payload[entry.dependency_input_field] = {
+                dependency: results[dependency].output
+                for dependency in entry.dependencies
+                if dependency in results and results[dependency].success
+            }
         node_context = request.context.model_copy(
             deep=True,
             update={"deadline_at": deadline_at},
@@ -1114,6 +1120,45 @@ class KAPlanExecutor:
                 )
             )
         return result
+
+    def _implementation_accepts_field(
+        self,
+        canonical_id: str,
+        field_name: str,
+    ) -> bool:
+        """Inject dependency payloads only into schemas that declare the field."""
+        manifest = getattr(self.controller, "manifest", None)
+        definition = (
+            manifest.entries.get(canonical_id)
+            if manifest is not None
+            else None
+        )
+        entrypoint = (
+            definition.implementation.entrypoint
+            if definition is not None
+            else None
+        )
+        if entrypoint is None:
+            return False
+        try:
+            module = importlib.import_module(entrypoint.module)
+        except Exception:
+            return False
+        for value in vars(module).values():
+            fields = getattr(value, "model_fields", None)
+            if isinstance(fields, dict) and field_name in fields:
+                return True
+        try:
+            callable_owner = (
+                getattr(module, entrypoint.class_name)
+                if entrypoint.class_name
+                else module
+            )
+            return field_name in inspect.getsource(
+                getattr(callable_owner, entrypoint.callable)
+            )
+        except (OSError, TypeError):
+            return False
 
     @staticmethod
     def _dependencies_succeeded(

@@ -5,6 +5,7 @@ Purpose: Ingest data from various sources (batches or streams) with protocol-spe
 import logging
 import json
 import os
+import hashlib
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -59,20 +60,22 @@ class KA071DataIngestion(KnowledgeAlgorithm):
         batch_size = self.config.get("batch_size", 1000)
         mode = "stream" if len(payload) < batch_size else "batch"
         
-        processed_records = []
-        for i, record in enumerate(payload):
-            processed_records.append({
-                "raw": record,
-                "ingestion_meta": {
-                    "handler": handler_name,
-                    "mode": mode,
-                    "sequence_id": i
-                }
-            })
-            
+        proposal_id = hashlib.sha256(
+            json.dumps(
+                {"source_type": source_type, "payload": payload},
+                sort_keys=True,
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+
         return {
             "success": True,
-            "records_ingested": len(processed_records),
+            "proposal_id": proposal_id,
+            "admitted_record_count": len(payload),
+            "records_ingested": 0,
+            "applied": False,
+            "authoritative_service": "LocalKnowledgeIngestionService",
+            "effect_prerequisite": "secure_acquisition_and_sql_job_commit",
             "ingestion_summary": {
                 "source": source_type,
                 "handler_active": handler_name,

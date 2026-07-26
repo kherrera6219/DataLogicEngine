@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.engineering-assurance-document-verification.v1",
-  "generated_at": "2026-07-26T07:43:15.434279+00:00",
-  "authority_version": "2026.07.25-phase19-cp19g-canonical-refinement",
+  "generated_at": "2026-07-26T08:36:57.455935+00:00",
+  "authority_version": "2026.07.25-phase19-cp19h-truth-data-knowledge",
   "status": "pass",
   "target_count": 12,
   "verified_count": 12,

@@ -7,12 +7,12 @@
 ## Authority and release status
 
 - Generated: `2026-07-26`
-- Documentation authority: `2026.07.25-phase19-cp19g-canonical-refinement` (`approved_phase16_replacement_closed`)
+- Documentation authority: `2026.07.25-phase19-cp19h-truth-data-knowledge` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-H active
-- Current KA evidence: Phase 19 CP19-A through CP19-G passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, 132 live registry entries, 29 production-enabled capabilities, zero unregistered Layer 9 implementations, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, a corrected 131-edge zero-cycle dependency graph, one typed causal L1-L10 product lifecycle, full fail-closed execution of every L9/L10 KA, causal axes 8-11 `KA-012` -> `KA-013` -> `KA-030` persona influence, and one trace-accounted manifest-owned 12-step workflow with zero step-level provider subcalls, one rewrite ceiling, L6-L10 revalidation, and proposal-only lifecycle output. The CP19-G focused set is eight passed, the broader subsystem set is 955 passed, and the full source suite is 2,528 passed with 19 skipped. CP19-H Truth/data/knowledge lifecycle integration is active; the rebuild remains blocked through CP19-L.
+- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-I active
+- Current KA evidence: Phase 19 CP19-A through CP19-H passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, 132 live registry entries, 89 production-enabled capabilities, zero unregistered Layer 9 implementations, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, a current 136-edge zero-cycle dependency graph, one typed causal L1-L10 product lifecycle, full fail-closed execution of every L9/L10 KA, causal axes 8-11 `KA-012` -> `KA-013` -> `KA-030` persona influence, one trace-accounted manifest-owned 12-step workflow, and one manifest-owned Truth/data/knowledge lifecycle. Entry and L8 share typed policy; authorized memory recall and release-gated promotion are scope/retention/rollback safe; TruthLink/FROST publication is causal and release-blocking; secure ingestion KAs run before materialization; and authoritative services retain real effect/receipt ownership. Thirteen focused, 79 affected-subsystem, 767 KA, six TypeScript SDK, and 2,541 full-source tests pass; the full suite has 19 skipped and 21 known warnings. CP19-I extended subsystem/effect integration is active; the rebuild remains blocked through CP19-L.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

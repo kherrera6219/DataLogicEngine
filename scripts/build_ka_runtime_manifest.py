@@ -485,6 +485,289 @@ CP19_G_REFINEMENT_STEPS: list[dict[str, Any]] = [
     },
 ]
 
+CP19_H_OWNER_IDS = {
+    # TruthGate entry and Layer-8 policy/trust owners. KA-034 remains an
+    # evaluation-only adversarial research method.
+    "KA-010",
+    "KA-016",
+    "KA-022",
+    "KA-024",
+    "KA-027",
+    "KA-1045",
+    "KA-1074",
+    "KA-1090",
+    "KA-1099",
+    "KA-1104",
+    "KA-1108",
+    "KA-1110",
+    "KA-169",
+    "KA-172",
+    "KA-173",
+    "KA-174",
+    "KA-176",
+    "KA-177",
+    # TruthMemory, TruthLink, and FROST owners. Experimental distillation,
+    # fusion, multimodal, and continuous-learning methods remain explicitly
+    # evaluation-only.
+    "KA-023",
+    "KA-052",
+    "KA-053",
+    "KA-062",
+    "KA-064",
+    "KA-065",
+    "KA-1071",
+    "KA-1082",
+    "KA-1083",
+    "KA-1086",
+    "KA-1088",
+    "KA-1089",
+    "KA-1093",
+    "KA-1094",
+    "KA-1095",
+    "KA-1096",
+    "KA-1105",
+    "KA-1109",
+    "KA-1111",
+    "KA-117",
+    # Secure ingestion pipeline.
+    *(f"KA-{number:03d}" for number in range(71, 79)),
+    # Retrieval, graph, memory, provenance, lineage, pruning, tiering, and
+    # promotion owners. KA-029 remains an evaluation-only expansion method.
+    "KA-018",
+    "KA-079",
+    "KA-080",
+    "KA-1039",
+    "KA-1040",
+    "KA-1043",
+    "KA-1046",
+    "KA-1048",
+    "KA-1049",
+    "KA-1076",
+    "KA-1077",
+    "KA-1078",
+    "KA-1079",
+    "KA-1092",
+    # Deterministic prerequisites owned by already-integrated TruthCore/DMRF
+    # lifecycle positions.
+    "KA-017",
+    "KA-1107",
+    "KA-1112",
+}
+
+CP19_H_VALIDATOR_IDS = {
+    "KA-024",
+    "KA-065",
+    "KA-074",
+    "KA-1079",
+    "KA-1090",
+    "KA-1094",
+    "KA-1099",
+    "KA-117",
+    "KA-172",
+    "KA-174",
+    "KA-176",
+    "KA-177",
+}
+
+# CP19-H converts design relationships into executable lifecycle order. The
+# ingestion chain is serial because each decision consumes the preceding
+# acquisition state. Knowledge validation precedes quarantine, promotion, and
+# release; those proposals never apply their own effects.
+CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    **{
+        f"KA-{number:03d}": {
+            "dependencies": [f"KA-{number - 1:03d}"],
+            "rationale": (
+                "Secure ingestion executes acquisition, cleaning, transformation, "
+                "validation, mapping, resolution, enrichment, and archival "
+                "proposal decisions in committed order."
+            ),
+        }
+        for number in range(72, 79)
+    },
+    "KA-010": {
+        "dependencies": [],
+        "rationale": (
+            "Content bias scanning is self-contained; population disparity "
+            "analysis remains a separate conditional cohort decision."
+        ),
+    },
+    "KA-1071": {
+        "dependencies": ["KA-018"],
+        "rationale": (
+            "Knowledge provenance tracking consumes the source provenance "
+            "observation before lifecycle publication."
+        ),
+    },
+    "KA-117": {
+        "dependencies": ["KA-065"],
+        "rationale": (
+            "Knowledge integrity consumes regression results before any "
+            "quarantine or promotion decision."
+        ),
+    },
+    "KA-1094": {
+        "dependencies": ["KA-117", "KA-1071"],
+        "rationale": (
+            "Quarantine admission consumes committed integrity and provenance "
+            "results and remains a proposal to the knowledge lifecycle service."
+        ),
+    },
+    "KA-1109": {
+        "dependencies": ["KA-024", "KA-1074"],
+        "rationale": (
+            "Containment classification consumes the shared trust and privacy "
+            "policy decisions before proposing an effect."
+        ),
+    },
+    "KA-1079": {
+        "dependencies": ["KA-117", "KA-1094", "KA-1109"],
+        "rationale": (
+            "Promotion is evaluated only after integrity, quarantine, and "
+            "containment decisions have committed."
+        ),
+    },
+    "KA-1096": {
+        "dependencies": ["KA-1079"],
+        "rationale": (
+            "Knowledge release staging consumes the promotion decision and "
+            "cannot release independently."
+        ),
+    },
+    "KA-1107": {
+        "dependencies": ["KA-004", "KA-005"],
+        "rationale": (
+            "Reasoning-boundary enforcement consumes normalized input and "
+            "classification; simulation cost is not an entry-policy prerequisite."
+        ),
+    },
+    "KA-1108": {
+        "dependencies": ["KA-1112"],
+        "rationale": (
+            "Capability escalation consumes the system-introspection record; "
+            "experimental emergence research is not a production prerequisite."
+        ),
+    },
+}
+
+CP19_H_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": (
+            "production_validator"
+            if canonical_id in CP19_H_VALIDATOR_IDS
+            else "deterministic_heuristic"
+        ),
+        "deterministic": True,
+        "performance_budget_ms": 750,
+        "contract_status": "cp19_h_production_qualified",
+        "guarantee": (
+            "Produces one bounded deterministic owning-subsystem decision from "
+            "supplied service state through the canonical selector and controller."
+        ),
+        "limitations": (
+            "The result is a measured validation, heuristic, or effect proposal; "
+            "it does not independently establish external truth or apply a "
+            "data, memory, graph, policy, quarantine, promotion, or release effect."
+        ),
+    }
+    for canonical_id in CP19_H_OWNER_IDS
+}
+
+CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
+    "KA-071": {
+        "inputs": ["Securely acquired bounded source records"],
+        "outputs": [
+            "Ingestion admission proposal",
+            "record count",
+            "no direct materialization",
+        ],
+    },
+    "KA-078": {
+        "inputs": ["Retention-eligible record identifiers"],
+        "outputs": [
+            "Archival proposal",
+            "retention destination and policy",
+            "no direct archive effect",
+        ],
+    },
+}
+
+CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
+    "schema_version": "dle.ka-subsystem-registry.v1",
+    "registry_version": "2026.07.25-cp19h.1",
+    "owners": {
+        "truthgate": {
+            "entry": [
+                "KA-022",
+                "KA-172",
+                "KA-173",
+                "KA-174",
+                "KA-176",
+                "KA-177",
+            ],
+            "layer_8": [
+                "KA-010",
+                "KA-016",
+                "KA-024",
+                "KA-027",
+                "KA-1045",
+                "KA-1074",
+                "KA-1090",
+                "KA-1099",
+                "KA-1104",
+                "KA-1108",
+                "KA-1110",
+                "KA-169",
+            ],
+        },
+        "ingestion": {
+            "secure_pipeline": [f"KA-{number:03d}" for number in range(71, 79)],
+        },
+        "retrieval_graph_memory": {
+            "retrieval": ["KA-018", "KA-079", "KA-1049", "KA-1077", "KA-1092"],
+            "maintenance": [
+                "KA-080",
+                "KA-1039",
+                "KA-1040",
+                "KA-1043",
+                "KA-1046",
+                "KA-1048",
+                "KA-1076",
+                "KA-1078",
+            ],
+            "promotion": ["KA-1079"],
+        },
+        "truthmemory_truthlink_frost": {
+            "release": [
+                "KA-065",
+                "KA-1071",
+                "KA-1094",
+                "KA-1109",
+                "KA-1079",
+                "KA-1096",
+                "KA-117",
+            ],
+            "maintenance": [
+                "KA-023",
+                "KA-052",
+                "KA-053",
+                "KA-062",
+                "KA-064",
+                "KA-1082",
+                "KA-1083",
+                "KA-1086",
+                "KA-1088",
+                "KA-1089",
+                "KA-1093",
+                "KA-1095",
+                "KA-1105",
+                "KA-1111",
+            ],
+        },
+    },
+}
+
 
 def normalize_ka_id(value: str) -> str:
     clean = str(value).strip().upper()
@@ -577,7 +860,8 @@ def build_manifest() -> dict[str, Any]:
             }
         )
         override = (
-            CP19_G_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            CP19_H_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_G_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_E_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
@@ -586,12 +870,14 @@ def build_manifest() -> dict[str, Any]:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
         admission_override = (
-            CP19_G_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            CP19_H_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            or CP19_G_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_F_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
         )
         io_override = (
-            CP19_G_IO_OVERRIDES.get(row["canonical_id"])
+            CP19_H_IO_OVERRIDES.get(row["canonical_id"])
+            or CP19_G_IO_OVERRIDES.get(row["canonical_id"])
             or CP19_F_IO_OVERRIDES.get(row["canonical_id"])
             or CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
         )
@@ -707,8 +993,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19g.1",
-        "status": "cp19_g_refinement_authority",
+        "manifest_version": "2026.07.25-cp19h.1",
+        "status": "cp19_h_truth_data_knowledge_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -725,10 +1011,14 @@ def build_manifest() -> dict[str, Any]:
                 **CP19_E_DEPENDENCY_OVERRIDES,
                 **CP19_F_DEPENDENCY_OVERRIDES,
                 **CP19_G_DEPENDENCY_OVERRIDES,
+                **CP19_H_DEPENDENCY_OVERRIDES,
             },
-            "production_admission_checkpoint": "CP19-G",
+            "production_admission_checkpoint": "CP19-H",
             "production_admission_ids": sorted(
-                CP19_E_LAYER_IDS | CP19_F_PERSONA_IDS | CP19_G_REFINEMENT_IDS
+                CP19_E_LAYER_IDS
+                | CP19_F_PERSONA_IDS
+                | CP19_G_REFINEMENT_IDS
+                | CP19_H_OWNER_IDS
             ),
             "refinement_workflow": {
                 "schema_version": "dle.refinement-workflow-registry.v1",
@@ -740,6 +1030,7 @@ def build_manifest() -> dict[str, Any]:
                 "effect_application_authorized": False,
                 "steps": CP19_G_REFINEMENT_STEPS,
             },
+            "subsystem_execution_registry": CP19_H_SUBSYSTEM_REGISTRY,
         },
         "capability_count": len(entries),
         "alias_index": {

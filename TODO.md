@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.44.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.45.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-H active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-I active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -103,9 +103,22 @@ Phase 18 source baseline while completing the whole-application wiring.
       unapplied proposal with no receipt. The current manifest is 29
       production-enabled capabilities and 131 edges/zero cycles. Eight focused,
       955 broader subsystem, and 2,528 full-source tests pass.
-- [ ] **CP19-H — Truth/data/knowledge lifecycle:** connect TruthGate,
-      TruthCore, TruthMemory, TruthLink, FROST, ingestion, retrieval, graph,
-      memory, provenance, quarantine, promotion, deletion, and recovery owners.
+- [x] **CP19-H — Truth/data/knowledge lifecycle:** manifest
+      `2026.07.25-cp19h.1` retains 213 canonical capabilities, production-
+      admits 60 distinct Truth/data/knowledge owner KAs, and verifies 136
+      dependency edges with zero cycles. Entry TruthGate and L8 share typed
+      fail-closed decisions; TruthCore remains a stage library; authorized
+      recall, staged memory, L10/integrity/provenance/containment/quarantine/
+      promotion gating, and persistence rollback are causal. TruthLink/FROST
+      publish verified parent/child stage and KA transitions, with publication
+      failure blocking release. Secure acquisition runs `KA-071` through
+      `KA-078` before materialization, and any required failure produces a
+      failed job with zero knowledge effects. Existing authoritative services
+      retain real effect/receipt/reconciliation ownership. Deletion dispatches
+      cache-invalidation and recovery-analysis KAs through its fail-closed
+      cross-store coordinator. Thirteen focused, 79 affected-subsystem, 767 KA,
+      six TypeScript SDK, and 2,541 full-source tests pass; the full suite has
+      19 skipped and 21 known warnings.
 - [ ] **CP19-I — extended subsystems and effects:** repair and connect
       simulation, MCP, providers, gateway, security, operations, lifecycle,
       durable jobs, authoritative service ports, and verified effect receipts.
@@ -133,6 +146,15 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-H passed 2026-07-25:** one manifest-owned registry now
+  connects TruthGate, TruthCore, TruthMemory, TruthLink/FROST, ingestion,
+  retrieval, graph, memory, provenance, quarantine, promotion, deletion, and
+  recovery without a duplicate KA, provider, answer, persistence, or effect
+  authority. Policy blocks before routing/provider; only authorized and
+  retention-valid memory is recalled; memory promotion is release-gated and
+  rollback-safe; lifecycle publication failure prevents release; ingestion KA
+  failure leaves zero materialized knowledge effects. CP19-I is active and
+  rebuilding remains blocked through CP19-L.
 - **Phase 19 CP19-G passed 2026-07-25:** the committed L9 refine decision now
   enters one bounded 12-step manifest workflow. A normal refinement accounts
   for 10 executed/two skipped steps, performs one rewrite, and revalidates
@@ -823,7 +845,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-G passed 2026-07-25, CP19-H Truth/data/knowledge lifecycle active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-H passed 2026-07-25, CP19-I extended subsystem/effect integration active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -841,10 +863,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-H by connecting TruthGate, TruthCore, TruthMemory, TruthLink,
-FROST, ingestion, retrieval, graph, memory, provenance, quarantine, promotion,
-deletion, recovery, and transactional cross-store KA owners. Then proceed
-through CP19-I to CP19-K in the plan's mandatory order.
+Complete CP19-I by connecting simulation, MCP, providers, gateway, security,
+operations, lifecycle, durable jobs, authoritative service ports, and verified
+effect receipts. Then proceed through CP19-J and CP19-K in the plan's mandatory
+order.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

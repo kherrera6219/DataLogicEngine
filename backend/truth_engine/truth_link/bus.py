@@ -36,7 +36,9 @@ class TruthLinkBus:
         'budget_updated',
         'audit_logged',
         'artifact_stored',
-        'metric_recorded'
+        'metric_recorded',
+        'stage_transition',
+        'ka_transition'
     ]
 
     def __init__(self, db_session=None, redis_client=None, enable_redis_streams: bool | None = None):

@@ -18,7 +18,6 @@ from backend.knowledge_algorithms.selection import (
     KAPlanDisposition,
     ManifestKASelector,
 )
-from scripts.build_ka_runtime_manifest import CP19_C_DEPENDENCY_OVERRIDES
 from scripts.build_ka_selector_fixtures import OUTPUT_DIR, build_fixture
 
 REPORT_PATH = (
@@ -105,7 +104,9 @@ def verify() -> dict[str, Any]:
         )
 
     override_status = {}
-    for canonical_id, override in CP19_C_DEPENDENCY_OVERRIDES.items():
+    for canonical_id, override in manifest.authority[
+        "dependency_overrides"
+    ].items():
         actual = manifest.entries[canonical_id].contract.dependencies
         matches = actual == override["dependencies"]
         override_status[canonical_id] = {

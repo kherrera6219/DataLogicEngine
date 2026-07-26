@@ -67,6 +67,7 @@ class RetentionDeleteCoordinator:
         adapters: dict[str, DeletionAdapter],
         required_stores: tuple[str, ...],
         digest_key: str,
+        knowledge_lifecycle=None,
     ) -> None:
         if set(adapters) != set(required_stores):
             raise ValueError("deletion_required_store_mismatch")
@@ -76,12 +77,39 @@ class RetentionDeleteCoordinator:
         self.adapters = dict(adapters)
         self.required_stores = tuple(required_stores)
         self.digest_key = str(digest_key).encode("utf-8")
+        if knowledge_lifecycle is None:
+            from backend.governed_execution.knowledge_lifecycle import (
+                KnowledgeLifecycleCoordinator,
+            )
+
+            knowledge_lifecycle = KnowledgeLifecycleCoordinator()
+        self.knowledge_lifecycle = knowledge_lifecycle
+        self.lifecycle_evidence: dict[str, object] = {}
 
     def run(self, subject: DeletionSubject) -> DataDeletionTombstone:
         normalized_type = str(subject.subject_type or "").strip().lower()
         normalized_id = str(subject.subject_id or "").strip()
         if normalized_type not in {"user", "tenant"} or not normalized_id:
             raise ValueError("deletion_subject_invalid")
+        cache_plan = self.knowledge_lifecycle.execute_operation_sync(
+            owner="retrieval_graph_memory",
+            operation="maintenance",
+            requested_ids=["KA-080"],
+            ka_inputs={
+                "KA-080": {
+                    "key": f"{normalized_type}:{normalized_id}",
+                    "operation": "delete",
+                    "cache_state": {},
+                }
+            },
+            request_id=f"deletion:{normalized_type}:{normalized_id}",
+            run_id=f"deletion:{normalized_type}:{normalized_id}",
+            principal_id="retention_delete_coordinator",
+            tier="maintenance",
+            layer="data",
+            service_capabilities={"knowledge_store_service"},
+        )
+        self.lifecycle_evidence["cache_invalidation"] = cache_plan.to_dict()
         digest = hmac.new(
             self.digest_key,
             f"{normalized_type}:{normalized_id}".encode("utf-8"),
@@ -132,9 +160,33 @@ class RetentionDeleteCoordinator:
                     "retention_basis": None,
                     "safe_reason": f"{store}_deletion_failed",
                 }
-            tombstone.store_status = dict(statuses)
-            self.session.add(tombstone)
-            self.session.commit()
+        recovery_plan = self.knowledge_lifecycle.execute_operation_sync(
+            owner="truthmemory_truthlink_frost",
+            operation="maintenance",
+            requested_ids=["KA-064"],
+            ka_inputs={
+                "KA-064": {
+                    "error_logs": [
+                        {
+                            "message": f"{store}_deletion_failed",
+                            "store": store,
+                        }
+                        for store, status in statuses.items()
+                        if status.get("status") == "failed"
+                    ]
+                }
+            },
+            request_id=f"deletion:{normalized_type}:{normalized_id}:recovery",
+            run_id=f"deletion:{normalized_type}:{normalized_id}:recovery",
+            principal_id="retention_delete_coordinator",
+            tier="maintenance",
+            layer="data",
+            service_capabilities={"knowledge_lifecycle_service"},
+        )
+        self.lifecycle_evidence["failure_recovery"] = recovery_plan.to_dict()
+        tombstone.store_status = dict(statuses)
+        self.session.add(tombstone)
+        self.session.commit()
 
         if failed:
             tombstone.status = "partial_failure"

@@ -36,8 +36,14 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     registry = manifest.authority["refinement_workflow"]
     steps = registry["steps"]
 
-    assert manifest.status == "cp19_g_refinement_authority"
-    assert manifest.manifest_version == "2026.07.25-cp19g.1"
+    assert manifest.status in {
+        "cp19_g_refinement_authority",
+        "cp19_h_truth_data_knowledge_authority",
+    }
+    assert manifest.manifest_version in {
+        "2026.07.25-cp19g.1",
+        "2026.07.25-cp19h.1",
+    }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
     assert registry["entry_condition"] == "committed_l9_refine_decision"
@@ -49,8 +55,16 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     assert len({step["name"] for step in steps}) == 12
 
     entries = list(manifest.entries.values())
-    assert sum(entry.admission.production_enabled for entry in entries) == 29
-    assert sum(len(entry.contract.dependencies) for entry in entries) == 131
+    assert sum(entry.admission.production_enabled for entry in entries) == (
+        89
+        if manifest.status == "cp19_h_truth_data_knowledge_authority"
+        else 29
+    )
+    assert sum(len(entry.contract.dependencies) for entry in entries) == (
+        136
+        if manifest.status == "cp19_h_truth_data_knowledge_authority"
+        else 131
+    )
     for canonical_id in ("KA-003", "KA-005", "KA-011", "KA-025"):
         definition = manifest.entries[canonical_id]
         assert definition.admission.production_enabled is True

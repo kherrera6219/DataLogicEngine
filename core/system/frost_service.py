@@ -47,10 +47,12 @@ class FROSTService:
         self,
         object_store_getter: Optional[Any] = None,
         memory_service_getter: Optional[Any] = None,
+        persist_objects: bool = True,
     ):
         self.logger = logging.getLogger(__name__)
         self._object_store_getter = object_store_getter
         self._memory_service_getter = memory_service_getter
+        self._persist_objects = bool(persist_objects)
 
         # In-memory store of snapshots: snapshot_id -> state_dict
         self.snapshots: Dict[str, Dict[str, Any]] = {}
@@ -106,6 +108,12 @@ class FROSTService:
 
     def _persist_snapshot_object(self, snapshot_id: str, state: Dict[str, Any]) -> None:
         """Persist snapshots through the durable object materialization boundary."""
+        if not self._persist_objects:
+            self.snapshot_metadata[snapshot_id]["object_store"] = {
+                "status": "in_memory_stage_snapshot",
+                "snapshot_id": snapshot_id,
+            }
+            return
         try:
             key = f"{snapshot_id}.json"
             bundle = {

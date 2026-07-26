@@ -29,7 +29,6 @@ from backend.knowledge_algorithms.selection import (
     KATraceState,
     ManifestKASelector,
 )
-from scripts.build_ka_runtime_manifest import CP19_C_DEPENDENCY_OVERRIDES
 from scripts.build_ka_selector_fixtures import OUTPUT_DIR, build_fixture
 from scripts.verify_ka_selector_dag import verify
 
@@ -119,14 +118,14 @@ def _wide_budget_context() -> dict:
 def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_g_refinement_authority"
+    assert manifest.status == "cp19_h_truth_data_knowledge_authority"
     assert manifest.capability_count == 213
     assert (
         sum(
             len(definition.contract.dependencies)
             for definition in manifest.entries.values()
         )
-        == 131
+        == 136
     )
     for definition in manifest.entries.values():
         assert (
@@ -139,7 +138,9 @@ def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
 def test_cp19c_reciprocal_design_dependencies_have_prerequisite_order():
     manifest = load_manifest()
 
-    for canonical_id, override in CP19_C_DEPENDENCY_OVERRIDES.items():
+    for canonical_id, override in manifest.authority[
+        "dependency_overrides"
+    ].items():
         assert (
             manifest.entries[canonical_id].contract.dependencies
             == override["dependencies"]
@@ -271,7 +272,7 @@ def test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan():
     constrained = ManifestKASelector().plan(
         {
             "mode": "evaluation",
-            "requested_ids": ["KA-117"],
+            "requested_ids": ["KA-1079"],
             "context": constrained_context,
         }
     )

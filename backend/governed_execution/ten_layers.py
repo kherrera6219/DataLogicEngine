@@ -13,6 +13,7 @@ from typing import Any
 from backend.governed_execution.contracts import (
     ConvergenceDecision,
     GovernedContext,
+    GovernedPolicyDecision,
 )
 from backend.governed_execution.prompt import build_provider_messages
 from backend.governed_execution.quality import (
@@ -614,7 +615,7 @@ class GovernedTenLayerStages:
             ),
         )
 
-    def l8(self, context: GovernedContext) -> LayerExecution:
+    async def l8(self, context: GovernedContext) -> LayerExecution:
         blocking = [
             validator.validator_id
             for validator in context.validators
@@ -623,11 +624,123 @@ class GovernedTenLayerStages:
         policy_blocks = [
             decision
             for decision in context.policy_decisions
-            if decision.get("decision") == "block"
+            if decision.blocked
         ]
-        ok = not blocking and not policy_blocks
-        decision = {
-            "decision": "allow" if ok else "block",
+        candidate = str(context.reasoning.candidate or "")
+        # KA-024 receives the measured binary policy-gate signal here. Answer
+        # quality/confidence remains independently measured by L6/L9 and may
+        # trigger refinement or abstention without being mislabeled as trust.
+        confidence = 0.0 if blocking else 1.0
+        try:
+            risk_score = float(context.request.metadata.get("risk_score", 0.0))
+        except (TypeError, ValueError):
+            risk_score = 1.0
+        risk_score = max(0.0, min(1.0, risk_score))
+        evidence_input = [
+            {
+                "source": item.source_type,
+                "source_id": item.source_id,
+                "content_hash": item.content_hash,
+                "quality_score": item.quality_score,
+            }
+            for item in context.evidence
+        ]
+        request = self._selection_request(
+            context,
+            layer_id="L8",
+            tier=context.reasoning.tier or "standard",
+            requested_ids=["KA-010", "KA-024", "KA-027", "KA-1074"],
+            ka_inputs={
+                "KA-004": {"query": context.query},
+                "KA-005": {"query": context.query},
+                "KA-010": {"content": candidate},
+                "KA-022": {
+                    "recommendation": candidate,
+                    "impact_scores": {"governed_risk": risk_score},
+                },
+                "KA-024": {
+                    "confidence": confidence,
+                    "risk_score": risk_score,
+                },
+                "KA-027": {
+                    "recommendation": candidate,
+                    "has_linguistic_bias": False,
+                },
+                "KA-062": {"evidence": evidence_input},
+                "KA-1074": {
+                    "fields": [
+                        {
+                            "field_id": "candidate",
+                            "value": candidate,
+                            "classification": "public",
+                            "strategy": "retain",
+                        }
+                    ]
+                },
+                "KA-1107": {
+                    "planned_steps": [
+                        {
+                            "step_id": "l8-trust-gate",
+                            "capability_id": "KA-024",
+                            "layer": "L8",
+                            "query_class": "governed_validation",
+                        }
+                    ],
+                    "allowed_capability_ids": ["KA-024"],
+                    "allowed_layers": ["L8"],
+                    "allowed_query_classes": ["governed_validation"],
+                },
+            },
+            service_capabilities={
+                "truthgate_policy_service",
+                "privacy_transformation_service",
+            },
+        )
+        plan = self.ka_selector.plan(request)
+        report = await self.ka_executor.execute(plan, request)
+        executed_ids = self._executed_ids(report)
+        ka_results = self._committed_results(report, executed_ids)
+        trust_output = ka_results.get("KA-024", {}).get("output", {})
+        boundary_output = ka_results.get("KA-1107", {}).get("output", {})
+        ethics_output = ka_results.get("KA-027", {}).get("output", {})
+        privacy_output = ka_results.get("KA-1074", {}).get("output", {})
+        ka_ok = (
+            report.status is KAPlanExecutionStatus.SUCCEEDED
+            and trust_output.get("is_approved") is True
+            and boundary_output.get("plan_allowed") is True
+            and ethics_output.get("status") != "CRITICAL_FAILURE"
+            and privacy_output.get("non_public_value_exposed") is False
+        )
+        ok = not blocking and not policy_blocks and ka_ok
+        decision = GovernedPolicyDecision(
+            policy_id="truthgate_layer_8",
+            decision="allow" if ok else "block",
+            rationale=(
+                "canonical_truthgate_ka_plan_committed"
+                if ok
+                else "validator_policy_or_truthgate_ka_block"
+            ),
+            stage="L8",
+            flags=sorted(
+                {
+                    *blocking,
+                    *(
+                        ["prior_policy_block"]
+                        if policy_blocks
+                        else []
+                    ),
+                    *(
+                        ["truthgate_ka_block"]
+                        if not ka_ok
+                        else []
+                    ),
+                }
+            ),
+            ka_results=ka_results,
+        )
+        context.policy_decisions.append(decision)
+        decision_payload = {
+            **decision.to_dict(),
             "blocking_validator_ids": blocking,
             "blocking_policy_count": len(policy_blocks),
         }
@@ -635,7 +748,7 @@ class GovernedTenLayerStages:
             ok=ok,
             outputs={
                 "layer_id": "L8",
-                "trust_policy_decision": decision,
+                "trust_policy_decision": decision_payload,
                 "risk_class": (
                     (
                         (context.reasoning.coordinate_17.get("axes") or {}).get("15")
@@ -646,12 +759,10 @@ class GovernedTenLayerStages:
                 ),
                 "privacy_security_compliance": "governance_and_output_controls_applied",
             },
-            ka_plan=self._stage_plan(
-                "L8",
-                [],
-                "canonical_governance_and_output_controls",
-            ),
-            decisions=[decision],
+            selected_ka_ids=executed_ids,
+            ka_plan=self._plan_summary(plan, report),
+            ka_results=ka_results,
+            decisions=[decision_payload],
             error_code="L8_TRUST_POLICY_BLOCK" if not ok else None,
         )
 
@@ -1109,6 +1220,20 @@ class GovernedTenLayerStages:
         )
         context.truthcore = cls.redact_sensitive_value(context.truthcore)
         context.dsqp = cls.redact_sensitive_value(context.dsqp)
+        for decision in context.policy_decisions:
+            decision.rationale = cls.redact_sensitive_value(decision.rationale)
+            decision.flags = cls.redact_sensitive_value(decision.flags)
+            decision.ka_results = cls.redact_sensitive_value(decision.ka_results)
+        if "_knowledge_lifecycle" in context.request.metadata:
+            context.request.metadata["_knowledge_lifecycle"] = (
+                cls.redact_sensitive_value(
+                    context.request.metadata["_knowledge_lifecycle"]
+                )
+            )
+        if context.memory_proposal is not None:
+            context.memory_proposal.content = cls.redact_sensitive_value(
+                context.memory_proposal.content
+            )
 
     @classmethod
     def redact_sensitive_value(cls, value: Any) -> Any:

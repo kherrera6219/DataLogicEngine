@@ -73,6 +73,36 @@ class GovernedStageStatus(StrEnum):
 
 
 @dataclass(slots=True)
+class GovernedPolicyDecision:
+    """Shared typed contract for entry and Layer-8 policy decisions."""
+
+    policy_id: str
+    decision: str
+    stage: str
+    rationale: str | None = None
+    flags: list[str] = field(default_factory=list)
+    rule_id: str | None = None
+    ka_results: dict[str, dict[str, Any]] = field(default_factory=dict)
+    decision_version: str = "dle.governed-policy-decision.v1"
+    evaluated_at: datetime = field(default_factory=_now)
+
+    def __post_init__(self) -> None:
+        normalized = str(self.decision).strip().lower()
+        if normalized not in {"allow", "block"}:
+            raise ValueError("GovernedPolicyDecision.decision must be allow or block")
+        self.decision = normalized
+
+    @property
+    def blocked(self) -> bool:
+        return self.decision == "block"
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["evaluated_at"] = _iso(self.evaluated_at)
+        return payload
+
+
+@dataclass(slots=True)
 class GovernedRequest:
     """One admitted request, independent of Flask or SDK transport details."""
 
@@ -558,7 +588,7 @@ class GovernedContext:
     confidence_measurement: ConfidenceMeasurement | None = None
     convergence_decisions: list[ConvergenceDecision] = field(default_factory=list)
     refinement_cycles: int = 0
-    policy_decisions: list[dict[str, Any]] = field(default_factory=list)
+    policy_decisions: list[GovernedPolicyDecision] = field(default_factory=list)
     routing: dict[str, Any] = field(default_factory=dict)
     dsqp: dict[str, Any] = field(default_factory=dict)
     truthcore: dict[str, Any] = field(default_factory=dict)
@@ -570,6 +600,9 @@ class GovernedContext:
     deadline_at_monotonic: float | None = None
     cancellation_entry: Any = None
     warnings: list[str] = field(default_factory=list)
+    lifecycle_transitions: list[dict[str, Any]] = field(default_factory=list)
+    lifecycle_failures: list[dict[str, Any]] = field(default_factory=list)
+    memory_proposal: Any = None
     reasoning: GovernedReasoningState = field(init=False)
 
     def __post_init__(self) -> None:
