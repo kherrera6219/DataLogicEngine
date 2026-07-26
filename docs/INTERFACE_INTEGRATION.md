@@ -122,9 +122,9 @@ reported completed merely because a late result arrived.
 
 The current `/api/v1/ka` surface is an authenticated engineering catalog and
 partial direct-ID executor. It does not yet satisfy the production product
-contract: the whole application does not use one manifest-driven selector,
-several Layer-9/Layer-10 and subsystem consumers read the wrong result shape, a
-generic `allow_nonproduction` flag is not an adequate authorization/
+contract: broad owning-subsystem dispatch is incomplete, full Layer-9/Layer-10
+safety execution is not yet qualified, a generic `allow_nonproduction` flag is
+not an adequate authorization/
 confirmation model, and the SDK/desktop do not share a complete typed
 execute/history/trace workflow. Phase 18 closed incomplete after CP18-D failed.
 Phase 19 owns correction and keeps the signed rebuild blocked through CP19-L.
@@ -139,7 +139,9 @@ selector/plan/executor, 213 positive and 213
 negative generated fixtures, and a corrected 119-edge zero-cycle dependency
 graph. Its effectful nodes produce proposals only; effect application remains
 an authoritative-service workflow owned by CP19-I. CP19-D ten-layer integration
-inside the canonical governed lifecycle is active.
+inside the canonical governed lifecycle now passes with typed causal L1-L10
+state, selector-backed L1 execution, bounded L6-L9 revalidation, and L10-gated
+success persistence. CP19-E full correct-ID fail-closed L9/L10 safety is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

@@ -7,14 +7,13 @@ versioned shape instead of owning an execution pipeline.
 
 from __future__ import annotations
 
+import time
+import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from hashlib import sha256
 from typing import Any
-import time
-import uuid
-
 
 GOVERNED_CONTRACT_VERSION = "governed.v1"
 
@@ -434,6 +433,107 @@ class GovernedFailure:
 
 
 @dataclass(slots=True)
+class GovernedLayerState:
+    """One causal L1-L10 attempt inside the canonical governed lifecycle."""
+
+    layer_id: str
+    name: str
+    iteration: int
+    stage_id: str
+    status: GovernedStageStatus
+    inputs: dict[str, Any] = field(default_factory=dict)
+    outputs: dict[str, Any] = field(default_factory=dict)
+    selected_ka_ids: list[str] = field(default_factory=list)
+    ka_plan: dict[str, Any] = field(default_factory=dict)
+    ka_results: dict[str, dict[str, Any]] = field(default_factory=dict)
+    decisions: list[dict[str, Any]] = field(default_factory=list)
+    effects: list[dict[str, Any]] = field(default_factory=list)
+    trace_links: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["status"] = self.status.value
+        return payload
+
+
+@dataclass(slots=True)
+class GovernedReasoningState:
+    """Typed shared state carried through all ten governed reasoning layers."""
+
+    request_id: str
+    trace_id: str
+    schema_version: str = "dle.governed-reasoning-state.v1"
+    query: str = ""
+    coordinate_17: dict[str, Any] = field(default_factory=dict)
+    tier: str | None = None
+    evidence_ids: list[str] = field(default_factory=list)
+    dsqp_profiles: dict[str, Any] = field(default_factory=dict)
+    layers: list[GovernedLayerState] = field(default_factory=list)
+    candidate: str | None = None
+    claims: list[dict[str, Any]] = field(default_factory=list)
+    validators: list[dict[str, Any]] = field(default_factory=list)
+    confidence_measurement: dict[str, Any] | None = None
+    convergence: dict[str, Any] | None = None
+    effects: list[dict[str, Any]] = field(default_factory=list)
+    trace_links: list[str] = field(default_factory=list)
+    release: dict[str, Any] | None = None
+
+    def record_layer(
+        self,
+        *,
+        layer_id: str,
+        name: str,
+        iteration: int,
+        stage: GovernedStage,
+        selected_ka_ids: list[str] | None = None,
+        ka_plan: dict[str, Any] | None = None,
+        ka_results: dict[str, dict[str, Any]] | None = None,
+        decisions: list[dict[str, Any]] | None = None,
+        effects: list[dict[str, Any]] | None = None,
+    ) -> GovernedLayerState:
+        layer = GovernedLayerState(
+            layer_id=layer_id,
+            name=name,
+            iteration=iteration,
+            stage_id=stage.stage_id,
+            status=stage.status,
+            inputs=dict(stage.inputs),
+            outputs=dict(stage.outputs),
+            selected_ka_ids=list(selected_ka_ids or []),
+            ka_plan=dict(ka_plan or {}),
+            ka_results=dict(ka_results or {}),
+            decisions=list(decisions or []),
+            effects=list(effects or []),
+            trace_links=[stage.stage_id],
+        )
+        self.layers.append(layer)
+        self.trace_links.append(stage.stage_id)
+        self.effects.extend(layer.effects)
+        return layer
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "request_id": self.request_id,
+            "trace_id": self.trace_id,
+            "query": self.query,
+            "coordinate_17": dict(self.coordinate_17),
+            "tier": self.tier,
+            "evidence_ids": list(self.evidence_ids),
+            "dsqp_profiles": dict(self.dsqp_profiles),
+            "layers": [layer.to_dict() for layer in self.layers],
+            "candidate": self.candidate,
+            "claims": list(self.claims),
+            "validators": list(self.validators),
+            "confidence_measurement": self.confidence_measurement,
+            "convergence": self.convergence,
+            "effects": list(self.effects),
+            "trace_links": list(self.trace_links),
+            "release": self.release,
+        }
+
+
+@dataclass(slots=True)
 class GovernedContext:
     request: GovernedRequest
     trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -457,6 +557,13 @@ class GovernedContext:
     deadline_at_monotonic: float | None = None
     cancellation_entry: Any = None
     warnings: list[str] = field(default_factory=list)
+    reasoning: GovernedReasoningState = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.reasoning = GovernedReasoningState(
+            request_id=self.request.request_id,
+            trace_id=self.trace_id,
+        )
 
     def add_stage(self, name: str, stage_type: str, inputs: dict[str, Any] | None = None) -> GovernedStage:
         stage = GovernedStage(name=name, stage_type=stage_type, inputs=inputs or {})

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.40.0 |
+| Document version | v1.41.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4775,13 +4775,61 @@ the deliberate fail-closed `KA-033` reserved denial, and 213 negative cases.
 The focused CP19-C suite passes 13 tests, the KA/Python-SDK suite passes 781
 tests, and the full source suite passes 2,499 tests with 18 skipped.
 
-CP19-D is now active. CP19-C does not claim that L1-L10 already execute inside
+At CP19-C close, CP19-D became active. CP19-C did not claim that L1-L10 already execute inside
 the public governed answer path, and it does not authorize effect application,
 rebuilding, installed acceptance, or production release. Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-audit.md`;
 - `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-verification.json`;
 - `reports/production-readiness/2026/phase-19/cp19-c-validation.json`.
+
+### CP19-D checkpoint result - passed 2026-07-25
+
+CP19-D placed the ten reasoning layers inside the only public governed answer
+lifecycle. `GovernedExecutionOrchestrator` now carries one typed
+`GovernedReasoningState` with request/trace identity, the 17-axis route,
+evidence, DSQP profiles, selected KA plan/results, candidate, claims,
+validators, confidence, convergence, effects, trace links, and the release
+decision. The durable trace exposes ordered `layer_1_normalize_route` through
+`layer_10_release_gate` stages instead of representing the product path as a
+two-KA preflight.
+
+The L1 adapter now derives an explicit recipe from request mode, DMRF tier, and
+risk, submits only the applicable production-qualified `KA-004`, `KA-061`, and
+`KA-001` capabilities to the CP19-C manifest selector/DAG, and consumes their
+typed results. Query normalization changes the provider input; an adversarial
+shield veto blocks before retrieval or provider execution. The private
+`TruthCoreEngine._execute_workflow()` and compatibility preflight are not
+called from the product path.
+
+L2 binds source-identified evidence without equating similarity to quality; L3
+records the bounded acquisition plan and disclosure; L4 binds deterministic
+axes 8-11 profiles; L5 builds the one provider candidate plan. L6 records
+claims, citations, validators, provenance support, and measured confidence; L7
+records evidence dependencies and reasoning boundaries; L8 applies the
+existing governance/output gate; L9 owns the bounded
+finalize/refine/abstain/block decision. A currently authorized single rewrite
+re-enters L6-L9. Only an explicit L10 release permits successful result
+persistence. Failure traces still persist for audit without releasing an
+answer.
+
+The causal regression set proves selected L1 output changes the provider query,
+adversarial output blocks retrieval/provider, evidence changes the result,
+nonconvergence refines or abstains, L10 halt prevents success release, durable
+KA invocation records bind to L1, and regulatory local review does not
+lexically over-select unqualified KAs. Compatibility stage-name fallbacks
+remain read-only for historical trace hydration. The focused cross-system set
+passes 103 tests and the full source suite passes 2,506 with 18 skipped and 21
+warnings.
+
+CP19-E is now active. CP19-D establishes the canonical layer lifecycle but does
+not claim that all seven L9 and all seven L10 KAs execute, that the remaining
+wrong IDs are corrected, that persona/refinement/data/effect integrations are
+complete, or that rebuilding/release is authorized. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-d-ten-layer-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-d-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-d-validation.json`.
 
 Evidence:
 
@@ -5229,16 +5277,17 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-C passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-D passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
 fixtures, corrected 119-edge acyclic dependency graph, bounded structured
-execution, and truthful plan/execution states are verified. Begin CP19-D:
-integrate applicable L1-L10 stage plans inside the one
-`GovernedExecutionOrchestrator` lifecycle so the ten-layer system is causal in
-the public product answer path without creating a second provider, persistence,
-or release path.
+execution, truthful plan/execution states, and the causal typed L1-L10 product
+lifecycle are verified. Begin CP19-E: correct the remaining L9/L10 IDs, execute
+the full required L9/L10 KA suites through the canonical selector, derive
+invocation evidence only from committed child traces, and fail closed on every
+missing, failed, timed-out, privacy, containment, escalation, or release
+result.
 
-Proceed through CP19-D to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-E to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

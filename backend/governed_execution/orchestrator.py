@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import asyncio
-from contextlib import suppress
-from contextvars import ContextVar
-from datetime import UTC, datetime
 import logging
 import os
 import time
+from contextlib import suppress
+from contextvars import ContextVar
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
+from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
 from backend.governed_execution.contracts import (
     GovernedContext,
     GovernedFailure,
@@ -22,22 +23,22 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
-from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
-from backend.governed_execution.prompt import build_provider_messages, build_refinement_messages
+from backend.governed_execution.prompt import build_refinement_messages
 from backend.governed_execution.quality import (
-    calculate_confidence,
-    decide_convergence,
     measure_evidence,
 )
 from backend.governed_execution.retrieval import retrieve_evidence
-from backend.governed_execution.validation import validate_output
+from backend.governed_execution.ten_layers import (
+    LAYER_NAMES,
+    GovernedTenLayerStages,
+    LayerExecution,
+)
 from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
 from backend.llm_gateway.provider_errors import (
     ProviderFailureClass,
     classify_provider_failure,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ class GovernedExecutionOrchestrator:
         self.dmrf_factory = dmrf_factory
         self.dsqp_factory = dsqp_factory
         self.truthcore = truthcore or TruthCoreDMRFAdapter(db_session=getattr(gateway, "db", None))
+        self.layer_stages = GovernedTenLayerStages(self.truthcore)
         self.rag_service = rag_service
         self.event_sink = event_sink
 
@@ -324,11 +326,51 @@ class GovernedExecutionOrchestrator:
                 "dmrf_steps": context.routing.get("steps", []),
             },
         )
+        axis_vector = context.routing.get("axis_vector", {})
 
-        retrieval_stage = self._begin(
+        l1_stage = self._begin_layer(
             context,
-            "retrieval",
-            "retrieval",
+            "L1",
+            {
+                "query": context.query,
+                "tier": dmrf_result.tier,
+                "axis_vector": context.routing.get("axis_vector", {}),
+            },
+        )
+        axis17 = (
+            ((axis_vector.get("axes") or {}).get("17") or {})
+            if isinstance(axis_vector, dict)
+            else {}
+        )
+        l1 = await self.layer_stages.l1(
+            context,
+            tier=dmrf_result.tier,
+            axis17_context=axis17,
+        )
+        self._finish_layer(
+            context,
+            l1_stage,
+            "L1",
+            l1,
+            terminal_status=(
+                GovernedStageStatus.BLOCKED if not l1.ok else None
+            ),
+        )
+        if not l1.ok:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code=l1.error_code or "L1_INPUT_BLOCKED",
+                message="The request did not pass governed L1 admission and routing",
+                stage=l1_stage.name,
+                details=l1.outputs,
+            )
+        if self._cancel_requested(request):
+            return await self._cancel(context, l1_stage.name)
+
+        retrieval_stage = self._begin_layer(
+            context,
+            "L2",
             {"query": context.query},
         )
         context.evidence, retrieval_warnings = await asyncio.to_thread(
@@ -341,25 +383,60 @@ class GovernedExecutionOrchestrator:
             item.bind_to_trace(context.trace_id)
             measure_evidence(item)
         context.warnings.extend(retrieval_warnings)
-        self._finish(
+        l2 = self.layer_stages.l2(context)
+        l2.outputs.update(
+            {
+                "decisions": list(
+                    request.metadata.get("_retrieval_decisions") or []
+                ),
+                "warnings": retrieval_warnings,
+            }
+        )
+        self._finish_layer(
             context,
             retrieval_stage,
-            GovernedStageStatus.COMPLETED,
-            outputs={
-                "source_ids": [item.source_id for item in context.evidence],
-                "citation_labels": [item.citation_label for item in context.evidence],
-                "decisions": list(request.metadata.get("_retrieval_decisions") or []),
-                "warnings": retrieval_warnings,
-            },
+            "L2",
+            l2,
             metrics={"retrieval_count": len(context.evidence)},
         )
         if self._cancel_requested(request):
-            return await self._cancel(context, "retrieval")
+            return await self._cancel(context, retrieval_stage.name)
 
-        dsqp_stage = self._begin(
+        l3_stage = self._begin_layer(
             context,
-            "dsqp_personas",
-            "persona",
+            "L3",
+            {
+                "evidence_ids": [
+                    item.evidence_id for item in context.evidence
+                ],
+                "external_research_requested": bool(
+                    request.metadata.get("external_research_requested")
+                ),
+            },
+        )
+        l3 = self.layer_stages.l3(context)
+        self._finish_layer(
+            context,
+            l3_stage,
+            "L3",
+            l3,
+            terminal_status=(
+                GovernedStageStatus.BLOCKED if not l3.ok else None
+            ),
+        )
+        if not l3.ok:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code=l3.error_code or "L3_EVIDENCE_PLAN_BLOCKED",
+                message="The evidence acquisition plan was not authorized",
+                stage=l3_stage.name,
+                details=l3.outputs,
+            )
+
+        dsqp_stage = self._begin_layer(
+            context,
+            "L4",
             {
                 "query": context.query,
                 "source_ids": [item.source_id for item in context.evidence],
@@ -402,71 +479,37 @@ class GovernedExecutionOrchestrator:
             if dsqp_complete
             else GovernedStageStatus.FAILED
         )
-        self._finish(
+        l4 = self.layer_stages.l4(context)
+        l4.ok = l4.ok and dsqp_status is GovernedStageStatus.COMPLETED
+        l4.outputs.update(
+            {
+                "dsqp": context.dsqp,
+                "expected_persona_axes": sorted(expected_persona_axes),
+                "constructed_persona_axes": sorted(
+                    constructed_persona_axes
+                ),
+            }
+        )
+        if not l4.ok:
+            l4.error_code = "L4_PERSONA_CONTEXT_FAILURE"
+        self._finish_layer(
             context,
             dsqp_stage,
-            dsqp_status,
-            outputs={
-                **context.dsqp,
-                "expected_persona_axes": sorted(expected_persona_axes),
-                "constructed_persona_axes": sorted(constructed_persona_axes),
-            },
-            error_code="DSQP_FAILURE" if dsqp_status is GovernedStageStatus.FAILED else None,
+            "L4",
+            l4,
         )
-        if dsqp_status is GovernedStageStatus.FAILED:
+        if not l4.ok:
             return await self._failure(
                 context,
                 kind=GovernedFailureKind.INTERNAL_FAILURE,
-                code="DSQP_FAILURE",
+                code="L4_PERSONA_CONTEXT_FAILURE",
                 message="Deterministic persona construction failed",
-                stage="dsqp_personas",
+                stage=dsqp_stage.name,
             )
 
-        truthcore_stage = self._begin(
+        prompt_stage = self._begin_layer(
             context,
-            "truthcore_preflight",
-            "workflow",
-            {
-                "query": context.query,
-                "tier": dmrf_result.tier,
-                "mode": request.mode.value,
-            },
-        )
-        axis17 = ((axis_vector.get("axes") or {}).get("17") or {}) if isinstance(axis_vector, dict) else {}
-        context.truthcore = await self.truthcore.execute(
-            context.query,
-            tier=dmrf_result.tier,
-            axis17_context=axis17,
-            context={
-                **request.metadata,
-                "evidence": [item.to_dict() for item in context.evidence],
-                "dsqp": context.dsqp,
-            },
-            mode=request.mode.value,
-        )
-        self._finish(
-            context,
-            truthcore_stage,
-            GovernedStageStatus.COMPLETED if context.truthcore.get("ok") else GovernedStageStatus.FAILED,
-            outputs=context.truthcore,
-            metrics={"ka_count": len(context.truthcore.get("steps_executed") or [])},
-            error_code="TRUTHCORE_PREFLIGHT_FAILURE" if not context.truthcore.get("ok") else None,
-        )
-        if not context.truthcore.get("ok"):
-            return await self._failure(
-                context,
-                kind=GovernedFailureKind.INTERNAL_FAILURE,
-                code="TRUTHCORE_PREFLIGHT_FAILURE",
-                message="TruthCore preflight failed",
-                stage="truthcore_preflight",
-            )
-
-        if request.mode is GovernedMode.LOCAL_REVIEW:
-            return await self._complete_local_review(context)
-        prompt_stage = self._begin(
-            context,
-            "provider_request_construction",
-            "provider",
+            "L5",
             {
                 "source_ids": [item.source_id for item in context.evidence],
                 "persona_ids": [
@@ -481,23 +524,26 @@ class GovernedExecutionOrchestrator:
                 ],
             },
         )
-        context.provider_messages = build_provider_messages(context)
-        system_text = str(context.provider_messages[0].get("content") or "")
-        self._finish(
+        l5 = self.layer_stages.l5(context)
+        self._finish_layer(
             context,
             prompt_stage,
-            GovernedStageStatus.COMPLETED,
-            outputs={
-                "message_count": len(context.provider_messages),
-                "contains_source_ids": all(
-                    item.source_id in system_text for item in context.evidence
-                ),
-                "contains_dsqp": "Deterministic persona context" in system_text,
-                "contains_truthcore": "Executed TruthCore/KA context" in system_text,
-            },
+            "L5",
+            l5,
         )
+        if not l5.ok:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.INTERNAL_FAILURE,
+                code=l5.error_code or "L5_CANDIDATE_PLAN_FAILURE",
+                message="The governed candidate plan could not be constructed",
+                stage=prompt_stage.name,
+                details=l5.outputs,
+            )
         if self._cancel_requested(request):
-            return await self._cancel(context, "provider_request_construction")
+            return await self._cancel(context, prompt_stage.name)
+        if request.mode is GovernedMode.LOCAL_REVIEW:
+            return await self._complete_local_review(context)
 
         provider_stage = self._begin(
             context,
@@ -545,29 +591,6 @@ class GovernedExecutionOrchestrator:
         if self._cancel_requested(request):
             return await self._cancel(context, "provider_execution")
 
-        validation_stage = self._begin(
-            context,
-            "output_validation",
-            "validation",
-            {
-                "source_ids": [item.source_id for item in context.evidence],
-                "answer_length": len(str(provider_result.get("answer") or "")),
-            },
-        )
-        validation = validate_output(
-            str(provider_result.get("answer") or ""),
-            context.evidence,
-            mode=request.mode,
-            governance_engine=self.gateway._governance,
-        )
-        context.claims = validation.pop("claims")
-        context.citations = validation.pop("citations")
-        context.validators = validation.pop("validators")
-        context.confidence_measurement = calculate_confidence(
-            context.claims,
-            context.evidence,
-            context.validators,
-        )
         max_refinements = self._bounded_int(
             request.constraints.get("max_refinement_cycles"),
             1 if request.mode is GovernedMode.ENHANCED else 0,
@@ -578,42 +601,26 @@ class GovernedExecutionOrchestrator:
             request.mode is GovernedMode.ENHANCED
             or str(dmrf_result.tier).lower() in {"high", "high_stakes", "extreme", "autonomous"}
         )
-        convergence = decide_convergence(
-            context.claims,
-            context.validators,
-            context.confidence_measurement,
-            mode=request.mode,
+        evaluation = await self._evaluate_candidate(
+            context,
+            answer=str(provider_result.get("answer") or ""),
             tier=dmrf_result.tier,
             iteration=0,
             max_iterations=max_refinements,
             requires_evidence=requires_evidence,
         )
-        context.convergence_decisions.append(convergence)
-        context.warnings.extend(validation.get("warnings") or [])
-        self._finish(
-            context,
-            validation_stage,
-            GovernedStageStatus.COMPLETED if validation["ok"] else GovernedStageStatus.FAILED,
-            outputs={
-                **validation,
-                "confidence_measurement": context.confidence_measurement.to_dict(),
-                "convergence": convergence.to_dict(),
-            },
-            metrics={
-                "claim_count": len(context.claims),
-                "validation_score": validation["validation_score"],
-            },
-            error_code="OUTPUT_VALIDATION_FAILURE" if not validation["ok"] else None,
-        )
-        if not validation["ok"]:
+        if evaluation["failure"]:
+            failure = evaluation["failure"]
             return await self._failure(
                 context,
-                kind=GovernedFailureKind.VALIDATION_FAILURE,
-                code="OUTPUT_VALIDATION_FAILURE",
-                message="Provider output did not pass governed validation",
-                stage="output_validation",
-                details={"checks": validation["checks"]},
+                kind=failure["kind"],
+                code=failure["code"],
+                message=failure["message"],
+                stage=failure["stage"],
+                details=failure["details"],
             )
+        validation = evaluation["validation"]
+        convergence = evaluation["convergence"]
 
         if convergence.action == "refine":
             refinement_stage = self._begin(
@@ -646,65 +653,38 @@ class GovernedExecutionOrchestrator:
                     retryable=bool(refined_result.get("retryable")),
                     details={"provider_failure": refined_result.get("failure") or {}},
                 )
-            refined_validation = validate_output(
-                str(refined_result.get("answer") or ""),
-                context.evidence,
-                mode=request.mode,
-                governance_engine=self.gateway._governance,
+            self._finish(
+                context,
+                refinement_stage,
+                GovernedStageStatus.COMPLETED,
+                outputs={
+                    "provider": refined_result.get("provider_used"),
+                    "model": refined_result.get("model_used"),
+                    "attempts": refined_result.get("attempts", []),
+                },
+                metrics={"provider_call_count": context.provider_call_count},
             )
-            context.claims = refined_validation.pop("claims")
-            context.citations = refined_validation.pop("citations")
-            context.validators = refined_validation.pop("validators")
-            context.confidence_measurement = calculate_confidence(
-                context.claims,
-                context.evidence,
-                context.validators,
-            )
-            convergence = decide_convergence(
-                context.claims,
-                context.validators,
-                context.confidence_measurement,
-                mode=request.mode,
+            refined_evaluation = await self._evaluate_candidate(
+                context,
+                answer=str(refined_result.get("answer") or ""),
                 tier=dmrf_result.tier,
                 iteration=1,
                 max_iterations=max_refinements,
                 requires_evidence=requires_evidence,
             )
-            context.convergence_decisions.append(convergence)
-            context.warnings.extend(refined_validation.get("warnings") or [])
-            self._finish(
-                context,
-                refinement_stage,
-                GovernedStageStatus.COMPLETED if refined_validation["ok"] else GovernedStageStatus.FAILED,
-                outputs={
-                    **refined_validation,
-                    "confidence_measurement": context.confidence_measurement.to_dict(),
-                    "convergence": convergence.to_dict(),
-                },
-                metrics={"provider_call_count": context.provider_call_count},
-                error_code="OUTPUT_VALIDATION_FAILURE" if not refined_validation["ok"] else None,
-            )
-            if not refined_validation["ok"]:
+            if refined_evaluation["failure"]:
+                failure = refined_evaluation["failure"]
                 return await self._failure(
                     context,
-                    kind=GovernedFailureKind.VALIDATION_FAILURE,
-                    code="OUTPUT_VALIDATION_FAILURE",
-                    message="Refined provider output did not pass governed validation",
-                    stage="refinement_1",
-                    details={"checks": refined_validation["checks"]},
+                    kind=failure["kind"],
+                    code=failure["code"],
+                    message=failure["message"],
+                    stage=failure["stage"],
+                    details=failure["details"],
                 )
             provider_result = refined_result
-            validation = refined_validation
-
-        if convergence.action == "block":
-            return await self._failure(
-                context,
-                kind=GovernedFailureKind.POLICY_BLOCK,
-                code="CONVERGENCE_POLICY_BLOCK",
-                message="Provider output was blocked by a governed validator",
-                stage="output_validation",
-                details=convergence.to_dict(),
-            )
+            validation = refined_evaluation["validation"]
+            convergence = refined_evaluation["convergence"]
 
         result_status = "completed"
         result_answer = validation["answer"]
@@ -713,6 +693,37 @@ class GovernedExecutionOrchestrator:
             result_answer = (
                 "DataLogicEngine could not produce an evidence-supported answer from the "
                 "available sources. Review the cited evidence or provide additional sources."
+            )
+
+        l10_stage = self._begin_layer(
+            context,
+            "L10",
+            {
+                "convergence": convergence.to_dict(),
+                "candidate_status": result_status,
+            },
+        )
+        l10 = self.layer_stages.l10(
+            context,
+            final_action=convergence.action,
+        )
+        self._finish_layer(
+            context,
+            l10_stage,
+            "L10",
+            l10,
+            terminal_status=(
+                GovernedStageStatus.BLOCKED if not l10.ok else None
+            ),
+        )
+        if not l10.ok:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code=l10.error_code or "L10_RELEASE_BLOCK",
+                message="The candidate did not pass the governed release gate",
+                stage=l10_stage.name,
+                details=l10.outputs,
             )
 
         result = GovernedResult(
@@ -749,6 +760,182 @@ class GovernedExecutionOrchestrator:
                     context.trace_id,
                 )
         return result
+
+    async def _evaluate_candidate(
+        self,
+        context: GovernedContext,
+        *,
+        answer: str,
+        tier: str,
+        iteration: int,
+        max_iterations: int,
+        requires_evidence: bool,
+    ) -> dict[str, Any]:
+        l6_stage = self._begin_layer(
+            context,
+            "L6",
+            {
+                "iteration": iteration,
+                "source_ids": [
+                    item.source_id for item in context.evidence
+                ],
+                "answer_length": len(answer),
+            },
+            iteration=iteration,
+        )
+        l6, validation = self.layer_stages.l6(
+            context,
+            answer=answer,
+            governance_engine=self.gateway._governance,
+        )
+        self._finish_layer(
+            context,
+            l6_stage,
+            "L6",
+            l6,
+            iteration=iteration,
+            metrics={
+                "claim_count": len(context.claims),
+                "validation_score": validation["validation_score"],
+            },
+        )
+        if not l6.ok:
+            return {
+                "validation": validation,
+                "convergence": None,
+                "failure": {
+                    "kind": GovernedFailureKind.VALIDATION_FAILURE,
+                    "code": l6.error_code
+                    or "L6_OUTPUT_VALIDATION_FAILURE",
+                    "message": (
+                        "Provider output did not pass governed evidence "
+                        "and confidence validation"
+                    ),
+                    "stage": l6_stage.name,
+                    "details": {
+                        "checks": validation.get("checks") or {},
+                    },
+                },
+            }
+
+        l7_stage = self._begin_layer(
+            context,
+            "L7",
+            {
+                "iteration": iteration,
+                "claim_ids": [
+                    claim.claim_id for claim in context.claims
+                ],
+            },
+            iteration=iteration,
+        )
+        l7 = self.layer_stages.l7(context)
+        self._finish_layer(
+            context,
+            l7_stage,
+            "L7",
+            l7,
+            iteration=iteration,
+        )
+        if not l7.ok:
+            return {
+                "validation": validation,
+                "convergence": None,
+                "failure": {
+                    "kind": GovernedFailureKind.VALIDATION_FAILURE,
+                    "code": l7.error_code
+                    or "L7_REASONING_BOUNDARY_FAILURE",
+                    "message": "The candidate exceeded its governed reasoning boundary",
+                    "stage": l7_stage.name,
+                    "details": l7.outputs,
+                },
+            }
+
+        l8_stage = self._begin_layer(
+            context,
+            "L8",
+            {
+                "iteration": iteration,
+                "validator_ids": [
+                    validator.validator_id
+                    for validator in context.validators
+                ],
+            },
+            iteration=iteration,
+        )
+        l8 = self.layer_stages.l8(context)
+        self._finish_layer(
+            context,
+            l8_stage,
+            "L8",
+            l8,
+            iteration=iteration,
+            terminal_status=(
+                GovernedStageStatus.BLOCKED
+                if not l8.ok
+                else None
+            ),
+        )
+        if not l8.ok:
+            return {
+                "validation": validation,
+                "convergence": None,
+                "failure": {
+                    "kind": GovernedFailureKind.POLICY_BLOCK,
+                    "code": l8.error_code or "L8_TRUST_POLICY_BLOCK",
+                    "message": "The candidate was blocked by the governed trust and policy gate",
+                    "stage": l8_stage.name,
+                    "details": l8.outputs,
+                },
+            }
+
+        l9_stage = self._begin_layer(
+            context,
+            "L9",
+            {
+                "iteration": iteration,
+                "max_iterations": max_iterations,
+                "requires_evidence": requires_evidence,
+            },
+            iteration=iteration,
+        )
+        l9, convergence = self.layer_stages.l9(
+            context,
+            tier=tier,
+            iteration=iteration,
+            max_iterations=max_iterations,
+            requires_evidence=requires_evidence,
+        )
+        self._finish_layer(
+            context,
+            l9_stage,
+            "L9",
+            l9,
+            iteration=iteration,
+            terminal_status=(
+                GovernedStageStatus.BLOCKED
+                if not l9.ok
+                else None
+            ),
+        )
+        if not l9.ok:
+            return {
+                "validation": validation,
+                "convergence": convergence,
+                "failure": {
+                    "kind": GovernedFailureKind.POLICY_BLOCK,
+                    "code": l9.error_code
+                    or "L9_CONVERGENCE_BLOCK",
+                    "message": "The candidate was blocked by governed convergence policy",
+                    "stage": l9_stage.name,
+                    "details": convergence.to_dict(),
+                },
+            }
+        return {
+            "validation": validation,
+            "convergence": convergence,
+            "failure": None,
+        }
 
     async def _execute_provider(
         self,
@@ -1050,6 +1237,53 @@ class GovernedExecutionOrchestrator:
         }
 
     async def _complete_local_review(self, context: GovernedContext) -> GovernedResult:
+        for layer_id in ("L6", "L7", "L8", "L9"):
+            skipped_stage = self._begin_layer(
+                context,
+                layer_id,
+                {"mode": GovernedMode.LOCAL_REVIEW.value},
+            )
+            skipped = LayerExecution(
+                ok=True,
+                outputs={
+                    "layer_id": layer_id,
+                    "reason": "no_provider_candidate_in_local_review_mode",
+                },
+                ka_plan={
+                    "schema_version": "dle.ka-stage-plan.v1",
+                    "layer_id": layer_id,
+                    "selected_ids": [],
+                    "selection_state": "not_applicable",
+                    "effects_authorized": False,
+                },
+            )
+            self._finish_layer(
+                context,
+                skipped_stage,
+                layer_id,
+                skipped,
+                terminal_status=GovernedStageStatus.SKIPPED,
+            )
+        l10_stage = self._begin_layer(
+            context,
+            "L10",
+            {"mode": GovernedMode.LOCAL_REVIEW.value},
+        )
+        l10 = self.layer_stages.l10(
+            context,
+            final_action="local_review",
+        )
+        self._finish_layer(context, l10_stage, "L10", l10)
+        if not l10.ok:
+            return await self._failure(
+                context,
+                kind=GovernedFailureKind.POLICY_BLOCK,
+                code=l10.error_code or "L10_RELEASE_BLOCK",
+                message="The local review did not pass the release gate",
+                stage=l10_stage.name,
+                details=l10.outputs,
+            )
+
         stage = self._begin(
             context,
             "local_review",
@@ -1233,6 +1467,68 @@ class GovernedExecutionOrchestrator:
         self._emit(context.trace_id, stage)
         return stage
 
+    def _begin_layer(
+        self,
+        context: GovernedContext,
+        layer_id: str,
+        inputs: dict[str, Any],
+        *,
+        iteration: int = 0,
+    ) -> GovernedStage:
+        layer_number = int(layer_id.removeprefix("L"))
+        suffix = f"_{iteration}" if iteration else ""
+        return self._begin(
+            context,
+            f"layer_{layer_number}_{LAYER_NAMES[layer_id]}{suffix}",
+            "reasoning_layer",
+            {
+                "layer_id": layer_id,
+                "iteration": iteration,
+                **inputs,
+            },
+        )
+
+    def _finish_layer(
+        self,
+        context: GovernedContext,
+        stage: GovernedStage,
+        layer_id: str,
+        execution: LayerExecution,
+        *,
+        iteration: int = 0,
+        metrics: dict[str, Any] | None = None,
+        terminal_status: GovernedStageStatus | None = None,
+    ) -> None:
+        status = terminal_status or (
+            GovernedStageStatus.COMPLETED
+            if execution.ok
+            else GovernedStageStatus.FAILED
+        )
+        outputs = {
+            **execution.outputs,
+            "ka_plan": execution.ka_plan,
+            "selected_ka_ids": execution.selected_ka_ids,
+        }
+        self._finish(
+            context,
+            stage,
+            status,
+            outputs=outputs,
+            metrics=metrics,
+            error_code=execution.error_code,
+        )
+        context.reasoning.record_layer(
+            layer_id=layer_id,
+            name=LAYER_NAMES[layer_id],
+            iteration=iteration,
+            stage=stage,
+            selected_ka_ids=execution.selected_ka_ids,
+            ka_plan=execution.ka_plan,
+            ka_results=execution.ka_results,
+            decisions=execution.decisions,
+            effects=execution.effects,
+        )
+
     def _finish(
         self,
         context: GovernedContext,
@@ -1323,6 +1619,7 @@ class GovernedExecutionOrchestrator:
             "dmrf": context.routing,
             "dsqp": context.dsqp,
             "truthcore": context.truthcore,
+            "reasoning_state": context.reasoning.to_dict(),
             "policy_decisions": context.policy_decisions,
             "provider_call_count": context.provider_call_count,
             "provider_latency_ms": context.provider_latency_ms,

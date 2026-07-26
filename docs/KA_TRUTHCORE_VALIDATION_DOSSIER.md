@@ -201,8 +201,11 @@ KA/Python-SDK tests, and a 2,486-passed/18-skipped full source suite. CP19-C
 then passed one typed selector/DAG authority with 213 positive and 213 negative
 fixtures, 119 corrected acyclic dependency edges, bounded execution and
 cancellation, 781 KA/Python-SDK tests, and a 2,499-passed/18-skipped full source
-suite. CP19-D-M still must establish the canonical ten-layer and 12-step paths, correct
-fail-closed L9/L10, causal KA-backed Quad Persona/DSQP, Truth/data/knowledge and
+suite. CP19-D then established the canonical typed causal L1-L10 product path,
+production-mode selector-backed L1 execution, bounded L6-L9 revalidation, and
+L10-gated success persistence. CP19-E-M still must establish full correct-ID
+fail-closed L9/L10, the canonical 12-step path, causal KA-backed Quad
+Persona/DSQP, Truth/data/knowledge and
 extended-subsystem integration, API/SDK/desktop workflows, one semantic
 production test and real call-path/effect/trace proof per KA, clean source
 qualification, and exact rebuilt-installed acceptance. The signed rebuild

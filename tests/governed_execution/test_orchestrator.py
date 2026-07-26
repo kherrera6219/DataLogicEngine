@@ -236,29 +236,66 @@ class _DSQP:
 
 
 class _TruthCore:
+    def __init__(
+        self,
+        *,
+        normalized_query: str | None = None,
+        adversarial_block: bool = False,
+    ):
+        self.normalized_query = normalized_query
+        self.adversarial_block = adversarial_block
+
     async def execute(self, query, **kwargs):
         return {
             "ok": True,
             "mode": kwargs["mode"],
             "steps_executed": [
                 {
-                    "step": "complexity_routing",
-                    "ka_id": "KA-113",
+                    "step": "admission_and_routing",
+                    "ka_id": "KA-004",
                     "status": "completed",
                     "input": {"query": query},
-                    "output": {"route": "standard"},
+                    "output": {
+                        "is_valid": True,
+                        "normalized_query": self.normalized_query or query,
+                    },
                     "duration_ms": 2,
-                }
+                },
+                {
+                    "step": "admission_and_routing",
+                    "ka_id": "KA-061",
+                    "status": "completed",
+                    "input": {"query": query},
+                    "output": {
+                        "blocked": self.adversarial_block,
+                        "veto": self.adversarial_block,
+                        "sanitized_query": self.normalized_query or query,
+                    },
+                    "duration_ms": 2,
+                },
+                {
+                    "step": "candidate_preparation",
+                    "ka_id": "KA-001",
+                    "status": "completed",
+                    "input": {"query": query},
+                    "output": {"strategy": "simple"},
+                    "duration_ms": 2,
+                },
             ],
         }
 
 
-def _orchestrator(gateway: _Gateway, *, dmrf_ok: bool = True):
+def _orchestrator(
+    gateway: _Gateway,
+    *,
+    dmrf_ok: bool = True,
+    truthcore: _TruthCore | None = None,
+):
     return GovernedExecutionOrchestrator(
         gateway,
         dmrf_factory=lambda **kwargs: _DMRF(ok=dmrf_ok),
         dsqp_factory=lambda **kwargs: _DSQP(),
-        truthcore=_TruthCore(),
+        truthcore=truthcore or _TruthCore(),
     )
 
 
@@ -292,26 +329,144 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     system = gateway.provider_messages[0][0]["content"]
     assert "source_id=source-alpha" in system
     assert "knowledge contribution" in system
-    assert '"ka_id": "KA-113"' in system
+    assert '"ka_id": "KA-001"' in system
     assert [stage.name for stage in result.stages] == [
         "admission",
         "dmrf_routing",
-        "retrieval",
-        "dsqp_personas",
-        "truthcore_preflight",
-        "provider_request_construction",
+        "layer_1_normalize_route",
+        "layer_2_retrieve_context",
+        "layer_3_evidence_plan",
+        "layer_4_persona_context",
+        "layer_5_candidate_plan",
         "provider_execution",
-        "output_validation",
+        "layer_6_evidence_validation",
+        "layer_7_reasoning_boundary",
+        "layer_8_trust_policy_gate",
+        "layer_9_convergence",
+        "layer_10_release_gate",
         "persistence",
     ]
     assert all(stage.status.value == "completed" for stage in result.stages)
     assert [item["stage_id"] for item in gateway.persisted[0]["trace"]] == [
         stage.stage_id for stage in result.stages
     ]
+    reasoning = result.metadata["reasoning_state"]
+    assert [layer["layer_id"] for layer in reasoning["layers"]] == [
+        f"L{index}" for index in range(1, 11)
+    ]
+    assert reasoning["release"]["decision"] == "release"
     ka = result.metadata["truthcore"]["steps_executed"][0]
     assert ka["input"] == {"query": "Assess the evidence"}
-    assert ka["output"] == {"route": "standard"}
+    assert ka["output"]["normalized_query"] == "Assess the evidence"
     assert ka["duration_ms"] == 2
+
+
+@pytest.mark.asyncio
+async def test_selected_l1_ka_output_changes_query_consumed_by_provider(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha",
+                    citation_label="S1",
+                    text="alpha evidence",
+                )
+            ],
+            [],
+        ),
+    )
+    gateway = _Gateway()
+    result = await _orchestrator(
+        gateway,
+        truthcore=_TruthCore(normalized_query="Normalized governed query"),
+    ).execute(_request())
+
+    assert result.ok is True
+    assert gateway.provider_messages[0][-1]["content"] == "Normalized governed query"
+    assert (
+        result.metadata["reasoning_state"]["layers"][0]["outputs"]["query"]
+        == "Normalized governed query"
+    )
+
+
+@pytest.mark.asyncio
+async def test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider(
+    monkeypatch,
+):
+    import backend.governed_execution.orchestrator as module
+
+    retrieval_called = False
+
+    def retrieve(*args, **kwargs):
+        nonlocal retrieval_called
+        retrieval_called = True
+        return [], []
+
+    monkeypatch.setattr(module, "retrieve_evidence", retrieve)
+    gateway = _Gateway()
+    result = await _orchestrator(
+        gateway,
+        truthcore=_TruthCore(adversarial_block=True),
+    ).execute(_request())
+
+    assert result.ok is False
+    assert result.failure.code == "L1_INPUT_BLOCKED"
+    assert retrieval_called is False
+    assert gateway.provider_calls == 0
+    l1 = result.metadata["reasoning_state"]["layers"][0]
+    assert l1["selected_ka_ids"] == ["KA-004", "KA-061", "KA-001"]
+    assert l1["status"] == "blocked"
+
+
+@pytest.mark.asyncio
+async def test_l10_release_is_required_before_success_persistence(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+    from backend.governed_execution.ten_layers import LayerExecution
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha",
+                    citation_label="S1",
+                    text="alpha evidence",
+                )
+            ],
+            [],
+        ),
+    )
+    gateway = _Gateway()
+    orchestrator = _orchestrator(gateway)
+    monkeypatch.setattr(
+        orchestrator.layer_stages,
+        "l10",
+        lambda *args, **kwargs: LayerExecution(
+            ok=False,
+            outputs={
+                "layer_id": "L10",
+                "release": {"decision": "halt"},
+            },
+            error_code="L10_TEST_HALT",
+        ),
+    )
+
+    result = await orchestrator.execute(_request())
+
+    assert result.ok is False
+    assert result.answer == ""
+    assert result.failure.code == "L10_TEST_HALT"
+    assert gateway.provider_calls == 1
+    assert gateway.persisted[-1]["failure"]["code"] == "L10_TEST_HALT"
+    assert (
+        gateway.persisted[-1]["metadata"]["reasoning_state"]["release"]
+        is None
+    )
 
 
 @pytest.mark.asyncio
@@ -363,7 +518,7 @@ async def test_provider_failure_has_no_validation_stage(monkeypatch):
     assert result.failure.kind is GovernedFailureKind.PROVIDER_FAILURE
     assert gateway.provider_calls == 1
     names = [stage.name for stage in result.stages]
-    assert "output_validation" not in names
+    assert "layer_6_evidence_validation" not in names
     assert result.stages[names.index("provider_execution")].status.value == "failed"
 
 
@@ -386,6 +541,21 @@ async def test_enhanced_refinement_converges_once_and_terminates(monkeypatch):
     assert result.convergence.action == "finalize"
     assert gateway.provider_calls == 2
     assert [stage.name for stage in result.stages].count("refinement_1") == 1
+    post_candidate = [
+        (layer["layer_id"], layer["iteration"])
+        for layer in result.metadata["reasoning_state"]["layers"]
+        if layer["layer_id"] in {"L6", "L7", "L8", "L9"}
+    ]
+    assert post_candidate == [
+        ("L6", 0),
+        ("L7", 0),
+        ("L8", 0),
+        ("L9", 0),
+        ("L6", 1),
+        ("L7", 1),
+        ("L8", 1),
+        ("L9", 1),
+    ]
 
 
 @pytest.mark.asyncio

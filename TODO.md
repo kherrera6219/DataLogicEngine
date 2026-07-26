@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.40.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.41.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-D active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-E active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -64,9 +64,17 @@ Phase 18 source baseline while completing the whole-application wiring.
       serial effect proposals, dependency-result namespacing, and truthful
       trace states pass 13 focused tests; the KA/Python-SDK suite is 781 passed
       and the full source suite is 2,499 passed with 18 skipped.
-- [ ] **CP19-D — canonical ten-layer path:** integrate L1-L10 into the one
-      `GovernedExecutionOrchestrator` lifecycle; no private provider,
-      persistence, or answer path may remain.
+- [x] **CP19-D — canonical ten-layer path:** L1-L10 now execute as explicit
+      stages of the one `GovernedExecutionOrchestrator` lifecycle over typed
+      `GovernedReasoningState`. L1 uses the CP19-C selector and executes the
+      production-qualified `KA-004`/`KA-061` plan plus tier/risk-selected
+      `KA-001`; L2-L5 prepare evidence, DSQP, and the one provider candidate;
+      L6-L9 validate and converge, including a second L6-L9 pass after the
+      bounded rewrite; only L10 release permits success persistence. Causal,
+      adversarial-block, abstain/refine, release-halt, trace-persistence,
+      regulatory local-review, and no-private-workflow proofs pass. The focused
+      cross-system set is 103 passed and the full source suite is 2,506 passed
+      with 18 skipped and 21 warnings.
 - [ ] **CP19-E — Layer-9/Layer-10 safety:** correct canonical IDs, execute all
       required L9/L10 KAs, remove fabricated invocation records, and fail closed
       on safety/privacy/containment/release failures.
@@ -106,6 +114,12 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-D passed 2026-07-25:** the public gateway lifecycle carries
+  one typed reasoning state through causal L1-L10 stages, uses a
+  production-mode manifest-selected L1 KA plan, performs one provider
+  candidate call, revalidates bounded rewrites through L6-L9, and requires L10
+  release before success persistence. The legacy private TruthCore workflow is
+  not called. Full all-ID L9/L10 safety execution remains CP19-E.
 - **Phase 19 CP19-C passed 2026-07-25:** one manifest-driven typed selector
   classifies all 213 KAs, expands and validates dependencies, produces
   deterministic bounded execution batches, and records causal plan/execution
@@ -770,7 +784,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-C passed 2026-07-25, CP19-D canonical ten-layer path active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-D passed 2026-07-25, CP19-E fail-closed L9/L10 safety active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -788,11 +802,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-D by integrating applicable L1-L10 stage plans into the one
-`GovernedExecutionOrchestrator` request lifecycle. The public answer path must
-causally consume the ten-layer decisions without creating a private provider,
-persistence, or release path. Then proceed through CP19-E to CP19-K in the
-plan's mandatory order.
+Complete CP19-E by correcting the remaining Layer-9/Layer-10 identities,
+executing every required `L9-KA-001` through `L9-KA-007` and `L10-KA-001`
+through `L10-KA-007` through the CP19-C selector, deriving invocation evidence
+only from committed child traces, and failing closed on missing, failed,
+timed-out, privacy, containment, escalation, or release results. Then proceed
+through CP19-F to CP19-K in the plan's mandatory order.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

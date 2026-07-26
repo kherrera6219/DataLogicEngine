@@ -26,6 +26,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-D canonical ten-layer product path**: replaced the public
+  two-KA TruthCore preflight with one typed `GovernedReasoningState` carried
+  through explicit causal L1-L10 stages of
+  `GovernedExecutionOrchestrator`. L1 derives a tier/risk recipe and executes
+  production-qualified `KA-004`, `KA-061`, and applicable `KA-001` through the
+  CP19-C selector; L2-L5 prepare evidence, DSQP, and the one provider
+  candidate; L6-L9 validate and converge, including bounded rewrite
+  revalidation; only L10 release permits success persistence. Added causal
+  normalization, adversarial block, regulatory over-selection, refinement,
+  abstention, release-halt, durable trace, and no-private-workflow regressions.
+  Compatibility trace hydration retains read-only fallback names for older
+  records. Full all-ID L9/L10 safety remains CP19-E; effects, rebuilding, and
+  release remain blocked. The focused cross-system set passes 103 tests and the
+  full source suite passes 2,506 with 18 skipped and 21 warnings.
 - **Phase 19 CP19-C selector and bounded dependency DAG**: added one
   manifest-driven typed plan for all 213 canonical KAs, 213 generated positive
   and 213 negative selector fixtures, deterministic transitive dependency
@@ -37,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the KA/Python-SDK suite passes 781; the full source suite passes 2,499
   with 18 skipped. CP19-D ten-layer product-path integration is active; effect
   application, rebuilding, and release remain blocked.
+
 - **Phase 19 CP19-B canonical result-contract parity**: migrated every existing
   production KA caller to `KAExecutionResult` or strict required-output helpers,
   including TruthCore, L6-L10, persona/refinement, simulation/POV/Query Persona,
@@ -422,6 +437,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Storage settings backup**: the desktop now requires and confirms a user-controlled recovery passphrase, passes it only through the protected local IPC/backend boundary, and clears it after an integrity-verified backup.
 
 ### Fixed
+- Release an existing lazy compatibility application's runtime lock before
+  `app.py` is reloaded, preventing configuration-boundary tests from stranding
+  a same-process Windows runtime lock and destabilizing later API fixtures.
 - **Windows object-store concurrency containment**: normalized extended Windows
   path forms before outside-root checks, preserving containment during concurrent
   operations and passing focused and 2,000-operation stress validation.

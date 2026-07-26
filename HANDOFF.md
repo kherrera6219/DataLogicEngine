@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.40.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.41.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-D active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-E active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -60,8 +60,11 @@ and no rebuild was authorized.
 
 The CP18-D audit found 42 KAs with a statically detected execution call site,
 171 without one, 172 with a detected named test, 41 without one, and only 11
-production-enabled entries. The public product preflight executes `KA-113` and,
-in enhanced mode, `KA-001`; the ten-layer workflow is private/test-only.
+production-enabled entries. At that audit point, the public product preflight
+executed `KA-113` and, in enhanced mode, `KA-001`; the ten-layer workflow was
+private/test-only. CP19-D has now replaced that product preflight with a typed,
+selector-backed L1 plan and explicit causal L1-L10 stages in the one governed
+request lifecycle.
 Real callers consume the canonical result incorrectly, L9/L10 contain wrong IDs
 and misleading invocation evidence, no single production 12-step workflow
 exists, DSQP is prompt-causal but not KA-backed persona reasoning, simulation
@@ -72,8 +75,9 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 1. CP19-A transfer/ownership/architecture freeze - passed 2026-07-25;
 2. CP19-B canonical result-contract parity - passed 2026-07-25;
 3. CP19-C manifest selector and bounded dependency DAG - passed 2026-07-25;
-4. CP19-D ten layers inside `GovernedExecutionOrchestrator`;
-5. CP19-E correct fail-closed L9/L10;
+4. CP19-D ten layers inside `GovernedExecutionOrchestrator` - passed
+   2026-07-25;
+5. CP19-E correct fail-closed L9/L10 - active;
 6. CP19-F causal KA-backed Quad Persona/DSQP;
 7. CP19-G one production 12-step workflow;
 8. CP19-H Truth/data/knowledge lifecycle integration;
@@ -140,7 +144,18 @@ proposals, and truthful trace states. The reserved `KA-033` remains deliberately
 denied. The focused CP19-C suite passes 13 tests and the KA/Python-SDK suite
 passes 781; the full source suite passes 2,499 with 18 skipped.
 
-CP19-A through CP19-C authorize CP19-D only; ten-layer product integration,
+CP19-D is also complete. The only governed product lifecycle now carries typed
+`GovernedReasoningState` through explicit L1-L10 trace stages. L1 derives a
+tier/risk recipe and executes production-qualified `KA-004`, `KA-061`, and,
+when applicable, `KA-001` through the CP19-C selector. L2-L5 prepare evidence,
+DSQP, and the one provider candidate; L6-L9 validate and converge, including a
+second pass after the bounded rewrite; only L10 release permits successful
+persistence. Causal normalization, adversarial block, evidence change,
+refine/abstain, L10 halt, durable trace, regulatory local-review, and
+no-private-workflow tests pass. The focused cross-system set passes 103 tests
+and the full source suite passes 2,506 with 18 skipped and 21 warnings.
+
+CP19-A through CP19-D authorize CP19-E only; full all-ID L9/L10 safety,
 effect application, rebuilding, installed acceptance, and production launch
 remain unauthorized. Read:
 
@@ -149,7 +164,10 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-b-validation.json`.
 - `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-audit.md`;
 - `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-verification.json`;
-- `reports/production-readiness/2026/phase-19/cp19-c-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-c-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-d-ten-layer-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-d-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-d-validation.json`.
 
 ## Approved product boundary
 
@@ -766,10 +784,12 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-D by placing applicable L1-L10 stage plans inside the one
-   `GovernedExecutionOrchestrator` answer lifecycle and proving stage output
-   causally changes, refines, abstains, or blocks the public result.
-2. Proceed through CP19-E to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-E by correcting the remaining L9/L10 IDs, executing every
+   required `L9-KA-001` through `L9-KA-007` and `L10-KA-001` through
+   `L10-KA-007` through the canonical selector, deriving invocation lists from
+   committed child traces, and failing closed on missing, failed, timed-out,
+   privacy, containment, escalation, and release results.
+2. Proceed through CP19-F to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

@@ -75,10 +75,12 @@ relevance is never reused as source quality. Missing source quality/freshness or
 unmeasured validators keep the versioned evidence-support result null. Enhanced
 mode performs at most one refinement cycle, then finalizes, abstains, or blocks.
 
-TruthCore's production preflight publishes `truthcore-preflight.v1` state and
-failure transitions and can execute only production-enabled KA catalog entries.
-Experimental and placeholder KAs are disabled in governed production traces.
-Legacy hash-vector DRL output is not a production convergence signal.
+The product path no longer uses the former two-KA TruthCore preflight. L1
+publishes a production-mode manifest selection plan and typed KA results inside
+`GovernedReasoningState`; the older `truthcore-preflight.v1` method remains a
+direct compatibility test surface only. Experimental and placeholder KAs are
+disabled in governed production traces. Legacy hash-vector DRL output is not a
+production convergence signal.
 
 ### Phase 19 Knowledge Algorithm target architecture
 
@@ -105,8 +107,10 @@ typed manifest selector for all 213 KAs, 213 positive and 213 negative fixtures,
 and a corrected 119-edge zero-cycle dependency graph. Independent pure work
 uses bounded structured concurrency; required failure and parent cancellation
 propagate; effect proposals serialize and cannot claim application. The
-KA/Python-SDK suite is 781 passed and the full source suite is 2,499 passed with
-18 skipped. CP19-D canonical ten-layer product-path integration is active.
+KA/Python-SDK suite is 781 passed and the CP19-C full source suite is 2,499
+passed with 18 skipped. CP19-D now places explicit causal L1-L10 stages inside
+the one governed product lifecycle. CP19-E full correct-ID fail-closed L9/L10
+safety execution is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
@@ -143,7 +147,9 @@ candidate execution. L6 measures evidence/provenance/contradiction/confidence,
 L7 performs applicable causal/planning/boundary review, L8 applies trust/risk/
 ethics/privacy/compliance, L9 makes the bounded convergence decision, and L10
 owns containment and release. The one 12-step KA refinement subgraph is entered
-only when L9 selects refinement and must re-enter L6-L10 validation.
+only when L9 selects refinement. CP19-D's existing bounded rewrite already
+re-enters L6-L9; CP19-E adds the full L10 safety suite and CP19-G replaces the
+rewrite with the canonical 12-step KA subgraph.
 
 Every canonical ID has exactly one implementation owner and one primary owning
 subsystem. Other subsystems may consume it through declared governed edges but

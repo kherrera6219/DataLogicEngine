@@ -152,7 +152,11 @@ and zero legacy result calls. CP19-C adds
 `scripts/verify_ka_selector_dag.py`. It verifies 213 positive and 213 negative
 cases, a 119-edge zero-cycle graph, bounded concurrency/budgets/cancellation,
 and proposal-only effects. The KA/Python-SDK suite passes 781 and the full
-source suite passes 2,499 with 18 skipped. CP19-D is active.
+CP19-C source suite passes 2,499 with 18 skipped. CP19-D adds typed
+`GovernedReasoningState`, transport-neutral L1-L10 stage executors, a
+production-mode selector-backed L1 recipe, causal/release regressions, and
+durable layer/KA trace binding inside the one governed orchestrator. CP19-E
+full correct-ID fail-closed L9/L10 safety is active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

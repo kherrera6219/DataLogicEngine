@@ -1,25 +1,47 @@
 # ruff: noqa: E402
-import os
-import re
 import json
 import logging
+import os
+import re
 import secrets
 import sys
 import time
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Lock, Thread
-from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
+
 from dotenv import load_dotenv
-
-from backend.bootstrap_compat import apply_runtime_compatibility_patches
-
-from flask import Blueprint, Flask, has_request_context, render_template, request, redirect, flash, jsonify, current_app, Response, g
+from flask import (
+    Blueprint,
+    Flask,
+    Response,
+    current_app,
+    flash,
+    g,
+    has_request_context,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+)
 from flask_login import current_user
+from werkzeug.exceptions import HTTPException
 from werkzeug.local import LocalProxy
 from werkzeug.middleware.proxy_fix import ProxyFix
-from werkzeug.exceptions import HTTPException
-from extensions import limiter
+
+from backend.auth.api_decorators import api_login_required, api_session_login_required
+from backend.bootstrap_compat import apply_runtime_compatibility_patches
+from backend.llm_gateway.latency_metrics import ai_latency_metrics_prometheus_lines
+from backend.logging_config import configure_structured_logging
+from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
+from backend.observability.crash_reporting import (
+    capture_exception_with_fallback,
+    crash_reporting_prometheus_lines,
+    initialize_crash_reporting,
+)
+from backend.observability.latency_slo import latency_slo_prometheus_lines
+from backend.product_version import PRODUCT_VERSION
 from backend.runtime import (
     APP_SERVICE_KEYS,
     ApplicationRuntime,
@@ -31,21 +53,11 @@ from backend.runtime import (
     get_application_runtime,
 )
 from backend.runtime.application import default_runtime_root
-from backend.llm_gateway.latency_metrics import ai_latency_metrics_prometheus_lines
-from backend.logging_config import configure_structured_logging
-from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
-from backend.observability.crash_reporting import (
-    capture_exception_with_fallback,
-    crash_reporting_prometheus_lines,
-    initialize_crash_reporting,
-)
-from backend.observability.latency_slo import latency_slo_prometheus_lines
-from backend.product_version import PRODUCT_VERSION
 from backend.security.secret_resolver import (
     is_secure_secret_source,
     resolve_runtime_secret,
 )
-from backend.auth.api_decorators import api_login_required, api_session_login_required
+from extensions import limiter
 
 logger = logging.getLogger(__name__)
 core_bp = Blueprint("dle_core", __name__)
@@ -353,11 +365,11 @@ def force_https():
 
 # SSO Configuration
 from backend.auth.sso import configure_sso
-from extensions import db, login_manager, csrf, migrate, cache, compress, cors
-from models import User
 
 # Initialize WebSockets
 from backend.websocket import init_socketio
+from extensions import cache, compress, cors, csrf, db, login_manager, migrate
+from models import User
 
 
 def _normalize_origin(raw_origin: str) -> str:
@@ -381,13 +393,13 @@ def _parse_cors_origins(raw_origins):
 
 
 # Initialize Celery
-from backend.celery_app import make_celery
-
 # Exempt JSON API endpoints from CSRF (they use session auth or API keys)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
-from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
+
 from backend.auth import api_decorators as auth_api_decorators
+from backend.celery_app import make_celery
+from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
 from backend.utils.error_normalization import normalize_public_error_message
 
 # Single-mode / OS-level auth (auth deprecation Phase C, 2026-06-13): only the
@@ -477,13 +489,12 @@ def handle_csrf_error(e):
     return redirect(request.url)
 
 # Initialize Unified Middleware Stack (Hardened)
-from backend.middleware import setup_middleware
-
-
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+
+from backend.middleware import setup_middleware
 
 
 @login_manager.user_loader
@@ -2028,6 +2039,15 @@ def create_app(
     return application
 
 
+# ``importlib.reload(app)`` is used by configuration-boundary tests. A prior
+# compatibility application may already own its process-scoped runtime lock;
+# release that runtime before replacing the module globals so the reloaded
+# proxy cannot strand a live lock in the same process.
+_reloaded_default_app = globals().get("_default_app")
+if _reloaded_default_app is not None:
+    _reloaded_runtime = _reloaded_default_app.extensions.get("dle_runtime")
+    if _reloaded_runtime is not None:
+        _reloaded_runtime.shutdown()
 _default_app = None
 _default_app_lock = Lock()
 

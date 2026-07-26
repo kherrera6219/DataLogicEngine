@@ -2,7 +2,6 @@ from pathlib import Path
 
 from backend.llm_gateway.gateway import LLMGateway
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -49,6 +48,17 @@ def test_public_truthcore_process_uses_canonical_gateway_not_private_workflow():
     assert "LLMGateway" in process_body
     assert "GovernedRequest" in process_body
     assert "self._execute_workflow(" not in process_body
+
+
+def test_governed_truthcore_adapter_uses_selector_not_legacy_preflight():
+    source = (
+        ROOT / "backend/dmrf/truth_integration/core_adapter.py"
+    ).read_text(encoding="utf-8")
+
+    assert "plan_algorithms" in source
+    assert "execute_algorithm_plan" in source
+    assert "execute_governed_preflight" not in source
+    assert "_execute_workflow" not in source
 
 
 def test_simulation_turns_cannot_recursively_call_gateway():

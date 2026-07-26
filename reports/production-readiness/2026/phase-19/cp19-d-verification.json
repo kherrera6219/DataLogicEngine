@@ -1,0 +1,59 @@
+{
+  "schema_version": "dle.phase19-cp19d-verification.v1",
+  "checkpoint": "CP19-D",
+  "date": "2026-07-25",
+  "status": "pass",
+  "canonical_orchestrator": "backend.governed_execution.orchestrator.GovernedExecutionOrchestrator",
+  "reasoning_state_contract": "dle.governed-reasoning-state.v1",
+  "layer_stage_count": 10,
+  "layer_ids": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L7",
+    "L8",
+    "L9",
+    "L10"
+  ],
+  "l1_selection": {
+    "mode": "production",
+    "recipe_inputs": [
+      "request_mode",
+      "dmrf_tier",
+      "risk_domain"
+    ],
+    "production_qualified_ids": [
+      "KA-004",
+      "KA-061",
+      "KA-001"
+    ],
+    "selector_contract": "dle.ka-selection-plan.v1",
+    "result_contract": "dle.ka-execution-result.v1",
+    "effects_authorized": false
+  },
+  "single_path": {
+    "provider_owner_count": 1,
+    "persistence_owner_count": 1,
+    "answer_release_owner_count": 1,
+    "product_calls_to_private_truthcore_workflow": 0,
+    "product_calls_to_compatibility_preflight": 0
+  },
+  "causal_proofs": {
+    "selected_normalization_changes_provider_input": "pass",
+    "adversarial_veto_blocks_retrieval_and_provider": "pass",
+    "evidence_changes_final_result": "pass",
+    "bounded_rewrite_reenters_l6_l9": "pass",
+    "nonconvergence_abstains": "pass",
+    "l10_halt_prevents_success_release": "pass",
+    "regulatory_axis_does_not_overselect": "pass",
+    "durable_layer_and_ka_trace_binding": "pass"
+  },
+  "historical_trace_compatibility": {
+    "read_only_fallback": true,
+    "new_trace_stage_contract": "layer_1_normalize_route through layer_10_release_gate"
+  },
+  "errors": []
+}

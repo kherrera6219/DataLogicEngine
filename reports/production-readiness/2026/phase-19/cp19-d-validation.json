@@ -1,0 +1,41 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-D",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "canonical_typed_causal_ten_layer_product_lifecycle",
+  "results": {
+    "reasoning_layers": 10,
+    "canonical_provider_paths": 1,
+    "canonical_persistence_paths": 1,
+    "canonical_success_release_paths": 1,
+    "product_private_truthcore_workflow_calls": 0,
+    "product_compatibility_preflight_calls": 0,
+    "production_selected_l1_kas": [
+      "KA-004",
+      "KA-061",
+      "KA-001"
+    ],
+    "selected_output_causality": "pass",
+    "adversarial_pre_provider_block": "pass",
+    "bounded_rewrite_l6_l9_revalidation": "pass",
+    "abstention_path": "pass",
+    "l10_success_release_gate": "pass",
+    "durable_trace_binding": "pass",
+    "regulatory_selector_scope": "pass",
+    "same_process_runtime_reload_lock_release": "pass",
+    "focused_cross_system_tests": 103,
+    "full_source_tests_passed": 2506,
+    "full_source_tests_skipped": 18,
+    "full_source_test_warnings": 21,
+    "critical_ruff": "pass",
+    "documentation_gates": "pass"
+  },
+  "limitations": [
+    "CP19-D establishes the canonical ten-layer lifecycle but does not claim full semantic execution of every Layer-9 and Layer-10 KA.",
+    "The existing bounded rewrite re-enters L6-L9; CP19-G still owns the canonical 12-step KA refinement subgraph and its full L6-L10 revalidation.",
+    "Effect-oriented KAs remain proposal-only until CP19-I binds authoritative service ports and verified receipts.",
+    "Rebuilding remains blocked until CP19-L, and installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-E"
+}

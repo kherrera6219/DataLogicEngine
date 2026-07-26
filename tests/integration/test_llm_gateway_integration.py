@@ -1,8 +1,11 @@
-import pytest
 import asyncio
 import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
-from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, CircuitBreaker
+
+import pytest
+
+from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, LLMGateway
+
 
 @pytest.fixture
 def mock_db():
@@ -308,12 +311,17 @@ async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_reques
         assert [stage.name for stage in stages] == [
             "admission",
             "dmrf_routing",
-            "retrieval",
-            "dsqp_personas",
-            "truthcore_preflight",
-            "provider_request_construction",
+            "layer_1_normalize_route",
+            "layer_2_retrieve_context",
+            "layer_3_evidence_plan",
+            "layer_4_persona_context",
+            "layer_5_candidate_plan",
             "provider_execution",
-            "output_validation",
+            "layer_6_evidence_validation",
+            "layer_7_reasoning_boundary",
+            "layer_8_trust_policy_gate",
+            "layer_9_convergence",
+            "layer_10_release_gate",
             "persistence",
         ]
         assert all(stage.status == "completed" for stage in stages)
@@ -460,4 +468,6 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
         assert run.input_message == "Persist failed trace"
         assert run.model_name == "gpt-5.5"
         assert run.data_snapshot["failure"]["message"] == "No active providers found"
-        assert "output_validation" not in [stage.name for stage in run.stages.all()]
+        assert "layer_6_evidence_validation" not in [
+            stage.name for stage in run.stages.all()
+        ]

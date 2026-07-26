@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from typing import Any
 import hashlib
 import json
 import logging
 import uuid
+from datetime import UTC, datetime
+from typing import Any
 
 from extensions import db
 from models import (
@@ -24,7 +24,6 @@ from models import (
     TraceStage,
     TraceValidator,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -219,8 +218,14 @@ def persist_governed_trace(
             )
             record.metrics = _mapping(item.get("metrics"))
 
-        retrieval_stage = stage_by_name.get("retrieval")
-        validation_stage = stage_by_name.get("output_validation")
+        retrieval_stage = stage_by_name.get(
+            "layer_2_retrieve_context",
+            stage_by_name.get("retrieval"),
+        )
+        validation_stage = stage_by_name.get(
+            "layer_6_evidence_validation",
+            stage_by_name.get("output_validation"),
+        )
         claim_refs: dict[str, list[str]] = {}
         for claim in claims:
             for evidence_id in claim.get("evidence_ids") or []:
@@ -449,7 +454,10 @@ def persist_governed_trace(
 
         truthcore = _mapping(metadata.get("truthcore"))
         ka_steps = _objects(truthcore.get("steps_executed"))
-        truthcore_stage = stage_by_name.get("truthcore_preflight")
+        truthcore_stage = stage_by_name.get(
+            "layer_1_normalize_route",
+            stage_by_name.get("truthcore_preflight"),
+        )
         active_kas: set[uuid.UUID] = set()
         for index, item in enumerate(ka_steps):
             ka_id = str(item.get("ka_id") or f"ka_{index}")
