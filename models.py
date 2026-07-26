@@ -3479,6 +3479,8 @@ class MCPExecutionRecord(db.Model):
     prompt_injection_risk = db.Column(db.Boolean, nullable=False, default=False)
     error_code = db.Column(db.String(100))
     error_message = db.Column(db.String(500))
+    ka_lifecycle = db.Column(db.JSON)
+    effect_receipt = db.Column(db.JSON)
     duration_ms = db.Column(db.Integer)
     trace_id = db.Column(db.String(36), index=True)
     started_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
@@ -3506,6 +3508,8 @@ class MCPExecutionRecord(db.Model):
             'prompt_injection_risk': self.prompt_injection_risk,
             'error_code': self.error_code,
             'error_message': self.error_message,
+            'ka_lifecycle': self.ka_lifecycle or {},
+            'effect_receipt': self.effect_receipt,
             'duration_ms': self.duration_ms,
             'trace_id': self.trace_id,
             'started_at': self.started_at.isoformat() if self.started_at else None,

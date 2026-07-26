@@ -153,8 +153,11 @@ causally changes the single provider prompt. The current corrected graph is
 steps are trace-accounted, zero step-level provider subcalls occur, at most one
 rewrite is allowed, L6-L10 revalidation is mandatory, and lifecycle output is
 proposal-only. The current graph is 131 edges/zero cycles with 29
-production-enabled capabilities, and CP19-H Truth/data/knowledge lifecycle
-integration is active. The
+production-enabled capabilities. CP19-H Truth/data/knowledge integration and
+CP19-I simulation/MCP/provider/security/operations/effect integration now also
+pass. The current manifest production-enables 149 capabilities, keeps 136
+dependency edges acyclic, enforces bounded effect proposals, and retains
+authoritative owning-service receipts. CP19-J product workflow is active. The
 signed rebuild is paused through CP19-L.
 Dependabot alert 389 is fixed.
 Production/public release is **NO-GO**.

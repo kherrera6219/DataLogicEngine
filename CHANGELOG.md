@@ -26,6 +26,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-I extended subsystems and authoritative effects**:
+  connected the durable simulation job, MCP connector boundary, provider
+  gateway, and security/operations consumers to the canonical manifest,
+  selector, executor, and controller. Simulation planning now blocks before
+  provider/artifact effects and outcome archival remains proposal-only until
+  the job service writes artifacts. MCP executes consent/scope plus KA
+  admission before connector calls, governs results afterward, and stores
+  content-free KA evidence with a hashed owning-service receipt. Provider
+  context governance runs before the one gateway call and measured monitoring
+  follows the usage-ledger write. Added enforced `max_effects` proposal
+  budgets, strict authoritative receipt validation, MCP lifecycle/receipt
+  columns, and Alembic head `f1a2b3c4d5e6`. The 213-capability manifest now
+  production-enables 149 KAs with 136 dependency edges and zero cycles.
+  Repaired the retained KA upgrade verifier to exercise canonical deterministic
+  `KA-136` threat modeling and `KA-005` classification instead of the retired
+  provider-backed KA-117 prototype.
+  Twenty focused, 126 affected, 767 KA, six TypeScript SDK, and 2,550
+  full-source tests pass with 19 skipped and 21 known warnings. CP19-J product
+  workflow is active; rebuilding and release remain blocked.
+- **Phase 19 CP19-H Truth/data/knowledge lifecycle**: connected typed entry and
+  L8 policy, authorized memory recall, release-gated memory promotion,
+  TruthLink/FROST publication, secure pre-materialization ingestion, and
+  deletion/recovery dispatch through the one manifest/controller boundary.
+  The retained checkpoint passed 13 focused, 79 affected, 767 KA, six
+  TypeScript SDK, and 2,541 full-source tests.
 - **Phase 19 CP19-G canonical 12-step refinement workflow**: replaced the
   competing TruthCore, simulation, system, Quad demonstration, and direct
   provider-retry concepts with one versioned 12-step registry and

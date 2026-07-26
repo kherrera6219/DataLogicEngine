@@ -107,25 +107,24 @@ class KnowledgeLifecycleCoordinator:
         *,
         ka_controller: CanonicalKAController | None = None,
         memory_service: Any | None = None,
+        registry_key: str = "subsystem_execution_registry",
+        workflow_phase: str = "cp19h",
     ) -> None:
         self.ka_controller = ka_controller or get_ka_controller()
         self.ka_selector = ManifestKASelector(self.ka_controller.manifest)
         self.ka_executor = KAPlanExecutor(self.ka_controller)
-        registry = self.ka_controller.manifest.authority.get(
-            "subsystem_execution_registry"
-        )
+        registry = self.ka_controller.manifest.authority.get(registry_key)
         if not isinstance(registry, dict):
             raise KnowledgeLifecycleError(
-                "CP19-H subsystem execution registry is unavailable"
+                f"Subsystem execution registry is unavailable: {registry_key}"
             )
         owners = registry.get("owners")
         if not isinstance(owners, dict):
-            raise KnowledgeLifecycleError(
-                "CP19-H subsystem owner registry is invalid"
-            )
+            raise KnowledgeLifecycleError("CP19-H subsystem owner registry is invalid")
         self.registry = registry
         self.owners = owners
         self._memory_service = memory_service
+        self._workflow_phase = str(workflow_phase)
 
     def operation_ids(self, owner: str, operation: str) -> list[str]:
         owner_registry = self.owners.get(owner)
@@ -147,6 +146,7 @@ class KnowledgeLifecycleCoordinator:
         ka_inputs: dict[str, dict[str, Any]],
         request_id: str,
         run_id: str,
+        max_effects: int,
         session_id: str | None = None,
         principal_id: str | None = None,
         tier: str | None = None,
@@ -175,7 +175,7 @@ class KnowledgeLifecycleCoordinator:
                 run_id=run_id,
                 session_id=session_id,
                 principal_id=principal_id,
-                workflow=f"governed.cp19h.{owner}.{operation}",
+                workflow=(f"governed.{self._workflow_phase}.{owner}.{operation}"),
                 tier=tier,
                 layer=layer,
                 policy_decisions=dict(policy_decisions or {}),
@@ -188,6 +188,7 @@ class KnowledgeLifecycleCoordinator:
                     max_parallelism=4,
                     max_input_bytes=2_000_000,
                     max_output_bytes=10_000_000,
+                    max_effects=max(0, min(int(max_effects), 1_000)),
                 ),
             ),
         )
@@ -414,9 +415,7 @@ class LifecycleTransitionPublisher:
                 session_id=trace_id,
             )
         except Exception as exc:
-            raise KnowledgeLifecycleError(
-                "TruthLink stage publication failed"
-            ) from exc
+            raise KnowledgeLifecycleError("TruthLink stage publication failed") from exc
         if not isinstance(message, dict) or not message.get("message_id"):
             raise KnowledgeLifecycleError("TruthLink stage publication failed")
         if stage.status.value != "running":

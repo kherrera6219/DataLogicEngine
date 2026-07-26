@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.07.25-cp19c.1",
+  "manifest_version": "2026.07.25-cp19i.1",
   "canonical_capabilities": 213,
-  "dependency_edges": 119,
+  "dependency_edges": 136,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -21,11 +21,10 @@
     },
     "KA-117": {
       "dependencies": [
-        "KA-065",
-        "KA-1094"
+        "KA-065"
       ],
       "matches_approved_order": true,
-      "rationale": "Knowledge integrity consumes regression and contradiction evidence before persistence; the system-wide auditor is downstream."
+      "rationale": "Knowledge integrity consumes regression results before any quarantine or promotion decision."
     },
     "KA-1099": {
       "dependencies": [
@@ -50,6 +49,198 @@
       ],
       "matches_approved_order": true,
       "rationale": "Evolution admission consumes escalation, capability, and prior goal-drift constraints; it is not a prerequisite of the monitor."
+    },
+    "L9-KA-006": {
+      "dependencies": [
+        "L9-KA-001",
+        "L9-KA-002",
+        "L9-KA-003",
+        "L9-KA-004"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Readiness is calculated only from committed L9 measurements."
+    },
+    "L9-KA-005": {
+      "dependencies": [
+        "L9-KA-006"
+      ],
+      "matches_approved_order": true,
+      "rationale": "The refinement trigger consumes measured readiness."
+    },
+    "L9-KA-007": {
+      "dependencies": [
+        "L9-KA-005",
+        "L9-KA-006"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Loop admission consumes the refinement and readiness decisions."
+    },
+    "L10-KA-007": {
+      "dependencies": [
+        "L10-KA-004",
+        "L10-KA-006"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Human review routing consumes ethics and terminal trust results."
+    },
+    "L10-KA-005": {
+      "dependencies": [
+        "L10-KA-001",
+        "L10-KA-002",
+        "L10-KA-003",
+        "L10-KA-004",
+        "L10-KA-006",
+        "L10-KA-007"
+      ],
+      "matches_approved_order": true,
+      "rationale": "The containment decision consumes every preceding L10 safety result."
+    },
+    "KA-012": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Persona analysis consumes validated DSQP profiles and produces the findings that downstream weighting requires."
+    },
+    "KA-013": {
+      "dependencies": [
+        "KA-012"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Persona weighting consumes committed KA-012 findings and measured DSQP profile coverage."
+    },
+    "KA-030": {
+      "dependencies": [
+        "KA-013"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Conflict disposition consumes weighted, retained dissent and turns it into mandatory prompt constraints."
+    },
+    "KA-003": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Gap analysis compares committed current and desired state before synthesis and does not consume an ensemble result."
+    },
+    "KA-072": {
+      "dependencies": [
+        "KA-071"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-073": {
+      "dependencies": [
+        "KA-072"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-074": {
+      "dependencies": [
+        "KA-073"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-075": {
+      "dependencies": [
+        "KA-074"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-076": {
+      "dependencies": [
+        "KA-075"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-077": {
+      "dependencies": [
+        "KA-076"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-078": {
+      "dependencies": [
+        "KA-077"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Secure ingestion executes acquisition, cleaning, transformation, validation, mapping, resolution, enrichment, and archival proposal decisions in committed order."
+    },
+    "KA-010": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Content bias scanning is self-contained; population disparity analysis remains a separate conditional cohort decision."
+    },
+    "KA-1071": {
+      "dependencies": [
+        "KA-018"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Knowledge provenance tracking consumes the source provenance observation before lifecycle publication."
+    },
+    "KA-1094": {
+      "dependencies": [
+        "KA-117",
+        "KA-1071"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Quarantine admission consumes committed integrity and provenance results and remains a proposal to the knowledge lifecycle service."
+    },
+    "KA-1109": {
+      "dependencies": [
+        "KA-024",
+        "KA-1074"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Containment classification consumes the shared trust and privacy policy decisions before proposing an effect."
+    },
+    "KA-1079": {
+      "dependencies": [
+        "KA-117",
+        "KA-1094",
+        "KA-1109"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Promotion is evaluated only after integrity, quarantine, and containment decisions have committed."
+    },
+    "KA-1096": {
+      "dependencies": [
+        "KA-1079"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Knowledge release staging consumes the promotion decision and cannot release independently."
+    },
+    "KA-1107": {
+      "dependencies": [
+        "KA-004",
+        "KA-005"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Reasoning-boundary enforcement consumes normalized input and classification; simulation cost is not an entry-policy prerequisite."
+    },
+    "KA-1108": {
+      "dependencies": [
+        "KA-1112"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Capability escalation consumes the system-introspection record; experimental emergence research is not a production prerequisite."
+    },
+    "KA-070": {
+      "dependencies": [
+        "KA-042"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Graph ripple simulation consumes the bounded local counterfactual projection; unrelated data-quality scoring is not a simulation prerequisite."
+    },
+    "KA-1101": {
+      "dependencies": [
+        "KA-1081",
+        "KA-1099"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
     }
   },
   "structured_execution": {

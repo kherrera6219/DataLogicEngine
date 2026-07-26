@@ -1,0 +1,49 @@
+{
+  "schema_version": "dle.phase19-cp19i-verification.v1",
+  "checkpoint": "CP19-I",
+  "date": "2026-07-25",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19i.1",
+  "manifest_status": "cp19_i_extended_subsystem_authority",
+  "canonical_capabilities": 213,
+  "production_enabled_capabilities": 149,
+  "dependency_edges": 136,
+  "dependency_cycles": 0,
+  "extended_subsystem_registry": {
+    "schema_version": "dle.ka-extended-subsystem-registry.v1",
+    "owners": 4,
+    "operation_references": 81,
+    "distinct_canonical_ids": 65,
+    "duplicate_implementation_ids": 0
+  },
+  "simulation": {
+    "ka_plan_before_provider": true,
+    "semantic_block_zero_provider_calls": true,
+    "outcome_proposal_before_artifact_write": true,
+    "authoritative_artifact_receipt": true
+  },
+  "mcp_security_operations": {
+    "consent_and_scope_authority_retained": true,
+    "ka_admission_before_connector": true,
+    "inline_credential_block_before_connector": true,
+    "governed_result_security_plan": true,
+    "content_free_durable_ka_evidence": true,
+    "authoritative_connector_receipt": true
+  },
+  "provider_gateway": {
+    "required_context_budget_before_call": true,
+    "one_provider_client_path": true,
+    "usage_ledger_before_receipt": true,
+    "measured_latency_monitoring": true,
+    "authoritative_provider_receipt": true
+  },
+  "effects": {
+    "selector_max_effects_enforced": true,
+    "proposal_is_not_applied_effect": true,
+    "sha256_request_and_result_required": true,
+    "idempotency_required": true,
+    "owning_service_required": true
+  },
+  "data_plane_schema_head": "f1a2b3c4d5e6",
+  "errors": []
+}

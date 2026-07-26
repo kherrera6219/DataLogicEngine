@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import logging
-import multiprocessing
-from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
 import hashlib
 import json
+import logging
 import mimetypes
+import multiprocessing
 import os
-from pathlib import Path
 import re
 import shutil
+import zipfile
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Callable, Iterable
 from uuid import UUID, uuid4
-import zipfile
 
 from flask import current_app, has_app_context
 
@@ -28,7 +28,6 @@ from models import (
     IngestionJob,
     KnowledgeGraphNode,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -734,6 +733,7 @@ class LocalKnowledgeIngestionService:
             },
             request_id=result.ingestion_id,
             run_id=result.ingestion_id,
+            max_effects=8,
             principal_id=(str(user_id) if user_id is not None else "desktop"),
             tier="ingestion",
             layer="data",

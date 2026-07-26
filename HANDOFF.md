@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.45.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.46.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-I active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-J active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -82,7 +82,7 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 7. CP19-G one production 12-step workflow - passed 2026-07-25;
 8. CP19-H Truth/data/knowledge lifecycle integration - passed 2026-07-25;
 9. CP19-I simulation/MCP/provider/security/operations/effect integration -
-   active;
+   passed 2026-07-25;
 10. CP19-J API/SDK/desktop/accessibility workflow;
 11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof;
 12. CP19-L clean source qualification; and
@@ -207,8 +207,24 @@ passed, the affected subsystem set is 79 passed, the complete KA suite is 767
 passed, the TypeScript SDK suite is six passed, and the full source suite is
 2,541 passed with 19 skipped and 21 known warnings.
 
-CP19-A through CP19-H authorize CP19-I only; remaining extended subsystem/effect,
-product, per-KA, rebuilding, installed acceptance, and production launch gates
+CP19-I is also complete. Manifest `2026.07.25-cp19i.1` retains all 213
+canonical identities, production-enables 149 capabilities, and preserves the
+136-edge zero-cycle graph. The durable simulation job executes bounded
+planning before provider calls and outcome proposal before artifact writes.
+MCP executes consent/scope plus security/operations KA admission before the
+connector and result-governance KAs afterward; its durable record now holds
+content-free lifecycle evidence and the authoritative receipt. Provider
+context governance executes before the existing gateway call, measured
+monitoring follows the durable usage-ledger write, and the provider stage
+retains its authoritative receipt. The selector now rejects an
+effect-oriented plan that exceeds `max_effects`; KA proposals never become
+service effects. The migration chain has 25 revisions and one head
+`f1a2b3c4d5e6`. Twenty focused, 126 affected-subsystem, 767 KA, six TypeScript
+SDK, and 2,550 full-source tests pass; the full suite has 19 skipped and 21
+known warnings.
+
+CP19-A through CP19-I authorize CP19-J only; remaining product, per-KA,
+clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -231,7 +247,10 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-g-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-h-truth-data-knowledge-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-h-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-i-extended-subsystem-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-i-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-i-validation.json`.
 
 ## Approved product boundary
 
@@ -848,12 +867,13 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-I by connecting simulation, MCP, providers, gateway, security,
-   operations, lifecycle, durable jobs, authoritative service ports, and
-   verified effect receipts.
-2. Proceed through CP19-J and CP19-K in the mandatory order. Preserve canonical
-   IDs, every distinct capability, one implementation owner, one primary
-   subsystem owner, and one governed answer path.
+1. Complete CP19-J by connecting the authenticated KA API, generated SDKs, and
+   accessible desktop plan/confirm/execute/cancel/history/trace/artifact/effect
+   workflow to the one canonical controller.
+2. Proceed to CP19-K for complete individually named proof across all 213
+   capabilities. Preserve canonical IDs, every distinct capability, one
+   implementation owner, one primary subsystem owner, and one governed answer
+   path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
    execute CP19-M plus the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,

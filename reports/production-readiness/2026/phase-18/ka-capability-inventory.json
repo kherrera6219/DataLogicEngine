@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "993d360ccfcece3297ee84781176012c71dd7aef092c515ccaf3524c5bb991fa",
+  "source_input_sha256": "000c674d628d715ae5d519de54c6fa4908911f748f15fbab9599cb0cdb706ee2",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,
@@ -27,11 +27,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 132,
+    "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 193,
-    "canonical_with_named_test_function": 188
+    "canonical_with_test_reference": 194,
+    "canonical_with_named_test_function": 189
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -10752,6 +10752,13 @@
     },
     {
       "path": "backend/dmrf/truth_integration/core_adapter.py",
+      "exists": true,
+      "kind": "backend_application_caller",
+      "disposition": "route_through_canonical_controller",
+      "target_checkpoint": "CP18-D"
+    },
+    {
+      "path": "backend/governed_execution/extended_subsystems.py",
       "exists": true,
       "kind": "backend_application_caller",
       "disposition": "route_through_canonical_controller",

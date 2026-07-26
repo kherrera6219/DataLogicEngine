@@ -13,7 +13,7 @@
     "gateway": "dle-gateway.v1",
     "virtual_model_manifest": "dle-virtual-models.v1",
     "provider_manifest": "provider-manifest.v1",
-    "data_plane_schema": "e0f1a2b3c4d5"
+    "data_plane_schema": "f1a2b3c4d5e6"
   },
   "sdks": {
     "python": "0.7.0",

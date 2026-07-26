@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-b-contract-parity-verification.v1",
   "status": "pass",
-  "production_python_files_scanned": 621,
+  "production_python_files_scanned": 626,
   "migrated_caller_surfaces": 18,
   "caller_status": {
     "api": {

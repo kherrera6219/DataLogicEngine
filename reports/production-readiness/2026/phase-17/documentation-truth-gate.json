@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-07-26T07:43:15.304425+00:00",
+  "generated_at": "2026-07-26T09:35:29.249227+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -32,7 +32,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "[PASS] pyproject: 4.3.0\n[PASS] frontend-package: 4.3.0\n[PASS] frontend-lock: 4.3.0\n[PASS] frontend-lock-root: 4.3.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: e0f1a2b3c4d5\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.3.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
+      "stdout": "[PASS] pyproject: 4.3.0\n[PASS] frontend-package: 4.3.0\n[PASS] frontend-lock: 4.3.0\n[PASS] frontend-lock-root: 4.3.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: f1a2b3c4d5e6\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.3.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
       "stderr": ""
     },
     {

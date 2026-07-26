@@ -288,6 +288,24 @@ def test_tool_result_is_governed_and_durably_hashed(app, authenticated_client, m
         assert len(record.result_sha256) == 64
         assert record.prompt_injection_risk is True
         assert record.status == "completed"
+        assert {
+            "KA-022",
+            "KA-136",
+            "KA-137",
+            "KA-177",
+            "KA-179",
+        } <= set(record.ka_lifecycle["admission"]["executed_ids"])
+        assert {
+            "KA-010",
+            "KA-096",
+            "KA-097",
+            "KA-175",
+            "KA-182",
+        } <= set(record.ka_lifecycle["result_validation"]["executed_ids"])
+        assert record.effect_receipt["status"] == "applied"
+        assert record.effect_receipt["service"] == "MCPConnectorService"
+        assert record.effect_receipt["request_sha256"] == record.request_sha256
+        assert len(record.effect_receipt["result_sha256"]) == 64
 
 
 def test_renderer_safe_server_response_never_serializes_dpapi_blobs(app):
@@ -310,6 +328,88 @@ def test_renderer_safe_server_response_never_serializes_dpapi_blobs(app):
     assert payload["config"]["credential_keys"] == ["API_TOKEN"]
     assert "credential_blobs" not in payload
     assert "encrypted-secret" not in str(payload)
+
+
+def test_mcp_ka_admission_blocks_inline_credentials_before_connector_effect(
+    app,
+    authenticated_client,
+    monkeypatch,
+):
+    with app.app_context():
+        owner_id = str(User.query.filter_by(username="testuser").one().id)
+        server = MCPServer(
+            server_id="ka-block-server",
+            name="ka-block-server",
+            status="active",
+            consent_state="approved",
+            command_fingerprint="e" * 64,
+            requested_scopes=["connector:ka-block-server:read"],
+            approved_scopes=["connector:ka-block-server:read"],
+            config={"limits": {"max_message_bytes": 65536}},
+        )
+        db.session.add(server)
+        db.session.flush()
+        db.session.add(
+            MCPConsentGrant(
+                server_id=server.id,
+                principal_id=owner_id,
+                command_fingerprint=server.command_fingerprint,
+                requested_scopes=server.requested_scopes,
+                approved_scopes=server.approved_scopes,
+                status="approved",
+            )
+        )
+        tool = MCPTool(
+            server_id=server.id,
+            name="read_data",
+            description="Read data",
+            input_schema={"type": "object"},
+            tool_metadata={
+                "required_scopes": [
+                    "mcp:execute",
+                    "connector:ka-block-server:read",
+                ]
+            },
+        )
+        db.session.add(tool)
+        db.session.commit()
+        tool_id = tool.id
+
+    class RuntimeServer:
+        calls = 0
+
+        async def _handle_tools_call(self, _params):
+            self.calls += 1
+            return "must not execute"
+
+    runtime = RuntimeServer()
+    manager = SimpleNamespace(
+        external_clients={},
+        get_server=lambda server_id: (
+            runtime if server_id == "ka-block-server" else None
+        ),
+    )
+    monkeypatch.setattr(
+        "backend.routes.mcp_routes.get_mcp_manager",
+        lambda: manager,
+    )
+
+    response = authenticated_client.post(
+        f"/api/v1/mcp/servers/ka-block-server/tools/{tool_id}/call",
+        json={"arguments": {"api_key": "abcdefghijklmnop"}},
+    )
+
+    assert response.status_code == 403
+    body = response.get_json()
+    assert body["code"] == "MCP_KA_ADMISSION_BLOCKED"
+    assert runtime.calls == 0
+    with app.app_context():
+        record = MCPExecutionRecord.query.filter_by(
+            execution_id=body["execution_id"]
+        ).one()
+        assert record.status == "failed"
+        assert record.result_sha256 is None
+        assert record.effect_receipt is None
 
 
 def test_running_execution_can_be_cancelled_by_its_owner(app, authenticated_client, monkeypatch):

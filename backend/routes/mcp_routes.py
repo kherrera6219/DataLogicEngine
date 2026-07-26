@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """
 MCP API Endpoints
 
@@ -6,8 +5,6 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from flask import Blueprint, current_app, has_app_context, jsonify, g, request
-from datetime import datetime, UTC
 import asyncio
 import hashlib
 import json
@@ -15,35 +12,48 @@ import logging
 import os
 import time
 import uuid
+from datetime import UTC, datetime
 
-from extensions import db
-from models import (
-    MCPConsentGrant,
-    MCPExecutionRecord,
-    MCPLifecycleEvent,
-    MCPServer as MCPServerModel,
-    MCPResource,
-    MCPTool,
-    MCPPrompt,
+from flask import Blueprint, current_app, g, has_app_context, jsonify, request
+
+from backend.governed_execution.extended_subsystems import (
+    ExtendedSubsystemCoordinator,
+    ExtendedSubsystemError,
 )
-from core.mcp import MCPManager
-from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
-from backend.mcp_server.router import MCPRouter
+from backend.governed_execution.knowledge_lifecycle import KnowledgeLifecycleError
+from backend.mcp_server.connector_metrics import (
+    infer_connector_id,
+    record_connector_execution,
+)
 from backend.mcp_server.credential_store import (
     protect_connector_credentials,
     resolve_connector_credentials,
 )
+from backend.mcp_server.live_state import MCPLiveStateUnavailable, RedisMCPLiveState
 from backend.mcp_server.policy import (
     MCPPolicyError,
     govern_connector_result,
     validate_stdio_definition,
 )
-from backend.mcp_server.live_state import MCPLiveStateUnavailable, RedisMCPLiveState
+from backend.mcp_server.router import MCPRouter
 from backend.mcp_server.scope_enforcement import (
     ScopeEnforcementError,
     enforce_scopes,
     normalize_scopes,
     parse_execution_context,
+)
+from core.mcp import MCPManager
+from extensions import db
+from models import (
+    MCPConsentGrant,
+    MCPExecutionRecord,
+    MCPLifecycleEvent,
+    MCPPrompt,
+    MCPResource,
+    MCPTool,
+)
+from models import (
+    MCPServer as MCPServerModel,
 )
 
 logger = logging.getLogger(__name__)
@@ -990,7 +1000,22 @@ def call_tool(server_id, tool_id):
         db.session.flush()
         db.session.commit()
         _publish_execution_state(db_server, execution)
+        ka_phase = 'admission'
         try:
+            extended = ExtendedSubsystemCoordinator()
+            admission = extended.admit_mcp_tool(
+                execution_id=execution.execution_id,
+                principal_id=execution.principal_id,
+                server_id=server_id,
+                tool_name=tool.name,
+                arguments=arguments,
+                required_scopes=set(required_scopes),
+                consent_approved=True,
+            )
+            execution.ka_lifecycle = {
+                "admission": extended.lifecycle_evidence(admission)
+            }
+            db.session.commit()
             if server is not None:
                 result = run_async(server._handle_tools_call({
                     'name': tool.name,
@@ -1012,6 +1037,13 @@ def call_tool(server_id, tool_id):
             duration_ms = (time.perf_counter() - started) * 1000.0
             max_bytes = int((db_server.config or {}).get('limits', {}).get('max_message_bytes', 65_536))
             governed = govern_connector_result(result, max_bytes=max_bytes)
+            ka_phase = 'result_validation'
+            result_validation = extended.validate_mcp_result(
+                execution_id=execution.execution_id,
+                principal_id=execution.principal_id,
+                tool_name=tool.name,
+                governed_result=governed,
+            )
 
             execution.status = 'completed'
             execution.result_sha256 = governed['sha256']
@@ -1038,6 +1070,32 @@ def call_tool(server_id, tool_id):
                     },
                 )
                 execution.artifact_object_key = object_key
+
+            effect_receipt = extended.bind_effect_receipt(
+                service="MCPConnectorService",
+                operation=f"tools/call:{tool.name}",
+                resource_id=execution.execution_id,
+                request_payload={
+                    "name": tool.name,
+                    "arguments": arguments,
+                },
+                result_payload={
+                    "sha256": governed["sha256"],
+                    "size_bytes": governed["size_bytes"],
+                    "trust": governed["trust"],
+                    "artifact_object_key": execution.artifact_object_key,
+                },
+                idempotency_key=execution.execution_id,
+                ka_execution=result_validation,
+                proposal_ids=["KA-097"],
+            )
+            execution.ka_lifecycle = {
+                **dict(execution.ka_lifecycle or {}),
+                "result_validation": extended.lifecycle_evidence(
+                    result_validation
+                ),
+            }
+            execution.effect_receipt = effect_receipt.to_dict()
 
             tool.execution_count += 1
             tool.success_count += 1
@@ -1084,6 +1142,12 @@ def call_tool(server_id, tool_id):
             error_code = getattr(exc, 'code', None)
             if isinstance(exc, MCPPolicyError):
                 error_code = exc.code
+            elif isinstance(exc, (ExtendedSubsystemError, KnowledgeLifecycleError)):
+                error_code = (
+                    'MCP_KA_ADMISSION_BLOCKED'
+                    if ka_phase == 'admission'
+                    else 'MCP_KA_RESULT_VALIDATION_FAILED'
+                )
             elif isinstance(error_data, dict) and error_data.get('reason'):
                 error_code = error_data['reason']
             execution.status = 'failed'
@@ -1108,7 +1172,13 @@ def call_tool(server_id, tool_id):
             )
 
             logger.error("Error calling MCP tool: %s", type(exc).__name__)
-            status = 409 if execution.error_code == 'MCP_SERVER_NOT_RUNNING' else 500
+            status = (
+                403
+                if execution.error_code == 'MCP_KA_ADMISSION_BLOCKED'
+                else 409
+                if execution.error_code == 'MCP_SERVER_NOT_RUNNING'
+                else 500
+            )
             return jsonify({
                 'success': False,
                 'error': 'MCP tool execution failed',

@@ -697,6 +697,16 @@ class ManifestKASelector:
                 "selected algorithm budget exceeded: "
                 f"{len(graph_nodes)}>{budget.max_selected_algorithms}"
             )
+        effect_count = sum(
+            entries[canonical_id].effect_class
+            == "effect_oriented_review_required"
+            for canonical_id in graph_nodes
+        )
+        if effect_count > budget.max_effects:
+            errors.append(
+                "effect proposal budget exceeded: "
+                f"{effect_count}>{budget.max_effects}"
+            )
         for canonical_id in sorted(graph_nodes):
             fan_out = len(entries[canonical_id].dependencies)
             if fan_out > budget.max_fan_out:

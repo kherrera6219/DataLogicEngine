@@ -37,6 +37,7 @@ def test_cp19h_ingestion_executes_ka071_through_ka078_in_order():
         ka_inputs=_ingestion_inputs(records),
         request_id="ingestion-test",
         run_id="ingestion-test",
+        max_effects=8,
         principal_id="desktop",
         service_capabilities={"ingestion_service"},
     )

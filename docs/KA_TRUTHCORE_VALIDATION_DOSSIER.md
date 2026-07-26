@@ -149,6 +149,15 @@ hash-derived convergence.
 | CP6-E TruthCore | Passed preflight/state/failure/orchestrator tests | Installed end-to-end causal traces |
 | CP6-F quality evaluation | Local deterministic corpus contract exists | OpenAI/Google rows, blinded sample, second reviewer, owner approval |
 
+Phase 19 CP19-A through CP19-I now retain the complete 213-capability identity
+authority, typed selector/executor, causal L1-L10/persona/refinement and
+Truth/data/knowledge lifecycles, plus bounded simulation, MCP,
+provider/security/operations, and authoritative effect-receipt integration.
+The current manifest production-enables 149 capabilities with 136 acyclic
+dependency edges. CP19-J through CP19-M retain the product workflow, complete
+individual proof, clean-source rebuild authorization, and exact installed
+acceptance.
+
 The Phase 6 snapshot recorded 1,915 backend passes, 46 focused/cross-system
 passes, 402 frontend passes across 81 files, 25 SDK passes, and passing static,
 schema, documentation, route, Electron-security, and governance checks. Those

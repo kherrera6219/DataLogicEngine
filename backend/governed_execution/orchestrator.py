@@ -27,6 +27,9 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
+from backend.governed_execution.extended_subsystems import (
+    ExtendedSubsystemCoordinator,
+)
 from backend.governed_execution.knowledge_lifecycle import (
     KnowledgeLifecycleCoordinator,
     KnowledgeLifecycleError,
@@ -70,6 +73,7 @@ class GovernedExecutionOrchestrator:
         rag_service: Any | None = None,
         event_sink: Callable[[str, dict[str, Any]], None] | None = None,
         knowledge_lifecycle: KnowledgeLifecycleCoordinator | None = None,
+        extended_subsystems: ExtendedSubsystemCoordinator | None = None,
         transition_publisher: LifecycleTransitionPublisher | None = None,
     ) -> None:
         self.gateway = gateway
@@ -83,6 +87,9 @@ class GovernedExecutionOrchestrator:
             ka_controller=self.layer_stages.ka_controller
         )
         self.knowledge_lifecycle = knowledge_lifecycle or KnowledgeLifecycleCoordinator(
+            ka_controller=self.layer_stages.ka_controller
+        )
+        self.extended_subsystems = extended_subsystems or ExtendedSubsystemCoordinator(
             ka_controller=self.layer_stages.ka_controller
         )
         self.transition_publisher = (
@@ -349,8 +356,7 @@ class GovernedExecutionOrchestrator:
             GovernedPolicyDecision(
                 policy_id="dmrf_truth_gate",
                 decision="allow" if dmrf_result.ok else "block",
-                rationale=gate_result.get("reason")
-                or "; ".join(dmrf_result.warnings),
+                rationale=gate_result.get("reason") or "; ".join(dmrf_result.warnings),
                 stage="dmrf_routing",
                 rule_id=gate_result.get("rule_id"),
             )
@@ -610,6 +616,8 @@ class GovernedExecutionOrchestrator:
                 outputs={
                     "attempts": provider_result.get("attempts", []),
                     "provider_call_count": context.provider_call_count,
+                    "ka_lifecycle": provider_result.get("ka_lifecycle", {}),
+                    "effect_receipt": provider_result.get("effect_receipt"),
                 },
                 metrics={"provider_call_count": context.provider_call_count},
                 error_code="PROVIDER_FAILURE",
@@ -636,6 +644,8 @@ class GovernedExecutionOrchestrator:
                 "provider": provider_result.get("provider_used"),
                 "model": provider_result.get("model_used"),
                 "attempts": provider_result.get("attempts", []),
+                "ka_lifecycle": provider_result.get("ka_lifecycle", {}),
+                "effect_receipt": provider_result.get("effect_receipt"),
             },
             metrics={
                 "provider_call_count": context.provider_call_count,
@@ -760,6 +770,8 @@ class GovernedExecutionOrchestrator:
                     "model": refined_result.get("model_used"),
                     "attempts": refined_result.get("attempts", []),
                     "refinement": refinement_payload,
+                    "ka_lifecycle": refined_result.get("ka_lifecycle", {}),
+                    "effect_receipt": refined_result.get("effect_receipt"),
                 },
                 metrics={
                     "provider_call_count": context.provider_call_count,
@@ -872,9 +884,7 @@ class GovernedExecutionOrchestrator:
             ),
         )
         if not await self._persist(context, result):
-            self.knowledge_lifecycle.rollback_validated_memory(
-                context.memory_proposal
-            )
+            self.knowledge_lifecycle.rollback_validated_memory(context.memory_proposal)
             self._apply_persistence_failure(context, result)
         if request.session_id and result.ok:
             await self.gateway._save_chat_message(
@@ -1057,9 +1067,7 @@ class GovernedExecutionOrchestrator:
         sensitive_values = request.metadata.get("sensitive_values")
         if isinstance(sensitive_values, list) and sensitive_values:
             requested_ids.append("KA-173")
-        risk_level = str(
-            request.metadata.get("safety_risk_level") or "low"
-        ).lower()
+        risk_level = str(request.metadata.get("safety_risk_level") or "low").lower()
         if risk_level not in {"low", "medium", "high", "critical"}:
             risk_level = "critical"
         inputs = {
@@ -1095,9 +1103,7 @@ class GovernedExecutionOrchestrator:
                             )
                             else []
                         ),
-                        "human_reviewed": bool(
-                            request.metadata.get("human_reviewed")
-                        ),
+                        "human_reviewed": bool(request.metadata.get("human_reviewed")),
                     }
                 ]
             },
@@ -1112,9 +1118,7 @@ class GovernedExecutionOrchestrator:
                         "applicability": "applicable",
                         "implementation_status": "implemented",
                         "required_evidence_types": ["policy_decision"],
-                        "evidence": {
-                            "policy_decision": ["ai_governance_admission"]
-                        },
+                        "evidence": {"policy_decision": ["ai_governance_admission"]},
                     }
                 ]
             },
@@ -1153,6 +1157,7 @@ class GovernedExecutionOrchestrator:
                 ka_inputs=inputs,
                 request_id=request.request_id,
                 run_id=context.trace_id,
+                max_effects=8,
                 session_id=request.session_id,
                 principal_id=request.principal_id,
                 tier="entry",
@@ -1174,9 +1179,7 @@ class GovernedExecutionOrchestrator:
                     for row in outputs.get("KA-172", {}).get("decisions", [])
                     if isinstance(row, dict)
                 )
-                or outputs.get("KA-174", {}).get(
-                    "all_applicable_controls_pass"
-                )
+                or outputs.get("KA-174", {}).get("all_applicable_controls_pass")
                 is not True
                 or any(
                     row.get("valid") is not True
@@ -1194,11 +1197,7 @@ class GovernedExecutionOrchestrator:
                     else "canonical_entry_ka_plan_committed"
                 ),
                 stage="admission",
-                flags=(
-                    ["truthgate_entry_ka_block"]
-                    if blocked
-                    else []
-                ),
+                flags=(["truthgate_entry_ka_block"] if blocked else []),
                 ka_results=execution.results,
             )
         except KnowledgeLifecycleError as exc:
@@ -1226,11 +1225,15 @@ class GovernedExecutionOrchestrator:
             }
             for item in context.evidence
         ]
-        first_source = records[0] if records else {
-            "id": "no-source",
-            "source_type": "none",
-            "content_hash": None,
-        }
+        first_source = (
+            records[0]
+            if records
+            else {
+                "id": "no-source",
+                "source_type": "none",
+                "content_hash": None,
+            }
+        )
         execution = await self.knowledge_lifecycle.execute_operation(
             owner="retrieval_graph_memory",
             operation="retrieval",
@@ -1245,6 +1248,7 @@ class GovernedExecutionOrchestrator:
             },
             request_id=context.request.request_id,
             run_id=context.trace_id,
+            max_effects=4,
             session_id=context.request.session_id,
             principal_id=context.request.principal_id,
             tier=context.reasoning.tier,
@@ -1271,9 +1275,9 @@ class GovernedExecutionOrchestrator:
         )
         for index, item in enumerate(context.evidence, start=1):
             item.citation_label = f"S{index}"
-        context.request.metadata.setdefault("_knowledge_lifecycle", {})[
-            "retrieval"
-        ] = execution.to_dict()
+        context.request.metadata.setdefault("_knowledge_lifecycle", {})["retrieval"] = (
+            execution.to_dict()
+        )
         context.request.metadata.setdefault("_retrieval_decisions", []).append(
             {
                 "disposition": "selected",
@@ -1327,9 +1331,7 @@ class GovernedExecutionOrchestrator:
                     "id": knowledge_id,
                     "confidence": confidence,
                     "content_hash": (
-                        sha256(
-                            context.reasoning.candidate.encode("utf-8")
-                        ).hexdigest()
+                        sha256(context.reasoning.candidate.encode("utf-8")).hexdigest()
                         if context.reasoning.candidate
                         else None
                     ),
@@ -1352,9 +1354,7 @@ class GovernedExecutionOrchestrator:
                     "node_id": "released-knowledge",
                     "node_type": "claim",
                     "source_ref": knowledge_id,
-                    "parent_node_ids": [
-                        item["node_id"] for item in provenance_nodes
-                    ],
+                    "parent_node_ids": [item["node_id"] for item in provenance_nodes],
                 }
             )
         else:
@@ -1481,6 +1481,7 @@ class GovernedExecutionOrchestrator:
                 ka_inputs=inputs,
                 request_id=context.request.request_id,
                 run_id=context.trace_id,
+                max_effects=8,
                 session_id=context.request.session_id,
                 principal_id=context.request.principal_id,
                 tier=context.reasoning.tier,
@@ -1497,9 +1498,9 @@ class GovernedExecutionOrchestrator:
             }
             context.warnings.append("validated_memory_qualification_failed")
             return
-        context.request.metadata.setdefault("_knowledge_lifecycle", {})[
-            "release"
-        ] = execution.to_dict()
+        context.request.metadata.setdefault("_knowledge_lifecycle", {})["release"] = (
+            execution.to_dict()
+        )
         outputs = {
             canonical_id: payload.get("output", {})
             for canonical_id, payload in execution.results.items()
@@ -1520,12 +1521,7 @@ class GovernedExecutionOrchestrator:
             for item in outputs.get("KA-1096", {}).get("release_plans", [])
             if isinstance(item, dict)
         )
-        if (
-            quarantine
-            or never_persist
-            or promotion != "approve"
-            or not release_staged
-        ):
+        if quarantine or never_persist or promotion != "approve" or not release_staged:
             proposal.state = (
                 "quarantined" if quarantine or never_persist else "not_promoted"
             )
@@ -1546,10 +1542,7 @@ class GovernedExecutionOrchestrator:
             1,
             min(
                 20_000,
-                int(
-                    (context.deadline_at_monotonic - time.monotonic())
-                    * 1000
-                ),
+                int((context.deadline_at_monotonic - time.monotonic()) * 1000),
             ),
         )
 
@@ -1592,6 +1585,36 @@ class GovernedExecutionOrchestrator:
                     "User AI preferences could not be loaded",
                     exc_info=True,
                 )
+
+        try:
+            provider_plan = await self.extended_subsystems.plan_provider_request(
+                request_id=request.request_id,
+                trace_id=context.trace_id,
+                principal_id=str(request.user_id or request.api_key_id or "") or None,
+                messages=context.provider_messages,
+                token_budget=self._bounded_int(
+                    request.constraints.get("max_input_tokens"),
+                    128_000,
+                    1,
+                    2_000_000,
+                ),
+            )
+        except KnowledgeLifecycleError:
+            logger.warning(
+                "Canonical provider KA admission blocked request %s",
+                request.request_id,
+            )
+            return {
+                "ok": False,
+                "error": "Provider request governance blocked the request",
+                "retryable": False,
+                "attempts": [],
+                "failure": {
+                    "class": ProviderFailureClass.POLICY_BLOCK.value,
+                    "code": "PROVIDER_KA_ADMISSION_BLOCKED",
+                    "replayable": False,
+                },
+            }
 
         providers = await self.gateway._get_eligible_providers(
             request.provider,
@@ -1803,6 +1826,73 @@ class GovernedExecutionOrchestrator:
                                 "replayable": False,
                             },
                         }
+                    effect_receipt = self.extended_subsystems.bind_effect_receipt(
+                        service="ProviderGatewayService",
+                        operation=f"{purpose}:provider_call",
+                        resource_id=(
+                            f"{context.trace_id}:{context.provider_call_count}"
+                        ),
+                        request_payload={
+                            "provider": provider_type,
+                            "model": model,
+                            "message_sha256": (
+                                self.extended_subsystems.sha256_payload(
+                                    context.provider_messages
+                                )
+                            ),
+                        },
+                        result_payload={
+                            "answer_sha256": sha256(
+                                str(provider_output.get("answer") or "").encode(
+                                    "utf-8"
+                                )
+                            ).hexdigest(),
+                            "usage": usage,
+                            "ledger_persisted": True,
+                        },
+                        idempotency_key=(
+                            f"{request.request_id}:{purpose}:"
+                            f"{context.provider_call_count}"
+                        ),
+                        proposal_ids=[],
+                    )
+                    try:
+                        provider_monitor = (
+                            await self.extended_subsystems.monitor_provider_result(
+                                request_id=request.request_id,
+                                trace_id=context.trace_id,
+                                principal_id=str(
+                                    request.user_id or request.api_key_id or ""
+                                )
+                                or None,
+                                duration_ms=duration_ms,
+                            )
+                        )
+                        effect_receipt.ka_plan_id = provider_monitor.plan.plan_id
+                    except KnowledgeLifecycleError:
+                        logger.exception(
+                            "Provider result KA monitoring failed for request %s",
+                            request.request_id,
+                        )
+                        return {
+                            "ok": False,
+                            "error": "Provider result governance failed",
+                            "retryable": False,
+                            "attempts": attempts,
+                            "ka_lifecycle": {
+                                "request_governance": (
+                                    self.extended_subsystems.lifecycle_evidence(
+                                        provider_plan
+                                    )
+                                ),
+                            },
+                            "effect_receipt": effect_receipt.to_dict(),
+                            "failure": {
+                                "class": ProviderFailureClass.POLICY_BLOCK.value,
+                                "code": "PROVIDER_KA_RESULT_GOVERNANCE_FAILED",
+                                "replayable": False,
+                            },
+                        }
                     self._audit_success(context, provider_record, model, usage)
                     return {
                         "ok": True,
@@ -1811,6 +1901,19 @@ class GovernedExecutionOrchestrator:
                         "provider_used": provider_type,
                         "model_used": model,
                         "attempts": attempts,
+                        "ka_lifecycle": {
+                            "request_governance": (
+                                self.extended_subsystems.lifecycle_evidence(
+                                    provider_plan
+                                )
+                            ),
+                            "response_monitoring": (
+                                self.extended_subsystems.lifecycle_evidence(
+                                    provider_monitor
+                                )
+                            ),
+                        },
+                        "effect_receipt": effect_receipt.to_dict(),
                     }
 
                 last_error = str(
@@ -2019,9 +2122,7 @@ class GovernedExecutionOrchestrator:
             metadata=self._metadata(context),
         )
         if not await self._persist(context, result):
-            self.knowledge_lifecycle.rollback_validated_memory(
-                context.memory_proposal
-            )
+            self.knowledge_lifecycle.rollback_validated_memory(context.memory_proposal)
             self._apply_persistence_failure(context, result)
         return result
 

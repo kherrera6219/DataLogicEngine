@@ -39,7 +39,7 @@ def _context(canonical_id: str) -> dict[str, Any]:
             "max_input_bytes": 1_000_000,
             "max_output_bytes": 5_000_000,
             "max_provider_calls": 0,
-            "max_effects": 0,
+            "max_effects": 512,
         },
     }
 

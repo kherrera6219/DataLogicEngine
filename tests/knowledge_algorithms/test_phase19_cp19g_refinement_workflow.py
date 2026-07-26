@@ -39,10 +39,12 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     assert manifest.status in {
         "cp19_g_refinement_authority",
         "cp19_h_truth_data_knowledge_authority",
+        "cp19_i_extended_subsystem_authority",
     }
     assert manifest.manifest_version in {
         "2026.07.25-cp19g.1",
         "2026.07.25-cp19h.1",
+        "2026.07.25-cp19i.1",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -55,14 +57,21 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     assert len({step["name"] for step in steps}) == 12
 
     entries = list(manifest.entries.values())
-    assert sum(entry.admission.production_enabled for entry in entries) == (
-        89
-        if manifest.status == "cp19_h_truth_data_knowledge_authority"
-        else 29
-    )
+    expected_enabled = {
+        "cp19_g_refinement_authority": 29,
+        "cp19_h_truth_data_knowledge_authority": 89,
+        "cp19_i_extended_subsystem_authority": 149,
+    }
+    assert sum(
+        entry.admission.production_enabled for entry in entries
+    ) == expected_enabled[manifest.status]
     assert sum(len(entry.contract.dependencies) for entry in entries) == (
         136
-        if manifest.status == "cp19_h_truth_data_knowledge_authority"
+        if manifest.status
+        in {
+            "cp19_h_truth_data_knowledge_authority",
+            "cp19_i_extended_subsystem_authority",
+        }
         else 131
     )
     for canonical_id in ("KA-003", "KA-005", "KA-011", "KA-025"):

@@ -1,0 +1,41 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-I",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "extended_subsystems_and_authoritative_effects",
+  "results": {
+    "canonical_capabilities": 213,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "focused_phase19_tests_passed": 20,
+    "affected_subsystem_tests_passed": 126,
+    "knowledge_algorithm_tests_passed": 767,
+    "full_source_tests_passed": 2550,
+    "full_source_tests_skipped": 19,
+    "full_source_test_warnings": 21,
+    "typescript_sdk_tests_passed": 6,
+    "alembic_revisions": 25,
+    "alembic_heads": [
+      "f1a2b3c4d5e6"
+    ],
+    "critical_ruff": "pass",
+    "python_compilation": "pass",
+    "authority_verifiers": "pass",
+    "product_version_parity": "pass",
+    "documentation_gates": "pass",
+    "git_diff_check": "pass"
+  },
+  "known_warnings": [
+    "Python locale.getdefaultlocale deprecation in the retained KA-069 implementation.",
+    "SQLAlchemy Query.get legacy warnings in the existing API authentication decorator.",
+    "Flask-Session use_signer deprecation in the existing session-security fixture."
+  ],
+  "limitations": [
+    "CP19-J still owns the authenticated API, generated SDK, desktop, and accessibility product workflow.",
+    "CP19-K still owns complete individually named proof for every one of the 213 canonical capabilities.",
+    "Rebuilding remains blocked until CP19-L, and exact installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-J"
+}

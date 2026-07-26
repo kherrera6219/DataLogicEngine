@@ -379,6 +379,20 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
         "persistence",
     ]
     assert all(stage.status.value == "completed" for stage in result.stages)
+    provider_stage = next(
+        stage for stage in result.stages if stage.name == "provider_execution"
+    )
+    assert provider_stage.outputs["ka_lifecycle"][
+        "request_governance"
+    ]["executed_ids"] == ["KA-1072"]
+    assert provider_stage.outputs["ka_lifecycle"][
+        "response_monitoring"
+    ]["executed_ids"] == ["KA-084"]
+    assert provider_stage.outputs["effect_receipt"]["status"] == "applied"
+    assert (
+        provider_stage.outputs["effect_receipt"]["service"]
+        == "ProviderGatewayService"
+    )
     assert [item["stage_id"] for item in gateway.persisted[0]["trace"]] == [
         stage.stage_id for stage in result.stages
     ]
@@ -410,6 +424,40 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     assert ka["input"] == {"query": "Assess the evidence"}
     assert ka["output"]["normalized_query"] == "Assess the evidence"
     assert ka["duration_ms"] == 2
+
+
+@pytest.mark.asyncio
+async def test_provider_receipt_survives_post_call_ka_monitor_failure(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
+    gateway = _Gateway()
+    orchestrator = _orchestrator(gateway)
+
+    async def _fail_monitor(**kwargs):
+        raise module.KnowledgeLifecycleError("monitor unavailable")
+
+    monkeypatch.setattr(
+        orchestrator.extended_subsystems,
+        "monitor_provider_result",
+        _fail_monitor,
+    )
+    result = await orchestrator.execute(_request())
+
+    assert result.ok is False
+    assert result.failure.code == "PROVIDER_KA_RESULT_GOVERNANCE_FAILED"
+    provider_stage = next(
+        stage for stage in result.stages if stage.name == "provider_execution"
+    )
+    assert provider_stage.outputs["ka_lifecycle"]["request_governance"][
+        "executed_ids"
+    ] == ["KA-1072"]
+    assert provider_stage.outputs["effect_receipt"]["status"] == "applied"
+    assert (
+        provider_stage.outputs["effect_receipt"]["service"]
+        == "ProviderGatewayService"
+    )
+    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] is None
 
 
 @pytest.mark.asyncio

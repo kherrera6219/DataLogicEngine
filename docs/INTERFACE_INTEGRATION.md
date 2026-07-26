@@ -136,8 +136,9 @@ remains an external boundary only; missing required values raise or fail closed
 and missing confidence is unmeasured/zero. CP19-C now passes with one typed
 selector/plan/executor, 213 positive and 213
 negative generated fixtures, and a corrected base dependency
-graph. Its effectful nodes produce proposals only; effect application remains
-an authoritative-service workflow owned by CP19-I. CP19-D ten-layer integration
+graph. Its effectful nodes produce proposals only; CP19-I now enforces their
+explicit proposal budget and keeps effect application in authoritative
+services. CP19-D ten-layer integration
 inside the canonical governed lifecycle now passes with typed causal L1-L10
 state, selector-backed L1 execution, bounded L6-L9 revalidation, and L10-gated
 success persistence. CP19-E full correct-ID fail-closed L9/L10 safety passed
@@ -151,8 +152,10 @@ dissent, truthful sufficiency, zero persona-provider subcalls, and a current
 manifest registry, 12 trace-accounted steps, zero step-level provider
 subcalls, one rewrite ceiling, L6-L10 revalidation, and proposal-only
 lifecycle output. The current graph is 131 edges/zero cycles with 29
-production-enabled capabilities. CP19-H Truth/data/knowledge lifecycle
-integration is active.
+production-enabled capabilities. CP19-H Truth/data/knowledge and CP19-I
+simulation/MCP/provider/security/operations/effect integration now pass. The
+current manifest production-enables 149 capabilities with 136 acyclic edges;
+CP19-J product workflow is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.45.0 |
+| Document version | v1.46.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4996,14 +4996,49 @@ passes six. The full source suite passes 2,541 with 19 skipped and 21 known
 warnings. Generated-authority, documentation, and source-hygiene results are
 recorded in the CP19-H validation evidence.
 
-CP19-I is now active. CP19-H does not claim simulation, MCP, provider,
-security/operations, durable-job/effect-service completion, the product
-API/SDK/desktop workflow, complete per-KA proof, rebuild authorization, or
-installed acceptance. Evidence:
+### CP19-I checkpoint result - passed 2026-07-25
+
+CP19-I passed its source extended-subsystem and authoritative-effect gate.
+Manifest `2026.07.25-cp19i.1` retains all 213 canonical capabilities, keeps one
+implementation/controller per identity, production-enables 149 capabilities,
+and preserves the 136-edge zero-cycle dependency graph. The extended registry
+has four owner/consumer groups, 81 operation references, and 65 distinct IDs;
+cross-subsystem reuse is a governed consumer edge, not duplicate authority.
+
+The durable simulation job now executes its bounded KA planning chain before
+provider preflight/calls and executes `KA-1091` before authoritative artifact
+materialization. A failed plan produces zero provider/artifact effects. MCP
+retains its existing consent/principal/scope controls, runs security and
+operations KA admission before the connector, runs result-governance KAs after
+the bounded untrusted result, and persists content-free lifecycle evidence plus
+an owning-service receipt. Provider context governance runs before any external
+call; measured response monitoring runs after the real result and usage-ledger
+write. The existing gateway remains the only provider client and ledger owner.
+
+The selector now enforces `KABudget.max_effects`: an effect-oriented proposal
+plan exceeding its declared bound is rejected before execution. KA outputs
+remain proposals. Only simulation, MCP, and provider owning services bind an
+applied receipt, which requires service/operation/resource/idempotency identity
+and valid request/result SHA-256 values. Alembic revision `f1a2b3c4d5e6` is the
+single schema head.
+
+Twenty focused Phase 19 integration tests, 126 affected-subsystem tests, all 767
+KA tests, all six TypeScript SDK tests, and all 2,550 source tests pass; the full
+suite has 19 skipped and 21 known warnings. Manifest/runtime/capability/
+integration/selector, migration, product-version, documentation, compilation,
+Ruff, and source-hygiene gates pass.
+
+CP19-J is now active. CP19-I does not claim the authenticated KA
+API/SDK/desktop workflow, complete 213-row individual proof, rebuild
+authorization, installed acceptance, signing, accessibility, independent
+review, provider-human acceptance, or soak completion. Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-h-truth-data-knowledge-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-h-verification.json`;
-- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-h-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-i-extended-subsystem-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-i-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-i-validation.json`; and
 - `tests/integration/phase19/`.
 
 Evidence:
@@ -5452,7 +5487,7 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-H passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-I passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
 fixtures, current 136-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
@@ -5462,11 +5497,13 @@ verified. The Truth/data/knowledge lifecycle now also executes through the one
 manifest/controller boundary with typed entry/L8 policy, authorized recall,
 release-gated memory promotion, causal TruthLink/FROST transitions, secure
 pre-materialization ingestion, and fail-closed deletion/recovery dispatch.
-Begin CP19-I: connect simulation, MCP, providers, gateway, security,
-operations, durable jobs, authoritative service ports, and verified effect
-receipts.
+Simulation, MCP, provider/gateway, security/operations, durable-job, bounded
+effect-proposal, and authoritative SHA-256 receipt integration now also pass.
+Begin CP19-J: complete the authenticated KA API and generated SDK plus the
+accessible real-backend desktop plan/confirm/execute/cancel/history/trace/
+artifact/effect workflow.
 
-Proceed through CP19-I to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-J to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

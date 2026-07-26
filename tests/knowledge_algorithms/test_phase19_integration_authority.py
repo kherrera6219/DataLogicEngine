@@ -83,7 +83,7 @@ def test_cp19a_runtime_manifest_consumes_the_integration_authority():
     rows = {row["canonical_id"]: row for row in authority["canonical_capabilities"]}
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_h_truth_data_knowledge_authority"
+    assert manifest.status == "cp19_i_extended_subsystem_authority"
     assert (
         manifest.authority["integration_authority_version"]
         == authority["authority_version"]

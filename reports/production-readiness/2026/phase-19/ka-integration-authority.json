@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "eeb1e37f403529570374836107d8e0c42b002f0e8b44a76a520dfa7328499a73",
+  "identity_source_sha256": "0d5c78cf0e6b79b15a55a9588ac374c9d1b534ca1357e916a5d14c4c9b4f82dd",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -952,6 +952,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_environment_management",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka106_uses_deterministic_circuit_breaker_policy",
@@ -1001,6 +1002,7 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1425,6 +1427,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_retrieval_graph_memory.py::test_cp19h_ka079_causally_changes_selected_evidence_order",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_180_encryption_manager_admits_metadata_only_crypto_request",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_181_key_management_proposes_rotation_without_returning_key_material",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
@@ -1613,8 +1616,11 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka022_returns_axis15_six_dimension_risk_schema",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1711,6 +1717,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
           "tests/unit/test_axis_alignment.py::test_axis_managers_resolve_canonical_phase_b_contexts"
         ],
         "production_enabled": true
@@ -1858,7 +1865,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -1952,6 +1961,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids",
           "tests/unit/test_axis_alignment.py::test_axis_managers_resolve_canonical_phase_b_contexts"
         ],
         "production_enabled": false
@@ -2095,6 +2105,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka032_orchestrates_dependencies_and_checkpoints",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
           "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default"
@@ -2193,6 +2204,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka031_selects_policy_aware_pipeline",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka034_scores_adversarial_assumption_risk_deterministically",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
@@ -2333,6 +2345,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka037_allocates_resources_from_workload_shape"
         ],
         "production_enabled": false
@@ -2966,7 +2979,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3102,7 +3117,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3148,7 +3165,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3515,7 +3534,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3560,7 +3581,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_deletion_and_recovery_dispatch_owned_maintenance_kas"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3884,6 +3907,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_ingestion.py::test_cp19h_ingestion_executes_ka071_through_ka078_in_order",
           "tests/knowledge_algorithms/test_phase19_integration_authority.py::test_cp19a_catalog_cards_expose_owner_and_selection_authority"
         ],
         "production_enabled": false
@@ -4177,7 +4201,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/integration/phase19/test_ingestion.py::test_cp19h_ingestion_executes_ka071_through_ka078_in_order"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -4220,6 +4246,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_retrieval_graph_memory.py::test_cp19h_ka079_causally_changes_selected_evidence_order",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka079_retrieves_ranked_local_records_with_filters",
           "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
@@ -4269,6 +4296,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_cp19h_deletion_and_recovery_dispatch_owned_maintenance_kas",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka080_reports_cache_stats_and_operation_plan",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
         ],
@@ -4451,6 +4479,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_provider_governance_and_monitoring_are_trace_accounted",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka084_monitors_relative_metric_drift"
         ],
         "production_enabled": false
@@ -4986,7 +5016,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -5032,7 +5064,8 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka097_auditing",
-          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_097_auditing_returns_hash_chain_proposal_without_persistence_claim"
+          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_097_auditing_returns_hash_chain_proposal_without_persistence_claim",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -6267,6 +6300,9 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+          "tests/governed_execution/test_orchestrator.py::test_provider_receipt_survives_post_call_ka_monitor_failure",
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_provider_governance_and_monitoring_are_trace_accounted",
           "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget"
         ],
         "production_enabled": false
@@ -6361,6 +6397,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_layer8_uses_shared_typed_policy_and_canonical_ka_plan",
           "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1074_privacy_preserver_never_returns_non_public_source_values"
         ],
         "production_enabled": false
@@ -6597,6 +6634,7 @@
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
           "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
           "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
           "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
@@ -6707,6 +6745,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
           "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency"
         ],
         "production_enabled": false
@@ -6753,6 +6792,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
           "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution"
         ],
         "production_enabled": false
@@ -7283,6 +7323,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_effect_proposal_budget_blocks_before_execution",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan"
         ],
         "production_enabled": false
@@ -8717,7 +8758,6 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
-          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
         ],
         "production_enabled": true
@@ -8764,8 +8804,10 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
-          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow"
+          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -8811,8 +8853,10 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
-          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value"
+          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -9260,6 +9304,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_entry_policy_ka_block_prevents_routing_and_provider",
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_172_safety_check_blocks_high_risk_candidate_without_review"
         ],
         "production_enabled": false
@@ -9305,6 +9351,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_173_privacy_filter_removes_declared_values_from_output"
         ],
         "production_enabled": false
@@ -9350,6 +9397,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_174_compliance_check_requires_current_implementation_and_evidence"
         ],
         "production_enabled": false
@@ -9396,7 +9444,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning"
+          "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -9441,6 +9490,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
           "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_176_governance_validation_requires_declared_approval_roles"
         ],
         "production_enabled": false
@@ -9487,7 +9537,10 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect"
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
+          "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
+          "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -9578,7 +9631,9 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule"
+          "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
+          "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },
@@ -9718,7 +9773,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal"
+          "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
+          "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
         ],
         "production_enabled": false
       },

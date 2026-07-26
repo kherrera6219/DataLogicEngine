@@ -118,7 +118,7 @@ def _wide_budget_context() -> dict:
 def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_h_truth_data_knowledge_authority"
+    assert manifest.status == "cp19_i_extended_subsystem_authority"
     assert manifest.capability_count == 213
     assert (
         sum(
@@ -346,11 +346,13 @@ async def test_cp19c_effect_proposals_execute_serially_and_are_not_applied():
         if definition.contract.effect_class == "effect_oriented_review_required"
         and not definition.contract.dependencies
     ][:2]
+    context = _wide_budget_context()
+    context["budget"]["max_effects"] = len(effect_ids)
     request = KASelectionRequest.model_validate(
         {
             "mode": "evaluation",
             "requested_ids": effect_ids,
-            "context": _wide_budget_context(),
+            "context": context,
         }
     )
     plan = ManifestKASelector().plan(request)

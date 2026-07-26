@@ -21,7 +21,7 @@
           "max_input_bytes": 1000000,
           "max_output_bytes": 5000000,
           "max_provider_calls": 0,
-          "max_effects": 0
+          "max_effects": 512
         }
       }
     },
@@ -51,7 +51,7 @@
           "max_input_bytes": 1000000,
           "max_output_bytes": 5000000,
           "max_provider_calls": 0,
-          "max_effects": 0
+          "max_effects": 512
         }
       }
     },

@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "993d360ccfcece3297ee84781176012c71dd7aef092c515ccaf3524c5bb991fa",
+  "source_input_sha256": "000c674d628d715ae5d519de54c6fa4908911f748f15fbab9599cb0cdb706ee2",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -41,11 +41,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 132,
+    "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 193,
-    "canonical_with_named_test_function": 188
+    "canonical_with_test_reference": 194,
+    "canonical_with_named_test_function": 189
   },
   "canonical_capabilities": [
     {
@@ -893,6 +893,7 @@
       },
       "runtime_references": [
         "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
@@ -1100,6 +1101,7 @@
       },
       "runtime_references": [
         "backend/dmrf/tier_classifier.py",
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
@@ -1994,6 +1996,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_27_ethical_impact_analysis.py",
         "backend/knowledge_algorithms/risk_classifier.py",
@@ -2006,6 +2009,7 @@
       "test_references": [
         "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/mcp/test_phase11_mcp_routes.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
@@ -2060,6 +2064,7 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -4074,6 +4079,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/ten_layers.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py",
@@ -4081,16 +4087,20 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/knowledge_algorithms/test_phase_e_depth.py",
+        "tests/mcp/test_phase11_mcp_routes.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
         "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka022_returns_axis15_six_dimension_risk_schema",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -5590,6 +5600,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "core/simulation/simulation_engine.py"
@@ -5768,15 +5779,18 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_registry_governance.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka032_orchestrates_dependencies_and_checkpoints",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default"
@@ -6436,12 +6450,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka037_allocates_resources_from_workload_shape"
       ],
       "phase6_production_metadata": {
@@ -6912,6 +6930,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py"
@@ -10918,6 +10937,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py"
@@ -12228,12 +12248,18 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/governed_execution/test_orchestrator.py",
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
       "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_provider_governance_and_monitoring_are_trace_accounted",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka084_monitors_relative_metric_drift"
       ],
       "phase6_production_metadata": {
@@ -13301,11 +13327,16 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/mcp/test_phase11_mcp_routes.py"
+      ],
+      "named_test_functions": [
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-096",
         "implementation": "backend.knowledge_algorithms.ka_96_logging.run",
@@ -13385,16 +13416,20 @@
         "imports_celery": false
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py"
+        "backend/governed_execution/extended_subsystems.py",
+        "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
+        "backend/routes/mcp_routes.py"
       ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka097_auditing",
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_097_auditing_returns_hash_chain_proposal_without_persistence_claim"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_097_auditing_returns_hash_chain_proposal_without_persistence_claim",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-097",
@@ -16511,12 +16546,19 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/governed_execution/test_orchestrator.py",
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
       ],
       "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+        "tests/governed_execution/test_orchestrator.py::test_provider_receipt_survives_post_call_ka_monitor_failure",
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_provider_governance_and_monitoring_are_trace_accounted",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1072_context_optimizer_preserves_required_items_within_budget"
       ],
       "phase6_production_metadata": null,
@@ -17732,12 +17774,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency"
       ],
       "phase6_production_metadata": null,
@@ -17865,12 +17911,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned",
         "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1081_budget_enforcer_blocks_over_budget_without_execution"
       ],
       "phase6_production_metadata": null,
@@ -19345,12 +19395,16 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_effect_proposal_budget_blocks_before_execution",
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan"
       ],
       "phase6_production_metadata": null,
@@ -21699,6 +21753,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/orchestrator.py",
         "backend/governed_execution/ten_layers.py"
       ],
@@ -22922,6 +22977,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
@@ -23470,15 +23526,21 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -23558,15 +23620,21 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_discovers_preserved_named_implementation_owners",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -24700,13 +24768,17 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning"
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -24878,16 +24950,21 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py",
         "backend/governed_execution/orchestrator.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/integration/phase19/test_extended_subsystems.py",
         "tests/integration/phase19/test_truthgate.py",
-        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
         "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
-        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect"
+        "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -25058,13 +25135,19 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+        "tests/integration/phase19/test_extended_subsystems.py",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule"
+        "tests/integration/phase19/test_extended_subsystems.py::test_cp19i_mcp_admission_runs_security_and_operations_before_effect",
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_179_access_control_allows_matching_role_and_attribute_rule",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -25316,13 +25399,17 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/governed_execution/extended_subsystems.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py",
+        "tests/mcp/test_phase11_mcp_routes.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
+        "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"

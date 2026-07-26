@@ -768,6 +768,159 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     },
 }
 
+CP19_I_OWNER_IDS = {
+    # Simulation owner.
+    "KA-032",
+    "KA-037",
+    "KA-042",
+    "KA-070",
+    "KA-1080",
+    "KA-1081",
+    "KA-1091",
+    "KA-1101",
+    "KA-1103",
+    # Provider and gateway owner.
+    *(f"KA-{number:03d}" for number in range(81, 91)),
+    "KA-1072",
+    "KA-111",
+    "KA-1114",
+    # Security, operations, and lifecycle owner.
+    *(f"KA-{number:03d}" for number in range(91, 116)),
+    *(f"KA-{number:03d}" for number in range(136, 140)),
+    "KA-175",
+    *(f"KA-{number:03d}" for number in range(179, 185)),
+    "KA-1097",
+    "KA-1098",
+    "KA-1100",
+}
+
+# KA-031 remains owned by governed-request/DMRF selection, but CP19-I admits it
+# as the canonical compatibility router required to close transferred finding
+# F-05. It is not duplicated under the simulation owner.
+CP19_I_ADDITIONAL_ADMISSION_IDS = {"KA-031"}
+
+CP19_I_VALIDATOR_IDS = {
+    "KA-082",
+    "KA-084",
+    "KA-095",
+    "KA-097",
+    "KA-106",
+    "KA-109",
+    "KA-1081",
+    "KA-1098",
+    "KA-136",
+    "KA-137",
+    "KA-138",
+    "KA-139",
+    "KA-175",
+    "KA-182",
+    "KA-183",
+}
+
+CP19_I_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-070": {
+        "dependencies": ["KA-042"],
+        "rationale": (
+            "Graph ripple simulation consumes the bounded local "
+            "counterfactual projection; unrelated data-quality scoring is not "
+            "a simulation prerequisite."
+        ),
+    },
+    "KA-1101": {
+        "dependencies": ["KA-1081", "KA-1099"],
+        "rationale": (
+            "Chaos admission consumes the simulation budget decision and "
+            "system-integrity state before an authoritative fault service may "
+            "consider the proposal."
+        ),
+    },
+}
+
+CP19_I_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": (
+            "production_validator"
+            if canonical_id in CP19_I_VALIDATOR_IDS
+            else "deterministic_heuristic"
+        ),
+        "deterministic": True,
+        "performance_budget_ms": 1_000,
+        "contract_status": "cp19_i_production_qualified",
+        "guarantee": (
+            "Produces one bounded deterministic subsystem decision or effect "
+            "proposal from declared service state through the canonical "
+            "selector and controller."
+        ),
+        "limitations": (
+            "The result does not call a provider or connector, start a job, "
+            "change configuration, emit a notification, mutate infrastructure, "
+            "or apply another effect. Only the owning authoritative service may "
+            "act and issue an idempotent verified receipt."
+        ),
+    }
+    for canonical_id in CP19_I_OWNER_IDS | CP19_I_ADDITIONAL_ADMISSION_IDS
+}
+
+CP19_I_SUBSYSTEM_REGISTRY: dict[str, Any] = {
+    "schema_version": "dle.ka-extended-subsystem-registry.v1",
+    "registry_version": "2026.07.25-cp19i.1",
+    "owners": {
+        "simulation": {
+            "planning": ["KA-1080", "KA-1081", "KA-037", "KA-032"],
+            "counterfactual": ["KA-042", "KA-070"],
+            "outcome_archive": ["KA-1091"],
+            "rollback": ["KA-1103"],
+            "chaos_admission": ["KA-1101"],
+            "compatibility_routing": ["KA-113", "KA-031"],
+        },
+        "mcp_connectors": {
+            "admission": [
+                "KA-022",
+                "KA-024",
+                "KA-136",
+                "KA-137",
+                "KA-177",
+                "KA-179",
+            ],
+            "result_validation": [
+                "KA-010",
+                "KA-096",
+                "KA-097",
+                "KA-175",
+                "KA-182",
+            ],
+            "recovery": ["KA-106", "KA-184"],
+        },
+        "provider_gateway": {
+            "request": ["KA-082", "KA-084", "KA-1072", "KA-111"],
+            "request_governance": ["KA-022", "KA-1072"],
+            "response_monitoring": ["KA-084", "KA-137", "KA-182"],
+            "model_lifecycle": [
+                *(f"KA-{number:03d}" for number in range(81, 91)),
+            ],
+            "external_research": ["KA-1114"],
+        },
+        "security_operations_lifecycle": {
+            "observability": [
+                *(f"KA-{number:03d}" for number in range(91, 101)),
+            ],
+            "service_control": [
+                *(f"KA-{number:03d}" for number in range(101, 110)),
+                "KA-1097",
+                "KA-1098",
+            ],
+            "messaging": ["KA-110", "KA-112", "KA-114", "KA-115"],
+            "security": [
+                *(f"KA-{number:03d}" for number in range(136, 140)),
+                "KA-175",
+                *(f"KA-{number:03d}" for number in range(179, 185)),
+            ],
+            "evolution": ["KA-1100"],
+        },
+    },
+}
+
 
 def normalize_ka_id(value: str) -> str:
     clean = str(value).strip().upper()
@@ -860,7 +1013,8 @@ def build_manifest() -> dict[str, Any]:
             }
         )
         override = (
-            CP19_H_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            CP19_I_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_H_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_G_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_E_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
@@ -870,7 +1024,8 @@ def build_manifest() -> dict[str, Any]:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
         admission_override = (
-            CP19_H_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            CP19_I_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            or CP19_H_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_G_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_F_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
@@ -993,8 +1148,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19h.1",
-        "status": "cp19_h_truth_data_knowledge_authority",
+        "manifest_version": "2026.07.25-cp19i.1",
+        "status": "cp19_i_extended_subsystem_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -1012,13 +1167,16 @@ def build_manifest() -> dict[str, Any]:
                 **CP19_F_DEPENDENCY_OVERRIDES,
                 **CP19_G_DEPENDENCY_OVERRIDES,
                 **CP19_H_DEPENDENCY_OVERRIDES,
+                **CP19_I_DEPENDENCY_OVERRIDES,
             },
-            "production_admission_checkpoint": "CP19-H",
+            "production_admission_checkpoint": "CP19-I",
             "production_admission_ids": sorted(
                 CP19_E_LAYER_IDS
                 | CP19_F_PERSONA_IDS
                 | CP19_G_REFINEMENT_IDS
                 | CP19_H_OWNER_IDS
+                | CP19_I_OWNER_IDS
+                | CP19_I_ADDITIONAL_ADMISSION_IDS
             ),
             "refinement_workflow": {
                 "schema_version": "dle.refinement-workflow-registry.v1",
@@ -1031,6 +1189,7 @@ def build_manifest() -> dict[str, Any]:
                 "steps": CP19_G_REFINEMENT_STEPS,
             },
             "subsystem_execution_registry": CP19_H_SUBSYSTEM_REGISTRY,
+            "extended_subsystem_execution_registry": CP19_I_SUBSYSTEM_REGISTRY,
         },
         "capability_count": len(entries),
         "alias_index": {

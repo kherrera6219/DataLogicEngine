@@ -122,8 +122,12 @@ CP19-G now owns one manifest-defined 12-step workflow entered only from the
 committed L9 refine decision. It accounts for every step, makes zero provider
 subcalls, permits one rewrite, re-enters L6-L10, and emits only an unapplied
 lifecycle proposal. The current graph is 131 edges/zero cycles with 29
-production-enabled capabilities. CP19-H Truth/data/knowledge lifecycle
-integration is active.
+production-enabled capabilities. CP19-H then connects the Truth/data/knowledge
+lifecycle. CP19-I connects bounded simulation planning/outcomes, MCP
+security/operations plans, provider context/monitoring, durable jobs, explicit
+effect-proposal budgets, and owning-service SHA-256/idempotency receipts. The
+current manifest production-enables 149 capabilities and has 136 dependency
+edges with zero cycles. CP19-J product workflow is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,

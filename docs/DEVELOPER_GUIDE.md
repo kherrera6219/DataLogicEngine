@@ -170,8 +170,12 @@ also complete: one manifest registry accounts for all 12 steps, executes new
 applicable KAs through the selector/DAG, makes zero provider subcalls, permits
 one rewrite, revalidates L6-L10, and leaves memory/lifecycle work as an
 unapplied proposal. The current manifest has 29 production-enabled
-capabilities and 131 dependency edges with zero cycles. CP19-H
-Truth/data/knowledge lifecycle integration is active.
+capabilities and 131 dependency edges with zero cycles. CP19-H then connects
+the Truth/data/knowledge lifecycle. CP19-I connects bounded simulation,
+MCP/security/operations, provider monitoring, durable jobs, and authoritative
+effect receipts, and enforces `max_effects` before execution. The current
+manifest production-enables 149 capabilities with 136 zero-cycle dependency
+edges. CP19-J product workflow is active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

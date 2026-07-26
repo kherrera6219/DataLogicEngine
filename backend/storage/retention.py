@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import UTC, datetime
 import hashlib
 import hmac
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Protocol
 
 from models import DataDeletionTombstone
-
 
 RETENTION_POLICY_VERSION = "2026.07.13-v1"
 RETENTION_CLASSES = {
@@ -104,6 +103,7 @@ class RetentionDeleteCoordinator:
             },
             request_id=f"deletion:{normalized_type}:{normalized_id}",
             run_id=f"deletion:{normalized_type}:{normalized_id}",
+            max_effects=4,
             principal_id="retention_delete_coordinator",
             tier="maintenance",
             layer="data",
@@ -178,6 +178,7 @@ class RetentionDeleteCoordinator:
             },
             request_id=f"deletion:{normalized_type}:{normalized_id}:recovery",
             run_id=f"deletion:{normalized_type}:{normalized_id}:recovery",
+            max_effects=4,
             principal_id="retention_delete_coordinator",
             tier="maintenance",
             layer="data",

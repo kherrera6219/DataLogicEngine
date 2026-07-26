@@ -107,6 +107,16 @@ Per-KA tests cover injection, path/network abuse, unsafe input, resource
 exhaustion, sensitive data, cancellation, duplicate requests, partial effects,
 recovery, and trace-persistence failure as applicable.
 
+CP19-I source qualification now enforces `max_effects` before execution and
+connects this boundary to the durable simulation, MCP, and provider paths. MCP
+inline credentials block before the connector call; post-call output remains
+untrusted and is evaluated by bounded security/operations KAs. Provider
+required context is budgeted before egress. Applied simulation/MCP/provider
+receipts are emitted only by their owning services after the real operation and
+require service, operation, resource, idempotency, request SHA-256, and result
+SHA-256 identity. Complete per-KA adversarial proof remains CP19-K and
+rebuilt-installed proof remains CP19-M.
+
 ## Data and secret protection
 
 Production requires a protected Windows volume, restricted runtime-root ACLs,

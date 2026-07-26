@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import asyncio
-from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import UTC, datetime
 import hashlib
 import json
 import logging
 import os
-from threading import Lock
 import time
-from typing import Any
 import uuid
+from concurrent.futures import Future, ThreadPoolExecutor
+from datetime import UTC, datetime
+from threading import Lock
+from typing import Any
 
 from backend.simulation.contracts import SimulationScenario
 from backend.simulation.job_coordination import (
@@ -26,7 +26,6 @@ from backend.simulation.providers import (
     GatewaySimulationTurnProvider,
 )
 from backend.simulation.validation import validate_simulation_result
-
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +162,47 @@ class SimulationJobRunner:
             db.session.commit()
             self._publish(simulation, "failed")
             return
+        from backend.governed_execution.extended_subsystems import (
+            ExtendedSubsystemCoordinator,
+        )
+        from backend.governed_execution.knowledge_lifecycle import (
+            KnowledgeLifecycleError,
+        )
+
+        subsystem = ExtendedSubsystemCoordinator()
+        try:
+            ka_planning = subsystem.plan_simulation(
+                simulation_id=simulation_id,
+                principal_id=str(simulation.user_id),
+                scenario=scenario,
+            )
+            plan_allowed, plan_blockers = subsystem.simulation_plan_allowed(
+                ka_planning
+            )
+        except KnowledgeLifecycleError:
+            logger.exception("Simulation KA planning failed")
+            ka_planning = None
+            plan_allowed = False
+            plan_blockers = ["ka_planning_failed"]
+        if not plan_allowed:
+            simulation.status = "failed"
+            simulation.last_error_code = "SIMULATION_KA_ADMISSION_BLOCK"
+            simulation.last_error_message = (
+                "Simulation blocked by canonical KA planning."
+            )
+            simulation.budget = {
+                **dict(simulation.budget or {}),
+                "ka_planning": (
+                    ka_planning.to_dict()
+                    if ka_planning is not None
+                    else None
+                ),
+                "ka_plan_blockers": plan_blockers,
+            }
+            simulation.completed_at = datetime.now(UTC)
+            db.session.commit()
+            self._publish(simulation, "failed")
+            return
         simulation.status = "running"
         simulation.trace_id = simulation.trace_id or simulation.session_id
         simulation.started_at = simulation.started_at or datetime.now(UTC)
@@ -230,6 +270,7 @@ class SimulationJobRunner:
             return
         simulation.budget = {
             **dict(simulation.budget or {}),
+            "ka_planning": ka_planning.to_dict(),
             "estimated_cost_usd": provider_budget["estimated_cost_usd"],
             "pricing_status": provider_budget["pricing_status"],
             "provider": getattr(provider, "provider_type", None),
@@ -463,7 +504,32 @@ class SimulationJobRunner:
         )
         result["validation"] = validation
         result["confidence_score"] = validation["confidence_score"]
+        ka_outcome = subsystem.plan_simulation_outcome(
+            simulation_id=simulation_id,
+            principal_id=str(simulation.user_id),
+            status="completed",
+            summary=str(result.get("final_conclusion") or ""),
+            significance=float(result.get("confidence_score") or 0),
+        )
         artifact_refs = self._persist_artifacts(simulation, result)
+        artifact_receipt = subsystem.bind_effect_receipt(
+            service="SimulationJobRunner",
+            operation="persist_simulation_artifacts",
+            resource_id=simulation_id,
+            request_payload={
+                "scenario_revision": simulation.scenario_revision,
+                "expected_artifacts": [
+                    item.type for item in scenario.expected_artifacts
+                ],
+            },
+            result_payload=artifact_refs,
+            idempotency_key=(
+                f"simulation:{simulation_id}:"
+                f"{simulation.scenario_revision}:artifacts"
+            ),
+            ka_execution=ka_outcome,
+            proposal_ids=[f"{simulation_id}:result"],
+        )
         simulation.provider_call_count = int(result["budget"]["provider_calls_used"])
         simulation.results = {
             "status": "completed",
@@ -472,6 +538,8 @@ class SimulationJobRunner:
             "validation": validation,
             "budget": result["budget"],
             "artifacts": artifact_refs,
+            "ka_outcome": ka_outcome.to_dict(),
+            "effect_receipts": [artifact_receipt.to_dict()],
         }
         simulation.artifact_state = (
             "ready"
