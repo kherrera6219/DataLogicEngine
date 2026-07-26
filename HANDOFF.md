@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.43.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.44.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-G active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-H active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -79,8 +79,8 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
    2026-07-25;
 5. CP19-E correct fail-closed L9/L10 - passed 2026-07-25;
 6. CP19-F causal KA-backed Quad Persona/DSQP - passed 2026-07-25;
-7. CP19-G one production 12-step workflow - active;
-8. CP19-H Truth/data/knowledge lifecycle integration;
+7. CP19-G one production 12-step workflow - passed 2026-07-25;
+8. CP19-H Truth/data/knowledge lifecycle integration - active;
 9. CP19-I simulation/MCP/provider/security/operations/effect integration;
 10. CP19-J API/SDK/desktop/accessibility workflow;
 11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof;
@@ -173,13 +173,24 @@ four validated axes 8-11 profiles, preserves measured profile authority and
 every objection, fails closed on weighting/sufficiency/dissent loss, and puts
 the resulting constraints into the single provider candidate prompt. The chain
 uses zero provider subcalls, invents no confidence, and emits only an unapplied
-effect proposal. The current graph is 132 edges with zero cycles and the
+effect proposal. The then-current graph was 132 edges with zero cycles and the
 production-enabled set is 25. The focused set passes 48 tests; the full source
 suite passes 2,524 with 19 skipped and 21 warnings.
 
-CP19-A through CP19-F authorize CP19-G only; the data/knowledge,
-extended effect, product, per-KA, rebuilding, installed acceptance, and
-production launch gates remain unauthorized. Read:
+CP19-G is also complete. One manifest registry defines the exact 12 ordered
+steps, and `CanonicalRefinementWorkflow` is reachable only from the committed
+initial L9 refine decision. It executes/reuses production KAs through the
+canonical selector, explicitly accounts for every skip/failure, collects all
+findings before one rewrite, and revalidates L6-L10 afterward. The steps make
+zero provider subcalls; external validation is not claimed when unauthorized;
+the lifecycle result is an unapplied proposal with no receipt. Five legacy
+variants are explicit non-production references. The current manifest has 29
+production-enabled capabilities and 131 edges/zero cycles. Eight focused, 955
+broader subsystem, and 2,528 full-source tests pass.
+
+CP19-A through CP19-G authorize CP19-H only; extended subsystem/effect,
+product, per-KA, rebuilding, installed acceptance, and production launch gates
+remain unauthorized. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
 - `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
@@ -195,7 +206,10 @@ production launch gates remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-e-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-f-quad-persona-dsqp-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-f-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-f-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-f-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-g-canonical-refinement-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-g-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-g-validation.json`.
 
 ## Approved product boundary
 
@@ -812,10 +826,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-G by replacing the competing refinement variants with one
-   bounded reachable 12-step KA subgraph, explicit step execution/skip
-   evidence, at most one authorized rewrite, and L6-L10 revalidation.
-2. Proceed through CP19-H to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-H by connecting TruthGate, TruthCore, TruthMemory, TruthLink,
+   FROST, ingestion, retrieval, graph, memory, provenance, quarantine,
+   promotion, deletion, recovery, and transactional cross-store KA owners.
+2. Proceed through CP19-I to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

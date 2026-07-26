@@ -1,0 +1,59 @@
+{
+  "schema_version": "dle.phase19-cp19g-verification.v1",
+  "checkpoint": "CP19-G",
+  "date": "2026-07-25",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19g.1",
+  "manifest_status": "cp19_g_refinement_authority",
+  "canonical_capabilities": 213,
+  "live_registry_entries": 132,
+  "unregistered_layer9_implementations": 0,
+  "production_enabled_capabilities": 29,
+  "dependency_edges": 131,
+  "dependency_cycles": 0,
+  "refinement_registry": {
+    "schema_version": "dle.refinement-workflow-registry.v1",
+    "ordered_steps": 12,
+    "unique_step_ids": 12,
+    "owner": "governed_execution_orchestrator",
+    "entry_condition": "committed_l9_refine_decision",
+    "max_provider_rewrites": 1,
+    "provider_subcalls": 0
+  },
+  "production_qualified_refinement_kas": [
+    "KA-003",
+    "KA-005",
+    "KA-011",
+    "KA-025"
+  ],
+  "normal_fixture": {
+    "steps_executed": 10,
+    "steps_skipped": 2,
+    "steps_blocked": 0,
+    "steps_failed": 0,
+    "initial_provider_calls": 1,
+    "provider_rewrites": 1,
+    "l6_l9_validation_passes": 2,
+    "l10_release_passes": 1
+  },
+  "effect_contract": {
+    "lifecycle_proposals": 1,
+    "effects_applied": false,
+    "effect_receipts": 0
+  },
+  "legacy_workflow_disposition": {
+    "retained_variants": 5,
+    "production_entrypoints": 0,
+    "direct_governed_assembly_imports": 0
+  },
+  "adversarial_proofs": {
+    "required_step_failure_before_rewrite": "pass",
+    "all_steps_accounted_after_failure": "pass",
+    "single_rewrite_ceiling": "pass",
+    "post_rewrite_l6_l10_revalidation": "pass",
+    "unauthorized_external_validation_not_claimed": "pass",
+    "no_false_effect_receipt": "pass"
+  },
+  "crosswalk_source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
+  "errors": []
+}

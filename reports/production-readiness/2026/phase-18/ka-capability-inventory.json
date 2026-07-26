@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
+  "source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,
@@ -14,7 +14,7 @@
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 25,
+    "phase6_production_enabled": 29,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -27,11 +27,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 133,
+    "integration_surfaces": 132,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 182,
-    "canonical_with_named_test_function": 180
+    "canonical_with_test_reference": 183,
+    "canonical_with_named_test_function": 181
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -10955,13 +10955,6 @@
     },
     {
       "path": "core/simulation/pov_engine.py",
-      "exists": true,
-      "kind": "application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
-      "path": "core/simulation/refinement_workflow.py",
       "exists": true,
       "kind": "application_caller",
       "disposition": "route_through_canonical_controller",

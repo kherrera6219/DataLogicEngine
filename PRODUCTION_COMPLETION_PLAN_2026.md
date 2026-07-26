@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.43.0 |
+| Document version | v1.44.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4910,14 +4910,54 @@ The only emitted effect is a proposal record for the persona analysis;
 weighting failure blocks before provider execution. Legacy Quad Persona engines
 remain noncanonical and have no direct production caller.
 
-CP19-G is now active. CP19-F does not claim that the canonical 12-step
-refinement/data/effect/product workflows are complete or that rebuilding or
-release is authorized. Evidence:
+CP19-G became active after CP19-F and subsequently passed. CP19-F does not
+claim that the canonical 12-step refinement/data/effect/product workflows are
+complete or that rebuilding or release is authorized. Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-f-quad-persona-dsqp-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-f-verification.json`;
 - `reports/production-readiness/2026/phase-19/cp19-f-validation.json`; and
 - `tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py`.
+
+### CP19-G checkpoint result - passed 2026-07-25
+
+CP19-G replaces the competing refinement concepts with one versioned
+12-step registry and one `CanonicalRefinementWorkflow` owned by the governed
+product orchestrator. The workflow is entered only from a committed initial L9
+`refine` decision. Every ordered step records `executed`, `skipped`, `blocked`,
+or `failed`; a required failure accounts for the remaining steps and blocks
+before the provider rewrite.
+
+The workflow consumes committed layer/KA state and executes new applicable KAs
+only through the canonical manifest selector and bounded DAG executor.
+`KA-003`, `KA-005`, `KA-011`, and `KA-025` are production-qualified for their
+bounded deterministic refinement roles. `KA-025` now measures the real
+dependency graph/depth/cycles instead of returning a fixed DAG result, and
+`KA-011` reports confidence adjustment as not measured. The current manifest
+remains 213 capabilities and 132 live registry entries, with 29
+production-enabled capabilities and a 131-edge zero-cycle dependency graph.
+
+The 12 steps make zero provider subcalls. After collecting all findings, the
+orchestrator may perform exactly one provider rewrite. The rewritten candidate
+then re-enters L6-L9 and reaches the complete L10 release gate only afterward.
+Unauthorized external validation is explicitly skipped rather than claimed.
+Step 12 emits one deterministic memory/lifecycle proposal with
+`applied: false`, no receipt, and an L10/authoritative-service prerequisite.
+
+The retained TruthCore, simulation, system, and Quad mathematical refinement
+implementations are explicitly non-production reference entrypoints. The
+governed assembly imports only the canonical workflow. Focused proof passes
+eight tests, the broader subsystem set passes 955, and the full source suite
+passes 2,528 with 19 skipped and 21 warnings.
+
+CP19-H is now active. CP19-G does not claim that the authoritative
+Truth/data/knowledge lifecycle, extended subsystem/effect/product workflows,
+clean-source rebuild gate, or installed acceptance are complete. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-g-canonical-refinement-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-g-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-g-validation.json`; and
+- `tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py`.
 
 Evidence:
 
@@ -5365,16 +5405,17 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-F passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-G passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, corrected 132-edge acyclic dependency graph, bounded structured
+fixtures, corrected 131-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
-persona preparation are verified. Begin CP19-G: replace competing refinement
-variants with one bounded reachable 12-step KA subgraph, at most one authorized
-rewrite, explicit step execution/skip evidence, and L6-L10 revalidation.
+persona preparation plus the one bounded 12-step refinement subgraph are
+verified. Begin CP19-H: connect TruthGate, TruthCore, TruthMemory, TruthLink,
+FROST, ingestion, retrieval, graph, memory, provenance, quarantine, promotion,
+deletion, recovery, and transactional cross-store boundaries.
 
-Proceed through CP19-G to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-H to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

@@ -29,6 +29,7 @@ from backend.governed_execution.prompt import build_refinement_messages
 from backend.governed_execution.quality import (
     measure_evidence,
 )
+from backend.governed_execution.refinement import CanonicalRefinementWorkflow
 from backend.governed_execution.retrieval import retrieve_evidence
 from backend.governed_execution.ten_layers import (
     LAYER_NAMES,
@@ -69,6 +70,9 @@ class GovernedExecutionOrchestrator:
             db_session=getattr(gateway, "db", None)
         )
         self.layer_stages = GovernedTenLayerStages(self.truthcore)
+        self.refinement_workflow = CanonicalRefinementWorkflow(
+            ka_controller=self.layer_stages.ka_controller
+        )
         self.rag_service = rag_service
         self.event_sink = event_sink
 
@@ -646,10 +650,40 @@ class GovernedExecutionOrchestrator:
                 convergence.to_dict(),
             )
             context.refinement_cycles = 1
+            refinement = await self.refinement_workflow.execute(
+                context,
+                prior_answer=validation["answer"],
+                decision=convergence,
+            )
+            refinement_payload = refinement.to_dict()
+            if not refinement.ok or not refinement.rewrite_authorized:
+                self._finish(
+                    context,
+                    refinement_stage,
+                    GovernedStageStatus.BLOCKED,
+                    outputs={"refinement": refinement_payload},
+                    metrics={
+                        "step_count": len(refinement.steps),
+                        "provider_subcalls_used": refinement.provider_subcalls_used,
+                    },
+                    error_code="REFINEMENT_WORKFLOW_BLOCKED",
+                )
+                return await self._failure(
+                    context,
+                    kind=GovernedFailureKind.VALIDATION_FAILURE,
+                    code="REFINEMENT_WORKFLOW_BLOCKED",
+                    message="The canonical refinement workflow did not authorize a rewrite",
+                    stage="refinement_1",
+                    details={
+                        "blocked_by_step": refinement.blocked_by_step,
+                        "step_status_counts": refinement_payload["step_status_counts"],
+                    },
+                )
             context.provider_messages = build_refinement_messages(
                 context,
                 validation["answer"],
                 convergence,
+                refinement_payload,
             )
             refined_result = await self._execute_provider(
                 context, save_user_message=False
@@ -659,7 +693,10 @@ class GovernedExecutionOrchestrator:
                     context,
                     refinement_stage,
                     GovernedStageStatus.FAILED,
-                    outputs={"attempts": refined_result.get("attempts", [])},
+                    outputs={
+                        "attempts": refined_result.get("attempts", []),
+                        "refinement": refinement_payload,
+                    },
                     error_code="PROVIDER_REFINEMENT_FAILURE",
                 )
                 return await self._failure(
@@ -684,8 +721,14 @@ class GovernedExecutionOrchestrator:
                     "provider": refined_result.get("provider_used"),
                     "model": refined_result.get("model_used"),
                     "attempts": refined_result.get("attempts", []),
+                    "refinement": refinement_payload,
                 },
-                metrics={"provider_call_count": context.provider_call_count},
+                metrics={
+                    "provider_call_count": context.provider_call_count,
+                    "provider_rewrites": 1,
+                    "provider_subcalls_used": refinement.provider_subcalls_used,
+                    "step_count": len(refinement.steps),
+                },
             )
             refined_evaluation = await self._evaluate_candidate(
                 context,

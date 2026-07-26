@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/bounded acyclic DAG evidence, CP19-D typed causal L1-L10/L10-release evidence, CP19-E full fail-closed L9/L10 safety/trace/privacy evidence, and CP19-F causal axes 8-11 persona/prompt/dissent evidence | CP19-G-L refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/bounded acyclic DAG evidence, CP19-D typed causal L1-L10/L10-release evidence, CP19-E full fail-closed L9/L10 safety/trace/privacy evidence, CP19-F causal axes 8-11 persona/prompt/dissent evidence, and CP19-G one trace-accounted 12-step/one-rewrite/L6-L10 refinement proof | CP19-H-L subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -117,8 +117,11 @@ and passed adversarial privacy/failure/containment/recursion/promotion/effect
 proof. CP19-F subsequently passed the causal `KA-012` -> `KA-013` -> `KA-030`
 axes 8-11 persona chain, retained dissent/sufficiency, one candidate prompt,
 zero persona-provider subcalls, and a corrected 132-edge zero-cycle graph.
-CP19-G is active. Effect application, rebuilding, installed acceptance, and
-release remain unauthorized.
+CP19-G subsequently passed one manifest-owned 12-step workflow, complete
+step accounting, zero step-level provider subcalls, one rewrite ceiling,
+L6-L10 revalidation, proposal-only lifecycle output, 29 production-enabled
+capabilities, and a current 131-edge zero-cycle graph. CP19-H is active. Effect
+application, rebuilding, installed acceptance, and release remain unauthorized.
 
 The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
 require the exact signed installed artifact. Phase 20 launch remains blocked by

@@ -61,8 +61,12 @@ _PRODUCTION_VALIDATORS = {
 }
 _PRODUCTION_HEURISTICS = {
     "KA-001",
+    "KA-003",
+    "KA-005",
+    "KA-011",
     "KA-012",
     "KA-013",
+    "KA-025",
     "KA-030",
     "KA-113",
     "L9-KA-002",

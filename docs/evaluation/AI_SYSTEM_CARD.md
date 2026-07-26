@@ -42,9 +42,10 @@ production-enabled TruthCore KAs, bounded local retrieval, and a configured
 OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
 
-The current 25-entry production-enabled KA subset includes the retained Phase 6
+The current 29-entry production-enabled KA subset includes the retained Phase 6
 safety boundary, the complete CP19-E L9/L10 safety suites, and the CP19-F
-`KA-012`/`KA-013`/`KA-030` persona chain; it is not final
+`KA-012`/`KA-013`/`KA-030` persona chain plus the CP19-G bounded refinement
+observations; it is not final
 owning-subsystem completion. Phase 18 retained a reconciled 213-capability
 authority, one runtime/controller, 213 unique implementation owners, and zero
 source gaps, but its whole-application wiring audit failed. Phase 19 CP19-A now
@@ -61,8 +62,11 @@ algorithms selected from committed child traces, trace-safe PII redaction, and
 adversarial failure/effect proof. CP19-F passed causal axes 8-11 persona
 analysis, weighting, sufficiency, dissent preservation, and prompt influence
 through the canonical selector/DAG, with zero persona-provider subcalls,
-invented confidence, or applied effects and a current 132-edge zero-cycle
-graph. Phase 19 continues to own 12-step, Truth/data/knowledge,
+invented confidence, or applied effects and a then-current 132-edge zero-cycle
+graph. CP19-G passed one manifest-owned 12-step workflow, complete step
+accounting, zero step-level provider subcalls, one rewrite ceiling, L6-L10
+revalidation, proposal-only lifecycle output, and a current 131-edge
+zero-cycle graph. Phase 19 continues to own Truth/data/knowledge,
 extended-subsystem, API/SDK/desktop, per-KA, and installed integration proof.
 The signed rebuild is paused through CP19-L. No catalog entry, imported module,
 or nonproduction opt-in alone establishes production capability.

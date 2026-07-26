@@ -96,22 +96,44 @@ def build_refinement_messages(
     context: GovernedContext,
     prior_answer: str,
     decision: ConvergenceDecision,
+    refinement: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """Build one bounded retry that names the measured support defects."""
+    """Build the sole rewrite from the committed 12-step findings."""
 
     messages = build_provider_messages(context)
+    constraints = [
+        str(item)
+        for item in refinement.get("rewrite_constraints") or []
+        if str(item).strip()
+    ]
+    step_rows = [
+        item for item in refinement.get("steps") or [] if isinstance(item, dict)
+    ]
+    step_summary = ", ".join(
+        f"{item.get('step')}:{item.get('status')}" for item in step_rows
+    )
     messages.extend(
         [
             {"role": "assistant", "content": prior_answer},
             {
                 "role": "user",
                 "content": (
-                    "Revise the answer once. Remove or qualify claims that cannot be supported "
-                    "by the supplied evidence, resolve contradictions, and use only known citation "
-                    "labels. Unsupported claim IDs: "
+                    "Revise the answer exactly once using the committed canonical "
+                    "12-step refinement findings. Remove or qualify claims that "
+                    "cannot be supported by the supplied evidence, resolve "
+                    "contradictions, and use only known citation labels. "
+                    "Unsupported claim IDs: "
                     + ", ".join(decision.unsupported_claim_ids or ["none"])
                     + ". Contradicted claim IDs: "
                     + ", ".join(decision.contradicted_claim_ids or ["none"])
+                    + ". Step accounting: "
+                    + (step_summary or "unavailable")
+                    + ". Mandatory rewrite constraints: "
+                    + (
+                        " | ".join(constraints)
+                        if constraints
+                        else "No additional constraint."
+                    )
                     + "."
                 ),
             },

@@ -30,9 +30,7 @@ def test_cp19a_authority_is_current_complete_and_not_a_runtime_registry():
     assert sum(authority["owner_counts"].values()) == 213
     assert DEFAULT_JSON_PATH.read_text(encoding="utf-8") == json_text(authority)
     assert DEFAULT_CSV_PATH.read_text(encoding="utf-8") == csv_text(authority)
-    assert DEFAULT_MARKDOWN_PATH.read_text(encoding="utf-8") == markdown_text(
-        authority
-    )
+    assert DEFAULT_MARKDOWN_PATH.read_text(encoding="utf-8") == markdown_text(authority)
 
 
 def test_cp19a_every_ka_has_one_owner_consumers_and_evidence_destinations():
@@ -82,32 +80,24 @@ def test_cp19a_workflow_dispositions_are_unique_and_complete():
 
 def test_cp19a_runtime_manifest_consumes_the_integration_authority():
     authority = build_authority()
-    rows = {
-        row["canonical_id"]: row
-        for row in authority["canonical_capabilities"]
-    }
+    rows = {row["canonical_id"]: row for row in authority["canonical_capabilities"]}
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_f_persona_authority"
-    assert manifest.authority["integration_authority_version"] == authority[
-        "authority_version"
-    ]
+    assert manifest.status == "cp19_g_refinement_authority"
+    assert (
+        manifest.authority["integration_authority_version"]
+        == authority["authority_version"]
+    )
     assert manifest.capability_count == 213
     for canonical_id, definition in manifest.entries.items():
         expected = rows[canonical_id]
-        assert definition.integration.primary_owner == expected[
-            "primary_owner"
-        ]
-        assert definition.integration.consumer_paths == expected[
-            "consumer_paths"
-        ]
+        assert definition.integration.primary_owner == expected["primary_owner"]
+        assert definition.integration.consumer_paths == expected["consumer_paths"]
         assert definition.integration.effect_port == expected["effect_port"]
 
 
 def test_cp19a_catalog_cards_expose_owner_and_selection_authority():
-    card = KAMasterController().get_available_algorithms()["KA-071"][
-        "metadata"
-    ]
+    card = KAMasterController().get_available_algorithms()["KA-071"]["metadata"]
 
     assert card["Primary_Owner"] == "ingestion"
     assert card["Owner"] == "ingestion"

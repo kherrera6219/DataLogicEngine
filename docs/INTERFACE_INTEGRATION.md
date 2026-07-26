@@ -147,7 +147,12 @@ and adversarial failure/containment/recursion/promotion/effect proof. CP19-F
 causal Quad Persona/DSQP passed with the manifest-selected
 `KA-012` -> `KA-013` -> `KA-030` chain, one provider candidate, retained
 dissent, truthful sufficiency, zero persona-provider subcalls, and a current
-132-edge zero-cycle graph. CP19-G canonical 12-step refinement is active.
+132-edge zero-cycle graph. CP19-G canonical 12-step refinement passed with one
+manifest registry, 12 trace-accounted steps, zero step-level provider
+subcalls, one rewrite ceiling, L6-L10 revalidation, and proposal-only
+lifecycle output. The current graph is 131 edges/zero cycles with 29
+production-enabled capabilities. CP19-H Truth/data/knowledge lifecycle
+integration is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

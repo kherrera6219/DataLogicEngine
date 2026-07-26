@@ -118,7 +118,12 @@ from release and trace state, and prevents the retained controller from
 applying store effects. CP19-F now executes the axes 8-11 DSQP/persona chain
 once through the same selector/DAG, preserves dissent without invented
 confidence, and makes the measured result causal to the one candidate prompt.
-CP19-G canonical 12-step refinement is active.
+CP19-G now owns one manifest-defined 12-step workflow entered only from the
+committed L9 refine decision. It accounts for every step, makes zero provider
+subcalls, permits one rewrite, re-enters L6-L10, and emits only an unapplied
+lifecycle proposal. The current graph is 131 edges/zero cycles with 29
+production-enabled capabilities. CP19-H Truth/data/knowledge lifecycle
+integration is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
@@ -159,7 +164,9 @@ ethics/privacy/compliance, L9 makes the bounded convergence decision, and L10
 owns containment and release. The one 12-step KA refinement subgraph is entered
 only when L9 selects refinement. CP19-D's existing bounded rewrite already
 re-enters L6-L9; CP19-E now adds the complete fail-closed L9/L10 suites and
-CP19-G replaces the rewrite with the canonical 12-step KA subgraph.
+CP19-G replaces the direct retry with the canonical 12-step KA subgraph. The
+subgraph collects all committed findings before the sole provider rewrite;
+the rewritten candidate re-enters L6-L9 and reaches L10 only afterward.
 
 Every canonical ID has exactly one implementation owner and one primary owning
 subsystem. Other subsystems may consume it through declared governed edges but

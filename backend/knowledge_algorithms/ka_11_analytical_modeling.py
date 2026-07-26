@@ -2,6 +2,7 @@
 KA-011: Analytical Modeling
 Purpose: Perform statistical, structural, or structural modeling on input data.
 """
+
 import logging
 import json
 import os
@@ -16,13 +17,19 @@ logger = logging.getLogger(__name__)
 
 
 class KA011Input(BaseModel):
-    data: List[Any] = Field(default_factory=list, description="The data points to model")
-    model_type: str = Field(None, description="The type of modeling to perform (e.g., statistical)")
+    data: List[Any] = Field(
+        default_factory=list, description="The data points to model"
+    )
+    model_type: str = Field(
+        None, description="The type of modeling to perform (e.g., statistical)"
+    )
+
 
 class KA011AnalyticalModeling(KnowledgeAlgorithm):
     """
     KA-011: Performs data analysis and modeling.
     """
+
     input_schema = KA011Input
 
     def __init__(self, context: Dict[str, Any]):
@@ -32,7 +39,9 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
 
     def _load_config(self) -> Dict[str, Any]:
         try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_11_config.json")
+            config_path = os.path.join(
+                os.path.dirname(__file__), "config", "ka_11_config.json"
+            )
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
@@ -42,15 +51,19 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA011Input) -> Dict[str, Any]:
         data = input_data.data
-        model_type = input_data.model_type or self.config.get("default_model_type", "statistical")
-        
-        self.log_execution_step("Analytical Modeling", {"model_type": model_type, "data_points": len(data)})
-        
+        model_type = input_data.model_type or self.config.get(
+            "default_model_type", "statistical"
+        )
+
+        self.log_execution_step(
+            "Analytical Modeling", {"model_type": model_type, "data_points": len(data)}
+        )
+
         if not data:
-             return {"success": True, "result": "No data for modeling"}
-             
+            return {"success": True, "result": "No data for modeling"}
+
         nums = [x for x in data if isinstance(x, (int, float))]
-        
+
         if model_type == "statistical" and nums:
             results = {
                 "mean": statistics.mean(nums),
@@ -66,19 +79,23 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
         elif model_type == "bayesian" and nums:
             results = self._bayesian_summary(nums)
         else:
-            supported = self.config.get("supported_types", ["statistical", "structural", "bayesian"])
+            supported = self.config.get(
+                "supported_types", ["statistical", "structural", "bayesian"]
+            )
             return {
                 "success": False,
                 "model_type": model_type,
                 "supported_types": supported,
                 "error": f"Unsupported model type or incompatible data: {model_type}",
             }
-            
+
         return {
             "success": True,
             "model_type": model_type,
             "results": results,
-            "confidence_adjustment": self.config.get("confidence_boost", 0.0)
+            "confidence_adjustment": None,
+            "confidence_adjustment_status": "not_measured",
+            "calibrated_probability": False,
         }
 
     @staticmethod
@@ -100,7 +117,9 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
             "common_fields": [key for key, _count in dict_keys.most_common(10)],
             "field_frequency": dict(dict_keys),
             "nested_collection_count": len(list_lengths),
-            "average_nested_length": statistics.mean(list_lengths) if list_lengths else 0.0,
+            "average_nested_length": statistics.mean(list_lengths)
+            if list_lengths
+            else 0.0,
             "scalar_count": scalar_count,
         }
 
@@ -109,9 +128,13 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
         prior_mean = 0.0
         prior_strength = 2.0
         sample_mean = statistics.mean(nums)
-        posterior_mean = ((prior_strength * prior_mean) + (len(nums) * sample_mean)) / (prior_strength + len(nums))
+        posterior_mean = ((prior_strength * prior_mean) + (len(nums) * sample_mean)) / (
+            prior_strength + len(nums)
+        )
         sample_stdev = statistics.stdev(nums) if len(nums) > 1 else 0.0
-        credible_half_width = 1.96 * (sample_stdev / (len(nums) ** 0.5)) if len(nums) > 1 else 0.0
+        credible_half_width = (
+            1.96 * (sample_stdev / (len(nums) ** 0.5)) if len(nums) > 1 else 0.0
+        )
         return {
             "prior_mean": prior_mean,
             "prior_strength": prior_strength,
@@ -123,6 +146,7 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
             ],
             "sample_count": len(nums),
         }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

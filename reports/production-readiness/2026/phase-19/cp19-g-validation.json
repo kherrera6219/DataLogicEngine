@@ -1,0 +1,39 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-G",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "canonical_12_step_post_candidate_refinement_integration",
+  "results": {
+    "canonical_capabilities": 213,
+    "live_registry_entries": 132,
+    "unregistered_layer9_implementations": 0,
+    "production_enabled_capabilities": 29,
+    "dependency_edges": 131,
+    "dependency_cycles": 0,
+    "ordered_refinement_steps": 12,
+    "unique_refinement_step_ids": 12,
+    "provider_subcalls": 0,
+    "maximum_provider_rewrites": 1,
+    "post_rewrite_l6_l9_revalidation": "pass",
+    "post_rewrite_l10_release_gate": "pass",
+    "legacy_production_entrypoints": 0,
+    "effect_receipts_fabricated": 0,
+    "focused_cross_system_tests": 8,
+    "broader_subsystem_tests_passed": 955,
+    "full_source_tests_passed": 2528,
+    "full_source_tests_skipped": 19,
+    "full_source_test_warnings": 21,
+    "typescript_sdk_tests_passed": 6,
+    "critical_ruff": "pass",
+    "authority_verifiers": "pass",
+    "documentation_gates": "pass"
+  },
+  "limitations": [
+    "CP19-H still owns the authoritative TruthGate, TruthCore, TruthMemory, TruthLink, FROST, ingestion, retrieval, graph, memory, provenance, quarantine, promotion, deletion, and recovery lifecycle.",
+    "CP19-I still owns extended subsystem and authoritative effect-service integration.",
+    "CP19-J through CP19-K still own product workflow and complete per-KA proof.",
+    "Rebuilding remains blocked until CP19-L, and installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-H"
+}

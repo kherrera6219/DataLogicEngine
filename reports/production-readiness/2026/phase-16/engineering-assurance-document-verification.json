@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.engineering-assurance-document-verification.v1",
-  "generated_at": "2026-07-26T07:10:08.792777+00:00",
-  "authority_version": "2026.07.25-phase19-cp19f-quad-persona-dsqp",
+  "generated_at": "2026-07-26T07:43:15.434279+00:00",
+  "authority_version": "2026.07.25-phase19-cp19g-canonical-refinement",
   "status": "pass",
   "target_count": 12,
   "verified_count": 12,

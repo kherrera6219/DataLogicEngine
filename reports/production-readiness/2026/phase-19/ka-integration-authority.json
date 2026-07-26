@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "1c23ab90dce40c9864d1bfcb4310ae5a9fe6477ed4c478fd939181d78533574e",
+  "identity_source_sha256": "eeb1e37f403529570374836107d8e0c42b002f0e8b44a76a520dfa7328499a73",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -359,7 +359,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:133"
+          "core/simulation/refinement_workflow.py:210"
         ],
         "detected_named_test_functions": [
           "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
@@ -469,6 +469,7 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
           "tests/test_production_fidelity.py::test_production_refinement_fidelity",
           "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer",
@@ -526,7 +527,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:137"
+          "core/simulation/refinement_workflow.py:214"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
@@ -578,10 +579,14 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:141"
+          "core/simulation/refinement_workflow.py:218"
         ],
-        "detected_named_test_functions": [],
-        "production_enabled": false
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_required_step_failure_blocks_before_rewrite"
+        ],
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -624,7 +629,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:157",
+          "core/simulation/refinement_workflow.py:234",
           "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:37",
           "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:86"
         ],
@@ -647,6 +652,7 @@
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_policy_denial_and_unavailable_service_fail_closed",
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
           "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
           "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
@@ -694,7 +700,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:149"
+          "core/simulation/refinement_workflow.py:226"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
@@ -703,10 +709,12 @@
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
           "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/test_production_fidelity.py::test_production_tiering_and_routing",
           "tests/truth_engine/test_truth_infrastructure.py::test_determine_tier_ai"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -750,7 +758,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:153"
+          "core/simulation/refinement_workflow.py:230"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka006_dynamic_intent_compliance",
@@ -800,8 +808,8 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:169",
-          "core/simulation/refinement_workflow.py:177"
+          "core/simulation/refinement_workflow.py:246",
+          "core/simulation/refinement_workflow.py:254"
         ],
         "detected_named_test_functions": [],
         "production_enabled": false
@@ -1060,9 +1068,11 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -1359,7 +1369,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:145"
+          "core/simulation/refinement_workflow.py:222"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_175_security_audit_fails_untested_control_without_scanning",
@@ -1746,15 +1756,17 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:161"
+          "core/simulation/refinement_workflow.py:238"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+          "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -1985,7 +1997,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:165"
+          "core/simulation/refinement_workflow.py:242"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
@@ -8235,7 +8247,7 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "core/simulation/refinement_workflow.py:173"
+          "core/simulation/refinement_workflow.py:250"
         ],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_authorizes_routes_and_rate_limits_locally",

@@ -1,11 +1,11 @@
 {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19f.1",
-  "status": "cp19_f_persona_authority",
+  "manifest_version": "2026.07.25-cp19g.1",
+  "status": "cp19_g_refinement_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
+    "crosswalk_source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id",
@@ -99,12 +99,20 @@
           "KA-013"
         ],
         "rationale": "Conflict disposition consumes weighted, retained dissent and turns it into mandatory prompt constraints."
+      },
+      "KA-003": {
+        "dependencies": [],
+        "rationale": "Gap analysis compares committed current and desired state before synthesis and does not consume an ensemble result."
       }
     },
-    "production_admission_checkpoint": "CP19-F",
+    "production_admission_checkpoint": "CP19-G",
     "production_admission_ids": [
+      "KA-003",
+      "KA-005",
+      "KA-011",
       "KA-012",
       "KA-013",
+      "KA-025",
       "KA-030",
       "L10-KA-001",
       "L10-KA-002",
@@ -120,7 +128,152 @@
       "L9-KA-005",
       "L9-KA-006",
       "L9-KA-007"
-    ]
+    ],
+    "refinement_workflow": {
+      "schema_version": "dle.refinement-workflow-registry.v1",
+      "registry_version": "2026.07.25-cp19g.1",
+      "owner": "governed_execution_orchestrator",
+      "entry_condition": "committed_l9_refine_decision",
+      "max_provider_rewrites": 1,
+      "provider_subcalls_from_steps": 0,
+      "effect_application_authorized": false,
+      "steps": [
+        {
+          "step": 1,
+          "step_id": "structured_decomposition",
+          "name": "Structured decomposition",
+          "purpose": "Decompose the refinement obligation into bounded tasks.",
+          "candidate_ka_ids": [
+            "KA-001"
+          ],
+          "execution_policy": "reuse_committed_or_execute"
+        },
+        {
+          "step": 2,
+          "step_id": "alternative_branches",
+          "name": "Alternative branches",
+          "purpose": "Consider alternative reasoning branches without provider fan-out.",
+          "candidate_ka_ids": [
+            "KA-002"
+          ],
+          "execution_policy": "execute_only_when_production_admitted"
+        },
+        {
+          "step": 3,
+          "step_id": "missing_information",
+          "name": "Missing information and unresolved claims",
+          "purpose": "Identify unsupported, contradicted, or unresolved claims.",
+          "candidate_ka_ids": [
+            "KA-003"
+          ],
+          "execution_policy": "execute_required"
+        },
+        {
+          "step": 4,
+          "step_id": "input_source_evidence_validation",
+          "name": "Input, source, and evidence validation",
+          "purpose": "Consume committed normalization, provenance, and validation results.",
+          "candidate_ka_ids": [
+            "KA-004",
+            "KA-009",
+            "KA-018"
+          ],
+          "execution_policy": "reuse_committed_validation"
+        },
+        {
+          "step": 5,
+          "step_id": "deep_causal_analytical_review",
+          "name": "Deep causal and analytical review",
+          "purpose": "Map claim dependencies and structural analytical constraints.",
+          "candidate_ka_ids": [
+            "KA-011",
+            "KA-025"
+          ],
+          "execution_policy": "execute_required"
+        },
+        {
+          "step": 6,
+          "step_id": "self_critique_contradiction_review",
+          "name": "Self-critique and contradiction review",
+          "purpose": "Consume committed contradiction and meta-evaluation findings.",
+          "candidate_ka_ids": [
+            "KA-026",
+            "L9-KA-004"
+          ],
+          "execution_policy": "reuse_committed_validation"
+        },
+        {
+          "step": 7,
+          "step_id": "policy_safety_review",
+          "name": "Ethics, security, privacy, risk, and compliance",
+          "purpose": "Carry forward L8 policy constraints before rewrite.",
+          "candidate_ka_ids": [
+            "KA-024",
+            "L10-KA-003",
+            "L10-KA-004"
+          ],
+          "execution_policy": "reuse_l8_and_defer_release_checks"
+        },
+        {
+          "step": 8,
+          "step_id": "recursive_learning_decision",
+          "name": "Recursive-learning decision",
+          "purpose": "Consume the bounded L9 recursion and loop decision.",
+          "candidate_ka_ids": [
+            "L9-KA-005",
+            "L9-KA-006",
+            "L9-KA-007"
+          ],
+          "execution_policy": "reuse_committed_validation"
+        },
+        {
+          "step": 9,
+          "step_id": "semantic_intent_alignment",
+          "name": "Semantic and intent alignment",
+          "purpose": "Recheck normalized intent and persona constraints.",
+          "candidate_ka_ids": [
+            "KA-005",
+            "KA-012",
+            "KA-013",
+            "KA-030"
+          ],
+          "execution_policy": "execute_and_reuse_committed"
+        },
+        {
+          "step": 10,
+          "step_id": "authorized_external_validation",
+          "name": "External validation when authorized",
+          "purpose": "Use external research only through a separately authorized service.",
+          "candidate_ka_ids": [
+            "KA-1114"
+          ],
+          "execution_policy": "typed_skip_until_authorized_and_qualified"
+        },
+        {
+          "step": 11,
+          "step_id": "synthesis_measured_scoring",
+          "name": "Synthesis and measured scoring",
+          "purpose": "Collect all findings and measured readiness into rewrite constraints.",
+          "candidate_ka_ids": [
+            "KA-030",
+            "L9-KA-006"
+          ],
+          "execution_policy": "reuse_committed_validation"
+        },
+        {
+          "step": 12,
+          "step_id": "memory_lifecycle_proposal",
+          "name": "Memory and lifecycle proposal",
+          "purpose": "Create an unapplied lifecycle proposal pending L10 release.",
+          "candidate_ka_ids": [
+            "KA-051",
+            "KA-1079",
+            "KA-1109"
+          ],
+          "execution_policy": "proposal_only"
+        }
+      ]
+    }
   },
   "capability_count": 213,
   "alias_index": {
@@ -481,15 +634,14 @@
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_g_production_qualified",
         "inputs": [
-          "Context state",
-          "evidence set"
+          "Committed claim/validator state",
+          "desired supported-claim state"
         ],
         "outputs": [
-          "Gap vector",
-          "missing-entity list",
-          "uncertainty map"
+          "Explicit missing or mismatched state",
+          "bounded heuristic impact"
         ],
         "categories": [
           "Analysis"
@@ -501,9 +653,7 @@
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-029"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -517,12 +667,12 @@
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
+        "guarantee": "Produces a bounded deterministic refinement observation from committed request, claim, validator, and trace state without provider calls or direct effects.",
+        "performance_budget_ms": 300
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -675,15 +825,14 @@
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_g_production_qualified",
         "inputs": [
-          "Normalized query",
-          "user/org policy"
+          "Normalized query"
         ],
         "outputs": [
-          "Domain tags",
-          "complexity tier",
-          "risk hints"
+          "Deterministic intent/domain classification",
+          "workflow tier hint",
+          "non-calibrated classification score"
         ],
         "categories": [
           "Routing"
@@ -709,12 +858,12 @@
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
+        "guarantee": "Produces a bounded deterministic refinement observation from committed request, claim, validator, and trace state without provider calls or direct effects.",
+        "performance_budget_ms": 300
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -1254,15 +1403,14 @@
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_g_production_qualified",
         "inputs": [
-          "Data model",
-          "constraints"
+          "Committed claim and validator records",
+          "bounded structural model type"
         ],
         "outputs": [
-          "Derived results",
-          "assumptions",
-          "model fit"
+          "Structural summary",
+          "explicit non-calibrated measurement status"
         ],
         "categories": [
           "Reasoning"
@@ -1286,12 +1434,12 @@
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
+        "guarantee": "Produces a bounded deterministic refinement observation from committed request, claim, validator, and trace state without provider calls or direct effects.",
+        "performance_budget_ms": 300
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -2581,14 +2729,13 @@
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_g_production_qualified",
         "inputs": [
-          "Task graph",
-          "claims"
+          "Committed claim/evidence dependency nodes"
         ],
         "outputs": [
-          "Dependency tree",
-          "impact graph"
+          "Dependency graph",
+          "measured DAG status and depth"
         ],
         "categories": [
           "Analysis"
@@ -2612,12 +2759,12 @@
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
+        "guarantee": "Produces a bounded deterministic refinement observation from committed request, claim, validator, and trace state without provider calls or direct effects.",
+        "performance_budget_ms": 300
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"

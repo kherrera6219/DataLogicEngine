@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
+  "source_input_sha256": "b0f4ce7488182c129807438855d9f0a7a5a41606a6f545fd3bd68fa708af3a43",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -28,7 +28,7 @@
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 25,
+    "phase6_production_enabled": 29,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -41,11 +41,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 133,
+    "integration_surfaces": 132,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 182,
-    "canonical_with_named_test_function": 180
+    "canonical_with_test_reference": 183,
+    "canonical_with_named_test_function": 181
   },
   "canonical_capabilities": [
     {
@@ -192,6 +192,7 @@
       },
       "runtime_references": [
         "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/refinement.py",
         "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
         "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
         "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
@@ -210,7 +211,7 @@
         "sdk/UKG_Python_SDK/ukg_sdk/ka/registry.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:133"
+        "core/simulation/refinement_workflow.py:210"
       ],
       "test_references": [
         "tests/governed_execution/test_orchestrator.py",
@@ -222,6 +223,7 @@
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/knowledge_algorithms/test_registry_governance.py",
         "tests/test_production_fidelity.py",
@@ -338,6 +340,7 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer",
@@ -526,7 +529,7 @@
         "sdk/UKG_Python_SDK/ukg_sdk/ka/registry.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:137"
+        "core/simulation/refinement_workflow.py:214"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
@@ -696,20 +699,29 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "core/simulation/layer1_entry.py",
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:141"
+        "core/simulation/refinement_workflow.py:218"
       ],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
+        "tests/knowledge_algorithms/test_production_invariants.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_required_step_failure_blocks_before_rewrite"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-003",
         "implementation": "backend.knowledge_algorithms.ka_03_gap_analysis.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -881,6 +893,7 @@
       },
       "runtime_references": [
         "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
@@ -891,7 +904,7 @@
         "sdk/UKG_Python_SDK/tests/test_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:157",
+        "core/simulation/refinement_workflow.py:234",
         "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:37",
         "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:86"
       ],
@@ -903,6 +916,7 @@
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_truthcore_preflight_contract.py"
       ],
@@ -925,6 +939,7 @@
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_policy_denial_and_unavailable_service_fail_closed",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
         "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
         "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
         "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
@@ -1084,21 +1099,25 @@
       },
       "runtime_references": [
         "backend/dmrf/tier_classifier.py",
+        "backend/governed_execution/refinement.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/engine.py",
         "core/simulation/layer2_knowledge.py",
         "core/simulation/refinement_workflow.py",
         "sdk/UKG_Python_SDK/tests/test_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:149"
+        "core/simulation/refinement_workflow.py:226"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_05_suggested_tier.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/test_production_fidelity.py",
         "tests/truth_engine/test_truth_engine_coverage.py",
         "tests/truth_engine/test_truth_infrastructure.py"
@@ -1110,6 +1129,8 @@
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
         "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
         "tests/test_production_fidelity.py::test_production_tiering_and_routing",
         "tests/truth_engine/test_truth_infrastructure.py::test_determine_tier_ai"
       ],
@@ -1117,7 +1138,7 @@
         "ka_id": "KA-005",
         "implementation": "backend.knowledge_algorithms.ka_05_query_classification.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -1283,7 +1304,7 @@
         "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:153"
+        "core/simulation/refinement_workflow.py:230"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
@@ -1458,8 +1479,8 @@
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:169",
-        "core/simulation/refinement_workflow.py:177"
+        "core/simulation/refinement_workflow.py:246",
+        "core/simulation/refinement_workflow.py:254"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_logic.py"
@@ -1807,6 +1828,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "core/simulation/layer3_expert.py"
       ],
@@ -2179,19 +2201,23 @@
           "KA011AnalyticalModeling",
           "KA011Input"
         ],
-        "nonblank_noncomment_loc": 117,
+        "nonblank_noncomment_loc": 137,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_core/engine.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
+        "tests/knowledge_algorithms/test_production_invariants.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka011_supports_structural_and_bayesian_models",
@@ -2213,13 +2239,15 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-011",
         "implementation": "backend.knowledge_algorithms.ka_11_analytical_modeling.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -2372,6 +2400,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_13_persona_weighting.py",
         "backend/knowledge_algorithms/production_catalog.py",
@@ -2542,6 +2571,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "backend/knowledge_algorithms/production_catalog.py",
@@ -3231,7 +3261,7 @@
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:145"
+        "core/simulation/refinement_workflow.py:222"
       ],
       "test_references": [],
       "named_test_functions": [
@@ -3388,6 +3418,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
@@ -4369,6 +4400,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
@@ -4514,32 +4546,40 @@
         "functions": [
           "__init__",
           "_load_config",
+          "_measure_dag",
           "_run_logic",
-          "run"
+          "run",
+          "visit"
         ],
         "classes": [
           "KA025DependencyMapping",
           "KA025Input"
         ],
-        "nonblank_noncomment_loc": 58,
+        "nonblank_noncomment_loc": 110,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:161"
+        "core/simulation/refinement_workflow.py:238"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
+        "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -4548,7 +4588,7 @@
         "ka_id": "KA-025",
         "implementation": "backend.knowledge_algorithms.ka_25_dependency_mapping.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -4701,6 +4741,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "sdk/UKG_Python_SDK/ukg_sdk/tenlayer.py"
@@ -5344,6 +5385,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
@@ -5352,7 +5394,7 @@
         "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:165"
+        "core/simulation/refinement_workflow.py:242"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py",
@@ -21944,7 +21986,7 @@
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "core/simulation/refinement_workflow.py:173"
+        "core/simulation/refinement_workflow.py:250"
       ],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
@@ -25672,6 +25714,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
         "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
@@ -25756,6 +25799,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
         "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
@@ -26368,6 +26412,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
         "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
@@ -26454,6 +26499,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
         "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
@@ -26543,6 +26589,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
         "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
@@ -26629,6 +26676,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/refinement.py",
         "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
         "backend/knowledge_algorithms/production_catalog.py",

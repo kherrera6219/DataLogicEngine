@@ -484,6 +484,7 @@ class GovernedReasoningState:
     validators: list[dict[str, Any]] = field(default_factory=list)
     confidence_measurement: dict[str, Any] | None = None
     convergence: dict[str, Any] | None = None
+    refinement: dict[str, Any] | None = None
     effects: list[dict[str, Any]] = field(default_factory=list)
     trace_links: list[str] = field(default_factory=list)
     release: dict[str, Any] | None = None
@@ -537,6 +538,7 @@ class GovernedReasoningState:
             "validators": list(self.validators),
             "confidence_measurement": self.confidence_measurement,
             "convergence": self.convergence,
+            "refinement": self.refinement,
             "effects": list(self.effects),
             "trace_links": list(self.trace_links),
             "release": self.release,

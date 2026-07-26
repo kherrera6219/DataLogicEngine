@@ -10,7 +10,24 @@ FIXTURES = {
         {"query": "Research encryption controls"},
         lambda row: bool(row["tasks"]),
     ),
+    "KA-003": (
+        {
+            "current_state": {"unsupported_claim_ids": ["claim-a"]},
+            "desired_state": {"unsupported_claim_ids": []},
+        },
+        lambda row: (
+            row["gap_count"] == 1 and row["gaps"][0]["field"] == "unsupported_claim_ids"
+        ),
+    ),
     "KA-004": ({"query": "  Assess control  "}, lambda row: row["is_valid"] is True),
+    "KA-005": (
+        {"query": "Assess regulatory encryption controls"},
+        lambda row: (
+            bool(row["category"])
+            and bool(row["suggested_tier"])
+            and isinstance(row["confidence"], (int, float))
+        ),
+    ),
     "KA-009": (
         {
             "query": "encryption control",
@@ -23,6 +40,20 @@ FIXTURES = {
             ],
         },
         lambda row: row["overall_validity"] is True,
+    ),
+    "KA-011": (
+        {
+            "data": [
+                {"claim_id": "claim-a", "status": "insufficient"},
+                {"claim_id": "claim-b", "status": "supported"},
+            ],
+            "model_type": "structural",
+        },
+        lambda row: (
+            row["results"]["record_count"] == 2
+            and row["confidence_adjustment"] is None
+            and row["calibrated_probability"] is False
+        ),
     ),
     "KA-012": (
         {
@@ -116,6 +147,19 @@ FIXTURES = {
     "KA-024": (
         {"confidence": 0.9, "risk_score": 0.1},
         lambda row: row["status"] == "APPROVED",
+    ),
+    "KA-025": (
+        {
+            "nodes": [
+                {"id": "evidence-a", "deps": []},
+                {"id": "claim-a", "deps": ["evidence-a"]},
+            ]
+        },
+        lambda row: (
+            row["meta"]["is_dag"] is True
+            and row["meta"]["depth"] == 2
+            and row["meta"]["unknown_dependencies"] == []
+        ),
     ),
     "KA-061": (
         {"query": "<script>alert('x')</script>"},

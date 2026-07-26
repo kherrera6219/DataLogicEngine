@@ -308,6 +308,183 @@ CP19_F_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
     },
 }
 
+CP19_G_REFINEMENT_IDS = {"KA-003", "KA-005", "KA-011", "KA-025"}
+
+# The live implementations of these refinement observations are self-contained.
+# KA-003's design dependency on ensemble synthesis would make a pre-synthesis
+# gap observation impossible and is therefore corrected at the runtime
+# prerequisite boundary.
+CP19_G_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-003": {
+        "dependencies": [],
+        "rationale": (
+            "Gap analysis compares committed current and desired state before "
+            "synthesis and does not consume an ensemble result."
+        ),
+    },
+}
+
+CP19_G_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": "deterministic_heuristic",
+        "deterministic": True,
+        "performance_budget_ms": 300,
+        "contract_status": "cp19_g_production_qualified",
+        "guarantee": (
+            "Produces a bounded deterministic refinement observation from "
+            "committed request, claim, validator, and trace state without "
+            "provider calls or direct effects."
+        ),
+        "limitations": (
+            "Outputs are refinement structure and heuristic observations, not "
+            "external evidence, calibrated confidence, or release authority."
+        ),
+    }
+    for canonical_id in CP19_G_REFINEMENT_IDS
+}
+
+CP19_G_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
+    "KA-003": {
+        "inputs": [
+            "Committed claim/validator state",
+            "desired supported-claim state",
+        ],
+        "outputs": [
+            "Explicit missing or mismatched state",
+            "bounded heuristic impact",
+        ],
+    },
+    "KA-005": {
+        "inputs": [
+            "Normalized query",
+        ],
+        "outputs": [
+            "Deterministic intent/domain classification",
+            "workflow tier hint",
+            "non-calibrated classification score",
+        ],
+    },
+    "KA-011": {
+        "inputs": [
+            "Committed claim and validator records",
+            "bounded structural model type",
+        ],
+        "outputs": [
+            "Structural summary",
+            "explicit non-calibrated measurement status",
+        ],
+    },
+    "KA-025": {
+        "inputs": [
+            "Committed claim/evidence dependency nodes",
+        ],
+        "outputs": [
+            "Dependency graph",
+            "measured DAG status and depth",
+        ],
+    },
+}
+
+CP19_G_REFINEMENT_STEPS: list[dict[str, Any]] = [
+    {
+        "step": 1,
+        "step_id": "structured_decomposition",
+        "name": "Structured decomposition",
+        "purpose": "Decompose the refinement obligation into bounded tasks.",
+        "candidate_ka_ids": ["KA-001"],
+        "execution_policy": "reuse_committed_or_execute",
+    },
+    {
+        "step": 2,
+        "step_id": "alternative_branches",
+        "name": "Alternative branches",
+        "purpose": "Consider alternative reasoning branches without provider fan-out.",
+        "candidate_ka_ids": ["KA-002"],
+        "execution_policy": "execute_only_when_production_admitted",
+    },
+    {
+        "step": 3,
+        "step_id": "missing_information",
+        "name": "Missing information and unresolved claims",
+        "purpose": "Identify unsupported, contradicted, or unresolved claims.",
+        "candidate_ka_ids": ["KA-003"],
+        "execution_policy": "execute_required",
+    },
+    {
+        "step": 4,
+        "step_id": "input_source_evidence_validation",
+        "name": "Input, source, and evidence validation",
+        "purpose": "Consume committed normalization, provenance, and validation results.",
+        "candidate_ka_ids": ["KA-004", "KA-009", "KA-018"],
+        "execution_policy": "reuse_committed_validation",
+    },
+    {
+        "step": 5,
+        "step_id": "deep_causal_analytical_review",
+        "name": "Deep causal and analytical review",
+        "purpose": "Map claim dependencies and structural analytical constraints.",
+        "candidate_ka_ids": ["KA-011", "KA-025"],
+        "execution_policy": "execute_required",
+    },
+    {
+        "step": 6,
+        "step_id": "self_critique_contradiction_review",
+        "name": "Self-critique and contradiction review",
+        "purpose": "Consume committed contradiction and meta-evaluation findings.",
+        "candidate_ka_ids": ["KA-026", "L9-KA-004"],
+        "execution_policy": "reuse_committed_validation",
+    },
+    {
+        "step": 7,
+        "step_id": "policy_safety_review",
+        "name": "Ethics, security, privacy, risk, and compliance",
+        "purpose": "Carry forward L8 policy constraints before rewrite.",
+        "candidate_ka_ids": ["KA-024", "L10-KA-003", "L10-KA-004"],
+        "execution_policy": "reuse_l8_and_defer_release_checks",
+    },
+    {
+        "step": 8,
+        "step_id": "recursive_learning_decision",
+        "name": "Recursive-learning decision",
+        "purpose": "Consume the bounded L9 recursion and loop decision.",
+        "candidate_ka_ids": ["L9-KA-005", "L9-KA-006", "L9-KA-007"],
+        "execution_policy": "reuse_committed_validation",
+    },
+    {
+        "step": 9,
+        "step_id": "semantic_intent_alignment",
+        "name": "Semantic and intent alignment",
+        "purpose": "Recheck normalized intent and persona constraints.",
+        "candidate_ka_ids": ["KA-005", "KA-012", "KA-013", "KA-030"],
+        "execution_policy": "execute_and_reuse_committed",
+    },
+    {
+        "step": 10,
+        "step_id": "authorized_external_validation",
+        "name": "External validation when authorized",
+        "purpose": "Use external research only through a separately authorized service.",
+        "candidate_ka_ids": ["KA-1114"],
+        "execution_policy": "typed_skip_until_authorized_and_qualified",
+    },
+    {
+        "step": 11,
+        "step_id": "synthesis_measured_scoring",
+        "name": "Synthesis and measured scoring",
+        "purpose": "Collect all findings and measured readiness into rewrite constraints.",
+        "candidate_ka_ids": ["KA-030", "L9-KA-006"],
+        "execution_policy": "reuse_committed_validation",
+    },
+    {
+        "step": 12,
+        "step_id": "memory_lifecycle_proposal",
+        "name": "Memory and lifecycle proposal",
+        "purpose": "Create an unapplied lifecycle proposal pending L10 release.",
+        "candidate_ka_ids": ["KA-051", "KA-1079", "KA-1109"],
+        "execution_policy": "proposal_only",
+    },
+]
+
 
 def normalize_ka_id(value: str) -> str:
     clean = str(value).strip().upper()
@@ -400,19 +577,24 @@ def build_manifest() -> dict[str, Any]:
             }
         )
         override = (
-            CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            CP19_G_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_E_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
         )
         if override is not None:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
-        admission_override = CP19_F_ADMISSION_OVERRIDES.get(
-            row["canonical_id"]
-        ) or CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
-        io_override = CP19_F_IO_OVERRIDES.get(
-            row["canonical_id"]
-        ) or CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
+        admission_override = (
+            CP19_G_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            or CP19_F_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            or CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
+        )
+        io_override = (
+            CP19_G_IO_OVERRIDES.get(row["canonical_id"])
+            or CP19_F_IO_OVERRIDES.get(row["canonical_id"])
+            or CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
+        )
         entries[row["canonical_id"]] = {
             "canonical_id": row["canonical_id"],
             "name": row["name"],
@@ -525,8 +707,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19f.1",
-        "status": "cp19_f_persona_authority",
+        "manifest_version": "2026.07.25-cp19g.1",
+        "status": "cp19_g_refinement_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -542,9 +724,22 @@ def build_manifest() -> dict[str, Any]:
                 **CP19_C_DEPENDENCY_OVERRIDES,
                 **CP19_E_DEPENDENCY_OVERRIDES,
                 **CP19_F_DEPENDENCY_OVERRIDES,
+                **CP19_G_DEPENDENCY_OVERRIDES,
             },
-            "production_admission_checkpoint": "CP19-F",
-            "production_admission_ids": sorted(CP19_E_LAYER_IDS | CP19_F_PERSONA_IDS),
+            "production_admission_checkpoint": "CP19-G",
+            "production_admission_ids": sorted(
+                CP19_E_LAYER_IDS | CP19_F_PERSONA_IDS | CP19_G_REFINEMENT_IDS
+            ),
+            "refinement_workflow": {
+                "schema_version": "dle.refinement-workflow-registry.v1",
+                "registry_version": "2026.07.25-cp19g.1",
+                "owner": "governed_execution_orchestrator",
+                "entry_condition": "committed_l9_refine_decision",
+                "max_provider_rewrites": 1,
+                "provider_subcalls_from_steps": 0,
+                "effect_application_authorized": False,
+                "steps": CP19_G_REFINEMENT_STEPS,
+            },
         },
         "capability_count": len(entries),
         "alias_index": {

@@ -49,15 +49,9 @@ def _result(
         canonical_id=canonical_id,
         ka_version="test",
         manifest_version="test",
-        state=(
-            KAExecutionState.SUCCEEDED
-            if success
-            else KAExecutionState.FAILED
-        ),
+        state=(KAExecutionState.SUCCEEDED if success else KAExecutionState.FAILED),
         outcome_type=(
-            KAOutcomeType.VALUE
-            if success
-            else KAOutcomeType.INTERNAL_FAILURE
+            KAOutcomeType.VALUE if success else KAOutcomeType.INTERNAL_FAILURE
         ),
         success=success,
         output=output or ({"canonical_id": canonical_id} if success else {}),
@@ -125,21 +119,21 @@ def _wide_budget_context() -> dict:
 def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_f_persona_authority"
+    assert manifest.status == "cp19_g_refinement_authority"
     assert manifest.capability_count == 213
-    assert sum(
-        len(definition.contract.dependencies)
-        for definition in manifest.entries.values()
-    ) == 132
+    assert (
+        sum(
+            len(definition.contract.dependencies)
+            for definition in manifest.entries.values()
+        )
+        == 131
+    )
     for definition in manifest.entries.values():
         assert (
             definition.contract.dependency_result_contract
             == "dle.ka-execution-result.v1#output"
         )
-        assert (
-            definition.contract.dependency_input_field
-            == "dependency_results"
-        )
+        assert definition.contract.dependency_input_field == "dependency_results"
 
 
 def test_cp19c_reciprocal_design_dependencies_have_prerequisite_order():
@@ -168,21 +162,14 @@ def test_cp19c_all_213_positive_and_negative_fixtures_are_current():
             entry = plan.entries[canonical_id]
             expected = case["expected"]
             assert entry.disposition.value == expected["disposition"]
-            assert (
-                entry.disposition == KAPlanDisposition.SELECTED
-            ) is expected["selected"]
+            assert (entry.disposition == KAPlanDisposition.SELECTED) is expected[
+                "selected"
+            ]
             assert entry.reason == expected["reason"]
         if canonical_id == "KA-033":
-            assert (
-                selector.plan(
-                    fixture["positive_selector"]["request"]
-                ).valid
-                is False
-            )
+            assert selector.plan(fixture["positive_selector"]["request"]).valid is False
         else:
-            assert selector.plan(
-                fixture["positive_selector"]["request"]
-            ).valid
+            assert selector.plan(fixture["positive_selector"]["request"]).valid
 
 
 def test_cp19c_machine_verification_evidence_passes():
@@ -243,8 +230,7 @@ def test_cp19c_policy_denial_and_unavailable_service_fail_closed():
     effect_id = next(
         canonical_id
         for canonical_id, definition in manifest.entries.items()
-        if definition.contract.effect_class
-        == "effect_oriented_review_required"
+        if definition.contract.effect_class == "effect_oriented_review_required"
         and not definition.contract.dependencies
     )
     manifest.entries[effect_id].admission.production_enabled = True
@@ -256,10 +242,7 @@ def test_cp19c_policy_denial_and_unavailable_service_fail_closed():
         }
     )
     assert not unavailable.valid
-    assert (
-        unavailable.entries[effect_id].disposition
-        == KAPlanDisposition.UNAVAILABLE
-    )
+    assert unavailable.entries[effect_id].disposition == KAPlanDisposition.UNAVAILABLE
     assert (
         unavailable.entries[effect_id].reason
         == "authoritative_effect_service_unavailable"
@@ -279,8 +262,7 @@ def test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan():
     )
     assert not cyclic.valid
     assert any(
-        "dependency cycle detected" in error
-        for error in cyclic.validation_errors
+        "dependency cycle detected" in error for error in cyclic.validation_errors
     )
     assert cyclic.execution_order == []
 
@@ -313,16 +295,12 @@ async def test_cp19c_executor_injects_dependencies_and_records_real_trace():
     )
     plan = ManifestKASelector().plan(request)
 
-    report = await KAPlanExecutor(CanonicalKAController()).execute(
-        plan, request
-    )
+    report = await KAPlanExecutor(CanonicalKAController()).execute(plan, request)
 
     assert report.status == KAPlanExecutionStatus.SUCCEEDED
     assert report.results["KA-004"].success
     assert report.results["KA-004"].output["is_valid"] is True
-    states = [
-        event.state for event in report.traces["KA-004"].events
-    ]
+    states = [event.state for event in report.traces["KA-004"].events]
     assert states == [
         KATraceState.PLANNED,
         KATraceState.CANDIDATE,
@@ -354,8 +332,7 @@ async def test_cp19c_required_failure_cancels_siblings_and_blocks_dependents():
     assert report.required_failure == "KA-004"
     assert report.results["KA-004"].success is False
     assert all(
-        event.state != KATraceState.EXECUTED
-        for event in report.traces["KA-004"].events
+        event.state != KATraceState.EXECUTED for event in report.traces["KA-004"].events
     )
 
 
@@ -365,8 +342,7 @@ async def test_cp19c_effect_proposals_execute_serially_and_are_not_applied():
     effect_ids = [
         canonical_id
         for canonical_id, definition in manifest.entries.items()
-        if definition.contract.effect_class
-        == "effect_oriented_review_required"
+        if definition.contract.effect_class == "effect_oriented_review_required"
         and not definition.contract.dependencies
     ][:2]
     request = KASelectionRequest.model_validate(
@@ -384,9 +360,7 @@ async def test_cp19c_effect_proposals_execute_serially_and_are_not_applied():
     assert report.status == KAPlanExecutionStatus.SUCCEEDED
     assert controller.max_in_flight == 1
     for canonical_id in effect_ids:
-        states = {
-            event.state for event in report.traces[canonical_id].events
-        }
+        states = {event.state for event in report.traces[canonical_id].events}
         assert KATraceState.EFFECT_PROPOSED in states
         assert KATraceState.EFFECT_APPLIED not in states
 
@@ -440,9 +414,7 @@ async def test_cp19c_parent_cancellation_is_re_raised():
     )
     plan = ManifestKASelector().plan(request)
     task = asyncio.create_task(
-        KAPlanExecutor(
-            RecordingController(delay_seconds=0.2)
-        ).execute(plan, request)
+        KAPlanExecutor(RecordingController(delay_seconds=0.2)).execute(plan, request)
     )
     await asyncio.sleep(0.01)
     task.cancel()

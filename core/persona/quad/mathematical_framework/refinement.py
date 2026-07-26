@@ -9,6 +9,9 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+PRODUCTION_ENTRYPOINT = False
+WORKFLOW_DISPOSITION = "quad_mathematical_demonstration_reference"
+
 
 class DeepRecursiveLearning:
     """Implements Deep Recursive Learning with convergence detection."""
@@ -26,7 +29,9 @@ class DeepRecursiveLearning:
         self.theta_d = theta_d
         self.iteration_history = []
 
-    def recursive_processing(self, x: np.ndarray, d: int, refinement_fn: callable = None) -> np.ndarray:
+    def recursive_processing(
+        self, x: np.ndarray, d: int, refinement_fn: callable = None
+    ) -> np.ndarray:
         """Recursive Processing Function RPF(x, d)."""
         if d == 0:
             return x
@@ -74,13 +79,17 @@ class DeepRecursiveLearning:
 
             if self.convergence_function(refined, current):
                 confidence = self.recursive_confidence_evaluation(refined, d)
-                logger.info(f"DRL converged at depth {d} with confidence {confidence:.4f}")
+                logger.info(
+                    f"DRL converged at depth {d} with confidence {confidence:.4f}"
+                )
                 return refined, d, confidence
 
             current = refined
 
         confidence = self.recursive_confidence_evaluation(current, self.max_depth)
-        logger.info(f"DRL completed max depth {self.max_depth} with confidence {confidence:.4f}")
+        logger.info(
+            f"DRL completed max depth {self.max_depth} with confidence {confidence:.4f}"
+        )
         return current, self.max_depth, confidence
 
 
@@ -126,7 +135,9 @@ class RefinementWorkflow12Step:
             "optimize": self._final_optimization,
         }
 
-    def apply_workflow(self, input_data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
+    def apply_workflow(
+        self, input_data: Dict[str, Any]
+    ) -> Tuple[Dict[str, Any], float]:
         """Apply the complete 12-step refinement workflow."""
         self.step_results = []
         current = input_data.copy()
@@ -135,12 +146,14 @@ class RefinementWorkflow12Step:
             step_fn = self.step_functions.get(step_id)
             if step_fn:
                 current, step_confidence = step_fn(current)
-                self.step_results.append({
-                    "step_id": step_id,
-                    "step_name": step_name,
-                    "confidence": step_confidence,
-                    "timestamp": datetime.now(UTC).isoformat(),
-                })
+                self.step_results.append(
+                    {
+                        "step_id": step_id,
+                        "step_name": step_name,
+                        "confidence": step_confidence,
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    }
+                )
 
         final_confidence = self._compute_final_confidence()
         return current, final_confidence
@@ -162,7 +175,9 @@ class RefinementWorkflow12Step:
         data["tot_branches"] = data.get("tot_branches", []) + ["main_branch"]
         return data, 0.95
 
-    def _algorithm_of_thought(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
+    def _algorithm_of_thought(
+        self, data: Dict[str, Any]
+    ) -> Tuple[Dict[str, Any], float]:
         """f_2: Algorithm of Thought structuring."""
         data["aot_structure"] = "structured"
         return data, 0.96
@@ -172,7 +187,9 @@ class RefinementWorkflow12Step:
         data["gaps_identified"] = data.get("gaps_identified", [])
         return data, 0.97
 
-    def _knowledge_verification(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
+    def _knowledge_verification(
+        self, data: Dict[str, Any]
+    ) -> Tuple[Dict[str, Any], float]:
         """f_4: Knowledge Verification."""
         data["knowledge_verified"] = True
         return data, 0.98
