@@ -6,16 +6,112 @@ from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 from backend.knowledge_algorithms.production_catalog import load_production_catalog
 
 FIXTURES = {
-    "KA-001": ({"query": "Research encryption controls"}, lambda row: bool(row["tasks"])),
+    "KA-001": (
+        {"query": "Research encryption controls"},
+        lambda row: bool(row["tasks"]),
+    ),
     "KA-004": ({"query": "  Assess control  "}, lambda row: row["is_valid"] is True),
     "KA-009": (
         {
             "query": "encryption control",
             "evidence": [
-                {"source": "manual", "source_type": "document", "content": "encryption control"}
+                {
+                    "source": "manual",
+                    "source_type": "document",
+                    "content": "encryption control",
+                }
             ],
         },
         lambda row: row["overall_validity"] is True,
+    ),
+    "KA-012": (
+        {
+            "query": "Assess a regulated encryption deployment",
+            "active_personas": [
+                "knowledge",
+                "sector",
+                "regulatory",
+                "compliance",
+            ],
+            "dsqp_profiles": {
+                persona: {
+                    "persona_id": f"dsqp-{persona}",
+                    "persona_type": persona,
+                    "name": f"{persona.title()} Expert",
+                    "axis_number": axis,
+                    "components": {"job_role": {"focus_area": f"{persona} review"}},
+                    "validation": {
+                        "valid": True,
+                        "coverage_score": 1.0,
+                    },
+                }
+                for axis, persona in zip(
+                    (8, 9, 10, 11),
+                    (
+                        "knowledge",
+                        "sector",
+                        "regulatory",
+                        "compliance",
+                    ),
+                    strict=True,
+                )
+            },
+        },
+        lambda row: (
+            len(row["persona_findings"]) == 4 and row["provider_subcalls_used"] == 0
+        ),
+    ),
+    "KA-013": (
+        {
+            "domain": "REGULATORY",
+            "required_personas": [
+                "knowledge",
+                "sector",
+                "regulatory",
+                "compliance",
+            ],
+            "persona_results": [
+                {
+                    "persona_type": persona,
+                    "profile_coverage": 1.0,
+                    "profile_validation_status": "validated",
+                    "objections": [
+                        {
+                            "id": f"objection-{persona}",
+                            "text": f"Address {persona} evidence.",
+                        }
+                    ],
+                }
+                for persona in (
+                    "knowledge",
+                    "sector",
+                    "regulatory",
+                    "compliance",
+                )
+            ],
+        },
+        lambda row: (
+            row["sufficiency"]["sufficient"] is True
+            and row["silent_dissent_count"] == 0
+            and row["final_consensus_confidence"] is None
+        ),
+    ),
+    "KA-030": (
+        {
+            "query": "Assess a regulated encryption deployment",
+            "conflicts": [
+                {
+                    "dissent_id": "dissent-regulatory",
+                    "persona": "regulatory",
+                    "text": "Verify the controlling regulation.",
+                }
+            ],
+        },
+        lambda row: (
+            row["all_dissent_preserved"] is True
+            and row["silent_dissent_count"] == 0
+            and row["confidence_adjustment"] is None
+        ),
     ),
     "KA-024": (
         {"confidence": 0.9, "risk_score": 0.1},
@@ -27,15 +123,21 @@ FIXTURES = {
     ),
     "KA-074": (
         {"records": [{"id": 1}, "invalid"]},
-        lambda row: row["validation_summary"]["invalid"] == 2
-        and len(row["quarantined"]) == 2,
+        lambda row: (
+            row["validation_summary"]["invalid"] == 2 and len(row["quarantined"]) == 2
+        ),
     ),
     "KA-113": (
         {"query": "Compare ambiguous regulatory encryption trade-offs"},
         lambda row: 0.0 <= row["complexity_score"] <= 1.0,
     ),
     "KA-117": (
-        {"snapshot": {"nodes": [{"id": "a", "confidence": 1.0}], "edges": [{"source": "a", "target": "missing"}]}},
+        {
+            "snapshot": {
+                "nodes": [{"id": "a", "confidence": 1.0}],
+                "edges": [{"source": "a", "target": "missing"}],
+            }
+        },
         lambda row: row["is_valid"] is False,
     ),
     "L9-KA-001": (
@@ -53,14 +155,11 @@ FIXTURES = {
             "original_query": "Validate deployment control 42",
             "final_solution": "Validate deployment control 42 with tests",
         },
-        lambda row: row["measured"] is True
-        and row["numeric_facts_preserved"] is True,
+        lambda row: row["measured"] is True and row["numeric_facts_preserved"] is True,
     ),
     "L9-KA-003": (
         {
-            "domain_confidences": [
-                {"domain": "operations", "confidence": 0.98}
-            ],
+            "domain_confidences": [{"domain": "operations", "confidence": 0.98}],
             "threshold": 0.95,
         },
         lambda row: row["measured"] is True and row["consensus"] is True,
@@ -68,10 +167,7 @@ FIXTURES = {
     "L9-KA-004": (
         {
             "solution": {"overall_confidence": 0.98},
-            "trace": {
-                f"layer{number}": {"output": "ok"}
-                for number in range(1, 9)
-            },
+            "trace": {f"layer{number}": {"output": "ok"} for number in range(1, 9)},
         },
         lambda row: row["evaluation_score"] == 1.0,
     ),
@@ -86,16 +182,13 @@ FIXTURES = {
             "belief_alignment": 1.0,
             "meta_evaluation": 1.0,
         },
-        lambda row: row["status"] == "measured"
-        and row["measurement_coverage"] > 0,
+        lambda row: row["status"] == "measured" and row["measurement_coverage"] > 0,
     ),
     "L9-KA-007": (
         {
             "iteration": 0,
             "max_iterations": 1,
-            "dependency_results": {
-                "L9-KA-005": {"trigger_refinement": True}
-            },
+            "dependency_results": {"L9-KA-005": {"trigger_refinement": True}},
         },
         lambda row: row["continue"] is True and row["remaining"] == 1,
     ),
@@ -109,11 +202,16 @@ FIXTURES = {
     ),
     "L10-KA-003": (
         {"content": "Email admin@example.com"},
-        lambda row: row["redactions_found"] == 1 and "[REDACTED_EMAIL]" in row["redacted_content"],
+        lambda row: (
+            row["redactions_found"] == 1
+            and "[REDACTED_EMAIL]" in row["redacted_content"]
+        ),
     ),
     "L10-KA-005": (
         {"violations": [{"severity": "major"}]},
-        lambda row: row["decision"] == "ESCALATE" and row["requires_human_signoff"] is True,
+        lambda row: (
+            row["decision"] == "ESCALATE" and row["requires_human_signoff"] is True
+        ),
     ),
     "L10-KA-006": (
         {"confidence": 0.98},
@@ -130,8 +228,9 @@ FIXTURES = {
             "confidence": 0.99,
             "consequential_decision": True,
         },
-        lambda row: row["escalation_required"] is True
-        and row["reviews_dispatched"] == 0,
+        lambda row: (
+            row["escalation_required"] is True and row["reviews_dispatched"] == 0
+        ),
     ),
 }
 

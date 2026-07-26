@@ -255,7 +255,7 @@ class GovernedTenLayerStages:
             decisions=retrieval_decisions,
         )
 
-    def l4(self, context: GovernedContext) -> LayerExecution:
+    async def l4(self, context: GovernedContext) -> LayerExecution:
         profiles = (
             context.dsqp.get("profiles")
             if isinstance(context.dsqp.get("profiles"), dict)
@@ -264,29 +264,200 @@ class GovernedTenLayerStages:
         context.reasoning.dsqp_profiles = dict(profiles)
         expected = {"8", "9", "10", "11"}
         present = set(profiles)
-        ok = expected.issubset(present) and not context.dsqp.get("partial")
+        profiles_by_type = self._persona_profiles_by_type(profiles)
+        expected_personas = {"knowledge", "sector", "regulatory", "compliance"}
+        profiles_complete = (
+            expected.issubset(present)
+            and expected_personas == set(profiles_by_type)
+            and not context.dsqp.get("partial")
+            and all(
+                isinstance(profile.get("validation"), dict)
+                and profile["validation"].get("valid") is True
+                for profile in profiles_by_type.values()
+            )
+        )
+        if not profiles_complete:
+            return LayerExecution(
+                ok=False,
+                outputs={
+                    "layer_id": "L4",
+                    "expected_axes": sorted(expected),
+                    "constructed_axes": sorted(present),
+                    "expected_personas": sorted(expected_personas),
+                    "constructed_personas": sorted(profiles_by_type),
+                },
+                ka_plan=self._stage_plan(
+                    "L4",
+                    [],
+                    "canonical_dsqp_profile_constructor",
+                ),
+                error_code="L4_PERSONA_CONTEXT_FAILURE",
+            )
+
+        request = self._selection_request(
+            context,
+            layer_id="L4",
+            tier=context.reasoning.tier or "standard",
+            requested_ids=["KA-012"],
+            ka_inputs={
+                "KA-012": {
+                    "query": context.query,
+                    "active_personas": sorted(expected_personas),
+                    "context": {
+                        "trace_id": context.trace_id,
+                        "evidence_ids": list(context.reasoning.evidence_ids),
+                        "coordinate_17": dict(context.reasoning.coordinate_17),
+                        "provider_subcall_budget": 0,
+                    },
+                    "dsqp_profiles": profiles_by_type,
+                }
+            },
+            service_capabilities={"persona_context_service"},
+        )
+        plan = self.ka_selector.plan(request)
+        report = await self.ka_executor.execute(plan, request)
+        executed_ids = self._executed_ids(report)
+        ka_results = self._committed_results(report, executed_ids)
+        analysis_result = ka_results.get("KA-012", {}).get("output", {})
+        findings = analysis_result.get("persona_findings") or []
+        observed_personas = {
+            str(item.get("persona_type"))
+            for item in findings
+            if isinstance(item, dict) and item.get("persona_type")
+        }
+        complete = (
+            report.status is KAPlanExecutionStatus.SUCCEEDED
+            and executed_ids == ["KA-012"]
+            and expected_personas == observed_personas
+            and analysis_result.get("provider_subcalls_used") == 0
+            and analysis_result.get("provider_subcall_budget") == 0
+        )
+        if complete:
+            context.ka_result_cache["KA-012"] = report.results["KA-012"]
+            context.dsqp["persona_analysis"] = analysis_result
+        effects = (
+            [
+                {
+                    "ka_id": "KA-012",
+                    "state": "proposal_only",
+                    "effect_port": "persona_context_service",
+                    "applied": False,
+                    "receipt": None,
+                }
+            ]
+            if complete
+            else []
+        )
         return LayerExecution(
-            ok=ok,
+            ok=complete,
             outputs={
                 "layer_id": "L4",
                 "expected_axes": sorted(expected),
                 "constructed_axes": sorted(present),
+                "expected_personas": sorted(expected_personas),
+                "constructed_personas": sorted(observed_personas),
                 "profile_ids": [
                     profile.get("persona_id")
                     for profile in profiles.values()
                     if isinstance(profile, dict)
                 ],
                 "construction_mode": "deterministic",
+                "persona_finding_count": len(findings),
+                "constraint_count": len(analysis_result.get("constraints") or []),
+                "objection_count": len(analysis_result.get("objections") or []),
+                "provider_subcalls_used": (
+                    analysis_result.get("provider_subcalls_used")
+                ),
+                "child_trace_ids": self._child_trace_ids(
+                    report,
+                    executed_ids,
+                ),
             },
-            ka_plan=self._stage_plan(
-                "L4",
-                [],
-                "canonical_dsqp_profile_constructor",
-            ),
-            error_code="L4_PERSONA_CONTEXT_FAILURE" if not ok else None,
+            selected_ka_ids=executed_ids,
+            ka_plan=self._plan_summary(plan, report),
+            ka_results=ka_results,
+            decisions=[
+                {
+                    "decision": (
+                        "persona_analysis_committed"
+                        if complete
+                        else "persona_analysis_blocked"
+                    ),
+                    "provider_subcall_budget": 0,
+                }
+            ],
+            effects=effects,
+            error_code=("L4_PERSONA_KA_FAILURE" if not complete else None),
         )
 
-    def l5(self, context: GovernedContext) -> LayerExecution:
+    async def l5(self, context: GovernedContext) -> LayerExecution:
+        prior = context.ka_result_cache.get("KA-012")
+        analysis = context.dsqp.get("persona_analysis")
+        if prior is None or not isinstance(analysis, dict):
+            return LayerExecution(
+                ok=False,
+                outputs={
+                    "layer_id": "L5",
+                    "reason": "committed_persona_analysis_missing",
+                },
+                ka_plan=self._stage_plan(
+                    "L5",
+                    [],
+                    "canonical_persona_synthesis",
+                ),
+                error_code="L5_PERSONA_ANALYSIS_MISSING",
+            )
+        expected_personas = ["knowledge", "sector", "regulatory", "compliance"]
+        domain = self._persona_domain(context)
+        request = self._selection_request(
+            context,
+            layer_id="L5",
+            tier=context.reasoning.tier or "standard",
+            requested_ids=["KA-013", "KA-030"],
+            ka_inputs={
+                "KA-013": {
+                    "persona_results": analysis.get("persona_results") or [],
+                    "domain": domain,
+                    "required_personas": expected_personas,
+                    "minimum_profile_coverage": 0.70,
+                },
+                "KA-030": {
+                    "query": context.query,
+                    "conflicts": [],
+                    "context": {
+                        "trace_id": context.trace_id,
+                        "domain": domain,
+                    },
+                },
+            },
+            prior_results={"KA-012": prior},
+            service_capabilities={"persona_context_service"},
+        )
+        plan = self.ka_selector.plan(request)
+        report = await self.ka_executor.execute(plan, request)
+        executed_ids = self._executed_ids(report)
+        ka_results = self._committed_results(report, executed_ids)
+        weighting = ka_results.get("KA-013", {}).get("output", {})
+        conflict_resolution = ka_results.get("KA-030", {}).get("output", {})
+        sufficiency = weighting.get("sufficiency") or {}
+        dissent_count = int(weighting.get("dissent_count") or 0)
+        complete = (
+            report.status is KAPlanExecutionStatus.SUCCEEDED
+            and set(executed_ids) == {"KA-013", "KA-030"}
+            and sufficiency.get("sufficient") is True
+            and weighting.get("silent_dissent_count") == 0
+            and conflict_resolution.get("silent_dissent_count") == 0
+            and conflict_resolution.get("all_dissent_preserved") is True
+            and len(conflict_resolution.get("prompt_constraints") or [])
+            == dissent_count
+        )
+        if complete:
+            for canonical_id in ("KA-013", "KA-030"):
+                context.ka_result_cache[canonical_id] = report.results[canonical_id]
+            context.dsqp["persona_synthesis"] = {
+                "weighting": weighting,
+                "conflict_resolution": conflict_resolution,
+            }
         context.provider_messages = build_provider_messages(context)
         system_text = str(context.provider_messages[0].get("content") or "")
         completed_kas = [
@@ -296,7 +467,12 @@ class GovernedTenLayerStages:
             and item.get("status") == "completed"
             and item.get("ka_id")
         ]
-        ok = bool(context.provider_messages) and bool(context.query)
+        ok = (
+            complete
+            and bool(context.provider_messages)
+            and bool(context.query)
+            and "Governed persona analysis and synthesis" in system_text
+        )
         return LayerExecution(
             ok=ok,
             outputs={
@@ -306,16 +482,49 @@ class GovernedTenLayerStages:
                     item.source_id in system_text for item in context.evidence
                 ),
                 "contains_dsqp": ("Deterministic persona context" in system_text),
+                "contains_persona_ka_results": (
+                    "Governed persona analysis and synthesis" in system_text
+                ),
                 "contains_ka_results": ("Executed TruthCore/KA context" in system_text),
                 "selected_ka_ids": completed_kas,
-                "dissent_resolution": "deferred_to_cp19_f_persona_qualification",
+                "persona_domain": domain,
+                "authority_weight_total": round(
+                    sum(
+                        float(item.get("authority_weight") or 0.0)
+                        for item in weighting.get("weighted_results") or []
+                        if isinstance(item, dict)
+                    ),
+                    8,
+                ),
+                "dissent_count": dissent_count,
+                "silent_dissent_count": (
+                    conflict_resolution.get("silent_dissent_count")
+                ),
+                "dissent_resolution": (weighting.get("dissent_resolution")),
+                "persona_sufficient": sufficiency.get("sufficient"),
+                "provider_subcalls_used": 0,
+                "child_trace_ids": self._child_trace_ids(
+                    report,
+                    executed_ids,
+                ),
             },
-            selected_ka_ids=[],
-            ka_plan=self._stage_plan(
-                "L5",
-                [],
-                "canonical_prompt_plan",
-            ),
+            selected_ka_ids=executed_ids,
+            ka_plan=self._plan_summary(plan, report),
+            ka_results=ka_results,
+            decisions=[
+                {
+                    "decision": (
+                        "persona_synthesis_committed"
+                        if complete
+                        else "persona_synthesis_blocked"
+                    ),
+                    "sufficiency": sufficiency,
+                    "dissent_count": dissent_count,
+                    "silent_dissent_count": (
+                        conflict_resolution.get("silent_dissent_count")
+                    ),
+                }
+            ],
             error_code="L5_CANDIDATE_PLAN_FAILURE" if not ok else None,
         )
 
@@ -818,6 +1027,8 @@ class GovernedTenLayerStages:
         tier: str,
         requested_ids: list[str],
         ka_inputs: dict[str, dict[str, Any]],
+        prior_results: dict[str, Any] | None = None,
+        service_capabilities: set[str] | None = None,
     ) -> KASelectionRequest:
         remaining_ms = 20_000
         if context.deadline_at_monotonic is not None:
@@ -830,6 +1041,8 @@ class GovernedTenLayerStages:
         return KASelectionRequest(
             requested_ids=requested_ids,
             ka_inputs=ka_inputs,
+            prior_results=dict(prior_results or {}),
+            service_capabilities=set(service_capabilities or set()),
             mode=KAExecutionMode.PRODUCTION,
             context=KAExecutionContext(
                 request_id=context.request.request_id,
@@ -990,21 +1203,112 @@ class GovernedTenLayerStages:
         context: GovernedContext,
     ) -> list[dict[str, Any]]:
         measurements = []
-        for axis, profile in context.reasoning.dsqp_profiles.items():
-            if not isinstance(profile, dict):
+        synthesis = context.dsqp.get("persona_synthesis")
+        weighting = (
+            synthesis.get("weighting")
+            if isinstance(synthesis, dict)
+            and isinstance(synthesis.get("weighting"), dict)
+            else {}
+        )
+        weighted_results = weighting.get("weighted_results") or []
+        for result in weighted_results:
+            if not isinstance(result, dict):
                 continue
-            score = profile.get("confidence")
-            if score is None:
-                score = profile.get("measured_confidence")
+            score = result.get("profile_coverage")
             if score is None:
                 continue
             measurements.append(
                 {
-                    "domain": str(profile.get("persona_id") or f"axis_{axis}"),
+                    "domain": str(result.get("persona_type") or "unknown"),
                     "confidence": float(score),
+                    "measurement_type": "dsqp_profile_coverage",
+                }
+            )
+        if measurements:
+            return measurements
+        for axis, profile in context.reasoning.dsqp_profiles.items():
+            if not isinstance(profile, dict):
+                continue
+            validation = (
+                profile.get("validation")
+                if isinstance(profile.get("validation"), dict)
+                else {}
+            )
+            score = validation.get("coverage_score")
+            if score is None:
+                continue
+            measurements.append(
+                {
+                    "domain": str(
+                        profile.get("persona_type")
+                        or profile.get("persona_id")
+                        or f"axis_{axis}"
+                    ),
+                    "confidence": float(score),
+                    "measurement_type": "dsqp_profile_coverage",
                 }
             )
         return measurements
+
+    @staticmethod
+    def _persona_profiles_by_type(
+        profiles: dict[str, Any],
+    ) -> dict[str, dict[str, Any]]:
+        output: dict[str, dict[str, Any]] = {}
+        for profile in profiles.values():
+            if not isinstance(profile, dict):
+                continue
+            persona_type = str(profile.get("persona_type") or "").strip().lower()
+            if persona_type and persona_type not in output:
+                output[persona_type] = profile
+        return output
+
+    @classmethod
+    def _persona_domain(cls, context: GovernedContext) -> str:
+        explicit = (
+            str(
+                context.request.metadata.get("persona_domain")
+                or context.request.metadata.get("domain")
+                or ""
+            )
+            .strip()
+            .upper()
+        )
+        if explicit in {
+            "TECHNICAL",
+            "SECTOR",
+            "REGULATORY",
+            "COMPLIANCE",
+            "HIGH_RISK",
+        }:
+            return explicit
+        if cls._risk_domain(context) == "high_risk":
+            return "HIGH_RISK"
+        query = context.query.casefold()
+        domains = (
+            ("REGULATORY", ("regulation", "regulatory", "law", "legal")),
+            ("COMPLIANCE", ("compliance", "audit", "control")),
+            ("TECHNICAL", ("technical", "software", "system", "code")),
+            ("SECTOR", ("industry", "market", "sector", "operations")),
+        )
+        for domain, terms in domains:
+            if any(term in query for term in terms):
+                return domain
+        return "GENERAL"
+
+    @staticmethod
+    def _child_trace_ids(
+        report: Any,
+        executed_ids: list[str],
+    ) -> list[str]:
+        return sorted(
+            {
+                report.results[canonical_id].trace_id
+                for canonical_id in executed_ids
+                if canonical_id in report.results
+                and report.results[canonical_id].trace_id
+            }
+        )
 
     @staticmethod
     def _risk_domain(context: GovernedContext) -> str:

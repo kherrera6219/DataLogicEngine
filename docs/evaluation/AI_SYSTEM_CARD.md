@@ -42,8 +42,9 @@ production-enabled TruthCore KAs, bounded local retrieval, and a configured
 OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
 
-The current 22-entry production-enabled KA subset includes the retained Phase 6
-safety boundary and the complete CP19-E L9/L10 safety suites; it is not final
+The current 25-entry production-enabled KA subset includes the retained Phase 6
+safety boundary, the complete CP19-E L9/L10 safety suites, and the CP19-F
+`KA-012`/`KA-013`/`KA-030` persona chain; it is not final
 owning-subsystem completion. Phase 18 retained a reconciled 213-capability
 authority, one runtime/controller, 213 unique implementation owners, and zero
 source gaps, but its whole-application wiring audit failed. Phase 19 CP19-A now
@@ -56,9 +57,12 @@ concurrency/budgets/cancellation, 781 KA/Python-SDK tests, and a
 typed causal L1-L10 product lifecycle, production-mode selector-backed L1
 execution, bounded L6-L9 revalidation, and L10-gated success persistence.
 CP19-E then passed full correct-ID fail-closed L9/L10 safety with all 14
-algorithms selected from committed child traces, a current 134-edge zero-cycle
-graph, trace-safe PII redaction, and adversarial failure/effect proof. Phase 19
-continues to own Quad Persona/DSQP, 12-step, Truth/data/knowledge,
+algorithms selected from committed child traces, trace-safe PII redaction, and
+adversarial failure/effect proof. CP19-F passed causal axes 8-11 persona
+analysis, weighting, sufficiency, dissent preservation, and prompt influence
+through the canonical selector/DAG, with zero persona-provider subcalls,
+invented confidence, or applied effects and a current 132-edge zero-cycle
+graph. Phase 19 continues to own 12-step, Truth/data/knowledge,
 extended-subsystem, API/SDK/desktop, per-KA, and installed integration proof.
 The signed rebuild is paused through CP19-L. No catalog entry, imported module,
 or nonproduction opt-in alone establishes production capability.

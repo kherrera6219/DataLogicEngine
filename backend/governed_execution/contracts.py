@@ -48,7 +48,9 @@ class GovernedMode(StrEnum):
         try:
             return cls(normalized)
         except ValueError as exc:
-            raise ValueError(f"Unsupported governed execution mode: {normalized}") from exc
+            raise ValueError(
+                f"Unsupported governed execution mode: {normalized}"
+            ) from exc
 
 
 class GovernedFailureKind(StrEnum):
@@ -94,10 +96,14 @@ class GovernedRequest:
 
     def __post_init__(self) -> None:
         if self.contract_version != GOVERNED_CONTRACT_VERSION:
-            raise ValueError(f"Unsupported governed contract version: {self.contract_version}")
+            raise ValueError(
+                f"Unsupported governed contract version: {self.contract_version}"
+            )
         self.mode = GovernedMode.normalize(self.mode)
         if not isinstance(self.messages, list) or not self.messages:
-            raise ValueError("GovernedRequest.messages must contain at least one message")
+            raise ValueError(
+                "GovernedRequest.messages must contain at least one message"
+            )
         if not any(
             isinstance(message, dict) and message.get("role") == "user"
             for message in self.messages
@@ -124,11 +130,15 @@ class GovernedRequest:
         source = str(metadata.get("source") or "gateway_compatibility")
         principal_kind = str(
             metadata.get("principal_kind")
-            or ("external_client" if getattr(request, "api_key_id", None) else "desktop")
+            or (
+                "external_client" if getattr(request, "api_key_id", None) else "desktop"
+            )
         )
         principal_id = metadata.get("principal_id")
         if principal_id is None:
-            principal_id = getattr(request, "api_key_id", None) or getattr(request, "user_id", None)
+            principal_id = getattr(request, "api_key_id", None) or getattr(
+                request, "user_id", None
+            )
         return cls(
             messages=list(getattr(request, "messages", None) or []),
             mode=GovernedMode.normalize(getattr(request, "mode", None)),
@@ -550,6 +560,7 @@ class GovernedContext:
     routing: dict[str, Any] = field(default_factory=dict)
     dsqp: dict[str, Any] = field(default_factory=dict)
     truthcore: dict[str, Any] = field(default_factory=dict)
+    ka_result_cache: dict[str, Any] = field(default_factory=dict)
     provider_messages: list[dict[str, Any]] = field(default_factory=list)
     provider_call_count: int = 0
     provider_latency_ms: int = 0
@@ -565,7 +576,9 @@ class GovernedContext:
             trace_id=self.trace_id,
         )
 
-    def add_stage(self, name: str, stage_type: str, inputs: dict[str, Any] | None = None) -> GovernedStage:
+    def add_stage(
+        self, name: str, stage_type: str, inputs: dict[str, Any] | None = None
+    ) -> GovernedStage:
         stage = GovernedStage(name=name, stage_type=stage_type, inputs=inputs or {})
         self.stages.append(stage)
         return stage

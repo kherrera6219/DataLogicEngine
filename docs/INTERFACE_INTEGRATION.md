@@ -141,10 +141,13 @@ an authoritative-service workflow owned by CP19-I. CP19-D ten-layer integration
 inside the canonical governed lifecycle now passes with typed causal L1-L10
 state, selector-backed L1 execution, bounded L6-L9 revalidation, and L10-gated
 success persistence. CP19-E full correct-ID fail-closed L9/L10 safety passed
-with all 14 algorithms registered and selected, a current 134-edge zero-cycle
-graph, committed-child-trace invocation authority, trace-safe PII redaction,
+with all 14 algorithms registered and selected, committed-child-trace
+invocation authority, trace-safe PII redaction,
 and adversarial failure/containment/recursion/promotion/effect proof. CP19-F
-causal Quad Persona/DSQP is active.
+causal Quad Persona/DSQP passed with the manifest-selected
+`KA-012` -> `KA-013` -> `KA-030` chain, one provider candidate, retained
+dissent, truthful sufficiency, zero persona-provider subcalls, and a current
+132-edge zero-cycle graph. CP19-G canonical 12-step refinement is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

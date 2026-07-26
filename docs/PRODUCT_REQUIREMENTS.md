@@ -142,10 +142,14 @@ fixtures and a base 119-edge zero-cycle dependency graph. CP19-D canonical
 ten-layer product-path integration passed with typed causal L1-L10 trace state,
 production-mode L1 selection, bounded L6-L9 revalidation, and L10-gated success
 persistence. CP19-E full correct-ID fail-closed L9/L10 safety passed: all 14
-algorithms execute through committed child traces, the current graph is 134
+algorithms execute through committed child traces, its then-current graph was 134
 edges/zero cycles, PII is removed from release and trace state, and required
 failure/timeout, trace forgery, containment, confidence, recursion, promotion,
-and false receipts block. CP19-F causal Quad Persona/DSQP is active. The
+and false receipts block. CP19-F causal Quad Persona/DSQP also passed:
+`KA-012` -> `KA-013` -> `KA-030` consumes the four axes 8-11 profiles once,
+preserves dissent and explicit sufficiency without fabricated confidence, and
+causally changes the single provider prompt. The current corrected graph is
+132 edges/zero cycles and CP19-G canonical 12-step refinement is active. The
 signed rebuild is paused through CP19-L.
 Dependabot alert 389 is fixed.
 Production/public release is **NO-GO**.

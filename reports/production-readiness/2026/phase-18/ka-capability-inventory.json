@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
+  "source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,
@@ -14,7 +14,7 @@
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 22,
+    "phase6_production_enabled": 25,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -30,8 +30,8 @@
     "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 179,
-    "canonical_with_named_test_function": 177
+    "canonical_with_test_reference": 182,
+    "canonical_with_named_test_function": 180
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",

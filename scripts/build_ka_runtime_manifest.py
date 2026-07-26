@@ -219,6 +219,95 @@ CP19_E_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
     },
 }
 
+CP19_F_PERSONA_IDS = {"KA-012", "KA-013", "KA-030"}
+
+# CP19-F makes the causal dataflow executable: profile-backed perspective
+# analysis precedes weighting, and weighting precedes conflict disposition.
+# The retained Phase 18 edges were design references in the opposite direction.
+CP19_F_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-012": {
+        "dependencies": [],
+        "rationale": (
+            "Persona analysis consumes validated DSQP profiles and produces "
+            "the findings that downstream weighting requires."
+        ),
+    },
+    "KA-013": {
+        "dependencies": ["KA-012"],
+        "rationale": (
+            "Persona weighting consumes committed KA-012 findings and measured "
+            "DSQP profile coverage."
+        ),
+    },
+    "KA-030": {
+        "dependencies": ["KA-013"],
+        "rationale": (
+            "Conflict disposition consumes weighted, retained dissent and "
+            "turns it into mandatory prompt constraints."
+        ),
+    },
+}
+
+CP19_F_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": "deterministic_heuristic",
+        "deterministic": True,
+        "performance_budget_ms": 250,
+        "contract_status": "cp19_f_production_qualified",
+        "guarantee": (
+            "Produces deterministic bounded persona findings, authority "
+            "weights, sufficiency measurements, and dissent dispositions from "
+            "validated DSQP profiles without making provider calls."
+        ),
+        "limitations": (
+            "Profile coverage and authority weighting are orchestration "
+            "measurements, not factual correctness, calibrated confidence, or "
+            "substantive consensus."
+        ),
+    }
+    for canonical_id in CP19_F_PERSONA_IDS
+}
+
+CP19_F_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
+    "KA-012": {
+        "inputs": [
+            "Validated axes 8-11 DSQP profiles",
+            "normalized query",
+            "bounded governed context",
+        ],
+        "outputs": [
+            "Persona findings",
+            "constraints",
+            "objections",
+            "zero provider subcalls",
+        ],
+    },
+    "KA-013": {
+        "inputs": [
+            "Committed KA-012 persona findings",
+            "domain authority policy",
+            "profile coverage threshold",
+        ],
+        "outputs": [
+            "Normalized authority weights",
+            "retained dissent",
+            "persona sufficiency measurement",
+        ],
+    },
+    "KA-030": {
+        "inputs": [
+            "Committed KA-013 dissent",
+            "normalized query",
+        ],
+        "outputs": [
+            "Conflict dispositions",
+            "mandatory prompt constraints",
+            "silent-dissent count",
+        ],
+    },
+}
+
 
 def normalize_ka_id(value: str) -> str:
     clean = str(value).strip().upper()
@@ -310,14 +399,20 @@ def build_manifest() -> dict[str, Any]:
                 for dependency in row.get("dependency_source_ids", [])
             }
         )
-        override = CP19_E_DEPENDENCY_OVERRIDES.get(
-            row["canonical_id"]
-        ) or CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+        override = (
+            CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_E_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+        )
         if override is not None:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
-        cp19_e_admission = CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
-        cp19_e_io = CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
+        admission_override = CP19_F_ADMISSION_OVERRIDES.get(
+            row["canonical_id"]
+        ) or CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
+        io_override = CP19_F_IO_OVERRIDES.get(
+            row["canonical_id"]
+        ) or CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
         entries[row["canonical_id"]] = {
             "canonical_id": row["canonical_id"],
             "name": row["name"],
@@ -340,12 +435,14 @@ def build_manifest() -> dict[str, Any]:
             "contract": {
                 "version": "dle.ka-execution.v1",
                 "status": (
-                    cp19_e_admission["contract_status"]
-                    if cp19_e_admission
+                    admission_override["contract_status"]
+                    if admission_override
                     else "cp19_b_contract_parity"
                 ),
-                "inputs": cp19_e_io.get("inputs", row.get("input_descriptions", [])),
-                "outputs": cp19_e_io.get("outputs", row.get("output_descriptions", [])),
+                "inputs": io_override.get("inputs", row.get("input_descriptions", [])),
+                "outputs": io_override.get(
+                    "outputs", row.get("output_descriptions", [])
+                ),
                 "categories": row.get("categories", []),
                 "layers": row.get("layer_scope", []),
                 "personas": row.get("persona_scope", []),
@@ -369,14 +466,14 @@ def build_manifest() -> dict[str, Any]:
                     contract.get("audit_events") for contract in design_contracts
                 ),
                 "limitations": (
-                    cp19_e_admission["limitations"]
-                    if cp19_e_admission
+                    admission_override["limitations"]
+                    if admission_override
                     else production.get("limitations")
                 )
                 or "Phase 19 capability limitation review required.",
                 "guarantee": (
-                    cp19_e_admission["guarantee"]
-                    if cp19_e_admission
+                    admission_override["guarantee"]
+                    if admission_override
                     else production.get("guarantee")
                 )
                 or (
@@ -384,26 +481,26 @@ def build_manifest() -> dict[str, Any]:
                     "CP19-M rebuilt-installed acceptance pass."
                 ),
                 "performance_budget_ms": (
-                    cp19_e_admission["performance_budget_ms"]
-                    if cp19_e_admission
+                    admission_override["performance_budget_ms"]
+                    if admission_override
                     else production.get("performance_budget_ms", 1000)
                 ),
             },
             "admission": {
                 "production_enabled": (
-                    cp19_e_admission["production_enabled"]
-                    if cp19_e_admission
+                    admission_override["production_enabled"]
+                    if admission_override
                     else bool(production.get("production_enabled"))
                 ),
                 "classification": (
-                    cp19_e_admission["classification"]
-                    if cp19_e_admission
+                    admission_override["classification"]
+                    if admission_override
                     else production.get("classification")
                 )
                 or "implementation_required",
                 "deterministic": (
-                    cp19_e_admission["deterministic"]
-                    if cp19_e_admission
+                    admission_override["deterministic"]
+                    if admission_override
                     else production.get("deterministic")
                 ),
                 "direct_execution": (
@@ -428,8 +525,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19e.1",
-        "status": "cp19_e_l9_l10_authority",
+        "manifest_version": "2026.07.25-cp19f.1",
+        "status": "cp19_f_persona_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -444,9 +541,10 @@ def build_manifest() -> dict[str, Any]:
             "dependency_overrides": {
                 **CP19_C_DEPENDENCY_OVERRIDES,
                 **CP19_E_DEPENDENCY_OVERRIDES,
+                **CP19_F_DEPENDENCY_OVERRIDES,
             },
-            "production_admission_checkpoint": "CP19-E",
-            "production_admission_ids": sorted(CP19_E_LAYER_IDS),
+            "production_admission_checkpoint": "CP19-F",
+            "production_admission_ids": sorted(CP19_E_LAYER_IDS | CP19_F_PERSONA_IDS),
         },
         "capability_count": len(entries),
         "alias_index": {

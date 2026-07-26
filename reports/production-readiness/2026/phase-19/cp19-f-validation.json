@@ -1,0 +1,39 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-F",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "causal_quad_persona_dsqp_integration",
+  "results": {
+    "canonical_capabilities": 213,
+    "live_registry_entries": 132,
+    "unregistered_layer9_implementations": 0,
+    "production_enabled_capabilities": 25,
+    "required_dsqp_axes_consumed": 4,
+    "applicable_persona_kas_executed": 3,
+    "dependency_edges": 132,
+    "dependency_cycles": 0,
+    "persona_provider_subcalls": 0,
+    "canonical_candidate_provider_calls": 1,
+    "fabricated_confidence_values": 0,
+    "silent_dissent_count": 0,
+    "unrelated_persona_invocations": 0,
+    "persona_effects_applied": 0,
+    "effect_receipts_fabricated": 0,
+    "focused_cross_system_tests": 48,
+    "full_source_tests_passed": 2524,
+    "full_source_tests_skipped": 19,
+    "full_source_test_warnings": 21,
+    "typescript_sdk_tests_passed": 6,
+    "critical_ruff": "pass",
+    "authority_verifiers": "pass",
+    "documentation_gates": "pass"
+  },
+  "limitations": [
+    "CP19-G still owns the one canonical 12-step refinement subgraph and full L6-L10 revalidation.",
+    "CP19-H through CP19-I still own authoritative data, knowledge, subsystem, and effect-service integration.",
+    "CP19-J through CP19-K still own product workflow and complete per-KA proof.",
+    "Rebuilding remains blocked until CP19-L, and installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-G"
+}

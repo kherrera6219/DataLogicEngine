@@ -12,6 +12,24 @@
             "regulatory": 0.6,
             "compliance": 0.2
         },
+        "SECTOR": {
+            "knowledge": 0.2,
+            "sector": 0.55,
+            "regulatory": 0.1,
+            "compliance": 0.15
+        },
+        "COMPLIANCE": {
+            "knowledge": 0.1,
+            "sector": 0.1,
+            "regulatory": 0.25,
+            "compliance": 0.55
+        },
+        "HIGH_RISK": {
+            "knowledge": 0.2,
+            "sector": 0.15,
+            "regulatory": 0.3,
+            "compliance": 0.35
+        },
         "GENERAL": {
             "knowledge": 0.25,
             "sector": 0.25,

@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Schema | `dle.ka-capability-inventory.v1` |
-| Source-input SHA-256 | `00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6` |
+| Source-input SHA-256 | `ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713` |
 | Status | `cp18_a_inventory_verified` |
 
 ## Counts
@@ -34,8 +34,8 @@
 | Classified integration/API/SDK/UI surfaces | 133 |
 | Unclassified integration/API/SDK/UI surfaces | 0 |
 | Canonical capabilities with literal runtime execution call sites | 11 |
-| Canonical capabilities with any test reference | 179 |
-| Canonical capabilities with an individually named test function | 177 |
+| Canonical capabilities with any test reference | 182 |
+| Canonical capabilities with an individually named test function | 180 |
 
 ## Proposed identity policy
 

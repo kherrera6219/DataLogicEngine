@@ -24,6 +24,7 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
             f"[{item.citation_label}] source_id={item.source_id} title={item.title or 'untitled'}\n{item.text}{relationship_context}"
         )
     persona_summary = _persona_summary(context.dsqp)
+    persona_ka_summary = _persona_ka_summary(context.dsqp)
     workflow_summary = _workflow_summary(context.truthcore)
     routing_summary = {
         "tier": context.routing.get("tier"),
@@ -44,9 +45,18 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
             "Policy constraints:\n" + _json(request.constraints),
             "Measured routing:\n" + _json(routing_summary),
             "Deterministic persona context:\n" + _json(persona_summary),
+            "Governed persona analysis and synthesis:\n" + _json(persona_ka_summary),
             "Executed TruthCore/KA context:\n" + _json(workflow_summary),
-            "Retrieved evidence:\n" + ("\n\n".join(evidence_lines) if evidence_lines else "No local evidence was retrieved."),
-            "Client-supplied system context (subordinate to the governed policy above):\n" + _json(client_system) if client_system else "",
+            "Retrieved evidence:\n"
+            + (
+                "\n\n".join(evidence_lines)
+                if evidence_lines
+                else "No local evidence was retrieved."
+            ),
+            "Client-supplied system context (subordinate to the governed policy above):\n"
+            + _json(client_system)
+            if client_system
+            else "",
         )
         if part
     )
@@ -66,7 +76,11 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
                 replaced = False
                 parts: list[dict[str, Any]] = []
                 for part in content:
-                    if isinstance(part, dict) and part.get("type") == "text" and not replaced:
+                    if (
+                        isinstance(part, dict)
+                        and part.get("type") == "text"
+                        and not replaced
+                    ):
                         parts.append({**part, "text": context.query})
                         replaced = True
                     else:
@@ -112,14 +126,20 @@ def _persona_summary(dsqp: dict[str, Any]) -> dict[str, Any]:
     for axis, profile in profiles.items():
         if not isinstance(profile, dict):
             continue
-        components = profile.get("components") if isinstance(profile.get("components"), dict) else {}
+        components = (
+            profile.get("components")
+            if isinstance(profile.get("components"), dict)
+            else {}
+        )
         summary[str(axis)] = {
             "persona_id": profile.get("persona_id"),
             "persona_type": profile.get("persona_type"),
             "name": profile.get("name"),
             "description": profile.get("description"),
             "components": components,
-            "construction_mode": (profile.get("metadata") or {}).get("construction_mode")
+            "construction_mode": (profile.get("metadata") or {}).get(
+                "construction_mode"
+            )
             if isinstance(profile.get("metadata"), dict)
             else None,
         }
@@ -139,6 +159,41 @@ def _workflow_summary(truthcore: dict[str, Any]) -> list[dict[str, Any]]:
             }
         )
     return output
+
+
+def _persona_ka_summary(dsqp: dict[str, Any]) -> dict[str, Any]:
+    analysis = (
+        dsqp.get("persona_analysis")
+        if isinstance(dsqp.get("persona_analysis"), dict)
+        else {}
+    )
+    synthesis = (
+        dsqp.get("persona_synthesis")
+        if isinstance(dsqp.get("persona_synthesis"), dict)
+        else {}
+    )
+    weighting = (
+        synthesis.get("weighting")
+        if isinstance(synthesis.get("weighting"), dict)
+        else {}
+    )
+    conflict_resolution = (
+        synthesis.get("conflict_resolution")
+        if isinstance(synthesis.get("conflict_resolution"), dict)
+        else {}
+    )
+    return {
+        "persona_findings": analysis.get("persona_findings") or [],
+        "constraints": analysis.get("constraints") or [],
+        "authority_priority": weighting.get("priority_map") or [],
+        "sufficiency": weighting.get("sufficiency") or {},
+        "retained_dissent": weighting.get("dissent") or [],
+        "mandatory_prompt_constraints": (
+            conflict_resolution.get("prompt_constraints") or []
+        ),
+        "silent_dissent_count": conflict_resolution.get("silent_dissent_count"),
+        "confidence_status": weighting.get("confidence_status"),
+    }
 
 
 def _json(value: Any) -> str:

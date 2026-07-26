@@ -21,8 +21,8 @@ def _output(controller, ka_id, payload):
 def test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_e_l9_l10_authority"
-    assert set(manifest.authority["production_admission_ids"]) == (L9_IDS | L10_IDS)
+    assert manifest.status == "cp19_f_persona_authority"
+    assert L9_IDS | L10_IDS <= set(manifest.authority["production_admission_ids"])
     for ka_id in L9_IDS | L10_IDS:
         definition = manifest.entries[ka_id]
         assert definition.admission.production_enabled is True

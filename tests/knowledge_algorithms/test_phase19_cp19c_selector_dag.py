@@ -125,12 +125,12 @@ def _wide_budget_context() -> dict:
 def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_e_l9_l10_authority"
+    assert manifest.status == "cp19_f_persona_authority"
     assert manifest.capability_count == 213
     assert sum(
         len(definition.contract.dependencies)
         for definition in manifest.entries.values()
-    ) == 134
+    ) == 132
     for definition in manifest.entries.values():
         assert (
             definition.contract.dependency_result_contract

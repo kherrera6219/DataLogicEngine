@@ -61,6 +61,9 @@ _PRODUCTION_VALIDATORS = {
 }
 _PRODUCTION_HEURISTICS = {
     "KA-001",
+    "KA-012",
+    "KA-013",
+    "KA-030",
     "KA-113",
     "L9-KA-002",
     "L9-KA-004",
@@ -74,8 +77,6 @@ _EXPERIMENTAL = {
     "KA-006",
     "KA-007",
     "KA-008",
-    "KA-012",
-    "KA-013",
     "KA-020",
     "KA-021",
     "KA-028",
@@ -202,7 +203,7 @@ def _entry(ka_id: str, implementation: str) -> KAProductionEntry:
         classification = KAClassification.DETERMINISTIC_HEURISTIC
 
     production_enabled = ka_id in (_PRODUCTION_VALIDATORS | _PRODUCTION_HEURISTICS)
-    deterministic = ka_id not in {"KA-008", "KA-012", "KA-028"}
+    deterministic = ka_id not in {"KA-008", "KA-028"}
     guarantees = {
         KAClassification.PRODUCTION_VALIDATOR: (
             "Validates only its documented input contract and fails closed when required evidence is absent."

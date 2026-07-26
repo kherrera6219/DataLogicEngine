@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.42.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.43.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-F active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-G active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -84,9 +84,16 @@ Phase 18 source baseline while completing the whole-application wiring.
       fail closed. The live registry is 132 with zero unregistered L9 KAs, the
       current DAG is 134 edges/zero cycles, the focused set is 104 passed, and
       the full source suite is 2,522 passed with 18 skipped and 21 warnings.
-- [ ] **CP19-F — causal Quad Persona/DSQP:** bind axes 8-11 profiles to
-      applicable persona KAs, weighting, dissent, sufficiency, prompt/candidate
-      influence, provider budgets, and causal trace proof.
+- [x] **CP19-F — causal Quad Persona/DSQP:** axes 8-11 profiles now drive
+      `KA-012` -> `KA-013` -> `KA-030` exactly once through the canonical
+      selector/DAG. Measured profile authority, weighting, objections,
+      sufficiency, and retained dissent change the one provider prompt;
+      required failure blocks before the provider. The KAs use zero provider
+      subcalls, invent no confidence, preserve all dissent, and emit only an
+      unapplied proposal. The manifest is 213 capabilities, 132 live registry
+      entries, 25 production-enabled capabilities, and 132 edges/zero cycles.
+      The focused set passes 48 tests; the full source suite passes 2,524 with
+      19 skipped and 21 warnings.
 - [ ] **CP19-G — one 12-step workflow:** consolidate every refinement variant
       into one bounded post-candidate KA subgraph, one authorized rewrite, and
       L6-L10 revalidation; prohibit production imports of reference variants.
@@ -120,12 +127,19 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-F passed 2026-07-25:** all four axes 8-11 DSQP profiles are
+  causally consumed by the applicable `KA-012`/`KA-013`/`KA-030` chain.
+  Changing a profile changes the prompt and single provider candidate; missing
+  or failed required weighting blocks first. No confidence, provider subcall,
+  silent dissent, unrelated persona invocation, applied effect, or receipt is
+  fabricated. CP19-G is active; rebuilding remains blocked through CP19-L.
 - **Phase 19 CP19-E passed 2026-07-25:** every L9/L10 KA executes through the
   canonical selector/executor and only committed child execution states enter
   invocation evidence. The retained controllers use corrected canonical IDs,
   cannot write stores directly, and return deterministic proposals/seals.
   Adversarial safety, privacy, trace, recursion, promotion, and effect-receipt
-  fixtures pass. CP19-F is active; rebuilding remains blocked through CP19-L.
+  fixtures pass. CP19-F subsequently passed; rebuilding remains blocked
+  through CP19-L.
 - **Phase 19 CP19-D passed 2026-07-25:** the public gateway lifecycle carries
   one typed reasoning state through causal L1-L10 stages, uses a
   production-mode manifest-selected L1 KA plan, performs one provider
@@ -796,7 +810,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-E passed 2026-07-25, CP19-F causal Quad Persona/DSQP active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-F passed 2026-07-25, CP19-G canonical 12-step refinement active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -814,10 +828,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-F by binding axes 8-11 DSQP profiles to applicable canonical
-persona KA selection, weighting, dissent, sufficiency, prompt/candidate
-influence, provider budgets, and truthful causal trace evidence. Then proceed
-through CP19-G to CP19-K in the plan's mandatory order.
+Complete CP19-G by consolidating the refinement variants into one bounded,
+reachable 12-step KA subgraph with explicit execution/skip records, at most one
+authorized rewrite, and complete L6-L10 revalidation. Then proceed through
+CP19-H to CP19-K in the plan's mandatory order.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

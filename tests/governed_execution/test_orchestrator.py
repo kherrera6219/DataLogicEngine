@@ -397,7 +397,15 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     assert set(layers["L10"]["ka_results"]) == expected_l10
     assert set(layers["L10"]["outputs"]["kas_invoked"]) == expected_l10
     assert layers["L10"]["outputs"]["effects_applied"] is False
-    assert reasoning["effects"] == []
+    assert reasoning["effects"] == [
+        {
+            "ka_id": "KA-012",
+            "state": "proposal_only",
+            "effect_port": "persona_context_service",
+            "applied": False,
+            "receipt": None,
+        }
+    ]
     ka = result.metadata["truthcore"]["steps_executed"][0]
     assert ka["input"] == {"query": "Assess the evidence"}
     assert ka["output"]["normalized_query"] == "Assess the evidence"

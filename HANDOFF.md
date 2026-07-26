@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.42.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.43.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-F active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-G active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -78,8 +78,8 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 4. CP19-D ten layers inside `GovernedExecutionOrchestrator` - passed
    2026-07-25;
 5. CP19-E correct fail-closed L9/L10 - passed 2026-07-25;
-6. CP19-F causal KA-backed Quad Persona/DSQP - active;
-7. CP19-G one production 12-step workflow;
+6. CP19-F causal KA-backed Quad Persona/DSQP - passed 2026-07-25;
+7. CP19-G one production 12-step workflow - active;
 8. CP19-H Truth/data/knowledge lifecycle integration;
 9. CP19-I simulation/MCP/provider/security/operations/effect integration;
 10. CP19-J API/SDK/desktop/accessibility workflow;
@@ -167,7 +167,17 @@ current registry is 132, unregistered L9 count is zero, and the current graph is
 134 edges with zero cycles. The focused set passes 104 tests and the full
 source suite passes 2,522 with 18 skipped and 21 warnings.
 
-CP19-A through CP19-E authorize CP19-F only; the 12-step, data/knowledge,
+CP19-F is also complete. The canonical L4/L5 path executes `KA-012`,
+`KA-013`, and `KA-030` exactly once through the selector/DAG. It consumes all
+four validated axes 8-11 profiles, preserves measured profile authority and
+every objection, fails closed on weighting/sufficiency/dissent loss, and puts
+the resulting constraints into the single provider candidate prompt. The chain
+uses zero provider subcalls, invents no confidence, and emits only an unapplied
+effect proposal. The current graph is 132 edges with zero cycles and the
+production-enabled set is 25. The focused set passes 48 tests; the full source
+suite passes 2,524 with 19 skipped and 21 warnings.
+
+CP19-A through CP19-F authorize CP19-G only; the data/knowledge,
 extended effect, product, per-KA, rebuilding, installed acceptance, and
 production launch gates remain unauthorized. Read:
 
@@ -182,7 +192,10 @@ production launch gates remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-d-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-e-l9-l10-safety-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-e-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-e-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-e-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-f-quad-persona-dsqp-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-f-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-f-validation.json`.
 
 ## Approved product boundary
 
@@ -799,10 +812,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-F by binding axes 8-11 DSQP profiles to applicable persona
-   KAs, weighting, dissent, sufficiency, prompt/candidate influence, provider
-   budgets, and truthful causal trace proof.
-2. Proceed through CP19-G to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-G by replacing the competing refinement variants with one
+   bounded reachable 12-step KA subgraph, explicit step execution/skip
+   evidence, at most one authorized rewrite, and L6-L10 revalidation.
+2. Proceed through CP19-H to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

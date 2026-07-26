@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "0e015c2b4a1ff76f9a41994877ef35c3cdcfd73716240eca7f15d38ccae90841",
+  "identity_source_sha256": "1c23ab90dce40c9864d1bfcb4310ae5a9fe6477ed4c478fd939181d78533574e",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -1107,11 +1107,14 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_012_persona_simulation_emits_review_findings_not_fake_claims",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_simulation_consumers_read_typed_outputs",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
           "tests/verify_consensus_v2.py::test_consensus_pipeline"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -1158,9 +1161,12 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_138_predictive_health_projects_declared_linear_trend",
-          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack"
+          "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_required_weighting_failure_blocks_before_provider"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -1886,7 +1892,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection"
+          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
         ],
         "production_enabled": false
       },
@@ -1980,8 +1987,11 @@
         "detected_execution_call_sites": [
           "core/simulation/refinement_workflow.py:165"
         ],
-        "detected_named_test_functions": [],
-        "production_enabled": false
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+        ],
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -2355,6 +2365,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
           "tests/unit/test_phase5_phase_c.py::test_dynamic_weights_and_ka038_are_json_serializable"
         ],
         "production_enabled": false
@@ -3213,7 +3224,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3719,7 +3732,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3764,7 +3779,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka069_cultural_context_adapter"
+          "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka069_cultural_context_adapter",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
         ],
         "production_enabled": false
       },
@@ -5377,7 +5393,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only"
+          "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
         ],
         "production_enabled": false
       },
@@ -6378,7 +6395,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels"
+          "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
         ],
         "production_enabled": false
       },
@@ -6864,7 +6882,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth"
+          "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
+          "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
         ],
         "production_enabled": false
       },

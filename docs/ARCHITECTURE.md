@@ -105,8 +105,9 @@ it is not a second runtime registry. CP19-B subsequently migrated every
 existing production caller to the typed canonical result. CP19-C added one
 typed manifest selector for all 213 KAs, 213 positive and 213 negative fixtures,
 and a corrected base dependency graph. CP19-E registered and
-production-admitted the complete L9/L10 suites and extended the current graph
-to 134 edges with zero cycles. Independent pure work
+production-admitted the complete L9/L10 suites. CP19-F corrected the applicable
+persona chain to `KA-012` -> `KA-013` -> `KA-030`, bringing the current graph
+to 132 edges with zero cycles. Independent pure work
 uses bounded structured concurrency; required failure and parent cancellation
 propagate; effect proposals serialize and cannot claim application. The
 KA/Python-SDK suite is 781 passed and the CP19-C full source suite is 2,499
@@ -114,7 +115,10 @@ passed with 18 skipped. CP19-D now places explicit causal L1-L10 stages inside
 the one governed product lifecycle. CP19-E now executes all 14 L9/L10 KAs from
 committed child traces, fails closed on incomplete safety evidence, redacts PII
 from release and trace state, and prevents the retained controller from
-applying store effects. CP19-F causal Quad Persona/DSQP is active.
+applying store effects. CP19-F now executes the axes 8-11 DSQP/persona chain
+once through the same selector/DAG, preserves dissent without invented
+confidence, and makes the measured result causal to the one candidate prompt.
+CP19-G canonical 12-step refinement is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
@@ -145,8 +149,10 @@ The Phase 19 canonical lifecycle treats Layers 1-5 as candidate preparation and
 Layers 6-10 as candidate validation/release. L1 normalizes, clarifies,
 classifies, and routes the request; L2 retrieves bounded evidence/graph/memory;
 L3 plans authorized research; L4 constructs DSQP axes 8-11 profiles and
-applicable persona analysis; L5 records weighting, dissent, conflict resolution,
-and the candidate prompt plan. The canonical gateway then performs one bounded
+applicable persona analysis through `KA-012`; L5 executes `KA-013`/`KA-030`
+and records measured weighting, retained dissent, sufficiency, conflict
+constraints, and the candidate prompt plan. Required persona failure blocks
+before the provider and the canonical gateway then performs one bounded
 candidate execution. L6 measures evidence/provenance/contradiction/confidence,
 L7 performs applicable causal/planning/boundary review, L8 applies trust/risk/
 ethics/privacy/compliance, L9 makes the bounded convergence decision, and L10

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.42.0 |
+| Document version | v1.43.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4880,6 +4880,45 @@ workflows are complete, or that rebuilding/release is authorized. Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-e-validation.json`; and
 - `tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py`.
 
+### CP19-F checkpoint result - passed 2026-07-25
+
+CP19-F made the existing axes 8-11 DSQP profiles causally operative through
+the canonical KA selector and bounded dependency executor. The applicable
+persona chain is now `KA-012` persona simulation, `KA-013` authority weighting,
+and `KA-030` dissent-preserving conflict resolution. The corrected dependency
+order is `KA-012` -> `KA-013` -> `KA-030`; design-era reciprocal or unrelated
+persona dependencies were removed without deleting any canonical capability.
+The current 213-capability manifest has 132 live registry entries, 25
+production-enabled capabilities, and a 132-edge zero-cycle graph.
+
+Layer 4 executes `KA-012` once against the four validated DSQP profiles and
+records axes, profile IDs, validation/coverage status, findings, constraints,
+objections, budget, and committed child trace. Layer 5 consumes that committed
+result, executes `KA-013` and `KA-030` once each, fails closed on insufficient
+profiles or lost dissent, and places the measured weights, retained dissent,
+sufficiency result, and mandatory prompt constraints into the one provider
+candidate prompt. Changing an axes 8-11 profile changes that prompt and the
+single candidate call. Persona KAs whose required inputs are not applicable at
+this pre-candidate stage remain available but are not falsely reported as
+executed.
+
+The three KAs are deterministic and use zero provider subcalls. They do not
+invent a persona confidence, mediator result, consensus score, or confidence
+adjustment. Dissent is retained explicitly with a zero silent-dissent count.
+The only emitted effect is a proposal record for the persona analysis;
+`effects_applied` remains false and no receipt is fabricated. Required
+weighting failure blocks before provider execution. Legacy Quad Persona engines
+remain noncanonical and have no direct production caller.
+
+CP19-G is now active. CP19-F does not claim that the canonical 12-step
+refinement/data/effect/product workflows are complete or that rebuilding or
+release is authorized. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-f-quad-persona-dsqp-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-f-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-f-validation.json`; and
+- `tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py`.
+
 Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5326,16 +5365,16 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-E passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-F passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, corrected 134-edge acyclic dependency graph, bounded structured
+fixtures, corrected 132-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
-lifecycle with full fail-closed L9/L10 safety are verified. Begin CP19-F: bind
-axes 8-11 DSQP profiles to applicable persona KA selection, weighting, dissent,
-sufficiency, provider/prompt/candidate influence, bounded budgets, and truthful
-causal trace evidence.
+lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
+persona preparation are verified. Begin CP19-G: replace competing refinement
+variants with one bounded reachable 12-step KA subgraph, at most one authorized
+rewrite, explicit step execution/skip evidence, and L6-L10 revalidation.
 
-Proceed through CP19-F to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-G to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

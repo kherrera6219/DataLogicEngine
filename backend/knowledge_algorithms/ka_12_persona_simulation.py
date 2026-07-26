@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from backend.knowledge_algorithms.production_utils import (
     load_config,
@@ -17,6 +17,8 @@ DEFAULT_PERSONAS = ["knowledge", "sector", "regulatory", "compliance"]
 
 
 class KA012Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(min_length=1, max_length=20_000)
     active_personas: list[str] = Field(
         default_factory=lambda: list(DEFAULT_PERSONAS),
@@ -25,6 +27,7 @@ class KA012Input(BaseModel):
     )
     context: dict[str, Any] = Field(default_factory=dict)
     dsqp_profiles: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @field_validator("active_personas")
     @classmethod
@@ -32,6 +35,9 @@ class KA012Input(BaseModel):
         normalized = [item.strip().lower() for item in value if item.strip()]
         if len(normalized) != len(set(normalized)):
             raise ValueError("active_personas must be unique")
+        unsupported = sorted(set(normalized) - set(DEFAULT_PERSONAS))
+        if unsupported:
+            raise ValueError("unsupported persona types: " + ", ".join(unsupported))
         return normalized
 
 
@@ -54,10 +60,13 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
         for persona in input_data.active_personas:
             configured = persona_configs.get(persona, {})
             profile = input_data.dsqp_profiles.get(persona, {})
+            validation = (
+                profile.get("validation")
+                if isinstance(profile.get("validation"), dict)
+                else {}
+            )
             focus = (
-                profile.get("components", {})
-                .get("job_role", {})
-                .get("focus_area")
+                profile.get("components", {}).get("job_role", {}).get("focus_area")
                 or configured.get("focus")
                 or "general evidence and operational impact"
             )
@@ -68,7 +77,22 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
                     **finding,
                     "persona_type": persona,
                     "name": name,
-                    "dsqp_profile_id": profile.get("profile_id"),
+                    "axis_number": profile.get("axis_number"),
+                    "dsqp_profile_id": (
+                        profile.get("persona_id") or profile.get("profile_id")
+                    ),
+                    "profile_coverage": (
+                        validation.get("coverage_score")
+                        if validation.get("coverage_score") is not None
+                        else profile.get("coverage_score")
+                    ),
+                    "profile_validation_status": (
+                        "validated"
+                        if validation.get("valid") is True
+                        else "not_supplied"
+                        if not profile
+                        else "invalid"
+                    ),
                     "confidence": None,
                     "measurement_status": "not_measured",
                     "success": True,
@@ -84,6 +108,9 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
             "objections": objections,
             "dsqp_profiles": input_data.dsqp_profiles,
             "claims": [],
+            "provider_subcalls_used": 0,
+            "provider_subcall_budget": 0,
+            "deterministic": True,
             "summary": f"Prepared {len(results)} bounded perspective findings.",
             "limitations": (
                 "Findings are deterministic review prompts, not factual claims "

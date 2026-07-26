@@ -88,7 +88,7 @@ def test_cp19a_runtime_manifest_consumes_the_integration_authority():
     }
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_e_l9_l10_authority"
+    assert manifest.status == "cp19_f_persona_authority"
     assert manifest.authority["integration_authority_version"] == authority[
         "authority_version"
     ]

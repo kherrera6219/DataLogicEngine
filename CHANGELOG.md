@@ -26,6 +26,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-F causal Quad Persona/DSQP integration**: connected all four
+  axes 8-11 profiles to the canonical `KA-012` -> `KA-013` -> `KA-030`
+  selector/DAG chain inside L4/L5 of the governed product lifecycle. The KAs
+  execute exactly once, carry measured profile authority and objections into
+  weighting/sufficiency, preserve all dissent as prompt constraints, and
+  causally change the one provider candidate prompt. Missing or failed required
+  weighting blocks before provider execution. Removed design-era reciprocal
+  persona dependencies, simulated mediator/confidence outputs, unrelated
+  persona invocation claims, and false effect application. The current
+  213-capability manifest has 132 live registry entries, 25
+  production-enabled capabilities, and 132 dependency edges with zero cycles.
+  The focused set passes 48 tests and the full source suite passes 2,524 with
+  19 skipped and 21 warnings. CP19-G canonical 12-step refinement is active;
+  rebuilding and release remain blocked.
 - **Phase 19 CP19-E fail-closed Layer 9/Layer 10 safety**: registered and
   production-admitted all seven L9 and seven L10 algorithms through the
   canonical selector/executor, expanded the acyclic dependency graph to 134

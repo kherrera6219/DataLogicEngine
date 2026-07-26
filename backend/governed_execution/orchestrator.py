@@ -489,7 +489,7 @@ class GovernedExecutionOrchestrator:
             if dsqp_complete
             else GovernedStageStatus.FAILED
         )
-        l4 = self.layer_stages.l4(context)
+        l4 = await self._resolve_layer_execution(self.layer_stages.l4(context))
         l4.ok = l4.ok and dsqp_status is GovernedStageStatus.COMPLETED
         l4.outputs.update(
             {
@@ -532,7 +532,7 @@ class GovernedExecutionOrchestrator:
                 ],
             },
         )
-        l5 = self.layer_stages.l5(context)
+        l5 = await self._resolve_layer_execution(self.layer_stages.l5(context))
         self._finish_layer(
             context,
             prompt_stage,

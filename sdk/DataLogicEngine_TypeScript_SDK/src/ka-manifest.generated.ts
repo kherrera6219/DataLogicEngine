@@ -3,12 +3,12 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19e.1",
-  "status": "cp19_e_l9_l10_authority",
+  "manifest_version": "2026.07.25-cp19f.1",
+  "status": "cp19_f_persona_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
+    "crosswalk_source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id",
@@ -86,10 +86,29 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "L10-KA-007"
         ],
         "rationale": "The containment decision consumes every preceding L10 safety result."
+      },
+      "KA-012": {
+        "dependencies": [],
+        "rationale": "Persona analysis consumes validated DSQP profiles and produces the findings that downstream weighting requires."
+      },
+      "KA-013": {
+        "dependencies": [
+          "KA-012"
+        ],
+        "rationale": "Persona weighting consumes committed KA-012 findings and measured DSQP profile coverage."
+      },
+      "KA-030": {
+        "dependencies": [
+          "KA-013"
+        ],
+        "rationale": "Conflict disposition consumes weighted, retained dissent and turns it into mandatory prompt constraints."
       }
     },
-    "production_admission_checkpoint": "CP19-E",
+    "production_admission_checkpoint": "CP19-F",
     "production_admission_ids": [
+      "KA-012",
+      "KA-013",
+      "KA-030",
       "L10-KA-001",
       "L10-KA-002",
       "L10-KA-003",
@@ -1330,15 +1349,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_f_production_qualified",
         "inputs": [
-          "Persona specs",
-          "context state"
+          "Validated axes 8-11 DSQP profiles",
+          "normalized query",
+          "bounded governed context"
         ],
         "outputs": [
           "Persona findings",
           "constraints",
-          "objections"
+          "objections",
+          "zero provider subcalls"
         ],
         "categories": [
           "Persona"
@@ -1350,10 +1371,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-013",
-          "KA-029"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -1367,14 +1385,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
-        "guarantee": "Provides research or exploratory output only and is excluded from production answer validation.",
-        "performance_budget_ms": 1000
+        "limitations": "Profile coverage and authority weighting are orchestration measurements, not factual correctness, calibrated confidence, or substantive consensus.",
+        "guarantee": "Produces deterministic bounded persona findings, authority weights, sufficiency measurements, and dissent dispositions from validated DSQP profiles without making provider calls.",
+        "performance_budget_ms": 250
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "experimental_method",
-        "deterministic": false,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -1428,14 +1446,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_f_production_qualified",
         "inputs": [
-          "Persona outputs",
-          "domain tags"
+          "Committed KA-012 persona findings",
+          "domain authority policy",
+          "profile coverage threshold"
         ],
         "outputs": [
-          "Weighted persona views",
-          "priority map"
+          "Normalized authority weights",
+          "retained dissent",
+          "persona sufficiency measurement"
         ],
         "categories": [
           "Persona"
@@ -1447,7 +1467,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [],
+        "dependencies": [
+          "KA-012"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -1459,13 +1481,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
-        "guarantee": "Provides research or exploratory output only and is excluded from production answer validation.",
-        "performance_budget_ms": 1000
+        "limitations": "Profile coverage and authority weighting are orchestration measurements, not factual correctness, calibrated confidence, or substantive consensus.",
+        "guarantee": "Produces deterministic bounded persona findings, authority weights, sufficiency measurements, and dissent dispositions from validated DSQP profiles without making provider calls.",
+        "performance_budget_ms": 250
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "experimental_method",
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -3032,14 +3054,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_f_production_qualified",
         "inputs": [
-          "Conflict set",
-          "priority rules"
+          "Committed KA-013 dissent",
+          "normalized query"
         ],
         "outputs": [
-          "Resolved state",
-          "decision log"
+          "Conflict dispositions",
+          "mandatory prompt constraints",
+          "silent-dissent count"
         ],
         "categories": [
           "Coordination"
@@ -3052,8 +3075,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-013",
-          "KA-026"
+          "KA-013"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
@@ -3066,12 +3088,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Profile coverage and authority weighting are orchestration measurements, not factual correctness, calibrated confidence, or substantive consensus.",
+        "guarantee": "Produces deterministic bounded persona findings, authority weights, sufficiency measurements, and dissent dispositions from validated DSQP profiles without making provider calls.",
+        "performance_budget_ms": 250
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"

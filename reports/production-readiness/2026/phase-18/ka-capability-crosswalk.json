@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
+  "source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -28,7 +28,7 @@
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 22,
+    "phase6_production_enabled": 25,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -44,8 +44,8 @@
     "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
-    "canonical_with_test_reference": 179,
-    "canonical_with_named_test_function": 177
+    "canonical_with_test_reference": 182,
+    "canonical_with_named_test_function": 180
   },
   "canonical_capabilities": [
     {
@@ -2367,11 +2367,13 @@
           "KA012Input",
           "KA012PersonaSimulation"
         ],
-        "nonblank_noncomment_loc": 116,
+        "nonblank_noncomment_loc": 142,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
+        "backend/knowledge_algorithms/ka_13_persona_weighting.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_core/engine.py",
@@ -2380,25 +2382,31 @@
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/governed_execution/test_orchestrator.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/unit/test_phase5_phase_c.py",
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_012_persona_simulation_emits_review_findings_not_fake_claims",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_simulation_consumers_read_typed_outputs",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
         "tests/verify_consensus_v2.py::test_consensus_pipeline"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-012",
         "implementation": "backend.knowledge_algorithms.ka_12_persona_simulation.run",
-        "classification": "experimental_method",
-        "production_enabled": false,
-        "deterministic": false,
-        "guarantee": "Provides research or exploratory output only and is excluded from production answer validation.",
+        "classification": "deterministic_heuristic",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
-        "limitations": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
+        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
         "input_contract": "versioned Pydantic or documented dictionary input",
         "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
         "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
@@ -2521,40 +2529,48 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_load_config",
           "_run_logic",
+          "normalize_required_personas",
           "run"
         ],
         "classes": [
           "KA013Input",
           "KA013PersonaWeighting"
         ],
-        "nonblank_noncomment_loc": 65,
+        "nonblank_noncomment_loc": 187,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
+        "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_core/engine.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py",
+        "tests/knowledge_algorithms/test_production_invariants.py"
+      ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_136_threat_model_finds_unencrypted_boundary_flow",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_137_sensitive_data_discovery_returns_location_not_value",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_138_predictive_health_projects_declared_linear_trend",
-        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack"
+        "tests/knowledge_algorithms/test_phase18_cp18c_security_health_fairness_batch.py::test_ka_139_purple_team_reports_missing_response_control_without_attack",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_required_weighting_failure_blocks_before_provider"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-013",
         "implementation": "backend.knowledge_algorithms.ka_13_persona_weighting.run",
-        "classification": "experimental_method",
-        "production_enabled": false,
+        "classification": "deterministic_heuristic",
+        "production_enabled": true,
         "deterministic": true,
-        "guarantee": "Provides research or exploratory output only and is excluded from production answer validation.",
+        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
-        "limitations": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
+        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
         "input_contract": "versioned Pydantic or documented dictionary input",
         "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
         "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
@@ -5014,10 +5030,12 @@
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-028",
@@ -5314,10 +5332,6 @@
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "_arbitrate_hybrid",
-          "_escalate_to_mediator",
-          "_fallback_logic",
-          "_load_config",
           "_run_logic",
           "run"
         ],
@@ -5325,11 +5339,13 @@
           "KA030ConflictResolution",
           "KA030Input"
         ],
-        "nonblank_noncomment_loc": 102,
+        "nonblank_noncomment_loc": 78,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "core/simulation/refinement_workflow.py",
@@ -5339,14 +5355,19 @@
         "core/simulation/refinement_workflow.py:165"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/verify_consensus_v2.py"
       ],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_dag_executes_once_without_fake_confidence",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-030",
         "implementation": "backend.knowledge_algorithms.ka_30_conflict_resolution.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -6438,15 +6459,16 @@
         "imports_celery": false
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py",
         "tests/unit/test_phase5_phase_c.py",
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate",
         "tests/unit/test_phase5_phase_c.py::test_dynamic_weights_and_ka038_are_json_serializable"
       ],
       "phase6_production_metadata": {
@@ -8710,8 +8732,12 @@
         "core/simulation/pov_engine.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-057",
         "implementation": "backend.knowledge_algorithms.ka_57_persona_emotion_adaptation.run",
@@ -10483,8 +10509,12 @@
         "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-068",
         "implementation": "backend.knowledge_algorithms.ka_68_domain_specialization_tuner.run",
@@ -10631,10 +10661,12 @@
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka069_cultural_context_adapter"
+        "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka069_cultural_context_adapter",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-069",
@@ -14052,10 +14084,12 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only"
+        "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1037_norm_emergence_reports_measured_convergence_only",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -16763,10 +16797,12 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels"
+        "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1075_bias_mitigation_reweights_without_changing_labels",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -18107,10 +18143,12 @@
       "runtime_references": [],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1084_consensus_engine_measures_agreement_not_truth",
+        "tests/knowledge_algorithms/test_phase19_cp19f_persona_causality.py::test_cp19f_persona_output_changes_prompt_and_single_candidate"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"

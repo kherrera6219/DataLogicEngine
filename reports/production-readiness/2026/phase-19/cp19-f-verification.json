@@ -1,0 +1,51 @@
+{
+  "schema_version": "dle.phase19-cp19f-verification.v1",
+  "checkpoint": "CP19-F",
+  "date": "2026-07-25",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19f.1",
+  "manifest_status": "cp19_f_persona_authority",
+  "canonical_capabilities": 213,
+  "live_registry_entries": 132,
+  "unregistered_layer9_implementations": 0,
+  "production_enabled_capabilities": 25,
+  "dependency_edges": 132,
+  "dependency_cycles": 0,
+  "applicable_persona_chain": [
+    "KA-012",
+    "KA-013",
+    "KA-030"
+  ],
+  "dsqp_contract": {
+    "required_axes": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "profiles_consumed": 4,
+    "provider_subcalls": 0,
+    "canonical_candidate_provider_calls": 1,
+    "fabricated_confidence_values": 0,
+    "silent_dissent_count": 0,
+    "unrelated_persona_invocations": 0
+  },
+  "trace_contract": {
+    "invocation_authority": "committed_child_trace_executed_state",
+    "persona_effect_proposals": 1,
+    "effects_applied": false,
+    "effect_receipts": 0,
+    "direct_legacy_quad_persona_callers": 0
+  },
+  "adversarial_proofs": {
+    "profile_prompt_candidate_causality": "pass",
+    "required_weighting_failure_before_provider": "pass",
+    "dissent_preservation": "pass",
+    "no_confidence_fabrication": "pass",
+    "no_provider_subcalls": "pass",
+    "no_unrelated_persona_invocation": "pass",
+    "no_false_effect_receipt": "pass"
+  },
+  "crosswalk_source_input_sha256": "ca306a4a1fcdb414e936a40792354626c6da8c7987146935ce179a19f4754713",
+  "errors": []
+}
