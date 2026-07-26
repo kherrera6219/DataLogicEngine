@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.41.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.42.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-E active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-F active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -77,8 +77,8 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 3. CP19-C manifest selector and bounded dependency DAG - passed 2026-07-25;
 4. CP19-D ten layers inside `GovernedExecutionOrchestrator` - passed
    2026-07-25;
-5. CP19-E correct fail-closed L9/L10 - active;
-6. CP19-F causal KA-backed Quad Persona/DSQP;
+5. CP19-E correct fail-closed L9/L10 - passed 2026-07-25;
+6. CP19-F causal KA-backed Quad Persona/DSQP - active;
 7. CP19-G one production 12-step workflow;
 8. CP19-H Truth/data/knowledge lifecycle integration;
 9. CP19-I simulation/MCP/provider/security/operations/effect integration;
@@ -131,9 +131,9 @@ sites, and found zero calls to the legacy result methods. TruthCore, L6-L10,
 persona, refinement, simulation, POV, Query Persona, SEKrE, API, and
 compatibility facades now consume `KAExecutionResult`; SDKs retain the canonical
 result schema. Missing required values fail closed and missing confidence is
-unmeasured/zero. Real-controller Layer 9 passes. Layer 10 now contains its
-remaining wrong-ID mismatch as HALT without releasing the candidate; semantic
-correction remains CP19-E. The KA/Python-SDK suite passes 738 tests and the full
+unmeasured/zero. Real-controller Layer 9 passes. CP19-B contained the then-open
+Layer-10 wrong-ID mismatch as HALT; CP19-E subsequently corrected the semantic
+identities and full suite. The KA/Python-SDK suite passes 738 tests and the full
 source suite passes 2,486 with 18 skipped.
 
 CP19-C is also complete. Manifest `2026.07.25-cp19c.1` now produces one typed
@@ -155,9 +155,21 @@ refine/abstain, L10 halt, durable trace, regulatory local-review, and
 no-private-workflow tests pass. The focused cross-system set passes 103 tests
 and the full source suite passes 2,506 with 18 skipped and 21 warnings.
 
-CP19-A through CP19-D authorize CP19-E only; full all-ID L9/L10 safety,
-effect application, rebuilding, installed acceptance, and production launch
-remain unauthorized. Read:
+CP19-E is also complete. All 14 L9/L10 KAs are live-registry and
+production-manifest admitted, execute through the one bounded selector/DAG, and
+derive invocation evidence only from committed child traces. Wrong semantic
+IDs, manual invocation appends, optimistic lexical-drift/readiness defaults,
+and the retained controller's direct graph/vector/memory writes are removed.
+PII is redacted from both released content and trace-bearing state; required
+failure/timeouts, trace forgery, containment bypass, low confidence, recursion
+exhaustion, unauthorized promotion, and false effect receipts fail closed. The
+current registry is 132, unregistered L9 count is zero, and the current graph is
+134 edges with zero cycles. The focused set passes 104 tests and the full
+source suite passes 2,522 with 18 skipped and 21 warnings.
+
+CP19-A through CP19-E authorize CP19-F only; the 12-step, data/knowledge,
+extended effect, product, per-KA, rebuilding, installed acceptance, and
+production launch gates remain unauthorized. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
 - `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
@@ -167,7 +179,10 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-c-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-d-ten-layer-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-d-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-d-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-d-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-e-l9-l10-safety-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-e-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-e-validation.json`.
 
 ## Approved product boundary
 
@@ -784,12 +799,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-E by correcting the remaining L9/L10 IDs, executing every
-   required `L9-KA-001` through `L9-KA-007` and `L10-KA-001` through
-   `L10-KA-007` through the canonical selector, deriving invocation lists from
-   committed child traces, and failing closed on missing, failed, timed-out,
-   privacy, containment, escalation, and release results.
-2. Proceed through CP19-F to CP19-K in the mandatory order. Preserve canonical
+1. Complete CP19-F by binding axes 8-11 DSQP profiles to applicable persona
+   KAs, weighting, dissent, sufficiency, prompt/candidate influence, provider
+   budgets, and truthful causal trace proof.
+2. Proceed through CP19-G to CP19-K in the mandatory order. Preserve canonical
    IDs, every distinct capability, one implementation owner, one primary
    subsystem owner, and one governed answer path.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and

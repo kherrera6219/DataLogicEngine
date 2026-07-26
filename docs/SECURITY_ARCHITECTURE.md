@@ -122,6 +122,9 @@ Deletion reconciles required stores and reports partial failure.
 Logs, metrics, errors, diagnostics, traces, exports, and support bundles exclude
 or redact credentials, authorization headers, prompts/documents, provider
 payloads, private keys, and decrypted backups according to their contract.
+CP19-E also requires the complete L10 privacy suite to redact detected PII from
+the released answer and all trace-bearing governed state; findings contain only
+type/count summaries and never the matched clear-text values.
 External telemetry is disabled by default and requires explicit opt-in; a DSN
 alone cannot authorize egress.
 

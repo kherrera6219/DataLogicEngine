@@ -58,19 +58,21 @@ administration, audit, observability, and validation application.
 > simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
 > reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
 > CP18-H were not passed and no finding was waived.
-> Phase 19 CP19-A through CP19-D are complete. The one runtime manifest now
+> Phase 19 CP19-A through CP19-E are complete. The one runtime manifest now
 > drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
 > verify selection, and three reciprocal design relationships were corrected
-> into a 119-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
+> into a current 134-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
 > budgets, cancellation, serial effect proposals, and truthful trace states
 > pass focused qualification. The public answer lifecycle now carries one typed
 > reasoning state through explicit causal L1-L10 stages; L1 executes a
 > production-mode selector plan, a bounded rewrite re-enters L6-L9, and only
-> L10 release permits success persistence. The focused cross-system set passes
-> 103 tests and the full source suite passes 2,506 with 18 skipped. CP19-E is
-> active for the full
-> correct-ID fail-closed L9/L10 suite, followed by
-> causal KA-backed Quad Persona/DSQP, one production 12-step workflow, all data/
+> L10 release permits success persistence. All 14 L9/L10 KAs now execute
+> through the canonical selector/executor; wrong-ID/manual-trace/direct-store
+> paths are removed, and adversarial privacy, failure, containment, recursion,
+> promotion, and receipt fixtures fail closed. The CP19-E focused set passes
+> 104 tests and the full source suite passes 2,522 with 18 skipped. CP19-F is
+> active for causal KA-backed Quad Persona/DSQP, followed by one production
+> 12-step workflow, all data/
 > knowledge/simulation/MCP/provider/operations/effect integrations, the KA API/
 > SDK/desktop workflow, and the complete 213-row semantic/selector/call-path/
 > trace proof. CP19-L is the source gate that may authorize a rebuild; CP19-M
@@ -159,12 +161,14 @@ Current production-completion focus:
   SDK surfaces verified, 32 typed execution/helper sites, zero legacy result
   calls, 738 KA/Python-SDK tests passed, and 2,486 full-suite tests passed with
   18 skipped
-- Phase 19 CP19-C passed: one manifest selector and bounded 119-edge
-  dependency DAG
+- Phase 19 CP19-C passed and CP19-E extended its manifest: one selector and a
+  current bounded 134-edge zero-cycle dependency DAG
 - Phase 19 CP19-D passed: one typed causal L1-L10 product path with L10 release
   before success persistence
-- Active Phase 19 CP19-E: correct-ID, all-required, fail-closed L9/L10 safety,
-  followed by KA-backed Quad Persona/DSQP and one 12-step workflow
+- Phase 19 CP19-E passed: every L9/L10 KA is registered, production-admitted,
+  executed from committed child traces, and fail-closed
+- Active Phase 19 CP19-F: causal KA-backed Quad Persona/DSQP, followed by one
+  canonical 12-step workflow
 - Ingestion, retrieval, graph, memory, simulation, MCP, provider, gateway,
   security, operations, lifecycle, and authoritative effect integration
 - One named semantic test, positive/negative selector proof, real owning call

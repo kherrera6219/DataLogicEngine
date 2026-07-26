@@ -140,8 +140,8 @@ class TestMetaReasoningController:
         assert result.readiness_score < 0.95
         assert result.refinement_plan is not None
     
-    def test_max_iterations_force_finalize(self):
-        """Test max iterations forces FINALIZE."""
+    def test_max_iterations_never_force_finalize(self):
+        """Test max iterations fail closed instead of fabricating readiness."""
         from backend.truth_engine.truth_core.meta_reasoning_controller import (
             MetaReasoningController
         )
@@ -160,8 +160,12 @@ class TestMetaReasoningController:
         
         result = controller.evaluate(input_data)
         
-        assert result.decision == L9Decision.FINALIZE
-        assert any("Max iterations" in flag for flag in result.disclosure_flags)
+        assert result.decision == L9Decision.REFINE
+        assert result.requires_human_review is True
+        assert any(
+            "not force-finalized" in flag
+            for flag in result.disclosure_flags
+        )
     
     def test_high_risk_domain_threshold(self):
         """Test high-risk domain uses stricter threshold."""

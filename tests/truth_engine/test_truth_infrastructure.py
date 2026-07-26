@@ -1,4 +1,3 @@
-
 from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
@@ -43,26 +42,29 @@ def mock_ka_controller():
     )
     return controller
 
+
 @pytest.fixture
 def truth_engine(mock_ka_controller):
     return TruthCoreEngine(ka_controller=mock_ka_controller)
+
 
 @pytest.fixture
 def meta_controller(mock_ka_controller):
     return MetaReasoningController(ka_controller=mock_ka_controller)
 
+
 class TestTruthCoreEngine:
     def test_get_workflow_steps(self, truth_engine):
-        assert 'intent_parsing' in truth_engine.get_workflow_steps('trivial')
-        assert 'final_safety_gate' in truth_engine.get_workflow_steps('trivial')
-        
-        moderate_steps = truth_engine.get_workflow_steps('moderate')
-        assert 'hybrid_retrieval' in moderate_steps
-        assert 'multi_persona_reasoning' in moderate_steps
-        
-        extreme_steps = truth_engine.get_workflow_steps('extreme')
-        assert 'deep_research' in extreme_steps
-        assert 'agi_planning' in extreme_steps
+        assert "intent_parsing" in truth_engine.get_workflow_steps("trivial")
+        assert "final_safety_gate" in truth_engine.get_workflow_steps("trivial")
+
+        moderate_steps = truth_engine.get_workflow_steps("moderate")
+        assert "hybrid_retrieval" in moderate_steps
+        assert "multi_persona_reasoning" in moderate_steps
+
+        extreme_steps = truth_engine.get_workflow_steps("extreme")
+        assert "deep_research" in extreme_steps
+        assert "agi_planning" in extreme_steps
 
     @pytest.mark.asyncio
     async def test_determine_tier_ai(self, truth_engine, mock_ka_controller):
@@ -79,18 +81,21 @@ class TestTruthCoreEngine:
         mock_ka_controller.execute_typed.side_effect = Exception("KA Error")
         tier = await truth_engine.determine_tier("Hi")
         assert tier == "trivial"
-        
-        tier = await truth_engine.determine_tier("Risk assessment for project X in legal context")
+
+        tier = await truth_engine.determine_tier(
+            "Risk assessment for project X in legal context"
+        )
         assert tier == "high_stakes"
 
     @pytest.mark.asyncio
     async def test_create_session(self, truth_engine):
         session = await truth_engine.create_session("Test query", user_id=1)
-        assert session['query'] == "Test query"
-        assert session['user_id'] == 1
-        assert 'session_id' in session
-        assert session['status'] == 'created'
-        assert session['session_id'] in truth_engine.active_sessions
+        assert session["query"] == "Test query"
+        assert session["user_id"] == 1
+        assert "session_id" in session
+        assert session["status"] == "created"
+        assert session["session_id"] in truth_engine.active_sessions
+
 
 class TestMetaReasoningController:
     def test_meta_evaluate_finalize(self, meta_controller, mock_ka_controller):
@@ -100,12 +105,12 @@ class TestMetaReasoningController:
             l8_gate_result={
                 "overall_confidence": 0.98,
                 "domain_confidences": [{"domain": "legal", "confidence": 0.99}],
-                "quantum_summary": "All good"
+                "quantum_summary": "All good",
             },
             reasoning_trace={"layer1": {"output": "ok"}, "layer2": {"output": "ok"}},
-            risk_domain="standard"
+            risk_domain="standard",
         )
-        
+
         # Mocking KA results for component evaluations
         mock_ka_controller.execute_typed.side_effect = [
             typed_result("L9-KA-001", {"issues": []}),
@@ -121,8 +126,12 @@ class TestMetaReasoningController:
             typed_result("KA-025", {"meta": {"is_dag": True}}),
             typed_result("L9-KA-006", {"readiness_score": 0.98}),
             typed_result("L9-KA-005", {"trigger_refinement": False}),
+            typed_result(
+                "L9-KA-007",
+                {"continue": False, "exhausted": False},
+            ),
         ]
-        
+
         result = meta_controller.evaluate(input_data)
         assert result.decision == L9Decision.FINALIZE
         assert result.readiness_score >= 0.95
@@ -134,12 +143,12 @@ class TestMetaReasoningController:
             l8_gate_result={
                 "overall_confidence": 0.7,
                 "domain_confidences": [{"domain": "legal", "confidence": 0.6}],
-                "quantum_summary": "Inconsistent"
+                "quantum_summary": "Inconsistent",
             },
             reasoning_trace={"layer1": {"output": "ok"}},
-            risk_domain="high_risk"
+            risk_domain="high_risk",
         )
-        
+
         mock_ka_controller.execute_typed.side_effect = [
             typed_result(
                 "L9-KA-001",
@@ -157,9 +166,7 @@ class TestMetaReasoningController:
             typed_result(
                 "L9-KA-004",
                 {
-                    "weaknesses": [
-                        {"area": "general", "description": "Low support"}
-                    ],
+                    "weaknesses": [{"area": "general", "description": "Low support"}],
                     "failure_modes": [],
                     "alternatives": [],
                 },
@@ -177,8 +184,12 @@ class TestMetaReasoningController:
                     "reason": "readiness below threshold",
                 },
             ),
+            typed_result(
+                "L9-KA-007",
+                {"continue": True, "exhausted": False},
+            ),
         ]
-        
+
         result = meta_controller.evaluate(input_data)
         if result.refinement_plan is None:
             print(f"DEBUG: disclosure_flags={result.disclosure_flags}")
@@ -191,30 +202,33 @@ class TestMetaReasoningController:
         input_data = L9Input(
             simulation_id="sim-789",
             l8_gate_result={},
-            iteration_state={"current_iteration": 5, "max_iterations": 5}
+            iteration_state={"current_iteration": 5, "max_iterations": 5},
         )
         result = meta_controller.evaluate(input_data)
-        assert result.decision == L9Decision.FINALIZE
-        assert "Max iterations reached" in result.disclosure_flags[0]
+        assert result.decision == L9Decision.REFINE
+        assert result.requires_human_review is True
+        assert "not force-finalized" in result.disclosure_flags[0]
+
 
 class TestLLMGateway:
     def test_circuit_breaker(self):
         cb = CircuitBreaker("TestProvider", failure_threshold=2, recovery_timeout=0.1)
         assert cb.can_execute()
-        
+
         cb.record_failure()
         assert cb.can_execute()
-        
+
         cb.record_failure()
         assert not cb.can_execute()
         assert cb.state == "OPEN"
-        
+
         # Test recovery
         import time
+
         time.sleep(0.15)
         assert cb.can_execute()
         assert cb.state == "HALF_OPEN"
-        
+
         cb.record_success()
         assert cb.state == "CLOSED"
 
@@ -238,7 +252,9 @@ class TestLLMGateway:
             )
         )
 
-        req = GatewayRequest(messages=[{"role": "user", "content": "hi"}], provider="openai")
+        req = GatewayRequest(
+            messages=[{"role": "user", "content": "hi"}], provider="openai"
+        )
         response = await gateway.process(req)
 
         gateway.execute.assert_awaited_once_with(req)

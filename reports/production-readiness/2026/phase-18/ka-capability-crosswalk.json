@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
+  "source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -17,18 +17,18 @@
     "no_duplicate_kas": "A semantically duplicate definition resolves to one canonical capability with a scoped compatibility alias; similar titles remain separate only with a reviewed material contract boundary."
   },
   "summary": {
-    "live_registry_entries": 125,
+    "live_registry_entries": 132,
     "live_numeric_entries": 117,
     "live_layer10_entries": 7,
     "live_master_entries": 1,
-    "unregistered_layer9_implementations": 7,
+    "unregistered_layer9_implementations": 0,
     "original_design_rows": 114,
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 11,
+    "phase6_production_enabled": 22,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -41,11 +41,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 135,
+    "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
-    "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 175,
-    "canonical_with_named_test_function": 172
+    "canonical_with_runtime_execution_call_site": 11,
+    "canonical_with_test_reference": 179,
+    "canonical_with_named_test_function": 177
   },
   "canonical_capabilities": [
     {
@@ -191,6 +191,7 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/dmrf/truth_integration/core_adapter.py",
         "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
         "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
         "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
@@ -212,6 +213,7 @@
         "core/simulation/refinement_workflow.py:133"
       ],
       "test_references": [
+        "tests/governed_execution/test_orchestrator.py",
         "tests/integration_routes/test_ka_route_auth_boundaries.py",
         "tests/knowledge_algorithms/test_ka_logic.py",
         "tests/knowledge_algorithms/test_ka_master_controller.py",
@@ -229,6 +231,8 @@
         "tests/unit/test_ukg_db_coverage.py"
       ],
       "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+        "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
         "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_accepts_external_api_key",
         "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_uses_id_as_name_fallback",
         "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_batch_accepts_documented_payload_with_context",
@@ -337,7 +341,10 @@
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
         "tests/test_production_fidelity.py::test_production_refinement_fidelity",
         "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
         "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_preflight_has_exact_state_and_failure_contract",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas",
         "tests/unit/test_core_integration.py::test_ka_master_routing",
         "tests/unit/test_phase3_api_surface_governance.py::test_legacy_successor_path_maps_known_prefixes",
         "tests/unit/test_ukg_db_coverage.py::test_create_ka_execution_uses_current_schema",
@@ -519,7 +526,6 @@
         "sdk/UKG_Python_SDK/ukg_sdk/ka/registry.py"
       ],
       "execution_call_sites": [
-        "backend/truth_engine/truth_core/agi_planner.py:162",
         "core/simulation/refinement_workflow.py:137"
       ],
       "test_references": [
@@ -533,9 +539,7 @@
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_blocks_unqualified_production_execution",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka002_returns_three_deterministic_sub_goals",
         "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_falls_back_to_ka040",
-        "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_uses_ka002_when_available",
-        "tests/truth_engine/test_layer7_agi.py::test_plan_handles_ka021_exception",
-        "tests/truth_engine/test_layer7_agi.py::test_plan_runs_ka021_emergence_hook"
+        "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_uses_ka002_when_available"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-002",
@@ -697,7 +701,6 @@
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:564",
         "core/simulation/refinement_workflow.py:141"
       ],
       "test_references": [],
@@ -877,6 +880,8 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/knowledge_algorithms/production_catalog.py",
@@ -891,13 +896,18 @@
         "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:86"
       ],
       "test_references": [
+        "tests/governed_execution/test_orchestrator.py",
         "tests/integration/test_gateway_api_coverage.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
-        "tests/knowledge_algorithms/test_production_invariants.py"
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_truthcore_preflight_contract.py"
       ],
       "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
         "tests/integration/test_gateway_api_coverage.py::test_api_key_auth_header",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
@@ -905,7 +915,19 @@
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_legacy_loader_accepts_numeric_ids_without_private_scanning",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_existing_module_through_typed_contract",
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_honors_cancellation_and_deadline"
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_honors_cancellation_and_deadline",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_compatibility_facades_offer_canonical_typed_results",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_required_consumer_rejects_legacy_and_failed_results",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_executor_injects_dependencies_and_records_real_trace",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_invalid_plan_cannot_execute",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_master_facade_plans_and_executes_canonical_path",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_policy_denial_and_unavailable_service_fail_closed",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-004",
@@ -1076,6 +1098,7 @@
         "tests/knowledge_algorithms/test_ka_05_suggested_tier.py",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
         "tests/test_production_fidelity.py",
         "tests/truth_engine/test_truth_engine_coverage.py",
         "tests/truth_engine/test_truth_infrastructure.py"
@@ -1084,6 +1107,9 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
         "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
         "tests/test_production_fidelity.py::test_production_tiering_and_routing",
         "tests/truth_engine/test_truth_infrastructure.py::test_determine_tier_ai"
       ],
@@ -1614,17 +1640,16 @@
         "core/simulation/layer3_expert.py",
         "core/simulation/simulation_engine.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:570",
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:540"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_008_self_critique_is_deterministic_and_accuracy_honest",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1951,10 +1976,9 @@
         "backend/truth_engine/truth_core/refinement_orchestrator.py",
         "core/simulation/layer3_expert.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:581"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
@@ -2007,6 +2031,7 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -2353,16 +2378,16 @@
         "backend/truth_engine/truth_core/personas.py",
         "core/simulation/simulation_engine.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/personas.py:148"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/unit/test_phase5_phase_c.py",
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_012_persona_simulation_emits_review_findings_not_fake_claims",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_simulation_consumers_read_typed_outputs",
         "tests/verify_consensus_v2.py::test_consensus_pipeline"
       ],
       "phase6_production_metadata": {
@@ -2687,9 +2712,7 @@
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "core/simulation/simulation_engine.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:449"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase_e_depth.py",
         "tests/truth_engine/test_layer8_trust_gate.py",
@@ -2698,6 +2721,7 @@
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka014_domain_calibration_varies_with_domain_scores",
         "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization",
+        "tests/truth_engine/test_layer8_trust_gate.py::test_ka_invocation",
         "tests/unit/test_dbp_historical_calibration.py::test_ka_036_reads_p95_latency_from_last_100"
       ],
       "phase6_production_metadata": {
@@ -3015,9 +3039,7 @@
         "backend/truth_engine/truth_core/refinement_orchestrator.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:396"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/compliance/test_fullstack_compliance.py",
         "tests/end_to_end/test_e2e_scenarios.py"
@@ -3842,10 +3864,7 @@
         "core/simulation/pov_policy.py",
         "sdk/UKG_Python_SDK/ukg_sdk/tenlayer.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/agi_planner.py:119",
-        "backend/truth_engine/truth_core/emergence_controller.py:146"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer7_agi.py"
@@ -4002,16 +4021,15 @@
         "backend/truth_engine/truth_core/meta_reasoning_controller.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:592",
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:487"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/knowledge_algorithms/test_phase_e_depth.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka022_returns_axis15_six_dimension_risk_schema",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
@@ -4170,9 +4188,7 @@
         "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:471"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase_e_depth.py"
       ],
@@ -4342,9 +4358,7 @@
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "core/axes/axis14_acquisition_lifecycle.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:500"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/unit/test_axis_alignment.py"
@@ -4501,15 +4515,15 @@
         "core/simulation/refinement_workflow.py"
       ],
       "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:603",
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:415",
         "core/simulation/refinement_workflow.py:161"
       ],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -4675,15 +4689,14 @@
         "backend/truth_engine/truth_gate/trust_validation_gateway.py",
         "sdk/UKG_Python_SDK/ukg_sdk/tenlayer.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:340"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_logic.py",
         "tests/truth_engine/test_layer8_trust_gate.py"
       ],
       "named_test_functions": [
-        "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization"
+        "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization",
+        "tests/truth_engine/test_layer8_trust_gate.py::test_ka_invocation"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-026",
@@ -4999,9 +5012,7 @@
         "backend/truth_engine/truth_core/engine.py",
         "core/simulation/pov_engine.py"
       ],
-      "execution_call_sites": [
-        "core/simulation/pov_engine.py:197"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
       ],
@@ -5325,7 +5336,6 @@
         "core/simulation/simulation_engine.py"
       ],
       "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:355",
         "core/simulation/refinement_workflow.py:165"
       ],
       "test_references": [
@@ -5497,9 +5507,7 @@
         "backend/knowledge_algorithms/risk_classifier.py",
         "core/simulation/simulation_engine.py"
       ],
-      "execution_call_sites": [
-        "core/simulation/simulation_engine.py:1310"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
@@ -5827,10 +5835,13 @@
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
         "tests/knowledge_algorithms/test_registry_governance.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka033_extension_slot_summarizes_payload",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_all_213_positive_and_negative_fixtures_are_current",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default"
       ],
       "phase6_production_metadata": {
@@ -5994,9 +6005,7 @@
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_gate/trust_validation_gateway.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/trust_validation_gateway.py:552"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
@@ -6524,9 +6533,7 @@
         "backend/knowledge_algorithms/ka_master_controller.py",
         "backend/truth_engine/truth_gate/quant.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/quant.py:69"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py"
       ],
@@ -6621,9 +6628,7 @@
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/agi_planner.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/agi_planner.py:178"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/truth_engine/test_layer7_agi.py"
@@ -8704,9 +8709,7 @@
         "backend/truth_engine/truth_core/refinement_orchestrator.py",
         "core/simulation/pov_engine.py"
       ],
-      "execution_call_sites": [
-        "core/simulation/pov_engine.py:210"
-      ],
+      "execution_call_sites": [],
       "test_references": [],
       "named_test_functions": [],
       "phase6_production_metadata": {
@@ -8887,8 +8890,12 @@
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-058",
         "implementation": "backend.knowledge_algorithms.ka_58_interactive_clarification_learning.run",
@@ -9044,10 +9051,10 @@
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/truth_engine/test_layer10_emergence.py"
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py"
       ],
       "named_test_functions": [
-        "tests/truth_engine/test_layer10_emergence.py::test_authorize_pii_modification"
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-059",
@@ -9364,6 +9371,8 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/dmrf/truth_integration/core_adapter.py",
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/knowledge_algorithms/risk_classifier.py",
@@ -9372,9 +9381,16 @@
       ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_production_invariants.py"
+        "tests/governed_execution/test_orchestrator.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_truthcore_preflight_contract.py"
       ],
-      "named_test_functions": [],
+      "named_test_functions": [
+        "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
+        "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-061",
         "implementation": "backend.knowledge_algorithms.ka_61_adversarial_input_shield.run",
@@ -9995,8 +10011,12 @@
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-065",
         "implementation": "backend.knowledge_algorithms.ka_65_knowledge_regression_tester.run",
@@ -10868,8 +10888,12 @@
       },
       "runtime_references": [],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_integration_authority.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_integration_authority.py::test_cp19a_catalog_cards_expose_owner_and_selection_authority"
+      ],
       "phase6_production_metadata": {
         "ka_id": "KA-071",
         "implementation": "backend.knowledge_algorithms.ka_71_data_ingestion.run",
@@ -11566,21 +11590,22 @@
       "runtime_references": [
         "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
-        "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_core/engine.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:284"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka079_retrieves_ranked_local_records_with_filters",
         "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
-        "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-079",
@@ -12942,8 +12967,7 @@
         "imports_celery": false
       },
       "runtime_references": [
-        "backend/knowledge_algorithms/production_catalog.py",
-        "backend/truth_engine/truth_core/emergence_controller.py"
+        "backend/knowledge_algorithms/production_catalog.py"
       ],
       "execution_call_sites": [],
       "test_references": [],
@@ -13028,21 +13052,16 @@
       },
       "runtime_references": [
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
-        "backend/knowledge_algorithms/production_catalog.py",
-        "backend/truth_engine/truth_core/emergence_controller.py"
+        "backend/knowledge_algorithms/production_catalog.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:252"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
-        "tests/truth_engine/test_layer10_emergence.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka095_alerting",
-        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_095_alerting_returns_proposal_without_delivery_claim",
-        "tests/truth_engine/test_layer10_emergence.py::test_trust_gate_belief_decay_fail_high_risk"
+        "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_095_alerting_returns_proposal_without_delivery_claim"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-095",
@@ -17296,13 +17315,23 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/truth_engine/truth_core/emergence_controller.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion"
+        "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
+        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
+        "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -17368,14 +17397,12 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [
-        "backend/truth_engine/truth_core/emergence_controller.py"
-      ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:156"
-      ],
+      "runtime_references": [],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
@@ -17389,7 +17416,10 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
         "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
-        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements"
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-108",
@@ -18833,14 +18863,13 @@
       },
       "runtime_references": [
         "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
-        "backend/knowledge_algorithms/ka_master_controller.py",
-        "backend/truth_engine/truth_core/emergence_controller.py"
+        "backend/knowledge_algorithms/ka_master_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:276"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
@@ -18855,8 +18884,9 @@
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
         "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
-        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
-        "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-109",
@@ -19548,7 +19578,9 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/truth_engine/truth_core/emergence_controller.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
@@ -19682,13 +19714,17 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/truth_engine/truth_core/emergence_controller.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py",
+        "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception"
+        "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
+        "tests/truth_engine/test_layer10_emergence.py::test_trust_gate_belief_decay_fail_high_risk"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -21628,13 +21664,20 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/truth_engine/truth_core/emergence_controller.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing"
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -21771,13 +21814,22 @@
         "signals": [],
         "imports_celery": false
       },
-      "runtime_references": [],
+      "runtime_references": [
+        "backend/truth_engine/truth_core/emergence_controller.py"
+      ],
       "execution_call_sites": [],
       "test_references": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py"
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/truth_engine/test_layer10_emergence.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data"
+        "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+        "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
+        "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -22695,13 +22747,8 @@
         "backend/truth_engine/truth_core/engine.py",
         "core/simulation/simulation_engine.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/engine.py:1022",
-        "backend/truth_engine/truth_core/engine.py:1024",
-        "core/simulation/simulation_engine.py:1306"
-      ],
+      "execution_call_sites": [],
       "test_references": [
-        "tests/governed_execution/test_orchestrator.py",
         "tests/governed_execution/test_trace_persistence.py",
         "tests/knowledge_algorithms/test_ka_113_complexity_router.py",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
@@ -22711,7 +22758,6 @@
         "tests/truth_engine/test_truthcore_preflight_contract.py"
       ],
       "named_test_functions": [
-        "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
         "tests/governed_execution/test_trace_persistence.py::test_trace_transaction_persists_exact_stages_and_governance_artifacts",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
         "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
@@ -22972,9 +23018,7 @@
         "backend/truth_engine/truth_core/engine.py",
         "backend/truth_engine/truth_gate/quant.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_gate/quant.py:79"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
@@ -23143,10 +23187,13 @@
       "test_references": [
         "tests/knowledge_algorithms/test_ka_edge_cases.py",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
         "tests/knowledge_algorithms/test_production_invariants.py"
       ],
       "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics"
+        "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-117",
@@ -25314,15 +25361,18 @@
           "_select_flow",
           "_summarize_flow",
           "execute_algorithm",
+          "execute_algorithm_plan",
+          "execute_typed",
           "get_available_algorithms",
           "get_controller",
+          "plan_algorithms",
           "run",
           "run_ka_task"
         ],
         "classes": [
           "KAMasterController"
         ],
-        "nonblank_noncomment_loc": 523,
+        "nonblank_noncomment_loc": 607,
         "signals": [],
         "imports_celery": true
       },
@@ -25339,9 +25389,15 @@
         "tests/knowledge_algorithms/test_ka_stub_replacements.py",
         "tests/knowledge_algorithms/test_ka_suite.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
+        "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
+        "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_phase19_integration_authority.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/memory/test_unified_memory_service.py",
         "tests/test_production_fidelity.py",
         "tests/truth_engine/test_layer10_ka_suite.py",
+        "tests/truth_engine/test_layer8_trust_gate.py",
         "tests/unit/test_core_integration.py",
         "tests/unit/test_dbp_historical_calibration.py",
         "tests/verify_consensus_v2.py"
@@ -25415,14 +25471,16 @@
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:171"
-      ],
+      "execution_call_sites": [],
       "test_references": [
         "tests/knowledge_algorithms/test_ka_master_controller.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
@@ -25433,7 +25491,7 @@
         "ka_id": "L10-KA-001",
         "implementation": "backend.knowledge_algorithms.l10.l10_ka_001_entropy_scorer.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -25489,28 +25547,33 @@
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 23,
+        "nonblank_noncomment_loc": 32,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:175"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
         "ka_id": "L10-KA-002",
         "implementation": "backend.knowledge_algorithms.l10.l10_ka_002_self_awareness.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -25566,22 +25629,28 @@
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 30,
+        "nonblank_noncomment_loc": 31,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_pii_redaction_never_returns_clear_text_findings",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
@@ -25644,29 +25713,35 @@
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 35,
+        "nonblank_noncomment_loc": 53,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
+        "backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/emergence_controller.py:218"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
         "ka_id": "L10-KA-004",
         "implementation": "backend.knowledge_algorithms.l10.l10_ka_004_ethics_validator.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -25722,21 +25797,26 @@
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 23,
+        "nonblank_noncomment_loc": 59,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
@@ -25799,12 +25879,15 @@
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 18,
+        "nonblank_noncomment_loc": 37,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
+        "backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py",
         "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py",
         "backend/truth_engine/truth_core/refinement_orchestrator.py"
@@ -25813,12 +25896,17 @@
       "test_references": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
         "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
@@ -25878,30 +25966,220 @@
         "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
-          "_write_optional_audit",
           "run"
         ],
         "classes": [],
-        "nonblank_noncomment_loc": 38,
+        "nonblank_noncomment_loc": 50,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l10/__init__.py",
+        "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/emergence_controller.py"
       ],
       "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer10_emergence.py",
         "tests/truth_engine/test_layer10_ka_suite.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
         "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
       ],
       "phase6_production_metadata": {
         "ka_id": "L10-KA-007",
         "implementation": "backend.knowledge_algorithms.l10.l10_ka_007_escalation_router.run",
+        "classification": "production_validator",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
+        "version": "ka-catalog.v1",
+        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
+      "phase18_status": "existing_requires_phase18_qualification"
+    },
+    {
+      "canonical_id": "L9-KA-001",
+      "name": "Trace Analyzer",
+      "purpose": null,
+      "identity_class": "current_executable",
+      "implementation": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
+      "implementation_status": "existing_requires_phase18_qualification",
+      "effect_class": "pure_or_advisory_review_required",
+      "contract_status": "phase18_b_schema_review_required",
+      "input_descriptions": [],
+      "output_descriptions": [],
+      "categories": [],
+      "layer_scope": [
+        "L9"
+      ],
+      "persona_scope": [],
+      "subsystems": [],
+      "dependency_source_ids": [],
+      "triggers": [],
+      "risk_classes": [],
+      "design_contracts": [],
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
+      "source_records": [
+        {
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
+          "source_id": "L9-KA-001",
+          "name": "Trace Analyzer",
+          "purpose": null,
+          "disposition": "canonical",
+          "canonical_id": "L9-KA-001",
+          "rationale": "current_executable"
+        }
+      ],
+      "scoped_aliases": [],
+      "implementation_analysis": {
+        "path": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "execute",
+          "run"
+        ],
+        "classes": [
+          "TraceAnalyzerKA"
+        ],
+        "nonblank_noncomment_loc": 84,
+        "signals": [],
+        "imports_celery": false
+      },
+      "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
+        "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
+        "backend/knowledge_algorithms/production_catalog.py",
+        "backend/truth_engine/truth_core/meta_reasoning_controller.py"
+      ],
+      "execution_call_sites": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer9_meta_reasoning.py",
+        "tests/truth_engine/test_truth_infrastructure.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_layer9_class_adapter",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/truth_engine/test_layer9_meta_reasoning.py::test_l9_kas_defined",
+        "tests/truth_engine/test_layer9_meta_reasoning.py::test_trace_analyzer_ka",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
+      ],
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-001",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_001_trace_analyzer.run",
+        "classification": "production_validator",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
+        "version": "ka-catalog.v1",
+        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
+      "phase18_status": "existing_requires_phase18_qualification"
+    },
+    {
+      "canonical_id": "L9-KA-002",
+      "name": "Belief Drift",
+      "purpose": null,
+      "identity_class": "current_executable",
+      "implementation": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
+      "implementation_status": "existing_requires_phase18_qualification",
+      "effect_class": "pure_or_advisory_review_required",
+      "contract_status": "phase18_b_schema_review_required",
+      "input_descriptions": [],
+      "output_descriptions": [],
+      "categories": [],
+      "layer_scope": [
+        "L9"
+      ],
+      "persona_scope": [],
+      "subsystems": [],
+      "dependency_source_ids": [],
+      "triggers": [],
+      "risk_classes": [],
+      "design_contracts": [],
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
+      "source_records": [
+        {
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
+          "source_id": "L9-KA-002",
+          "name": "Belief Drift",
+          "purpose": null,
+          "disposition": "canonical",
+          "canonical_id": "L9-KA-002",
+          "rationale": "current_executable"
+        }
+      ],
+      "scoped_aliases": [],
+      "implementation_analysis": {
+        "path": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
+        "exists": true,
+        "has_run": true,
+        "has_execution_entry_point": true,
+        "functions": [
+          "__init__",
+          "_extract_numbers",
+          "_terms",
+          "execute",
+          "run"
+        ],
+        "classes": [
+          "BeliefDriftDetectorKA"
+        ],
+        "nonblank_noncomment_loc": 73,
+        "signals": [],
+        "imports_celery": false
+      },
+      "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
+        "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
+        "backend/knowledge_algorithms/production_catalog.py",
+        "backend/truth_engine/truth_core/meta_reasoning_controller.py"
+      ],
+      "execution_call_sites": [],
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_layer9_meta_reasoning.py",
+        "tests/truth_engine/test_truth_infrastructure.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/truth_engine/test_layer9_meta_reasoning.py::test_belief_drift_ka",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
+      ],
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-002",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_002_belief_drift.run",
         "classification": "deterministic_heuristic",
-        "production_enabled": false,
+        "production_enabled": true,
         "deterministic": true,
         "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
         "version": "ka-catalog.v1",
@@ -25915,155 +26193,12 @@
       "phase18_status": "existing_requires_phase18_qualification"
     },
     {
-      "canonical_id": "L9-KA-001",
-      "name": "Trace Analyzer",
-      "purpose": "Layer 9 Trace Analyzer",
-      "identity_class": "current_unregistered_layer9",
-      "implementation": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
-      "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_schema_review_required",
-      "input_descriptions": [],
-      "output_descriptions": [],
-      "categories": [],
-      "layer_scope": [
-        "L9"
-      ],
-      "persona_scope": [],
-      "subsystems": [],
-      "dependency_source_ids": [],
-      "triggers": [],
-      "risk_classes": [],
-      "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
-      "source_records": [
-        {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
-          "source_id": "L9-KA-001",
-          "name": "Trace Analyzer",
-          "purpose": "Layer 9 Trace Analyzer",
-          "disposition": "canonical",
-          "canonical_id": "L9-KA-001",
-          "rationale": "current_unregistered_layer9"
-        }
-      ],
-      "scoped_aliases": [],
-      "implementation_analysis": {
-        "path": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
-        "exists": true,
-        "has_run": false,
-        "has_execution_entry_point": true,
-        "functions": [
-          "__init__",
-          "execute"
-        ],
-        "classes": [
-          "TraceAnalyzerKA"
-        ],
-        "nonblank_noncomment_loc": 56,
-        "signals": [],
-        "imports_celery": false
-      },
-      "runtime_references": [
-        "backend/knowledge_algorithms/l9/__init__.py",
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py"
-      ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:321"
-      ],
-      "test_references": [
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
-        "tests/truth_engine/test_layer9_meta_reasoning.py",
-        "tests/truth_engine/test_truth_infrastructure.py"
-      ],
-      "named_test_functions": [
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_layer9_class_adapter",
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
-        "tests/truth_engine/test_layer9_meta_reasoning.py::test_l9_kas_defined",
-        "tests/truth_engine/test_layer9_meta_reasoning.py::test_trace_analyzer_ka",
-        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
-        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
-      ],
-      "phase6_production_metadata": null,
-      "phase18_status": "existing_requires_phase18_qualification"
-    },
-    {
-      "canonical_id": "L9-KA-002",
-      "name": "Belief Drift Detector",
-      "purpose": "Layer 9 Belief Drift Detector",
-      "identity_class": "current_unregistered_layer9",
-      "implementation": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
-      "effect_class": "pure_or_advisory_review_required",
-      "contract_status": "phase18_b_schema_review_required",
-      "input_descriptions": [],
-      "output_descriptions": [],
-      "categories": [],
-      "layer_scope": [
-        "L9"
-      ],
-      "persona_scope": [],
-      "subsystems": [],
-      "dependency_source_ids": [],
-      "triggers": [],
-      "risk_classes": [],
-      "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
-      "source_records": [
-        {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
-          "source_id": "L9-KA-002",
-          "name": "Belief Drift Detector",
-          "purpose": "Layer 9 Belief Drift Detector",
-          "disposition": "canonical",
-          "canonical_id": "L9-KA-002",
-          "rationale": "current_unregistered_layer9"
-        }
-      ],
-      "scoped_aliases": [],
-      "implementation_analysis": {
-        "path": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
-        "exists": true,
-        "has_run": false,
-        "has_execution_entry_point": true,
-        "functions": [
-          "__init__",
-          "_extract_numbers",
-          "execute"
-        ],
-        "classes": [
-          "BeliefDriftDetectorKA"
-        ],
-        "nonblank_noncomment_loc": 68,
-        "signals": [],
-        "imports_celery": false
-      },
-      "runtime_references": [
-        "backend/knowledge_algorithms/l9/__init__.py",
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py"
-      ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:400"
-      ],
-      "test_references": [
-        "tests/truth_engine/test_layer9_meta_reasoning.py",
-        "tests/truth_engine/test_truth_infrastructure.py"
-      ],
-      "named_test_functions": [
-        "tests/truth_engine/test_layer9_meta_reasoning.py::test_belief_drift_ka",
-        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
-        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
-      ],
-      "phase6_production_metadata": null,
-      "phase18_status": "existing_requires_phase18_qualification"
-    },
-    {
       "canonical_id": "L9-KA-003",
-      "name": "Persona Agreement Auditor",
-      "purpose": "Layer 9 Persona Agreement Auditor",
-      "identity_class": "current_unregistered_layer9",
+      "name": "Persona Auditor",
+      "purpose": null,
+      "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l9/l9_ka_003_persona_auditor.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
+      "implementation_status": "existing_requires_phase18_qualification",
       "effect_class": "pure_or_advisory_review_required",
       "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
@@ -26078,59 +26213,78 @@
       "triggers": [],
       "risk_classes": [],
       "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
       "source_records": [
         {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L9-KA-003",
-          "name": "Persona Agreement Auditor",
-          "purpose": "Layer 9 Persona Agreement Auditor",
+          "name": "Persona Auditor",
+          "purpose": null,
           "disposition": "canonical",
           "canonical_id": "L9-KA-003",
-          "rationale": "current_unregistered_layer9"
+          "rationale": "current_executable"
         }
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
         "path": "backend/knowledge_algorithms/l9/l9_ka_003_persona_auditor.py",
         "exists": true,
-        "has_run": false,
+        "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "execute"
+          "execute",
+          "run"
         ],
         "classes": [
           "PersonaAgreementAuditorKA"
         ],
-        "nonblank_noncomment_loc": 50,
+        "nonblank_noncomment_loc": 72,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:506"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
       ],
-      "phase6_production_metadata": null,
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-003",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_003_persona_auditor.run",
+        "classification": "production_validator",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
+        "version": "ka-catalog.v1",
+        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
       "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "L9-KA-004",
-      "name": "Meta-Cognitive Evaluator",
-      "purpose": "Layer 9 Meta-Cognitive Evaluator",
-      "identity_class": "current_unregistered_layer9",
+      "name": "Meta Evaluator",
+      "purpose": null,
+      "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l9/l9_ka_004_meta_evaluator.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
+      "implementation_status": "existing_requires_phase18_qualification",
       "effect_class": "pure_or_advisory_review_required",
       "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
@@ -26145,59 +26299,78 @@
       "triggers": [],
       "risk_classes": [],
       "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
       "source_records": [
         {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L9-KA-004",
-          "name": "Meta-Cognitive Evaluator",
-          "purpose": "Layer 9 Meta-Cognitive Evaluator",
+          "name": "Meta Evaluator",
+          "purpose": null,
           "disposition": "canonical",
           "canonical_id": "L9-KA-004",
-          "rationale": "current_unregistered_layer9"
+          "rationale": "current_executable"
         }
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
         "path": "backend/knowledge_algorithms/l9/l9_ka_004_meta_evaluator.py",
         "exists": true,
-        "has_run": false,
+        "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "execute"
+          "execute",
+          "run"
         ],
         "classes": [
           "MetaCognitiveEvaluatorKA"
         ],
-        "nonblank_noncomment_loc": 63,
+        "nonblank_noncomment_loc": 94,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:530"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
       ],
-      "phase6_production_metadata": null,
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-004",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_004_meta_evaluator.run",
+        "classification": "deterministic_heuristic",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
+        "version": "ka-catalog.v1",
+        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
       "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "L9-KA-005",
       "name": "Recursion Trigger",
-      "purpose": "Layer 9 Recursion Trigger",
-      "identity_class": "current_unregistered_layer9",
+      "purpose": null,
+      "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
+      "implementation_status": "existing_requires_phase18_qualification",
       "effect_class": "pure_or_advisory_review_required",
       "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
@@ -26212,61 +26385,81 @@
       "triggers": [],
       "risk_classes": [],
       "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
       "source_records": [
         {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L9-KA-005",
           "name": "Recursion Trigger",
-          "purpose": "Layer 9 Recursion Trigger",
+          "purpose": null,
           "disposition": "canonical",
           "canonical_id": "L9-KA-005",
-          "rationale": "current_unregistered_layer9"
+          "rationale": "current_executable"
         }
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
         "path": "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
         "exists": true,
-        "has_run": false,
+        "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "execute"
+          "execute",
+          "run"
         ],
         "classes": [
           "RecursionTriggerKA"
         ],
-        "nonblank_noncomment_loc": 53,
+        "nonblank_noncomment_loc": 78,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:689"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_recursion_exhaustion_never_force_finalizes",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_recursion_trigger_ka",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
       ],
-      "phase6_production_metadata": null,
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-005",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger.run",
+        "classification": "production_validator",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
+        "version": "ka-catalog.v1",
+        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
       "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "L9-KA-006",
-      "name": "Readiness Scorer",
-      "purpose": "Layer 9 Readiness Scorer",
-      "identity_class": "current_unregistered_layer9",
+      "name": "Confidence Calc",
+      "purpose": null,
+      "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
+      "implementation_status": "existing_requires_phase18_qualification",
       "effect_class": "pure_or_advisory_review_required",
       "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
@@ -26281,59 +26474,78 @@
       "triggers": [],
       "risk_classes": [],
       "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
       "source_records": [
         {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L9-KA-006",
-          "name": "Readiness Scorer",
-          "purpose": "Layer 9 Readiness Scorer",
+          "name": "Confidence Calc",
+          "purpose": null,
           "disposition": "canonical",
           "canonical_id": "L9-KA-006",
-          "rationale": "current_unregistered_layer9"
+          "rationale": "current_executable"
         }
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
         "path": "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
         "exists": true,
-        "has_run": false,
+        "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "execute"
+          "execute",
+          "run"
         ],
         "classes": [
           "ReadinessScorerKA"
         ],
-        "nonblank_noncomment_loc": 52,
+        "nonblank_noncomment_loc": 94,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py"
       ],
-      "execution_call_sites": [
-        "backend/truth_engine/truth_core/meta_reasoning_controller.py:650"
-      ],
+      "execution_call_sites": [],
       "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_truth_infrastructure.py"
       ],
       "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
       ],
-      "phase6_production_metadata": null,
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-006",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_006_confidence_calc.run",
+        "classification": "deterministic_heuristic",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
+        "version": "ka-catalog.v1",
+        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
       "phase18_status": "existing_requires_phase18_qualification"
     },
     {
       "canonical_id": "L9-KA-007",
       "name": "Loop Controller",
-      "purpose": "Layer 9 Loop Controller",
-      "identity_class": "current_unregistered_layer9",
+      "purpose": null,
+      "identity_class": "current_executable",
       "implementation": "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
-      "implementation_status": "existing_unregistered_requires_qualification",
+      "implementation_status": "existing_requires_phase18_qualification",
       "effect_class": "pure_or_advisory_review_required",
       "contract_status": "phase18_b_schema_review_required",
       "input_descriptions": [],
@@ -26348,43 +26560,69 @@
       "triggers": [],
       "risk_classes": [],
       "design_contracts": [],
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID.",
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point.",
       "source_records": [
         {
-          "source": "backend/knowledge_algorithms/l9/__init__.py",
+          "source": "backend/knowledge_algorithms/ka_registry.yaml",
           "source_id": "L9-KA-007",
           "name": "Loop Controller",
-          "purpose": "Layer 9 Loop Controller",
+          "purpose": null,
           "disposition": "canonical",
           "canonical_id": "L9-KA-007",
-          "rationale": "current_unregistered_layer9"
+          "rationale": "current_executable"
         }
       ],
       "scoped_aliases": [],
       "implementation_analysis": {
         "path": "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
         "exists": true,
-        "has_run": false,
+        "has_run": true,
         "has_execution_entry_point": true,
         "functions": [
           "__init__",
-          "execute"
+          "execute",
+          "run"
         ],
         "classes": [
           "LoopControllerKA"
         ],
-        "nonblank_noncomment_loc": 59,
+        "nonblank_noncomment_loc": 82,
         "signals": [],
         "imports_celery": false
       },
       "runtime_references": [
+        "backend/governed_execution/ten_layers.py",
         "backend/knowledge_algorithms/l9/__init__.py",
+        "backend/knowledge_algorithms/production_catalog.py",
         "backend/truth_engine/truth_core/meta_reasoning_controller.py"
       ],
       "execution_call_sites": [],
-      "test_references": [],
-      "named_test_functions": [],
-      "phase6_production_metadata": null,
+      "test_references": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py",
+        "tests/knowledge_algorithms/test_production_invariants.py",
+        "tests/truth_engine/test_truth_infrastructure.py"
+      ],
+      "named_test_functions": [
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+        "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_recursion_exhaustion_never_force_finalizes",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
+      ],
+      "phase6_production_metadata": {
+        "ka_id": "L9-KA-007",
+        "implementation": "backend.knowledge_algorithms.l9.l9_ka_007_loop_controller.run",
+        "classification": "production_validator",
+        "production_enabled": true,
+        "deterministic": true,
+        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
+        "version": "ka-catalog.v1",
+        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
+        "input_contract": "versioned Pydantic or documented dictionary input",
+        "evidence_requirement": "category-specific observed inputs; no inferred factual proof",
+        "test_reference": "tests/knowledge_algorithms/test_production_invariants.py",
+        "performance_budget_ms": 1000,
+        "documentation_reference": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md"
+      },
       "phase18_status": "existing_requires_phase18_qualification"
     }
   ],

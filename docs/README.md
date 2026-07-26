@@ -7,12 +7,12 @@
 ## Authority and release status
 
 - Generated: `2026-07-26`
-- Documentation authority: `2026.07.25-phase19-cp19c-selector-dag` (`approved_phase16_replacement_closed`)
+- Documentation authority: `2026.07.25-phase19-cp19e-l9-l10-safety` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-E active
-- Current KA evidence: Phase 19 CP19-A through CP19-D passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, a corrected 119-edge zero-cycle dependency graph, and one typed causal L1-L10 product lifecycle whose production-mode L1 selector output reaches the provider and whose L10 release gates success persistence. The CP19-D focused cross-system set is 103 passed and the full source suite is 2,506 passed with 18 skipped. CP19-E full correct-ID fail-closed L9/L10 safety is active; the rebuild remains blocked through CP19-L.
+- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-F active
+- Current KA evidence: Phase 19 CP19-A through CP19-E passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, 132 live registry entries, zero unregistered Layer 9 implementations, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, a corrected 134-edge zero-cycle dependency graph, one typed causal L1-L10 product lifecycle, and full fail-closed execution of every L9/L10 KA. The CP19-E focused set is 104 passed and the full source suite is 2,522 passed with 18 skipped. CP19-F causal Quad Persona/DSQP integration is active; the rebuild remains blocked through CP19-L.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

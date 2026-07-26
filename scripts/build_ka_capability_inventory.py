@@ -955,6 +955,8 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         )
 
     for ka_id, (name, module) in sorted(L9_DEFINITIONS.items()):
+        if ka_id in live:
+            continue
         add_canonical(
             ka_id=ka_id,
             name=name,
@@ -1283,7 +1285,7 @@ def build_inventory() -> tuple[dict[str, Any], dict[str, Any]]:
         ),
         "live_layer10_entries": len([key for key in live if key.startswith("L10-KA-")]),
         "live_master_entries": int("KA-Master" in live),
-        "unregistered_layer9_implementations": len(L9_DEFINITIONS),
+        "unregistered_layer9_implementations": len(set(L9_DEFINITIONS) - set(live)),
         "original_design_rows": len(original),
         "core_metadata_rows": len(core_rows),
         "sdk_registry_rows": len(sdk),

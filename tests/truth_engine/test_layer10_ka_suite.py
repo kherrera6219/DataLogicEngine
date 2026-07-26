@@ -32,9 +32,17 @@ def test_l10_registry_import_shape_executes_all_modules():
         "decision"
     ] == "ESCALATE"
     assert controller.execute_typed("L10-KA-006", {"confidence": 0.98}).require_output()["decayed_confidence"] == 0.9604
-    assert controller.execute_typed("L10-KA-007", {"risk_domain": "legal", "confidence": 0.99}).require_output()[
-        "escalated"
-    ]
+    escalation = controller.execute_typed(
+        "L10-KA-007",
+        {
+            "request_id": "layer10-suite",
+            "risk_domain": "legal",
+            "confidence": 0.99,
+            "consequential_decision": True,
+        },
+    ).require_output()
+    assert escalation["escalation_required"] is True
+    assert escalation["reviews_dispatched"] == 0
 
 
 def test_ka116_entropy_delegates_to_l10_scorer():

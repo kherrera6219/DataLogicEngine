@@ -40,11 +40,7 @@ SDK_OUTPUT_PATH = (
     / "ka_manifest.v1.generated.json"
 )
 TYPESCRIPT_OUTPUT_PATH = (
-    ROOT
-    / "sdk"
-    / "DataLogicEngine_TypeScript_SDK"
-    / "src"
-    / "ka-manifest.generated.ts"
+    ROOT / "sdk" / "DataLogicEngine_TypeScript_SDK" / "src" / "ka-manifest.generated.ts"
 )
 
 # CP19-C corrects three reciprocal design-reference relationships into
@@ -85,6 +81,141 @@ CP19_C_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
             "Evolution admission consumes escalation, capability, and prior "
             "goal-drift constraints; it is not a prerequisite of the monitor."
         ),
+    },
+}
+
+CP19_E_LAYER_IDS = {
+    *(f"L9-KA-{number:03d}" for number in range(1, 8)),
+    *(f"L10-KA-{number:03d}" for number in range(1, 8)),
+}
+
+# Layer 9's readiness and loop decisions consume the earlier meta-evaluation
+# outputs. Layer 10's terminal decision consumes every preceding safety result.
+# These are executable prerequisite edges, not duplicated implementation
+# authority.
+CP19_E_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "L9-KA-006": {
+        "dependencies": [
+            "L9-KA-001",
+            "L9-KA-002",
+            "L9-KA-003",
+            "L9-KA-004",
+        ],
+        "rationale": "Readiness is calculated only from committed L9 measurements.",
+    },
+    "L9-KA-005": {
+        "dependencies": ["L9-KA-006"],
+        "rationale": "The refinement trigger consumes measured readiness.",
+    },
+    "L9-KA-007": {
+        "dependencies": ["L9-KA-005", "L9-KA-006"],
+        "rationale": "Loop admission consumes the refinement and readiness decisions.",
+    },
+    "L10-KA-007": {
+        "dependencies": ["L10-KA-004", "L10-KA-006"],
+        "rationale": "Human review routing consumes ethics and terminal trust results.",
+    },
+    "L10-KA-005": {
+        "dependencies": [
+            "L10-KA-001",
+            "L10-KA-002",
+            "L10-KA-003",
+            "L10-KA-004",
+            "L10-KA-006",
+            "L10-KA-007",
+        ],
+        "rationale": "The containment decision consumes every preceding L10 safety result.",
+    },
+}
+
+CP19_E_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": (
+            "deterministic_heuristic"
+            if canonical_id
+            in {
+                "L9-KA-002",
+                "L9-KA-004",
+                "L9-KA-006",
+                "L10-KA-001",
+                "L10-KA-002",
+                "L10-KA-004",
+            }
+            else "production_validator"
+        ),
+        "deterministic": True,
+        "performance_budget_ms": 5_000,
+        "contract_status": "cp19_e_production_qualified",
+        "guarantee": (
+            "Produces deterministic bounded L9/L10 control evidence from "
+            "supplied committed state and never establishes external truth."
+        ),
+        "limitations": (
+            "Scores are control measurements or heuristics, not calibrated "
+            "probabilities; missing required input fails closed or remains "
+            "explicitly not measured."
+        ),
+    }
+    for canonical_id in CP19_E_LAYER_IDS
+}
+
+CP19_E_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
+    "L9-KA-001": {
+        "inputs": ["Committed L1-L8 trace", "executed layer IDs"],
+        "outputs": ["Trace integrity findings", "trace completeness"],
+    },
+    "L9-KA-002": {
+        "inputs": ["Original query", "candidate answer"],
+        "outputs": ["Measured lexical/numeric drift", "limitations"],
+    },
+    "L9-KA-003": {
+        "inputs": ["Measured persona results", "agreement threshold"],
+        "outputs": ["Agreement findings", "measurement status"],
+    },
+    "L9-KA-004": {
+        "inputs": ["Candidate measurements", "committed trace"],
+        "outputs": ["Weaknesses", "observed failure modes"],
+    },
+    "L9-KA-005": {
+        "inputs": ["Convergence decision", "measured readiness", "issues"],
+        "outputs": ["Refinement decision", "target layer"],
+    },
+    "L9-KA-006": {
+        "inputs": ["Committed L9 measurement outputs"],
+        "outputs": ["Readiness measurement", "measurement coverage"],
+    },
+    "L9-KA-007": {
+        "inputs": ["Iteration budget", "refinement decision", "prior attempts"],
+        "outputs": ["Loop admission", "exhaustion decision"],
+    },
+    "L10-KA-001": {
+        "inputs": ["Candidate content"],
+        "outputs": ["Token entropy heuristic", "divergence flag"],
+    },
+    "L10-KA-002": {
+        "inputs": ["Candidate content"],
+        "outputs": ["Self-reference indicators", "capability indicators"],
+    },
+    "L10-KA-003": {
+        "inputs": ["Candidate content"],
+        "outputs": ["Redacted content", "PII type counts"],
+    },
+    "L10-KA-004": {
+        "inputs": ["Candidate content"],
+        "outputs": ["Ethics rule findings", "policy tier"],
+    },
+    "L10-KA-005": {
+        "inputs": ["Committed L10 results", "final action"],
+        "outputs": ["Containment/release decision", "signoff requirement"],
+    },
+    "L10-KA-006": {
+        "inputs": ["Measured confidence", "risk threshold"],
+        "outputs": ["Belief-decay trust result", "measurement status"],
+    },
+    "L10-KA-007": {
+        "inputs": ["Trust/ethics results", "risk context"],
+        "outputs": ["Deterministic review proposal", "dispatch count"],
     },
 }
 
@@ -179,10 +310,14 @@ def build_manifest() -> dict[str, Any]:
                 for dependency in row.get("dependency_source_ids", [])
             }
         )
-        override = CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+        override = CP19_E_DEPENDENCY_OVERRIDES.get(
+            row["canonical_id"]
+        ) or CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
         if override is not None:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
+        cp19_e_admission = CP19_E_ADMISSION_OVERRIDES.get(row["canonical_id"])
+        cp19_e_io = CP19_E_IO_OVERRIDES.get(row["canonical_id"], {})
         entries[row["canonical_id"]] = {
             "canonical_id": row["canonical_id"],
             "name": row["name"],
@@ -204,53 +339,73 @@ def build_manifest() -> dict[str, Any]:
             },
             "contract": {
                 "version": "dle.ka-execution.v1",
-                "status": "cp19_b_contract_parity",
-                "inputs": row.get("input_descriptions", []),
-                "outputs": row.get("output_descriptions", []),
+                "status": (
+                    cp19_e_admission["contract_status"]
+                    if cp19_e_admission
+                    else "cp19_b_contract_parity"
+                ),
+                "inputs": cp19_e_io.get("inputs", row.get("input_descriptions", [])),
+                "outputs": cp19_e_io.get("outputs", row.get("output_descriptions", [])),
                 "categories": row.get("categories", []),
                 "layers": row.get("layer_scope", []),
                 "personas": row.get("persona_scope", []),
                 "subsystems": row.get("subsystems", []),
                 "dependencies": dependencies,
-                "dependency_result_contract": (
-                    "dle.ka-execution-result.v1#output"
-                ),
+                "dependency_result_contract": ("dle.ka-execution-result.v1#output"),
                 "dependency_input_field": "dependency_results",
                 "triggers": row.get("triggers", []),
                 "risk_classes": row.get("risk_classes", []),
                 "effect_class": row["effect_class"],
                 "reads_memory": any(
-                    contract.get("reads_memory")
-                    for contract in design_contracts
+                    contract.get("reads_memory") for contract in design_contracts
                 ),
                 "writes_memory": any(
-                    contract.get("writes_memory")
-                    for contract in design_contracts
+                    contract.get("writes_memory") for contract in design_contracts
                 ),
                 "produces_artifacts": any(
-                    contract.get("produces_artifacts")
-                    for contract in design_contracts
+                    contract.get("produces_artifacts") for contract in design_contracts
                 ),
                 "audit_events": any(
-                    contract.get("audit_events")
-                    for contract in design_contracts
+                    contract.get("audit_events") for contract in design_contracts
                 ),
-                "limitations": production.get("limitations")
+                "limitations": (
+                    cp19_e_admission["limitations"]
+                    if cp19_e_admission
+                    else production.get("limitations")
+                )
                 or "Phase 19 capability limitation review required.",
-                "guarantee": production.get("guarantee")
+                "guarantee": (
+                    cp19_e_admission["guarantee"]
+                    if cp19_e_admission
+                    else production.get("guarantee")
+                )
                 or (
                     "No production guarantee until CP19-K per-KA proof and "
                     "CP19-M rebuilt-installed acceptance pass."
                 ),
-                "performance_budget_ms": production.get(
-                    "performance_budget_ms", 1000
+                "performance_budget_ms": (
+                    cp19_e_admission["performance_budget_ms"]
+                    if cp19_e_admission
+                    else production.get("performance_budget_ms", 1000)
                 ),
             },
             "admission": {
-                "production_enabled": bool(production.get("production_enabled")),
-                "classification": production.get("classification")
+                "production_enabled": (
+                    cp19_e_admission["production_enabled"]
+                    if cp19_e_admission
+                    else bool(production.get("production_enabled"))
+                ),
+                "classification": (
+                    cp19_e_admission["classification"]
+                    if cp19_e_admission
+                    else production.get("classification")
+                )
                 or "implementation_required",
-                "deterministic": production.get("deterministic"),
+                "deterministic": (
+                    cp19_e_admission["deterministic"]
+                    if cp19_e_admission
+                    else production.get("deterministic")
+                ),
                 "direct_execution": (
                     "canonical_selector_required"
                     if row["canonical_id"] != "KA-033"
@@ -258,9 +413,7 @@ def build_manifest() -> dict[str, Any]:
                 ),
             },
             "integration": {
-                "authority_version": integration_authority[
-                    "authority_version"
-                ],
+                "authority_version": integration_authority["authority_version"],
                 "primary_owner": integration["primary_owner"],
                 "consumer_paths": integration["consumer_paths"],
                 "selector_policy": integration["selector_policy"],
@@ -275,8 +428,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19c.1",
-        "status": "cp19_c_selector_authority",
+        "manifest_version": "2026.07.25-cp19e.1",
+        "status": "cp19_e_l9_l10_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -284,15 +437,16 @@ def build_manifest() -> dict[str, Any]:
             "integration_authority": INTEGRATION_AUTHORITY_PATH.relative_to(
                 ROOT
             ).as_posix(),
-            "integration_authority_version": integration_authority[
-                "authority_version"
-            ],
+            "integration_authority_version": integration_authority["authority_version"],
             "duplicate_policy": "one_semantic_capability_one_canonical_id",
-            "dependency_result_contract": (
-                "dle.ka-execution-result.v1#output"
-            ),
+            "dependency_result_contract": ("dle.ka-execution-result.v1#output"),
             "dependency_input_field": "dependency_results",
-            "dependency_overrides": CP19_C_DEPENDENCY_OVERRIDES,
+            "dependency_overrides": {
+                **CP19_C_DEPENDENCY_OVERRIDES,
+                **CP19_E_DEPENDENCY_OVERRIDES,
+            },
+            "production_admission_checkpoint": "CP19-E",
+            "production_admission_ids": sorted(CP19_E_LAYER_IDS),
         },
         "capability_count": len(entries),
         "alias_index": {
@@ -328,9 +482,7 @@ def write_or_check(path: Path, *, check: bool) -> int:
         )
     stale = []
     for output, content in outputs:
-        existing = (
-            output.read_text(encoding="utf-8") if output.exists() else None
-        )
+        existing = output.read_text(encoding="utf-8") if output.exists() else None
         if existing != content:
             stale.append(output)
             if not check:
@@ -343,9 +495,7 @@ def write_or_check(path: Path, *, check: bool) -> int:
     action = "verified" if check else "generated"
     print(
         f"KA runtime manifests {action}: "
-        + ", ".join(
-            output.relative_to(ROOT).as_posix() for output, _ in outputs
-        )
+        + ", ".join(output.relative_to(ROOT).as_posix() for output, _ in outputs)
     )
     return 0
 

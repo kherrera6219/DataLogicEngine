@@ -22,7 +22,9 @@ def token_entropy(text: str) -> float:
         return 0.0
     counts = Counter(tokens)
     total = len(tokens)
-    entropy = -sum((count / total) * math.log2(count / total) for count in counts.values())
+    entropy = -sum(
+        (count / total) * math.log2(count / total) for count in counts.values()
+    )
     max_entropy = math.log2(max(2, len(counts)))
     return round(min(1.0, entropy / max_entropy), 4)
 

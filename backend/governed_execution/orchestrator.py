@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import os
 import time
+from collections.abc import Callable
 from contextlib import suppress
 from contextvars import ContextVar
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
 from backend.governed_execution.cancellation import CANCELLATION_REGISTRY
@@ -42,7 +44,9 @@ from backend.llm_gateway.provider_errors import (
 
 logger = logging.getLogger(__name__)
 
-_ACTIVE_TRACE: ContextVar[str | None] = ContextVar("dle_active_governed_trace", default=None)
+_ACTIVE_TRACE: ContextVar[str | None] = ContextVar(
+    "dle_active_governed_trace", default=None
+)
 
 
 class GovernedExecutionOrchestrator:
@@ -61,7 +65,9 @@ class GovernedExecutionOrchestrator:
         self.gateway = gateway
         self.dmrf_factory = dmrf_factory
         self.dsqp_factory = dsqp_factory
-        self.truthcore = truthcore or TruthCoreDMRFAdapter(db_session=getattr(gateway, "db", None))
+        self.truthcore = truthcore or TruthCoreDMRFAdapter(
+            db_session=getattr(gateway, "db", None)
+        )
         self.layer_stages = GovernedTenLayerStages(self.truthcore)
         self.rag_service = rag_service
         self.event_sink = event_sink
@@ -86,7 +92,10 @@ class GovernedExecutionOrchestrator:
             os.environ.get("GOVERNED_REQUEST_DEADLINE_SECONDS"), 120, 5, 300
         )
         requested_deadline = self._bounded_int(
-            request.constraints.get("deadline_seconds"), server_deadline, 1, server_deadline
+            request.constraints.get("deadline_seconds"),
+            server_deadline,
+            1,
+            server_deadline,
         )
         context.deadline_at_monotonic = time.monotonic() + requested_deadline
         request.metadata["deadline_seconds"] = requested_deadline
@@ -97,7 +106,9 @@ class GovernedExecutionOrchestrator:
         cancellation_task: asyncio.Task[bool] | None = None
         try:
             execution_task = asyncio.create_task(self._execute(context))
-            cancellation_task = asyncio.create_task(context.cancellation_entry.event.wait())
+            cancellation_task = asyncio.create_task(
+                context.cancellation_entry.event.wait()
+            )
             async with asyncio.timeout(requested_deadline):
                 done, _ = await asyncio.wait(
                     {execution_task, cancellation_task},
@@ -112,7 +123,9 @@ class GovernedExecutionOrchestrator:
                         kind=GovernedFailureKind.CANCELLED,
                         code="REQUEST_CANCELLED",
                         message="Request cancelled",
-                        stage=context.stages[-1].name if context.stages else "admission",
+                        stage=context.stages[-1].name
+                        if context.stages
+                        else "admission",
                     )
                 cancellation_task.cancel()
                 with suppress(asyncio.CancelledError):
@@ -141,8 +154,8 @@ class GovernedExecutionOrchestrator:
                 message="Request cancelled",
                 stage=context.stages[-1].name if context.stages else "admission",
             )
-        except Exception as exc:  # fail closed at the single product boundary
-            logger.error("Governed execution failed", exc_info=True)
+        except Exception as exc:
+            logger.exception("Governed execution failed")
             return await self._failure(
                 context,
                 kind=GovernedFailureKind.INTERNAL_FAILURE,
@@ -160,7 +173,9 @@ class GovernedExecutionOrchestrator:
     async def _execute(self, context: GovernedContext) -> GovernedResult:
         request = context.request
 
-        admission = self._begin(context, "admission", "policy", {"request_id": request.request_id})
+        admission = self._begin(
+            context, "admission", "policy", {"request_id": request.request_id}
+        )
         query = request.query_text()
         decision = self.gateway._governance.prepare_request(request, query)
         context.policy_decisions.append(
@@ -265,7 +280,7 @@ class GovernedExecutionOrchestrator:
                     or request.metadata.get("providers_unreachable")
                 ),
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - DMRF boundary fails closed
             self._finish(
                 context,
                 routing_stage,
@@ -294,7 +309,8 @@ class GovernedExecutionOrchestrator:
             {
                 "policy_id": "dmrf_truth_gate",
                 "decision": "allow" if dmrf_result.ok else "block",
-                "rationale": gate_result.get("reason") or "; ".join(dmrf_result.warnings),
+                "rationale": gate_result.get("reason")
+                or "; ".join(dmrf_result.warnings),
                 "stage": "dmrf_routing",
                 "rule_id": gate_result.get("rule_id"),
             }
@@ -352,9 +368,7 @@ class GovernedExecutionOrchestrator:
             l1_stage,
             "L1",
             l1,
-            terminal_status=(
-                GovernedStageStatus.BLOCKED if not l1.ok else None
-            ),
+            terminal_status=(GovernedStageStatus.BLOCKED if not l1.ok else None),
         )
         if not l1.ok:
             return await self._failure(
@@ -386,9 +400,7 @@ class GovernedExecutionOrchestrator:
         l2 = self.layer_stages.l2(context)
         l2.outputs.update(
             {
-                "decisions": list(
-                    request.metadata.get("_retrieval_decisions") or []
-                ),
+                "decisions": list(request.metadata.get("_retrieval_decisions") or []),
                 "warnings": retrieval_warnings,
             }
         )
@@ -406,9 +418,7 @@ class GovernedExecutionOrchestrator:
             context,
             "L3",
             {
-                "evidence_ids": [
-                    item.evidence_id for item in context.evidence
-                ],
+                "evidence_ids": [item.evidence_id for item in context.evidence],
                 "external_research_requested": bool(
                     request.metadata.get("external_research_requested")
                 ),
@@ -420,9 +430,7 @@ class GovernedExecutionOrchestrator:
             l3_stage,
             "L3",
             l3,
-            terminal_status=(
-                GovernedStageStatus.BLOCKED if not l3.ok else None
-            ),
+            terminal_status=(GovernedStageStatus.BLOCKED if not l3.ok else None),
         )
         if not l3.ok:
             return await self._failure(
@@ -443,7 +451,9 @@ class GovernedExecutionOrchestrator:
             },
         )
         if request.metadata.get("dsqp_llm_assisted"):
-            context.warnings.append("cloud_dsqp_not_authorized_without_accounted_subcall_budget")
+            context.warnings.append(
+                "cloud_dsqp_not_authorized_without_accounted_subcall_budget"
+            )
         if self.dsqp_factory is None:
             from backend.dsqp import DSQPOrchestrator
 
@@ -485,9 +495,7 @@ class GovernedExecutionOrchestrator:
             {
                 "dsqp": context.dsqp,
                 "expected_persona_axes": sorted(expected_persona_axes),
-                "constructed_persona_axes": sorted(
-                    constructed_persona_axes
-                ),
+                "constructed_persona_axes": sorted(constructed_persona_axes),
             }
         )
         if not l4.ok:
@@ -567,8 +575,13 @@ class GovernedExecutionOrchestrator:
             return await self._failure(
                 context,
                 kind=GovernedFailureKind.PROVIDER_FAILURE,
-                code=str((provider_result.get("failure") or {}).get("code") or "PROVIDER_FAILURE"),
-                message=self.gateway._public_error_message(provider_result.get("error")),
+                code=str(
+                    (provider_result.get("failure") or {}).get("code")
+                    or "PROVIDER_FAILURE"
+                ),
+                message=self.gateway._public_error_message(
+                    provider_result.get("error")
+                ),
                 stage="provider_execution",
                 retryable=bool(provider_result.get("retryable")),
                 details={"provider_failure": provider_result.get("failure") or {}},
@@ -585,7 +598,9 @@ class GovernedExecutionOrchestrator:
             metrics={
                 "provider_call_count": context.provider_call_count,
                 "tokens_in": provider_result.get("usage", {}).get("prompt_tokens", 0),
-                "tokens_out": provider_result.get("usage", {}).get("completion_tokens", 0),
+                "tokens_out": provider_result.get("usage", {}).get(
+                    "completion_tokens", 0
+                ),
             },
         )
         if self._cancel_requested(request):
@@ -599,7 +614,8 @@ class GovernedExecutionOrchestrator:
         )
         requires_evidence = bool(request.constraints.get("requires_evidence")) or (
             request.mode is GovernedMode.ENHANCED
-            or str(dmrf_result.tier).lower() in {"high", "high_stakes", "extreme", "autonomous"}
+            or str(dmrf_result.tier).lower()
+            in {"high", "high_stakes", "extreme", "autonomous"}
         )
         evaluation = await self._evaluate_candidate(
             context,
@@ -635,7 +651,9 @@ class GovernedExecutionOrchestrator:
                 validation["answer"],
                 convergence,
             )
-            refined_result = await self._execute_provider(context, save_user_message=False)
+            refined_result = await self._execute_provider(
+                context, save_user_message=False
+            )
             if not refined_result.get("ok"):
                 self._finish(
                     context,
@@ -647,8 +665,13 @@ class GovernedExecutionOrchestrator:
                 return await self._failure(
                     context,
                     kind=GovernedFailureKind.PROVIDER_FAILURE,
-                    code=str((refined_result.get("failure") or {}).get("code") or "PROVIDER_REFINEMENT_FAILURE"),
-                    message=self.gateway._public_error_message(refined_result.get("error")),
+                    code=str(
+                        (refined_result.get("failure") or {}).get("code")
+                        or "PROVIDER_REFINEMENT_FAILURE"
+                    ),
+                    message=self.gateway._public_error_message(
+                        refined_result.get("error")
+                    ),
                     stage="refinement_1",
                     retryable=bool(refined_result.get("retryable")),
                     details={"provider_failure": refined_result.get("failure") or {}},
@@ -703,18 +726,18 @@ class GovernedExecutionOrchestrator:
                 "candidate_status": result_status,
             },
         )
-        l10 = self.layer_stages.l10(
-            context,
-            final_action=convergence.action,
+        l10 = await self._resolve_layer_execution(
+            self.layer_stages.l10(
+                context,
+                final_action=convergence.action,
+            )
         )
         self._finish_layer(
             context,
             l10_stage,
             "L10",
             l10,
-            terminal_status=(
-                GovernedStageStatus.BLOCKED if not l10.ok else None
-            ),
+            terminal_status=(GovernedStageStatus.BLOCKED if not l10.ok else None),
         )
         if not l10.ok:
             return await self._failure(
@@ -725,6 +748,10 @@ class GovernedExecutionOrchestrator:
                 stage=l10_stage.name,
                 details=l10.outputs,
             )
+        if l10.outputs.get("release", {}).get("released_content_modified"):
+            provider_result = self.layer_stages.redact_sensitive_value(provider_result)
+            validation = self.layer_stages.redact_sensitive_value(validation)
+        result_answer = str(l10.outputs.get("released_content") or result_answer)
 
         result = GovernedResult(
             trace_id=context.trace_id,
@@ -746,19 +773,20 @@ class GovernedExecutionOrchestrator:
             confidence_measurement=context.confidence_measurement,
             convergence=convergence,
             warnings=context.warnings,
-            metadata=self._metadata(context, provider_result=provider_result, validation=validation),
+            metadata=self._metadata(
+                context, provider_result=provider_result, validation=validation
+            ),
         )
         if not await self._persist(context, result):
             self._apply_persistence_failure(context, result)
-        if request.session_id:
-            if result.ok:
-                await self.gateway._save_chat_message(
-                    request.session_id,
-                    request.user_id,
-                    "assistant",
-                    result.answer,
-                    context.trace_id,
-                )
+        if request.session_id and result.ok:
+            await self.gateway._save_chat_message(
+                request.session_id,
+                request.user_id,
+                "assistant",
+                result.answer,
+                context.trace_id,
+            )
         return result
 
     async def _evaluate_candidate(
@@ -776,9 +804,7 @@ class GovernedExecutionOrchestrator:
             "L6",
             {
                 "iteration": iteration,
-                "source_ids": [
-                    item.source_id for item in context.evidence
-                ],
+                "source_ids": [item.source_id for item in context.evidence],
                 "answer_length": len(answer),
             },
             iteration=iteration,
@@ -805,8 +831,7 @@ class GovernedExecutionOrchestrator:
                 "convergence": None,
                 "failure": {
                     "kind": GovernedFailureKind.VALIDATION_FAILURE,
-                    "code": l6.error_code
-                    or "L6_OUTPUT_VALIDATION_FAILURE",
+                    "code": l6.error_code or "L6_OUTPUT_VALIDATION_FAILURE",
                     "message": (
                         "Provider output did not pass governed evidence "
                         "and confidence validation"
@@ -823,9 +848,7 @@ class GovernedExecutionOrchestrator:
             "L7",
             {
                 "iteration": iteration,
-                "claim_ids": [
-                    claim.claim_id for claim in context.claims
-                ],
+                "claim_ids": [claim.claim_id for claim in context.claims],
             },
             iteration=iteration,
         )
@@ -843,8 +866,7 @@ class GovernedExecutionOrchestrator:
                 "convergence": None,
                 "failure": {
                     "kind": GovernedFailureKind.VALIDATION_FAILURE,
-                    "code": l7.error_code
-                    or "L7_REASONING_BOUNDARY_FAILURE",
+                    "code": l7.error_code or "L7_REASONING_BOUNDARY_FAILURE",
                     "message": "The candidate exceeded its governed reasoning boundary",
                     "stage": l7_stage.name,
                     "details": l7.outputs,
@@ -857,8 +879,7 @@ class GovernedExecutionOrchestrator:
             {
                 "iteration": iteration,
                 "validator_ids": [
-                    validator.validator_id
-                    for validator in context.validators
+                    validator.validator_id for validator in context.validators
                 ],
             },
             iteration=iteration,
@@ -870,11 +891,7 @@ class GovernedExecutionOrchestrator:
             "L8",
             l8,
             iteration=iteration,
-            terminal_status=(
-                GovernedStageStatus.BLOCKED
-                if not l8.ok
-                else None
-            ),
+            terminal_status=(GovernedStageStatus.BLOCKED if not l8.ok else None),
         )
         if not l8.ok:
             return {
@@ -899,12 +916,14 @@ class GovernedExecutionOrchestrator:
             },
             iteration=iteration,
         )
-        l9, convergence = self.layer_stages.l9(
-            context,
-            tier=tier,
-            iteration=iteration,
-            max_iterations=max_iterations,
-            requires_evidence=requires_evidence,
+        l9, convergence = await self._resolve_layer_execution(
+            self.layer_stages.l9(
+                context,
+                tier=tier,
+                iteration=iteration,
+                max_iterations=max_iterations,
+                requires_evidence=requires_evidence,
+            )
         )
         self._finish_layer(
             context,
@@ -912,11 +931,7 @@ class GovernedExecutionOrchestrator:
             "L9",
             l9,
             iteration=iteration,
-            terminal_status=(
-                GovernedStageStatus.BLOCKED
-                if not l9.ok
-                else None
-            ),
+            terminal_status=(GovernedStageStatus.BLOCKED if not l9.ok else None),
         )
         if not l9.ok:
             return {
@@ -924,8 +939,7 @@ class GovernedExecutionOrchestrator:
                 "convergence": convergence,
                 "failure": {
                     "kind": GovernedFailureKind.POLICY_BLOCK,
-                    "code": l9.error_code
-                    or "L9_CONVERGENCE_BLOCK",
+                    "code": l9.error_code or "L9_CONVERGENCE_BLOCK",
                     "message": "The candidate was blocked by governed convergence policy",
                     "stage": l9_stage.name,
                     "details": convergence.to_dict(),
@@ -948,22 +962,34 @@ class GovernedExecutionOrchestrator:
             request.metadata.get("allowed_provider_types")
             or request.metadata.get("allowed_providers")
         )
-        allowed_models = self.gateway._normalize_allowlist(request.metadata.get("allowed_models"))
+        allowed_models = self.gateway._normalize_allowlist(
+            request.metadata.get("allowed_models")
+        )
 
         store_history = True
         if request.user_id:
             try:
                 from models import UserAIPreferences
 
-                preferences = UserAIPreferences.query.filter_by(user_id=request.user_id).first()
+                preferences = UserAIPreferences.query.filter_by(
+                    user_id=request.user_id
+                ).first()
                 if preferences:
                     if not preferences.ai_processing_enabled:
-                        return {"ok": False, "error": "AI processing is disabled in your account settings."}
-                    request.provider = request.provider or preferences.preferred_provider
+                        return {
+                            "ok": False,
+                            "error": "AI processing is disabled in your account settings.",
+                        }
+                    request.provider = (
+                        request.provider or preferences.preferred_provider
+                    )
                     request.model = request.model or preferences.preferred_model
                     store_history = bool(preferences.store_chat_history)
             except Exception:
-                pass
+                logger.debug(
+                    "User AI preferences could not be loaded",
+                    exc_info=True,
+                )
 
         providers = await self.gateway._get_eligible_providers(
             request.provider,
@@ -998,12 +1024,26 @@ class GovernedExecutionOrchestrator:
             provider_type = str(getattr(provider_record, "provider_type", "unknown"))
             circuit = self.gateway._get_circuit_breaker(f"{provider_type}:{model}")
             if not circuit.can_execute():
-                attempts.append({"provider": provider_type, "model": model, "status": "circuit_open"})
+                attempts.append(
+                    {
+                        "provider": provider_type,
+                        "model": model,
+                        "status": "circuit_open",
+                    }
+                )
                 last_error = "Provider circuit is open"
-                last_failure = classify_provider_failure("provider outage: circuit open")
+                last_failure = classify_provider_failure(
+                    "provider outage: circuit open"
+                )
                 continue
             if allowed_models and model.strip().lower() not in allowed_models:
-                attempts.append({"provider": provider_record.name, "model": model, "status": "policy_skipped"})
+                attempts.append(
+                    {
+                        "provider": provider_record.name,
+                        "model": model,
+                        "status": "policy_skipped",
+                    }
+                )
                 continue
             request.metadata["last_provider_used"] = provider_type
             request.metadata["last_model_used"] = model
@@ -1015,7 +1055,11 @@ class GovernedExecutionOrchestrator:
             for retry_index in range(max_attempts):
                 estimated_input_tokens = max(
                     1,
-                    sum(len(str(message.get("content") or "")) for message in context.provider_messages) // 4,
+                    sum(
+                        len(str(message.get("content") or ""))
+                        for message in context.provider_messages
+                    )
+                    // 4,
                 )
                 budget = budget_policy.evaluate(
                     context=context,
@@ -1053,7 +1097,9 @@ class GovernedExecutionOrchestrator:
                     provider = self.gateway._create_sdk_provider(provider_record)
                     remaining = self._remaining_seconds(context)
                     if remaining <= 0:
-                        raise TimeoutError("Request deadline exceeded before provider call")
+                        raise TimeoutError(
+                            "Request deadline exceeded before provider call"
+                        )
                     provider_output = await asyncio.wait_for(
                         self.gateway._direct_llm_call(
                             provider,
@@ -1070,7 +1116,7 @@ class GovernedExecutionOrchestrator:
                         "error": f"Provider request timed out after {timeout_seconds}s",
                         "exception": exc,
                     }
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001 - provider boundary
                     provider_output = {"ok": False, "error": str(exc), "exception": exc}
                 finally:
                     close_provider = getattr(provider, "close", None)
@@ -1080,17 +1126,29 @@ class GovernedExecutionOrchestrator:
                         except Exception:
                             logger.debug("Provider client close failed", exc_info=True)
 
-                duration_ms = max(0, int((datetime.now(UTC) - attempt_started).total_seconds() * 1000))
+                duration_ms = max(
+                    0, int((datetime.now(UTC) - attempt_started).total_seconds() * 1000)
+                )
                 context.provider_latency_ms += duration_ms
                 if provider_output.get("ok"):
                     circuit.record_success()
-                    usage = provider_output.get("usage") if isinstance(provider_output.get("usage"), dict) else {}
+                    usage = (
+                        provider_output.get("usage")
+                        if isinstance(provider_output.get("usage"), dict)
+                        else {}
+                    )
                     tokens_in = int(usage.get("prompt_tokens", 0) or 0)
                     tokens_out = int(usage.get("completion_tokens", 0) or 0)
-                    cost = self.gateway._governance.estimate_cost_usd(model, tokens_in, tokens_out)
+                    cost = self.gateway._governance.estimate_cost_usd(
+                        model, tokens_in, tokens_out
+                    )
                     usage["estimated_cost_usd"] = cost
-                    usage["pricing_status"] = "available" if cost is not None else "unknown"
-                    usage["latency_ms"] = max(0, int((datetime.now(UTC) - started).total_seconds() * 1000))
+                    usage["pricing_status"] = (
+                        "available" if cost is not None else "unknown"
+                    )
+                    usage["latency_ms"] = max(
+                        0, int((datetime.now(UTC) - started).total_seconds() * 1000)
+                    )
                     attempts.append(
                         {
                             "provider": provider_type,
@@ -1120,7 +1178,9 @@ class GovernedExecutionOrchestrator:
                         True,
                         estimated_cost_usd=cost,
                         purpose=purpose,
-                        request_stage="refinement_1" if purpose == "refinement" else "provider_execution",
+                        request_stage="refinement_1"
+                        if purpose == "refinement"
+                        else "provider_execution",
                         attempt_number=context.provider_call_count,
                         retry_index=retry_index,
                         status="completed",
@@ -1151,7 +1211,9 @@ class GovernedExecutionOrchestrator:
                         "attempts": attempts,
                     }
 
-                last_error = str(provider_output.get("error") or "Provider request failed")
+                last_error = str(
+                    provider_output.get("error") or "Provider request failed"
+                )
                 last_failure = classify_provider_failure(
                     provider_output.get("exception") or last_error
                 )
@@ -1193,7 +1255,9 @@ class GovernedExecutionOrchestrator:
                     duration_ms,
                     False,
                     purpose=purpose,
-                    request_stage="refinement_1" if purpose == "refinement" else "provider_execution",
+                    request_stage="refinement_1"
+                    if purpose == "refinement"
+                    else "provider_execution",
                     attempt_number=context.provider_call_count,
                     retry_index=retry_index,
                     status="failed",
@@ -1264,14 +1328,32 @@ class GovernedExecutionOrchestrator:
                 skipped,
                 terminal_status=GovernedStageStatus.SKIPPED,
             )
+        if context.evidence:
+            source_lines = "\n".join(
+                f"- [{item.citation_label}] {item.title or item.source_id} "
+                f"(source_id={item.source_id})"
+                for item in context.evidence
+            )
+            answer = (
+                "Local review completed without a provider answer. "
+                "Retrieved sources:\n" + source_lines
+            )
+        else:
+            answer = (
+                "Local review completed without a provider answer. "
+                "No matching local sources were retrieved."
+            )
+        context.reasoning.candidate = answer
         l10_stage = self._begin_layer(
             context,
             "L10",
             {"mode": GovernedMode.LOCAL_REVIEW.value},
         )
-        l10 = self.layer_stages.l10(
-            context,
-            final_action="local_review",
+        l10 = await self._resolve_layer_execution(
+            self.layer_stages.l10(
+                context,
+                final_action="local_review",
+            )
         )
         self._finish_layer(context, l10_stage, "L10", l10)
         if not l10.ok:
@@ -1290,14 +1372,7 @@ class GovernedExecutionOrchestrator:
             "result",
             {"source_ids": [item.source_id for item in context.evidence]},
         )
-        if context.evidence:
-            source_lines = "\n".join(
-                f"- [{item.citation_label}] {item.title or item.source_id} (source_id={item.source_id})"
-                for item in context.evidence
-            )
-            answer = "Local review completed without a provider answer. Retrieved sources:\n" + source_lines
-        else:
-            answer = "Local review completed without a provider answer. No matching local sources were retrieved."
+        answer = str(l10.outputs.get("released_content") or answer)
         self._finish(
             context,
             stage,
@@ -1369,7 +1444,8 @@ class GovernedExecutionOrchestrator:
             status=kind.value,
             mode=context.request.mode,
             provider_used=context.request.metadata.get("last_provider_used"),
-            model_used=context.request.metadata.get("last_model_used") or context.request.model,
+            model_used=context.request.metadata.get("last_model_used")
+            or context.request.model,
             coordinate=context.routing.get("axis_vector") if context.routing else None,
             tier=context.routing.get("tier") if context.routing else None,
             stages=context.stages,
@@ -1418,7 +1494,9 @@ class GovernedExecutionOrchestrator:
                 payload,
                 context.query or context.request.query_text(),
                 context.trace_id,
-                str(context.request.user_id) if context.request.user_id is not None else "anonymous",
+                str(context.request.user_id)
+                if context.request.user_id is not None
+                else "anonymous",
                 context.request.session_id,
                 result.model_used or context.request.model or "unknown",
             )
@@ -1427,7 +1505,7 @@ class GovernedExecutionOrchestrator:
             self._emit(context.trace_id, persistence)
             result.stages = context.stages
             return True
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - persistence boundary
             self._finish(
                 context,
                 persistence,
@@ -1552,7 +1630,10 @@ class GovernedExecutionOrchestrator:
 
             emit_trace_stage_update(trace_id, payload)
         except Exception:
-            pass
+            logger.debug(
+                "Trace stage update could not be emitted",
+                exc_info=True,
+            )
 
     @staticmethod
     def _apply_governance_decision(request: GovernedRequest, decision: Any) -> None:
@@ -1560,22 +1641,30 @@ class GovernedExecutionOrchestrator:
         request.metadata["estimated_request_tokens"] = decision.estimated_request_tokens
         if decision.prompt_template_key:
             request.metadata["prompt_template_key"] = decision.prompt_template_key
-            request.metadata["prompt_template_version"] = decision.prompt_template_version
+            request.metadata["prompt_template_version"] = (
+                decision.prompt_template_version
+            )
         if decision.routing_policy_name:
             request.metadata["routing_policy_name"] = decision.routing_policy_name
             request.metadata["routing_policy_version"] = decision.routing_policy_version
         if decision.allowed_provider_types:
             requested = set(request.metadata.get("allowed_provider_types") or ())
             request.metadata["allowed_provider_types"] = sorted(
-                requested & decision.allowed_provider_types if requested else decision.allowed_provider_types
+                requested & decision.allowed_provider_types
+                if requested
+                else decision.allowed_provider_types
             )
         if decision.allowed_models:
             requested = set(request.metadata.get("allowed_models") or ())
             request.metadata["allowed_models"] = sorted(
-                requested & decision.allowed_models if requested else decision.allowed_models
+                requested & decision.allowed_models
+                if requested
+                else decision.allowed_models
             )
 
-    def _audit_success(self, context: GovernedContext, provider: Any, model: str, usage: dict[str, Any]) -> None:
+    def _audit_success(
+        self, context: GovernedContext, provider: Any, model: str, usage: dict[str, Any]
+    ) -> None:
         self.gateway._governance.record_audit_event(
             run_id=context.trace_id,
             user_id=context.request.user_id,
@@ -1584,33 +1673,57 @@ class GovernedExecutionOrchestrator:
             model=model,
             model_version=getattr(provider, "api_version", None) or "unknown",
             governance_flags=context.request.metadata.get("governance_flags"),
-            request_tokens_estimate=context.request.metadata.get("estimated_request_tokens"),
+            request_tokens_estimate=context.request.metadata.get(
+                "estimated_request_tokens"
+            ),
             tokens_in=usage.get("prompt_tokens", 0),
             tokens_out=usage.get("completion_tokens", 0),
             estimated_cost_usd=usage.get("estimated_cost_usd"),
             success=True,
-            metadata={"timestamp": datetime.now(UTC).isoformat(), "contract_version": context.request.contract_version},
+            metadata={
+                "timestamp": datetime.now(UTC).isoformat(),
+                "contract_version": context.request.contract_version,
+            },
         )
 
-    def _audit_failure(self, context: GovernedContext, code: str, message: str | None) -> None:
+    def _audit_failure(
+        self, context: GovernedContext, code: str, message: str | None
+    ) -> None:
         self.gateway._governance.record_audit_event(
             run_id=context.trace_id,
             user_id=context.request.user_id,
             api_key_id=context.request.api_key_id,
-            provider=context.request.metadata.get("last_provider_used") or context.request.provider,
-            model=context.request.metadata.get("last_model_used") or context.request.model or "unknown",
+            provider=context.request.metadata.get("last_provider_used")
+            or context.request.provider,
+            model=context.request.metadata.get("last_model_used")
+            or context.request.model
+            or "unknown",
             model_version="unknown",
             governance_flags=context.request.metadata.get("governance_flags"),
-            request_tokens_estimate=context.request.metadata.get("estimated_request_tokens"),
+            request_tokens_estimate=context.request.metadata.get(
+                "estimated_request_tokens"
+            ),
             success=False,
             error_code=code,
             error_message=message,
-            metadata={"timestamp": datetime.now(UTC).isoformat(), "contract_version": context.request.contract_version},
+            metadata={
+                "timestamp": datetime.now(UTC).isoformat(),
+                "contract_version": context.request.contract_version,
+            },
         )
 
     @staticmethod
+    async def _resolve_layer_execution(value: Any) -> Any:
+        """Await production stages while retaining synchronous adapter compatibility."""
+        if inspect.isawaitable(value):
+            return await value
+        return value
+
+    @staticmethod
     def _metadata(context: GovernedContext, **extra: Any) -> dict[str, Any]:
-        total_elapsed_ms = max(0, int((time.monotonic() - context.started_monotonic) * 1000))
+        total_elapsed_ms = max(
+            0, int((time.monotonic() - context.started_monotonic) * 1000)
+        )
         return {
             "contract_version": context.request.contract_version,
             "request_id": context.request.request_id,
@@ -1623,7 +1736,9 @@ class GovernedExecutionOrchestrator:
             "policy_decisions": context.policy_decisions,
             "provider_call_count": context.provider_call_count,
             "provider_latency_ms": context.provider_latency_ms,
-            "orchestration_overhead_ms": max(0, total_elapsed_ms - context.provider_latency_ms),
+            "orchestration_overhead_ms": max(
+                0, total_elapsed_ms - context.provider_latency_ms
+            ),
             "deadline_seconds": context.request.metadata.get("deadline_seconds"),
             "provider_budget": context.request.metadata.get("provider_budget"),
             "refinement_cycles": context.refinement_cycles,
@@ -1643,7 +1758,7 @@ class GovernedExecutionOrchestrator:
         if callable(value):
             try:
                 return bool(value())
-            except Exception:
+            except Exception:  # noqa: BLE001 - callback is caller-owned
                 return True
         return bool(value)
 
@@ -1662,7 +1777,9 @@ class GovernedExecutionOrchestrator:
             categories.append("persona_content")
         if context.truthcore:
             categories.append("truthcore_results")
-        if any(message.get("role") == "assistant" for message in context.provider_messages):
+        if any(
+            message.get("role") == "assistant" for message in context.provider_messages
+        ):
             categories.append("prior_provider_output")
         return categories
 

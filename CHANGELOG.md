@@ -26,6 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-E fail-closed Layer 9/Layer 10 safety**: registered and
+  production-admitted all seven L9 and seven L10 algorithms through the
+  canonical selector/executor, expanded the acyclic dependency graph to 134
+  edges, and made committed child execution traces the only invocation
+  authority. Corrected retained-controller identity drift to `KA-1108`,
+  `KA-1109`, `KA-1079`, and `KA-1095`; removed manual invocation evidence,
+  optimistic force-finalization, direct Lane B store writes, placeholder trace
+  seals, and internal exception disclosure. PII is now redacted from released
+  content and trace-bearing state. Added adversarial ID, trace-forgery,
+  privacy, timeout, containment, confidence, recursion, promotion, and
+  false-receipt regressions. The focused set passes 104 tests and the full
+  source suite passes 2,522 with 18 skipped and 21 warnings. CP19-F causal Quad
+  Persona/DSQP integration is active; rebuilding and release remain blocked.
 - **Phase 19 CP19-D canonical ten-layer product path**: replaced the public
   two-KA TruthCore preflight with one typed `GovernedReasoningState` carried
   through explicit causal L1-L10 stages of
@@ -37,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   normalization, adversarial block, regulatory over-selection, refinement,
   abstention, release-halt, durable trace, and no-private-workflow regressions.
   Compatibility trace hydration retains read-only fallback names for older
-  records. Full all-ID L9/L10 safety remains CP19-E; effects, rebuilding, and
-  release remain blocked. The focused cross-system set passes 103 tests and the
+  records. Full all-ID L9/L10 safety was completed by CP19-E; effects,
+  rebuilding, and release remain blocked. The focused cross-system set passes 103 tests and the
   full source suite passes 2,506 with 18 skipped and 21 warnings.
 - **Phase 19 CP19-C selector and bounded dependency DAG**: added one
   manifest-driven typed plan for all 213 canonical KAs, 213 generated positive

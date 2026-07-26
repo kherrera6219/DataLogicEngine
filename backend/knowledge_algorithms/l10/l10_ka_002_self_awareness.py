@@ -8,9 +8,16 @@ from typing import Any
 from backend.knowledge_algorithms.l10.common import text_from_inputs
 
 PATTERNS = {
-    "self_reference": re.compile(r"\b(i am|i'm|my (?:instructions|weights|model|system prompt))\b", re.I),
-    "capability_escalation": re.compile(r"\b(self[- ]?improv|recursive autonomy|modify my own|escape|bypass)\b", re.I),
-    "authority_claim": re.compile(r"\b(i can guarantee|i have unrestricted|i am authorized)\b", re.I),
+    "self_reference": re.compile(
+        r"\b(i am|i'm|my (?:instructions|weights|model|system prompt))\b", re.IGNORECASE
+    ),
+    "capability_escalation": re.compile(
+        r"\b(self[- ]?improv|recursive autonomy|modify my own|escape|bypass)\b",
+        re.IGNORECASE,
+    ),
+    "authority_claim": re.compile(
+        r"\b(i can guarantee|i have unrestricted|i am authorized)\b", re.IGNORECASE
+    ),
 }
 
 
@@ -24,6 +31,8 @@ def run(inputs: dict[str, Any]) -> dict[str, Any]:
     return {
         "success": True,
         "awareness_detected": bool(matches),
-        "level": "moderate" if any(m["type"] == "capability_escalation" for m in matches) else ("low" if matches else "none"),
+        "level": "moderate"
+        if any(m["type"] == "capability_escalation" for m in matches)
+        else ("low" if matches else "none"),
         "escalation_patterns": matches,
     }

@@ -117,6 +117,15 @@ ka_registry:
   "KA-116": "backend.knowledge_algorithms.ka_116_entropy_detection.run"
   "KA-117": "backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.run"
 
+  # Layer 9 KA Suite
+  "L9-KA-001": "backend.knowledge_algorithms.l9.l9_ka_001_trace_analyzer.run"
+  "L9-KA-002": "backend.knowledge_algorithms.l9.l9_ka_002_belief_drift.run"
+  "L9-KA-003": "backend.knowledge_algorithms.l9.l9_ka_003_persona_auditor.run"
+  "L9-KA-004": "backend.knowledge_algorithms.l9.l9_ka_004_meta_evaluator.run"
+  "L9-KA-005": "backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger.run"
+  "L9-KA-006": "backend.knowledge_algorithms.l9.l9_ka_006_confidence_calc.run"
+  "L9-KA-007": "backend.knowledge_algorithms.l9.l9_ka_007_loop_controller.run"
+
   # Layer 10 KA Suite
   "L10-KA-001": "backend.knowledge_algorithms.l10.l10_ka_001_entropy_scorer.run"
   "L10-KA-002": "backend.knowledge_algorithms.l10.l10_ka_002_self_awareness.run"

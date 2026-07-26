@@ -8,7 +8,7 @@ from typing import Any
 from backend.knowledge_algorithms.l10.common import text_from_inputs
 
 PII_PATTERNS = {
-    "EMAIL": re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I),
+    "EMAIL": re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE),
     "PHONE": re.compile(r"\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b"),
     "SSN": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "CREDIT_CARD": re.compile(r"\b(?:\d[ -]*?){13,16}\b"),
@@ -24,7 +24,7 @@ def run(inputs: dict[str, Any]) -> dict[str, Any]:
         matches = list(pattern.finditer(redacted))
         if not matches:
             continue
-        redactions.extend({"type": pii_type, "value": match.group(0)} for match in matches)
+        redactions.append({"type": pii_type, "count": len(matches)})
         redacted = pattern.sub(f"[REDACTED_{pii_type}]", redacted)
     return {
         "success": True,
@@ -33,4 +33,5 @@ def run(inputs: dict[str, Any]) -> dict[str, Any]:
         "redactions": redactions,
         "redacted_content": redacted,
         "passed": not redactions,
+        "sensitive_values_returned": False,
     }

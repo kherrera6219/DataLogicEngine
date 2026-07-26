@@ -102,15 +102,19 @@ owners. Sixteen orchestrator/workflow variants have explicit canonical,
 compatibility, reference, migration, or prohibited-path dispositions. This
 metadata is carried by the one generated backend/Python/TypeScript manifest;
 it is not a second runtime registry. CP19-B subsequently migrated every
-existing production caller to the typed canonical result. CP19-C now adds one
+existing production caller to the typed canonical result. CP19-C added one
 typed manifest selector for all 213 KAs, 213 positive and 213 negative fixtures,
-and a corrected 119-edge zero-cycle dependency graph. Independent pure work
+and a corrected base dependency graph. CP19-E registered and
+production-admitted the complete L9/L10 suites and extended the current graph
+to 134 edges with zero cycles. Independent pure work
 uses bounded structured concurrency; required failure and parent cancellation
 propagate; effect proposals serialize and cannot claim application. The
 KA/Python-SDK suite is 781 passed and the CP19-C full source suite is 2,499
 passed with 18 skipped. CP19-D now places explicit causal L1-L10 stages inside
-the one governed product lifecycle. CP19-E full correct-ID fail-closed L9/L10
-safety execution is active.
+the one governed product lifecycle. CP19-E now executes all 14 L9/L10 KAs from
+committed child traces, fails closed on incomplete safety evidence, redacts PII
+from release and trace state, and prevents the retained controller from
+applying store effects. CP19-F causal Quad Persona/DSQP is active.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,
@@ -148,8 +152,8 @@ L7 performs applicable causal/planning/boundary review, L8 applies trust/risk/
 ethics/privacy/compliance, L9 makes the bounded convergence decision, and L10
 owns containment and release. The one 12-step KA refinement subgraph is entered
 only when L9 selects refinement. CP19-D's existing bounded rewrite already
-re-enters L6-L9; CP19-E adds the full L10 safety suite and CP19-G replaces the
-rewrite with the canonical 12-step KA subgraph.
+re-enters L6-L9; CP19-E now adds the complete fail-closed L9/L10 suites and
+CP19-G replaces the rewrite with the canonical 12-step KA subgraph.
 
 Every canonical ID has exactly one implementation owner and one primary owning
 subsystem. Other subsystems may consume it through declared governed edges but

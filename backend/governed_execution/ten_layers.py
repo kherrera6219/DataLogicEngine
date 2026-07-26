@@ -20,6 +20,26 @@ from backend.governed_execution.quality import (
     decide_convergence,
 )
 from backend.governed_execution.validation import validate_output
+from backend.knowledge_algorithms.contracts import (
+    KABudget,
+    KAExecutionContext,
+    KAExecutionMode,
+)
+from backend.knowledge_algorithms.controller import (
+    CanonicalKAController,
+    get_ka_controller,
+)
+from backend.knowledge_algorithms.l10.l10_ka_003_pii_redactor import (
+    PII_PATTERNS,
+)
+from backend.knowledge_algorithms.selection import (
+    KAPlanExecutionStatus,
+    KAPlanExecutor,
+    KASelectionPlan,
+    KASelectionRequest,
+    KATraceState,
+    ManifestKASelector,
+)
 
 LAYER_NAMES = {
     "L1": "normalize_route",
@@ -52,8 +72,16 @@ class LayerExecution:
 class GovernedTenLayerStages:
     """Execute the ten reasoning stages without owning transport or storage."""
 
-    def __init__(self, truthcore: Any):
+    def __init__(
+        self,
+        truthcore: Any,
+        *,
+        ka_controller: CanonicalKAController | None = None,
+    ):
         self.truthcore = truthcore
+        self.ka_controller = ka_controller or get_ka_controller()
+        self.ka_selector = ManifestKASelector(self.ka_controller.manifest)
+        self.ka_executor = KAPlanExecutor(self.ka_controller)
 
     async def l1(
         self,
@@ -67,15 +95,9 @@ class GovernedTenLayerStages:
             if isinstance(context.routing.get("axis_vector"), dict)
             else {}
         )
-        axis15 = (
-            coordinate_axes.get("15")
-            if isinstance(coordinate_axes, dict)
-            else {}
-        )
+        axis15 = coordinate_axes.get("15") if isinstance(coordinate_axes, dict) else {}
         risk_domain = (
-            axis15.get("value")
-            if isinstance(axis15, dict)
-            else axis15
+            axis15.get("value") if isinstance(axis15, dict) else axis15
         ) or "standard"
         truthcore = await self.truthcore.execute(
             context.query,
@@ -101,9 +123,7 @@ class GovernedTenLayerStages:
         ]
         completed = [item for item in steps if item.get("status") == "completed"]
         selected_ids = [
-            str(item.get("ka_id"))
-            for item in completed
-            if item.get("ka_id")
+            str(item.get("ka_id")) for item in completed if item.get("ka_id")
         ]
         ka_results = {
             str(item.get("ka_id")): dict(item)
@@ -157,9 +177,7 @@ class GovernedTenLayerStages:
 
         context.query = normalized_query
         context.reasoning.query = normalized_query
-        context.reasoning.coordinate_17 = dict(
-            context.routing.get("axis_vector") or {}
-        )
+        context.reasoning.coordinate_17 = dict(context.routing.get("axis_vector") or {})
         context.reasoning.tier = tier
         decision = {
             "decision": "block" if adversarial_block else "allow",
@@ -195,9 +213,7 @@ class GovernedTenLayerStages:
                 "layer_id": "L2",
                 "evidence_ids": evidence_ids,
                 "source_ids": [item.source_id for item in context.evidence],
-                "citation_labels": [
-                    item.citation_label for item in context.evidence
-                ],
+                "citation_labels": [item.citation_label for item in context.evidence],
                 "retrieval_count": len(context.evidence),
                 "similarity_is_source_quality": False,
             },
@@ -272,9 +288,7 @@ class GovernedTenLayerStages:
 
     def l5(self, context: GovernedContext) -> LayerExecution:
         context.provider_messages = build_provider_messages(context)
-        system_text = str(
-            context.provider_messages[0].get("content") or ""
-        )
+        system_text = str(context.provider_messages[0].get("content") or "")
         completed_kas = [
             str(item.get("ka_id"))
             for item in context.truthcore.get("steps_executed") or []
@@ -291,19 +305,15 @@ class GovernedTenLayerStages:
                 "contains_source_ids": all(
                     item.source_id in system_text for item in context.evidence
                 ),
-                "contains_dsqp": (
-                    "Deterministic persona context" in system_text
-                ),
-                "contains_ka_results": (
-                    "Executed TruthCore/KA context" in system_text
-                ),
+                "contains_dsqp": ("Deterministic persona context" in system_text),
+                "contains_ka_results": ("Executed TruthCore/KA context" in system_text),
                 "selected_ka_ids": completed_kas,
                 "dissent_resolution": "deferred_to_cp19_f_persona_qualification",
             },
-            selected_ka_ids=completed_kas,
+            selected_ka_ids=[],
             ka_plan=self._stage_plan(
                 "L5",
-                completed_kas,
+                [],
                 "canonical_prompt_plan",
             ),
             error_code="L5_CANDIDATE_PLAN_FAILURE" if not ok else None,
@@ -331,9 +341,7 @@ class GovernedTenLayerStages:
             context.validators,
         )
         context.reasoning.candidate = str(validation.get("answer") or answer)
-        context.reasoning.claims = [
-            claim.to_dict() for claim in context.claims
-        ]
+        context.reasoning.claims = [claim.to_dict() for claim in context.claims]
         context.reasoning.validators = [
             validator.to_dict() for validator in context.validators
         ]
@@ -358,16 +366,12 @@ class GovernedTenLayerStages:
                 ),
                 decisions=[
                     {
-                        "decision": (
-                            "allow" if validation["ok"] else "block"
-                        ),
+                        "decision": ("allow" if validation["ok"] else "block"),
                         "validation_score": validation["validation_score"],
                     }
                 ],
                 error_code=(
-                    "L6_OUTPUT_VALIDATION_FAILURE"
-                    if not validation["ok"]
-                    else None
+                    "L6_OUTPUT_VALIDATION_FAILURE" if not validation["ok"] else None
                 ),
             ),
             validation,
@@ -375,8 +379,7 @@ class GovernedTenLayerStages:
 
     def l7(self, context: GovernedContext) -> LayerExecution:
         dependency_map = {
-            claim.claim_id: list(claim.evidence_ids)
-            for claim in context.claims
+            claim.claim_id: list(claim.evidence_ids) for claim in context.claims
         }
         missing_boundaries = [
             claim.claim_id
@@ -425,7 +428,10 @@ class GovernedTenLayerStages:
                 "layer_id": "L8",
                 "trust_policy_decision": decision,
                 "risk_class": (
-                    ((context.reasoning.coordinate_17.get("axes") or {}).get("15") or {}).get("value")
+                    (
+                        (context.reasoning.coordinate_17.get("axes") or {}).get("15")
+                        or {}
+                    ).get("value")
                     if isinstance(context.reasoning.coordinate_17, dict)
                     else None
                 ),
@@ -440,7 +446,7 @@ class GovernedTenLayerStages:
             error_code="L8_TRUST_POLICY_BLOCK" if not ok else None,
         )
 
-    def l9(
+    async def l9(
         self,
         context: GovernedContext,
         *,
@@ -459,43 +465,320 @@ class GovernedTenLayerStages:
             max_iterations=max_iterations,
             requires_evidence=requires_evidence,
         )
+        trace = self._committed_layer_trace(context, through_layer=8)
+        confidence_value = (
+            context.confidence_measurement.value
+            if context.confidence_measurement
+            else None
+        )
+        persona_measurements = self._persona_measurements(context)
+        issues = [
+            {
+                "type": (
+                    "contradicted_claim"
+                    if claim.status == "contradicted"
+                    else "unsupported_claim"
+                ),
+                "claim_id": claim.claim_id,
+            }
+            for claim in context.claims
+            if claim.status == "contradicted"
+            or (requires_evidence and claim.status in {"unsupported", "insufficient"})
+        ]
+        requested_ids = [f"L9-KA-{number:03d}" for number in range(1, 8)]
+        request = self._selection_request(
+            context,
+            layer_id="L9",
+            tier=tier,
+            requested_ids=requested_ids,
+            ka_inputs={
+                "L9-KA-001": {
+                    "trace": trace,
+                    "layers": list(range(1, 9)),
+                },
+                "L9-KA-002": {
+                    "original_query": context.query,
+                    "final_solution": context.reasoning.candidate or "",
+                },
+                "L9-KA-003": {
+                    "domain_confidences": persona_measurements,
+                    "threshold": 0.95 if tier != "high" else 0.99,
+                },
+                "L9-KA-004": {
+                    "solution": {
+                        "overall_confidence": confidence_value,
+                        "domain_confidences": persona_measurements,
+                    },
+                    "trace": trace,
+                },
+                "L9-KA-005": {
+                    "readiness": confidence_value,
+                    "readiness_threshold": (0.85 if tier == "high" else 0.70),
+                    "issues": issues,
+                    "convergence_action": convergence.action,
+                },
+                "L9-KA-006": {
+                    "l8_confidence": confidence_value,
+                },
+                "L9-KA-007": {
+                    "iteration": iteration,
+                    "max_iterations": max_iterations,
+                    "previous_scores": [
+                        layer.outputs.get("readiness_score")
+                        for layer in context.reasoning.layers
+                        if layer.layer_id == "L9"
+                        and layer.outputs.get("readiness_score") is not None
+                    ],
+                    "prior_fixes": [
+                        decision.to_dict()
+                        for decision in context.convergence_decisions
+                        if decision.action == "refine"
+                    ],
+                },
+            },
+        )
+        try:
+            plan = self.ka_selector.plan(request)
+            report = await self.ka_executor.execute(plan, request)
+        except Exception as exc:  # noqa: BLE001 - required L9 boundary
+            return (
+                LayerExecution(
+                    ok=False,
+                    outputs={
+                        "layer_id": "L9",
+                        "decision": "block",
+                        "reason": "required_l9_plan_failed",
+                        "error_type": type(exc).__name__,
+                    },
+                    ka_plan=self._plan_summary(plan if "plan" in locals() else None),
+                    error_code="L9_REQUIRED_KA_FAILURE",
+                ),
+                self._override_convergence(
+                    convergence,
+                    action="block",
+                    reason="required_l9_plan_failed",
+                ),
+            )
+
+        executed_ids = self._executed_ids(report)
+        ka_results = self._committed_results(report, executed_ids)
+        if report.status is not KAPlanExecutionStatus.SUCCEEDED or set(
+            executed_ids
+        ) != set(requested_ids):
+            convergence = self._override_convergence(
+                convergence,
+                action="block",
+                reason=(
+                    "required_l9_result_missing_or_failed:"
+                    + str(report.required_failure or "trace_mismatch")
+                ),
+            )
+        else:
+            trace_result = report.results["L9-KA-001"].output
+            drift_result = report.results["L9-KA-002"].output
+            recursion_result = report.results["L9-KA-005"].output
+            readiness_result = report.results["L9-KA-006"].output
+            loop_result = report.results["L9-KA-007"].output
+            forged = any(
+                issue.get("type") == "uncommitted_ka_invocation"
+                for issue in trace_result.get("issues") or []
+            )
+            if forged:
+                convergence = self._override_convergence(
+                    convergence,
+                    action="block",
+                    reason="l9_trace_forgery_detected",
+                )
+            elif recursion_result.get("trigger_refinement") and loop_result.get(
+                "exhausted"
+            ):
+                convergence = self._override_convergence(
+                    convergence,
+                    action="block",
+                    reason="l9_recursion_budget_exhausted",
+                )
+            elif (
+                drift_result.get("numeric_facts_preserved") is False
+                and convergence.action == "finalize"
+            ):
+                convergence = self._override_convergence(
+                    convergence,
+                    action=("refine" if iteration < max_iterations else "abstain"),
+                    reason="l9_numeric_belief_drift",
+                )
+            elif (
+                recursion_result.get("trigger_refinement")
+                and loop_result.get("continue")
+                and convergence.action == "finalize"
+            ):
+                convergence = self._override_convergence(
+                    convergence,
+                    action=("refine" if iteration < max_iterations else "abstain"),
+                    reason="l9_readiness_requires_refinement",
+                )
+
         context.convergence_decisions.append(convergence)
         context.reasoning.convergence = convergence.to_dict()
+        readiness_result = (
+            report.results.get("L9-KA-006").output
+            if report.results.get("L9-KA-006")
+            else {}
+        )
+        persona_result = (
+            report.results.get("L9-KA-003").output
+            if report.results.get("L9-KA-003")
+            else {}
+        )
+        drift_result = (
+            report.results.get("L9-KA-002").output
+            if report.results.get("L9-KA-002")
+            else {}
+        )
+        trace_result = (
+            report.results.get("L9-KA-001").output
+            if report.results.get("L9-KA-001")
+            else {}
+        )
         ok = convergence.action != "block"
         return (
             LayerExecution(
                 ok=ok,
                 outputs={
                     "layer_id": "L9",
-                    "trace_consistency": "consistent",
-                    "persona_agreement": "not_measured",
-                    "drift_status": "not_measured",
+                    "trace_consistency": (
+                        "consistent"
+                        if trace_result.get("trace_complete")
+                        else "findings"
+                    ),
+                    "persona_agreement": persona_result,
+                    "drift_status": drift_result,
+                    "readiness_score": readiness_result.get("readiness_score"),
+                    "readiness_measurement": readiness_result,
+                    "kas_invoked": executed_ids,
                     "convergence": convergence.to_dict(),
                 },
-                ka_plan=self._stage_plan(
-                    "L9",
-                    [],
-                    "canonical_bounded_convergence_policy",
-                ),
+                selected_ka_ids=list(plan.selected_ids),
+                ka_plan=self._plan_summary(plan, report),
+                ka_results=ka_results,
                 decisions=[convergence.to_dict()],
                 error_code="L9_CONVERGENCE_BLOCK" if not ok else None,
             ),
             convergence,
         )
 
-    def l10(
+    async def l10(
         self,
         context: GovernedContext,
         *,
         final_action: str,
     ) -> LayerExecution:
-        release = final_action in {"finalize", "abstain", "local_review"}
+        content = context.reasoning.candidate or ""
+        confidence_value = (
+            context.confidence_measurement.value
+            if context.confidence_measurement
+            else None
+        )
+        risk_domain = self._risk_domain(context)
+        convergence_reason = (
+            context.reasoning.convergence.get("reason")
+            if isinstance(context.reasoning.convergence, dict)
+            else None
+        )
+        allow_not_measured = final_action in {
+            "abstain",
+            "local_review",
+        } or convergence_reason in {
+            "finalize_with_not_measured_confidence",
+            "low_risk_finalize_with_explicit_unsupported_claims",
+        }
+        requested_ids = [f"L10-KA-{number:03d}" for number in range(1, 8)]
+        common = {
+            "content": content,
+            "final_action": final_action,
+            "confidence": confidence_value,
+            "risk_domain": risk_domain,
+            "request_id": context.request.request_id,
+            "allow_not_measured": allow_not_measured,
+            "consequential_decision": bool(
+                context.request.metadata.get("consequential_decision")
+            ),
+        }
+        request = self._selection_request(
+            context,
+            layer_id="L10",
+            tier=context.reasoning.tier or "unknown",
+            requested_ids=requested_ids,
+            ka_inputs={
+                "L10-KA-001": {
+                    "content": content,
+                    "threshold": 0.82,
+                },
+                "L10-KA-002": {"content": content},
+                "L10-KA-003": {"content": content},
+                "L10-KA-004": {"content": content},
+                "L10-KA-005": common,
+                "L10-KA-006": {
+                    "confidence": confidence_value,
+                    "threshold": (0.985 if risk_domain == "high_risk" else 0.95),
+                    "allow_not_measured": allow_not_measured,
+                },
+                "L10-KA-007": common,
+            },
+        )
+        try:
+            plan = self.ka_selector.plan(request)
+            report = await self.ka_executor.execute(plan, request)
+        except Exception as exc:  # noqa: BLE001 - required L10 boundary
+            decision = {
+                "decision": "halt",
+                "final_action": final_action,
+                "reason": "required_l10_plan_failed",
+                "error_type": type(exc).__name__,
+            }
+            context.reasoning.release = decision
+            return LayerExecution(
+                ok=False,
+                outputs={"layer_id": "L10", "release": decision},
+                ka_plan=self._plan_summary(plan if "plan" in locals() else None),
+                decisions=[decision],
+                error_code="L10_REQUIRED_KA_FAILURE",
+            )
+
+        executed_ids = self._executed_ids(report)
+        ka_results = self._committed_results(report, executed_ids)
+        containment = (
+            report.results.get("L10-KA-005").output
+            if report.results.get("L10-KA-005")
+            else {}
+        )
+        redaction = (
+            report.results.get("L10-KA-003").output
+            if report.results.get("L10-KA-003")
+            else {}
+        )
+        complete = report.status is KAPlanExecutionStatus.SUCCEEDED and set(
+            executed_ids
+        ) == set(requested_ids)
+        containment_decision = str(containment.get("decision") or "HALT").upper()
+        release = complete and containment_decision in {
+            "RELEASE",
+            "MODIFY",
+        }
+        released_content = (
+            str(redaction.get("redacted_content") or content) if release else None
+        )
+        if release:
+            if released_content != content:
+                self.redact_sensitive_context(context)
+            context.reasoning.candidate = released_content
         decision = {
             "decision": "release" if release else "halt",
             "final_action": final_action,
-            "candidate_present": context.reasoning.candidate is not None,
-            "control_set": "cp19_d_transitional_release",
-            "full_l9_l10_ka_qualification_checkpoint": "CP19-E",
+            "candidate_present": bool(content),
+            "containment_decision": containment_decision,
+            "required_suite_complete": complete,
+            "control_set": "cp19_e_full_l9_l10_ka_suite",
+            "released_content_modified": released_content != content,
         }
         context.reasoning.release = decision
         return LayerExecution(
@@ -503,16 +786,257 @@ class GovernedTenLayerStages:
             outputs={
                 "layer_id": "L10",
                 "release": decision,
+                "released_content": released_content,
+                "kas_invoked": executed_ids,
+                "privacy": {
+                    "redactions_found": redaction.get("redactions_found", 0),
+                    "sensitive_values_returned": redaction.get(
+                        "sensitive_values_returned", False
+                    ),
+                },
                 "effects_applied": False,
                 "validated_memory_commit": "not_requested",
             },
-            ka_plan=self._stage_plan(
-                "L10",
-                [],
-                "canonical_release_boundary",
-            ),
+            selected_ka_ids=list(plan.selected_ids),
+            ka_plan=self._plan_summary(plan, report),
+            ka_results=ka_results,
             decisions=[decision],
-            error_code="L10_RELEASE_BLOCK" if not release else None,
+            error_code=(
+                "L10_REQUIRED_KA_FAILURE"
+                if not complete
+                else "L10_RELEASE_BLOCK"
+                if not release
+                else None
+            ),
+        )
+
+    def _selection_request(
+        self,
+        context: GovernedContext,
+        *,
+        layer_id: str,
+        tier: str,
+        requested_ids: list[str],
+        ka_inputs: dict[str, dict[str, Any]],
+    ) -> KASelectionRequest:
+        remaining_ms = 20_000
+        if context.deadline_at_monotonic is not None:
+            import time
+
+            remaining_ms = max(
+                1,
+                int((context.deadline_at_monotonic - time.monotonic()) * 1000),
+            )
+        return KASelectionRequest(
+            requested_ids=requested_ids,
+            ka_inputs=ka_inputs,
+            mode=KAExecutionMode.PRODUCTION,
+            context=KAExecutionContext(
+                request_id=context.request.request_id,
+                run_id=context.trace_id,
+                session_id=context.request.session_id,
+                principal_id=context.request.principal_id,
+                workflow="governed.v1",
+                tier=tier,
+                layer=layer_id,
+                budget=KABudget(
+                    deadline_ms=min(remaining_ms, 20_000),
+                    max_dependency_executions=16,
+                    max_recursion_depth=8,
+                    max_selected_algorithms=16,
+                    max_fan_out=8,
+                    max_parallelism=4,
+                    max_input_bytes=1_000_000,
+                    max_output_bytes=5_000_000,
+                ),
+            ),
+        )
+
+    @classmethod
+    def redact_sensitive_context(cls, context: GovernedContext) -> None:
+        """Remove detected PII from trace-bearing governed state."""
+        for stage in context.stages:
+            stage.inputs = cls.redact_sensitive_value(stage.inputs)
+            stage.outputs = cls.redact_sensitive_value(stage.outputs)
+            stage.metrics = cls.redact_sensitive_value(stage.metrics)
+        for layer in context.reasoning.layers:
+            layer.inputs = cls.redact_sensitive_value(layer.inputs)
+            layer.outputs = cls.redact_sensitive_value(layer.outputs)
+            layer.ka_results = cls.redact_sensitive_value(layer.ka_results)
+            layer.decisions = cls.redact_sensitive_value(layer.decisions)
+            layer.effects = cls.redact_sensitive_value(layer.effects)
+        for claim in context.claims:
+            claim.text = cls.redact_sensitive_value(claim.text)
+        for validator in context.validators:
+            validator.inputs = cls.redact_sensitive_value(validator.inputs)
+            validator.outputs = cls.redact_sensitive_value(validator.outputs)
+        for evidence in context.evidence:
+            redacted_text = cls.redact_sensitive_value(evidence.text)
+            if redacted_text != evidence.text:
+                from hashlib import sha256
+
+                evidence.text = redacted_text
+                evidence.content_hash = sha256(
+                    redacted_text.encode("utf-8")
+                ).hexdigest()
+                if evidence.source is not None:
+                    evidence.source.content_hash = evidence.content_hash
+            evidence.title = cls.redact_sensitive_value(evidence.title)
+            evidence.locator = cls.redact_sensitive_value(evidence.locator)
+            evidence.metadata = cls.redact_sensitive_value(evidence.metadata)
+        context.provider_messages = cls.redact_sensitive_value(
+            context.provider_messages
+        )
+        context.reasoning.candidate = cls.redact_sensitive_value(
+            context.reasoning.candidate
+        )
+        context.reasoning.claims = cls.redact_sensitive_value(context.reasoning.claims)
+        context.reasoning.validators = cls.redact_sensitive_value(
+            context.reasoning.validators
+        )
+        context.truthcore = cls.redact_sensitive_value(context.truthcore)
+        context.dsqp = cls.redact_sensitive_value(context.dsqp)
+
+    @classmethod
+    def redact_sensitive_value(cls, value: Any) -> Any:
+        """Recursively redact supported PII patterns without returning matches."""
+        if isinstance(value, str):
+            redacted = value
+            for pii_type, pattern in PII_PATTERNS.items():
+                redacted = pattern.sub(
+                    f"[REDACTED_{pii_type}]",
+                    redacted,
+                )
+            return redacted
+        if isinstance(value, dict):
+            return {
+                key: cls.redact_sensitive_value(item) for key, item in value.items()
+            }
+        if isinstance(value, list):
+            return [cls.redact_sensitive_value(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(cls.redact_sensitive_value(item) for item in value)
+        return value
+
+    @staticmethod
+    def _plan_summary(
+        plan: KASelectionPlan | None,
+        report: Any | None = None,
+    ) -> dict[str, Any]:
+        if plan is None:
+            return {
+                "schema_version": "dle.ka-stage-plan.v1",
+                "selection_state": "plan_unavailable",
+            }
+        return {
+            "schema_version": "dle.ka-stage-plan.v1",
+            "plan_id": plan.plan_id,
+            "manifest_version": plan.manifest_version,
+            "selected_ids": list(plan.selected_ids),
+            "execution_order": list(plan.execution_order),
+            "selection_state": (
+                report.status.value if report is not None else "planned"
+            ),
+            "required_failure": (
+                report.required_failure if report is not None else None
+            ),
+            "effects_authorized": False,
+        }
+
+    @staticmethod
+    def _executed_ids(report: Any) -> list[str]:
+        return sorted(
+            canonical_id
+            for canonical_id, trace in report.traces.items()
+            if any(event.state is KATraceState.EXECUTED for event in trace.events)
+        )
+
+    @staticmethod
+    def _committed_results(
+        report: Any,
+        executed_ids: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        return {
+            canonical_id: report.results[canonical_id].model_dump(
+                mode="json",
+                exclude_none=True,
+            )
+            for canonical_id in executed_ids
+            if canonical_id in report.results
+        }
+
+    @staticmethod
+    def _committed_layer_trace(
+        context: GovernedContext,
+        *,
+        through_layer: int,
+    ) -> dict[str, Any]:
+        trace: dict[str, Any] = {}
+        for layer in context.reasoning.layers:
+            layer_number = int(layer.layer_id.removeprefix("L"))
+            if layer_number > through_layer:
+                continue
+            trace[f"layer{layer_number}"] = {
+                "output": dict(layer.outputs),
+                "selected_ka_ids": list(layer.selected_ka_ids),
+                "ka_results": dict(layer.ka_results),
+                "stage_id": layer.stage_id,
+                "status": layer.status.value,
+            }
+        return trace
+
+    @staticmethod
+    def _persona_measurements(
+        context: GovernedContext,
+    ) -> list[dict[str, Any]]:
+        measurements = []
+        for axis, profile in context.reasoning.dsqp_profiles.items():
+            if not isinstance(profile, dict):
+                continue
+            score = profile.get("confidence")
+            if score is None:
+                score = profile.get("measured_confidence")
+            if score is None:
+                continue
+            measurements.append(
+                {
+                    "domain": str(profile.get("persona_id") or f"axis_{axis}"),
+                    "confidence": float(score),
+                }
+            )
+        return measurements
+
+    @staticmethod
+    def _risk_domain(context: GovernedContext) -> str:
+        coordinate = context.reasoning.coordinate_17
+        axes = coordinate.get("axes") if isinstance(coordinate, dict) else {}
+        axis15 = axes.get("15") if isinstance(axes, dict) else {}
+        value = axis15.get("value") if isinstance(axis15, dict) else axis15
+        normalized = str(value or "standard").strip().lower()
+        return (
+            "high_risk"
+            if normalized
+            in {"high", "critical", "healthcare", "finance", "legal", "safety"}
+            else "standard"
+        )
+
+    @staticmethod
+    def _override_convergence(
+        current: ConvergenceDecision,
+        *,
+        action: str,
+        reason: str,
+    ) -> ConvergenceDecision:
+        return ConvergenceDecision(
+            action=action,
+            reason=reason,
+            iteration=current.iteration,
+            max_iterations=current.max_iterations,
+            terminal=action != "refine",
+            unsupported_claim_ids=list(current.unsupported_claim_ids),
+            contradicted_claim_ids=list(current.contradicted_claim_ids),
+            failed_validator_ids=list(current.failed_validator_ids),
+            decision_version="dle-convergence.cp19-e.v1",
         )
 
     @staticmethod

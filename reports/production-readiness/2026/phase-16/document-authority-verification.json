@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.document-authority-verification.v1",
-  "generated_at": "2026-07-26T00:22:16.737039+00:00",
-  "authority_version": "2026.07.25-phase19-cp19c-selector-dag",
+  "generated_at": "2026-07-26T06:19:09.549515+00:00",
+  "authority_version": "2026.07.25-phase19-cp19e-l9-l10-safety",
   "product_version": "4.3.0",
   "status": "pass",
   "existing_canonical_count": 30,

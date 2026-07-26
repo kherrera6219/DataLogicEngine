@@ -46,20 +46,27 @@ class MockKAController:
                 ka_id,
                 {"is_emergent": "emergent" in content},
             )
-        if ka_id == "KA-108":
-            return _typed_result(
-                ka_id,
-                {"escalation_detected": "bypass" in content},
-            )
-
-        # Lane A: Safety
-        if ka_id in {"KA-058", "KA-059"}:
-            pii_found = ka_id == "KA-059" and "@" in content
+        if ka_id == "KA-1108":
+            interaction = inputs["interactions"][0]
             return _typed_result(
                 ka_id,
                 {
-                    "passed": not pii_found,
-                    "flag": "PII_found" if pii_found else None,
+                    "escalation_detected": interaction["crossed_privilege_boundary"],
+                    "alerts": [],
+                },
+            )
+
+        # Lane A: Safety
+        if ka_id == "L10-KA-003":
+            pii_found = "@" in content
+            return _typed_result(
+                ka_id,
+                {
+                    "redactions_found": 1 if pii_found else 0,
+                    "redacted_content": (
+                        "Contact us at [REDACTED_EMAIL]" if pii_found else content
+                    ),
+                    "sensitive_values_returned": False,
                 },
             )
         if ka_id == "L10-KA-001":
@@ -79,18 +86,83 @@ class MockKAController:
                 else []
             )
             return _typed_result(ka_id, {"violations": violations})
+        if ka_id == "L10-KA-006":
+            original = float(inputs["confidence"])
+            decayed = round(original * float(inputs.get("decay_factor", 0.98)), 6)
+            threshold = float(inputs.get("threshold", 0.95))
+            return _typed_result(
+                ka_id,
+                {
+                    "status": ("pass" if decayed >= threshold else "fail"),
+                    "passed": decayed >= threshold,
+                    "decayed_confidence": decayed,
+                },
+            )
+        if ka_id == "L10-KA-007":
+            return _typed_result(
+                ka_id,
+                {
+                    "escalation_required": False,
+                    "reviews_dispatched": 0,
+                },
+            )
+        if ka_id == "L10-KA-005":
+            dependencies = inputs.get("dependency_results", {})
+            trust_passed = dependencies["L10-KA-006"]["passed"]
+            pii_found = dependencies["L10-KA-003"]["redactions_found"] > 0
+            ethics = dependencies["L10-KA-004"]["violations"]
+            decision = (
+                "ESCALATE"
+                if not trust_passed or ethics
+                else "MODIFY"
+                if pii_found
+                else "RELEASE"
+            )
+            return _typed_result(ka_id, {"decision": decision})
+        if ka_id == "KA-1095":
+            return _typed_result(
+                ka_id,
+                {
+                    "decisions": [
+                        {
+                            "escalation_required": True,
+                            "review_level": "specialist",
+                        }
+                    ],
+                    "reviews_dispatched": 0,
+                },
+            )
 
         # Lane B: Commit
-        if ka_id == "KA-109":
-            return _typed_result(ka_id, {"class": "PUBLIC"})
-        if ka_id == "KA-079":
-            return _typed_result(ka_id, {"authorized": True})
+        if ka_id == "KA-1109":
+            return _typed_result(
+                ka_id,
+                {
+                    "decisions": [
+                        {
+                            "containment_class": "restricted",
+                            "persistence_rule": "restricted_store_only",
+                        }
+                    ],
+                    "persistence_actions_applied": 0,
+                },
+            )
+        if ka_id == "KA-1079":
+            return _typed_result(
+                ka_id,
+                {
+                    "decision": "reject",
+                    "promotion_applied": False,
+                },
+            )
 
         return _typed_result(ka_id, {"status": "success", "passed": True})
+
 
 @pytest.fixture
 def l10_controller():
     return EmergenceDetectionController(ka_controller=MockKAController())
+
 
 @pytest.fixture
 def base_l10_input():
@@ -100,41 +172,50 @@ def base_l10_input():
             "readiness_score": 0.98,
             "epistemic_report": {
                 "current_output": "The solution is safe and effective.",
-                "review_conducted": "full_meta_analysis"
-            }
+                "review_conducted": "full_meta_analysis",
+            },
         },
         risk_domain="standard",
-        reasoning_trace={"steps": ["L1", "L2", "L3"]}
+        reasoning_trace={"steps": ["L1", "L2", "L3"]},
     )
 
+
 class TestLayer10Controller:
-    
     def test_authorize_standard_release(self, l10_controller, base_l10_input):
         """Test release path for clean input."""
         result = l10_controller.authorize(base_l10_input)
-        
+
         assert result.decision == L10Decision.RELEASE
         assert result.final_answer == "The solution is safe and effective."
         assert not result.requires_human_signoff
         assert not result.emergence_report.emergence_detected
-        assert "KA-109" in result.kas_invoked  # Lane B triggered
+        assert set(l10_controller.L10_KAS).issubset(result.kas_invoked)
+        assert "KA-1109" in result.kas_invoked
+        assert "KA-1079" in result.kas_invoked
+        assert "KA-108" not in result.kas_invoked
+        assert "KA-109" not in result.kas_invoked
+        assert "KA-079" not in result.kas_invoked
 
     def test_authorize_pii_modification(self, l10_controller, base_l10_input):
-        """Test modification path when PII is detected (KA-059)."""
-        base_l10_input.l9_result["epistemic_report"]["current_output"] = "Contact us at admin@example.com"
-        
+        """Test modification path when PII is detected and redacted."""
+        base_l10_input.l9_result["epistemic_report"]["current_output"] = (
+            "Contact us at admin@example.com"
+        )
+
         result = l10_controller.authorize(base_l10_input)
-        
+
         assert result.decision == L10Decision.MODIFY
         assert "[REDACTED EMAIL]" in result.final_answer
         assert any(a.action_type == "redact" for a in result.containment_actions)
 
     def test_authorize_emergence_flagged(self, l10_controller, base_l10_input):
         """Test emergence detection via KA-021."""
-        base_l10_input.l9_result["epistemic_report"]["current_output"] = "This is an emergent pattern."
-        
+        base_l10_input.l9_result["epistemic_report"]["current_output"] = (
+            "This is an emergent pattern."
+        )
+
         result = l10_controller.authorize(base_l10_input)
-        
+
         assert result.emergence_report.emergence_detected
         assert result.emergence_report.overall_level == EmergenceLevel.MODERATE
 
@@ -143,43 +224,46 @@ class TestLayer10Controller:
         # 0.98 * 0.98 = 0.9604 (> 0.95 threshold)
         base_l10_input.l9_result["readiness_score"] = 0.98
         result = l10_controller.authorize(base_l10_input)
-        
+
         assert result.trust_report.status == "pass"
         assert result.decision == L10Decision.RELEASE
 
-    def test_trust_gate_belief_decay_fail_high_risk(self, l10_controller, base_l10_input):
-        """Test high-risk trust gate failure leading to escalation (KA-095)."""
+    def test_trust_gate_belief_decay_fail_high_risk(
+        self, l10_controller, base_l10_input
+    ):
+        """Test high-risk trust gate failure leading to escalation."""
         # 0.99 * 0.98 = 0.9702 (< 0.985 threshold)
         base_l10_input.risk_domain = "high_risk"
         base_l10_input.l9_result["readiness_score"] = 0.99
-        
+
         result = l10_controller.authorize(base_l10_input)
-        
+
         assert result.trust_report.status == "fail"
         assert result.decision == L10Decision.ESCALATE
         assert result.requires_human_signoff
-        assert "KA-095" in result.kas_invoked
+        assert "KA-1095" in result.kas_invoked
 
     def test_fail_closed_on_exception(self, l10_controller, base_l10_input):
         """Test that any exception in authorize leads to a HALT (Fail-Closed)."""
-        result = l10_controller.authorize(None) 
-        
+        result = l10_controller.authorize(None)
+
         assert result.decision == L10Decision.HALT
         assert "Final safety gate failed" in result.final_answer
 
-    def test_lane_b_knowledge_commit_authorization(self, l10_controller, base_l10_input):
+    def test_lane_b_knowledge_commit_authorization(
+        self, l10_controller, base_l10_input
+    ):
         """Verify Lane B KAs are invoked during successful release."""
         result = l10_controller.authorize(base_l10_input)
-        
-        assert "KA-109" in result.kas_invoked
-        assert "KA-079" in result.kas_invoked
+
+        assert "KA-1109" in result.kas_invoked
+        assert "KA-1079" in result.kas_invoked
         # Decision was RELEASE, so Lane B logic executed
 
-    def test_lane_b_persists_authorized_knowledge_to_graphs(self, monkeypatch, base_l10_input):
-        """Verify Lane B writes authorized knowledge into NetworkX and Neo4j helpers."""
-        from backend.storage.uskd_memory_graph import UskdMemoryGraph
-
-        memory_graph = UskdMemoryGraph()
+    def test_lane_b_is_proposal_only_and_does_not_write_stores(
+        self, monkeypatch, base_l10_input
+    ):
+        """Verify the retained controller cannot bypass the effect owner."""
         merged_nodes = []
         merged_relationships = []
 
@@ -194,17 +278,12 @@ class TestLayer10Controller:
                 merged_relationships.append((source_uid, target_uid, rel_type, props))
                 return True
 
-        monkeypatch.setattr("backend.storage.get_uskd_memory_graph", lambda: memory_graph)
         monkeypatch.setattr("backend.storage.get_graph_store", lambda: FakeGraphStore())
 
-        base_l10_input.coordinate_vector = {"active_axes": [1], "1": {"uid": "pillar-1", "value": "PL01"}}
-        memory_graph.add_pillar("pillar-1", code="PL01", name="Healthcare")
         controller = EmergenceDetectionController(ka_controller=MockKAController())
 
         result = controller.authorize(base_l10_input)
 
         assert result.decision == L10Decision.RELEASE
-        assert merged_nodes[0]["node_type"] == "authorized_knowledge"
-        assert merged_relationships[0][2] == "AUTHORIZED_KNOWLEDGE"
-        matches = memory_graph.coordinate_nodes(axis_number=1, text="safe and effective")
-        assert matches[0]["data"]["promotion_authorized"] is True
+        assert merged_nodes == []
+        assert merged_relationships == []

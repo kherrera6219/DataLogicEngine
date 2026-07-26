@@ -1,20 +1,20 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
+  "source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
   "status": "cp18_a_inventory_verified",
   "summary": {
-    "live_registry_entries": 125,
+    "live_registry_entries": 132,
     "live_numeric_entries": 117,
     "live_layer10_entries": 7,
     "live_master_entries": 1,
-    "unregistered_layer9_implementations": 7,
+    "unregistered_layer9_implementations": 0,
     "original_design_rows": 114,
     "core_metadata_rows": 277,
     "sdk_registry_rows": 114,
     "canonical_capability_proposals": 213,
     "existing_implementation_proposals": 213,
     "implementation_required_proposals": 0,
-    "phase6_production_enabled": 11,
+    "phase6_production_enabled": 22,
     "generated_generic_scaffolds": 64,
     "classified_identity_conflicts": 62,
     "unclassified_source_definitions": 0,
@@ -27,11 +27,11 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 135,
+    "integration_surfaces": 133,
     "unclassified_integration_surfaces": 0,
-    "canonical_with_runtime_execution_call_site": 42,
-    "canonical_with_test_reference": 175,
-    "canonical_with_named_test_function": 172
+    "canonical_with_runtime_execution_call_site": 11,
+    "canonical_with_test_reference": 179,
+    "canonical_with_named_test_function": 177
   },
   "source_authorities": {
     "current_executable_registry": "backend/knowledge_algorithms/ka_registry.yaml",
@@ -1174,67 +1174,67 @@
       "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-001",
       "name": "Trace Analyzer",
-      "purpose": "Layer 9 Trace Analyzer",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-001",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-002",
-      "name": "Belief Drift Detector",
-      "purpose": "Layer 9 Belief Drift Detector",
+      "name": "Belief Drift",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-002",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-003",
-      "name": "Persona Agreement Auditor",
-      "purpose": "Layer 9 Persona Agreement Auditor",
+      "name": "Persona Auditor",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-003",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-004",
-      "name": "Meta-Cognitive Evaluator",
-      "purpose": "Layer 9 Meta-Cognitive Evaluator",
+      "name": "Meta Evaluator",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-004",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-005",
       "name": "Recursion Trigger",
-      "purpose": "Layer 9 Recursion Trigger",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-005",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-006",
-      "name": "Readiness Scorer",
-      "purpose": "Layer 9 Readiness Scorer",
+      "name": "Confidence Calc",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-006",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
-      "source": "backend/knowledge_algorithms/l9/__init__.py",
+      "source": "backend/knowledge_algorithms/ka_registry.yaml",
       "source_id": "L9-KA-007",
       "name": "Loop Controller",
-      "purpose": "Layer 9 Loop Controller",
+      "purpose": null,
       "disposition": "canonical",
       "canonical_id": "L9-KA-007",
-      "rationale": "current_unregistered_layer9"
+      "rationale": "current_executable"
     },
     {
       "source": "core/data/ka_registry.json",
@@ -10751,6 +10751,13 @@
       "target_checkpoint": "CP18-D"
     },
     {
+      "path": "backend/dmrf/truth_integration/core_adapter.py",
+      "exists": true,
+      "kind": "backend_application_caller",
+      "disposition": "route_through_canonical_controller",
+      "target_checkpoint": "CP18-D"
+    },
+    {
       "path": "backend/graphql_schema.py",
       "exists": true,
       "kind": "backend_api_surface",
@@ -10759,6 +10766,13 @@
     },
     {
       "path": "backend/knowledge_algorithms/__init__.py",
+      "exists": true,
+      "kind": "backend_ka_governance_or_package_surface",
+      "disposition": "merge_into_canonical_manifest_and_controller",
+      "target_checkpoint": "CP18-B"
+    },
+    {
+      "path": "backend/knowledge_algorithms/contracts.py",
       "exists": true,
       "kind": "backend_ka_governance_or_package_surface",
       "disposition": "merge_into_canonical_manifest_and_controller",
@@ -10814,6 +10828,13 @@
       "target_checkpoint": "CP18-B"
     },
     {
+      "path": "backend/knowledge_algorithms/selection.py",
+      "exists": true,
+      "kind": "backend_ka_governance_or_package_surface",
+      "disposition": "merge_into_canonical_manifest_and_controller",
+      "target_checkpoint": "CP18-B"
+    },
+    {
       "path": "backend/routes/__init__.py",
       "exists": true,
       "kind": "backend_api_surface",
@@ -10849,13 +10870,6 @@
       "target_checkpoint": "CP18-D"
     },
     {
-      "path": "backend/truth_engine/truth_core/agi_planner.py",
-      "exists": true,
-      "kind": "backend_application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
       "path": "backend/truth_engine/truth_core/emergence_controller.py",
       "exists": true,
       "kind": "backend_application_caller",
@@ -10877,21 +10891,7 @@
       "target_checkpoint": "CP18-D"
     },
     {
-      "path": "backend/truth_engine/truth_core/personas.py",
-      "exists": true,
-      "kind": "backend_application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
       "path": "backend/truth_engine/truth_core/refinement_orchestrator.py",
-      "exists": true,
-      "kind": "backend_application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
-      "path": "backend/truth_engine/truth_gate/quant.py",
       "exists": true,
       "kind": "backend_application_caller",
       "disposition": "route_through_canonical_controller",
@@ -10947,13 +10947,6 @@
       "target_checkpoint": "CP18-B"
     },
     {
-      "path": "core/self_evolving/sekre_engine.py",
-      "exists": true,
-      "kind": "application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
       "path": "core/simulation/app_orchestrator.py",
       "exists": true,
       "kind": "application_caller",
@@ -10962,13 +10955,6 @@
     },
     {
       "path": "core/simulation/pov_engine.py",
-      "exists": true,
-      "kind": "application_caller",
-      "disposition": "route_through_canonical_controller",
-      "target_checkpoint": "CP18-D"
-    },
-    {
-      "path": "core/simulation/query_persona_engine.py",
       "exists": true,
       "kind": "application_caller",
       "disposition": "route_through_canonical_controller",

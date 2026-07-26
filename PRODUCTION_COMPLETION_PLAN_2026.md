@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.41.0 |
+| Document version | v1.42.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4741,9 +4741,9 @@ The Python SDK retains the canonical result returned by the authenticated API,
 and the TypeScript SDK carries `dle.ka-execution-result.v1`. Required failures
 raise or fail closed. Missing confidence is unmeasured/zero rather than an
 optimistic default. Layer 9 passes with the real controller and its live
-KA-008/010/022/025 meanings. The current Layer-10 identity drift is contained
-as HALT without releasing the candidate; correcting the wrong IDs and proving
-the full required L9/L10 suite remains CP19-E.
+KA-008/010/022/025 meanings. At CP19-B close, the Layer-10 identity drift was
+contained as HALT without releasing the candidate; CP19-E subsequently
+corrected those IDs and proved the full required L9/L10 suite.
 
 Validation passed the CP19-B verifier, focused real-controller/API/simulation
 contract tests, the KA/Python-SDK suite at 738 passed, repository critical
@@ -4822,7 +4822,7 @@ remain read-only for historical trace hydration. The focused cross-system set
 passes 103 tests and the full source suite passes 2,506 with 18 skipped and 21
 warnings.
 
-CP19-E is now active. CP19-D establishes the canonical layer lifecycle but does
+At CP19-D close, CP19-E became active. CP19-D establishes the canonical layer lifecycle but does
 not claim that all seven L9 and all seven L10 KAs execute, that the remaining
 wrong IDs are corrected, that persona/refinement/data/effect integrations are
 complete, or that rebuilding/release is authorized. Evidence:
@@ -4830,6 +4830,55 @@ complete, or that rebuilding/release is authorized. Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-d-ten-layer-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-d-verification.json`;
 - `reports/production-readiness/2026/phase-19/cp19-d-validation.json`.
+
+### CP19-E checkpoint result - passed 2026-07-25
+
+CP19-E completed the fail-closed Layer 9 and Layer 10 safety path. All
+`L9-KA-001` through `L9-KA-007` and `L10-KA-001` through `L10-KA-007` are now
+registered, production-admitted, selected through the one CP19-C manifest
+planner, executed through the bounded canonical executor, and committed to the
+typed per-layer result record. The current manifest contains 213 canonical
+capabilities, 132 live registry entries, zero unregistered Layer 9
+implementations, and a 134-edge zero-cycle dependency graph. The 15 new edges
+bind readiness, recursion, escalation, and containment to their required
+committed measurements without changing canonical identity.
+
+The governed Layer 9 path derives `kas_invoked` only from child traces whose
+terminal state is `executed`. Forged selected/invoked IDs, missing results,
+required failures, timeouts, trace inconsistency, and exhausted recursion block
+instead of fabricating readiness or force-finalizing. Lexical distance is no
+longer represented as semantic belief drift; only observable numeric-fact loss
+is a blocking signal, and incomplete measurement remains explicit.
+
+Layer 10 executes the complete safety suite before release. Missing or failed
+trust, ethics, privacy, escalation, or containment evidence halts release. PII
+redaction removes sensitive values from the answer and all trace-bearing
+governed state without returning clear-text findings. Low-confidence release
+and containment bypasses are denied. Review routing returns a deterministic
+proposal with zero dispatched reviews; effects remain unapplied.
+
+The retained `EmergenceDetectionController` now uses `KA-1108`, `KA-1109`,
+`KA-1079`, and `KA-1095` for their actual canonical meanings. It no longer
+mislabels `KA-108`, `KA-109`, `KA-079`, `KA-058`, or `KA-059`, manually appends
+L10 invocations, or writes graph/vector/memory stores. Its Lane B output is a
+proposal only; the governed orchestrator remains the sole effect owner. DSQP
+seals contain a real deterministic SHA-256 digest rather than a placeholder,
+and fail-closed public errors do not expose internal exception text.
+
+Adversarial proof covers ID confusion, trace forgery, PII leakage, required
+suite timeout, containment bypass, low-confidence release, recursion
+exhaustion, unauthorized promotion, and false effect receipts. The CP19-E
+focused cross-system set passes 104 tests. The full source suite passes 2,522
+with 18 skipped and 21 warnings.
+
+CP19-F is now active. CP19-E does not claim that Quad Persona/DSQP reasoning is
+yet KA-backed and causal, that the 12-step refinement/data/effect/product
+workflows are complete, or that rebuilding/release is authorized. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-e-l9-l10-safety-integration.md`;
+- `reports/production-readiness/2026/phase-19/cp19-e-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-e-validation.json`; and
+- `tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py`.
 
 Evidence:
 
@@ -5277,17 +5326,16 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-D passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-E passed on 2026-07-25. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, corrected 119-edge acyclic dependency graph, bounded structured
+fixtures, corrected 134-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
-lifecycle are verified. Begin CP19-E: correct the remaining L9/L10 IDs, execute
-the full required L9/L10 KA suites through the canonical selector, derive
-invocation evidence only from committed child traces, and fail closed on every
-missing, failed, timed-out, privacy, containment, escalation, or release
-result.
+lifecycle with full fail-closed L9/L10 safety are verified. Begin CP19-F: bind
+axes 8-11 DSQP profiles to applicable persona KA selection, weighting, dissent,
+sufficiency, provider/prompt/candidate influence, bounded budgets, and truthful
+causal trace evidence.
 
-Proceed through CP19-E to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-F to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

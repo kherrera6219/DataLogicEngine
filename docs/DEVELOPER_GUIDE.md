@@ -150,13 +150,18 @@ and zero legacy result calls. CP19-C adds
 `backend/knowledge_algorithms/selection.py`, generated fixtures under
 `tests/knowledge_algorithms/phase19/`, and
 `scripts/verify_ka_selector_dag.py`. It verifies 213 positive and 213 negative
-cases, a 119-edge zero-cycle graph, bounded concurrency/budgets/cancellation,
+cases, a base 119-edge zero-cycle graph, bounded concurrency/budgets/cancellation,
 and proposal-only effects. The KA/Python-SDK suite passes 781 and the full
 CP19-C source suite passes 2,499 with 18 skipped. CP19-D adds typed
 `GovernedReasoningState`, transport-neutral L1-L10 stage executors, a
 production-mode selector-backed L1 recipe, causal/release regressions, and
 durable layer/KA trace binding inside the one governed orchestrator. CP19-E
-full correct-ID fail-closed L9/L10 safety is active.
+registers and production-admits all 14 L9/L10 KAs, extends the current acyclic
+graph to 134 edges, derives invocation lists from committed child traces,
+redacts PII from release and trace state, and fails closed on required
+failure/timeout, containment, confidence, recursion, promotion, and false
+effect receipts. Its focused set passes 104 and the full source suite passes
+2,522 with 18 skipped. CP19-F causal Quad Persona/DSQP is active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

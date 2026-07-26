@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "1ef001d453fe6114d2f20b4189e138e1336ea2fd1b619c1df02be136d660ca44",
+  "identity_source_sha256": "0e015c2b4a1ff76f9a41994877ef35c3cdcfd73716240eca7f15d38ccae90841",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -362,6 +362,8 @@
           "core/simulation/refinement_workflow.py:133"
         ],
         "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
+          "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_accepts_external_api_key",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_uses_id_as_name_fallback",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_batch_accepts_documented_payload_with_context",
@@ -470,7 +472,10 @@
           "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
           "tests/test_production_fidelity.py::test_production_refinement_fidelity",
           "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
           "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_preflight_has_exact_state_and_failure_contract",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas",
           "tests/unit/test_core_integration.py::test_ka_master_routing",
           "tests/unit/test_phase3_api_surface_governance.py::test_legacy_successor_path_maps_known_prefixes",
           "tests/unit/test_ukg_db_coverage.py::test_create_ka_execution_uses_current_schema",
@@ -521,7 +526,6 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/agi_planner.py:162",
           "core/simulation/refinement_workflow.py:137"
         ],
         "detected_named_test_functions": [
@@ -529,9 +533,7 @@
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_blocks_unqualified_production_execution",
           "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka002_returns_three_deterministic_sub_goals",
           "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_falls_back_to_ka040",
-          "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_uses_ka002_when_available",
-          "tests/truth_engine/test_layer7_agi.py::test_plan_handles_ka021_exception",
-          "tests/truth_engine/test_layer7_agi.py::test_plan_runs_ka021_emergence_hook"
+          "tests/truth_engine/test_layer7_agi.py::test_decompose_goal_uses_ka002_when_available"
         ],
         "production_enabled": false
       },
@@ -576,7 +578,6 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:564",
           "core/simulation/refinement_workflow.py:141"
         ],
         "detected_named_test_functions": [],
@@ -628,6 +629,7 @@
           "sdk/UKG_Python_SDK/tests/test_ka_canonical_client.py:86"
         ],
         "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
           "tests/integration/test_gateway_api_coverage.py::test_api_key_auth_header",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
@@ -635,7 +637,19 @@
           "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
           "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_legacy_loader_accepts_numeric_ids_without_private_scanning",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_existing_module_through_typed_contract",
-          "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_honors_cancellation_and_deadline"
+          "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_honors_cancellation_and_deadline",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_compatibility_facades_offer_canonical_typed_results",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_required_consumer_rejects_legacy_and_failed_results",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_executor_injects_dependencies_and_records_real_trace",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_invalid_plan_cannot_execute",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_master_facade_plans_and_executes_canonical_path",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_policy_denial_and_unavailable_service_fail_closed",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
         ],
         "production_enabled": true
       },
@@ -686,6 +700,9 @@
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_dispatches_selected_flow",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents",
           "tests/knowledge_algorithms/test_phase18_compatibility_adapters.py::test_phase18_core_engine_pipeline_stops_on_canonical_failure",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_parent_cancellation_is_re_raised",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_required_failure_cancels_siblings_and_blocks_dependents",
           "tests/test_production_fidelity.py::test_production_tiering_and_routing",
           "tests/truth_engine/test_truth_infrastructure.py::test_determine_tier_ai"
         ],
@@ -829,12 +846,10 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_008_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:570",
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:540"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_008_self_critique_is_deterministic_and_accuracy_honest",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -927,9 +942,7 @@
       "integration_test": "tests/integration/phase19/test_truthgate.py::test_ka_010_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:581"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_environment_management",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka104_load_balancing",
@@ -979,6 +992,7 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1091,11 +1105,10 @@
       "integration_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_012_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/personas.py:148"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_012_persona_simulation_emits_review_findings_not_fake_claims",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_simulation_consumers_read_typed_outputs",
           "tests/verify_consensus_v2.py::test_consensus_pipeline"
         ],
         "production_enabled": false
@@ -1190,12 +1203,11 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_014_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:449"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka014_domain_calibration_varies_with_domain_scores",
           "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization",
+          "tests/truth_engine/test_layer8_trust_gate.py::test_ka_invocation",
           "tests/unit/test_dbp_historical_calibration.py::test_ka_036_reads_p95_latency_from_last_100"
         ],
         "production_enabled": false
@@ -1286,9 +1298,7 @@
       "integration_test": "tests/integration/phase19/test_truthgate.py::test_ka_016_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:396"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/compliance/test_fullstack_compliance.py::test_ka_016_regulatory_mapping",
           "tests/end_to_end/test_e2e_scenarios.py::test_simulated_user_journey",
@@ -1536,10 +1546,7 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_021_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/agi_planner.py:119",
-          "backend/truth_engine/truth_core/emergence_controller.py:146"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/truth_engine/test_layer10_emergence.py::test_authorize_emergence_flagged",
           "tests/truth_engine/test_layer7_agi.py::test_plan_handles_ka021_exception",
@@ -1588,11 +1595,9 @@
       "integration_test": "tests/integration/phase19/test_truthgate.py::test_ka_022_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:592",
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:487"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka022_returns_axis15_six_dimension_risk_schema",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
@@ -1641,9 +1646,7 @@
       "integration_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_023_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:471"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase_e_depth.py::test_ka023_domain_specific_lambdas_decay_healthcare_faster_than_general"
         ],
@@ -1690,9 +1693,7 @@
       "integration_test": "tests/integration/phase19/test_truthgate.py::test_ka_024_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:500"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/unit/test_axis_alignment.py::test_axis_managers_resolve_canonical_phase_b_contexts"
         ],
@@ -1739,11 +1740,10 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:603",
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:415",
           "core/simulation/refinement_workflow.py:161"
         ],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_canonical_kas_defined",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
@@ -1791,11 +1791,10 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_026_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:340"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization"
+          "tests/truth_engine/test_layer8_trust_gate.py::test_gateway_initialization",
+          "tests/truth_engine/test_layer8_trust_gate.py::test_ka_invocation"
         ],
         "production_enabled": false
       },
@@ -1885,9 +1884,7 @@
       "integration_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_028_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "core/simulation/pov_engine.py:197"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_028_point_of_view_expansion_has_stable_ranked_selection"
         ],
@@ -1981,7 +1978,6 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:355",
           "core/simulation/refinement_workflow.py:165"
         ],
         "detected_named_test_functions": [],
@@ -2027,9 +2023,7 @@
       "integration_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_031_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "core/simulation/simulation_engine.py:1310"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka031_selects_policy_aware_pipeline",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka_master_routes_reasoning_nlp_intents"
@@ -2126,6 +2120,8 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka033_extension_slot_summarizes_payload",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_all_213_positive_and_negative_fixtures_are_current",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order",
           "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default"
         ],
         "production_enabled": false
@@ -2173,9 +2169,7 @@
       "integration_test": "tests/integration/phase19/test_truthgate.py::test_ka_034_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/trust_validation_gateway.py:552"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka031_selects_policy_aware_pipeline",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka034_scores_adversarial_assumption_risk_deterministically",
@@ -2403,9 +2397,7 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_039_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/quant.py:69"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka039_detects_numeric_outlier_with_zscore"
         ],
@@ -2449,9 +2441,7 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_040_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/agi_planner.py:178"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka032_orchestrates_dependencies_and_checkpoints",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka040_generates_testable_hypotheses_from_variables",
@@ -3222,9 +3212,7 @@
       "integration_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_057_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "core/simulation/pov_engine.py:210"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [],
         "production_enabled": false
       },
@@ -3270,7 +3258,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3315,7 +3305,7 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/truth_engine/test_layer10_emergence.py::test_authorize_pii_modification"
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
         ],
         "production_enabled": false
       },
@@ -3405,7 +3395,12 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/governed_execution/test_orchestrator.py::test_selected_l1_adversarial_result_blocks_before_retrieval_and_provider",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_expands_for_high_risk_standard_request",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_governed_layer_plan_uses_manifest_selector_and_typed_results",
+          "tests/truth_engine/test_truthcore_preflight_contract.py::test_regulatory_axis_context_does_not_select_unqualified_kas"
+        ],
         "production_enabled": true
       },
       "qualification": {
@@ -3584,7 +3579,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -3858,7 +3855,9 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_integration_authority.py::test_cp19a_catalog_cards_expose_owner_and_selection_authority"
+        ],
         "production_enabled": false
       },
       "qualification": {
@@ -4191,13 +4190,13 @@
       "integration_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_079_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:284"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka079_retrieves_ranked_local_records_with_filters",
           "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
-          "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
         ],
         "production_enabled": false
       },
@@ -4911,13 +4910,10 @@
       "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_095_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:252"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka095_alerting",
-          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_095_alerting_returns_proposal_without_delivery_claim",
-          "tests/truth_engine/test_layer10_emergence.py::test_trust_gate_belief_decay_fail_high_risk"
+          "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_095_alerting_returns_proposal_without_delivery_claim"
         ],
         "production_enabled": false
       },
@@ -6569,7 +6565,12 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion"
+          "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1079_promotion_gate_approves_without_applying_promotion",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
+          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
+          "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
         ],
         "production_enabled": false
       },
@@ -6614,9 +6615,7 @@
       "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_108_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:156"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only",
           "tests/knowledge_algorithms/test_phase18_cp18c_governed_decision_batch.py::test_ka_1080_simulation_cost_estimator_applies_declared_contingency",
@@ -6628,7 +6627,10 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1083_revalidation_scheduler_makes_drift_immediately_due",
           "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1086_usage_analytics_aggregates_only_supplied_events",
           "tests/knowledge_algorithms/test_phase18_cp18c_lifecycle_batch.py::test_ka_1088_lifecycle_manager_proposes_only_valid_next_transitions",
-          "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements"
+          "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1089_policy_evolution_tracks_added_removed_and_changed_requirements",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
         ],
         "production_enabled": false
       },
@@ -7140,9 +7142,7 @@
       "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_109_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:276"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_reports_real_local_health_components",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail",
@@ -7155,8 +7155,9 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
           "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
-          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
-          "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release"
         ],
         "production_enabled": false
       },
@@ -7438,7 +7439,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception"
+          "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
+          "tests/truth_engine/test_layer10_emergence.py::test_trust_gate_belief_decay_fail_high_risk"
         ],
         "production_enabled": false
       },
@@ -8117,7 +8119,9 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing"
+          "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace"
         ],
         "production_enabled": false
       },
@@ -8164,7 +8168,11 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data"
+          "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
+          "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
+          "tests/truth_engine/test_layer10_emergence.py::test_authorize_standard_release",
+          "tests/truth_engine/test_layer10_emergence.py::test_lane_b_knowledge_commit_authorization"
         ],
         "production_enabled": false
       },
@@ -8493,13 +8501,8 @@
       "integration_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_113_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/engine.py:1022",
-          "backend/truth_engine/truth_core/engine.py:1024",
-          "core/simulation/simulation_engine.py:1306"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/governed_execution/test_orchestrator.py::test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution",
           "tests/governed_execution/test_trace_persistence.py::test_trace_transaction_persists_exact_stages_and_governance_artifacts",
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
           "tests/knowledge_algorithms/test_registry_governance.py::test_experimental_and_placeholder_algorithms_are_disabled_by_default",
@@ -8634,9 +8637,7 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_116_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_gate/quant.py:79"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/truth_engine/test_layer10_ka_suite.py::test_ka116_entropy_delegates_to_l10_scorer"
         ],
@@ -8684,7 +8685,9 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
-          "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics"
+          "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_cycle_and_budget_overflow_invalidate_the_whole_plan",
+          "tests/knowledge_algorithms/test_phase19_cp19c_selector_dag.py::test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order"
         ],
         "production_enabled": true
       },
@@ -9867,14 +9870,12 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_001_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:171"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_ka_master_controller.py::test_controller_registry_merges_catalog_metadata_for_ui_cards",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -9915,13 +9916,12 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_002_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:175"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -9964,6 +9964,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_pii_redaction_never_returns_clear_text_findings",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
         "production_enabled": true
@@ -10007,13 +10009,13 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_004_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/emergence_controller.py:218"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10056,6 +10058,8 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
         "production_enabled": true
@@ -10103,6 +10107,9 @@
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
         "production_enabled": true
@@ -10148,9 +10155,12 @@
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_low_confidence_and_containment_bypass_are_denied",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
           "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10192,18 +10202,17 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_001_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:321"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_controller_executes_layer9_class_adapter",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_l9_kas_defined",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_trace_analyzer_ka",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10217,7 +10226,7 @@
     },
     {
       "canonical_id": "L9-KA-002",
-      "name": "Belief Drift Detector",
+      "name": "Belief Drift",
       "implementation_owner": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
       "primary_owner": "truthcore_l9",
       "primary_owner_title": "TruthCore Layer 9",
@@ -10245,15 +10254,14 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_002_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:400"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_belief_drift_ka",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10267,7 +10275,7 @@
     },
     {
       "canonical_id": "L9-KA-003",
-      "name": "Persona Agreement Auditor",
+      "name": "Persona Auditor",
       "implementation_owner": "backend/knowledge_algorithms/l9/l9_ka_003_persona_auditor.py",
       "primary_owner": "truthcore_l9",
       "primary_owner_title": "TruthCore Layer 9",
@@ -10295,14 +10303,13 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_003_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:506"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10316,7 +10323,7 @@
     },
     {
       "canonical_id": "L9-KA-004",
-      "name": "Meta-Cognitive Evaluator",
+      "name": "Meta Evaluator",
       "implementation_owner": "backend/knowledge_algorithms/l9/l9_ka_004_meta_evaluator.py",
       "primary_owner": "truthcore_l9",
       "primary_owner_title": "TruthCore Layer 9",
@@ -10344,14 +10351,13 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_004_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:530"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10393,15 +10399,15 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_005_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:689"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_recursion_exhaustion_never_force_finalizes",
           "tests/truth_engine/test_layer9_meta_reasoning.py::test_recursion_trigger_ka",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10415,7 +10421,7 @@
     },
     {
       "canonical_id": "L9-KA-006",
-      "name": "Readiness Scorer",
+      "name": "Confidence Calc",
       "implementation_owner": "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
       "primary_owner": "truthcore_l9",
       "primary_owner_title": "TruthCore Layer 9",
@@ -10443,14 +10449,13 @@
       "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_006_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
-        "detected_execution_call_sites": [
-          "backend/truth_engine/truth_core/meta_reasoning_controller.py:650"
-        ],
+        "detected_execution_call_sites": [],
         "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
           "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
         ],
-        "production_enabled": false
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",
@@ -10493,8 +10498,13 @@
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
-        "detected_named_test_functions": [],
-        "production_enabled": false
+        "detected_named_test_functions": [
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
+          "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_recursion_exhaustion_never_force_finalizes",
+          "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
+          "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
+        ],
+        "production_enabled": true
       },
       "qualification": {
         "contract": "CP19-B",

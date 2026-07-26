@@ -5,7 +5,7 @@
 
 ## Control status
 
-- Authority version: `2026.07.25-phase19-cp19a-integration-authority`
+- Authority version: `2026.07.25-phase19-cp19e-l9-l10-safety`
 - Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`

@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/119-edge acyclic bounded DAG evidence, and CP19-D typed causal L1-L10/L10-release evidence | CP19-E-L full L9/L10/persona/refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/bounded acyclic DAG evidence, CP19-D typed causal L1-L10/L10-release evidence, and CP19-E full fail-closed L9/L10 safety/trace/privacy evidence | CP19-F-L persona/refinement/subsystem/product/per-KA clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -106,13 +106,16 @@ skipped. Those checkpoints did not authorize effects, rebuilding, installed
 acceptance, or release.
 
 CP19-C passed with one typed manifest selector/plan/executor, 213 positive and
-213 negative generated fixtures, 119 corrected acyclic dependency edges,
+213 negative generated fixtures, 119 corrected base dependency edges,
 bounded concurrency/budgets/cancellation, 781 KA/Python-SDK tests, and 2,499
 full-source tests with 18 skipped. CP19-D subsequently established one typed
 causal L1-L10 product lifecycle, a production-mode selector-backed L1 recipe,
-bounded L6-L9 revalidation, and L10-gated success persistence. CP19-E is
-active. CP19-D did not authorize full all-ID L9/L10 safety,
-effect application, rebuilding, installed acceptance, or release.
+bounded L6-L9 revalidation, and L10-gated success persistence. CP19-E
+subsequently passed all-ID fail-closed L9/L10 safety, extended the current
+acyclic graph to 134 edges, removed wrong-ID/manual-trace/direct-store paths,
+and passed adversarial privacy/failure/containment/recursion/promotion/effect
+proof. CP19-F is active. Effect application, rebuilding, installed acceptance,
+and release remain unauthorized.
 
 The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
 require the exact signed installed artifact. Phase 20 launch remains blocked by

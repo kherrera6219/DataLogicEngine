@@ -18,7 +18,7 @@ def test_every_registered_ka_has_valid_production_classification():
     catalog = load_production_catalog()
     registry_ids = _registry_ids()
 
-    assert len(registry_ids) == 125
+    assert len(registry_ids) == 132
     assert set(catalog) == registry_ids
     assert validate_production_catalog(catalog) == []
     assert {entry.classification for entry in catalog.values()} <= set(KAClassification)

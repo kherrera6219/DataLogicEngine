@@ -42,23 +42,26 @@ production-enabled TruthCore KAs, bounded local retrieval, and a configured
 OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
 
-The current 11-entry production-enabled KA subset is a Phase 6 safety boundary,
-not final subsystem completion. Phase 18 retained a reconciled 213-capability
+The current 22-entry production-enabled KA subset includes the retained Phase 6
+safety boundary and the complete CP19-E L9/L10 safety suites; it is not final
+owning-subsystem completion. Phase 18 retained a reconciled 213-capability
 authority, one runtime/controller, 213 unique implementation owners, and zero
 source gaps, but its whole-application wiring audit failed. Phase 19 CP19-A now
 adds one primary subsystem owner and governed consumer/evidence destinations
 for every KA, 16 workflow dispositions, and a 726-test baseline. CP19-B passed
 typed caller parity. CP19-C now passes with 213 positive and 213 negative
-selector fixtures, a corrected 119-edge zero-cycle dependency DAG, bounded
+selector fixtures, a corrected base dependency DAG, bounded
 concurrency/budgets/cancellation, 781 KA/Python-SDK tests, and a
 2,499-passed/18-skipped CP19-C full source suite. CP19-D then established one
 typed causal L1-L10 product lifecycle, production-mode selector-backed L1
 execution, bounded L6-L9 revalidation, and L10-gated success persistence.
-Phase 19 continues to own full L9/L10, Quad
-Persona/DSQP, 12-step, Truth/data/knowledge, extended-subsystem, API/SDK/desktop,
-per-KA, and installed integration proof. The signed rebuild is paused through
-CP19-L. No catalog entry, imported module, or nonproduction opt-in alone
-establishes production capability.
+CP19-E then passed full correct-ID fail-closed L9/L10 safety with all 14
+algorithms selected from committed child traces, a current 134-edge zero-cycle
+graph, trace-safe PII redaction, and adversarial failure/effect proof. Phase 19
+continues to own Quad Persona/DSQP, 12-step, Truth/data/knowledge,
+extended-subsystem, API/SDK/desktop, per-KA, and installed integration proof.
+The signed rebuild is paused through CP19-L. No catalog entry, imported module,
+or nonproduction opt-in alone establishes production capability.
 
 The trace records request and workflow identity, provider/model selection,
 policy and routing decisions, evidence and claim relationships, convergence,

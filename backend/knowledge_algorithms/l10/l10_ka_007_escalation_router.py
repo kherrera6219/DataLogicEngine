@@ -1,46 +1,55 @@
-"""L10-KA-007: human escalation routing."""
+"""L10-KA-007: deterministic human-review escalation proposal."""
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+import hashlib
 from typing import Any
-import uuid
 
 HIGH_TOUCH_DOMAINS = {"healthcare", "finance", "legal", "high_risk", "regulated"}
 
 
 def run(inputs: dict[str, Any]) -> dict[str, Any]:
-    domain = str(inputs.get("risk_domain") or inputs.get("domain") or "standard").lower()
-    confidence = float(inputs.get("confidence", inputs.get("decayed_confidence", 1.0)) or 0.0)
-    violations = inputs.get("violations") or []
-    should_escalate = domain in HIGH_TOUCH_DOMAINS or confidence < 0.90 or bool(violations)
-    ticket = None
+    dependency_results = inputs.get("dependency_results") or {}
+    trust = dependency_results.get("L10-KA-006") or {}
+    ethics = dependency_results.get("L10-KA-004") or {}
+    domain = str(
+        inputs.get("risk_domain") or inputs.get("domain") or "standard"
+    ).lower()
+    confidence_value = inputs.get("confidence", inputs.get("decayed_confidence"))
+    if confidence_value is None:
+        confidence_value = trust.get("decayed_confidence")
+    confidence = float(confidence_value) if confidence_value is not None else None
+    violations = inputs.get("violations") or ethics.get("violations") or []
+    consequential = bool(inputs.get("consequential_decision"))
+    should_escalate = (
+        bool(violations)
+        or (confidence is None and not inputs.get("allow_not_measured"))
+        or (confidence is not None and confidence < 0.90)
+        or (domain in HIGH_TOUCH_DOMAINS and consequential)
+    )
+    proposal = None
     if should_escalate:
-        ticket = {
-            "ticket_id": f"hitl_{uuid.uuid4().hex[:12]}",
+        stable_source = "|".join(
+            [
+                str(inputs.get("request_id") or "unknown"),
+                domain,
+                str(confidence),
+                str(len(violations)),
+            ]
+        )
+        proposal = {
+            "proposal_id": (
+                "hitl_" + hashlib.sha256(stable_source.encode()).hexdigest()[:12]
+            ),
             "queue": "human_review",
             "risk_domain": domain,
-            "created_at": datetime.now(UTC).isoformat(),
             "reason": inputs.get("reason") or "Layer 10 escalation policy",
+            "applied": False,
         }
-        _write_optional_audit(ticket, inputs)
     return {
         "success": True,
-        "escalated": should_escalate,
-        "hitl_ticket": ticket,
+        "escalation_required": should_escalate,
+        "review_proposal": proposal,
+        "reviews_dispatched": 0,
+        "deterministic": True,
     }
-
-
-def _write_optional_audit(ticket: dict[str, Any], inputs: dict[str, Any]) -> None:
-    try:
-        from backend.truth_engine.truth_memory.audit import TruthAuditRecorder
-        from extensions import db
-
-        TruthAuditRecorder(db_session=db.session).log_event(
-            session_id=inputs.get("session_id"),
-            event_type="l10_human_escalation",
-            event_data=ticket,
-            category="safety",
-        )
-    except Exception:
-        return

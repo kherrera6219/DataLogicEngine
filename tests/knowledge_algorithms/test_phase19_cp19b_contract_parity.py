@@ -121,7 +121,7 @@ def test_real_controller_layer9_consumes_actual_canonical_outputs():
     assert not result.disclosure_flags
 
 
-def test_real_controller_layer10_contains_remaining_identity_drift():
+def test_real_controller_layer10_uses_corrected_canonical_identities():
     controller = KAMasterController({})
     result = EmergenceDetectionController(controller).authorize(
         L10Input(
@@ -140,9 +140,16 @@ def test_real_controller_layer10_contains_remaining_identity_drift():
         )
     )
 
-    assert result.decision == L10Decision.HALT
-    assert "Required KA-108 escalation check failed" in result.final_answer
-    assert "Use a staged and validated deployment." not in result.final_answer
+    assert result.decision == L10Decision.RELEASE
+    assert {
+        "KA-1108",
+        "KA-1109",
+        "KA-1079",
+        *EmergenceDetectionController.L10_KAS,
+    }.issubset(result.kas_invoked)
+    assert {"KA-108", "KA-109", "KA-079"}.isdisjoint(
+        result.kas_invoked
+    )
 
 
 def test_real_simulation_consumers_read_typed_outputs():

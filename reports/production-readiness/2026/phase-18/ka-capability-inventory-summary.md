@@ -5,15 +5,15 @@
 | Field | Value |
 |---|---|
 | Schema | `dle.ka-capability-inventory.v1` |
-| Source-input SHA-256 | `bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363` |
+| Source-input SHA-256 | `00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6` |
 | Status | `cp18_a_inventory_verified` |
 
 ## Counts
 
 | Measure | Count |
 |---|---:|
-| Live executable registry entries | 125 |
-| Unregistered Layer-9 implementations | 7 |
+| Live executable registry entries | 132 |
+| Unregistered Layer-9 implementations | 0 |
 | Original design rows | 114 |
 | Expanded historical metadata rows | 277 |
 | SDK registry rows | 114 |
@@ -31,11 +31,11 @@
 | Exact canonical purpose/input/output contract collisions | 0 |
 | Classified implementation surfaces | 213 |
 | Unclassified implementation surfaces | 0 |
-| Classified integration/API/SDK/UI surfaces | 135 |
+| Classified integration/API/SDK/UI surfaces | 133 |
 | Unclassified integration/API/SDK/UI surfaces | 0 |
-| Canonical capabilities with literal runtime execution call sites | 42 |
-| Canonical capabilities with any test reference | 175 |
-| Canonical capabilities with an individually named test function | 172 |
+| Canonical capabilities with literal runtime execution call sites | 11 |
+| Canonical capabilities with any test reference | 179 |
+| Canonical capabilities with an individually named test function | 177 |
 
 ## Proposed identity policy
 

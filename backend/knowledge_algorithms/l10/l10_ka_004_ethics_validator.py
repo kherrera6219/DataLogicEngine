@@ -8,10 +8,28 @@ from typing import Any
 from backend.knowledge_algorithms.l10.common import text_from_inputs
 
 RULES = [
-    ("manipulation", "critical", re.compile(r"\bmanipulate|deceive|coerce\b", re.I)),
-    ("illegal_discrimination", "critical", re.compile(r"\bdiscriminat(?:e|ion)|protected class\b", re.I)),
-    ("unsafe_medical_or_legal", "major", re.compile(r"\bguaranteed diagnosis|ignore a lawyer|ignore a doctor\b", re.I)),
-    ("unethical_request", "major", re.compile(r"\bunethical|evade compliance|hide evidence\b", re.I)),
+    (
+        "manipulation",
+        "critical",
+        re.compile(r"\bmanipulate|deceive|coerce\b", re.IGNORECASE),
+    ),
+    (
+        "illegal_discrimination",
+        "critical",
+        re.compile(r"\bdiscriminat(?:e|ion)|protected class\b", re.IGNORECASE),
+    ),
+    (
+        "unsafe_medical_or_legal",
+        "major",
+        re.compile(
+            r"\bguaranteed diagnosis|ignore a lawyer|ignore a doctor\b", re.IGNORECASE
+        ),
+    ),
+    (
+        "unethical_request",
+        "major",
+        re.compile(r"\bunethical|evade compliance|hide evidence\b", re.IGNORECASE),
+    ),
 ]
 
 

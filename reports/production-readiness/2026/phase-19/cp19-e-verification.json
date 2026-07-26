@@ -1,0 +1,59 @@
+{
+  "schema_version": "dle.phase19-cp19e-verification.v1",
+  "checkpoint": "CP19-E",
+  "date": "2026-07-25",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19e.1",
+  "manifest_status": "cp19_e_l9_l10_authority",
+  "canonical_capabilities": 213,
+  "live_registry_entries": 132,
+  "unregistered_layer9_implementations": 0,
+  "production_enabled_capabilities": 22,
+  "dependency_edges": 134,
+  "dependency_cycles": 0,
+  "required_suites": {
+    "layer9": [
+      "L9-KA-001",
+      "L9-KA-002",
+      "L9-KA-003",
+      "L9-KA-004",
+      "L9-KA-005",
+      "L9-KA-006",
+      "L9-KA-007"
+    ],
+    "layer10": [
+      "L10-KA-001",
+      "L10-KA-002",
+      "L10-KA-003",
+      "L10-KA-004",
+      "L10-KA-005",
+      "L10-KA-006",
+      "L10-KA-007"
+    ]
+  },
+  "corrected_semantic_ids": {
+    "capability_escalation": "KA-1108",
+    "knowledge_containment": "KA-1109",
+    "knowledge_promotion": "KA-1079",
+    "human_escalation": "KA-1095"
+  },
+  "trace_contract": {
+    "invocation_authority": "committed_child_trace_executed_state",
+    "manual_invocation_appends": 0,
+    "effects_applied": false,
+    "direct_lane_b_store_paths": 0
+  },
+  "adversarial_proofs": {
+    "id_confusion": "pass",
+    "trace_forgery": "pass",
+    "pii_leakage": "pass",
+    "required_suite_timeout": "pass",
+    "containment_bypass": "pass",
+    "low_confidence_release": "pass",
+    "recursion_exhaustion": "pass",
+    "unauthorized_promotion": "pass",
+    "false_effect_receipt": "pass"
+  },
+  "crosswalk_source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
+  "errors": []
+}

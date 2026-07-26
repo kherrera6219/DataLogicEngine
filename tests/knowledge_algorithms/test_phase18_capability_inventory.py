@@ -26,8 +26,8 @@ INVENTORY_MODULE = _load_inventory_module()
 def test_phase18_inventory_classifies_every_known_definition_without_loss():
     inventory, crosswalk = INVENTORY_MODULE.build_inventory()
 
-    assert inventory["summary"]["live_registry_entries"] == 125
-    assert inventory["summary"]["unregistered_layer9_implementations"] == 7
+    assert inventory["summary"]["live_registry_entries"] == 132
+    assert inventory["summary"]["unregistered_layer9_implementations"] == 0
     assert inventory["summary"]["original_design_rows"] == 114
     assert inventory["summary"]["core_metadata_rows"] == 277
     assert inventory["summary"]["sdk_registry_rows"] == 114

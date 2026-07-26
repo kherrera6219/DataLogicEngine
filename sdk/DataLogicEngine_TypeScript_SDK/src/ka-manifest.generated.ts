@@ -3,12 +3,12 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19c.1",
-  "status": "cp19_c_selector_authority",
+  "manifest_version": "2026.07.25-cp19e.1",
+  "status": "cp19_e_l9_l10_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
+    "crosswalk_source_input_sha256": "00f2e673687ab45b043f03cfb47d1ed251a2578f842984ce24e0fded1aeddef6",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id",
@@ -46,8 +46,65 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1111"
         ],
         "rationale": "Evolution admission consumes escalation, capability, and prior goal-drift constraints; it is not a prerequisite of the monitor."
+      },
+      "L9-KA-006": {
+        "dependencies": [
+          "L9-KA-001",
+          "L9-KA-002",
+          "L9-KA-003",
+          "L9-KA-004"
+        ],
+        "rationale": "Readiness is calculated only from committed L9 measurements."
+      },
+      "L9-KA-005": {
+        "dependencies": [
+          "L9-KA-006"
+        ],
+        "rationale": "The refinement trigger consumes measured readiness."
+      },
+      "L9-KA-007": {
+        "dependencies": [
+          "L9-KA-005",
+          "L9-KA-006"
+        ],
+        "rationale": "Loop admission consumes the refinement and readiness decisions."
+      },
+      "L10-KA-007": {
+        "dependencies": [
+          "L10-KA-004",
+          "L10-KA-006"
+        ],
+        "rationale": "Human review routing consumes ethics and terminal trust results."
+      },
+      "L10-KA-005": {
+        "dependencies": [
+          "L10-KA-001",
+          "L10-KA-002",
+          "L10-KA-003",
+          "L10-KA-004",
+          "L10-KA-006",
+          "L10-KA-007"
+        ],
+        "rationale": "The containment decision consumes every preceding L10 safety result."
       }
-    }
+    },
+    "production_admission_checkpoint": "CP19-E",
+    "production_admission_ids": [
+      "L10-KA-001",
+      "L10-KA-002",
+      "L10-KA-003",
+      "L10-KA-004",
+      "L10-KA-005",
+      "L10-KA-006",
+      "L10-KA-007",
+      "L9-KA-001",
+      "L9-KA-002",
+      "L9-KA-003",
+      "L9-KA-004",
+      "L9-KA-005",
+      "L9-KA-006",
+      "L9-KA-007"
+    ]
   },
   "capability_count": 213,
   "alias_index": {
@@ -17949,9 +18006,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Candidate content"
+        ],
+        "outputs": [
+          "Token entropy heuristic",
+          "divergence flag"
+        ],
         "categories": [],
         "layers": [
           "L10"
@@ -17968,12 +18030,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -18027,9 +18089,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Candidate content"
+        ],
+        "outputs": [
+          "Self-reference indicators",
+          "capability indicators"
+        ],
         "categories": [],
         "layers": [
           "L10"
@@ -18046,12 +18113,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -18105,9 +18172,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Candidate content"
+        ],
+        "outputs": [
+          "Redacted content",
+          "PII type counts"
+        ],
         "categories": [],
         "layers": [
           "L10"
@@ -18124,9 +18196,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
         "production_enabled": true,
@@ -18183,9 +18255,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Candidate content"
+        ],
+        "outputs": [
+          "Ethics rule findings",
+          "policy tier"
+        ],
         "categories": [],
         "layers": [
           "L10"
@@ -18202,12 +18279,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -18261,16 +18338,29 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Committed L10 results",
+          "final action"
+        ],
+        "outputs": [
+          "Containment/release decision",
+          "signoff requirement"
+        ],
         "categories": [],
         "layers": [
           "L10"
         ],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "L10-KA-001",
+          "L10-KA-002",
+          "L10-KA-003",
+          "L10-KA-004",
+          "L10-KA-006",
+          "L10-KA-007"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -18280,9 +18370,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
         "production_enabled": true,
@@ -18339,9 +18429,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Measured confidence",
+          "risk threshold"
+        ],
+        "outputs": [
+          "Belief-decay trust result",
+          "measurement status"
+        ],
         "categories": [],
         "layers": [
           "L10"
@@ -18358,9 +18454,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Guarantee is limited to deterministic contract checks and versioned semantic fixtures.",
-        "guarantee": "Validates only its documented input contract and fails closed when required evidence is absent.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
         "production_enabled": true,
@@ -18417,16 +18513,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Trust/ethics results",
+          "risk context"
+        ],
+        "outputs": [
+          "Deterministic review proposal",
+          "dispatch count"
+        ],
         "categories": [],
         "layers": [
           "L10"
         ],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "L10-KA-004",
+          "L10-KA-006"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -18436,13 +18541,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "deterministic_heuristic",
+        "production_enabled": true,
+        "classification": "production_validator",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -18477,9 +18582,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-001": {
       "canonical_id": "L9-KA-001",
       "name": "Trace Analyzer",
-      "purpose": "Layer 9 Trace Analyzer",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18496,9 +18601,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Committed L1-L8 trace",
+          "executed layer IDs"
+        ],
+        "outputs": [
+          "Trace integrity findings",
+          "trace completeness"
+        ],
         "categories": [],
         "layers": [
           "L9"
@@ -18515,14 +18626,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18552,14 +18663,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-002": {
       "canonical_id": "L9-KA-002",
-      "name": "Belief Drift Detector",
-      "purpose": "Layer 9 Belief Drift Detector",
+      "name": "Belief Drift",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18576,9 +18687,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Original query",
+          "candidate answer"
+        ],
+        "outputs": [
+          "Measured lexical/numeric drift",
+          "limitations"
+        ],
         "categories": [],
         "layers": [
           "L9"
@@ -18595,14 +18712,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18632,14 +18749,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-003": {
       "canonical_id": "L9-KA-003",
-      "name": "Persona Agreement Auditor",
-      "purpose": "Layer 9 Persona Agreement Auditor",
+      "name": "Persona Auditor",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18656,9 +18773,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Measured persona results",
+          "agreement threshold"
+        ],
+        "outputs": [
+          "Agreement findings",
+          "measurement status"
+        ],
         "categories": [],
         "layers": [
           "L9"
@@ -18675,14 +18798,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18712,14 +18835,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-004": {
       "canonical_id": "L9-KA-004",
-      "name": "Meta-Cognitive Evaluator",
-      "purpose": "Layer 9 Meta-Cognitive Evaluator",
+      "name": "Meta Evaluator",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18736,9 +18859,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Candidate measurements",
+          "committed trace"
+        ],
+        "outputs": [
+          "Weaknesses",
+          "observed failure modes"
+        ],
         "categories": [],
         "layers": [
           "L9"
@@ -18755,14 +18884,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18792,14 +18921,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-005": {
       "canonical_id": "L9-KA-005",
       "name": "Recursion Trigger",
-      "purpose": "Layer 9 Recursion Trigger",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18816,16 +18945,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Convergence decision",
+          "measured readiness",
+          "issues"
+        ],
+        "outputs": [
+          "Refinement decision",
+          "target layer"
+        ],
         "categories": [],
         "layers": [
           "L9"
         ],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "L9-KA-006"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -18835,14 +18973,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18872,14 +19010,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-006": {
       "canonical_id": "L9-KA-006",
-      "name": "Readiness Scorer",
-      "purpose": "Layer 9 Readiness Scorer",
+      "name": "Confidence Calc",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18896,16 +19034,26 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Committed L9 measurement outputs"
+        ],
+        "outputs": [
+          "Readiness measurement",
+          "measurement coverage"
+        ],
         "categories": [],
         "layers": [
           "L9"
         ],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "L9-KA-001",
+          "L9-KA-002",
+          "L9-KA-003",
+          "L9-KA-004"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -18915,14 +19063,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -18952,14 +19100,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     },
     "L9-KA-007": {
       "canonical_id": "L9-KA-007",
       "name": "Loop Controller",
-      "purpose": "Layer 9 Loop Controller",
+      "purpose": null,
       "version": "1.0.0",
-      "identity_class": "current_unregistered_layer9",
+      "identity_class": "current_executable",
       "aliases": {
         "scoped": [],
         "unscoped": []
@@ -18976,16 +19124,26 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
-        "inputs": [],
-        "outputs": [],
+        "status": "cp19_e_production_qualified",
+        "inputs": [
+          "Iteration budget",
+          "refinement decision",
+          "prior attempts"
+        ],
+        "outputs": [
+          "Loop admission",
+          "exhaustion decision"
+        ],
         "categories": [],
         "layers": [
           "L9"
         ],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "L9-KA-005",
+          "L9-KA-006"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -18995,14 +19153,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "Scores are control measurements or heuristics, not calibrated probabilities; missing required input fails closed or remains explicitly not measured.",
+        "guarantee": "Produces deterministic bounded L9/L10 control evidence from supplied committed state and never establishes external truth.",
+        "performance_budget_ms": 5000
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "production_validator",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -19032,7 +19190,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "installed_exit": "CP19-M"
         }
       },
-      "migration_notes": "Register through the canonical manifest without changing the existing Layer-9 ID."
+      "migration_notes": "Retain the current ID and behavior until the canonical controller and parity tests replace the legacy entry point."
     }
   }
 };
