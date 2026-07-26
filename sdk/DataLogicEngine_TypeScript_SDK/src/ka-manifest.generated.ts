@@ -3,15 +3,51 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19a.1",
-  "status": "cp19_a_integration_authority",
+  "manifest_version": "2026.07.25-cp19c.1",
+  "status": "cp19_c_selector_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
     "crosswalk_source_input_sha256": "bbc7576a68a9267b6ddcf72ef381d1cb84e9e3e03a5d49078c882fef97dd2363",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
-    "duplicate_policy": "one_semantic_capability_one_canonical_id"
+    "duplicate_policy": "one_semantic_capability_one_canonical_id",
+    "dependency_result_contract": "dle.ka-execution-result.v1#output",
+    "dependency_input_field": "dependency_results",
+    "dependency_overrides": {
+      "KA-065": {
+        "dependencies": [],
+        "rationale": "Regression testing is an input to integrity validation and must not depend on the validators that consume its result."
+      },
+      "KA-117": {
+        "dependencies": [
+          "KA-065",
+          "KA-1094"
+        ],
+        "rationale": "Knowledge integrity consumes regression and contradiction evidence before persistence; the system-wide auditor is downstream."
+      },
+      "KA-1099": {
+        "dependencies": [
+          "KA-065",
+          "KA-117"
+        ],
+        "rationale": "The system integrity audit aggregates completed regression and knowledge-integrity results."
+      },
+      "KA-1111": {
+        "dependencies": [
+          "KA-1112"
+        ],
+        "rationale": "Goal-drift monitoring evaluates history and long-horizon plans before the evolution controller admits an action."
+      },
+      "KA-1100": {
+        "dependencies": [
+          "KA-1107",
+          "KA-1108",
+          "KA-1111"
+        ],
+        "rationale": "Evolution admission consumes escalation, capability, and prior goal-drift constraints; it is not a prerequisite of the monitor."
+      }
+    }
   },
   "capability_count": 213,
   "alias_index": {
@@ -165,7 +201,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_01_algorithm_of_thought.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -175,7 +211,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Raw query",
           "initial context",
@@ -199,6 +235,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-004"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_trigger_recursion"
         ],
@@ -218,7 +256,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -260,7 +298,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_02_tree_of_thought.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -270,7 +308,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Task graph",
           "context state"
@@ -295,6 +333,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-001",
           "KA-029"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos",
           "may_trigger_recursion"
@@ -315,7 +355,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -358,7 +398,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_03_gap_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -368,7 +408,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Context state",
           "evidence set"
@@ -391,6 +431,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-029"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_trigger_recursion"
         ],
@@ -410,7 +452,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -455,7 +497,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_04_input_validation__normalization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -465,7 +507,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "User input",
           "auth context",
@@ -487,6 +529,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -506,7 +550,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -548,7 +592,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_05_query_classification.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -558,7 +602,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Normalized query",
           "user/org policy"
@@ -581,6 +625,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-004"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -598,7 +644,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -640,7 +686,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_06_deep_planning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -650,7 +696,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Gap vector",
           "constraints",
@@ -676,6 +722,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-003",
           "KA-005"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_trigger_recursion"
         ],
@@ -695,7 +743,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -737,7 +785,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_07_recursive_reasoning_control.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -747,7 +795,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Entropy/confidence",
           "branch stats",
@@ -772,6 +820,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1081",
           "KA-1102"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos",
           "may_trigger_recursion"
@@ -792,7 +842,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -838,7 +888,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_08_self_critique__reflection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -848,7 +898,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Draft answer object",
           "reasoning trace"
@@ -868,6 +918,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_trigger_recursion"
         ],
@@ -887,7 +939,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -929,7 +981,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_09_evidence_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -939,7 +991,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Evidence matrix",
           "claims list"
@@ -963,6 +1015,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-018",
           "KA-062"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -980,7 +1034,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1022,7 +1076,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_10_bias_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1032,7 +1086,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Reasoning trace",
           "draft output"
@@ -1055,6 +1109,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1045"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -1072,7 +1128,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1115,7 +1171,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_11_analytical_modeling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1125,7 +1181,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Data model",
           "constraints"
@@ -1146,6 +1202,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -1163,7 +1221,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1205,7 +1263,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_12_persona_simulation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1215,7 +1273,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Persona specs",
           "context state"
@@ -1239,6 +1297,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-013",
           "KA-029"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -1258,7 +1318,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1301,7 +1361,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_13_persona_weighting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1311,7 +1371,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "domain tags"
@@ -1331,6 +1391,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -1348,7 +1410,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1390,7 +1452,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_14_confidence_scoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1400,7 +1462,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Truth scores",
           "conflict metrics",
@@ -1428,6 +1490,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1041",
           "KA-1102"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -1445,7 +1509,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1487,7 +1551,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_15_temporal_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1497,7 +1561,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Time-tagged facts",
           "events"
@@ -1520,6 +1584,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-052"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -1537,7 +1603,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1579,7 +1645,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_16_regulatory_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1589,7 +1655,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Jurisdiction",
           "policy corpus",
@@ -1615,6 +1681,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-017",
           "KA-018"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -1632,7 +1700,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1677,7 +1745,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_17_spatial_jurisdiction_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1687,7 +1755,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Location metadata",
           "entity scope"
@@ -1707,6 +1775,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -1724,7 +1794,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1766,7 +1836,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_18_source_provenance.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1776,7 +1846,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Source metadata",
           "doc hashes"
@@ -1796,6 +1866,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -1813,7 +1885,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1855,7 +1927,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_19_knowledge_synthesis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1865,7 +1937,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Validated evidence",
           "resolved state"
@@ -1888,6 +1960,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-009",
           "KA-030"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -1905,7 +1979,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -1947,7 +2021,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_20_loopback_trigger.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -1957,7 +2031,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Confidence/entropy fail",
           "missing obligations"
@@ -1980,6 +2054,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-014",
           "KA-1102"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_trigger_recursion"
         ],
@@ -1999,7 +2075,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2040,7 +2116,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_21_emergence_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2050,7 +2126,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Reasoning graph",
           "agent behaviors"
@@ -2071,6 +2147,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -2090,7 +2168,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2132,7 +2210,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_22_risk_assessment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2142,7 +2220,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Draft plan",
           "domain constraints"
@@ -2162,6 +2240,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -2179,7 +2259,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2222,7 +2302,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_23_belief_decay.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2232,7 +2312,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Knowledge timestamps",
           "usage"
@@ -2252,6 +2332,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -2271,7 +2353,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2314,7 +2396,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_24_trust_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2324,7 +2406,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Risk profile",
           "policy",
@@ -2349,6 +2431,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-062",
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -2368,7 +2452,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2411,7 +2495,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_25_dependency_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2421,7 +2505,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Task graph",
           "claims"
@@ -2441,6 +2525,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -2458,7 +2544,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2500,7 +2586,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_26_contradiction_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2510,7 +2596,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "branches",
@@ -2534,6 +2620,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-009",
           "KA-012"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -2553,7 +2641,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2596,7 +2684,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_27_ethical_impact_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2606,7 +2694,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Draft output",
           "domain context"
@@ -2627,6 +2715,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -2644,7 +2734,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2689,7 +2779,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_28_point_of_view_expansion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2699,7 +2789,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Context state",
           "debate state"
@@ -2719,6 +2809,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -2738,7 +2830,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": false,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2781,7 +2873,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_29_knowledge_expansion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2791,7 +2883,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Axis coordinates",
           "entity seeds"
@@ -2812,6 +2904,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -2829,7 +2923,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2871,7 +2965,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_30_conflict_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2881,7 +2975,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Conflict set",
           "priority rules"
@@ -2904,6 +2998,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-013",
           "KA-026"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -2921,7 +3017,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -2963,7 +3059,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_31_algorithm_selection_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -2973,7 +3069,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Query class",
           "budget",
@@ -2999,6 +3095,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1081",
           "KA-113"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -3016,7 +3114,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3058,7 +3156,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_32_simulation_orchestration_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3068,7 +3166,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KA pipeline",
           "simulation state"
@@ -3091,6 +3189,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-031",
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -3110,7 +3210,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3155,7 +3255,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_33_reserved_expansion_slot.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3165,7 +3265,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -3177,6 +3277,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -3194,7 +3296,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "placeholder_not_production_enabled",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "reserved_disabled"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3236,7 +3338,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_34_adversarial_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3246,7 +3348,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Scenario",
           "threat model"
@@ -3267,6 +3369,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -3286,7 +3390,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3330,7 +3434,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_35_bayesian_gap_imputation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3340,7 +3444,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Gap vector",
           "priors"
@@ -3361,6 +3465,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -3378,7 +3484,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3422,7 +3528,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_36_complexity_estimator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3432,7 +3538,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3440,6 +3546,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3455,7 +3563,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3499,7 +3607,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_37_resource_allocator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3509,7 +3617,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3517,6 +3625,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3532,7 +3642,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3576,7 +3686,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_38_consensus_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3586,7 +3696,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3594,6 +3704,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3609,7 +3721,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3653,7 +3765,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_39_anomaly_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3663,7 +3775,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3671,6 +3783,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3686,7 +3800,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3730,7 +3844,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_40_hypothesis_generation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3740,7 +3854,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3748,6 +3862,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3763,7 +3879,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3807,7 +3923,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_41_abductive_reasoning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3817,7 +3933,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3825,6 +3941,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3840,7 +3958,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3884,7 +4002,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_42_counterfactual_simulator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3894,7 +4012,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3902,6 +4020,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3917,7 +4037,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -3961,7 +4081,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_43_causal_inference.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -3971,7 +4091,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -3979,6 +4099,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -3994,7 +4116,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4038,7 +4160,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_44_analogical_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4048,7 +4170,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4056,6 +4178,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4071,7 +4195,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4115,7 +4239,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_45_pattern_recognition.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4125,7 +4249,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4133,6 +4257,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4148,7 +4274,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4192,7 +4318,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_46_trend_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4202,7 +4328,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4210,6 +4336,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4225,7 +4353,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4269,7 +4397,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_47_sentiment_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4279,7 +4407,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4287,6 +4415,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4302,7 +4432,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4346,7 +4476,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_48_entity_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4356,7 +4486,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4364,6 +4494,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4379,7 +4511,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4423,7 +4555,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_49_relation_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4433,7 +4565,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4441,6 +4573,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4456,7 +4590,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4500,7 +4634,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_50_summarization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4510,7 +4644,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4518,6 +4652,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -4533,7 +4669,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4577,7 +4713,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_51_self_correcting_knowledge_distillation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4587,7 +4723,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Validated traces",
           "commitments"
@@ -4610,6 +4746,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1046",
           "KA-1079"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -4629,7 +4767,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4672,7 +4810,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_52_temporal_knowledge_evolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4682,7 +4820,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Time axis data",
           "policy updates"
@@ -4704,6 +4842,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1083"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -4723,7 +4863,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4766,7 +4906,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_53_dynamic_knowledge_compression.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4776,7 +4916,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Graph segments",
           "usage metrics"
@@ -4799,6 +4939,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1049",
           "KA-1077"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -4818,7 +4960,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4863,7 +5005,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_54_cross_lingual_knowledge_fusion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4873,7 +5015,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Multilingual sources",
           "embeddings"
@@ -4896,6 +5038,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1040"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -4915,7 +5059,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -4960,7 +5104,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_55_adaptive_multi_modal_integration.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -4970,7 +5114,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Modal evidence",
           "trust weights"
@@ -4994,6 +5138,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-009",
           "KA-018"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -5011,7 +5157,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5054,7 +5200,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_56_narrative_explainability_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5064,7 +5210,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Trace DAG",
           "decision log"
@@ -5084,6 +5230,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -5101,7 +5249,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5145,7 +5293,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_57_persona_emotion_adaptation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5155,7 +5303,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "User profile",
           "output object",
@@ -5175,6 +5323,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -5192,7 +5342,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5237,7 +5387,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_58_interactive_clarification_learning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5247,7 +5397,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Ambiguity metrics",
           "competing intents"
@@ -5271,6 +5421,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1073",
           "KA-1102"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -5288,7 +5440,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5330,7 +5482,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_59_predictive_layer_preemption.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5340,7 +5492,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Complexity tier",
           "budget"
@@ -5363,6 +5515,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-031",
           "KA-113"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -5380,7 +5534,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5422,7 +5576,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_60_cognitive_load_balancer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5432,7 +5586,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Branch stats",
           "cost estimate"
@@ -5455,6 +5609,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1080",
           "KA-1081"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos",
           "may_trigger_recursion"
@@ -5475,7 +5631,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5518,7 +5674,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_61_adversarial_input_shield.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5528,7 +5684,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Raw query",
           "metadata"
@@ -5550,6 +5706,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-004"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -5569,7 +5727,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5611,7 +5769,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_62_decentralized_trust_scoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5621,7 +5779,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Evidence hashes",
           "provenance graph"
@@ -5644,6 +5802,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-018"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -5661,7 +5821,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5703,7 +5863,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_63_continuous_performance_learning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5713,7 +5873,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Outcome metrics",
           "feedback"
@@ -5733,6 +5893,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -5752,7 +5914,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5795,7 +5957,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_64_failure_pattern_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5805,7 +5967,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Error logs",
           "traces"
@@ -5825,6 +5987,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -5844,7 +6008,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5887,7 +6051,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_65_knowledge_regression_tester.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5897,7 +6061,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "tests"
@@ -5916,10 +6080,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-1099",
-          "KA-117"
-        ],
+        "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -5939,7 +6102,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -5981,7 +6144,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_66_causal_inference_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -5991,7 +6154,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Events",
           "dependencies",
@@ -6013,6 +6176,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -6030,7 +6195,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6072,7 +6237,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_67_analogical_reasoning_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6082,7 +6247,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Source/target structures"
         ],
@@ -6101,6 +6266,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -6120,7 +6287,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6163,7 +6330,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_68_domain_specialization_tuner.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6173,7 +6340,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Domain context",
           "persona set"
@@ -6194,6 +6361,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -6211,7 +6380,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6253,7 +6422,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_69_cultural_context_adapter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6263,7 +6432,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Locale",
           "audience"
@@ -6282,6 +6451,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Low"
@@ -6299,7 +6470,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6341,7 +6512,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_70_counterfactual_scenario_simulator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6351,7 +6522,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Base model",
           "interventions"
@@ -6373,6 +6544,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-066"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos",
           "may_trigger_recursion"
@@ -6393,7 +6566,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6438,7 +6611,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_71_data_ingestion.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6448,7 +6621,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6456,6 +6629,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -6471,7 +6646,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6515,7 +6690,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_72_data_cleaning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6525,7 +6700,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6533,6 +6708,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6548,7 +6725,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6591,7 +6768,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_73_data_transformation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6601,7 +6778,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6609,6 +6786,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6624,7 +6803,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6667,7 +6846,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_74_data_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6677,7 +6856,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6685,6 +6864,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6700,7 +6881,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6743,7 +6924,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_75_schema_mapping.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6753,7 +6934,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6761,6 +6942,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6776,7 +6959,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6819,7 +7002,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_76_entity_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6829,7 +7012,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6837,6 +7020,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6852,7 +7037,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6895,7 +7080,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_77_data_enrichment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6905,7 +7090,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6913,6 +7098,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -6928,7 +7115,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -6971,7 +7158,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_78_data_archival.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -6981,7 +7168,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -6989,6 +7176,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7004,7 +7193,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7047,7 +7236,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_79_data_retrieval.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7057,7 +7246,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7065,6 +7254,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7080,7 +7271,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7124,7 +7315,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_80_cache_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7134,7 +7325,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7142,6 +7333,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -7157,7 +7350,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7202,7 +7395,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_81_model_training.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7212,7 +7405,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7220,6 +7413,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -7235,7 +7430,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7280,7 +7475,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_82_model_evaluation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7290,7 +7485,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7298,6 +7493,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7313,7 +7510,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7357,7 +7554,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_83_model_deployment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7367,7 +7564,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7375,6 +7572,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -7390,7 +7589,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7435,7 +7634,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_84_model_monitoring.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7445,7 +7644,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7453,6 +7652,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7468,7 +7669,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7512,7 +7713,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_85_feature_engineering.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7522,7 +7723,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7530,6 +7731,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7545,7 +7748,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7589,7 +7792,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_86_hyperparameter_tuning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7599,7 +7802,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7607,6 +7810,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7622,7 +7827,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7666,7 +7871,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_87_model_versioning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7676,7 +7881,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7684,6 +7889,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7699,7 +7906,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7743,7 +7950,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_88_ab_testing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7753,7 +7960,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7761,6 +7968,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7776,7 +7985,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7820,7 +8029,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_89_model_pruning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7830,7 +8039,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7838,6 +8047,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7853,7 +8064,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7897,7 +8108,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_90_model_quantization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7907,7 +8118,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7915,6 +8126,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -7930,7 +8143,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -7974,7 +8187,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_91_visualization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -7984,7 +8197,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -7992,6 +8205,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8007,7 +8222,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8053,7 +8268,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_92_dashboarding.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8063,7 +8278,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8071,6 +8286,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8086,7 +8303,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8132,7 +8349,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_93_notification.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8142,7 +8359,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8150,6 +8367,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -8165,7 +8384,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8212,7 +8431,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_94_reporting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8222,7 +8441,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8230,6 +8449,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8245,7 +8466,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8291,7 +8512,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_95_alerting.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8301,7 +8522,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8309,6 +8530,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8324,7 +8547,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "presentation_template_helper",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8370,7 +8593,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_96_logging.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8380,7 +8603,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8388,6 +8611,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8403,7 +8628,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8449,7 +8674,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_97_auditing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8459,7 +8684,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8467,6 +8692,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8482,7 +8709,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8528,7 +8755,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_98_profiling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8538,7 +8765,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8546,6 +8773,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8561,7 +8790,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8607,7 +8836,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_99_debugging.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8617,7 +8846,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8625,6 +8854,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8640,7 +8871,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8686,7 +8917,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_100_optimization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8696,7 +8927,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8704,6 +8935,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -8719,7 +8952,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8765,7 +8998,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_101_environment_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8775,7 +9008,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8783,6 +9016,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -8798,7 +9033,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8845,7 +9080,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_102_dependency_injection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8855,7 +9090,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8863,6 +9098,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -8878,7 +9115,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -8925,7 +9162,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_103_service_mesh.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -8935,7 +9172,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -8943,6 +9180,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -8958,7 +9197,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9005,7 +9244,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1036_pareto_optimization_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9015,7 +9254,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Objectives",
           "constraints",
@@ -9036,6 +9275,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -9053,7 +9294,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9097,7 +9338,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1037_norm_emergence_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9107,7 +9348,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Persona outputs",
           "debate trace"
@@ -9131,6 +9372,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-012",
           "KA-030"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -9148,7 +9391,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9193,7 +9436,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1038_cross_modal_synthesis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9203,7 +9446,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Text+tables+images+code evidence"
         ],
@@ -9222,6 +9465,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -9239,7 +9484,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9283,7 +9528,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1039_ontology_drift_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9293,7 +9538,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Ontology snapshots"
         ],
@@ -9313,6 +9558,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -9332,7 +9579,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9377,7 +9624,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_104_load_balancing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9387,7 +9634,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -9395,6 +9642,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -9410,7 +9659,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9456,7 +9705,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1040_semantic_alignment_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9466,7 +9715,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Concept sets",
           "embeddings"
@@ -9487,6 +9736,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -9506,7 +9757,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9551,7 +9802,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1041_concept_confidence_normalization.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9561,7 +9812,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Confidence vectors"
         ],
@@ -9579,6 +9830,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -9596,7 +9849,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9640,7 +9893,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1042_contradiction_propagation_analysis.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9650,7 +9903,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Conflict set",
           "dependency graph"
@@ -9673,6 +9926,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-025",
           "KA-026"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -9690,7 +9945,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9734,7 +9989,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1043_knowledge_lineage_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9744,7 +9999,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Commit logs",
           "provenance"
@@ -9764,6 +10019,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -9783,7 +10040,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9828,7 +10085,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1044_creative_knowledge_composer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9838,7 +10095,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Knowledge graph",
           "constraints"
@@ -9858,6 +10115,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_chaos"
         ],
@@ -9877,7 +10136,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -9922,7 +10181,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1045_bias_pattern_analyzer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -9932,7 +10191,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Traces over time",
           "outputs corpus"
@@ -9952,6 +10211,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -9969,7 +10230,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10014,7 +10275,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1046_hierarchical_memory_patcher.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10024,7 +10285,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Validated knowledge",
           "containment class"
@@ -10046,6 +10307,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1079",
           "KA-1109"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -10065,7 +10328,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10111,7 +10374,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1047_meta_algorithm_selection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10121,7 +10384,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Performance history",
           "problem signature"
@@ -10145,6 +10408,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-064",
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -10162,7 +10427,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10206,7 +10471,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1048_ontological_conflict_resolver.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10216,7 +10481,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Ontology graphs",
           "conflict map"
@@ -10236,6 +10501,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -10255,7 +10522,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10300,7 +10567,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1049_knowledge_redundancy_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10310,7 +10577,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Knowledge nodes",
           "similarity metrics"
@@ -10330,6 +10597,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -10347,7 +10616,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10391,7 +10660,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_105_scalability_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10401,7 +10670,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10409,6 +10678,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -10424,7 +10695,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10470,7 +10741,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_106_fault_tolerance.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10480,7 +10751,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10488,6 +10759,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -10503,7 +10776,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10549,7 +10822,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_107_disaster_recovery.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10559,7 +10832,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10567,6 +10840,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -10582,7 +10857,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10629,7 +10904,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1071_knowledge_provenance_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10639,7 +10914,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Source metadata",
           "commit log"
@@ -10660,6 +10935,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -10679,7 +10956,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10724,7 +11001,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1072_context_window_optimizer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10734,7 +11011,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Candidate context",
           "budget"
@@ -10754,6 +11031,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -10771,7 +11050,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10815,7 +11094,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1073_intent_clarifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10825,7 +11104,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Parsed query",
           "entities"
@@ -10845,6 +11124,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -10862,7 +11143,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -10906,7 +11187,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1074_privacy_preserver.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -10916,7 +11197,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Draft output",
           "trace"
@@ -10939,6 +11220,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -10958,7 +11241,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11003,7 +11286,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1075_bias_mitigation_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11013,7 +11296,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Bias vectors",
           "draft output"
@@ -11036,6 +11319,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-010",
           "KA-1045"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -11053,7 +11338,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11097,7 +11382,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1076_knowledge_graph_pruner.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11107,7 +11392,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "importance scores"
@@ -11130,6 +11415,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1077",
           "KA-1094"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -11149,7 +11436,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11194,7 +11481,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1077_knowledge_importance_scorer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11204,7 +11491,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Usage metrics",
           "citations"
@@ -11223,6 +11510,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -11242,7 +11531,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11287,7 +11576,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1078_memory_tier_classifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11297,7 +11586,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Knowledge candidate",
           "risk/containment"
@@ -11318,6 +11607,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1109"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -11337,7 +11628,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11382,7 +11673,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1079_knowledge_promotion_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11392,7 +11683,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Confidence",
           "containment",
@@ -11417,6 +11708,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-062",
           "KA-1109"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -11436,7 +11729,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11480,7 +11773,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_108_backup_strategy.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11490,7 +11783,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -11498,6 +11791,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -11513,7 +11808,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11560,7 +11855,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1080_simulation_cost_estimator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11570,7 +11865,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Complexity tier",
           "branch count"
@@ -11591,6 +11886,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -11608,7 +11905,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11652,7 +11949,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1081_simulation_budget_enforcer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11662,7 +11959,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Cost estimate",
           "policy caps"
@@ -11682,6 +11979,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -11701,7 +12000,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11745,7 +12044,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1082_confidence_drift_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11755,7 +12054,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Confidence history"
         ],
@@ -11773,6 +12072,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -11792,7 +12093,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11837,7 +12138,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1083_knowledge_revalidation_scheduler.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11847,7 +12148,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Drift alerts",
           "time"
@@ -11866,6 +12167,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -11885,7 +12188,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -11931,7 +12234,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1084_cross_instance_consensus_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -11941,7 +12244,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Parallel outputs",
           "trust scores"
@@ -11962,6 +12265,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -11979,7 +12284,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12023,7 +12328,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1085_anomaly_detection_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12033,7 +12338,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Trace stats",
           "outputs"
@@ -12052,6 +12357,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -12069,7 +12376,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12113,7 +12420,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1086_knowledge_usage_analytics.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12123,7 +12430,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Execution logs"
         ],
@@ -12141,6 +12448,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -12160,7 +12469,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12205,7 +12514,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1087_explainability_coverage_checker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12215,7 +12524,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Trace DAG",
           "explanation"
@@ -12237,6 +12546,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-056"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Medium"
@@ -12254,7 +12565,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12298,7 +12609,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1088_knowledge_lifecycle_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12308,7 +12619,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KB state",
           "policies"
@@ -12332,6 +12643,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1076",
           "KA-1083"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -12351,7 +12664,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12396,7 +12709,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1089_policy_evolution_tracker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12406,7 +12719,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Policy updates",
           "feeds"
@@ -12427,6 +12740,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -12446,7 +12761,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12491,7 +12806,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_109_system_health.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12501,7 +12816,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -12509,6 +12824,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -12524,7 +12841,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12570,7 +12887,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1090_compliance_regression_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12580,7 +12897,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Updated KB",
           "controls"
@@ -12604,6 +12921,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-016",
           "KA-1089"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -12623,7 +12942,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12668,7 +12987,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1091_scenario_outcome_archivist.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12678,7 +12997,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Final outputs",
           "traces"
@@ -12697,6 +13016,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -12716,7 +13037,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12761,7 +13082,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1092_knowledge_dependency_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12771,7 +13092,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Changed nodes",
           "dependency graph"
@@ -12792,6 +13113,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-025"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -12809,7 +13132,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12853,7 +13176,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1093_trust_decay_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12863,7 +13186,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Usage+time"
         ],
@@ -12881,6 +13204,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -12900,7 +13225,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -12945,7 +13270,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1094_knowledge_quarantine_engine.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -12955,7 +13280,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Anomalies",
           "conflicts"
@@ -12978,6 +13303,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-026",
           "KA-1085"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto",
           "may_write_memory"
@@ -12998,7 +13325,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13043,7 +13370,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1095_human_in_the_loop_escalation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13053,7 +13380,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Low confidence",
           "high risk"
@@ -13074,6 +13401,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -13091,7 +13420,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13135,7 +13464,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1096_knowledge_release_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13145,7 +13474,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Approved updates"
         ],
@@ -13164,6 +13493,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -13183,7 +13514,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13228,7 +13559,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1097_system_performance_optimizer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13238,7 +13569,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Metrics",
           "perf profiles"
@@ -13257,6 +13588,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -13276,7 +13609,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13323,7 +13656,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1098_self_evaluation_benchmarking.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13333,7 +13666,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Test suites",
           "outputs"
@@ -13353,6 +13686,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -13370,7 +13705,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13416,7 +13751,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1099_system_integrity_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13426,7 +13761,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Full snapshot"
         ],
@@ -13448,6 +13783,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-065",
           "KA-117"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -13467,7 +13804,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13512,7 +13849,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_110_integration_bus.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13522,7 +13859,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -13530,6 +13867,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -13545,7 +13884,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13592,7 +13931,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1100_autonomous_system_evolution_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13602,7 +13941,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Learning signals",
           "approvals"
@@ -13625,6 +13964,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1108",
           "KA-1111"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -13644,7 +13985,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13692,7 +14033,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1101_chaos_injection_governor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13702,7 +14043,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Entropy",
           "mode",
@@ -13730,6 +14071,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1102",
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -13749,7 +14092,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13794,7 +14137,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1102_global_entropy_quantifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13804,7 +14147,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Branch variance",
           "evidence variance",
@@ -13829,6 +14172,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-012",
           "KA-026"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "High"
@@ -13846,7 +14191,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13890,7 +14235,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1103_simulation_state_rollback_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13900,7 +14245,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Checkpoint state",
           "failure flags"
@@ -13923,6 +14268,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-032",
           "KA-1081"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto",
           "may_write_memory"
@@ -13943,7 +14290,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -13988,7 +14335,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1104_truth_vs_utility_arbiter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -13998,7 +14345,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Truth scores",
           "audience",
@@ -14022,6 +14369,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-022",
           "KA-024"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -14041,7 +14390,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14086,7 +14435,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1105_conceptual_obsolescence_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14096,7 +14445,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Contradiction trends",
           "citations",
@@ -14120,6 +14469,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1082",
           "KA-1083"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -14139,7 +14490,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14184,7 +14535,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1106_human_override_reason_capture.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14194,7 +14545,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Human decision",
           "rationale"
@@ -14216,6 +14567,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependencies": [
           "KA-1095"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -14235,7 +14588,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14279,7 +14632,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1107_reasoning_boundary_enforcer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14289,7 +14642,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Policy",
           "planned pipeline",
@@ -14315,6 +14668,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-005",
           "KA-113"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -14334,7 +14689,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14378,7 +14733,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1108_capability_escalation_detector.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14388,7 +14743,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KA interaction patterns",
           "emergence flags"
@@ -14412,6 +14767,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-021",
           "KA-1112"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -14431,7 +14788,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14476,7 +14833,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1109_knowledge_containment_classifier.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14486,7 +14843,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Knowledge candidate",
           "risk signals"
@@ -14509,6 +14866,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-024",
           "KA-1074"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto",
           "may_write_memory"
@@ -14529,7 +14888,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14574,7 +14933,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_111_api_gateway.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14584,7 +14943,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -14592,6 +14951,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -14607,7 +14968,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14652,7 +15013,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1110_cross_domain_coupling_risk_analyzer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14662,7 +15023,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Domain tags",
           "knowledge links",
@@ -14687,6 +15048,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-005",
           "KA-1107"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -14706,7 +15069,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14751,7 +15114,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1111_long_horizon_goal_drift_monitor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14761,7 +15124,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Evolution actions",
           "traces"
@@ -14781,9 +15144,10 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-1100",
           "KA-1112"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -14803,7 +15167,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14847,7 +15211,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1112_system_self_introspection_auditor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14857,7 +15221,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "System metrics",
           "logs"
@@ -14877,6 +15241,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_write_memory"
         ],
@@ -14896,7 +15262,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -14940,7 +15306,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_1114_external_deep_research_invocation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -14950,7 +15316,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Sub-question",
           "policy",
@@ -14978,6 +15344,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1107",
           "KA-113"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_invoke_external_research"
         ],
@@ -14997,7 +15365,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15042,7 +15410,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_112_message_broker.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15052,7 +15420,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -15060,6 +15428,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -15075,7 +15445,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15122,7 +15492,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_113_complexity_router.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15132,7 +15502,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "Normalized query",
           "org mode",
@@ -15158,6 +15528,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-005",
           "KA-1080"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [
           "Critical"
@@ -15175,7 +15547,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15219,7 +15591,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_114_federated_outbox.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15229,7 +15601,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -15237,6 +15609,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -15252,7 +15626,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15299,7 +15673,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_115_federated_inbox.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15309,7 +15683,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -15317,6 +15691,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -15332,7 +15708,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15379,7 +15755,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_116_entropy_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15389,7 +15765,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -15397,6 +15773,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15412,7 +15790,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15455,7 +15833,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_117_knowledge_integrity_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15465,7 +15843,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [
           "KB snapshot",
           "constraints"
@@ -15485,9 +15863,11 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "UKG/USKD Core"
         ],
         "dependencies": [
-          "KA-1094",
-          "KA-1099"
+          "KA-065",
+          "KA-1094"
         ],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [
           "may_veto"
         ],
@@ -15507,7 +15887,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15549,7 +15929,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_136_threat_model_agent.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15559,7 +15939,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15569,6 +15949,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15584,7 +15966,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15628,7 +16010,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_137_sensitive_data_discovery.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15638,7 +16020,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15648,6 +16030,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15663,7 +16047,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15707,7 +16091,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_138_predictive_health.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15717,7 +16101,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15727,6 +16111,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15742,7 +16128,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15786,7 +16172,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_139_purple_team.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15796,7 +16182,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15806,6 +16192,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15821,7 +16209,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15865,7 +16253,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_161_translation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15875,7 +16263,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15885,6 +16273,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15900,7 +16290,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -15942,7 +16332,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_162_paraphrasing.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -15952,7 +16342,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -15962,6 +16352,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -15977,7 +16369,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16019,7 +16411,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_163_style_transfer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16029,7 +16421,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16039,6 +16431,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16054,7 +16448,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16096,7 +16490,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_165_topic_modeling.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16106,7 +16500,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16116,6 +16510,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16131,7 +16527,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16173,7 +16569,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_167_keyword_extraction.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16183,7 +16579,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16193,6 +16589,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16208,7 +16606,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16250,7 +16648,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_168_explainability.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16260,7 +16658,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16270,6 +16668,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16285,7 +16685,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16327,7 +16727,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_169_fairness_audit.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16337,7 +16737,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16347,6 +16747,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16362,7 +16764,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16405,7 +16807,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_172_safety_check.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16415,7 +16817,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16425,6 +16827,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16440,7 +16844,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16483,7 +16887,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_173_privacy_filter.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16493,7 +16897,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16503,6 +16907,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16518,7 +16924,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16561,7 +16967,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_174_compliance_check.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16571,7 +16977,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16581,6 +16987,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16596,7 +17004,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16639,7 +17047,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_175_security_audit.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16649,7 +17057,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16659,6 +17067,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16674,7 +17084,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16718,7 +17128,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_176_governance_validation.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16728,7 +17138,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16738,6 +17148,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16753,7 +17165,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16796,7 +17208,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_177_policy_enforcement.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16806,7 +17218,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16816,6 +17228,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -16831,7 +17245,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16875,7 +17289,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_178_identity_resolution.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16885,7 +17299,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16895,6 +17309,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -16910,7 +17326,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -16952,7 +17368,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_179_access_control.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -16962,7 +17378,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -16972,6 +17388,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -16987,7 +17405,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17032,7 +17450,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_180_encryption_manager.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17042,7 +17460,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17052,6 +17470,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -17067,7 +17487,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17112,7 +17532,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_181_key_management.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17122,7 +17542,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17132,6 +17552,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -17147,7 +17569,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17192,7 +17614,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_182_threat_detection.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17202,7 +17624,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17212,6 +17634,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17227,7 +17651,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17271,7 +17695,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_183_vulnerability_scanning.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17281,7 +17705,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17291,6 +17715,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17306,7 +17732,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17350,7 +17776,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_184_incident_response.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17360,7 +17786,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17370,6 +17796,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "effect_oriented_review_required",
@@ -17385,7 +17813,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17432,7 +17860,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/ka_master_controller.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17442,7 +17870,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17452,6 +17880,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17467,7 +17897,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "experimental_method",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17509,7 +17939,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17519,7 +17949,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17529,6 +17959,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17544,7 +17976,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17585,7 +18017,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_002_self_awareness.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17595,7 +18027,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17605,6 +18037,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17620,7 +18054,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17661,7 +18095,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_003_pii_redactor.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17671,7 +18105,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17681,6 +18115,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17696,7 +18132,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17737,7 +18173,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_004_ethics_validator.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17747,7 +18183,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17757,6 +18193,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17772,7 +18210,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17813,7 +18251,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_005_containment.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17823,7 +18261,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17833,6 +18271,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17848,7 +18288,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17889,7 +18329,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_006_trust_gate.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17899,7 +18339,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17909,6 +18349,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -17924,7 +18366,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": true,
         "classification": "production_validator",
         "deterministic": true,
-        "direct_execution": "legacy_production_enabled"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -17965,7 +18407,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py",
         "entrypoint": {
           "adapter": "module_run",
@@ -17975,7 +18417,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -17985,6 +18427,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18000,7 +18444,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "deterministic_heuristic",
         "deterministic": true,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18041,7 +18485,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_001_trace_analyzer.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18052,7 +18496,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18062,6 +18506,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18077,7 +18523,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18119,7 +18565,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_002_belief_drift.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18130,7 +18576,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18140,6 +18586,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18155,7 +18603,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18197,7 +18645,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_003_persona_auditor.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18208,7 +18656,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18218,6 +18666,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18233,7 +18683,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18275,7 +18725,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_004_meta_evaluator.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18286,7 +18736,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18296,6 +18746,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18311,7 +18763,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18353,7 +18805,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_005_recursion_trigger.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18364,7 +18816,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18374,6 +18826,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18389,7 +18843,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18431,7 +18885,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_006_confidence_calc.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18442,7 +18896,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18452,6 +18906,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18467,7 +18923,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",
@@ -18509,7 +18965,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "unscoped": []
       },
       "implementation": {
-        "status": "implemented_pending_phase19_integration",
+        "status": "implemented_cp19_b_contract_parity",
         "source": "backend/knowledge_algorithms/l9/l9_ka_007_loop_controller.py",
         "entrypoint": {
           "adapter": "class_execute",
@@ -18520,7 +18976,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "pending_cp19_b_contract_parity",
+        "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -18530,6 +18986,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "personas": [],
         "subsystems": [],
         "dependencies": [],
+        "dependency_result_contract": "dle.ka-execution-result.v1#output",
+        "dependency_input_field": "dependency_results",
         "triggers": [],
         "risk_classes": [],
         "effect_class": "pure_or_advisory_review_required",
@@ -18545,7 +19003,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "production_enabled": false,
         "classification": "implementation_required",
         "deterministic": null,
-        "direct_execution": "blocked_pending_cp19_c_selector_qualification"
+        "direct_execution": "canonical_selector_required"
       },
       "integration": {
         "authority_version": "2026.07.25-cp19a.1",

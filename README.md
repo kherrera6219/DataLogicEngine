@@ -58,8 +58,13 @@ administration, audit, observability, and validation application.
 > simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
 > reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
 > CP18-H were not passed and no finding was waived.
-> Phase 19 now owns contract parity, a manifest-driven selector/dependency DAG,
-> the ten layers inside the single governed lifecycle, fail-closed L9/L10,
+> Phase 19 CP19-A through CP19-C are complete. The one runtime manifest now
+> drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
+> verify selection, and three reciprocal design relationships were corrected
+> into a 119-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
+> budgets, cancellation, serial effect proposals, and truthful trace states
+> pass focused qualification. CP19-D is active to place the ten layers inside
+> the single governed lifecycle, followed by fail-closed L9/L10,
 > causal KA-backed Quad Persona/DSQP, one production 12-step workflow, all data/
 > knowledge/simulation/MCP/provider/operations/effect integrations, the KA API/
 > SDK/desktop workflow, and the complete 213-row semantic/selector/call-path/

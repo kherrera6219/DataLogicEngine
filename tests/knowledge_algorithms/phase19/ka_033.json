@@ -1,0 +1,64 @@
+{
+  "schema_version": "dle.ka-selector-fixture.v1",
+  "canonical_id": "KA-033",
+  "positive_selector": {
+    "request": {
+      "mode": "evaluation",
+      "requested_ids": [
+        "KA-033"
+      ],
+      "context": {
+        "request_id": "cp19c-fixture-ka_033",
+        "run_id": "cp19c-fixture-run-ka_033",
+        "workflow": "cp19_c_selector_qualification",
+        "budget": {
+          "deadline_ms": 3600000,
+          "max_dependency_executions": 512,
+          "max_recursion_depth": 32,
+          "max_selected_algorithms": 512,
+          "max_fan_out": 128,
+          "max_parallelism": 8,
+          "max_input_bytes": 1000000,
+          "max_output_bytes": 5000000,
+          "max_provider_calls": 0,
+          "max_effects": 0
+        }
+      }
+    },
+    "expected": {
+      "disposition": "denied",
+      "selected": false,
+      "reason": "reserved_disabled"
+    }
+  },
+  "negative_selector": {
+    "request": {
+      "mode": "evaluation",
+      "stages": [
+        "not_applicable_fixture_stage"
+      ],
+      "context": {
+        "request_id": "cp19c-fixture-ka_033",
+        "run_id": "cp19c-fixture-run-ka_033",
+        "workflow": "cp19_c_selector_qualification",
+        "budget": {
+          "deadline_ms": 3600000,
+          "max_dependency_executions": 512,
+          "max_recursion_depth": 32,
+          "max_selected_algorithms": 512,
+          "max_fan_out": 128,
+          "max_parallelism": 8,
+          "max_input_bytes": 1000000,
+          "max_output_bytes": 5000000,
+          "max_provider_calls": 0,
+          "max_effects": 0
+        }
+      }
+    },
+    "expected": {
+      "disposition": "skipped",
+      "selected": false,
+      "reason": "selector_predicates_not_matched"
+    }
+  }
+}

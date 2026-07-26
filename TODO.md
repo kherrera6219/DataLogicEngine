@@ -17,9 +17,9 @@
 | Last reviewed | 2026-07-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.39.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.40.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-C active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-D active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -54,10 +54,16 @@ Phase 18 source baseline while completing the whole-application wiring.
       Layer-10 ID drift halts without releasing content and remains CP19-E.
       The KA/Python-SDK suite is 738 passed and the full suite is 2,486 passed,
       18 skipped.
-- [ ] **CP19-C — selector and dependency DAG:** implement manifest-driven
-      positive/negative selection for all 213 KAs with validated dependencies,
-      structured concurrency, budgets, cancellation, service capability,
-      policy, and truthful trace states.
+- [x] **CP19-C — selector and dependency DAG:** runtime manifest
+      `2026.07.25-cp19c.1` now drives typed selection plans for all 213 KAs.
+      The generated set verifies 213 positive and 213 negative fixtures, 212
+      selectable evaluation capabilities, and the intentional fail-closed
+      reserved `KA-033`. Three reciprocal relationships were corrected into a
+      119-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
+      required-failure/parent cancellation, budgets, service/policy admission,
+      serial effect proposals, dependency-result namespacing, and truthful
+      trace states pass 13 focused tests; the KA/Python-SDK suite is 781 passed
+      and the full source suite is 2,499 passed with 18 skipped.
 - [ ] **CP19-D — canonical ten-layer path:** integrate L1-L10 into the one
       `GovernedExecutionOrchestrator` lifecycle; no private provider,
       persistence, or answer path may remain.
@@ -100,6 +106,12 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-C passed 2026-07-25:** one manifest-driven typed selector
+  classifies all 213 KAs, expands and validates dependencies, produces
+  deterministic bounded execution batches, and records causal plan/execution
+  states. All 426 generated positive/negative cases verify. Effect application
+  remains unauthorized through CP19-I and rebuilding remains blocked through
+  CP19-L.
 - **Phase 19 CP19-A passed 2026-07-25:** generated and verified the 213-row
   integration authority, one primary subsystem owner per KA, governed consumer
   paths, selector/test/trace/effect evidence destinations, 16 explicit workflow
@@ -758,7 +770,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A and CP19-B passed 2026-07-25, CP19-C selector/DAG active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-C passed 2026-07-25, CP19-D canonical ten-layer path active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -776,10 +788,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-C by implementing manifest-driven positive/negative selection for
-all 213 KAs and bounded dependency-DAG execution with capability/policy
-admission, budgets, cancellation, structured concurrency, and truthful
-planned/selected/executed traces. Then proceed through CP19-D to CP19-K in the
+Complete CP19-D by integrating applicable L1-L10 stage plans into the one
+`GovernedExecutionOrchestrator` request lifecycle. The public answer path must
+causally consume the ten-layer decisions without creating a private provider,
+persistence, or release path. Then proceed through CP19-E to CP19-K in the
 plan's mandatory order.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the

@@ -47,6 +47,47 @@ TYPESCRIPT_OUTPUT_PATH = (
     / "ka-manifest.generated.ts"
 )
 
+# CP19-C corrects three reciprocal design-reference relationships into
+# prerequisite order. The retained CP18 crosswalk remains the identity/source
+# baseline; these integration-only corrections do not rename or remove a KA.
+CP19_C_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-065": {
+        "dependencies": [],
+        "rationale": (
+            "Regression testing is an input to integrity validation and must "
+            "not depend on the validators that consume its result."
+        ),
+    },
+    "KA-117": {
+        "dependencies": ["KA-065", "KA-1094"],
+        "rationale": (
+            "Knowledge integrity consumes regression and contradiction "
+            "evidence before persistence; the system-wide auditor is downstream."
+        ),
+    },
+    "KA-1099": {
+        "dependencies": ["KA-065", "KA-117"],
+        "rationale": (
+            "The system integrity audit aggregates completed regression and "
+            "knowledge-integrity results."
+        ),
+    },
+    "KA-1111": {
+        "dependencies": ["KA-1112"],
+        "rationale": (
+            "Goal-drift monitoring evaluates history and long-horizon plans "
+            "before the evolution controller admits an action."
+        ),
+    },
+    "KA-1100": {
+        "dependencies": ["KA-1107", "KA-1108", "KA-1111"],
+        "rationale": (
+            "Evolution admission consumes escalation, capability, and prior "
+            "goal-drift constraints; it is not a prerequisite of the monitor."
+        ),
+    },
+}
+
 
 def normalize_ka_id(value: str) -> str:
     clean = str(value).strip().upper()
@@ -138,6 +179,9 @@ def build_manifest() -> dict[str, Any]:
                 for dependency in row.get("dependency_source_ids", [])
             }
         )
+        override = CP19_C_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+        if override is not None:
+            dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
         entries[row["canonical_id"]] = {
             "canonical_id": row["canonical_id"],
@@ -151,7 +195,7 @@ def build_manifest() -> dict[str, Any]:
             },
             "implementation": {
                 "status": (
-                    "implemented_pending_phase19_integration"
+                    "implemented_cp19_b_contract_parity"
                     if existing
                     else "implementation_required"
                 ),
@@ -160,7 +204,7 @@ def build_manifest() -> dict[str, Any]:
             },
             "contract": {
                 "version": "dle.ka-execution.v1",
-                "status": "pending_cp19_b_contract_parity",
+                "status": "cp19_b_contract_parity",
                 "inputs": row.get("input_descriptions", []),
                 "outputs": row.get("output_descriptions", []),
                 "categories": row.get("categories", []),
@@ -168,6 +212,10 @@ def build_manifest() -> dict[str, Any]:
                 "personas": row.get("persona_scope", []),
                 "subsystems": row.get("subsystems", []),
                 "dependencies": dependencies,
+                "dependency_result_contract": (
+                    "dle.ka-execution-result.v1#output"
+                ),
+                "dependency_input_field": "dependency_results",
                 "triggers": row.get("triggers", []),
                 "risk_classes": row.get("risk_classes", []),
                 "effect_class": row["effect_class"],
@@ -204,9 +252,9 @@ def build_manifest() -> dict[str, Any]:
                 or "implementation_required",
                 "deterministic": production.get("deterministic"),
                 "direct_execution": (
-                    "legacy_production_enabled"
-                    if production.get("production_enabled")
-                    else "blocked_pending_cp19_c_selector_qualification"
+                    "canonical_selector_required"
+                    if row["canonical_id"] != "KA-033"
+                    else "reserved_disabled"
                 ),
             },
             "integration": {
@@ -227,8 +275,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19a.1",
-        "status": "cp19_a_integration_authority",
+        "manifest_version": "2026.07.25-cp19c.1",
+        "status": "cp19_c_selector_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -240,6 +288,11 @@ def build_manifest() -> dict[str, Any]:
                 "authority_version"
             ],
             "duplicate_policy": "one_semantic_capability_one_canonical_id",
+            "dependency_result_contract": (
+                "dle.ka-execution-result.v1#output"
+            ),
+            "dependency_input_field": "dependency_results",
+            "dependency_overrides": CP19_C_DEPENDENCY_OVERRIDES,
         },
         "capability_count": len(entries),
         "alias_index": {

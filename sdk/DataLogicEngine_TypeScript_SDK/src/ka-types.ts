@@ -40,6 +40,8 @@ export type KARuntimeDefinition = {
     personas: string[];
     subsystems: string[];
     dependencies: string[];
+    dependency_result_contract: "dle.ka-execution-result.v1#output";
+    dependency_input_field: "dependency_results";
     triggers: string[];
     risk_classes: string[];
     effect_class: string;

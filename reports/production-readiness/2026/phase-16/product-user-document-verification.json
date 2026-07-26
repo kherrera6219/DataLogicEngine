@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.product-user-document-verification.v1",
-  "generated_at": "2026-07-25T23:58:46.816439+00:00",
-  "authority_version": "2026.07.25-phase19-cp19b-contract-parity",
+  "generated_at": "2026-07-26T00:21:13.987881+00:00",
+  "authority_version": "2026.07.25-phase19-cp19c-selector-dag",
   "status": "pass",
   "target_count": 5,
   "verified_count": 5,

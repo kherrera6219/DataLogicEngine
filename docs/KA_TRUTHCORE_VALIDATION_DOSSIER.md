@@ -197,9 +197,11 @@ Phase 19 CP19-A passed with one primary subsystem owner and governed
 consumer/evidence destinations for all 213 KAs, 16 workflow dispositions, zero
 new runtime registries, and a 726-test baseline. CP19-B passed with 18 typed
 caller/API/SDK surfaces, zero legacy production result calls, 738
-KA/Python-SDK tests, and a 2,486-passed/18-skipped full source suite. CP19-C-M
-still must establish manifest selection and bounded
-dependency DAG execution, the canonical ten-layer and 12-step paths, correct
+KA/Python-SDK tests, and a 2,486-passed/18-skipped full source suite. CP19-C
+then passed one typed selector/DAG authority with 213 positive and 213 negative
+fixtures, 119 corrected acyclic dependency edges, bounded execution and
+cancellation, 781 KA/Python-SDK tests, and a 2,499-passed/18-skipped full source
+suite. CP19-D-M still must establish the canonical ten-layer and 12-step paths, correct
 fail-closed L9/L10, causal KA-backed Quad Persona/DSQP, Truth/data/knowledge and
 extended-subsystem integration, API/SDK/desktop workflows, one semantic
 production test and real call-path/effect/trace proof per KA, clean source

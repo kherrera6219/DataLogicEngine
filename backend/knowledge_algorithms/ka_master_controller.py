@@ -21,6 +21,13 @@ from backend.knowledge_algorithms.contracts import (
 )
 from backend.knowledge_algorithms.controller import get_ka_controller
 from backend.knowledge_algorithms.manifest import KADefinition, normalize_ka_id
+from backend.knowledge_algorithms.selection import (
+    KAPlanExecutionReport,
+    KAPlanExecutor,
+    KASelectionPlan,
+    KASelectionRequest,
+    ManifestKASelector,
+)
 from core.knowledge_algorithm.exceptions import KAConfigError, KAError
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -38,6 +45,9 @@ class KAMasterController(KnowledgeAlgorithm):
         self.ka_id = "KA-Master"
         self.llm_gateway = (context or {}).get("llm_gateway") if isinstance(context, dict) else None
         self._canonical_controller = get_ka_controller()
+        self._selector = ManifestKASelector(
+            self._canonical_controller.manifest
+        )
         self.algorithms = self._load_registry()
 
     def _load_registry(self) -> dict[str, Any]:
@@ -126,6 +136,24 @@ class KAMasterController(KnowledgeAlgorithm):
 
     def get_available_algorithms(self) -> dict[str, Any]:
         return self.algorithms
+
+    def plan_algorithms(
+        self,
+        request: KASelectionRequest | dict[str, Any],
+    ) -> KASelectionPlan:
+        """Build one manifest-driven plan without executing a KA."""
+        return self._selector.plan(request)
+
+    async def execute_algorithm_plan(
+        self,
+        plan: KASelectionPlan,
+        request: KASelectionRequest | dict[str, Any],
+    ) -> KAPlanExecutionReport:
+        """Execute an admitted plan through the canonical controller."""
+        return await KAPlanExecutor(self._canonical_controller).execute(
+            plan,
+            request,
+        )
 
     def _normalize_ka_id(self, ka_id: str) -> str:
         try:

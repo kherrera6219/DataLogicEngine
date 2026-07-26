@@ -1,0 +1,64 @@
+{
+  "schema_version": "dle.cp19-c-selector-dag-verification.v1",
+  "status": "pass",
+  "manifest_version": "2026.07.25-cp19c.1",
+  "canonical_capabilities": 213,
+  "dependency_edges": 119,
+  "dependency_cycles": 0,
+  "dependency_result_contract": "dle.ka-execution-result.v1#output",
+  "dependency_input_field": "dependency_results",
+  "positive_fixtures_verified": 213,
+  "positive_selected": 212,
+  "positive_reserved_denial": 1,
+  "negative_fixtures_verified": 213,
+  "primary_owners_present": 213,
+  "implementation_entrypoints_present": 213,
+  "dependency_overrides": {
+    "KA-065": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Regression testing is an input to integrity validation and must not depend on the validators that consume its result."
+    },
+    "KA-117": {
+      "dependencies": [
+        "KA-065",
+        "KA-1094"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Knowledge integrity consumes regression and contradiction evidence before persistence; the system-wide auditor is downstream."
+    },
+    "KA-1099": {
+      "dependencies": [
+        "KA-065",
+        "KA-117"
+      ],
+      "matches_approved_order": true,
+      "rationale": "The system integrity audit aggregates completed regression and knowledge-integrity results."
+    },
+    "KA-1111": {
+      "dependencies": [
+        "KA-1112"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Goal-drift monitoring evaluates history and long-horizon plans before the evolution controller admits an action."
+    },
+    "KA-1100": {
+      "dependencies": [
+        "KA-1107",
+        "KA-1108",
+        "KA-1111"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Evolution admission consumes escalation, capability, and prior goal-drift constraints; it is not a prerequisite of the monitor."
+    }
+  },
+  "structured_execution": {
+    "bounded_parallelism": true,
+    "task_group_cancellation": true,
+    "effect_proposals_serial": true,
+    "effect_application_authorized": false,
+    "truthful_trace_states": true
+  },
+  "rebuild_authorized": false,
+  "errors": []
+}

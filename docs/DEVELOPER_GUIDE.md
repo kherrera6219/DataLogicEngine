@@ -146,8 +146,13 @@ metadata carried by the one runtime manifest, not another executable registry.
 The CP19-A checkpoint baseline was 726 passing KA tests. CP19-B then migrated
 all existing production callers to the typed result boundary: 621 production
 Python files scanned, 18 caller/API/SDK surfaces verified, 32 typed call sites,
-zero legacy result calls, and 738 KA/Python-SDK tests passing. CP19-C selector
-and bounded dependency-DAG work is now active.
+and zero legacy result calls. CP19-C adds
+`backend/knowledge_algorithms/selection.py`, generated fixtures under
+`tests/knowledge_algorithms/phase19/`, and
+`scripts/verify_ka_selector_dag.py`. It verifies 213 positive and 213 negative
+cases, a 119-edge zero-cycle graph, bounded concurrency/budgets/cancellation,
+and proposal-only effects. The KA/Python-SDK suite passes 781 and the full
+source suite passes 2,499 with 18 skipped. CP19-D is active.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

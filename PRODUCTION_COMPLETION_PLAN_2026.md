@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.39.0 |
+| Document version | v1.40.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -4752,6 +4752,37 @@ is now active. This checkpoint does not claim selector/DAG, ten-layer,
 persona/DSQP, 12-step, data/knowledge, extended-subsystem/effect, product UI,
 per-KA, clean-source, rebuilt-installed, or release completion.
 
+### CP19-C checkpoint result - passed 2026-07-25
+
+CP19-C passed the selector and dependency-DAG source gate. Runtime manifest
+`2026.07.25-cp19c.1` now drives one typed selector plan across all 213 canonical
+capabilities. It classifies selected, required, optional, dependency, denied,
+unavailable, skipped, and blocked work before execution and records truthful
+plan and terminal trace states.
+
+The dependency audit found three reciprocal cycles in retained design
+relationships. CP19-C corrected those relationships into prerequisite order
+without changing any canonical identity or capability. The graph now has 119
+validated edges, zero cycles, deterministic topological batches, and one
+namespaced `dle.ka-execution-result.v1#output` dependency binding.
+
+Bounded `TaskGroup` execution runs independent pure KAs concurrently, cancels
+siblings after required failure, re-raises parent cancellation, enforces
+deadline/depth/fan-out/count/input/output limits, and serializes effect
+proposals. It cannot mark a proposal applied; authoritative effect application
+remains CP19-I. The generated fixture set verifies 213 positive cases, including
+the deliberate fail-closed `KA-033` reserved denial, and 213 negative cases.
+The focused CP19-C suite passes 13 tests, the KA/Python-SDK suite passes 781
+tests, and the full source suite passes 2,499 tests with 18 skipped.
+
+CP19-D is now active. CP19-C does not claim that L1-L10 already execute inside
+the public governed answer path, and it does not authorize effect application,
+rebuilding, installed acceptance, or production release. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-audit.md`;
+- `reports/production-readiness/2026/phase-19/cp19-c-selector-dag-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-c-validation.json`.
+
 Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5198,15 +5229,16 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A and CP19-B passed on 2026-07-25. The 213-row owner/consumer authority,
-canonical lifecycle, workflow dispositions, evidence destinations, one runtime
-manifest, typed result boundary, 18 caller surfaces, and zero legacy production
-execution call sites are verified. Begin CP19-C: implement the manifest-driven
-selector plan and bounded dependency DAG with positive/negative fixtures for
-all 213 KAs, capability/policy admission, budgets, cancellation, structured
-concurrency, and truthful planned/selected/executed trace states.
+CP19-A through CP19-C passed on 2026-07-25. The 213-row owner/consumer
+authority, typed result boundary, 213 positive and 213 negative selector
+fixtures, corrected 119-edge acyclic dependency graph, bounded structured
+execution, and truthful plan/execution states are verified. Begin CP19-D:
+integrate applicable L1-L10 stage plans inside the one
+`GovernedExecutionOrchestrator` lifecycle so the ten-layer system is causal in
+the public product answer path without creating a second provider, persistence,
+or release path.
 
-Proceed through CP19-C to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-D to CP19-K in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

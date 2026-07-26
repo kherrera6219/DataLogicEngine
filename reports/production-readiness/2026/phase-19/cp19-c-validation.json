@@ -1,0 +1,42 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-C",
+  "date": "2026-07-25",
+  "status": "pass",
+  "scope": "manifest_selector_and_bounded_dependency_dag",
+  "results": {
+    "canonical_capabilities": 213,
+    "implementation_entrypoints_present": 213,
+    "primary_owners_present": 213,
+    "positive_selector_fixtures_verified": 213,
+    "positive_capabilities_selected": 212,
+    "reserved_capabilities_denied": 1,
+    "negative_selector_fixtures_verified": 213,
+    "dependency_edges": 119,
+    "dependency_cycles": 0,
+    "dependency_contract": "dle.ka-execution-result.v1#output",
+    "dependency_input_field": "dependency_results",
+    "structured_concurrency": "pass",
+    "required_failure_cancellation": "pass",
+    "parent_cancellation_propagation": "pass",
+    "budget_and_policy_admission": "pass",
+    "effect_proposal_serialization": "pass",
+    "effect_application_authorized": false,
+    "focused_cp19_c_tests_passed": 13,
+    "ka_python_sdk_tests_passed": 781,
+    "ka_python_sdk_warnings": 3,
+    "full_source_tests_passed": 2499,
+    "full_source_tests_skipped": 18,
+    "full_source_test_warnings": 21,
+    "typescript_sdk_build": "pass",
+    "critical_ruff": "pass",
+    "documentation_gates": "pass"
+  },
+  "limitations": [
+    "CP19-C establishes selector and dependency-execution infrastructure; CP19-D still owns integration of L1-L10 into the public governed answer path.",
+    "Effect-oriented KAs remain proposal-only until CP19-I binds authoritative service ports and verified receipts.",
+    "The intentionally reserved KA-033 remains fail-closed and is not represented as executable.",
+    "Rebuilding remains blocked until CP19-L, and installed acceptance remains CP19-M."
+  ],
+  "next_checkpoint": "CP19-D"
+}

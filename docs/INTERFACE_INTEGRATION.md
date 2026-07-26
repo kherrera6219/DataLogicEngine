@@ -134,7 +134,12 @@ migrating every existing production caller to the typed canonical result
 variants: 18 internal/API/SDK surfaces, 32 typed sites, and zero legacy result
 calls across 621 scanned production Python files. The compatibility envelope
 remains an external boundary only; missing required values raise or fail closed
-and missing confidence is unmeasured/zero. CP19-C selector/DAG work is active.
+and missing confidence is unmeasured/zero. CP19-C now passes with one typed
+selector/plan/executor, 213 positive and 213
+negative generated fixtures, and a corrected 119-edge zero-cycle dependency
+graph. Its effectful nodes produce proposals only; effect application remains
+an authoritative-service workflow owned by CP19-I. CP19-D ten-layer integration
+inside the canonical governed lifecycle is active.
 
 The target versioned interface is generated from the canonical KA manifest and
 provides list/search, canonical detail, input/output schema, dependency and

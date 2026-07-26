@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-C selector and bounded dependency DAG**: added one
+  manifest-driven typed plan for all 213 canonical KAs, 213 generated positive
+  and 213 negative selector fixtures, deterministic transitive dependency
+  expansion, policy/service admission, request-wide budgets, bounded
+  `TaskGroup` execution, required-failure and parent cancellation, serial
+  effect proposals, and truthful plan/execution trace states. Corrected three
+  reciprocal design relationships into a 119-edge zero-cycle prerequisite DAG
+  without changing identity or capability. The focused suite passes 13 tests
+  and the KA/Python-SDK suite passes 781; the full source suite passes 2,499
+  with 18 skipped. CP19-D ten-layer product-path integration is active; effect
+  application, rebuilding, and release remain blocked.
 - **Phase 19 CP19-B canonical result-contract parity**: migrated every existing
   production KA caller to `KAExecutionResult` or strict required-output helpers,
   including TruthCore, L6-L10, persona/refinement, simulation/POV/Query Persona,

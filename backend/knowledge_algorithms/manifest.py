@@ -61,6 +61,8 @@ class KAContract(BaseModel):
     personas: list[str] = Field(default_factory=list)
     subsystems: list[str] = Field(default_factory=list)
     dependencies: list[str] = Field(default_factory=list)
+    dependency_result_contract: str
+    dependency_input_field: str
     triggers: list[str] = Field(default_factory=list)
     risk_classes: list[str] = Field(default_factory=list)
     effect_class: str
@@ -195,7 +197,35 @@ class KAManifest(BaseModel):
                 raise ValueError(f"{alias}: alias collides with canonical ID")
         if declared_aliases != self.alias_index:
             raise ValueError("entry aliases do not match the manifest alias index")
+        self._validate_dependency_dag()
         return self
+
+    def _validate_dependency_dag(self) -> None:
+        """Reject cycles before the manifest can become runtime authority."""
+        visiting: set[str] = set()
+        visited: set[str] = set()
+        path: list[str] = []
+
+        def visit(canonical_id: str) -> None:
+            if canonical_id in visiting:
+                cycle_start = path.index(canonical_id)
+                cycle = path[cycle_start:] + [canonical_id]
+                raise ValueError(
+                    "dependency cycle detected: " + " -> ".join(cycle)
+                )
+            if canonical_id in visited:
+                return
+            visiting.add(canonical_id)
+            path.append(canonical_id)
+            definition = self.entries[canonical_id]
+            for dependency in definition.contract.dependencies:
+                visit(dependency)
+            path.pop()
+            visiting.remove(canonical_id)
+            visited.add(canonical_id)
+
+        for canonical_id in sorted(self.entries):
+            visit(canonical_id)
 
     def resolve_id(self, value: str, *, allow_scoped_alias: bool = False) -> str:
         normalized = normalize_ka_id(value)
