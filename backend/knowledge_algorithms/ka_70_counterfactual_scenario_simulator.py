@@ -17,6 +17,7 @@ class KA070ScenarioInput(BaseModel):
     model_config = ConfigDict(extra="allow")
     hypotheticals: List[Dict[str, Any]] = Field(default_factory=list, description="Hypothetical changes to knowledge nodes")
     graph: Dict[str, Any] = Field(default_factory=dict)
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
 class KA070CounterfactualScenarioSimulator(KnowledgeAlgorithm):
@@ -41,20 +42,34 @@ class KA070CounterfactualScenarioSimulator(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA070ScenarioInput) -> Dict[str, Any]:
-        hypothetical_changes = input_data.hypotheticals
+        local_projection = dict(input_data.dependency_results.get("KA-042") or {})
+        hypothetical_changes = list(input_data.hypotheticals)
+        if not hypothetical_changes and local_projection:
+            hypothetical_changes = [
+                {
+                    "node_id": impact.get("field"),
+                    "new_value": impact.get("after"),
+                }
+                for impact in local_projection.get("impacts", [])
+                if impact.get("changed") and impact.get("field")
+            ]
         self.log_execution_step("Simulating Counterfactual Scenarios", {"change_count": len(hypothetical_changes)})
 
         graph = input_data.graph or {}
         depth = self._safe_int(self.config.get("simulation_depth", 3), 3)
         threshold = float(self.config.get("divergence_threshold", 0.4))
         outcomes = [self._simulate_change(change, graph, depth, threshold) for change in hypothetical_changes]
-        aggregate = sum(item["aggregate_divergence"] for item in outcomes) / len(outcomes) if outcomes else 0.0
+        graph_divergence = sum(item["aggregate_divergence"] for item in outcomes) / len(outcomes) if outcomes else 0.0
+        local_divergence = float(local_projection.get("divergence_score") or 0)
+        aggregate = max(graph_divergence, local_divergence)
         return {
             "success": True,
             "simulated_outcomes": outcomes,
             "divergence_threshold_applied": threshold,
             "aggregate_divergence": round(aggregate, 4),
             "risk_level": "high" if aggregate >= threshold else "medium" if aggregate >= threshold / 2 else "low",
+            "local_projection_consumed": bool(local_projection),
+            "local_projection_divergence": local_divergence,
         }
 
     def _simulate_change(self, change: Dict[str, Any], graph: Dict[str, Any], depth: int, threshold: float) -> Dict[str, Any]:

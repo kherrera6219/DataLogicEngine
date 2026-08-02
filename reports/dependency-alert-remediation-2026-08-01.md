@@ -9,8 +9,9 @@ packages in `frontend/package-lock.json`.
 
 All reported vulnerable ranges are absent from the regenerated authorities.
 The Python release lock is regenerated with hashes, the Node lock is refreshed,
-and no alert was dismissed or waived. GitHub must re-evaluate the pushed
-manifests before its hosted alert count is treated as closed evidence.
+and no alert was dismissed or waived. After the patched default-branch
+authorities were indexed, the live GitHub query reported zero open Dependabot
+alerts.
 
 ## Reviewed changes
 
@@ -30,10 +31,12 @@ manifests before its hosted alert count is treated as closed evidence.
 - `npm --prefix frontend audit --json`: zero vulnerabilities.
 - `python scripts/verify_lockfiles.py`: pass; 80 Python direct pins, 290
   hash-locked Python packages, and current Node lock/root parity.
+- `gh api --paginate repos/kherrera6219/DataLogicEngine/dependabot/alerts
+  -f state=open`: zero open hosted alerts after the default-branch rescan.
 - Frontend lint: zero errors and one unchanged unused-test-parameter warning.
 - Frontend type checking, 426 tests, production Next build, and Electron
   TypeScript compilation: pass.
-- Full source suite: 2,573 passed, 19 skipped, 35 known warnings.
+- Current full source suite: 2,588 passed, 18 skipped, 35 known warnings.
 
 ## Release boundary
 

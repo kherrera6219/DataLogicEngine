@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.01-cp19k.1",
+  "manifest_version": "2026.08.01-cp19k.2",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -22,6 +22,20 @@
         "KA-113"
       ],
       "scope": "Production-admitted DMRF query classification and complexity routing"
+    },
+    {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-032",
+        "KA-037",
+        "KA-042",
+        "KA-070",
+        "KA-1080",
+        "KA-1081",
+        "KA-1091"
+      ],
+      "scope": "Causal simulation planning, resource admission, counterfactual context, and artifact proposal"
     }
   ],
   "qualifications": {
@@ -108,6 +122,127 @@
         "rationale": "The manifest classifies KA-113 as pure or advisory and declares no authoritative effect port."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_113_semantic_contract"
+    },
+    "KA-032": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_032_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+        "rationale": "The owning path proves the complete orchestration decision is consumed before provider work and the owning job alone binds the admitted transition receipt."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+        "rationale": "KA-032 proposes orchestration only; SimulationJobRunner owns the running-state transition and binds it to an idempotent SHA-256 receipt."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_032_semantic_contract"
+    },
+    "KA-037": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_037_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
+        "rationale": "The owning job applies the allocation as a hard token ceiling and blocks plans whose effective allocation cannot cover the declared provider-call plan."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest classifies KA-037 as pure or advisory; it allocates a limit while SimulationJobRunner alone enforces it."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_037_semantic_contract"
+    },
+    "KA-042": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_042_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_042_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_042_owning_path",
+      "security_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The deterministic local projection performs no authorization, provider call, persistence, connector, or infrastructure effect."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest classifies KA-042 as pure or advisory and the owning job only consumes its bounded projection as context."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_042_semantic_contract"
+    },
+    "KA-070": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_070_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+        "rationale": "The graph projection must consume KA-042, remain content bounded, and enter provider context only through the simulation owner."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+        "rationale": "KA-070 does not call a provider; SimulationJobRunner owns application of the projection and binds that action to the canonical KA plan."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_070_semantic_contract"
+    },
+    "KA-1080": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1080_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
+        "rationale": "The owning path proves the bounded estimate is injected into KA-1081 and cannot be bypassed by a duplicate admission estimate."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-1080 performs arithmetic over caller-supplied estimates and neither measures nor reserves resources."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1080_semantic_contract"
+    },
+    "KA-1081": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_1081_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_1081_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract",
+        "rationale": "The semantic proof shows a dependency-supplied over-budget estimate blocks admission even when duplicate direct estimates claim a smaller request."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-1081 returns a deterministic admission decision and explicitly starts no execution."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract"
+    },
+    "KA-1091": {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1091_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+      "trace_test": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+        "rationale": "Content-addressed proposals remain write-free until SimulationJobRunner authorizes artifact persistence and binds the exact request and result hashes."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+        "rationale": "The KA produces no artifact; the owning service performs persistence and issues the authoritative idempotent receipt."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1091_semantic_contract"
     }
   }
 }

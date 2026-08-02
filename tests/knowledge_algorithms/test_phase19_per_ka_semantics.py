@@ -28,7 +28,7 @@ def _execute(canonical_id: str, payload: dict):
     )
 
 
-def _assert_pure_bounded_result(canonical_id: str, result) -> None:
+def _assert_bounded_result(canonical_id: str, result) -> None:
     definition = load_manifest().entries[canonical_id]
 
     assert result.success
@@ -37,8 +37,12 @@ def _assert_pure_bounded_result(canonical_id: str, result) -> None:
     assert result.trace_id
     assert result.duration_ms <= definition.contract.performance_budget_ms
     assert result.effects == []
-    assert definition.integration.effect_port is None
     assert definition.contract.limitations
+
+
+def _assert_pure_bounded_result(canonical_id: str, result) -> None:
+    _assert_bounded_result(canonical_id, result)
+    assert load_manifest().entries[canonical_id].integration.effect_port is None
 
 
 def test_ka_001_semantic_contract():
@@ -145,3 +149,208 @@ def test_ka_113_semantic_contract():
         "normalized_query_consumed": True,
         "classification_tier": "moderate",
     }
+
+
+def test_ka_032_semantic_contract():
+    completed = _execute(
+        "KA-032",
+        {
+            "pipeline": [
+                {"ka_id": "KA-042"},
+                {"ka_id": "KA-070", "depends_on": ["step_1"]},
+            ],
+            "simulation_state": {},
+            "exit_criteria": {"min_completed": 2, "max_failures": 0},
+        },
+    )
+    blocked = _execute(
+        "KA-032",
+        {
+            "pipeline": [
+                {"ka_id": "KA-070", "depends_on": ["missing_step"]},
+            ],
+            "simulation_state": {},
+            "exit_criteria": {"min_completed": 1, "max_failures": 0},
+        },
+    )
+
+    _assert_bounded_result("KA-032", completed)
+    assert blocked.success is False
+    assert blocked.duration_ms <= load_manifest().entries[
+        "KA-032"
+    ].contract.performance_budget_ms
+    assert blocked.effects == []
+    assert completed.output["final_status"] == "COMPLETED"
+    assert completed.output["checkpoints_captured"] == 2
+    assert blocked.state.value == "failed"
+    assert blocked.error.code == "KA_EXECUTION_FAILED"
+    assert blocked.output == {}
+
+
+def test_ka_037_semantic_contract():
+    normal = _execute(
+        "KA-037",
+        {
+            "priority": "normal",
+            "task_type": "orchestration",
+            "complexity": "medium",
+            "input_size": 400,
+            "expected_steps": 4,
+        },
+    )
+    repeated = _execute(
+        "KA-037",
+        {
+            "priority": "normal",
+            "task_type": "orchestration",
+            "complexity": "medium",
+            "input_size": 400,
+            "expected_steps": 4,
+        },
+    )
+
+    _assert_pure_bounded_result("KA-037", normal)
+    assert normal.output == repeated.output
+    assert 500 <= normal.output["token_budget"] <= 12_000
+    assert normal.output["timeout_ms"] <= 30_000
+    assert normal.output["execution_queue"] in {"interactive", "priority", "batch"}
+
+
+def test_ka_042_semantic_contract():
+    projected = _execute(
+        "KA-042",
+        {
+            "scenario": "raise capacity",
+            "baseline": {"capacity": 10, "latency": 100},
+            "change": {"capacity": 20},
+            "relationships": {"capacity": {"latency": -2}},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-042", projected)
+    assert projected.output["projected_state"] == {
+        "capacity": 20,
+        "latency": 80.0,
+    }
+    assert projected.output["divergence_score"] == 1.0
+    assert projected.output["risk_level"] == "high"
+
+
+def test_ka_070_semantic_contract():
+    simulated = _execute(
+        "KA-070",
+        {
+            "hypotheticals": [],
+            "graph": {"capacity": {"latency": 0.5}},
+            "dependency_results": {
+                "KA-042": {
+                    "success": True,
+                    "divergence_score": 0.5,
+                    "impacts": [
+                        {
+                            "field": "capacity",
+                            "after": 20,
+                            "changed": True,
+                        }
+                    ],
+                }
+            },
+        },
+    )
+
+    _assert_bounded_result("KA-070", simulated)
+    assert simulated.output["local_projection_consumed"] is True
+    assert simulated.output["simulated_outcomes"][0]["changed_node"] == "capacity"
+    assert simulated.output["aggregate_divergence"] == 0.5
+
+
+def test_ka_1080_semantic_contract():
+    estimated = _execute(
+        "KA-1080",
+        {
+            "planned_steps": [
+                {
+                    "step_id": "contextualize",
+                    "iterations": 2,
+                    "estimated_ms_per_iteration": 50,
+                    "estimated_tokens_per_iteration": 100,
+                    "estimated_peak_memory_mb": 256,
+                    "estimated_cost_per_iteration": 0.01,
+                }
+            ],
+            "contingency_ratio": 0.25,
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1080", estimated)
+    assert estimated.output["estimate"] == {
+        "duration_ms": 125.0,
+        "tokens": 250,
+        "cost_units": 0.025,
+        "peak_memory_mb": 256.0,
+        "step_count": 1,
+        "contingency_ratio": 0.25,
+    }
+    assert estimated.output["measurement_status"] == "caller_supplied_estimate"
+
+
+def test_ka_1081_semantic_contract():
+    blocked = _execute(
+        "KA-1081",
+        {
+            "estimated_duration_ms": 1,
+            "estimated_tokens": 1,
+            "estimated_cost_units": 0,
+            "estimated_peak_memory_mb": 1,
+            "recursion_depth": 0,
+            "concurrency": 1,
+            "maximum_duration_ms": 1_000,
+            "maximum_tokens": 1_000,
+            "maximum_cost_units": 1,
+            "maximum_peak_memory_mb": 512,
+            "maximum_recursion_depth": 0,
+            "maximum_concurrency": 1,
+            "dependency_results": {
+                "KA-1080": {
+                    "estimate": {
+                        "duration_ms": 500,
+                        "tokens": 2_000,
+                        "cost_units": 0,
+                        "peak_memory_mb": 256,
+                    }
+                }
+            },
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1081", blocked)
+    assert blocked.output["allowed"] is False
+    assert blocked.output["estimate_source"] == "KA-1080_dependency"
+    assert blocked.output["violations"] == [
+        {"budget": "tokens", "estimated": 2_000, "maximum": 1_000}
+    ]
+
+
+def test_ka_1091_semantic_contract():
+    planned = _execute(
+        "KA-1091",
+        {
+            "outcomes": [
+                {
+                    "scenario_id": "scenario-1",
+                    "outcome_id": "outcome-1",
+                    "status": "completed",
+                    "significance": 0.9,
+                    "summary": "Bounded simulation completed.",
+                    "artifact_refs": [],
+                }
+            ],
+            "minimum_significance": 0.7,
+        },
+    )
+
+    _assert_bounded_result("KA-1091", planned)
+    assert planned.output["archive_count"] == 1
+    assert planned.output["artifacts_written"] == 0
+    assert planned.output["effect_service_required"] is True
+    assert len(planned.output["archive_plans"][0]["content_sha256"]) == 64

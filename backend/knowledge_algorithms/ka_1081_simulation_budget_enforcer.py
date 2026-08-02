@@ -45,6 +45,7 @@ class KA1081Input(BaseModel):
     maximum_peak_memory_mb: float = Field(gt=0, le=10_000_000)
     maximum_recursion_depth: int = Field(ge=0, le=10_000)
     maximum_concurrency: int = Field(ge=1, le=100_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class KA1081SimulationBudgetEnforcer(KnowledgeAlgorithm):
@@ -57,21 +58,39 @@ class KA1081SimulationBudgetEnforcer(KnowledgeAlgorithm):
         self.ka_id = "KA-1081"
 
     def _run_logic(self, input_data: KA1081Input) -> dict[str, Any]:
+        dependency_estimate = dict(
+            input_data.dependency_results.get("KA-1080", {}).get("estimate") or {}
+        )
+        estimated_duration_ms = float(
+            dependency_estimate.get("duration_ms", input_data.estimated_duration_ms)
+        )
+        estimated_tokens = int(
+            dependency_estimate.get("tokens", input_data.estimated_tokens)
+        )
+        estimated_cost_units = float(
+            dependency_estimate.get("cost_units", input_data.estimated_cost_units)
+        )
+        estimated_peak_memory_mb = float(
+            dependency_estimate.get(
+                "peak_memory_mb",
+                input_data.estimated_peak_memory_mb,
+            )
+        )
         checks = {
             "duration": (
-                input_data.estimated_duration_ms,
+                estimated_duration_ms,
                 input_data.maximum_duration_ms,
             ),
             "tokens": (
-                input_data.estimated_tokens,
+                estimated_tokens,
                 input_data.maximum_tokens,
             ),
             "cost": (
-                input_data.estimated_cost_units,
+                estimated_cost_units,
                 input_data.maximum_cost_units,
             ),
             "memory": (
-                input_data.estimated_peak_memory_mb,
+                estimated_peak_memory_mb,
                 input_data.maximum_peak_memory_mb,
             ),
             "recursion": (
@@ -100,6 +119,11 @@ class KA1081SimulationBudgetEnforcer(KnowledgeAlgorithm):
             "violations": violations,
             "execution_started": False,
             "deterministic": True,
+            "estimate_source": (
+                "KA-1080_dependency"
+                if dependency_estimate
+                else "direct_input"
+            ),
             "limitations": (
                 "Admission relies on supplied estimates. The simulation "
                 "orchestrator must enforce live cancellation and resource "

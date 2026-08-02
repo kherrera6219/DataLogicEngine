@@ -26,6 +26,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K causal simulation batch 03**: qualified `KA-032`,
+  `KA-037`, `KA-042`, `KA-070`, `KA-1080`, `KA-1081`, and `KA-1091` through
+  individually named semantic and owning-path proofs. Simulation cost now feeds
+  budget admission, the resource allocation caps real provider tokens, and the
+  local counterfactual projection feeds graph simulation and the actual provider
+  context. SimulationJobRunner retains all state/artifact authority and records
+  separate idempotent SHA-256 receipts for admission, context application, and
+  persistence. Manifest `2026.08.01-cp19k.2` retains 213 capabilities and 149
+  production-enabled capabilities with 136 acyclic dependencies. The matrix is
+  12/213 qualified with 201 open; registry-only chaos and rollback rows remain
+  unqualified. The 783-test KA suite, 168 affected integrations, seven
+  TypeScript SDK tests, frontend type checking, and the full 2,588-test source
+  suite pass with 18 skipped and 35 known warnings. GitHub's completed rescan
+  confirms zero open Dependabot alerts without dismissals or waivers.
 - **Phase 19 CP19-K DMRF qualification batch 02 and dependency remediation**:
   moved `KA-005` and `KA-113` onto the production-mode DMRF selector plan,
   made normalized input/classification causal, retained a never-lower tier

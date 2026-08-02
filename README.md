@@ -61,7 +61,7 @@ administration, audit, observability, and validation application.
 > Phase 19 CP19-A through CP19-J are complete. The one runtime manifest now
 > drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
 > verify selection, and three reciprocal design relationships were corrected
-> into a current 135-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
+> into a current 136-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
 > budgets, cancellation, serial effect proposals, and truthful trace states
 > pass focused qualification. The public answer lifecycle now carries one typed
 > reasoning state through explicit causal L1-L10 stages; L1 executes a
@@ -86,20 +86,23 @@ administration, audit, observability, and validation application.
 > context/monitoring, durable jobs, explicit proposal budgets, and
 > authoritative SHA-256/idempotency receipts without adding another provider,
 > connector, store, queue, registry, or answer path. The manifest retains all
-> 213 capabilities, production-enables 149, and verifies a 135-edge zero-cycle
+> 213 capabilities, production-enables 149, and verifies a 136-edge zero-cycle
 > graph. CP19-J adds principal-owned encrypted/idempotent durable runs, exact
 > risk/effect confirmation, cancellation/recovery, 12 scoped API paths,
 > generated Python/TypeScript SDK parity, and real-backend desktop history,
 > result, trace, artifact, and effect review. Forty-one focused workflow, six
 > Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
 > pass; the source result has 19 skipped and 35 known warnings.
-> CP19-K batches 01-02 now qualify `KA-001`, `KA-004`, `KA-005`, `KA-061`, and
-> `KA-113` through named
-> semantic, selector, real governed-L1 call-path, limitation, causal trace,
-> security/effect applicability, and performance evidence. The generated matrix
-> reports 5/213 qualified and 208 open; the 776-test KA suite and 146 governed/
-> TruthCore/Phase-19 integration tests pass. The full source result is 2,573
-> passed, 19 skipped, and 35 known warnings. CP19-L
+> CP19-K batches 01-03 now qualify `KA-001`, `KA-004`, `KA-005`, `KA-032`,
+> `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-113`, `KA-1080`, `KA-1081`, and
+> `KA-1091` through named semantic, selector, real owning-path, limitation,
+> causal trace, security/effect applicability, and performance evidence. The
+> simulation batch makes cost estimation, budget admission, resource caps, and
+> counterfactual context causal in the real job and leaves registry-only chaos/
+> rollback rows open. The generated matrix reports 12/213 qualified and 201
+> open; the 783-test KA suite and 168 governed/TruthCore/Phase-19/simulation
+> integration tests pass. The full source result is 2,588 passed, 18 skipped,
+> and 35 known warnings. CP19-L
 > is the source gate that may authorize a rebuild; CP19-M retains exact
 > rebuilt-installed acceptance.
 > Phase 15 freezes clean
@@ -212,8 +215,8 @@ Current production-completion focus:
 - Active Phase 19 CP19-K: one named semantic test, positive/negative selector
   proof, real owning call path, limitation, causal trace assertion, and
   applicable security/effect/performance evidence for every canonical KA;
-  batches 01-02 qualify `KA-001`, `KA-004`, `KA-005`, `KA-061`, and `KA-113`
-  (5/213)
+  batches 01-03 qualify 12/213 rows, including the causal simulation planning,
+  resource, counterfactual, and outcome core; 201 rows remain open
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,

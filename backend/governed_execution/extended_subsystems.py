@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
@@ -530,7 +531,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                 "estimated_ms_per_iteration": (
                     estimated_duration_ms / plan.max_provider_calls
                 ),
-                "estimated_tokens_per_iteration": plan.max_tokens_per_call,
+                "estimated_tokens_per_iteration": math.ceil(
+                    max(estimated_tokens, plan.max_output_tokens)
+                    / plan.max_provider_calls
+                ),
                 "estimated_peak_memory_mb": estimated_memory,
                 "estimated_cost_per_iteration": (
                     estimated_cost / plan.max_provider_calls
@@ -616,7 +620,36 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
         )
 
     @staticmethod
-    def simulation_plan_allowed(execution: Any) -> tuple[bool, list[str]]:
+    def simulation_resource_limits(
+        execution: Any,
+        *,
+        scenario: Any,
+    ) -> dict[str, Any]:
+        """Translate canonical allocation into limits enforced by the job."""
+        outputs = ExtendedSubsystemCoordinator.execution_outputs(execution)
+        allocation = outputs.get("KA-037", {})
+        allocated_tokens = max(0, int(allocation.get("token_budget") or 0))
+        return {
+            "max_total_tokens": min(
+                int(scenario.max_total_tokens),
+                allocated_tokens,
+            ),
+            "allocated_token_budget": allocated_tokens,
+            "allocated_timeout_ms": max(
+                0,
+                int(allocation.get("timeout_ms") or 0),
+            ),
+            "execution_queue": str(
+                allocation.get("execution_queue") or "unallocated"
+            ),
+        }
+
+    @staticmethod
+    def simulation_plan_allowed(
+        execution: Any,
+        *,
+        scenario: Any | None = None,
+    ) -> tuple[bool, list[str]]:
         """Interpret semantic gates after the execution itself succeeds."""
         blockers: list[str] = []
         outputs = {
@@ -634,7 +667,88 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             blockers.append("reasoning_boundary_blocked")
         if outputs.get("KA-032", {}).get("final_status") != "COMPLETED":
             blockers.append("simulation_plan_not_completed")
+        allocation = outputs.get("KA-037", {})
+        allocated_tokens = int(allocation.get("token_budget") or 0)
+        required_tokens = (
+            int(scenario.plan.max_output_tokens)
+            if scenario is not None
+            else 1
+        )
+        effective_tokens = min(
+            int(scenario.max_total_tokens),
+            allocated_tokens,
+        ) if scenario is not None else allocated_tokens
+        if effective_tokens < required_tokens:
+            blockers.append("resource_allocation_below_plan_minimum")
+        if outputs.get("KA-1081", {}).get("estimate_source") != "KA-1080_dependency":
+            blockers.append("cost_estimate_not_consumed")
         return not blockers, sorted(set(blockers))
+
+    def plan_simulation_counterfactual(
+        self,
+        *,
+        simulation_id: str,
+        principal_id: str,
+        scenario: Any,
+    ) -> Any:
+        """Project the scenario before the owning job starts provider work."""
+        settings = dict((scenario.context or {}).get("counterfactual") or {})
+        baseline = dict(settings.get("baseline") or {})
+        change = settings.get("change")
+        if change is None:
+            change = {"scenario_query": scenario.query}
+        hypotheticals = list(settings.get("hypotheticals") or [])
+        relationships = dict(settings.get("relationships") or {})
+        graph = dict(settings.get("graph") or {})
+        return self.execute_operation_sync(
+            owner="simulation",
+            operation="counterfactual",
+            requested_ids=["KA-042", "KA-070"],
+            ka_inputs={
+                "KA-042": {
+                    "scenario": scenario.query,
+                    "change": change,
+                    "baseline": baseline,
+                    "relationships": relationships,
+                },
+                "KA-070": {
+                    "hypotheticals": hypotheticals,
+                    "graph": graph,
+                },
+            },
+            request_id=f"simulation-counterfactual:{simulation_id}",
+            run_id=simulation_id,
+            max_effects=1,
+            session_id=simulation_id,
+            principal_id=principal_id,
+            tier=scenario.depth.value,
+            layer="simulation_job",
+            service_capabilities={"simulation_job_service"},
+            required=True,
+        )
+
+    @staticmethod
+    def simulation_counterfactual_context(execution: Any) -> dict[str, Any]:
+        """Return the bounded canonical projection consumed by the engine."""
+        outputs = ExtendedSubsystemCoordinator.execution_outputs(execution)
+        projection = outputs.get("KA-042", {})
+        ripple = outputs.get("KA-070", {})
+        if not projection.get("success") or not ripple.get("success"):
+            raise ExtendedSubsystemError(
+                "Canonical counterfactual projection did not complete"
+            )
+        if not ripple.get("local_projection_consumed"):
+            raise ExtendedSubsystemError(
+                "Graph counterfactual did not consume the local projection"
+            )
+        return {
+            "schema_version": "dle.simulation-counterfactual-context.v1",
+            "local_projection": projection,
+            "graph_projection": ripple,
+            "ka_lifecycle": ExtendedSubsystemCoordinator.lifecycle_evidence(
+                execution
+            ),
+        }
 
     def plan_simulation_outcome(
         self,

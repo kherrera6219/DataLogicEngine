@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.49.0 |
+| Document version | v1.50.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5151,6 +5151,8 @@ Python pins and lock now use `pypdf==6.14.2` and `web3==7.15.0`; the frontend
 lock now resolves patched Next, Electron Builder, updater, archive, parsing,
 HTTP, image, YAML, CSS, and glob dependencies. `pip-audit` and `npm audit`
 report zero known vulnerabilities, and Python/Node lockfile governance passes.
+The post-push GitHub rescan reports zero open Dependabot alerts; none was
+dismissed or waived.
 This source maintenance does not authorize a rebuild or satisfy CP19-L.
 
 Evidence:
@@ -5161,6 +5163,44 @@ Evidence:
 - `reports/dependency-alert-remediation-2026-08-01.md`;
 - `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`; and
 - `tests/integration/phase19/test_governed_request_dmrf.py`.
+
+### CP19-K progress - batch 03 passed 2026-08-01
+
+Batch 03 closes seven causal simulation-core rows: `KA-032`, `KA-037`,
+`KA-042`, `KA-070`, `KA-1080`, `KA-1081`, and `KA-1091`. The audit found that
+the prior CP19-I path executed planning KAs without consuming every result and
+did not call the registered counterfactual operation from the durable job.
+Runtime manifest `2026.08.01-cp19k.2` restores the intentional 136-edge acyclic
+graph by making KA-1081 consume KA-1080's bounded estimate. The simulation job
+now applies KA-037's allocation as a hard provider-token ceiling, rejects an
+allocation below the immutable provider-call plan, executes KA-042 -> KA-070,
+and injects their bounded projection into the real provider context.
+
+KAs remain proposal/decision-only. `SimulationJobRunner` owns the admitted
+state transition, counterfactual-context application, and artifact persistence,
+and binds each applied action to its own idempotent SHA-256 receipt. The owning
+tests require complete planned/candidate/selected/admitted/executing/executed
+trace evidence, including the dependency-consumption and service-effect
+boundaries. Registry-only `KA-1101` and `KA-1103` remain incomplete because no
+production chaos-injection or rollback action consumes those operations; no
+direct test or registry presence is counted as an owning path.
+
+The generated matrix and verifier pass with 12 of 213 rows qualified and 201
+incomplete. The KA suite passes 783 tests with three known deprecation warnings;
+the governed execution, TruthCore, Phase 19, and simulation integration set
+passes 168. Frontend type checking and all seven TypeScript SDK tests pass. The
+full source suite passes 2,588 tests with 18 skipped and 35 known warnings.
+CP19-K remains active, rebuild authorization remains false, and CP19-L/CP19-M
+remain unauthorized.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-03-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_simulation.py`; and
+- `tests/unit/test_phase10_simulation_authority.py`.
 
 Retained CP19-B evidence:
 
@@ -5608,13 +5648,13 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-02 now truthfully
-qualify `KA-001`, `KA-004`, `KA-005`, `KA-061`, and `KA-113`, leaving 208 of
-213 rows open. The
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-03 now truthfully
+qualify 12 rows, including the causal simulation planning/resource/
+counterfactual/outcome core, leaving 201 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 135-edge acyclic dependency graph, bounded structured
+fixtures, current 136-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -5627,11 +5667,12 @@ effect-proposal, and authoritative SHA-256 receipt integration now also pass.
 The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
-artifact/effect review. Continue CP19-K with the owner-coherent simulation rows
-`KA-032`, `KA-037`, `KA-042`, `KA-070`, `KA-1080`, `KA-1081`, `KA-1091`,
-`KA-1101`, and `KA-1103`. Close each row with one individually named semantic
-test, positive/negative selector proof, real owning-path assertion, limitation,
-causal trace evidence, and applicable security/effect/performance evidence.
+artifact/effect review. Continue CP19-K with the MCP owner rows `KA-010`,
+`KA-022`, `KA-024`, `KA-096`, `KA-097`, `KA-106`, `KA-136`, `KA-137`,
+`KA-175`, `KA-177`, `KA-179`, `KA-182`, and `KA-184`, proving their real
+consent, connector, result-governance, recovery, and receipt paths. Keep
+simulation `KA-1101` and `KA-1103` incomplete until genuine product-owned
+chaos and rollback actions exist.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

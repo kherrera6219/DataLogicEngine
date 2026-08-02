@@ -48,6 +48,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.07.25-cp19i.1",
         "2026.07.25-cp19j.1",
         "2026.08.01-cp19k.1",
+        "2026.08.01-cp19k.2",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"

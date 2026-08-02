@@ -1,0 +1,91 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-03-simulation-core",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-032",
+    "KA-037",
+    "KA-042",
+    "KA-070",
+    "KA-1080",
+    "KA-1081",
+    "KA-1091"
+  ],
+  "deferred_ids": {
+    "KA-1101": "No production-owned chaos-injection action consumes this registry operation.",
+    "KA-1103": "No production-owned simulation rollback action consumes this registry operation."
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 12,
+    "incomplete_capabilities": 201,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_cp19k_simulation_contracts",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_simulation.py tests/integration/phase19/test_extended_subsystems.py::test_cp19i_simulation_plan_executes_and_effect_remains_service_owned tests/unit/test_phase10_simulation_authority.py::test_fixed_seed_job_persists_steps_calls_checkpoints_and_artifacts",
+      "status": "pass",
+      "result": "21 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "783 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "168 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2588 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "typescript_boundaries",
+      "command": "npm --prefix frontend run typecheck; npm --prefix sdk/DataLogicEngine_TypeScript_SDK test -- --runInBand",
+      "status": "pass",
+      "result": "frontend typecheck passed; TypeScript SDK 7 passed"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "12/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_and_selector_authority",
+      "command": "python scripts/verify_ka_runtime_authority.py; python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "manifest 2026.08.01-cp19k.2 current across backend and both SDKs; 136-edge DAG acyclic"
+    },
+    {
+      "name": "hosted_dependency_alerts",
+      "command": "gh api --paginate repos/kherrera6219/DataLogicEngine/dependabot/alerts -f state=open --jq length",
+      "status": "pass",
+      "result": "0 open Dependabot alerts after the default-branch rescan"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check . --select E9,F63,F7",
+      "status": "pass",
+      "result": "all checks passed; one existing invalid-noqa warning remains informational"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 201 per-KA rows remain open.",
+    "KA-1101 and KA-1103 remain unqualified until real product owner actions consume them.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

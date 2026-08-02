@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.07.25-cp19j.1",
+  "manifest_version": "2026.08.01-cp19k.2",
   "canonical_capabilities": 213,
   "dependency_edges": 136,
   "dependency_cycles": 0,
@@ -227,12 +227,27 @@
       "matches_approved_order": true,
       "rationale": "Capability escalation consumes the system-introspection record; experimental emergence research is not a production prerequisite."
     },
+    "KA-113": {
+      "dependencies": [
+        "KA-004",
+        "KA-005"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Complexity routing consumes the normalized query and committed query classification. Simulation cost estimation is downstream of routing and is not an admission prerequisite."
+    },
     "KA-070": {
       "dependencies": [
         "KA-042"
       ],
       "matches_approved_order": true,
       "rationale": "Graph ripple simulation consumes the bounded local counterfactual projection; unrelated data-quality scoring is not a simulation prerequisite."
+    },
+    "KA-1081": {
+      "dependencies": [
+        "KA-1080"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Simulation budget admission consumes the canonical bounded cost estimate rather than independently trusting a duplicate estimate."
     },
     "KA-1101": {
       "dependencies": [

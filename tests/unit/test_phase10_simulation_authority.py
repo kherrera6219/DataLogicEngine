@@ -383,8 +383,21 @@ def test_fixed_seed_job_persists_steps_calls_checkpoints_and_artifacts(app):
             ).one()
             assert simulation.status == "completed"
             assert simulation.provider_call_count == 4
+            assert simulation.budget["ka_resource_limits"]["max_total_tokens"] < 10_000
+            assert simulation.budget["ka_counterfactual"]["executed_ids"] == [
+                "KA-042",
+                "KA-070",
+            ]
             assert simulation.results["confidence_score"] is None
             assert simulation.results["validation"]["status"] == "qualification_only"
+            assert [
+                receipt["operation"]
+                for receipt in simulation.results["effect_receipts"]
+            ] == [
+                "admit_simulation_plan",
+                "apply_counterfactual_context",
+                "persist_simulation_artifacts",
+            ]
             assert SimulationStep.query.filter_by(session_id=simulation_id).count() == 4
             assert (
                 SimulationProviderCall.query.filter_by(

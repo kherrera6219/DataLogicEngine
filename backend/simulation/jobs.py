@@ -177,7 +177,8 @@ class SimulationJobRunner:
                 scenario=scenario,
             )
             plan_allowed, plan_blockers = subsystem.simulation_plan_allowed(
-                ka_planning
+                ka_planning,
+                scenario=scenario,
             )
         except KnowledgeLifecycleError:
             logger.exception("Simulation KA planning failed")
@@ -203,12 +204,61 @@ class SimulationJobRunner:
             db.session.commit()
             self._publish(simulation, "failed")
             return
+        try:
+            ka_counterfactual = subsystem.plan_simulation_counterfactual(
+                simulation_id=simulation_id,
+                principal_id=str(simulation.user_id),
+                scenario=scenario,
+            )
+            counterfactual_context = subsystem.simulation_counterfactual_context(
+                ka_counterfactual
+            )
+        except KnowledgeLifecycleError:
+            logger.exception("Simulation counterfactual planning failed")
+            simulation.status = "failed"
+            simulation.last_error_code = "SIMULATION_KA_COUNTERFACTUAL_BLOCK"
+            simulation.last_error_message = (
+                "Simulation blocked by canonical counterfactual planning."
+            )
+            simulation.completed_at = datetime.now(UTC)
+            db.session.commit()
+            self._publish(simulation, "failed")
+            return
+        resource_limits = subsystem.simulation_resource_limits(
+            ka_planning,
+            scenario=scenario,
+        )
         simulation.status = "running"
         simulation.trace_id = simulation.trace_id or simulation.session_id
         simulation.started_at = simulation.started_at or datetime.now(UTC)
         simulation.completed_at = None
         simulation.last_error_code = None
         simulation.last_error_message = None
+        planning_effect_receipt = subsystem.bind_effect_receipt(
+            service="SimulationJobRunner",
+            operation="admit_simulation_plan",
+            resource_id=simulation_id,
+            request_payload=scenario.plan.to_dict(),
+            result_payload={
+                "status": "running",
+                "resource_limits": resource_limits,
+            },
+            idempotency_key=(
+                f"simulation:{simulation_id}:"
+                f"{simulation.scenario_revision}:admission"
+            ),
+            ka_execution=ka_planning,
+            proposal_ids=[f"{simulation_id}:plan"],
+        )
+        simulation.budget = {
+            **dict(simulation.budget or {}),
+            "ka_planning": ka_planning.to_dict(),
+            "ka_counterfactual": ka_counterfactual.to_dict(),
+            "ka_resource_limits": resource_limits,
+            "effect_receipts": [
+                planning_effect_receipt.to_dict(),
+            ],
+        }
         admission_event_sequence = (
             db.session.query(db.func.max(SimulationEventRecord.sequence))
             .filter_by(session_id=simulation_id)
@@ -270,7 +320,6 @@ class SimulationJobRunner:
             return
         simulation.budget = {
             **dict(simulation.budget or {}),
-            "ka_planning": ka_planning.to_dict(),
             "estimated_cost_usd": provider_budget["estimated_cost_usd"],
             "pricing_status": provider_budget["pricing_status"],
             "provider": getattr(provider, "provider_type", None),
@@ -403,7 +452,7 @@ class SimulationJobRunner:
             provider=provider,
             simulation_id=simulation_id,
             max_provider_calls=scenario.plan.max_provider_calls,
-            max_total_tokens=scenario.max_total_tokens,
+            max_total_tokens=resource_limits["max_total_tokens"],
             max_cost_usd=scenario.max_cost_usd,
             initial_provider_calls=previous_calls,
             initial_tokens_in=int(aggregate[0] or 0),
@@ -438,11 +487,39 @@ class SimulationJobRunner:
             }
             for item in retrieved_evidence
         ]
+        execution_context["_ka_counterfactual"] = {
+            key: value
+            for key, value in counterfactual_context.items()
+            if key != "ka_lifecycle"
+        }
         engine.create_simulation(
             str(admission["query"]),
             execution_context,
             simulation_id=simulation_id,
         )
+        counterfactual_effect_receipt = subsystem.bind_effect_receipt(
+            service="SimulationJobRunner",
+            operation="apply_counterfactual_context",
+            resource_id=simulation_id,
+            request_payload={
+                "scenario_revision": simulation.scenario_revision,
+            },
+            result_payload=counterfactual_context,
+            idempotency_key=(
+                f"simulation:{simulation_id}:"
+                f"{simulation.scenario_revision}:counterfactual"
+            ),
+            ka_execution=ka_counterfactual,
+            proposal_ids=[f"{simulation_id}:counterfactual"],
+        )
+        simulation.budget = {
+            **dict(simulation.budget or {}),
+            "effect_receipts": [
+                planning_effect_receipt.to_dict(),
+                counterfactual_effect_receipt.to_dict(),
+            ],
+        }
+        db.session.commit()
         result = asyncio.run(
             engine.run_simulation(
                 simulation_id,
@@ -539,7 +616,11 @@ class SimulationJobRunner:
             "budget": result["budget"],
             "artifacts": artifact_refs,
             "ka_outcome": ka_outcome.to_dict(),
-            "effect_receipts": [artifact_receipt.to_dict()],
+            "effect_receipts": [
+                planning_effect_receipt.to_dict(),
+                counterfactual_effect_receipt.to_dict(),
+                artifact_receipt.to_dict(),
+            ],
         }
         simulation.artifact_state = (
             "ready"

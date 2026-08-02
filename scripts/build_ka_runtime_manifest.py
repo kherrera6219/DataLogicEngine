@@ -834,6 +834,13 @@ CP19_I_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
             "a simulation prerequisite."
         ),
     },
+    "KA-1081": {
+        "dependencies": ["KA-1080"],
+        "rationale": (
+            "Simulation budget admission consumes the canonical bounded cost "
+            "estimate rather than independently trusting a duplicate estimate."
+        ),
+    },
     "KA-1101": {
         "dependencies": ["KA-1081", "KA-1099"],
         "rationale": (
@@ -1156,7 +1163,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.01-cp19k.1",
+        "manifest_version": "2026.08.01-cp19k.2",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

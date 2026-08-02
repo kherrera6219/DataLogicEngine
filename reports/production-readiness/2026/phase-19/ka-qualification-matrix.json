@@ -1,31 +1,31 @@
 {
   "schema_version": "dle.cp19-k-qualification-matrix.v1",
-  "matrix_version": "2026.08.01-cp19k.1",
+  "matrix_version": "2026.08.01-cp19k.2",
   "status": "cp19_k_in_progress",
   "phase": 19,
   "checkpoint": "CP19-K",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.01-cp19k.1",
+  "manifest_version": "2026.08.01-cp19k.2",
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 5,
-    "incomplete_capabilities": 208,
-    "reviewed_capabilities": 5,
+    "qualified_capabilities": 12,
+    "incomplete_capabilities": 201,
+    "reviewed_capabilities": 12,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 5,
+    "semantic_test": 12,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 5,
-    "limitation_review": 5,
-    "trace_proof": 5,
-    "security_review": 5,
-    "effect_review": 5,
-    "performance_evidence": 5
+    "owning_path_test": 12,
+    "limitation_review": 12,
+    "trace_proof": 12,
+    "security_review": 12,
+    "effect_review": 12,
+    "performance_evidence": 12
   },
   "batches": [
     {
@@ -46,6 +46,20 @@
         "KA-113"
       ],
       "scope": "Production-admitted DMRF query classification and complexity routing"
+    },
+    {
+      "batch_id": "cp19-k-batch-03-simulation-core",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-032",
+        "KA-037",
+        "KA-042",
+        "KA-070",
+        "KA-1080",
+        "KA-1081",
+        "KA-1091"
+      ],
+      "scope": "Causal simulation planning, resource admission, counterfactual context, and artifact proposal"
     }
   ],
   "canonical_capabilities": [
@@ -2484,12 +2498,12 @@
       "effect_port": "simulation_job_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_032_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -2502,18 +2516,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -2524,34 +2538,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+          "rationale": "The owning path proves the complete orchestration decision is consumed before provider work and the owning job alone binds the admitted transition receipt."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_032_owning_path",
+          "rationale": "KA-032 proposes orchestration only; SimulationJobRunner owns the running-state transition and binds it to an idempotent SHA-256 receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_032_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-033",
@@ -2879,12 +2885,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_037_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -2897,18 +2903,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -2919,34 +2925,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_037_owning_path",
+          "rationale": "The owning job applies the allocation as a hard token ceiling and blocks plans whose effective allocation cannot cover the declared provider-call plan."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "The manifest classifies KA-037 as pure or advisory; it allocates a limit while SimulationJobRunner alone enforces it."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_037_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-038",
@@ -3274,12 +3272,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_042_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3292,18 +3290,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_042_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_042_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3314,34 +3312,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "The deterministic local projection performs no authorization, provider call, persistence, connector, or infrastructure effect."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "The manifest classifies KA-042 as pure or advisory and the owning job only consumes its bounded projection as context."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_042_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-043",
@@ -5478,12 +5468,12 @@
       "effect_port": "simulation_job_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_070_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -5496,18 +5486,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -5518,34 +5508,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+          "rationale": "The graph projection must consume KA-042, remain content bounded, and enter provider context only through the simulation owner."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_070_owning_path",
+          "rationale": "KA-070 does not call a provider; SimulationJobRunner owns application of the projection and binds that action to the canonical KA plan."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_070_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-071",
@@ -10376,12 +10358,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1080_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -10394,18 +10376,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -10416,34 +10398,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_1080_owning_path",
+          "rationale": "The owning path proves the bounded estimate is injected into KA-1081 and cannot be bypassed by a duplicate admission estimate."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "KA-1080 performs arithmetic over caller-supplied estimates and neither measures nor reserves resources."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1080_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1081",
@@ -10455,12 +10429,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -10473,18 +10447,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1081_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1081_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -10495,34 +10469,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract",
+          "rationale": "The semantic proof shows a dependency-supplied over-budget estimate blocks admission even when duplicate direct estimates claim a smaller request."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "KA-1081 returns a deterministic admission decision and explicitly starts no execution."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1081_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1082",
@@ -11324,12 +11290,12 @@
       "effect_port": "simulation_job_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-03-simulation-core",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1091_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -11342,18 +11308,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -11364,34 +11330,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+          "rationale": "Content-addressed proposals remain write-free until SimulationJobRunner authorizes artifact persistence and binds the exact request and result hashes."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_simulation.py::test_ka_1091_owning_path",
+          "rationale": "The KA produces no artifact; the owning service performs persistence and issues the authoritative idempotent receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1091_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1092",

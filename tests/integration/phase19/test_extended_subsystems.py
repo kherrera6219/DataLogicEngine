@@ -22,7 +22,7 @@ def test_cp19i_manifest_preserves_one_identity_and_admits_extended_owners():
     manifest = get_ka_controller().manifest
 
     assert manifest.status == "cp19_j_product_workflow_authority"
-    assert manifest.manifest_version == "2026.08.01-cp19k.1"
+    assert manifest.manifest_version == "2026.08.01-cp19k.2"
     assert manifest.capability_count == 213
     assert len(manifest.entries) == len(set(manifest.entries)) == 213
     assert sum(
@@ -195,7 +195,10 @@ def test_cp19i_simulation_plan_executes_and_effect_remains_service_owned():
         principal_id="owner-1",
         scenario=scenario,
     )
-    allowed, blockers = coordinator.simulation_plan_allowed(execution)
+    allowed, blockers = coordinator.simulation_plan_allowed(
+        execution,
+        scenario=scenario,
+    )
 
     assert execution.ok is True
     assert allowed is True
