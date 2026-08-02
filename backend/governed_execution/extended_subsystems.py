@@ -633,6 +633,35 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             required=True,
         )
 
+    @staticmethod
+    def provider_monitoring_decision(execution: Any) -> dict[str, Any]:
+        """Consume measured provider monitoring without claiming an alert effect."""
+        output = ExtendedSubsystemCoordinator.execution_outputs(execution).get(
+            "KA-084",
+            {},
+        )
+        anomalies = output.get("anomalies")
+        metric_deltas = output.get("metric_deltas")
+        if not isinstance(anomalies, list) or not isinstance(metric_deltas, dict):
+            raise ExtendedSubsystemError(
+                "Provider monitoring output is incomplete"
+            )
+        health_score = output.get("health_score")
+        if not isinstance(health_score, (int, float)):
+            raise ExtendedSubsystemError(
+                "Provider monitoring health score is invalid"
+            )
+        return {
+            "schema_version": "dle.provider-monitoring-decision.v1",
+            "status": "measured",
+            "drift_detected": bool(output.get("drift_detected")),
+            "anomalies": [str(value) for value in anomalies],
+            "metric_deltas": dict(metric_deltas),
+            "health_score": float(health_score),
+            "alert_recommended": bool(output.get("alert_recommended")),
+            "notification_applied": False,
+        }
+
     def plan_simulation(
         self,
         *,

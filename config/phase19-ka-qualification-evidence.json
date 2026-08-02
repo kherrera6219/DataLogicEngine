@@ -69,7 +69,16 @@
         "KA-106",
         "KA-184"
       ],
-      "scope": "MCP durable structured-log and audit records plus fail-closed recovery planning and authoritative plan receipts"
+      "scope": "MCP structured logging with durable audit/receipt records plus fail-closed recovery planning and authoritative plan receipts"
+    },
+    {
+      "batch_id": "cp19-k-batch-07-provider-boundary",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-084",
+        "KA-1072"
+      ],
+      "scope": "Pre-call context-budget governance and post-call measured monitoring at the canonical provider boundary"
     }
   ],
   "qualifications": {
@@ -501,6 +510,40 @@
         "rationale": "MCPRecoveryLedger records the proposed recovery plan with an idempotent SHA-256 receipt; it does not claim containment, notification, eradication, or recovery steps were applied."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_184_semantic_contract"
+    },
+    "KA-084": {
+      "batch_id": "cp19-k-batch-07-provider-boundary",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_084_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
+        "rationale": "The post-call owner supplies only measured latency, consumes the bounded decision, and records no provider content, credential, invented quality label, or notification effect."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-084 returns a measured monitoring decision and alert recommendation only; notification_applied remains false and the already-completed provider call retains its pre-call plan identity."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_084_semantic_contract"
+    },
+    "KA-1072": {
+      "batch_id": "cp19-k-batch-07-provider-boundary",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1072_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
+        "rationale": "The pre-call owner sends only element IDs, token counts, priorities, and content references through the KA lifecycle, requires system and final-user context, and fails closed when required context exceeds budget."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-1072 selects context without calling a provider; ProviderGatewayService owns the external call and binds its effect receipt to the unchanged pre-call KA plan."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1072_semantic_contract"
     }
   }
 }

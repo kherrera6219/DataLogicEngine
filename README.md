@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -40,17 +40,19 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 25/213; 188 remain open |
-| Latest source validation | 2,615 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 27/213; 186 remain open |
+| Latest source validation | 2,619 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
 classification, simulation planning/resource/counterfactual effects, and MCP
 admission/result-release governance causal through their real production owners.
-MCP result logging and audit records are now content-free, durable, and bound to
-owning-service receipts; failed connector work records a fail-closed recovery
-plan without automatically retrying or claiming proposed incident actions were
-performed. No registry-only, execute-only, or direct-test-only capability is
+MCP result handling emits content-free structured logs and persists durable
+audit/receipt records; failed connector work records a fail-closed recovery plan
+without automatically retrying or claiming proposed incident actions were
+performed. Provider calls now retain their pre-call context-governance plan
+identity, while post-call latency monitoring recommends but never claims to send
+an alert. No registry-only, execute-only, or direct-test-only capability is
 counted as production-qualified.
 
 See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
@@ -176,10 +178,16 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-06 qualify 25/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-07 qualify 27/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
-  with durable audit/receipt records, and fail-closed MCP recovery planning;
-  188 rows remain open
+  with durable audit/receipt records, fail-closed MCP recovery planning,
+  provider context-budget enforcement, and measured provider monitoring; 186
+  rows remain open
+- Eleven additional provider/gateway KAs remain open: model training,
+  evaluation, deployment, feature engineering, tuning, versioning, A/B testing,
+  pruning, quantization, API gateway, and external deep research. None is
+  counted from registry membership or direct tests without a real owner and,
+  where applicable, an authoritative effect receipt
 - CP19-L clean-source qualification must pass before any release-candidate
   rebuild is authorized
 - CP19-M must bind the exact signed rebuilt artifact to representative

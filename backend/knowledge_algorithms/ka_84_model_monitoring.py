@@ -74,7 +74,8 @@ class KA084ModelMonitoring(KnowledgeAlgorithm):
             "anomalies": detected_anomalies,
             "metric_deltas": metric_deltas,
             "health_score": health_score,
-            "alert_sent": len(detected_anomalies) > 0
+            "alert_recommended": len(detected_anomalies) > 0,
+            "notification_applied": False,
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-01 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.53.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.54.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -240,12 +240,12 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 06 are complete for `KA-001`, `KA-004`, `KA-005`,
+CP19-K batches 01 through 07 are complete for `KA-001`, `KA-004`, `KA-005`,
 `KA-010`, `KA-022`, `KA-024`,
-`KA-032`, `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-096`, `KA-097`,
+`KA-032`, `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-084`, `KA-096`, `KA-097`,
 `KA-106`, `KA-113`, `KA-1080`, `KA-1081`, `KA-1091`, `KA-136`, `KA-137`,
-`KA-175`, `KA-177`, `KA-179`, `KA-182`, and `KA-184`. The generated 213-row
-matrix and verifier report 25 qualified and 188 incomplete, with rebuild
+`KA-175`, `KA-177`, `KA-179`, `KA-182`, `KA-184`, and `KA-1072`. The generated
+213-row matrix and verifier report 27 qualified and 186 incomplete, with rebuild
 authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -277,15 +277,24 @@ backend label is removed. Failed tool calls now execute the registered KA-106/
 KA-184 recovery operation, disable automatic retry, and persist an idempotently
 receipted recovery-plan record with zero applied incident actions.
 
+Batch 07 closes the two provider algorithms already consumed by the real
+governed provider path. `KA-1072` enforces required context within the declared
+token budget before the call, and ProviderGatewayService binds the completed
+call receipt to that unchanged pre-call plan. `KA-084` consumes measured
+post-call latency as a separate decision, recommends but does not send an alert,
+and no longer overwrites the applied provider receipt's plan identity. The
+remaining 11 provider/gateway rows stay open without equivalent owner/effect
+proof.
+
 The same pass remediated all 31 dependency alerts visible before publication.
 `pypdf==6.14.2`, `web3==7.15.0`, Next 16.2.12, Electron Builder 26.15.3, and
 the reviewed transitive overrides/lock now resolve patched versions. Local
 Python and Node audits report zero vulnerabilities, lock governance passes, and
 the post-push GitHub rescan reports zero open Dependabot alerts.
-The KA suite passes 796 tests; governed execution, TruthCore, Phase 19, and
-simulation integration pass 181; frontend type checking and all seven
+The KA suite passes 798 tests; governed execution, TruthCore, Phase 19, and
+simulation integration pass 183; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 426 frontend tests and production/
-Electron builds remain green; and the full source suite passes 2,615 tests with
+Electron builds remain green; and the full source suite passes 2,619 tests with
 18 skipped and 35 known warnings. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -325,7 +334,9 @@ Electron builds remain green; and the full source suite passes 2,615 tests with
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-03-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-04-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-05-validation.json`;
-- `reports/production-readiness/2026/phase-19/cp19-k-batch-06-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-06-validation.json`;
+  and
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-07-validation.json`.
 
 ## Approved product boundary
 
@@ -942,10 +953,12 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 25/213 by auditing the provider/gateway owner group.
-2. Keep simulation `KA-1101` and `KA-1103` open until product-owned chaos and
-   rollback actions exist; registry membership or direct algorithm tests do not
-   qualify a production owning path.
+1. Continue CP19-K from 27/213 by auditing the security/operations lifecycle
+   owner group.
+2. Keep the 11 retained provider/gateway rows open until production owning
+   paths and any required effect receipts exist. Keep simulation `KA-1101` and
+   `KA-1103` open until product-owned chaos and rollback actions exist; direct
+   tests or registry membership do not qualify an owning path.
 3. Preserve canonical IDs, every distinct capability, one implementation
    owner, one primary subsystem owner, and one governed answer path while
    preparing CP19-L clean-source qualification.

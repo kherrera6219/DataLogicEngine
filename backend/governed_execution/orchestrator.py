@@ -1860,6 +1860,7 @@ class GovernedExecutionOrchestrator:
                             f"{request.request_id}:{purpose}:"
                             f"{context.provider_call_count}"
                         ),
+                        ka_execution=provider_plan,
                         proposal_ids=[],
                     )
                     try:
@@ -1874,7 +1875,11 @@ class GovernedExecutionOrchestrator:
                                 duration_ms=duration_ms,
                             )
                         )
-                        effect_receipt.ka_plan_id = provider_monitor.plan.plan_id
+                        provider_monitoring_decision = (
+                            self.extended_subsystems.provider_monitoring_decision(
+                                provider_monitor
+                            )
+                        )
                     except KnowledgeLifecycleError:
                         logger.exception(
                             "Provider result KA monitoring failed for request %s",
@@ -1917,6 +1922,9 @@ class GovernedExecutionOrchestrator:
                                 self.extended_subsystems.lifecycle_evidence(
                                     provider_monitor
                                 )
+                            ),
+                            "response_monitoring_decision": (
+                                provider_monitoring_decision
                             ),
                         },
                         "effect_receipt": effect_receipt.to_dict(),

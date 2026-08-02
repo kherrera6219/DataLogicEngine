@@ -165,6 +165,9 @@ async def test_cp19i_provider_governance_and_monitoring_are_trace_accounted():
         principal_id="owner-1",
         duration_ms=125,
     )
+    monitoring_decision = coordinator.provider_monitoring_decision(
+        monitor_execution
+    )
     receipt = coordinator.bind_effect_receipt(
         service="ProviderGatewayService",
         operation="answer:provider_call",
@@ -172,14 +175,16 @@ async def test_cp19i_provider_governance_and_monitoring_are_trace_accounted():
         request_payload={"model": "fixture-model"},
         result_payload={"answer_sha256": "a" * 64},
         idempotency_key="provider-request-1:answer:1",
-        ka_execution=monitor_execution,
+        ka_execution=request_execution,
     )
 
     assert request_execution.executed_ids == ["KA-1072"]
     assert monitor_execution.executed_ids == ["KA-084"]
     assert receipt.status == "applied"
-    assert receipt.ka_plan_id == monitor_execution.plan.plan_id
+    assert receipt.ka_plan_id == request_execution.plan.plan_id
     assert receipt.request_sha256 != receipt.result_sha256
+    assert monitoring_decision["status"] == "measured"
+    assert monitoring_decision["notification_applied"] is False
 
 
 def test_cp19i_simulation_plan_executes_and_effect_remains_service_owned():

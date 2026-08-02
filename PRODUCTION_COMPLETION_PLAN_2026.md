@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.53.0 |
+| Document version | v1.54.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5324,6 +5324,44 @@ Evidence:
 - `tests/integration/phase19/test_security_operations_lifecycle.py`; and
 - `tests/mcp/test_phase11_mcp_routes.py`.
 
+### CP19-K progress - batch 07 passed 2026-08-01
+
+Batch 07 closes the two provider-boundary rows already consumed by the real
+governed provider path: `KA-084` and `KA-1072`. The audit found and corrected a
+receipt-identity defect: the applied ProviderGatewayService call receipt was
+created after `KA-1072` pre-call governance but then reassigned to the post-call
+`KA-084` monitoring plan. The receipt now remains bound to the unchanged
+pre-call plan, so effect chronology and attribution are truthful.
+
+`KA-1072` deterministically retains required system and final-user context
+within the declared token budget and fails closed when required context cannot
+fit. `KA-084` consumes measured provider latency after the call as a separate,
+content-free decision. It may recommend an alert but reports
+`notification_applied=false`; it owns no notification or provider effect and
+does not invent a provider-quality label.
+
+The remaining 11 provider/gateway rows (`KA-081`, `KA-082`, `KA-083`,
+`KA-085` through `KA-090`, `KA-111`, and `KA-1114`) remain incomplete because
+no equivalent production owning path and, where required, authoritative effect
+receipt has been proved. No installed provider, model-training/deployment,
+external deep-research, or gateway acceptance is claimed.
+
+The generated matrix and verifier pass with 27 of 213 rows qualified and 186
+incomplete. The KA suite passes 798 tests with three known deprecation warnings;
+the governed execution, TruthCore, Phase 19, and simulation integration set
+passes 183; and the full source suite passes 2,619 tests with 18 skipped and 35
+known warnings. CP19-K remains active, rebuild authorization remains false, and
+CP19-L/CP19-M remain unauthorized.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-07-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_provider_gateway.py`; and
+- `tests/governed_execution/test_orchestrator.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5770,10 +5808,11 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-06 now truthfully
-qualify 25 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-07 now truthfully
+qualify 27 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
-records, and fail-closed recovery planning, leaving 188 of 213 rows open. The
+records, fail-closed recovery planning, provider context-budget enforcement,
+and measured provider monitoring, leaving 186 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -5790,10 +5829,11 @@ effect-proposal, and authoritative SHA-256 receipt integration now also pass.
 The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
-artifact/effect review. Continue CP19-K by auditing the provider/gateway owner
-group. Keep
-simulation `KA-1101` and `KA-1103` incomplete until genuine product-owned
-chaos and rollback actions exist.
+artifact/effect review. Continue CP19-K by auditing the security/operations
+lifecycle owner group. Keep the 11 retained provider/gateway rows incomplete
+until real production owners and effect evidence exist, and keep simulation
+`KA-1101`/`KA-1103` incomplete until genuine product-owned chaos and rollback
+actions exist.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

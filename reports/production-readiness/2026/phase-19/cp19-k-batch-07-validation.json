@@ -1,0 +1,91 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-07-provider-boundary",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-084",
+    "KA-1072"
+  ],
+  "retained_open_provider_gateway_ids": [
+    "KA-081",
+    "KA-082",
+    "KA-083",
+    "KA-085",
+    "KA-086",
+    "KA-087",
+    "KA-088",
+    "KA-089",
+    "KA-090",
+    "KA-111",
+    "KA-1114"
+  ],
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 27,
+    "incomplete_capabilities": 186,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_batch_and_matrix",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_provider_gateway.py tests/integration/phase19/test_extended_subsystems.py tests/governed_execution/test_orchestrator.py",
+      "status": "pass",
+      "result": "59 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "798 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "183 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2619 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "27/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority_and_selector_dag",
+      "command": "python scripts/verify_ka_runtime_authority.py && python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "runtime authority and selector/DAG verification passed"
+    },
+    {
+      "name": "documentation_references_and_truth",
+      "command": "python scripts/verify_docs_references.py && python scripts/verify_documentation_truth.py",
+      "status": "pass",
+      "result": "40 active Markdown files; 0 reference errors; 0 warnings; documentation truth 10/10"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check backend/knowledge_algorithms/ka_84_model_monitoring.py backend/governed_execution/extended_subsystems.py backend/governed_execution/orchestrator.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_ka_stub_replacements.py tests/integration/phase19/test_provider_gateway.py tests/integration/phase19/test_extended_subsystems.py tests/governed_execution/test_orchestrator.py",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 186 per-KA rows remain open.",
+    "Eleven provider/gateway rows remain unqualified because no equivalent production owner, effect application, or authoritative receipt has been proved.",
+    "KA-084 recommends an alert but applies no notification; the provider call remains bound to the pre-call KA-1072 plan.",
+    "No installed provider call, model-quality result, external deep-research invocation, training, deployment, or gateway release acceptance is claimed.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

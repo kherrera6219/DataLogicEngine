@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.cp19-k-qualification-matrix.v1",
-  "matrix_version": "2026.08.01-cp19k.5",
+  "matrix_version": "2026.08.01-cp19k.6",
   "status": "cp19_k_in_progress",
   "phase": 19,
   "checkpoint": "CP19-K",
@@ -9,23 +9,23 @@
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 25,
-    "incomplete_capabilities": 188,
-    "reviewed_capabilities": 25,
+    "qualified_capabilities": 27,
+    "incomplete_capabilities": 186,
+    "reviewed_capabilities": 27,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 25,
+    "semantic_test": 27,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 25,
-    "limitation_review": 25,
-    "trace_proof": 25,
-    "security_review": 25,
-    "effect_review": 25,
-    "performance_evidence": 25
+    "owning_path_test": 27,
+    "limitation_review": 27,
+    "trace_proof": 27,
+    "security_review": 27,
+    "effect_review": 27,
+    "performance_evidence": 27
   },
   "batches": [
     {
@@ -93,7 +93,16 @@
         "KA-106",
         "KA-184"
       ],
-      "scope": "MCP durable structured-log and audit records plus fail-closed recovery planning and authoritative plan receipts"
+      "scope": "MCP structured logging with durable audit/receipt records plus fail-closed recovery planning and authoritative plan receipts"
+    },
+    {
+      "batch_id": "cp19-k-batch-07-provider-boundary",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-084",
+        "KA-1072"
+      ],
+      "scope": "Pre-call context-budget governance and post-call measured monitoring at the canonical provider boundary"
     }
   ],
   "canonical_capabilities": [
@@ -6576,12 +6585,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-07-provider-boundary",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_084_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -6594,18 +6603,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -6616,34 +6625,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_084_owning_path",
+          "rationale": "The post-call owner supplies only measured latency, consumes the bounded decision, and records no provider content, credential, invented quality label, or notification effect."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "KA-084 returns a measured monitoring decision and alert recommendation only; notification_applied remains false and the already-completed provider call retains its pre-call plan identity."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_084_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-085",
@@ -9633,12 +9634,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-07-provider-boundary",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1072_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -9651,18 +9652,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -9673,34 +9674,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1072_owning_path",
+          "rationale": "The pre-call owner sends only element IDs, token counts, priorities, and content references through the KA lifecycle, requires system and final-user context, and fails closed when required context exceeds budget."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "KA-1072 selects context without calling a provider; ProviderGatewayService owns the external call and binds its effect receipt to the unchanged pre-call KA plan."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1072_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1073",

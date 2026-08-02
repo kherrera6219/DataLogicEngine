@@ -393,6 +393,17 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
         provider_stage.outputs["effect_receipt"]["service"]
         == "ProviderGatewayService"
     )
+    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] == (
+        provider_stage.outputs["ka_lifecycle"]["request_governance"][
+            "plan_id"
+        ]
+    )
+    assert provider_stage.outputs["effect_receipt"]["ka_proposal_ids"] == []
+    monitoring = provider_stage.outputs["ka_lifecycle"][
+        "response_monitoring_decision"
+    ]
+    assert monitoring["status"] == "measured"
+    assert monitoring["notification_applied"] is False
     assert [item["stage_id"] for item in gateway.persisted[0]["trace"]] == [
         stage.stage_id for stage in result.stages
     ]
@@ -457,7 +468,11 @@ async def test_provider_receipt_survives_post_call_ka_monitor_failure(monkeypatc
         provider_stage.outputs["effect_receipt"]["service"]
         == "ProviderGatewayService"
     )
-    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] is None
+    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] == (
+        provider_stage.outputs["ka_lifecycle"]["request_governance"][
+            "plan_id"
+        ]
+    )
 
 
 @pytest.mark.asyncio

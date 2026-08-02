@@ -802,3 +802,94 @@ def test_ka_184_semantic_contract():
         "incident_owner_missing",
         "containment_not_ready",
     ]
+
+
+def test_ka_084_semantic_contract():
+    healthy = _execute(
+        "KA-084",
+        {
+            "live_metrics": {"p99_latency": 125, "prediction_skew": 0.02},
+            "baseline_metrics": {"p99_latency": 120, "prediction_skew": 0.02},
+        },
+    )
+    degraded = _execute(
+        "KA-084",
+        {
+            "live_metrics": {"p99_latency": 350, "prediction_skew": 0.2},
+            "baseline_metrics": {"p99_latency": 125, "prediction_skew": 0.02},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-084", healthy)
+    _assert_pure_bounded_result("KA-084", degraded)
+    assert healthy.output["drift_detected"] is False
+    assert healthy.output["alert_recommended"] is False
+    assert degraded.output["drift_detected"] is True
+    assert degraded.output["alert_recommended"] is True
+    assert degraded.output["notification_applied"] is False
+    assert "LATENCY_SPIKE" in degraded.output["anomalies"]
+    assert "PREDICTION_SKEW" in degraded.output["anomalies"]
+
+
+def test_ka_1072_semantic_contract():
+    selected = _execute(
+        "KA-1072",
+        {
+            "context_elements": [
+                {
+                    "element_id": "policy",
+                    "token_count": 100,
+                    "relevance": 1,
+                    "priority": 2,
+                    "required": True,
+                },
+                {
+                    "element_id": "high-density",
+                    "token_count": 50,
+                    "relevance": 0.9,
+                    "priority": 1,
+                },
+                {
+                    "element_id": "low-density",
+                    "token_count": 100,
+                    "relevance": 0.2,
+                    "priority": 1,
+                },
+            ],
+            "token_budget": 160,
+        },
+    )
+    over_budget = _execute(
+        "KA-1072",
+        {
+            "context_elements": [
+                {
+                    "element_id": "required-policy",
+                    "token_count": 200,
+                    "relevance": 1,
+                    "required": True,
+                }
+            ],
+            "token_budget": 100,
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1072", selected)
+    assert over_budget.success is False
+    assert over_budget.canonical_id == "KA-1072"
+    assert over_budget.effects == []
+    assert over_budget.duration_ms <= (
+        load_manifest().entries["KA-1072"].contract.performance_budget_ms
+    )
+    assert selected.output["selected_element_ids"] == [
+        "policy",
+        "high-density",
+    ]
+    assert selected.output["selected_token_count"] == 150
+    assert selected.output["excluded"] == [
+        {"element_id": "low-density", "reason": "token_budget"}
+    ]
+    assert selected.output["deterministic"] is True
+    assert over_budget.output == {}
+    assert over_budget.error is not None
+    assert over_budget.error.code == "KA_EXECUTION_FAILED"

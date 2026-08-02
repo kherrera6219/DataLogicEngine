@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K provider-boundary batch 07**: qualified `KA-084` and
+  `KA-1072` through exact semantic, owning-path, security, limitation,
+  performance, and trace proofs. Required provider context now fails closed
+  against the declared token budget, and the applied provider-call receipt
+  remains bound to that pre-call plan. Post-call monitoring is consumed as a
+  separate measured decision, recommends but does not claim to send an alert,
+  and no longer overwrites the receipt's KA identity. Eleven other provider/
+  gateway rows remain open. The matrix is 27/213 qualified with 186 open; 798
+  KA tests, 183 affected integrations, and the full 2,619-test source suite pass
+  with 18 skipped and 35 known warnings.
 - **Phase 19 CP19-K MCP records/recovery batch 06**: qualified `KA-096`,
   `KA-097`, `KA-106`, and `KA-184` through named semantic and real MCP owning-
   path proofs. Result handling now emits a content-free structured record,

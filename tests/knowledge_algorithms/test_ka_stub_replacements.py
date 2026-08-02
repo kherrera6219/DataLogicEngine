@@ -671,6 +671,8 @@ def test_ka084_monitors_relative_metric_drift():
     assert result["output"]["drift_detected"] is True
     assert "P99_LATENCY_DRIFT" in result["output"]["anomalies"]
     assert result["output"]["metric_deltas"]["p99_latency"] == 0.3333
+    assert result["output"]["alert_recommended"] is True
+    assert result["output"]["notification_applied"] is False
 
 
 def test_ka086_tunes_hyperparameters_deterministically():
