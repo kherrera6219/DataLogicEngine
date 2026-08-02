@@ -36,6 +36,16 @@
         "KA-1091"
       ],
       "scope": "Causal simulation planning, resource admission, counterfactual context, and artifact proposal"
+    },
+    {
+      "batch_id": "cp19-k-batch-04-mcp-admission",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-137",
+        "KA-177",
+        "KA-179"
+      ],
+      "scope": "MCP credential discovery, policy admission, access admission, and authorization-bound connector receipts"
     }
   ],
   "qualifications": {
@@ -243,6 +253,59 @@
         "rationale": "The KA produces no artifact; the owning service performs persistence and issues the authoritative idempotent receipt."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1091_semantic_contract"
+    },
+    "KA-137": {
+      "batch_id": "cp19-k-batch-04-mcp-admission",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_137_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
+        "rationale": "The owning MCP admission path consumes deterministic secret findings and blocks inline credentials before connector execution."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-137 performs bounded local discovery only; the MCP route owns the fail-closed admission decision and performs no effect when findings are present."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_137_semantic_contract"
+    },
+    "KA-177": {
+      "batch_id": "cp19-k-batch-04-mcp-admission",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+        "rationale": "The production MCP owner consumes the policy decision and fails closed before a connector call when required consent is absent."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+        "rationale": "The MCP route alone performs the connector effect and binds its receipt to the admission plan and KA-177 policy proposal."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract"
+    },
+    "KA-179": {
+      "batch_id": "cp19-k-batch-04-mcp-admission",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+        "rationale": "The production MCP owner consumes the bounded access decision and blocks a denied principal before connector execution."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+        "rationale": "The MCP route owns the connector call and binds the authoritative effect receipt to the admission plan and KA-179 access proposal."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract"
     }
   }
 }

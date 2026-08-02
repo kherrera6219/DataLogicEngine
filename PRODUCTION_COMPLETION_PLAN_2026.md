@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.50.0 |
+| Document version | v1.51.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5202,6 +5202,49 @@ Evidence:
 - `tests/integration/phase19/test_simulation.py`; and
 - `tests/unit/test_phase10_simulation_authority.py`.
 
+### CP19-K progress - batch 04 passed 2026-08-01
+
+Batch 04 audits the MCP owner group and closes only the three rows whose
+outputs are causal at the production connector boundary: `KA-137`, `KA-177`,
+and `KA-179`. The route consumes KA-137 credential findings, KA-177 policy
+admission, and KA-179 access admission before connector execution. Inline
+credentials, missing consent, and denied access fail closed without performing
+the connector effect.
+
+The audit also corrected effect provenance. The authoritative connector receipt
+is now bound to the pre-effect admission plan and the exact KA-177/KA-179
+proposals that authorized the call, rather than to the post-effect result-
+validation plan. Named semantic and real owning-path tests prove the complete
+planned/candidate/selected/admitted/executing/executed trace and the admission-
+bound receipt.
+
+The remaining audited MCP rows stay incomplete without waiver. `KA-022` and
+`KA-136` execute but their outputs are not consumed; `KA-010`, `KA-096`,
+`KA-097`, `KA-175`, and `KA-182` execute after the connector effect without a
+causal result-governance action; `KA-024` is not selected by this owner; and
+`KA-106`/`KA-184` have no production recovery caller. Direct tests, registry
+membership, or execute-only traces do not qualify those rows.
+
+The generated matrix and verifier pass with 15 of 213 rows qualified and 198
+incomplete. Runtime manifest `2026.08.01-cp19k.2` remains current with 213
+capabilities, 149 production-enabled capabilities, and 136 acyclic dependency
+edges. The KA suite passes 786 tests with three known deprecation warnings; the
+governed execution, TruthCore, Phase 19, and simulation integration set passes
+171; all 55 focused qualification and MCP route tests pass; and the full source
+suite passes 2,594 tests with 18 skipped and 35 known warnings. CP19-K remains
+active, rebuild authorization remains false, and CP19-L/CP19-M remain
+unauthorized.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-04-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_security_operations_lifecycle.py`;
+- `tests/integration/phase19/test_truthgate.py`; and
+- `tests/mcp/test_phase11_mcp_routes.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5648,9 +5691,9 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-03 now truthfully
-qualify 12 rows, including the causal simulation planning/resource/
-counterfactual/outcome core, leaving 201 of 213 rows open. The
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-04 now truthfully
+qualify 15 rows, including the causal simulation core and MCP credential/policy/
+access admission, leaving 198 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -5667,10 +5710,11 @@ effect-proposal, and authoritative SHA-256 receipt integration now also pass.
 The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
-artifact/effect review. Continue CP19-K with the MCP owner rows `KA-010`,
-`KA-022`, `KA-024`, `KA-096`, `KA-097`, `KA-106`, `KA-136`, `KA-137`,
-`KA-175`, `KA-177`, `KA-179`, `KA-182`, and `KA-184`, proving their real
-consent, connector, result-governance, recovery, and receipt paths. Keep
+artifact/effect review. Continue CP19-K by making the remaining MCP owner rows
+causal: consume or remove `KA-022`/`KA-136`, add pre-response governance for
+`KA-010`, `KA-096`, `KA-097`, `KA-175`, and `KA-182`, establish a real owner
+for `KA-024`, and add production recovery callers for `KA-106`/`KA-184` before
+closing them. Then audit the provider/gateway owner group. Keep
 simulation `KA-1101` and `KA-1103` incomplete until genuine product-owned
 chaos and rollback actions exist.
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.cp19-k-qualification-matrix.v1",
-  "matrix_version": "2026.08.01-cp19k.2",
+  "matrix_version": "2026.08.01-cp19k.3",
   "status": "cp19_k_in_progress",
   "phase": 19,
   "checkpoint": "CP19-K",
@@ -9,23 +9,23 @@
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 12,
-    "incomplete_capabilities": 201,
-    "reviewed_capabilities": 12,
+    "qualified_capabilities": 15,
+    "incomplete_capabilities": 198,
+    "reviewed_capabilities": 15,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 12,
+    "semantic_test": 15,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 12,
-    "limitation_review": 12,
-    "trace_proof": 12,
-    "security_review": 12,
-    "effect_review": 12,
-    "performance_evidence": 12
+    "owning_path_test": 15,
+    "limitation_review": 15,
+    "trace_proof": 15,
+    "security_review": 15,
+    "effect_review": 15,
+    "performance_evidence": 15
   },
   "batches": [
     {
@@ -60,6 +60,16 @@
         "KA-1091"
       ],
       "scope": "Causal simulation planning, resource admission, counterfactual context, and artifact proposal"
+    },
+    {
+      "batch_id": "cp19-k-batch-04-mcp-admission",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-137",
+        "KA-177",
+        "KA-179"
+      ],
+      "scope": "MCP credential discovery, policy admission, access admission, and authorization-bound connector receipts"
     }
   ],
   "canonical_capabilities": [
@@ -13802,12 +13812,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-04-mcp-admission",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_137_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13820,18 +13830,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13842,34 +13852,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_137_owning_path",
+          "rationale": "The owning MCP admission path consumes deterministic secret findings and blocks inline credentials before connector execution."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "KA-137 performs bounded local discovery only; the MCP route owns the fail-closed admission decision and performs no effect when findings are present."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_137_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-138",
@@ -14987,12 +14989,12 @@
       "effect_port": "policy_decision_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-04-mcp-admission",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -15005,18 +15007,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -15027,34 +15029,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+          "rationale": "The production MCP owner consumes the policy decision and fails closed before a connector call when required consent is absent."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
+          "rationale": "The MCP route alone performs the connector effect and binds its receipt to the admission plan and KA-177 policy proposal."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-178",
@@ -15145,12 +15139,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-04-mcp-admission",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -15163,18 +15157,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -15185,34 +15179,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+          "rationale": "The production MCP owner consumes the bounded access decision and blocks a denied principal before connector execution."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_179_owning_path",
+          "rationale": "The MCP route owns the connector call and binds the authoritative effect receipt to the admission plan and KA-179 access proposal."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-180",

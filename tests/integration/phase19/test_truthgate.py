@@ -6,6 +6,10 @@ from backend.governed_execution.contracts import (
     EvidenceRecord,
     GovernedPolicyDecision,
 )
+from backend.governed_execution.extended_subsystems import (
+    ExtendedSubsystemCoordinator,
+    ExtendedSubsystemError,
+)
 from backend.knowledge_algorithms.controller import get_ka_controller
 from tests.governed_execution.test_orchestrator import (
     _Gateway,
@@ -32,6 +36,55 @@ def test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation():
         assert all(
             manifest.entries[canonical_id].admission.production_enabled
             for canonical_id in operation_ids
+        )
+
+
+def test_ka_177_owning_path():
+    coordinator = ExtendedSubsystemCoordinator()
+    admitted = coordinator.admit_mcp_tool(
+        execution_id="mcp-ka-177-allowed",
+        principal_id="owner-1",
+        server_id="local-connector",
+        tool_name="read_data",
+        arguments={"record": 1},
+        required_scopes={"mcp:execute", "connector:local-connector:read"},
+        consent_approved=True,
+    )
+    output = admitted.results["KA-177"]["output"]
+    events = admitted.report.traces["KA-177"].events
+    receipt = coordinator.bind_effect_receipt(
+        service="MCPConnectorService",
+        operation="tools/call:read_data",
+        resource_id="mcp-ka-177-allowed",
+        request_payload={"name": "read_data", "arguments": {"record": 1}},
+        result_payload={"sha256": "a" * 64},
+        idempotency_key="mcp-ka-177-allowed",
+        ka_execution=admitted,
+        proposal_ids=["KA-177", "KA-179"],
+    )
+
+    assert output["decision"] == "allow"
+    assert output["effect_applied"] is False
+    assert receipt.ka_plan_id == admitted.plan.plan_id
+    assert [
+        event.state.value
+        for event in events
+        if event.state.value
+        in {"planned", "candidate", "selected", "admitted", "executing", "executed"}
+    ] == ["planned", "candidate", "selected", "admitted", "executing", "executed"]
+    assert next(
+        event for event in events if event.state.value == "executed"
+    ).result_trace_id
+
+    with pytest.raises(ExtendedSubsystemError, match="policy_denied"):
+        coordinator.admit_mcp_tool(
+            execution_id="mcp-ka-177-denied",
+            principal_id="owner-1",
+            server_id="local-connector",
+            tool_name="read_data",
+            arguments={"record": 1},
+            required_scopes={"mcp:execute", "connector:local-connector:read"},
+            consent_approved=False,
         )
 
 

@@ -306,6 +306,10 @@ def test_tool_result_is_governed_and_durably_hashed(app, authenticated_client, m
         assert record.effect_receipt["service"] == "MCPConnectorService"
         assert record.effect_receipt["request_sha256"] == record.request_sha256
         assert len(record.effect_receipt["result_sha256"]) == 64
+        assert record.effect_receipt["ka_plan_id"] == record.ka_lifecycle[
+            "admission"
+        ]["plan_id"]
+        assert record.effect_receipt["ka_proposal_ids"] == ["KA-177", "KA-179"]
 
 
 def test_renderer_safe_server_response_never_serializes_dpapi_blobs(app):

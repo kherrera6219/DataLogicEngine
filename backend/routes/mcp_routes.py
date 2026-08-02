@@ -1086,8 +1086,8 @@ def call_tool(server_id, tool_id):
                     "artifact_object_key": execution.artifact_object_key,
                 },
                 idempotency_key=execution.execution_id,
-                ka_execution=result_validation,
-                proposal_ids=["KA-097"],
+                ka_execution=admission,
+                proposal_ids=["KA-177", "KA-179"],
             )
             execution.ka_lifecycle = {
                 **dict(execution.ka_lifecycle or {}),

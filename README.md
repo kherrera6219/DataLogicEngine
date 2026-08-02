@@ -93,15 +93,18 @@ administration, audit, observability, and validation application.
 > result, trace, artifact, and effect review. Forty-one focused workflow, six
 > Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
 > pass; the source result has 19 skipped and 35 known warnings.
-> CP19-K batches 01-03 now qualify `KA-001`, `KA-004`, `KA-005`, `KA-032`,
+> CP19-K batches 01-04 now qualify `KA-001`, `KA-004`, `KA-005`, `KA-032`,
 > `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-113`, `KA-1080`, `KA-1081`, and
-> `KA-1091` through named semantic, selector, real owning-path, limitation,
+> `KA-1091`, plus MCP admission `KA-137`, `KA-177`, and `KA-179`, through named
+> semantic, selector, real owning-path, limitation,
 > causal trace, security/effect applicability, and performance evidence. The
 > simulation batch makes cost estimation, budget admission, resource caps, and
 > counterfactual context causal in the real job and leaves registry-only chaos/
-> rollback rows open. The generated matrix reports 12/213 qualified and 201
-> open; the 783-test KA suite and 168 governed/TruthCore/Phase-19/simulation
-> integration tests pass. The full source result is 2,588 passed, 18 skipped,
+> rollback rows open. MCP credential, policy, and access decisions now gate the
+> connector call and its receipt is bound to the admission plan; ten non-causal
+> MCP rows remain open. The generated matrix reports 15/213 qualified and 198
+> open; the 786-test KA suite and 171 governed/TruthCore/Phase-19/simulation
+> integration tests pass. The full source result is 2,594 passed, 18 skipped,
 > and 35 known warnings. CP19-L
 > is the source gate that may authorize a rebuild; CP19-M retains exact
 > rebuilt-installed acceptance.
@@ -215,8 +218,8 @@ Current production-completion focus:
 - Active Phase 19 CP19-K: one named semantic test, positive/negative selector
   proof, real owning call path, limitation, causal trace assertion, and
   applicable security/effect/performance evidence for every canonical KA;
-  batches 01-03 qualify 12/213 rows, including the causal simulation planning,
-  resource, counterfactual, and outcome core; 201 rows remain open
+  batches 01-04 qualify 15/213 rows, including the causal simulation core and
+  MCP credential/policy/access admission; 198 rows remain open
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,

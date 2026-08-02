@@ -1,0 +1,84 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-04-mcp-admission",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-137",
+    "KA-177",
+    "KA-179"
+  ],
+  "deferred_ids": {
+    "KA-010": "Executes after the connector effect without a causal result-governance action.",
+    "KA-022": "The admission plan executes this operation but the MCP owner does not consume its output.",
+    "KA-024": "The MCP owner does not select this registry operation.",
+    "KA-096": "Executes after the connector effect without a causal result-governance action.",
+    "KA-097": "Executes after the connector effect without a causal result-governance action.",
+    "KA-106": "No production recovery caller consumes this registry operation.",
+    "KA-136": "The admission plan executes this operation but the MCP owner does not consume its output.",
+    "KA-175": "Executes after the connector effect without a causal result-governance action.",
+    "KA-182": "Executes after the connector effect without a causal result-governance action.",
+    "KA-184": "No production recovery caller consumes this registry operation."
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 15,
+    "incomplete_capabilities": 198,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_cp19k_mcp_contracts",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_137_semantic_contract tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract tests/integration/phase19/test_security_operations_lifecycle.py tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path tests/mcp",
+      "status": "pass",
+      "result": "55 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "786 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "171 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2594 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "15/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_and_selector_authority",
+      "command": "python scripts/verify_ka_runtime_authority.py; python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "manifest 2026.08.01-cp19k.2 current across backend and both SDKs; 136-edge DAG acyclic"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check . --select E9,F63,F7",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 198 per-KA rows remain open.",
+    "Ten audited MCP rows remain unqualified until their results become causal or a real production owner exists.",
+    "KA-1101 and KA-1103 remain unqualified until real product owner actions consume them.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

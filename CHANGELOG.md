@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K MCP admission batch 04**: qualified `KA-137`, `KA-177`,
+  and `KA-179` through named semantic and real owning-path proofs. MCP inline
+  credential findings, policy/consent admission, and access admission now
+  causally block connector execution. Corrected the connector effect receipt to
+  bind the pre-effect admission plan and exact KA-177/KA-179 proposals instead
+  of the post-effect result-validation plan. Ten audited MCP rows remain open
+  because their outputs are unconsumed, post-effect only, unselected, or lack a
+  production recovery caller. The matrix is 15/213 qualified with 198 open;
+  the 786-test KA suite, 171 affected integrations, 55 focused qualification/
+  MCP tests, and full 2,594-test source suite pass with 18 skipped and 35 known
+  warnings.
 - **Phase 19 CP19-K causal simulation batch 03**: qualified `KA-032`,
   `KA-037`, `KA-042`, `KA-070`, `KA-1080`, `KA-1081`, and `KA-1091` through
   individually named semantic and owning-path proofs. Simulation cost now feeds

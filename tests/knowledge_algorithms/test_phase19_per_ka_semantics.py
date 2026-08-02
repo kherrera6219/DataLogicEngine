@@ -354,3 +354,118 @@ def test_ka_1091_semantic_contract():
     assert planned.output["artifacts_written"] == 0
     assert planned.output["effect_service_required"] is True
     assert len(planned.output["archive_plans"][0]["content_sha256"]) == 64
+
+
+def test_ka_137_semantic_contract():
+    discovered = _execute(
+        "KA-137",
+        {
+            "documents": [
+                {
+                    "document_id": "mcp-arguments",
+                    "text": "api_key=abcdefghijklmnop and 123-45-6789",
+                }
+            ],
+            "detect_types": ["api_key", "ssn"],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-137", discovered)
+    assert [
+        finding["data_type"] for finding in discovered.output["findings"]
+    ] == ["api_key", "ssn"]
+    assert discovered.output["matched_values_returned"] is False
+    assert "abcdefghijklmnop" not in str(discovered.output)
+    assert "123-45-6789" not in str(discovered.output)
+
+
+def test_ka_177_semantic_contract():
+    allowed = _execute(
+        "KA-177",
+        {
+            "attributes": {"consent_approved": True},
+            "rules": [
+                {
+                    "rule_id": "allow-approved",
+                    "attribute": "consent_approved",
+                    "operator": "equals",
+                    "expected": True,
+                    "effect": "allow",
+                }
+            ],
+            "default_effect": "deny",
+        },
+    )
+    denied = _execute(
+        "KA-177",
+        {
+            "attributes": {"consent_approved": False},
+            "rules": [
+                {
+                    "rule_id": "deny-missing",
+                    "attribute": "consent_approved",
+                    "operator": "equals",
+                    "expected": False,
+                    "effect": "deny",
+                }
+            ],
+            "default_effect": "deny",
+        },
+    )
+
+    _assert_bounded_result("KA-177", allowed)
+    _assert_bounded_result("KA-177", denied)
+    assert allowed.output["decision"] == "allow"
+    assert denied.output["decision"] == "deny"
+    assert allowed.output["effect_applied"] is False
+    assert denied.output["deny_overrides"] is True
+
+
+def test_ka_179_semantic_contract():
+    allowed = _execute(
+        "KA-179",
+        {
+            "subject_id": "owner-1",
+            "roles": ["mcp_executor"],
+            "attributes": {"connector": "local"},
+            "action": "execute",
+            "resource_type": "mcp_tool",
+            "rules": [
+                {
+                    "rule_id": "mcp-executor",
+                    "actions": ["execute"],
+                    "resource_types": ["mcp_tool"],
+                    "required_roles": ["mcp_executor"],
+                    "required_attributes": {"connector": "local"},
+                    "effect": "allow",
+                }
+            ],
+        },
+    )
+    denied = _execute(
+        "KA-179",
+        {
+            "subject_id": "owner-1",
+            "roles": [],
+            "attributes": {"connector": "local"},
+            "action": "execute",
+            "resource_type": "mcp_tool",
+            "rules": [
+                {
+                    "rule_id": "mcp-executor",
+                    "actions": ["execute"],
+                    "resource_types": ["mcp_tool"],
+                    "required_roles": ["mcp_executor"],
+                    "required_attributes": {"connector": "local"},
+                    "effect": "allow",
+                }
+            ],
+        },
+    )
+
+    _assert_bounded_result("KA-179", allowed)
+    _assert_bounded_result("KA-179", denied)
+    assert allowed.output["decision"] == "allow"
+    assert denied.output["decision"] == "deny"
+    assert denied.output["default_deny"] is True
+    assert allowed.output["access_applied"] is False

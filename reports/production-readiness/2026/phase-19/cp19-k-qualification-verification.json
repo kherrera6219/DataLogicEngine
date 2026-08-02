@@ -2,10 +2,10 @@
   "schema_version": "dle.cp19-k-qualification-verification.v1",
   "integrity_status": "pass",
   "checkpoint_status": "in_progress",
-  "matrix_version": "2026.08.01-cp19k.2",
+  "matrix_version": "2026.08.01-cp19k.3",
   "canonical_capabilities": 213,
-  "qualified_capabilities": 12,
-  "incomplete_capabilities": 201,
+  "qualified_capabilities": 15,
+  "incomplete_capabilities": 198,
   "qualified_ids": [
     "KA-001",
     "KA-004",
@@ -18,18 +18,21 @@
     "KA-1080",
     "KA-1081",
     "KA-1091",
-    "KA-113"
+    "KA-113",
+    "KA-137",
+    "KA-177",
+    "KA-179"
   ],
   "evidence_counts": {
-    "semantic_test": 12,
+    "semantic_test": 15,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 12,
-    "limitation_review": 12,
-    "trace_proof": 12,
-    "security_review": 12,
-    "effect_review": 12,
-    "performance_evidence": 12
+    "owning_path_test": 15,
+    "limitation_review": 15,
+    "trace_proof": 15,
+    "security_review": 15,
+    "effect_review": 15,
+    "performance_evidence": 15
   },
   "require_complete": false,
   "rebuild_authorized": false,
