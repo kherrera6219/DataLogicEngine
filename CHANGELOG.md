@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K DMRF qualification batch 02 and dependency remediation**:
+  moved `KA-005` and `KA-113` onto the production-mode DMRF selector plan,
+  made normalized input/classification causal, retained a never-lower tier
+  merge, and made required routing failures block. The matrix now qualifies
+  5/213 rows. Removed the unrelated KA-1080 routing prerequisite, producing
+  manifest `2026.08.01-cp19k.1` with 135 acyclic dependency edges. Remediated
+  31 GitHub dependency alerts through patched Python and Node authorities;
+  local `pip-audit` and `npm audit` are clean. The 776-test KA set, 146
+  governed/TruthCore/Phase-19 integrations, 426 frontend tests, production and
+  Electron builds, and 2,573-test full source suite pass. CP19-K remains active
+  and rebuilding remains blocked through CP19-L.
 - **Phase 19 CP19-I extended subsystems and authoritative effects**:
   connected the durable simulation job, MCP connector boundary, provider
   gateway, and security/operations consumers to the canonical manifest,

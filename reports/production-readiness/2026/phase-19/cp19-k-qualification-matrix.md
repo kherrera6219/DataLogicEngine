@@ -7,8 +7,8 @@
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 3 rows are fully
-qualified and 210 remain open. A row closes
+canonical capabilities. 5 rows are fully
+qualified and 208 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -21,6 +21,7 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | Batch | Date | Qualified KAs | Scope |
 |---|---|---:|---|
 | `cp19-k-batch-01-governed-l1` | 2026-08-01 | 3 | Canonical governed L1 normalization, adversarial blocking, and candidate decomposition |
+| `cp19-k-batch-02-dmrf-routing` | 2026-08-01 | 2 | Production-admitted DMRF query classification and complexity routing |
 
 ## Gate decision
 

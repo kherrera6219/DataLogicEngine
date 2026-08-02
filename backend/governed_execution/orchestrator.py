@@ -308,6 +308,11 @@ class GovernedExecutionOrchestrator:
                 dmrf = DMRFOrchestrator(
                     desktop_mode=self.gateway._desktop_local_first_enabled(),
                     db_session=getattr(self.gateway, "db", None),
+                    ka_controller=getattr(
+                        getattr(self.truthcore, "engine", None),
+                        "ka_controller",
+                        None,
+                    ),
                 )
             else:
                 dmrf = self.dmrf_factory(

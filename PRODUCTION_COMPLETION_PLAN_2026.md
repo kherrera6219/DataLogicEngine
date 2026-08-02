@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.48.0 |
+| Document version | v1.49.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5123,6 +5123,45 @@ Evidence:
 - `tests/integration/phase19/test_truthcore_l1_l5.py`; and
 - `tests/integration/phase19/test_governed_request_dmrf.py`.
 
+### CP19-K progress - batch 02 passed 2026-08-01
+
+Batch 02 closes the production DMRF classification/routing pair, `KA-005` and
+`KA-113`, raising the generated matrix to 5 of 213 qualified with 208 rows
+incomplete. The review confirmed that KA-113's retained TruthCore helpers were
+evaluation-only direct-dispatch callers and therefore could not prove its
+production admission. The governed product now supplies the canonical KA
+controller to DMRF, selects `KA-005` and `KA-113` in production mode, consumes
+KA-004 normalization and KA-005 classification inside KA-113, records the real
+per-node trace, and blocks routing when the required plan fails. KA-113 may
+raise but never lower the independent DMRF tier, including after the desktop
+offline cap is applied.
+
+The reviewed dependency graph removes simulation cost estimation (`KA-1080`)
+from KA-113's admission prerequisites because cost estimation is downstream of
+routing. Runtime manifest `2026.08.01-cp19k.1` therefore retains all 213
+capabilities and 149 production-enabled capabilities with 135 dependency edges
+and zero cycles. The KA suite passes 776 tests, the governed execution/
+TruthCore/Phase-19 integration set passes 146, and the full source suite passes
+2,573 tests with 19 skipped and 35 known warnings. Frontend lint has one
+unchanged non-blocking test warning; type checking, 426 tests, the production
+Next build, and Electron compilation pass.
+
+The same review found 31 open GitHub dependency alerts. The authoritative
+Python pins and lock now use `pypdf==6.14.2` and `web3==7.15.0`; the frontend
+lock now resolves patched Next, Electron Builder, updater, archive, parsing,
+HTTP, image, YAML, CSS, and glob dependencies. `pip-audit` and `npm audit`
+report zero known vulnerabilities, and Python/Node lockfile governance passes.
+This source maintenance does not authorize a rebuild or satisfy CP19-L.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-02-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `reports/dependency-alert-remediation-2026-08-01.md`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`; and
+- `tests/integration/phase19/test_governed_request_dmrf.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5569,12 +5608,13 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batch 01 now truthfully
-qualifies `KA-001`, `KA-004`, and `KA-061`, leaving 210 of 213 rows open. The
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-02 now truthfully
+qualify `KA-001`, `KA-004`, `KA-005`, `KA-061`, and `KA-113`, leaving 208 of
+213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 136-edge acyclic dependency graph, bounded structured
+fixtures, current 135-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -5587,12 +5627,11 @@ effect-proposal, and authoritative SHA-256 receipt integration now also pass.
 The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
-artifact/effect review. Continue CP19-K by resolving `KA-113`'s retained private
-TruthCore-preflight path against its declared `governed_request_dmrf` owner and
-production admission, then close the next owner-coherent rows with one
-individually named semantic test, positive/negative selector proof, real owning-
-path assertion, limitation, causal trace evidence, and applicable security/
-effect/performance evidence for every canonical capability.
+artifact/effect review. Continue CP19-K with the owner-coherent simulation rows
+`KA-032`, `KA-037`, `KA-042`, `KA-070`, `KA-1080`, `KA-1081`, `KA-1091`,
+`KA-1101`, and `KA-1103`. Close each row with one individually named semantic
+test, positive/negative selector proof, real owning-path assertion, limitation,
+causal trace evidence, and applicable security/effect/performance evidence.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

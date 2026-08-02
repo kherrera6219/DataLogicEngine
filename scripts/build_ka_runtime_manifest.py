@@ -818,6 +818,14 @@ CP19_I_VALIDATOR_IDS = {
 }
 
 CP19_I_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-113": {
+        "dependencies": ["KA-004", "KA-005"],
+        "rationale": (
+            "Complexity routing consumes the normalized query and committed "
+            "query classification. Simulation cost estimation is downstream "
+            "of routing and is not an admission prerequisite."
+        ),
+    },
     "KA-070": {
         "dependencies": ["KA-042"],
         "rationale": (
@@ -1148,7 +1156,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19j.1",
+        "manifest_version": "2026.08.01-cp19k.1",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

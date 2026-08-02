@@ -5,27 +5,27 @@
   "phase": 19,
   "checkpoint": "CP19-K",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.07.25-cp19j.1",
+  "manifest_version": "2026.08.01-cp19k.1",
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 3,
-    "incomplete_capabilities": 210,
-    "reviewed_capabilities": 3,
+    "qualified_capabilities": 5,
+    "incomplete_capabilities": 208,
+    "reviewed_capabilities": 5,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 3,
+    "semantic_test": 5,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 3,
-    "limitation_review": 3,
-    "trace_proof": 3,
-    "security_review": 3,
-    "effect_review": 3,
-    "performance_evidence": 3
+    "owning_path_test": 5,
+    "limitation_review": 5,
+    "trace_proof": 5,
+    "security_review": 5,
+    "effect_review": 5,
+    "performance_evidence": 5
   },
   "batches": [
     {
@@ -37,6 +37,15 @@
         "KA-061"
       ],
       "scope": "Canonical governed L1 normalization, adversarial blocking, and candidate decomposition"
+    },
+    {
+      "batch_id": "cp19-k-batch-02-dmrf-routing",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-005",
+        "KA-113"
+      ],
+      "scope": "Production-admitted DMRF query classification and complexity routing"
     }
   ],
   "canonical_capabilities": [
@@ -350,12 +359,12 @@
       "effect_port": null,
       "limitation": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
       "performance_budget_ms": 300,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-02-dmrf-routing",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_005_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -368,18 +377,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_005_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_005_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -390,34 +399,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_005_owning_path",
+          "rationale": "The owning-path proof shows deterministic local classification is consumed by KA-113 while the merged DMRF decision may raise but never lower the independently classified routing tier."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "The manifest classifies KA-005 as pure or advisory and declares no authoritative effect port."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_005_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 300
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-006",
@@ -13377,12 +13378,12 @@
       "effect_port": null,
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-02-dmrf-routing",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_113_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13395,18 +13396,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_113_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_113_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13417,34 +13418,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_113_owning_path",
+          "rationale": "The production owning-path proof shows normalized input and committed classification are consumed, required failures block, and KA-113 may raise but never lower the independent DMRF tier."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "The manifest classifies KA-113 as pure or advisory and declares no authoritative effect port."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_113_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-114",

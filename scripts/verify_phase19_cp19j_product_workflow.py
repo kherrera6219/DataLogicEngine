@@ -84,7 +84,10 @@ def verify() -> dict[str, Any]:
         _read("backend/knowledge_algorithms/ka_manifest.v1.generated.json")
     )
     product = manifest.get("authority", {}).get("product_workflow", {})
-    if manifest.get("manifest_version") != "2026.07.25-cp19j.1":
+    if manifest.get("manifest_version") not in {
+        "2026.07.25-cp19j.1",
+        "2026.08.01-cp19k.1",
+    }:
         errors.append("manifest_version")
     if manifest.get("status") != "cp19_j_product_workflow_authority":
         errors.append("manifest_status")

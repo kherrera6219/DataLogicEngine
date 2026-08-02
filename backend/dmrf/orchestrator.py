@@ -16,12 +16,21 @@ import os
 from typing import Any
 
 from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator
+from backend.knowledge_algorithms.contracts import (
+    KABudget,
+    KAExecutionContext,
+    KAExecutionMode,
+)
+from backend.knowledge_algorithms.selection import (
+    KAPlanExecutionStatus,
+    KASelectionRequest,
+)
 
 from .desktop_config import DMRFDesktopConfig
 from .frost_bridge import FROSTBridge
 from .injection_defense import InjectionDefense
 from .mlflow_tracker import DMRFMLflowTracker
-from .models import DMRFResult, DMRFStep
+from .models import DMRFResult, DMRFStep, TIER_ORDER, TierClassification
 from .observability import DMRFObservability
 from .router import DMRFRouter
 from .tier_classifier import DMRFTierClassifier
@@ -45,6 +54,7 @@ class DMRFOrchestrator:
         frost_bridge: FROSTBridge | None = None,
         dsqp: DSQPOrchestrator | None = None,
         config: dict[str, Any] | None = None,
+        ka_controller: Any | None = None,
     ):
         self.desktop_mode = self._desktop_mode() if desktop_mode is None else desktop_mode
         self.db_session = db_session
@@ -64,6 +74,7 @@ class DMRFOrchestrator:
         self.tracker = DMRFMLflowTracker()
         self.frost_bridge = frost_bridge or FROSTBridge()
         self.dsqp = dsqp or DSQPOrchestrator(timeout_seconds=30)
+        self.ka_controller = ka_controller
 
     async def process(
         self,
@@ -91,6 +102,18 @@ class DMRFOrchestrator:
             return result
 
         tier = self.classifier.classify(query, context=context, offline=offline)
+        if self.ka_controller is not None:
+            tier = await self._apply_canonical_complexity_routing(
+                result,
+                query=query,
+                context=context,
+                offline=offline,
+                heuristic=tier,
+            )
+            if tier is None:
+                result.ok = False
+                result.warnings.append("ka_complexity_routing_failed")
+                return result
         result.tier = tier.tier
         self._record_step(result, "tier_classifier", {"classification": tier.to_dict()})
 
@@ -131,6 +154,130 @@ class DMRFOrchestrator:
             run_id=result.run_id,
         )
         return result
+
+    async def _apply_canonical_complexity_routing(
+        self,
+        result: DMRFResult,
+        *,
+        query: str,
+        context: dict[str, Any],
+        offline: bool,
+        heuristic: TierClassification,
+    ) -> TierClassification | None:
+        """Run the production-admitted KA-113 plan and merge it fail closed."""
+        request = KASelectionRequest(
+            requested_ids=["KA-005", "KA-113"],
+            shared_input={"query": query},
+            context=KAExecutionContext(
+                request_id=str(context.get("request_id") or result.run_id),
+                run_id=result.run_id,
+                session_id=context.get("session_id"),
+                principal_id=context.get("principal_id"),
+                workflow="governed_dmrf_routing",
+                tier=heuristic.tier,
+                layer="L1",
+                budget=KABudget(
+                    deadline_ms=5_000,
+                    max_selected_algorithms=8,
+                    max_dependency_executions=8,
+                    max_recursion_depth=4,
+                    max_fan_out=8,
+                    max_parallelism=2,
+                    max_provider_calls=0,
+                    max_effects=0,
+                ),
+            ),
+            mode=KAExecutionMode.PRODUCTION,
+        )
+        plan = self.ka_controller.plan_algorithms(request)
+        if not plan.valid:
+            self._record_step(
+                result,
+                "ka_complexity_router",
+                {
+                    "status": "failed",
+                    "selected_ids": list(plan.selected_ids),
+                    "validation_errors": list(plan.validation_errors),
+                },
+            )
+            return None
+
+        report = await self.ka_controller.execute_algorithm_plan(plan, request)
+        traces = {
+            canonical_id: {
+                "parent_ids": list(trace.parent_ids),
+                "events": [
+                    event.model_dump(mode="json", exclude_none=True)
+                    for event in trace.events
+                ],
+            }
+            for canonical_id, trace in sorted(report.traces.items())
+            if canonical_id in plan.selected_ids
+        }
+        outputs = {
+            canonical_id: execution.output
+            for canonical_id, execution in report.results.items()
+            if execution.success
+        }
+        self._record_step(
+            result,
+            "ka_complexity_router",
+            {
+                "status": report.status.value,
+                "plan_id": plan.plan_id,
+                "selected_ids": list(plan.selected_ids),
+                "execution_order": list(plan.execution_order),
+                "required_failure": report.required_failure,
+                "outputs": outputs,
+                "traces": traces,
+            },
+        )
+        ka_output = outputs.get("KA-113")
+        if (
+            report.status != KAPlanExecutionStatus.SUCCEEDED
+            or not isinstance(ka_output, dict)
+        ):
+            return None
+
+        routed_tier = {
+            "low": "trivial",
+            "medium": "moderate",
+            "high": "high_stakes",
+        }.get(str(ka_output.get("complexity_tier") or "").lower())
+        if routed_tier is None:
+            return None
+
+        merged_tier = max(
+            (heuristic.tier, routed_tier),
+            key=lambda value: TIER_ORDER[value],
+        )
+        capped_from = heuristic.capped_from
+        if (
+            self.desktop_mode
+            and offline
+            and TIER_ORDER[merged_tier]
+            > TIER_ORDER[self.classifier.offline_tier_cap]
+        ):
+            capped_from = merged_tier
+            merged_tier = self.classifier.offline_tier_cap
+        return TierClassification(
+            tier=merged_tier,
+            confidence=max(
+                float(heuristic.confidence),
+                float(ka_output.get("complexity_score") or 0),
+            ),
+            rationale=[
+                *heuristic.rationale,
+                f"ka_113_complexity={ka_output['complexity_tier']}",
+                "ka_113_may_raise_but_never_lower_tier",
+            ],
+            raw={
+                **dict(heuristic.raw),
+                "heuristic_tier": heuristic.tier,
+                "ka_113": ka_output,
+            },
+            capped_from=capped_from,
+        )
 
     @classmethod
     def status(cls) -> dict[str, Any]:

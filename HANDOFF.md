@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-01 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.48.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.49.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -240,16 +240,24 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batch 01 is complete for `KA-001`, `KA-004`, and `KA-061`. The generated
-213-row matrix and verifier report 3 qualified and 210 incomplete, with rebuild
-authorization false. Individually named semantic, selector, owning-path,
-limitation, causal trace, security/effect applicability, and performance proof
-now close those three rows. The real-path tests also fixed KA-061's declared
-KA-004 dependency consumption so a safe shield result no longer restores the
-raw pre-normalized query. The KA suite passes 774 tests with three known
-deprecation warnings; governed execution, TruthCore, and Phase 19 integration
-pass 142 tests. The full source suite passes 2,567 tests with 19 skipped and 35
-known warnings. Read:
+CP19-K batches 01 and 02 are complete for `KA-001`, `KA-004`, `KA-005`,
+`KA-061`, and `KA-113`. The generated 213-row matrix and verifier report 5
+qualified and 208 incomplete, with rebuild authorization false. Batch 02 moves
+KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
+selector plan. KA-113 consumes normalized input and committed classification,
+may raise but never lower the independently classified DMRF tier, records the
+complete trace, and fails closed. Runtime manifest `2026.08.01-cp19k.1`
+retains 213 capabilities, 149 production-enabled capabilities, and 135
+dependency edges with zero cycles.
+
+The same pass remediated all 31 dependency alerts visible before publication.
+`pypdf==6.14.2`, `web3==7.15.0`, Next 16.2.12, Electron Builder 26.15.3, and
+the reviewed transitive overrides/lock now resolve patched versions. Local
+Python and Node audits report zero vulnerabilities and lock governance passes.
+The KA suite passes 776 tests; governed execution, TruthCore, and Phase 19
+integration pass 146; all 426 frontend tests plus production/Electron builds
+pass; and the full source suite passes 2,573 tests with 19 skipped and 35 known
+warnings. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
 - `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
@@ -899,10 +907,9 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 3/213 by resolving `KA-113`'s retained private
-   TruthCore-preflight reachability against its declared
-   `governed_request_dmrf` owner and production admission, then close the next
-   owner-coherent generated proof rows with one
+1. Continue CP19-K from 5/213 with the owner-coherent simulation rows:
+   `KA-032`, `KA-037`, `KA-042`, `KA-070`, `KA-1080`, `KA-1081`, `KA-1091`,
+   `KA-1101`, and `KA-1103`. Close each generated row with one
    individually named semantic test, positive/negative selector proof, real
    owning-path assertion, explicit limitation, causal trace proof, and
    applicable security/effect/performance evidence.

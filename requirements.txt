@@ -83,13 +83,13 @@ markdown==3.8.1
 tabulate==0.9.0
 gunicorn==24.1.1
 sentry-sdk==2.51.0
-web3==7.14.0
+web3==7.15.0
 reportlab==4.4.9
 
 # Multimodal/document processing used by backend services
 opencv-python-headless==4.13.0.92
 Pillow==12.3.0
-pypdf==6.13.3
+pypdf==6.14.2
 pytesseract==0.3.13
 python-docx==1.2.0
 

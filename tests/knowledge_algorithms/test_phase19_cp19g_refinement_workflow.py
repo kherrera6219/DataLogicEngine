@@ -47,6 +47,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.07.25-cp19h.1",
         "2026.07.25-cp19i.1",
         "2026.07.25-cp19j.1",
+        "2026.08.01-cp19k.1",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -68,16 +69,22 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     assert sum(
         entry.admission.production_enabled for entry in entries
     ) == expected_enabled[manifest.status]
-    assert sum(len(entry.contract.dependencies) for entry in entries) == (
-        136
-        if manifest.status
-        in {
-            "cp19_h_truth_data_knowledge_authority",
-            "cp19_i_extended_subsystem_authority",
-            "cp19_j_product_workflow_authority",
-        }
-        else 131
+    dependency_edges = sum(
+        len(entry.contract.dependencies) for entry in entries
     )
+    if manifest.manifest_version == "2026.08.01-cp19k.1":
+        assert dependency_edges == 135
+    else:
+        assert dependency_edges == (
+            136
+            if manifest.status
+            in {
+                "cp19_h_truth_data_knowledge_authority",
+                "cp19_i_extended_subsystem_authority",
+                "cp19_j_product_workflow_authority",
+            }
+            else 131
+        )
     for canonical_id in ("KA-003", "KA-005", "KA-011", "KA-025"):
         definition = manifest.entries[canonical_id]
         assert definition.admission.production_enabled is True

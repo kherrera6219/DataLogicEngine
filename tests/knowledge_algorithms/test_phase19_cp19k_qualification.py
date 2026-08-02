@@ -13,7 +13,7 @@ from scripts.build_ka_qualification_matrix import (
 )
 from scripts.verify_phase19_cp19k_qualification import verify
 
-QUALIFIED_BATCH_01 = {"KA-001", "KA-004", "KA-061"}
+QUALIFIED_BATCHES = {"KA-001", "KA-004", "KA-005", "KA-061", "KA-113"}
 
 
 def test_cp19k_generated_matrix_is_current_complete_and_truthful():
@@ -22,9 +22,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 3,
-        "incomplete_capabilities": 210,
-        "reviewed_capabilities": 3,
+        "qualified_capabilities": 5,
+        "incomplete_capabilities": 208,
+        "reviewed_capabilities": 5,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -38,7 +38,7 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     )
 
 
-def test_cp19k_batch_01_has_every_required_evidence_class():
+def test_cp19k_completed_batches_have_every_required_evidence_class():
     rows = {
         row["canonical_id"]: row
         for row in build_matrix()["canonical_capabilities"]
@@ -48,8 +48,8 @@ def test_cp19k_batch_01_has_every_required_evidence_class():
         canonical_id
         for canonical_id, row in rows.items()
         if row["qualification_status"] == "qualified"
-    } == QUALIFIED_BATCH_01
-    for canonical_id in QUALIFIED_BATCH_01:
+    } == QUALIFIED_BATCHES
+    for canonical_id in QUALIFIED_BATCHES:
         row = rows[canonical_id]
         assert row["missing_evidence"] == []
         assert all(
@@ -68,11 +68,11 @@ def test_cp19k_batch_01_has_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_unreviewed_ka_113():
+def test_cp19k_does_not_overstate_unreviewed_ka_031():
     row = next(
         row
         for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-113"
+        if row["canonical_id"] == "KA-031"
     )
 
     assert row["production_enabled"] is True
@@ -93,7 +93,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 3
-    assert evidence["incomplete_capabilities"] == 210
+    assert evidence["qualified_capabilities"] == 5
+    assert evidence["incomplete_capabilities"] == 208
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

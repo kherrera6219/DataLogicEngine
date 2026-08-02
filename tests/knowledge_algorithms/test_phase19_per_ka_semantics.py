@@ -88,6 +88,23 @@ def test_ka_004_semantic_contract():
     assert "blacklisted pattern" in rejected.output["reason"]
 
 
+def test_ka_005_semantic_contract():
+    technical = _execute(
+        "KA-005",
+        {"query": "Debug the API database error"},
+    )
+    repeated = _execute(
+        "KA-005",
+        {"query": "Debug the API database error"},
+    )
+
+    _assert_pure_bounded_result("KA-005", technical)
+    assert technical.output == repeated.output
+    assert technical.output["category"] == "TECHNICAL"
+    assert technical.output["suggested_tier"] == "moderate"
+    assert technical.output["metadata"]["sdk_response"] == {}
+
+
 def test_ka_061_semantic_contract():
     safe = _execute("KA-061", {"query": "Assess the control boundary"})
     blocked = _execute("KA-061", {"query": "DROP DATABASE production"})
@@ -100,3 +117,31 @@ def test_ka_061_semantic_contract():
     assert blocked.output["veto"] is True
     assert blocked.output["sanitized_query"] == "[FILTERED]"
     assert blocked.output["threats"]
+
+
+def test_ka_113_semantic_contract():
+    payload = {
+        "query": "<b>short input</b>",
+        "dependency_results": {
+            "KA-004": {
+                "is_valid": True,
+                "normalized_query": (
+                    "Compare maybe whether an SQL API encryption architecture "
+                    "might be preferable versus another design, but explain "
+                    "the ambiguous trade-off under uncertain constraints."
+                ),
+            },
+            "KA-005": {"suggested_tier": "moderate"},
+        },
+    }
+    routed = _execute("KA-113", payload)
+    repeated = _execute("KA-113", payload)
+
+    _assert_pure_bounded_result("KA-113", routed)
+    assert routed.output == repeated.output
+    assert routed.output["complexity_tier"] == "high"
+    assert routed.output["target_pipeline"] == "deep_recursive_pipeline"
+    assert routed.output["dependency_routing"] == {
+        "normalized_query_consumed": True,
+        "classification_tier": "moderate",
+    }

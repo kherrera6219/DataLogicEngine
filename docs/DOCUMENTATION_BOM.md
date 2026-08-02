@@ -5,7 +5,7 @@
 
 ## Control status
 
-- Authority version: `2026.08.01-phase19-cp19j-product-workflow`
+- Authority version: `2026.08.01-phase19-cp19k-batch02`
 - Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`

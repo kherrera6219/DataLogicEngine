@@ -4,7 +4,7 @@ import os
 import re
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,7 @@ _DOMAIN_TERMS = (
 
 class KA113Input(BaseModel):
     query: str = ""
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 class KA113ComplexityRouter(KnowledgeAlgorithm):
     """
@@ -48,7 +49,14 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA113Input) -> Dict[str, Any]:
-        query = input_data.query or ""
+        dependency_results = input_data.dependency_results
+        validation = dependency_results.get("KA-004", {})
+        classification = dependency_results.get("KA-005", {})
+        query = str(
+            validation.get("normalized_query")
+            if validation.get("is_valid") is True
+            else input_data.query
+        )
         signals = self._complexity_signals(query)
         self.log_execution_step("Analyzing Query Complexity", {"len": len(query), "signals": signals})
 
@@ -72,12 +80,27 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
         else:
             tier = "high"
 
+        dependency_tier = {
+            "trivial": "low",
+            "moderate": "medium",
+            "high_stakes": "high",
+            "extreme": "high",
+            "autonomous": "high",
+        }.get(str(classification.get("suggested_tier") or "").lower())
+        tier_order = {"low": 1, "medium": 2, "high": 3}
+        if dependency_tier and tier_order[dependency_tier] > tier_order[tier]:
+            tier = dependency_tier
+
         return {
             "success": True,
             "complexity_score": complexity_score,
             "complexity_tier": tier,
             "signals": signals,
-            "target_pipeline": self.config.get("routing_map", {}).get(tier, "default")
+            "target_pipeline": self.config.get("routing_map", {}).get(tier, "default"),
+            "dependency_routing": {
+                "normalized_query_consumed": validation.get("is_valid") is True,
+                "classification_tier": classification.get("suggested_tier"),
+            },
         }
 
     @staticmethod

@@ -4,23 +4,25 @@
   "checkpoint_status": "in_progress",
   "matrix_version": "2026.08.01-cp19k.1",
   "canonical_capabilities": 213,
-  "qualified_capabilities": 3,
-  "incomplete_capabilities": 210,
+  "qualified_capabilities": 5,
+  "incomplete_capabilities": 208,
   "qualified_ids": [
     "KA-001",
     "KA-004",
-    "KA-061"
+    "KA-005",
+    "KA-061",
+    "KA-113"
   ],
   "evidence_counts": {
-    "semantic_test": 3,
+    "semantic_test": 5,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 3,
-    "limitation_review": 3,
-    "trace_proof": 3,
-    "security_review": 3,
-    "effect_review": 3,
-    "performance_evidence": 3
+    "owning_path_test": 5,
+    "limitation_review": 5,
+    "trace_proof": 5,
+    "security_review": 5,
+    "effect_review": 5,
+    "performance_evidence": 5
   },
   "require_complete": false,
   "rebuild_authorized": false,

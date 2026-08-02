@@ -1,0 +1,88 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-02-dmrf-routing",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-005",
+    "KA-113"
+  ],
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 5,
+    "incomplete_capabilities": 208,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 135,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_cp19k_dmrf_contracts",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_governed_request_dmrf.py tests/governed_execution/test_single_path.py tests/dmrf/test_dmrf_integration.py",
+      "status": "pass",
+      "result": "29 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "776 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19",
+      "status": "pass",
+      "result": "146 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2573 passed, 19 skipped, 35 known warnings"
+    },
+    {
+      "name": "frontend_validation",
+      "command": "npm --prefix frontend run lint; npm --prefix frontend run typecheck; npm --prefix frontend test; npm --prefix frontend run build; npm --prefix frontend run electron:build",
+      "status": "pass",
+      "result": "lint 0 errors and 1 retained warning; typecheck pass; 426 tests; production build pass; Electron compile pass"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "5/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority",
+      "command": "python scripts/verify_ka_runtime_authority.py",
+      "status": "pass",
+      "result": "manifest 2026.08.01-cp19k.1 current across backend and both SDKs"
+    },
+    {
+      "name": "dependency_security",
+      "command": ".venv311/Scripts/python -m pip_audit -r requirements.txt --format json; npm --prefix frontend audit --json",
+      "status": "pass",
+      "result": "zero known Python vulnerabilities; zero Node vulnerabilities"
+    },
+    {
+      "name": "lockfile_governance",
+      "command": "python scripts/verify_lockfiles.py",
+      "status": "pass",
+      "result": "Python and Node dependency authorities current; hashes and direct pins verified"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check . --select E9,F63,F7",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 208 per-KA rows remain open.",
+    "GitHub alert state is re-evaluated after the patched authorities are pushed.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}
