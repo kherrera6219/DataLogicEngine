@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -21,106 +21,40 @@
 Local-first Windows governed LLM middleware with a production desktop control,
 administration, audit, observability, and validation application.
 
-> **Current Status - Production completion program active; not a production release**
-> DataLogicEngine is available for local engineering evaluation and architecture
-> validation. Phases 0-2 and the Phase 3-15 engineering checkpoints are complete;
-> Phase 16 CP16-F controlled-document replacement is complete: all 72 routed
-> sources are hash-frozen, link-migrated, technically reviewed, and retained
-> intact under the historical archive; all 30 canonical targets pass their
-> controls across the exact 154-file inventory. CP16-G signed-artifact binding
-> and the installed/manual/external exits remain retained. Phase 17 CP17-A
-> through CP17-D authority, archive, generated-parity, and zero-warning
-> consolidation is complete with 47/47 historical dispositions, a 10/10
-> generated truth gate, and zero document errors or warnings. CP17-E remains
-> tied to the signed clean-installed RC.
-> The 2026-07-15 CI/security maintenance checkpoint also restores the dependency,
-> backend, governance, Bandit, and Cosign v3 gates; local clean-room validation
-> passes 2,177 backend tests and the full hashed Windows dependency install.
-> A follow-up CodeQL batch removes a shared raw-exception disclosure path,
-> records evidence-backed dispositions for six high scanner false positives,
-> leaves zero open high CodeQL findings, and repairs the cloud and standalone
-> frontend images' product-version input. The isolated backend result is 2,181
-> passed with 18 skipped, and both production frontend Docker targets pass.
-> Replacement Security, CI, and Deploy workflows all pass, and GitHub reports
-> zero open CodeQL findings, and Dependabot alert 389 is fixed.
-> Replacement Control now passes for rebuilt installed qualification: ADR-0010
-> defines the capability **app-owned S3-compatible object store** and selects
-> the exact security-patched SeaweedFS 4.40-dle.1 image. Production approval
-> remains false until the installed and independent release gates pass.
-> The signed rebuild is now paused behind Phase 19 canonical KA system-of-
-> systems integration. Phase 18 closed incomplete after retaining a real
-> 213-capability authority, 213 unique implementation owners, zero source gaps,
-> one generated manifest/controller, and the 721-test source baseline. Its
-> CP18-D audit did not pass: at that audit point the public product preflight
-> executed only one KA in standard mode and two in enhanced mode; the ten-layer
-> and 12-step systems were not on the production path; several callers ignored the canonical nested
-> result; Layer 9/Layer 10 contain wrong IDs and misleading invocation evidence;
-> simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
-> reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
-> CP18-H were not passed and no finding was waived.
-> Phase 19 CP19-A through CP19-J are complete. The one runtime manifest now
-> drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
-> verify selection, and three reciprocal design relationships were corrected
-> into a current 136-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
-> budgets, cancellation, serial effect proposals, and truthful trace states
-> pass focused qualification. The public answer lifecycle now carries one typed
-> reasoning state through explicit causal L1-L10 stages; L1 executes a
-> production-mode selector plan, a bounded rewrite re-enters L6-L9, and only
-> L10 release permits success persistence. All 14 L9/L10 KAs now execute
-> through the canonical selector/executor; wrong-ID/manual-trace/direct-store
-> paths are removed, and adversarial privacy, failure, containment, recursion,
-> promotion, and receipt fixtures fail closed. Axes 8-11 DSQP profiles now
-> causally drive `KA-012` -> `KA-013` -> `KA-030`; their measured authority,
-> objections, sufficiency, and retained dissent change the one provider prompt
-> with no invented confidence or hidden provider subcalls. The CP19-F focused
-> set passes 48 tests. The committed L9 refine decision now enters one
-> manifest-owned 12-step workflow that accounts for every step, makes zero
-> provider subcalls, permits one rewrite, re-enters L6-L10, and emits only an
-> unapplied lifecycle proposal. Five older variants are non-production
-> references. CP19-H connects typed entry/L8 policy, authorized and
-> retention-valid memory recall, release-gated and rollback-safe memory
-> promotion, causal TruthLink/FROST stage and KA publication, secure
-> pre-materialization ingestion, and fail-closed deletion/recovery through the
-> single manifest/controller boundary. CP19-I now connects bounded simulation
-> planning/outcomes, MCP consent/scope plus security/operations plans, provider
-> context/monitoring, durable jobs, explicit proposal budgets, and
-> authoritative SHA-256/idempotency receipts without adding another provider,
-> connector, store, queue, registry, or answer path. The manifest retains all
-> 213 capabilities, production-enables 149, and verifies a 136-edge zero-cycle
-> graph. CP19-J adds principal-owned encrypted/idempotent durable runs, exact
-> risk/effect confirmation, cancellation/recovery, 12 scoped API paths,
-> generated Python/TypeScript SDK parity, and real-backend desktop history,
-> result, trace, artifact, and effect review. Forty-one focused workflow, six
-> Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
-> pass; the source result has 19 skipped and 35 known warnings.
-> CP19-K batches 01-04 now qualify `KA-001`, `KA-004`, `KA-005`, `KA-032`,
-> `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-113`, `KA-1080`, `KA-1081`, and
-> `KA-1091`, plus MCP admission `KA-137`, `KA-177`, and `KA-179`, through named
-> semantic, selector, real owning-path, limitation,
-> causal trace, security/effect applicability, and performance evidence. The
-> simulation batch makes cost estimation, budget admission, resource caps, and
-> counterfactual context causal in the real job and leaves registry-only chaos/
-> rollback rows open. MCP credential, policy, and access decisions now gate the
-> connector call and its receipt is bound to the admission plan; ten non-causal
-> MCP rows remain open. The generated matrix reports 15/213 qualified and 198
-> open; the 786-test KA suite and 171 governed/TruthCore/Phase-19/simulation
-> integration tests pass. The full source result is 2,594 passed, 18 skipped,
-> and 35 known warnings. CP19-L
-> is the source gate that may authorize a rebuild; CP19-M retains exact
-> rebuilt-installed acceptance.
-> Phase 15 freezes clean
-> 4.3.0 candidate inputs, separates unsigned qualification from production
-> signing, and produces a 299,129,416-byte integrity-verified candidate whose
-> backend payload has 6,151 files and zero source/test/cache leakage findings.
-> The packaged backend correctly refuses startup when protected-volume readiness
-> cannot be proved. Two clean GitHub builds have equal file counts but differing
-> payload hashes, so byte reproducibility is also still open. The signed installer,
-> clean lifecycle/Windows/provider/five-
-> service matrices, legal authority, installed object-store acceptance, independent reviews,
-> human pilot, and 24/72-hour soaks remain open, so production/public release is
-> **NO-GO**. Follow [`PRODUCTION_COMPLETION_PLAN_2026.md`](PRODUCTION_COMPLETION_PLAN_2026.md),
-> [`TODO.md`](TODO.md), the generated [`documentation BOM`](docs/DOCUMENTATION_BOM.md),
-> and the [`Phase 15 evidence`](reports/production-readiness/2026/phase-15/summary.md).
+> [!WARNING]
+> **Engineering evaluation only. DataLogicEngine is not yet approved for a
+> production or public release.** Source qualification, rebuilt-installed
+> acceptance, signing, independent review, and operational acceptance remain
+> mandatory release gates.
+
+## Current status
+
+DataLogicEngine 4.3.0 is in the Phase 19 production-completion program. The
+current source provides the local-first Windows desktop, governed API gateway,
+single canonical Knowledge Algorithm controller, auditable response lifecycle,
+simulation workflow, MCP connector boundary, and generated Python/TypeScript
+SDKs.
+
+| Area | Current state |
+|---|---|
+| Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
+| Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
+| Current checkpoint | CP19-K per-KA production qualification |
+| Individually qualified KAs | 15/213; 198 remain open |
+| Latest source validation | 2,594 passed, 18 skipped, 35 known warnings |
+| Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
+
+The latest completed qualification batches make governed L1 routing, DMRF
+classification, simulation planning/resource/counterfactual effects, and MCP
+credential/policy/access admission causal through their real production owners.
+MCP connector receipts are bound to the admission decisions that authorized the
+effect. No registry-only, execute-only, or direct-test-only capability is counted
+as production-qualified.
+
+See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
+[current work ledger](TODO.md), [documentation portal](docs/README.md), and
+[CP19-K qualification matrix](reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md)
+for the detailed evidence and remaining work.
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
