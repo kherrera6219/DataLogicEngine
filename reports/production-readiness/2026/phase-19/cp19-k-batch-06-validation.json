@@ -1,0 +1,90 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-06-mcp-records-recovery",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-096",
+    "KA-097",
+    "KA-106",
+    "KA-184"
+  ],
+  "deferred_ids": {
+    "KA-1101": "No product-owned chaos action consumes and receipts the proposed plan.",
+    "KA-1103": "No product-owned rollback action verifies and applies the proposed ancestor transition."
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 25,
+    "incomplete_capabilities": 188,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_batch_and_matrix",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_security_operations_lifecycle.py tests/mcp/test_phase11_mcp_routes.py",
+      "status": "pass",
+      "result": "49 passed"
+    },
+    {
+      "name": "mcp_route_suite",
+      "command": "python -m pytest -q tests/mcp",
+      "status": "pass",
+      "result": "46 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "796 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "181 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2615 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "25/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority_and_selector_dag",
+      "command": "python scripts/verify_ka_runtime_authority.py && python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "runtime authority and selector/DAG verification passed"
+    },
+    {
+      "name": "documentation_references",
+      "command": "python scripts/verify_docs_references.py",
+      "status": "pass",
+      "result": "40 active Markdown files; 0 errors; 0 warnings"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check backend/governed_execution/extended_subsystems.py backend/routes/mcp_routes.py backend/knowledge_algorithms/ka_96_logging.py tests/integration/phase19/test_security_operations_lifecycle.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/mcp/test_phase11_mcp_routes.py",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 188 per-KA rows remain open.",
+    "The logging/audit receipts cover content-free MCP result records; rebuilt-installed all-output redaction and no-egress acceptance remains CP19-M and retained Phase 13 work.",
+    "The recovery receipt proves only that the plan record was persisted; no incident-response step or automatic retry is reported as applied.",
+    "KA-1101 and KA-1103 remain unqualified until real product owner actions consume them.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

@@ -4,7 +4,15 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from extensions import db
-from models import MCPConsentGrant, MCPExecutionRecord, MCPLifecycleEvent, MCPServer, MCPTool, User
+from models import (
+    AuditLog,
+    MCPConsentGrant,
+    MCPExecutionRecord,
+    MCPLifecycleEvent,
+    MCPServer,
+    MCPTool,
+    User,
+)
 
 
 def _connector_payload(tmp_path: Path, *, name: str = "safe-test") -> dict:
@@ -315,6 +323,22 @@ def test_tool_result_is_governed_and_durably_hashed(app, authenticated_client, m
         assert record.ka_lifecycle["result_governance"][
             "requires_human_review"
         ] is True
+        result_records = record.ka_lifecycle["result_records"]
+        assert result_records["status"] == "applied"
+        assert result_records["logging_receipt"]["service"] == (
+            "StructuredLoggingService"
+        )
+        assert result_records["logging_receipt"]["ka_proposal_ids"] == [
+            "KA-096"
+        ]
+        assert result_records["audit_receipt"]["service"] == "AppAuditService"
+        assert result_records["audit_receipt"]["ka_proposal_ids"] == [
+            "KA-097"
+        ]
+        audit_row = db.session.get(AuditLog, result_records["audit_log_id"])
+        assert audit_row is not None
+        assert audit_row.action == "mcp_tool_result"
+        assert "chairman" not in str(audit_row.details)
 
 
 def test_mcp_ka_result_governance_blocks_prompt_injection_after_receipted_effect(
@@ -403,6 +427,21 @@ def test_mcp_ka_result_governance_blocks_prompt_injection_after_receipted_effect
             "security_control_audit_failed",
             "threat_detected",
         ]
+        assert record.ka_lifecycle["result_records"]["status"] == "applied"
+        assert record.ka_lifecycle["recovery_plan"]["status"] == "planned"
+        assert record.ka_lifecycle["recovery_plan"][
+            "automatic_retry_allowed"
+        ] is False
+        assert record.ka_lifecycle["recovery_plan"]["actions_applied"] == 0
+        assert record.ka_lifecycle["recovery_plan"]["record_receipt"][
+            "service"
+        ] == "MCPRecoveryLedger"
+        assert record.ka_lifecycle["recovery_plan"]["record_receipt"][
+            "ka_proposal_ids"
+        ] == ["KA-184"]
+        assert {"KA-106", "KA-184"} <= set(
+            record.ka_lifecycle["recovery"]["executed_ids"]
+        )
 
 
 def test_renderer_safe_server_response_never_serializes_dpapi_blobs(app):
@@ -507,6 +546,14 @@ def test_mcp_ka_admission_blocks_inline_credentials_before_connector_effect(
         assert record.status == "failed"
         assert record.result_sha256 is None
         assert record.effect_receipt is None
+        assert record.ka_lifecycle["recovery_plan"]["status"] == "planned"
+        assert record.ka_lifecycle["recovery_plan"][
+            "incident_decision"
+        ] == "activate_plan"
+        assert record.ka_lifecycle["recovery_plan"]["actions_applied"] == 0
+        assert record.ka_lifecycle["recovery_plan"]["record_status"] == (
+            "persisted_with_execution"
+        )
 
 
 def test_running_execution_can_be_cancelled_by_its_owner(app, authenticated_client, monkeypatch):

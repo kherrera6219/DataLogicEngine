@@ -662,3 +662,143 @@ def test_ka_182_semantic_contract():
     assert detected.output["alerts"][0]["proposed_action"] == (
         "contain_and_investigate"
     )
+
+
+def test_ka_096_semantic_contract():
+    single = _execute(
+        "KA-096",
+        {
+            "logs": [
+                {
+                    "event": "mcp_tool_result",
+                    "result_sha256": "a" * 64,
+                    "password": "must-not-be-retained",
+                }
+            ]
+        },
+    )
+    multiple = _execute(
+        "KA-096",
+        {
+            "logs": [
+                {"event": "mcp_tool_result", "result_sha256": "a" * 64},
+                {"event": "mcp_tool_failure", "result_sha256": "b" * 64},
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-096", single)
+    _assert_pure_bounded_result("KA-096", multiple)
+    assert single.output["logs_processed"] == 1
+    assert multiple.output["logs_processed"] == 2
+    assert single.output["structured"] is True
+    assert single.output["backend"] == "application_owned_structured_log"
+
+
+def test_ka_097_semantic_contract():
+    first = _execute(
+        "KA-097",
+        {
+            "event_data": {
+                "type": "mcp_tool_result",
+                "execution_id": "execution-1",
+                "result_sha256": "a" * 64,
+            },
+            "actor_id": "owner-1",
+        },
+    )
+    changed = _execute(
+        "KA-097",
+        {
+            "event_data": {
+                "type": "mcp_tool_result",
+                "execution_id": "execution-2",
+                "result_sha256": "b" * 64,
+            },
+            "actor_id": "owner-1",
+        },
+    )
+
+    _assert_pure_bounded_result("KA-097", first)
+    _assert_pure_bounded_result("KA-097", changed)
+    assert first.output["audit_id"] != changed.output["audit_id"]
+    assert first.output["content_sha256"] != changed.output["content_sha256"]
+    assert first.output["persisted"] is False
+    assert first.output["effect_proposal"]["status"] == "proposed"
+    assert first.output["effect_proposal"]["kind"] == "append_audit_record"
+
+
+def test_ka_106_semantic_contract():
+    healthy = _execute(
+        "KA-106",
+        {
+            "operation": "network",
+            "failures": 0,
+            "successes": 5,
+            "dependency_status": {"connector:local": "healthy"},
+        },
+    )
+    failed = _execute(
+        "KA-106",
+        {
+            "operation": "network",
+            "failures": 3,
+            "successes": 0,
+            "dependency_status": {"connector:local": "failed"},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-106", healthy)
+    _assert_pure_bounded_result("KA-106", failed)
+    assert healthy.output["circuit_state"] == "CLOSED"
+    assert healthy.output["fallback_engaged"] is False
+    assert failed.output["circuit_state"] == "OPEN"
+    assert failed.output["fallback_engaged"] is True
+    assert failed.output["degraded_dependencies"] == {
+        "connector:local": "failed"
+    }
+
+
+def test_ka_184_semantic_contract():
+    ready = _execute(
+        "KA-184",
+        {
+            "incidents": [
+                {
+                    "incident_id": "mcp:execution-1",
+                    "severity": "high",
+                    "incident_type": "service_disruption",
+                    "affected_asset_refs": ["connector:local"],
+                    "owner_assigned": True,
+                    "containment_ready": True,
+                    "evidence_preservation_ready": True,
+                }
+            ]
+        },
+    )
+    blocked = _execute(
+        "KA-184",
+        {
+            "incidents": [
+                {
+                    "incident_id": "mcp:execution-2",
+                    "severity": "critical",
+                    "incident_type": "data_exposure",
+                    "affected_asset_refs": ["connector:remote"],
+                    "owner_assigned": False,
+                    "containment_ready": False,
+                    "evidence_preservation_ready": True,
+                }
+            ]
+        },
+    )
+
+    _assert_bounded_result("KA-184", ready)
+    _assert_bounded_result("KA-184", blocked)
+    assert ready.output["plans"][0]["decision"] == "activate_plan"
+    assert ready.output["actions_applied"] == 0
+    assert blocked.output["plans"][0]["decision"] == "block"
+    assert blocked.output["plans"][0]["blockers"] == [
+        "incident_owner_missing",
+        "containment_not_ready",
+    ]

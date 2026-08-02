@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -40,16 +40,18 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 21/213; 192 remain open |
-| Latest source validation | 2,607 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 25/213; 188 remain open |
+| Latest source validation | 2,615 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
 classification, simulation planning/resource/counterfactual effects, and MCP
 admission/result-release governance causal through their real production owners.
-Malicious connector output is blocked before response release while the already-
-applied connector effect retains its admission-bound receipt. No registry-only,
-execute-only, or direct-test-only capability is counted as production-qualified.
+MCP result logging and audit records are now content-free, durable, and bound to
+owning-service receipts; failed connector work records a fail-closed recovery
+plan without automatically retrying or claiming proposed incident actions were
+performed. No registry-only, execute-only, or direct-test-only capability is
+counted as production-qualified.
 
 See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
 [current work ledger](TODO.md), [documentation portal](docs/README.md), and
@@ -113,7 +115,7 @@ Major subsystems in the current local-first desktop build:
 - Enterprise Audit & Governance Framework
 - Cloud AI model selection — OpenAI gpt-5.5 or Google gemini-3.1-pro-preview (BYOK)
 
-Current production-completion focus:
+Completed source and engineering checkpoints:
 
 - Phase 18 closed incomplete: retain CP18-A/CP18-B, the 213 unique
   implementation owners and zero source gaps;
@@ -149,11 +151,6 @@ Current production-completion focus:
   SDKs, and real-backend Algorithms/History pages share one principal-owned,
   encrypted, idempotent, exact-confirmation, cancellable durable workflow
   through the canonical controller
-- Active Phase 19 CP19-K: one named semantic test, positive/negative selector
-  proof, real owning call path, limitation, causal trace assertion, and
-  applicable security/effect/performance evidence for every canonical KA;
-  batches 01-05 qualify 21/213 rows, including the causal simulation core and
-  MCP admission/result-release governance; 192 rows remain open
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -168,21 +165,39 @@ Current production-completion focus:
   targets with verified headers and zero unclassified or duplicate routes
 - Completed Phase 17 CP17-A through CP17-D active-authority, historical-archive,
   generated-parity, and zero-warning documentation lock; CP17-E retained
-- Retained Phase 15 signed lifecycle, Windows, five-service/provider, failure/recovery, gateway, accessibility, pilot, security, and soak qualification
-- Deferred Phase 13 installed correlation, failure-injection, redaction/no-egress, support, and 24/72-hour soak acceptance
-- Deferred Phase 12 installed workflow/store effects, packaged visual/scaling/high-contrast checks, and NVDA acceptance
-- Deferred rebuilt-installed Phase 11 MCP containment, lifecycle, stores, and Electron acceptance
-- Deferred rebuilt-installed Phase 10 simulation, provider, artifact, and UI acceptance
-- Deferred rebuilt-installed Phase 9 causal retrieval and Knowledge/Graph acceptance
-- Deferred installed OpenAI/Google provider, corpus, and blinded-human acceptance
-- Deferred clean-installed data-plane, gateway, upgrade/recovery, and independent review gates
+- Completed Phase 9-13 source engineering checkpoints for causal knowledge/
+  graph retrieval, bounded simulation, governed MCP, desktop workflow and
+  automated accessibility, correlation, failure semantics, redaction, support,
+  and soak-profile evaluation. These are source checkpoints, not installed
+  release acceptance
 - Completed source/lab Replacement Control: ADR-0010 selects SeaweedFS
   4.40-dle.1 as the app-owned S3-compatible object-store implementation with
   all engineering gates passing and production authorization still false
-- After Phase 19 CP19-L: rebuilt-installed protected-volume, independent
-  security/license, clean-machine object-store, and KA CP19-M acceptance for the
-  selected SeaweedFS implementation
-- Installed-system, accessibility, security, signing, and release qualification
+
+Open engineering and release acceptance:
+
+- Active Phase 19 CP19-K: batches 01-06 qualify 25/213 rows, including causal
+  simulation, MCP admission/result governance, content-free structured logging
+  with durable audit/receipt records, and fail-closed MCP recovery planning;
+  188 rows remain open
+- CP19-L clean-source qualification must pass before any release-candidate
+  rebuild is authorized
+- CP19-M must bind the exact signed rebuilt artifact to representative
+  all-subsystem, five-service, effect, failure/recovery, performance, trace,
+  replay, UI, accessibility, provider, gateway, object-store, pilot, and soak
+  evidence
+- Retained installed functional acceptance from Phases 9-13 covers populated
+  retrieval/Knowledge/Graph, simulation providers/artifacts/UI, MCP Windows
+  containment/lifecycle/stores/Electron, real workflow/store effects,
+  cross-process correlation, failure injection, redaction/no-egress, support,
+  and 24-hour stress plus 72-hour idle/normal-use soaks
+- Retained external/manual acceptance covers packaged scaling/high contrast,
+  manual NVDA, owner-authorized OpenAI and Google corpus runs, blinded human
+  review, second-reviewer approval, and the multi-day clean-machine pilot
+- Retained lifecycle and assurance acceptance covers signing, protected-volume
+  clean install, five-service provisioning, upgrade/rollback, backup/restore,
+  same-host/private gateway operation, and independent security, license,
+  recovery, accessibility, architecture, and AI review
 
 What Makes DataLogicEngine Different?
 

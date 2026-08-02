@@ -1,7 +1,7 @@
 {
     "log_level": "DEBUG",
     "structured_logging": true,
-    "storage_backend": "elasticsearch",
+    "storage_backend": "application_owned_structured_log",
     "log_rotation": {
         "max_size_mb": 100,
         "backup_count": 5

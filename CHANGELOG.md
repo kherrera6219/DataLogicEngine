@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K MCP records/recovery batch 06**: qualified `KA-096`,
+  `KA-097`, `KA-106`, and `KA-184` through named semantic and real MCP owning-
+  path proofs. Result handling now emits a content-free structured record,
+  persists the audit proposal, and binds separate logging/audit receipts. Failed
+  tool calls invoke the canonical recovery operation, disable automatic retry,
+  and persist an idempotently receipted incident plan with zero applied actions.
+  Removed KA-096's false Elasticsearch backend label. The matrix is 25/213
+  qualified with 188 open; 796 KA tests, 181 affected integrations, 46 MCP
+  route tests, and the full 2,615-test source suite pass with 18 skipped and 35
+  known warnings.
 - **Phase 19 CP19-K MCP result-governance batch 05**: qualified `KA-010`,
   `KA-022`, `KA-024`, `KA-136`, `KA-175`, and `KA-182` through named semantic
   and primary owning-path proofs. TruthGate now consumes risk, bias, and trust

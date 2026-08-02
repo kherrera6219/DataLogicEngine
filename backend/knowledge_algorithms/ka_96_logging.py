@@ -54,7 +54,10 @@ class KA096Logging(KnowledgeAlgorithm):
         return {
             "success": True,
             "logs_processed": len(processed_logs),
-            "backend": self.config.get("storage_backend", "central_log_server"),
+            "backend": self.config.get(
+                "storage_backend",
+                "application_owned_structured_log",
+            ),
             "structured": self.config.get("structured_logging", True)
         }
 

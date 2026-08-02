@@ -16,6 +16,12 @@ from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, g, has_app_context, jsonify, request
 
+from backend.auth.api_decorators import (
+    api_admin_required,
+    api_login_required,
+    api_session_login_required,
+    get_authenticated_principal,
+)
 from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
     ExtendedSubsystemError,
@@ -45,6 +51,7 @@ from backend.mcp_server.scope_enforcement import (
 from core.mcp import MCPManager
 from extensions import db
 from models import (
+    AuditLog,
     MCPConsentGrant,
     MCPExecutionRecord,
     MCPLifecycleEvent,
@@ -80,13 +87,6 @@ def get_mcp_router() -> MCPRouter:
         current_app.extensions["dle_mcp_router"] = router
     return router
 
-
-from backend.auth.api_decorators import (
-    api_admin_required,
-    api_login_required,
-    api_session_login_required,
-    get_authenticated_principal,
-)
 
 # Create blueprint
 mcp_bp = Blueprint('mcp', __name__)
@@ -223,6 +223,151 @@ def _active_consent(server: MCPServerModel) -> MCPConsentGrant | None:
 def _canonical_sha256(value) -> str:
     payload = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _apply_mcp_result_records(
+    *,
+    execution: MCPExecutionRecord,
+    tool_name: str,
+    governed_result: dict,
+    result_validation,
+    result_governance: dict,
+    coordinator: ExtendedSubsystemCoordinator,
+) -> dict:
+    """Apply content-free log/audit records and bind owning-service receipts."""
+    existing = dict(execution.ka_lifecycle or {}).get("result_records")
+    if isinstance(existing, dict) and existing.get("status") == "applied":
+        return existing
+
+    outputs = coordinator.execution_outputs(result_validation)
+    logging_result = outputs.get("KA-096", {})
+    audit_result = outputs.get("KA-097", {})
+    audit_proposal = audit_result.get("effect_proposal")
+    if logging_result.get("logs_processed") != 1:
+        raise ExtendedSubsystemError(
+            "MCP result logging record was not validated"
+        )
+    if not isinstance(audit_proposal, dict):
+        raise ExtendedSubsystemError("MCP result audit proposal is missing")
+    if audit_proposal.get("kind") != "append_audit_record":
+        raise ExtendedSubsystemError("MCP result audit proposal is invalid")
+    if audit_proposal.get("status") != "proposed":
+        raise ExtendedSubsystemError("MCP result audit proposal is not proposed")
+
+    record_payload = {
+        "schema_version": "dle.mcp-result-record.v1",
+        "event": "mcp_tool_result",
+        "execution_id": execution.execution_id,
+        "principal_id": execution.principal_id,
+        "tool": tool_name,
+        "result_sha256": governed_result.get("sha256"),
+        "result_trust": governed_result.get("trust"),
+        "prompt_injection_risk": bool(
+            governed_result.get("prompt_injection_risk")
+        ),
+        "release_allowed": bool(result_governance.get("release_allowed")),
+        "audit_id": audit_result.get("audit_id"),
+        "audit_content_sha256": audit_result.get("content_sha256"),
+    }
+    logger.info(
+        "MCP result governance record applied",
+        extra={
+            "event": record_payload["event"],
+            "mcp_execution_id": execution.execution_id,
+            "mcp_tool": tool_name,
+            "result_sha256": record_payload["result_sha256"],
+            "result_trust": record_payload["result_trust"],
+            "prompt_injection_risk": record_payload[
+                "prompt_injection_risk"
+            ],
+            "release_allowed": record_payload["release_allowed"],
+            "audit_id": record_payload["audit_id"],
+        },
+    )
+    logging_receipt = coordinator.bind_effect_receipt(
+        service="StructuredLoggingService",
+        operation="append_mcp_result_log",
+        resource_id=execution.execution_id,
+        request_payload={
+            "ka_id": "KA-096",
+            "logs_processed": logging_result.get("logs_processed"),
+            "backend": logging_result.get("backend"),
+        },
+        result_payload=record_payload,
+        idempotency_key=f"mcp-result-log:{execution.execution_id}",
+        ka_execution=result_validation,
+        proposal_ids=["KA-096"],
+    )
+
+    principal_text = str(execution.principal_id or "")
+    audit_row = AuditLog(
+        user_id=(int(principal_text) if principal_text.isdecimal() else None),
+        windows_sid=(
+            principal_text if principal_text.startswith("S-") else None
+        ),
+        action="mcp_tool_result",
+        details=json.dumps(record_payload, sort_keys=True, separators=(",", ":")),
+    )
+    db.session.add(audit_row)
+    db.session.flush()
+    audit_receipt = coordinator.bind_effect_receipt(
+        service="AppAuditService",
+        operation="append_audit_record",
+        resource_id=str(audit_row.id),
+        request_payload=audit_proposal,
+        result_payload={
+            "audit_log_id": audit_row.id,
+            "audit_id": audit_result.get("audit_id"),
+            "content_sha256": audit_result.get("content_sha256"),
+            "action": audit_row.action,
+        },
+        idempotency_key=str(audit_result.get("audit_id") or ""),
+        ka_execution=result_validation,
+        proposal_ids=["KA-097"],
+    )
+    return {
+        "schema_version": "dle.mcp-result-record-application.v1",
+        "status": "applied",
+        "logging_receipt": logging_receipt.to_dict(),
+        "audit_receipt": audit_receipt.to_dict(),
+        "audit_log_id": audit_row.id,
+    }
+
+
+def _apply_mcp_recovery_record(
+    *,
+    execution: MCPExecutionRecord,
+    recovery_execution,
+    recovery_plan: dict,
+    coordinator: ExtendedSubsystemCoordinator,
+) -> dict:
+    """Bind the durable recovery-plan record without applying proposed steps."""
+    if recovery_plan.get("status") != "planned":
+        raise ExtendedSubsystemError("MCP recovery record requires a plan")
+    if int(recovery_plan.get("actions_applied") or 0) != 0:
+        raise ExtendedSubsystemError(
+            "MCP recovery KAs cannot claim operational actions"
+        )
+    receipt = coordinator.bind_effect_receipt(
+        service="MCPRecoveryLedger",
+        operation="record_recovery_plan",
+        resource_id=execution.execution_id,
+        request_payload=recovery_plan,
+        result_payload={
+            "execution_id": execution.execution_id,
+            "record_status": "persisted_with_execution",
+            "incident_id": recovery_plan.get("incident_id"),
+            "actions_applied": 0,
+        },
+        idempotency_key=f"mcp-recovery:{execution.execution_id}",
+        ka_execution=recovery_execution,
+        proposal_ids=["KA-184"],
+    )
+    return {
+        **recovery_plan,
+        "record_status": "persisted_with_execution",
+        "record_receipt": receipt.to_dict(),
+    }
 
 
 def _policy_error(exc: MCPPolicyError, *, status: int = 400):
@@ -1001,6 +1146,7 @@ def call_tool(server_id, tool_id):
         db.session.commit()
         _publish_execution_state(db_server, execution)
         ka_phase = 'admission'
+        extended = None
         try:
             extended = ExtendedSubsystemCoordinator()
             admission = extended.admit_mcp_tool(
@@ -1065,12 +1211,21 @@ def call_tool(server_id, tool_id):
             result_governance = extended.mcp_result_governance_decision(
                 result_validation
             )
+            result_records = _apply_mcp_result_records(
+                execution=execution,
+                tool_name=tool.name,
+                governed_result=governed,
+                result_validation=result_validation,
+                result_governance=result_governance,
+                coordinator=extended,
+            )
             execution.ka_lifecycle = {
                 **dict(execution.ka_lifecycle or {}),
                 "result_validation": extended.lifecycle_evidence(
                     result_validation
                 ),
                 "result_governance": result_governance,
+                "result_records": result_records,
             }
             db.session.commit()
             if not result_governance["release_allowed"]:
@@ -1171,6 +1326,45 @@ def call_tool(server_id, tool_id):
             db_server.failed_requests += 1
             db_server.last_error_code = execution.error_code
             db_server.last_error_message = execution.error_message
+            try:
+                recovery_coordinator = extended or ExtendedSubsystemCoordinator()
+                recovery = recovery_coordinator.plan_mcp_recovery(
+                    execution_id=execution.execution_id,
+                    principal_id=execution.principal_id,
+                    server_id=server_id,
+                    operation=execution.operation,
+                    error_code=execution.error_code,
+                    failures=db_server.failed_requests,
+                    successes=db_server.successful_requests,
+                    effect_already_applied=bool(execution.effect_receipt),
+                )
+                recovery_plan = recovery_coordinator.mcp_recovery_decision(
+                    recovery
+                )
+                recovery_plan = _apply_mcp_recovery_record(
+                    execution=execution,
+                    recovery_execution=recovery,
+                    recovery_plan=recovery_plan,
+                    coordinator=recovery_coordinator,
+                )
+                execution.ka_lifecycle = {
+                    **dict(execution.ka_lifecycle or {}),
+                    "recovery": recovery_coordinator.lifecycle_evidence(
+                        recovery
+                    ),
+                    "recovery_plan": recovery_plan,
+                }
+            except (ExtendedSubsystemError, KnowledgeLifecycleError):
+                execution.ka_lifecycle = {
+                    **dict(execution.ka_lifecycle or {}),
+                    "recovery_plan": {
+                        "schema_version": "dle.mcp-recovery-plan.v1",
+                        "status": "unavailable",
+                        "automatic_retry_allowed": False,
+                        "error_code": "MCP_RECOVERY_PLAN_UNAVAILABLE",
+                        "actions_applied": 0,
+                    },
+                }
             db.session.commit()
             _publish_execution_state(db_server, execution)
             record_connector_execution(

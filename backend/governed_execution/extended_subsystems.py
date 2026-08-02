@@ -441,6 +441,106 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "audit_content_sha256": str(audit.get("content_sha256") or ""),
         }
 
+    def plan_mcp_recovery(
+        self,
+        *,
+        execution_id: str,
+        principal_id: str,
+        server_id: str,
+        operation: str,
+        error_code: str,
+        failures: int,
+        successes: int,
+        effect_already_applied: bool,
+    ) -> Any:
+        """Build the fail-closed MCP recovery plan after a real route failure."""
+        incident_type = (
+            "policy_violation"
+            if error_code.startswith("MCP_KA_")
+            else "service_disruption"
+        )
+        severity = "high" if effect_already_applied else "medium"
+        return self.execute_operation_sync(
+            owner="mcp_connectors",
+            operation="recovery",
+            requested_ids=["KA-106", "KA-184"],
+            ka_inputs={
+                "KA-106": {
+                    "operation": "network",
+                    "failures": max(1, int(failures)),
+                    "successes": max(0, int(successes)),
+                    "dependency_status": {
+                        f"connector:{server_id}": "failed",
+                    },
+                },
+                "KA-184": {
+                    "incidents": [
+                        {
+                            "incident_id": f"mcp:{execution_id}",
+                            "severity": severity,
+                            "incident_type": incident_type,
+                            "affected_asset_refs": [
+                                "mcp_gateway",
+                                f"connector:{server_id}",
+                                f"operation:{operation}",
+                            ],
+                            "owner_assigned": True,
+                            "containment_ready": True,
+                            "evidence_preservation_ready": True,
+                        }
+                    ]
+                },
+            },
+            request_id=f"mcp-recovery:{execution_id}",
+            run_id=execution_id,
+            max_effects=1,
+            session_id=execution_id,
+            principal_id=principal_id,
+            tier="external_connector",
+            layer="mcp_recovery",
+            service_capabilities={"operations_control_service"},
+            required=True,
+        )
+
+    @staticmethod
+    def mcp_recovery_decision(execution: Any) -> dict[str, Any]:
+        """Consume the recovery KAs without claiming that a plan was applied."""
+        outputs = ExtendedSubsystemCoordinator.execution_outputs(execution)
+        fault_tolerance = outputs.get("KA-106", {})
+        incident_response = outputs.get("KA-184", {})
+        plans = incident_response.get("plans")
+        if not isinstance(plans, list) or len(plans) != 1:
+            raise ExtendedSubsystemError(
+                "MCP recovery requires exactly one incident-response plan"
+            )
+        plan = plans[0]
+        if plan.get("decision") != "activate_plan":
+            raise ExtendedSubsystemError("MCP recovery plan is not actionable")
+        circuit_state = str(fault_tolerance.get("circuit_state") or "")
+        if circuit_state not in {"OPEN", "HALF_OPEN", "CLOSED"}:
+            raise ExtendedSubsystemError("MCP recovery circuit state is invalid")
+        return {
+            "schema_version": "dle.mcp-recovery-plan.v1",
+            "status": "planned",
+            "automatic_retry_allowed": False,
+            "circuit_state": circuit_state,
+            "circuit_reason": str(
+                fault_tolerance.get("circuit_reason") or ""
+            ),
+            "fallback_engaged": bool(
+                fault_tolerance.get("fallback_engaged")
+            ),
+            "recommended_retry_policy": dict(
+                fault_tolerance.get("retry_policy_applied") or {}
+            ),
+            "incident_id": str(plan.get("incident_id") or ""),
+            "incident_decision": str(plan.get("decision") or ""),
+            "proposed_steps": list(plan.get("ordered_steps") or []),
+            "actions_applied": int(
+                incident_response.get("actions_applied") or 0
+            ),
+        }
+
     async def plan_provider_request(
         self,
         *,
