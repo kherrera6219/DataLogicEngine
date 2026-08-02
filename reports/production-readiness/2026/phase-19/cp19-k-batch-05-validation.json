@@ -1,0 +1,82 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-05-mcp-result-governance",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-010",
+    "KA-022",
+    "KA-024",
+    "KA-136",
+    "KA-175",
+    "KA-182"
+  ],
+  "deferred_ids": {
+    "KA-096": "No durable centralized-log application is bound to an authoritative owner receipt.",
+    "KA-097": "The proposal is validated but no complete durable audit record is applied and receipted by the owning service.",
+    "KA-106": "No production MCP recovery caller consumes this registry operation.",
+    "KA-184": "No production MCP incident-response caller consumes this registry operation."
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 21,
+    "incomplete_capabilities": 192,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "mcp_route_suite",
+      "command": "python -m pytest -q tests/mcp",
+      "status": "pass",
+      "result": "46 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "792 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "177 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2607 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "21/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_and_selector_authority",
+      "command": "python scripts/verify_ka_runtime_authority.py; python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "manifest 2026.08.01-cp19k.2 current across backend and both SDKs; 136-edge DAG acyclic"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check . --select E9,F63,F7",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 192 per-KA rows remain open.",
+    "KA-096 and KA-097 remain unqualified until durable log and audit application is owned and receipted.",
+    "KA-106 and KA-184 remain unqualified until real MCP recovery callers consume them.",
+    "KA-1101 and KA-1103 remain unqualified until real product owner actions consume them.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

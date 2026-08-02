@@ -701,11 +701,13 @@ class GovernedTenLayerStages:
         executed_ids = self._executed_ids(report)
         ka_results = self._committed_results(report, executed_ids)
         trust_output = ka_results.get("KA-024", {}).get("output", {})
+        bias_output = ka_results.get("KA-010", {}).get("output", {})
         boundary_output = ka_results.get("KA-1107", {}).get("output", {})
         ethics_output = ka_results.get("KA-027", {}).get("output", {})
         privacy_output = ka_results.get("KA-1074", {}).get("output", {})
         ka_ok = (
             report.status is KAPlanExecutionStatus.SUCCEEDED
+            and bias_output.get("is_biased") is not True
             and trust_output.get("is_approved") is True
             and boundary_output.get("plan_allowed") is True
             and ethics_output.get("status") != "CRITICAL_FAILURE"

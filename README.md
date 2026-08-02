@@ -40,16 +40,16 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 15/213; 198 remain open |
-| Latest source validation | 2,594 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 21/213; 192 remain open |
+| Latest source validation | 2,607 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
 classification, simulation planning/resource/counterfactual effects, and MCP
-credential/policy/access admission causal through their real production owners.
-MCP connector receipts are bound to the admission decisions that authorized the
-effect. No registry-only, execute-only, or direct-test-only capability is counted
-as production-qualified.
+admission/result-release governance causal through their real production owners.
+Malicious connector output is blocked before response release while the already-
+applied connector effect retains its admission-bound receipt. No registry-only,
+execute-only, or direct-test-only capability is counted as production-qualified.
 
 See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
 [current work ledger](TODO.md), [documentation portal](docs/README.md), and
@@ -152,8 +152,8 @@ Current production-completion focus:
 - Active Phase 19 CP19-K: one named semantic test, positive/negative selector
   proof, real owning call path, limitation, causal trace assertion, and
   applicable security/effect/performance evidence for every canonical KA;
-  batches 01-04 qualify 15/213 rows, including the causal simulation core and
-  MCP credential/policy/access admission; 198 rows remain open
+  batches 01-05 qualify 21/213 rows, including the causal simulation core and
+  MCP admission/result-release governance; 192 rows remain open
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,

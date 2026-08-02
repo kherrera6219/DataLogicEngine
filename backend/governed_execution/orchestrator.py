@@ -1179,7 +1179,8 @@ class GovernedExecutionOrchestrator:
                 for canonical_id, payload in execution.results.items()
             }
             blocked = (
-                any(
+                outputs.get("KA-022", {}).get("mitigation_required") is True
+                or any(
                     row.get("decision") == "block"
                     for row in outputs.get("KA-172", {}).get("decisions", [])
                     if isinstance(row, dict)

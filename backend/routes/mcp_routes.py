@@ -1037,6 +1037,24 @@ def call_tool(server_id, tool_id):
             duration_ms = (time.perf_counter() - started) * 1000.0
             max_bytes = int((db_server.config or {}).get('limits', {}).get('max_message_bytes', 65_536))
             governed = govern_connector_result(result, max_bytes=max_bytes)
+            effect_receipt = extended.bind_effect_receipt(
+                service="MCPConnectorService",
+                operation=f"tools/call:{tool.name}",
+                resource_id=execution.execution_id,
+                request_payload={
+                    "name": tool.name,
+                    "arguments": arguments,
+                },
+                result_payload={
+                    "sha256": governed["sha256"],
+                    "size_bytes": governed["size_bytes"],
+                    "trust": governed["trust"],
+                },
+                idempotency_key=execution.execution_id,
+                ka_execution=admission,
+                proposal_ids=["KA-177", "KA-179"],
+            )
+            execution.effect_receipt = effect_receipt.to_dict()
             ka_phase = 'result_validation'
             result_validation = extended.validate_mcp_result(
                 execution_id=execution.execution_id,
@@ -1044,6 +1062,23 @@ def call_tool(server_id, tool_id):
                 tool_name=tool.name,
                 governed_result=governed,
             )
+            result_governance = extended.mcp_result_governance_decision(
+                result_validation
+            )
+            execution.ka_lifecycle = {
+                **dict(execution.ka_lifecycle or {}),
+                "result_validation": extended.lifecycle_evidence(
+                    result_validation
+                ),
+                "result_governance": result_governance,
+            }
+            db.session.commit()
+            if not result_governance["release_allowed"]:
+                raise ExtendedSubsystemError(
+                    "MCP result release blocked: "
+                    + ",".join(result_governance["blockers"])
+                )
+            governed["governance"] = result_governance
 
             execution.status = 'completed'
             execution.result_sha256 = governed['sha256']
@@ -1070,32 +1105,6 @@ def call_tool(server_id, tool_id):
                     },
                 )
                 execution.artifact_object_key = object_key
-
-            effect_receipt = extended.bind_effect_receipt(
-                service="MCPConnectorService",
-                operation=f"tools/call:{tool.name}",
-                resource_id=execution.execution_id,
-                request_payload={
-                    "name": tool.name,
-                    "arguments": arguments,
-                },
-                result_payload={
-                    "sha256": governed["sha256"],
-                    "size_bytes": governed["size_bytes"],
-                    "trust": governed["trust"],
-                    "artifact_object_key": execution.artifact_object_key,
-                },
-                idempotency_key=execution.execution_id,
-                ka_execution=admission,
-                proposal_ids=["KA-177", "KA-179"],
-            )
-            execution.ka_lifecycle = {
-                **dict(execution.ka_lifecycle or {}),
-                "result_validation": extended.lifecycle_evidence(
-                    result_validation
-                ),
-            }
-            execution.effect_receipt = effect_receipt.to_dict()
 
             tool.execution_count += 1
             tool.success_count += 1
@@ -1175,6 +1184,8 @@ def call_tool(server_id, tool_id):
             status = (
                 403
                 if execution.error_code == 'MCP_KA_ADMISSION_BLOCKED'
+                else 502
+                if execution.error_code == 'MCP_KA_RESULT_VALIDATION_FAILED'
                 else 409
                 if execution.error_code == 'MCP_SERVER_NOT_RUNNING'
                 else 500

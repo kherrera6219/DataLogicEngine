@@ -469,3 +469,196 @@ def test_ka_179_semantic_contract():
     assert denied.output["decision"] == "deny"
     assert denied.output["default_deny"] is True
     assert allowed.output["access_applied"] is False
+
+
+def test_ka_010_semantic_contract():
+    neutral = _execute("KA-010", {"content": "The team approved the report"})
+    flagged = _execute(
+        "KA-010",
+        {"content": "The chairman approved the report"},
+    )
+
+    _assert_pure_bounded_result("KA-010", neutral)
+    _assert_pure_bounded_result("KA-010", flagged)
+    assert neutral.output["is_biased"] is False
+    assert flagged.output["is_biased"] is True
+    assert flagged.output["findings"][0]["suggestion"] == "chairperson"
+
+
+def test_ka_022_semantic_contract():
+    low = _execute(
+        "KA-022",
+        {
+            "recommendation": "Read a governed local connector record",
+            "impact_scores": {"technical": 0.2, "security": 0.3},
+        },
+    )
+    blocked = _execute(
+        "KA-022",
+        {
+            "recommendation": "Execute a destructive connector operation",
+            "impact_scores": {
+                "technical": 0.9,
+                "security": 0.9,
+                "compliance": 0.9,
+                "financial": 0.9,
+                "schedule": 0.9,
+                "reputational": 0.9,
+            },
+        },
+    )
+
+    _assert_pure_bounded_result("KA-022", low)
+    _assert_pure_bounded_result("KA-022", blocked)
+    assert low.output["risk_status"] == "LOW"
+    assert low.output["mitigation_required"] is False
+    assert blocked.output["risk_status"] == "CRITICAL"
+    assert blocked.output["mitigation_required"] is True
+
+
+def test_ka_024_semantic_contract():
+    approved = _execute(
+        "KA-024",
+        {"confidence": 1.0, "risk_score": 0.1},
+    )
+    vetoed = _execute(
+        "KA-024",
+        {"confidence": 1.0, "risk_score": 1.0},
+    )
+
+    _assert_pure_bounded_result("KA-024", approved)
+    _assert_pure_bounded_result("KA-024", vetoed)
+    assert approved.output["is_approved"] is True
+    assert approved.output["status"] == "APPROVED"
+    assert vetoed.output["is_approved"] is False
+    assert vetoed.output["status"] == "VETOED"
+    assert "exceeds tolerance" in vetoed.output["blocking_reasons"][0]
+
+
+def test_ka_136_semantic_contract():
+    safe = _execute(
+        "KA-136",
+        {
+            "assets": [
+                {"asset_id": "gateway", "criticality": "critical"},
+                {"asset_id": "connector", "criticality": "high"},
+            ],
+            "data_flows": [
+                {
+                    "flow_id": "safe-flow",
+                    "source_asset_id": "gateway",
+                    "target_asset_id": "connector",
+                    "crosses_trust_boundary": True,
+                    "authenticated": True,
+                    "encrypted": True,
+                    "integrity_protected": True,
+                }
+            ],
+        },
+    )
+    threatened = _execute(
+        "KA-136",
+        {
+            "assets": [
+                {"asset_id": "gateway", "criticality": "critical"},
+                {"asset_id": "connector", "criticality": "high"},
+            ],
+            "data_flows": [
+                {
+                    "flow_id": "unsafe-flow",
+                    "source_asset_id": "gateway",
+                    "target_asset_id": "connector",
+                    "crosses_trust_boundary": True,
+                    "authenticated": True,
+                    "encrypted": False,
+                    "integrity_protected": True,
+                }
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-136", safe)
+    _assert_pure_bounded_result("KA-136", threatened)
+    assert safe.output["threats_present"] is False
+    assert threatened.output["threats_present"] is True
+    assert threatened.output["findings"][0]["threat"] == "information_disclosure"
+
+
+def test_ka_175_semantic_contract():
+    passed = _execute(
+        "KA-175",
+        {
+            "controls": [
+                {
+                    "control_id": "MCP-RESULT-GOVERNANCE",
+                    "control_family": "logging",
+                    "enabled": True,
+                    "tested": True,
+                    "evidence_refs": ["result-sha256"],
+                    "severity_if_missing": "high",
+                }
+            ]
+        },
+    )
+    failed = _execute(
+        "KA-175",
+        {
+            "controls": [
+                {
+                    "control_id": "MCP-RESULT-GOVERNANCE",
+                    "control_family": "logging",
+                    "enabled": True,
+                    "tested": False,
+                    "evidence_refs": ["result-sha256"],
+                    "severity_if_missing": "high",
+                }
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-175", passed)
+    _assert_pure_bounded_result("KA-175", failed)
+    assert passed.output["audit_passed"] is True
+    assert failed.output["audit_passed"] is False
+    assert failed.output["findings"][0]["reasons"] == ["control_not_tested"]
+
+
+def test_ka_182_semantic_contract():
+    clear = _execute(
+        "KA-182",
+        {
+            "signals": [
+                {
+                    "signal_id": "mcp-prompt-injection",
+                    "signal_type": "policy_bypass",
+                    "observed_count": 0,
+                    "threshold": 1,
+                    "source_ref": "execution-safe",
+                    "trusted_source": True,
+                }
+            ]
+        },
+    )
+    detected = _execute(
+        "KA-182",
+        {
+            "signals": [
+                {
+                    "signal_id": "mcp-prompt-injection",
+                    "signal_type": "policy_bypass",
+                    "observed_count": 1,
+                    "threshold": 1,
+                    "source_ref": "execution-blocked",
+                    "trusted_source": True,
+                }
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-182", clear)
+    _assert_pure_bounded_result("KA-182", detected)
+    assert clear.output["threat_detected"] is False
+    assert detected.output["threat_detected"] is True
+    assert detected.output["alerts"][0]["proposed_action"] == (
+        "contain_and_investigate"
+    )

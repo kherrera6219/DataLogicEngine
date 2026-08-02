@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K MCP result-governance batch 05**: qualified `KA-010`,
+  `KA-022`, `KA-024`, `KA-136`, `KA-175`, and `KA-182` through named semantic
+  and primary owning-path proofs. TruthGate now consumes risk, bias, and trust
+  results; MCP admission consumes risk/threat-model findings; and MCP result
+  release consumes control-audit and threat alerts. Prompt-injection output now
+  fails closed instead of returning HTTP 200. The already-applied connector
+  effect is receipted before result validation, preserving truthful evidence
+  when response content is rejected. The matrix is 21/213 qualified with 192
+  open; 792 KA tests, 177 affected integrations, 46 MCP route tests, and the
+  full 2,607-test source suite pass with 18 skipped and 35 known warnings.
 - **Phase 19 CP19-K MCP admission batch 04**: qualified `KA-137`, `KA-177`,
   and `KA-179` through named semantic and real owning-path proofs. MCP inline
   credential findings, policy/consent admission, and access admission now

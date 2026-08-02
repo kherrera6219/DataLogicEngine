@@ -89,6 +89,150 @@ def test_ka_177_owning_path():
 
 
 @pytest.mark.asyncio
+async def test_ka_022_owning_path():
+    allowed_gateway = _Gateway()
+    allowed = await _orchestrator(allowed_gateway).execute(_request())
+
+    admission = next(
+        decision
+        for decision in allowed.metadata["policy_decisions"]
+        if decision["policy_id"] == "canonical_truthgate_entry"
+    )
+    assert admission["decision"] == "allow"
+    assert admission["ka_results"]["KA-022"]["output"][
+        "mitigation_required"
+    ] is False
+
+    blocked_gateway = _Gateway()
+    blocked = await _orchestrator(blocked_gateway).execute(
+        _request(
+            metadata={
+                "impact_scores": {
+                    "technical": 0.9,
+                    "security": 0.9,
+                    "compliance": 0.9,
+                    "financial": 0.9,
+                    "schedule": 0.9,
+                    "reputational": 0.9,
+                }
+            }
+        )
+    )
+
+    assert blocked.ok is False
+    assert blocked.failure is not None
+    assert blocked.failure.code == "TRUTHGATE_ENTRY_BLOCK"
+    assert blocked_gateway.provider_calls == 0
+    blocked_admission = next(
+        decision
+        for decision in blocked.metadata["policy_decisions"]
+        if decision["policy_id"] == "canonical_truthgate_entry"
+    )
+    assert blocked_admission["ka_results"]["KA-022"]["output"][
+        "mitigation_required"
+    ] is True
+
+
+@pytest.mark.asyncio
+async def test_ka_010_owning_path(monkeypatch: pytest.MonkeyPatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha",
+                    citation_label="S1",
+                    text="alpha evidence",
+                )
+            ],
+            [],
+        ),
+    )
+
+    class BiasedGateway(_Gateway):
+        async def _direct_llm_call(
+            self,
+            provider,
+            model,
+            messages,
+            temperature,
+            max_tokens,
+        ):
+            self.provider_calls += 1
+            self.provider_messages.append(messages)
+            return {
+                "ok": True,
+                "answer": "The chairman approved the answer [S1]",
+                "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            }
+
+    gateway = BiasedGateway()
+    result = await _orchestrator(gateway).execute(_request())
+
+    assert result.ok is False
+    assert result.failure is not None
+    assert result.failure.code == "L8_TRUST_POLICY_BLOCK"
+    layer8 = next(
+        layer
+        for layer in result.metadata["reasoning_state"]["layers"]
+        if layer["layer_id"] == "L8"
+    )
+    assert layer8["ka_results"]["KA-010"]["output"]["is_biased"] is True
+    assert layer8["outputs"]["trust_policy_decision"]["decision"] == "block"
+
+
+@pytest.mark.asyncio
+async def test_ka_024_owning_path(monkeypatch: pytest.MonkeyPatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha",
+                    citation_label="S1",
+                    text="alpha evidence",
+                )
+            ],
+            [],
+        ),
+    )
+
+    allowed = await _orchestrator(_Gateway()).execute(_request())
+    allowed_layer8 = next(
+        layer
+        for layer in allowed.metadata["reasoning_state"]["layers"]
+        if layer["layer_id"] == "L8"
+    )
+    assert allowed_layer8["ka_results"]["KA-024"]["output"][
+        "is_approved"
+    ] is True
+
+    blocked = await _orchestrator(_Gateway()).execute(
+        _request(metadata={"risk_score": 1.0})
+    )
+    assert blocked.ok is False
+    assert blocked.failure is not None
+    assert blocked.failure.code == "L8_TRUST_POLICY_BLOCK"
+    blocked_layer8 = next(
+        layer
+        for layer in blocked.metadata["reasoning_state"]["layers"]
+        if layer["layer_id"] == "L8"
+    )
+    assert blocked_layer8["ka_results"]["KA-024"]["output"][
+        "is_approved"
+    ] is False
+    assert blocked_layer8["outputs"]["trust_policy_decision"][
+        "decision"
+    ] == "block"
+
+
+@pytest.mark.asyncio
 async def test_cp19h_entry_policy_ka_block_prevents_routing_and_provider():
     gateway = _Gateway()
     request = _request(

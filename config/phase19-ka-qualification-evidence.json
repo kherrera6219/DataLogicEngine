@@ -46,6 +46,19 @@
         "KA-179"
       ],
       "scope": "MCP credential discovery, policy admission, access admission, and authorization-bound connector receipts"
+    },
+    {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-010",
+        "KA-022",
+        "KA-024",
+        "KA-136",
+        "KA-175",
+        "KA-182"
+      ],
+      "scope": "MCP risk and threat-model admission plus fail-closed connector-result release governance"
     }
   ],
   "qualifications": {
@@ -306,6 +319,108 @@
         "rationale": "The MCP route owns the connector call and binds the authoritative effect receipt to the admission plan and KA-179 access proposal."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_179_semantic_contract"
+    },
+    "KA-010": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_010_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_010_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_010_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_truthgate.py::test_ka_010_owning_path",
+        "rationale": "The MCP result owner consumes the bounded heuristic and exposes a human-review requirement without treating the score as external truth."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-010 is a bounded advisory heuristic; the MCP owner applies only the release metadata and the KA performs no effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_010_semantic_contract"
+    },
+    "KA-022": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_022_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_022_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_022_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_truthgate.py::test_ka_022_owning_path",
+        "rationale": "The production MCP owner consumes the bounded risk result and blocks write, delete, or admin scopes that require mitigation before connector execution."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-022 computes risk only; the MCP route owns the pre-effect admission decision."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_022_semantic_contract"
+    },
+    "KA-024": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_024_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_024_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_024_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_truthgate.py::test_ka_024_owning_path",
+        "rationale": "The production L8 TruthGate consumes the bounded trust/risk veto and blocks response release when the declared risk exceeds policy."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-024 returns a deterministic gate decision; the governed owner applies the release block and the KA performs no effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_024_semantic_contract"
+    },
+    "KA-136": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_136_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_136_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_136_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_136_owning_path",
+        "rationale": "The production MCP owner consumes declared trust-boundary findings and blocks an insecure connector flow before execution."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-136 evaluates declared architecture only; the MCP owner applies the fail-closed admission decision."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_136_semantic_contract"
+    },
+    "KA-175": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_175_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_175_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_175_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_175_owning_path",
+        "rationale": "The MCP result owner requires the declared control audit to pass and blocks release when result-governance evidence fails."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-175 audits declared control evidence only; the owning route applies the response-release decision."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_175_semantic_contract"
+    },
+    "KA-182": {
+      "batch_id": "cp19-k-batch-05-mcp-result-governance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_182_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_182_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_182_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_182_owning_path",
+        "rationale": "A trusted prompt-injection signal becomes a causal threat alert that blocks the connector result before response release."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-182 proposes containment but applies no action; the MCP owner only blocks response release and records the already-applied connector effect separately."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_182_semantic_contract"
     }
   }
 }

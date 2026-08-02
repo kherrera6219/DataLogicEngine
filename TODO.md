@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-01 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.51.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.52.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -173,24 +173,28 @@ Phase 18 source baseline while completing the whole-application wiring.
         KA-177/KA-179 proposals that authorized the call. Ten audited MCP rows
         remain open because they are execute-only, unconsumed, unselected, or
         lack a production recovery caller.
-      - The generated matrix and integrity verifier pass at 15/213 qualified
-        and 198 incomplete; rebuild authorization remains false. Runtime
+      - Batch 05 passed 2026-08-01: `KA-010`, `KA-022`, `KA-024`, `KA-136`,
+        `KA-175`, and `KA-182` now close through their real TruthGate and MCP
+        owners. Risk, bias, trust, threat-model, control-audit, and threat-
+        detection outputs now causally block admission or result release. A
+        rejected post-call result retains the connector-effect receipt while
+        persisting and returning no result content.
+      - The generated matrix and integrity verifier pass at 21/213 qualified
+        and 192 incomplete; rebuild authorization remains false. Runtime
         manifest `2026.08.01-cp19k.2` retains 213 capabilities, 149 production-
-        enabled capabilities, and a 136-edge zero-cycle graph. The 786-test KA
-        suite, 171 governed/TruthCore/Phase-19/simulation integration tests,
+        enabled capabilities, and a 136-edge zero-cycle graph. The 792-test KA
+        suite, 177 governed/TruthCore/Phase-19/simulation integration tests,
         426 retained frontend tests, frontend type checking, seven TypeScript
-        SDK tests, and 2,594-test full source suite pass; the source suite has
+        SDK tests, and 2,607-test full source suite pass; the source suite has
         18 skipped and 35 known warnings.
       - Dependency review: all 31 open GitHub alerts were remediated in the
         Python and Node authorities. Local `pip-audit` and `npm audit` report
         zero known vulnerabilities, both lockfile-governance gates pass, and
         GitHub now reports zero open Dependabot alerts after its rescan.
-      - Next: make the ten deferred MCP rows causal before qualification:
-        consume or remove `KA-022`/`KA-136`; govern connector results with
-        `KA-010`, `KA-096`, `KA-097`, `KA-175`, and `KA-182`; establish a real
-        owner for `KA-024`; and add production recovery callers for `KA-106`/
-        `KA-184`. Then audit the provider/gateway owner group. Keep `KA-1101`
-        and `KA-1103` open until genuine chaos/rollback product controls exist.
+      - Next: apply and receipt durable logging/audit records for `KA-096`/
+        `KA-097`, and add production recovery callers for `KA-106`/`KA-184`.
+        Then audit the provider/gateway owner group. Keep `KA-1101` and
+        `KA-1103` open until genuine chaos/rollback product controls exist.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -918,7 +922,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-04 qualify 15/213 rows, 198 remain open, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-05 qualify 21/213 rows, 192 remain open, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases

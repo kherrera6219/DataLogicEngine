@@ -157,6 +157,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
         arguments: dict[str, Any],
         required_scopes: set[str],
         consent_approved: bool,
+        crosses_trust_boundary: bool = False,
+        connector_authenticated: bool = True,
+        connector_encrypted: bool = True,
+        connector_integrity_protected: bool = True,
     ) -> Any:
         """Run security/operations proposals before an MCP tool side effect."""
         argument_text = json.dumps(
@@ -166,6 +170,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             default=str,
         )
         scopes_satisfied = bool(required_scopes)
+        destructive_scope = any(
+            str(scope).lower().endswith((":write", ":delete", ":admin"))
+            for scope in required_scopes
+        )
         execution = self.execute_operation_sync(
             owner="mcp_connectors",
             operation="admission",
@@ -182,9 +190,12 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                         f"Execute MCP tool {tool_name} on connector {server_id}"
                     ),
                     "impact_scores": {
-                        "technical": 0.2,
-                        "security": 0.3,
-                        "compliance": 0.2,
+                        "technical": 0.6 if destructive_scope else 0.2,
+                        "security": 0.8 if destructive_scope else 0.3,
+                        "compliance": 0.8 if destructive_scope else 0.2,
+                        "financial": 0.6 if destructive_scope else 0.0,
+                        "schedule": 0.6 if destructive_scope else 0.0,
+                        "reputational": 0.8 if destructive_scope else 0.0,
                     },
                 },
                 "KA-136": {
@@ -205,10 +216,14 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                             "flow_id": f"tool:{tool_name}",
                             "source_asset_id": "mcp_gateway",
                             "target_asset_id": f"connector:{server_id}",
-                            "crosses_trust_boundary": False,
-                            "authenticated": True,
-                            "encrypted": True,
-                            "integrity_protected": True,
+                            "crosses_trust_boundary": bool(
+                                crosses_trust_boundary
+                            ),
+                            "authenticated": bool(connector_authenticated),
+                            "encrypted": bool(connector_encrypted),
+                            "integrity_protected": bool(
+                                connector_integrity_protected
+                            ),
                         }
                     ],
                 },
@@ -289,6 +304,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             if isinstance(row, dict)
         }
         blockers = []
+        if outputs.get("KA-022", {}).get("mitigation_required"):
+            blockers.append("risk_mitigation_required")
+        if outputs.get("KA-136", {}).get("threats_present"):
+            blockers.append("threat_model_findings")
         if outputs.get("KA-177", {}).get("decision") != "allow":
             blockers.append("policy_denied")
         if outputs.get("KA-179", {}).get("decision") != "allow":
@@ -358,7 +377,7 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                             "control_id": "MCP-RESULT-GOVERNANCE",
                             "control_family": "logging",
                             "enabled": True,
-                            "tested": True,
+                            "tested": not prompt_risk,
                             "evidence_refs": [str(governed_result.get("sha256") or "")],
                             "severity_if_missing": "high",
                         },
@@ -386,6 +405,41 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             layer="mcp_gateway",
             required=True,
         )
+
+    @staticmethod
+    def mcp_result_governance_decision(execution: Any) -> dict[str, Any]:
+        """Consume MCP result KAs into the owning route's release decision."""
+        outputs = ExtendedSubsystemCoordinator.execution_outputs(execution)
+        bias = outputs.get("KA-010", {})
+        logging_result = outputs.get("KA-096", {})
+        audit = outputs.get("KA-097", {})
+        security_audit = outputs.get("KA-175", {})
+        threat = outputs.get("KA-182", {})
+
+        blockers = []
+        if security_audit.get("audit_passed") is not True:
+            blockers.append("security_control_audit_failed")
+        if threat.get("threat_detected") is True:
+            blockers.append("threat_detected")
+        if logging_result.get("logs_processed") != 1:
+            blockers.append("logging_validation_failed")
+        if not audit.get("audit_id") or not audit.get("content_sha256"):
+            blockers.append("audit_proposal_missing")
+
+        return {
+            "schema_version": "dle.mcp-result-governance.v1",
+            "release_allowed": not blockers,
+            "blockers": sorted(blockers),
+            "requires_human_review": bool(bias.get("is_biased")),
+            "bias_score": float(bias.get("bias_score") or 0.0),
+            "security_audit_passed": bool(
+                security_audit.get("audit_passed")
+            ),
+            "threat_detected": bool(threat.get("threat_detected")),
+            "logging_backend": str(logging_result.get("backend") or ""),
+            "audit_id": str(audit.get("audit_id") or ""),
+            "audit_content_sha256": str(audit.get("content_sha256") or ""),
+        }
 
     async def plan_provider_request(
         self,
