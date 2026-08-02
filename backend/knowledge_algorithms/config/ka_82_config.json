@@ -1,6 +1,11 @@
 {
-    "evaluation_metrics": ["accuracy", "f1_score", "precision", "recall", "auc_roc"],
-    "bootstrapping_iterations": 100,
-    "confidence_interval": 0.95,
-    "report_format": "json_structured"
+    "evaluation_metrics": [
+        "accuracy",
+        "macro_precision",
+        "macro_recall",
+        "macro_f1"
+    ],
+    "evidence_policy": "caller_supplied_predictions_and_labels_required",
+    "synthetic_baseline_allowed": false,
+    "evaluation_artifact_created": false
 }

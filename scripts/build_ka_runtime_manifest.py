@@ -818,6 +818,14 @@ CP19_I_VALIDATOR_IDS = {
 }
 
 CP19_I_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-081": {
+        "dependencies": ["KA-085", "KA-086"],
+        "rationale": (
+            "Model-training admission consumes the committed feature plan and "
+            "measured tuning proposal before an authoritative provider service "
+            "may persist a queued-job receipt."
+        ),
+    },
     "KA-113": {
         "dependencies": ["KA-004", "KA-005"],
         "rationale": (
@@ -1163,7 +1171,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.01-cp19k.2",
+        "manifest_version": "2026.08.02-cp19k.3",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

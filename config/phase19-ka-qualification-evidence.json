@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.01-cp19k.2",
+  "manifest_version": "2026.08.02-cp19k.3",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -108,6 +108,17 @@
         "KA-078"
       ],
       "scope": "Causal local-file ingestion admission, cleaning, transformation, validation, mapping, exact identity resolution, no-egress enrichment, archive eligibility, and transaction-bound owner receipt"
+    },
+    {
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "completed_on": "2026-08-02",
+      "canonical_ids": [
+        "KA-081",
+        "KA-082",
+        "KA-085",
+        "KA-086"
+      ],
+      "scope": "App-owned dataset profiling, measured feature construction, measured tuning and evaluation, and an idempotent provider-owned training-admission record that explicitly applies no training"
     }
   ],
   "qualifications": {
@@ -829,6 +840,75 @@
         "rationale": "The manifest declares no KA-078 effect port; its archive output is proposal-only and the ingestion receipt deliberately excludes the archive proposal identity."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_078_semantic_contract"
+    },
+    "KA-081": {
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_081_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_081_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_081_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_preparation.py::test_training_admission_rejects_tampered_ka_claim_before_effect",
+        "rationale": "The provider owner rejects a tampered claim that training started and leaves the admission store untouched; app-owned path and idempotency-reuse tests separately prove containment and no overwrite."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_081_owning_path",
+        "rationale": "KA-081 remains proposal-only. ProviderModelLifecycleService alone writes the idempotent admission record and binds that record, not training execution, to an authoritative receipt."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_081_semantic_contract"
+    },
+    "KA-082": {
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_082_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_082_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_082_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_082_semantic_contract",
+        "rationale": "Evaluation fails closed when prediction and label evidence is absent and computes only measured accuracy and macro classification metrics from equal-length scalar observations."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-082 performs no inference, persistence, provider call, artifact creation, or external effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_082_semantic_contract"
+    },
+    "KA-085": {
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_085_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_085_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_085_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_preparation.py::test_ka_085_owning_path_builds_only_content_free_profile_features",
+        "rationale": "The owner derives bounded structural records from the app-owned export without retaining prompt or answer content in the durable admission, and the KA rejects nested or non-finite feature values."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-085 applies deterministic in-memory median imputation, standard scaling, and bounded one-hot encoding but creates no artifact and persists no result."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_085_semantic_contract"
+    },
+    "KA-086": {
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_086_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_086_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_086_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_086_semantic_contract",
+        "rationale": "Candidate ranking consumes exact measured observations only; when measurements are absent the output remains MEASUREMENT_REQUIRED with no synthetic best score."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-086 returns a bounded candidate and ranking proposal with zero provider calls and no tuning effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_086_semantic_contract"
     }
   }
 }

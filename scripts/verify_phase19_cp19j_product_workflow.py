@@ -88,6 +88,7 @@ def verify() -> dict[str, Any]:
         "2026.07.25-cp19j.1",
         "2026.08.01-cp19k.1",
         "2026.08.01-cp19k.2",
+        "2026.08.02-cp19k.3",
     }:
         errors.append("manifest_version")
     if manifest.get("status") != "cp19_j_product_workflow_authority":

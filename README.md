@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.2 |
+| Document version | v1.2.3 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -38,11 +38,11 @@ SDKs.
 | Area | Current state |
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
-| Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
+| Runtime authority | One generated manifest/controller; 138-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 42/213; 171 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-09 complete, Batch 10 next, 34 remain |
-| Latest source validation | 2,675 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 46/213; 167 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-10 complete, Batch 11 next, 33 remain |
+| Latest source validation | 2,698 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
@@ -60,20 +60,27 @@ now makes all eight secure-ingestion KAs causal before materialization, removes
 unsupported fuzzy/provider/archive claims, and binds the admission proposal to
 the owner transaction while archival remains proposal-only. No registry-only,
 execute-only, or direct-test-only capability is counted as production-qualified.
+Batch 10 now makes feature construction and tuning causal prerequisites of the
+model-training proposal, evaluates only supplied predictions and labels, and
+records an idempotent provider-owned admission receipt. The record explicitly
+says no trainer, provider call, epoch, checkpoint, or model artifact exists.
+Preparation rejects artifacts above 256 MiB, and replay verifies the persisted
+record against its authoritative receipt before returning it.
 
 The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 and 09 are complete; the current
-matrix has 171 open rows and Batch 10 is provider model preparation.
+treated as one unsafe mega-batch. Batches 08 through 10 are complete; the
+current matrix has 167 open rows and Batch 11 is provider model release.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
 released traces, enforces redaction, and confines API output to the app-owned
-runtime directory. It does not run training in the background, does not qualify
-the open model-training KAs, and does not claim DPO support from current stored
-traces because genuine rejected-candidate evidence is not persisted.
+runtime directory. Batch 10 adds an owner-only preparation path that profiles
+one such app-owned artifact and records a training-admission receipt, but it
+does not run training in the background. Current stored traces still do not
+support DPO because genuine rejected-candidate evidence is not persisted.
 
 See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
 [current work ledger](TODO.md), [documentation portal](docs/README.md), and
@@ -210,20 +217,20 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-09 qualify 42/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-10 qualify 46/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
-  authenticated content-free diagnostics advisory and causal secure ingestion;
-  171 rows remain open
-- The reviewed remaining roadmap contains 34 cohesive batches (10-43), each
-  bounded to one production owner and effect boundary. Batch 10 is the four-KA
-  provider model-preparation group. Grouping shares fixtures and transactions but does
+  authenticated content-free diagnostics advisory, causal secure ingestion,
+  and provider-owned measured model preparation; 167 rows remain open
+- The reviewed remaining roadmap contains 33 cohesive batches (11-43), each
+  bounded to one production owner and effect boundary. Batch 11 is the five-KA
+  provider model-release group. Grouping shares fixtures and transactions but does
   not waive any individual semantic, owning-path, trace, security, effect, or
   performance proof
-- Eleven additional provider/gateway KAs remain open: model training,
-  evaluation, deployment, feature engineering, tuning, versioning, A/B testing,
-  pruning, quantization, API gateway, and external deep research. None is
+- Seven additional provider/gateway KAs remain open: model deployment,
+  versioning, A/B testing, pruning, quantization, API gateway, and external deep
+  research. None is
   counted from registry membership or direct tests without a real owner and,
   where applicable, an authoritative effect receipt
 - CP19-L clean-source qualification must pass before any release-candidate
@@ -232,18 +239,21 @@ Open engineering and release acceptance:
   all-subsystem, five-service, effect, failure/recovery, performance, trace,
   replay, UI, accessibility, provider, gateway, object-store, pilot, and soak
   evidence
-- Retained installed functional acceptance from Phases 9-13 covers populated
-  retrieval/Knowledge/Graph, simulation providers/artifacts/UI, MCP Windows
+- Deferred installed functional acceptance from Phases 9-13 still requires
+  populated retrieval/Knowledge/Graph, simulation providers/artifacts/UI, MCP
+  Windows
   containment/lifecycle/stores/Electron, real workflow/store effects,
   cross-process correlation, failure injection, redaction/no-egress, support,
   and 24-hour stress plus 72-hour idle/normal-use soaks
-- Retained external/manual acceptance covers packaged scaling/high contrast,
-  manual NVDA, owner-authorized OpenAI and Google corpus runs, blinded human
-  review, second-reviewer approval, and the multi-day clean-machine pilot
-- Retained lifecycle and assurance acceptance covers signing, protected-volume
-  clean install, five-service provisioning, upgrade/rollback, backup/restore,
+- Deferred external/manual acceptance still requires packaged scaling/high
+  contrast, manual NVDA, owner-authorized OpenAI and Google corpus runs, blinded
+  human review, second-reviewer approval, and the multi-day clean-machine pilot
+- Deferred lifecycle and assurance acceptance still requires signing,
+  protected-volume clean install, five-service provisioning, upgrade/rollback,
+  backup/restore,
   same-host/private gateway operation, and independent security, license,
-  recovery, accessibility, architecture, and AI review
+  recovery, accessibility, architecture, and AI review. Every item in these
+  three deferred groups remains release-blocking
 
 What Makes DataLogicEngine Different?
 

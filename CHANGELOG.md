@@ -26,6 +26,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K provider model-preparation batch 10**: qualified `KA-081`,
+  `KA-082`, `KA-085`, and `KA-086` through the real provider-owned lifecycle.
+  Removed fabricated completed training/checkpoints, hash-derived evaluation
+  baselines and tuning scores, and unperformed feature claims. Feature and
+  tuning decisions now causally precede the training proposal; evaluation uses
+  supplied predictions/labels only. The owner writes one idempotent admission
+  receipt that explicitly records zero training, provider calls, epochs,
+  checkpoints, worker assignment, deployment, and model artifacts. App-owned
+  path containment, a 256 MiB preparation ceiling, idempotency conflict,
+  receipt-integrity replay, and tampered-effect failure tests leave zero
+  admission effects. The matrix is 46/213 qualified with 167 open,
+  the dependency graph is 138 edges with zero cycles, and Batch 11 is next. The
+  820-test KA suite, 215 affected integrations, and 2,698-test full source suite
+  pass with 18 skipped and 35 known warnings.
 - **Phase 19 CP19-K secure-ingestion batch 09**: qualified `KA-071` through
   `KA-078` through the real `LocalKnowledgeIngestionService` transaction. The
   chain now consumes each declared dependency, fails closed on invalid or

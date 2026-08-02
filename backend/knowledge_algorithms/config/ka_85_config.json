@@ -1,7 +1,15 @@
 {
-    "feature_scaling": "standard_scaler",
-    "automated_features": ["polynomial_interactions", "one_hot_encoding", "binning"],
-    "target_encoding": true,
-    "handle_missing_strategy": "median_imputation",
-    "feature_selection_method": "mutual_info"
+    "feature_scaling": "measured_standard_scaling",
+    "implemented_operations": [
+        "median_imputation",
+        "standard_scaling",
+        "bounded_one_hot_encoding"
+    ],
+    "unsupported_operations": [
+        "polynomial_interactions",
+        "target_encoding",
+        "mutual_information_selection"
+    ],
+    "artifact_created": false,
+    "persistence_applied": false
 }

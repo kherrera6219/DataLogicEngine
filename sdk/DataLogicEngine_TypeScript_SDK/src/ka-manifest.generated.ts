@@ -3,7 +3,7 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.08.01-cp19k.2",
+  "manifest_version": "2026.08.02-cp19k.3",
   "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
@@ -198,6 +198,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1112"
         ],
         "rationale": "Capability escalation consumes the system-introspection record; experimental emergence research is not a production prerequisite."
+      },
+      "KA-081": {
+        "dependencies": [
+          "KA-085",
+          "KA-086"
+        ],
+        "rationale": "Model-training admission consumes the committed feature plan and measured tuning proposal before an authoritative provider service may persist a queued-job receipt."
       },
       "KA-113": {
         "dependencies": [
@@ -8158,7 +8165,10 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "layers": [],
         "personas": [],
         "subsystems": [],
-        "dependencies": [],
+        "dependencies": [
+          "KA-085",
+          "KA-086"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],

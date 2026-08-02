@@ -1,102 +1,158 @@
-"""
-KA-082: Model Evaluation
-Purpose: Compute deterministic performance metrics for trained models on test/validation sets.
-"""
-import hashlib
+"""KA-082: measured model evaluation from caller-supplied outcomes."""
+
+from __future__ import annotations
+
 import json
 import logging
-import os
-from typing import Any, Dict, List
+from typing import Any
 
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 logger = logging.getLogger(__name__)
 
 
 class KA082EvaluationInput(BaseModel):
-    model_config = ConfigDict(extra="allow")
-    model_id: str = Field("latest", description="The ID of the model to evaluate")
-    test_set: str = Field("eval_v1", description="The test/validation dataset name")
-    predictions: List[Any] = Field(default_factory=list)
-    labels: List[Any] = Field(default_factory=list)
+    model_config = ConfigDict(extra="forbid")
+
+    model_id: str = Field(min_length=1, max_length=200)
+    test_set: str = Field(min_length=1, max_length=200)
+    predictions: list[Any] = Field(min_length=1, max_length=1_000_000)
+    labels: list[Any] = Field(min_length=1, max_length=1_000_000)
+    acceptance_accuracy: float = Field(default=0.8, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def _validate_observations(self) -> "KA082EvaluationInput":
+        if len(self.predictions) != len(self.labels):
+            raise ValueError("predictions and labels must have equal length")
+        for value in [*self.predictions, *self.labels]:
+            if isinstance(value, (dict, list, set, tuple)):
+                raise ValueError("predictions and labels must contain scalar values")
+            try:
+                json.dumps(value, allow_nan=False)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "predictions and labels must be finite JSON scalar values"
+                ) from exc
+        return self
 
 
 class KA082ModelEvaluation(KnowledgeAlgorithm):
-    """
-    KA-082: Model performance assessment and metric calculation engine.
-    """
+    """Calculate accuracy and macro classification metrics without baselines."""
+
     input_schema = KA082EvaluationInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-082"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_82_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA082EvaluationInput) -> Dict[str, Any]:
-        self.log_execution_step("Evaluating Model Performance", {"model": input_data.model_id, "set": input_data.test_set})
-        metrics_to_calculate = self.config.get("evaluation_metrics", ["accuracy"])
-        metric_results = self._metrics(input_data.predictions, input_data.labels, metrics_to_calculate, input_data.model_id, input_data.test_set)
+    def _run_logic(self, input_data: KA082EvaluationInput) -> dict[str, Any]:
+        self.log_execution_step(
+            "Evaluating Measured Model Outcomes",
+            {
+                "model_id": input_data.model_id,
+                "test_set": input_data.test_set,
+                "sample_count": len(input_data.labels),
+            },
+        )
+        metrics = self._classification_metrics(
+            input_data.predictions,
+            input_data.labels,
+        )
         return {
             "success": True,
+            "schema_version": "dle.model-evaluation.v1",
+            "status": "MEASURED",
             "evaluated_model": input_data.model_id,
             "test_set_used": input_data.test_set,
-            "metrics": metric_results,
-            "sample_count": min(len(input_data.predictions), len(input_data.labels)),
-            "status": "STABLE" if metric_results.get("accuracy", 0) >= 0.8 else "DEGRADED",
-            "report_format": self.config.get("report_format", "json_structured"),
+            "sample_count": len(input_data.labels),
+            "class_count": len(
+                {self._label_key(value) for value in input_data.labels}
+            ),
+            "metrics": metrics,
+            "metric_averaging": "macro",
+            "acceptance_accuracy": input_data.acceptance_accuracy,
+            "meets_acceptance_threshold": (
+                metrics["accuracy"] >= input_data.acceptance_accuracy
+            ),
+            "predictions_generated": False,
+            "evaluation_artifact_created": False,
         }
 
     @classmethod
-    def _metrics(cls, predictions: List[Any], labels: List[Any], requested: List[str], model_id: str, test_set: str) -> Dict[str, float]:
-        if predictions and labels:
-            pairs = list(zip(predictions, labels))
-            tp = sum(1 for pred, label in pairs if pred == label and bool(label))
-            tn = sum(1 for pred, label in pairs if pred == label and not bool(label))
-            fp = sum(1 for pred, label in pairs if pred != label and bool(pred))
-            fn = sum(1 for pred, label in pairs if pred != label and bool(label))
-            total = max(1, len(pairs))
-            precision = tp / max(1, tp + fp)
-            recall = tp / max(1, tp + fn)
-            f1 = 2 * precision * recall / max(1e-9, precision + recall)
-            calculated = {
-                "accuracy": (tp + tn) / total,
-                "precision": precision,
-                "recall": recall,
-                "f1_score": f1,
-                "auc_roc": (precision + recall) / 2,
-            }
-        else:
-            calculated = cls._stable_baseline(model_id, test_set)
-        return {metric: round(calculated.get(metric, calculated.get("accuracy", 0.0)), 4) for metric in requested}
+    def _classification_metrics(
+        cls,
+        predictions: list[Any],
+        labels: list[Any],
+    ) -> dict[str, float]:
+        label_keys = [cls._label_key(value) for value in labels]
+        prediction_keys = [cls._label_key(value) for value in predictions]
+        classes = sorted(set(label_keys) | set(prediction_keys))
+        total = len(label_keys)
+        accuracy = sum(
+            prediction == label
+            for prediction, label in zip(prediction_keys, label_keys, strict=True)
+        ) / total
 
-    @staticmethod
-    def _stable_baseline(model_id: str, test_set: str) -> Dict[str, float]:
-        digest = hashlib.sha256(f"{model_id}:{test_set}".encode()).hexdigest()
-        base = 0.72 + (int(digest[:4], 16) % 1800) / 10000
+        precisions: list[float] = []
+        recalls: list[float] = []
+        f1_scores: list[float] = []
+        for label_class in classes:
+            true_positive = sum(
+                prediction == label_class and label == label_class
+                for prediction, label in zip(
+                    prediction_keys,
+                    label_keys,
+                    strict=True,
+                )
+            )
+            false_positive = sum(
+                prediction == label_class and label != label_class
+                for prediction, label in zip(
+                    prediction_keys,
+                    label_keys,
+                    strict=True,
+                )
+            )
+            false_negative = sum(
+                prediction != label_class and label == label_class
+                for prediction, label in zip(
+                    prediction_keys,
+                    label_keys,
+                    strict=True,
+                )
+            )
+            precision = true_positive / max(1, true_positive + false_positive)
+            recall = true_positive / max(1, true_positive + false_negative)
+            f1 = (
+                0.0
+                if precision + recall == 0.0
+                else 2.0 * precision * recall / (precision + recall)
+            )
+            precisions.append(precision)
+            recalls.append(recall)
+            f1_scores.append(f1)
+
         return {
-            "accuracy": min(0.95, base),
-            "precision": min(0.95, base - 0.02),
-            "recall": min(0.95, base - 0.01),
-            "f1_score": min(0.95, base - 0.015),
-            "auc_roc": min(0.97, base + 0.025),
+            "accuracy": round(accuracy, 4),
+            "macro_precision": round(sum(precisions) / len(precisions), 4),
+            "macro_recall": round(sum(recalls) / len(recalls), 4),
+            "macro_f1": round(sum(f1_scores) / len(f1_scores), 4),
         }
 
+    @staticmethod
+    def _label_key(value: Any) -> str:
+        return json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
-        algo = KA082ModelEvaluation(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-082 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        return KA082ModelEvaluation(context).run(context)
+    except Exception as exc:  # pragma: no cover - legacy adapter boundary
+        logger.error("KA-082 failed: %s", exc)
+        return {"success": False, "error": str(exc)}

@@ -1191,3 +1191,142 @@ def test_ka_078_semantic_contract():
     assert proposed.output["records_archived"] == 0
     assert proposed.output["applied"] is False
     assert proposed.output["compression_status"] == "not_applied"
+
+
+def _model_preparation_dependencies():
+    feature = _execute(
+        "KA-085",
+        {
+            "raw_data": [
+                {"serialized_bytes": 120, "dataset_format": ".jsonl"},
+                {"serialized_bytes": 240, "dataset_format": ".jsonl"},
+            ]
+        },
+    )
+    tuning = _execute(
+        "KA-086",
+        {
+            "model_type": "qualified-model",
+            "parameter_space": {"learning_rate": [0.001]},
+            "observations": [
+                {
+                    "params": {"learning_rate": 0.001},
+                    "score": 0.9,
+                    "sample_count": 100,
+                }
+            ],
+        },
+    )
+    assert feature.success
+    assert tuning.success
+    return feature.output, tuning.output
+
+
+def test_ka_081_semantic_contract():
+    feature, tuning = _model_preparation_dependencies()
+    payload = {
+        "dataset_id": "sft-qualified.jsonl",
+        "dataset_sha256": "a" * 64,
+        "dataset_format": "sft",
+        "model_name": "qualified-model",
+        "training_samples": 2,
+        "feature_profile_records": 2,
+        "epochs": 2,
+        "hyperparameters": {"learning_rate": 0.001},
+        "dependency_results": {"KA-085": feature, "KA-086": tuning},
+    }
+    proposed = _execute("KA-081", payload)
+    repeated = _execute("KA-081", payload)
+
+    _assert_bounded_result("KA-081", proposed)
+    assert proposed.output == repeated.output
+    assert proposed.output["status"] == "PROPOSED"
+    assert proposed.output["training_started"] is False
+    assert proposed.output["epochs_run"] == 0
+    assert proposed.output["checkpoints_created"] == 0
+    assert proposed.output["model_artifact_created"] is False
+    assert proposed.output["provider_call_applied"] is False
+
+
+def test_ka_082_semantic_contract():
+    measured = _execute(
+        "KA-082",
+        {
+            "model_id": "qualified-model",
+            "test_set": "held-out-v1",
+            "predictions": [1, 0, 1, 1],
+            "labels": [1, 0, 0, 1],
+            "acceptance_accuracy": 0.8,
+        },
+    )
+    missing = _execute(
+        "KA-082",
+        {
+            "model_id": "qualified-model",
+            "test_set": "held-out-v1",
+            "predictions": [],
+            "labels": [],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-082", measured)
+    assert measured.output["status"] == "MEASURED"
+    assert measured.output["sample_count"] == 4
+    assert measured.output["metrics"]["accuracy"] == 0.75
+    assert measured.output["evaluation_artifact_created"] is False
+    assert missing.success is False
+    assert missing.output == {}
+
+
+def test_ka_085_semantic_contract():
+    payload = {
+        "raw_data": [
+            {"length": 10, "format": "sft"},
+            {"length": None, "format": "prm"},
+            {"length": 30, "format": "sft"},
+        ]
+    }
+    engineered = _execute("KA-085", payload)
+    repeated = _execute("KA-085", payload)
+
+    _assert_pure_bounded_result("KA-085", engineered)
+    assert engineered.output == repeated.output
+    assert engineered.output["records_processed"] == 3
+    assert engineered.output["numeric_feature_stats"]["length"]["median"] == 20.0
+    assert engineered.output["artifact_created"] is False
+    assert engineered.output["persistence_applied"] is False
+
+
+def test_ka_086_semantic_contract():
+    measured = _execute(
+        "KA-086",
+        {
+            "model_type": "qualified-model",
+            "parameter_space": {"batch_size": [8, 16]},
+            "observations": [
+                {
+                    "params": {"batch_size": 16},
+                    "score": 0.91,
+                    "sample_count": 200,
+                }
+            ],
+        },
+    )
+    unmeasured = _execute(
+        "KA-086",
+        {
+            "model_type": "qualified-model",
+            "parameter_space": {"batch_size": [8, 16]},
+            "observations": [],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-086", measured)
+    _assert_pure_bounded_result("KA-086", unmeasured)
+    assert measured.output["best_params"] == {"batch_size": 16}
+    assert measured.output["best_score"] == 0.91
+    assert measured.output["tuning_applied"] is False
+    assert measured.output["provider_calls_applied"] == 0
+    assert unmeasured.output["status"] == "MEASUREMENT_REQUIRED"
+    assert unmeasured.output["best_params"] is None
+    assert unmeasured.output["best_score"] is None

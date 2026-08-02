@@ -15,6 +15,7 @@ from flask_login import LoginManager
 from backend.dataset_exporter.cli import main as cli_main
 from backend.dataset_exporter.exporter_core import DatasetExporter
 from backend.dataset_exporter.privacy_redactor import PrivacyRedactor, SecurityError
+from backend.llm_gateway.model_lifecycle import ProviderModelLifecycleError
 from backend.routes.dataset_routes import dataset_bp
 
 
@@ -439,3 +440,137 @@ def test_dataset_export_rejects_caller_output_path(dataset_app: Flask):
 
     assert response.status_code == 400
     assert response.get_json()["error"] == "invalid_parameter"
+
+
+def test_training_admission_route_uses_app_owned_roots_and_principal(
+    dataset_app: Flask,
+    tmp_path: Path,
+):
+    admission = {
+        "schema_version": "dle.provider-model-training-admission.v1",
+        "status": "ADMISSION_RECORDED",
+        "training_started": False,
+    }
+    service = MagicMock()
+    service.submit_training_admission.return_value = admission
+    principal = SimpleNamespace(id=7)
+    with (
+        patch(
+            "backend.auth.api_decorators.check_desktop_request_auth",
+            return_value=(True, principal),
+        ),
+        patch(
+            "backend.routes.dataset_routes.get_application_runtime",
+            return_value=SimpleNamespace(runtime_root=tmp_path),
+        ),
+        patch(
+            "backend.routes.dataset_routes.ProviderModelLifecycleService",
+            return_value=service,
+        ) as service_class,
+    ):
+        response = dataset_app.test_client().post(
+            "/api/v1/dataset/training-admissions",
+            headers={
+                "Idempotency-Key": "route-training-admission",
+                "X-Request-ID": "route-request-1",
+            },
+            json={
+                "artifact_name": "sft-qualified.jsonl",
+                "export_type": "sft",
+                "model_name": "evaluation-model",
+                "epochs": 2,
+                "parameter_space": {"batch_size": [8]},
+            },
+        )
+
+    assert response.status_code == 201
+    assert response.get_json() == admission
+    service_class.assert_called_once_with(
+        dataset_root=tmp_path / "datasets",
+        admission_root=tmp_path / "model-training-admissions",
+    )
+    assert service.submit_training_admission.call_args.kwargs[
+        "principal_id"
+    ] == "7"
+    assert service.submit_training_admission.call_args.kwargs[
+        "idempotency_key"
+    ] == "route-training-admission"
+
+
+def test_training_admission_route_requires_idempotency_key(
+    dataset_app: Flask,
+):
+    principal = SimpleNamespace(id=7)
+    service = MagicMock()
+    service.submit_training_admission.side_effect = ProviderModelLifecycleError(
+        "Idempotency key must contain 8 through 200 characters"
+    )
+    with (
+        patch(
+            "backend.auth.api_decorators.check_desktop_request_auth",
+            return_value=(True, principal),
+        ),
+        patch(
+            "backend.routes.dataset_routes._model_lifecycle_service",
+            return_value=service,
+        ),
+    ):
+        response = dataset_app.test_client().post(
+            "/api/v1/dataset/training-admissions",
+            json={
+                "artifact_name": "missing.jsonl",
+                "export_type": "sft",
+                "model_name": "evaluation-model",
+                "epochs": 2,
+                "parameter_space": {"batch_size": [8]},
+            },
+        )
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "training_admission_rejected"
+
+
+def test_model_evaluation_route_passes_measured_outcomes(
+    dataset_app: Flask,
+):
+    measured = {
+        "schema_version": "dle.provider-model-evaluation.v1",
+        "status": "MEASURED",
+        "effects_applied": 0,
+    }
+    service = MagicMock()
+    service.evaluate_model.return_value = measured
+    principal = SimpleNamespace(id=7)
+    with (
+        patch(
+            "backend.auth.api_decorators.check_desktop_request_auth",
+            return_value=(True, principal),
+        ),
+        patch(
+            "backend.routes.dataset_routes._model_lifecycle_service",
+            return_value=service,
+        ),
+    ):
+        response = dataset_app.test_client().post(
+            "/api/v1/dataset/evaluations",
+            headers={"X-Request-ID": "route-evaluation-1"},
+            json={
+                "model_id": "measured-model",
+                "test_set": "held-out-v1",
+                "predictions": [1, 0],
+                "labels": [1, 1],
+                "acceptance_accuracy": 0.8,
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.get_json() == measured
+    assert service.evaluate_model.call_args.kwargs == {
+        "model_id": "measured-model",
+        "test_set": "held-out-v1",
+        "predictions": [1, 0],
+        "labels": [1, 1],
+        "acceptance_accuracy": 0.8,
+        "request_id": "route-evaluation-1",
+        "principal_id": "7",
+    }

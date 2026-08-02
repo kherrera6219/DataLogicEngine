@@ -7,7 +7,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.5.0
+  version: 3.5.1
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -31,6 +31,8 @@ tags:
     description: Global search and suggestions.
   - name: Ingestion
     description: Local-first knowledge ingestion.
+  - name: Dataset Preparation
+    description: Owner-only candidate dataset export, measured evaluation, and training-admission records.
   - name: Memory
     description: Owner-only UnifiedMemory review and lifecycle controls.
   - name: Tracing
@@ -93,6 +95,83 @@ components:
           type: string
           nullable: true
       additionalProperties: true
+    TrainingAdmissionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - artifact_name
+        - export_type
+        - model_name
+        - epochs
+        - parameter_space
+      properties:
+        artifact_name:
+          type: string
+          description: File name of an existing artifact below the app-owned runtime dataset directory.
+        export_type:
+          type: string
+          enum: [sft, dpo, prm]
+        model_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        epochs:
+          type: integer
+          minimum: 1
+          maximum: 100
+        hyperparameters:
+          type: object
+          additionalProperties: true
+        parameter_space:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            type: array
+            minItems: 1
+            items: {}
+        tuning_observations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [params, score, sample_count]
+            properties:
+              params:
+                type: object
+                additionalProperties: true
+              score:
+                type: number
+                minimum: 0
+                maximum: 1
+              sample_count:
+                type: integer
+                minimum: 1
+    ModelEvaluationRequest:
+      type: object
+      additionalProperties: false
+      required: [model_id, test_set, predictions, labels]
+      properties:
+        model_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+        test_set:
+          type: string
+          minLength: 1
+          maxLength: 200
+        predictions:
+          type: array
+          minItems: 1
+          items: {}
+        labels:
+          type: array
+          minItems: 1
+          items: {}
+        acceptance_accuracy:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.8
     KAProductRun:
       type: object
       additionalProperties: false
@@ -2041,6 +2120,114 @@ paths:
       responses:
         "200":
           description: Updated durable job or reconciliation state.
+
+  /dataset/export:
+    post:
+      summary: Export governed candidate training data
+      description: Creates SFT or PRM candidate data below the app-owned runtime dataset directory. DPO is not available from current persisted traces.
+      tags: [Dataset Preparation]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                export_type:
+                  type: string
+                  enum: [sft, prm]
+                  default: sft
+                format_type:
+                  type: string
+                  enum: [jsonl, parquet]
+                  default: parquet
+                min_confidence:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                  default: 0.98
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                  default: 1000
+      responses:
+        "200":
+          description: Redacted app-owned dataset artifact metadata.
+        "400":
+          description: Export parameters are invalid.
+
+  /dataset/stats:
+    get:
+      summary: Get candidate dataset-export statistics
+      tags: [Dataset Preparation]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Release-candidate trace counts and supported formats.
+
+  /dataset/training-admissions:
+    post:
+      summary: Record a model-training admission
+      description: >
+        Profiles an existing app-owned dataset, executes KA-085 and KA-086
+        before KA-081, and writes one idempotent admission receipt. This does
+        not start training, assign a worker, call a provider, run an epoch,
+        create a checkpoint, or create/deploy a model artifact.
+      tags: [Dataset Preparation]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 200
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingAdmissionRequest"
+      responses:
+        "201":
+          description: Idempotent provider-owned admission record and receipt; training_started is false.
+        "400":
+          description: Artifact, evidence, path, idempotency, or KA admission was rejected.
+
+  /dataset/evaluations:
+    post:
+      summary: Evaluate supplied model outcomes
+      description: Computes measured accuracy and macro classification metrics from non-empty equal-length predictions and labels. It performs no inference or artifact effect.
+      tags: [Dataset Preparation]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelEvaluationRequest"
+      responses:
+        "200":
+          description: Measured KA-082 evaluation with zero effects.
+        "400":
+          description: Evaluation evidence was invalid or incomplete.
 
   /memory/review:
     get:

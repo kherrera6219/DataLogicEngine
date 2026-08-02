@@ -1,9 +1,8 @@
 {
-    "training_backend": "pytorch_distributed",
-    "default_epochs": 10,
-    "batch_size": 32,
-    "checkpoint_frequency": 5,
-    "early_stopping_patience": 3,
-    "optimizer": "AdamW",
-    "learning_rate": 2e-5
+    "effect_boundary": "proposal_only",
+    "authoritative_owner": "ProviderModelLifecycleService",
+    "training_execution_available": false,
+    "supported_dataset_formats": ["sft", "dpo", "prm"],
+    "max_epochs": 100,
+    "max_training_samples": 10000000
 }

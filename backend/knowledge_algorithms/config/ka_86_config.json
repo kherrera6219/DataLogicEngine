@@ -1,5 +1,5 @@
 {
-    "search_strategy": "bayesian_optimization",
+    "search_strategy": "deterministic_grid_with_measured_ranking",
     "parameter_space": {
         "learning_rate": [1e-5, 5e-5, 1e-4],
         "batch_size": [16, 32, 64],
@@ -7,5 +7,6 @@
     },
     "max_trials": 20,
     "metric_to_optimize": "f1_score",
-    "early_stopping": true
+    "synthetic_scoring_allowed": false,
+    "tuning_applied": false
 }

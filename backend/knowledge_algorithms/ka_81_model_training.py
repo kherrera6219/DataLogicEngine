@@ -1,109 +1,183 @@
+"""KA-081: bounded model-training admission proposals.
+
+The algorithm never starts a trainer, creates checkpoints, or reports training
+metrics.  It validates and fingerprints a proposed job so the authoritative
+provider model-lifecycle service can decide whether to persist the admission.
 """
-KA-081: Model Training
-Purpose: Orchestrate deterministic local model training plans, checkpoints, and early stopping summaries.
-"""
+
+from __future__ import annotations
+
 import hashlib
 import json
 import logging
-import os
-from typing import Any, Dict, List
+from typing import Any, Literal
 
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
 
 class KA081TrainingInput(BaseModel):
-    model_config = ConfigDict(extra="allow")
-    dataset_id: str = Field("ds_default", description="The identifier for the training dataset")
-    model_name: str = Field("bert_base_uncased", description="The model architecture to train")
-    training_samples: Any = None
-    validation_scores: List[float] = Field(default_factory=list)
-    hyperparameters: Dict[str, Any] = Field(default_factory=dict)
-    epochs: Any = None
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "dataset_id": "qualified.jsonl",
+                    "dataset_sha256": "a" * 64,
+                    "dataset_format": "sft",
+                    "model_name": "qualified-model",
+                    "training_samples": 1,
+                    "feature_profile_records": 1,
+                    "epochs": 1,
+                    "hyperparameters": {},
+                    "dependency_results": {
+                        "KA-085": {
+                            "schema_version": "dle.feature-engineering-result.v1",
+                            "plan_sha256": "b" * 64,
+                            "records_processed": 1,
+                        },
+                        "KA-086": {
+                            "schema_version": "dle.hyperparameter-tuning-proposal.v1",
+                            "plan_sha256": "c" * 64,
+                            "status": "MEASUREMENT_REQUIRED",
+                            "best_params": None,
+                        },
+                    },
+                }
+            ]
+        },
+    )
+
+    dataset_id: str = Field(min_length=1, max_length=200)
+    dataset_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    dataset_format: Literal["sft", "dpo", "prm"]
+    model_name: str = Field(min_length=1, max_length=200)
+    training_samples: int = Field(ge=1, le=10_000_000)
+    feature_profile_records: int = Field(ge=1, le=10_000)
+    epochs: int = Field(ge=1, le=100)
+    hyperparameters: dict[str, Any] = Field(default_factory=dict)
+    dependency_results: dict[str, dict[str, Any]]
+
+    @field_validator("hyperparameters")
+    @classmethod
+    def _bounded_hyperparameters(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if len(value) > 50:
+            raise ValueError("hyperparameters exceed the 50-field limit")
+        try:
+            encoded = json.dumps(
+                value,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "hyperparameters must contain finite JSON values"
+            ) from exc
+        if len(encoded.encode("utf-8")) > 32_768:
+            raise ValueError("hyperparameters exceed the 32 KiB limit")
+        return value
 
 
 class KA081ModelTraining(KnowledgeAlgorithm):
-    """
-    KA-081: ML training orchestration engine for knowledge models.
-    """
+    """Produce an unapplied, deterministic training-admission proposal."""
+
     input_schema = KA081TrainingInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-081"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_81_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA081TrainingInput) -> Dict[str, Any]:
-        epochs = max(1, self._safe_int(input_data.epochs, self.config.get("default_epochs", 5)))
-        samples = max(1, self._safe_int(input_data.training_samples, 1000))
-        self.log_execution_step("Planning Model Training Job", {"dataset": input_data.dataset_id, "model": input_data.model_name})
-
-        history = self._history(epochs, samples, input_data.validation_scores)
-        checkpoint_frequency = max(1, self._safe_int(self.config.get("checkpoint_frequency", 5), 5))
-        checkpoints = [
-            {"epoch": epoch, "path": f"checkpoints/{input_data.model_name}/epoch_{epoch}.pt"}
-            for epoch in range(checkpoint_frequency, epochs + 1, checkpoint_frequency)
-        ]
-        if not checkpoints or checkpoints[-1]["epoch"] != epochs:
-            checkpoints.append({"epoch": epochs, "path": f"checkpoints/{input_data.model_name}/final.pt"})
+    def _run_logic(self, input_data: KA081TrainingInput) -> dict[str, Any]:
+        if set(input_data.dependency_results) != {"KA-085", "KA-086"}:
+            raise ValueError("KA-081 requires exact KA-085 and KA-086 results")
+        feature_result = input_data.dependency_results["KA-085"]
+        tuning_result = input_data.dependency_results["KA-086"]
+        feature_plan_sha256 = self._dependency_plan_sha256(
+            feature_result,
+            expected_schema="dle.feature-engineering-result.v1",
+            dependency="KA-085",
+        )
+        tuning_plan_sha256 = self._dependency_plan_sha256(
+            tuning_result,
+            expected_schema="dle.hyperparameter-tuning-proposal.v1",
+            dependency="KA-086",
+        )
+        if int(feature_result.get("records_processed") or 0) != (
+            input_data.feature_profile_records
+        ):
+            raise ValueError(
+                "KA-085 record count does not match the declared feature profile"
+            )
+        best_params = tuning_result.get("best_params")
+        if best_params is not None and best_params != input_data.hyperparameters:
+            raise ValueError(
+                "training hyperparameters do not match the best measured KA-086 candidate"
+            )
+        request = {
+            "dataset_id": input_data.dataset_id,
+            "dataset_sha256": input_data.dataset_sha256,
+            "dataset_format": input_data.dataset_format,
+            "model_name": input_data.model_name,
+            "training_samples": input_data.training_samples,
+            "feature_profile_records": input_data.feature_profile_records,
+            "epochs": input_data.epochs,
+            "hyperparameters": input_data.hyperparameters,
+            "feature_plan_sha256": feature_plan_sha256,
+            "tuning_plan_sha256": tuning_plan_sha256,
+            "tuning_measurement_status": tuning_result.get("status"),
+        }
+        proposal_id = "training-proposal-" + hashlib.sha256(
+            json.dumps(
+                request,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        self.log_execution_step(
+            "Proposing Model Training Admission",
+            {
+                "dataset_id": input_data.dataset_id,
+                "model_name": input_data.model_name,
+                "training_samples": input_data.training_samples,
+            },
+        )
         return {
             "success": True,
-            "job_id": self._job_id(input_data.dataset_id, input_data.model_name, input_data.hyperparameters),
-            "status": "COMPLETED",
-            "backend": self.config.get("training_backend", "local"),
-            "epochs_run": epochs,
-            "final_metrics": history[-1],
-            "training_history": history,
-            "checkpoints": checkpoints,
-            "checkpoint_path": checkpoints[-1]["path"],
-            "hyperparameters": {**self._default_hyperparameters(), **input_data.hyperparameters},
-        }
-
-    def _history(self, epochs: int, samples: int, validation_scores: List[float]) -> List[Dict[str, float]]:
-        base_accuracy = min(0.9, 0.55 + min(samples, 10000) / 50000)
-        history = []
-        for epoch in range(1, epochs + 1):
-            supplied_score = validation_scores[epoch - 1] if epoch - 1 < len(validation_scores) else None
-            accuracy = float(supplied_score) if isinstance(supplied_score, (int, float)) else min(0.98, base_accuracy + epoch * 0.025)
-            history.append({"epoch": epoch, "loss": round(1.0 / (epoch + 1), 4), "accuracy": round(accuracy, 4)})
-        return history
-
-    def _default_hyperparameters(self) -> Dict[str, Any]:
-        return {
-            "optimizer": self.config.get("optimizer", "AdamW"),
-            "learning_rate": self.config.get("learning_rate", 2e-5),
-            "batch_size": self.config.get("batch_size", 32),
+            "schema_version": "dle.model-training-proposal.v1",
+            "proposal_id": proposal_id,
+            "status": "PROPOSED",
+            "request": request,
+            "requires_authoritative_service": True,
+            "training_started": False,
+            "epochs_run": 0,
+            "checkpoints_created": 0,
+            "model_artifact_created": False,
+            "provider_call_applied": False,
         }
 
     @staticmethod
-    def _job_id(dataset_id: str, model_name: str, hyperparameters: Dict[str, Any]) -> str:
-        source = json.dumps({"dataset": dataset_id, "model": model_name, "h": hyperparameters}, sort_keys=True)
-        return f"train_{hashlib.sha256(source.encode()).hexdigest()[:10]}"
+    def _dependency_plan_sha256(
+        output: dict[str, Any],
+        *,
+        expected_schema: str,
+        dependency: str,
+    ) -> str:
+        if output.get("schema_version") != expected_schema:
+            raise ValueError(f"{dependency} returned an incompatible schema")
+        digest = str(output.get("plan_sha256") or "")
+        if len(digest) != 64 or any(
+            character not in "0123456789abcdef" for character in digest
+        ):
+            raise ValueError(f"{dependency} did not return a valid plan digest")
+        return digest
 
-    @staticmethod
-    def _safe_int(value: Any, default: int) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return int(default)
 
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
-        algo = KA081ModelTraining(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-081 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        return KA081ModelTraining(context).run(context)
+    except Exception as exc:  # pragma: no cover - legacy adapter boundary
+        logger.error("KA-081 failed: %s", exc)
+        return {"success": False, "error": str(exc)}

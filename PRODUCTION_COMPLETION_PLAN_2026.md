@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.57.0 |
+| Document version | v1.58.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5468,6 +5468,53 @@ Evidence:
 - `tests/integration/phase19/test_ingestion.py`; and
 - `backend/ingestion/local_ingestion.py`.
 
+### CP19-K batch 10 passed 2026-08-02
+
+Batch 10 closes `KA-081`, `KA-082`, `KA-085`, and `KA-086` through the real
+provider-owned model-lifecycle boundary. The audit found four unsupported
+behaviors in the legacy helpers: a fabricated completed training run and
+checkpoint paths, hash-derived evaluation baselines, feature names reported
+without transformations, and hash-derived hyperparameter scores.
+
+KA-085 now performs only measured in-memory median imputation, standard scaling,
+and bounded one-hot encoding. KA-086 ranks exact caller-supplied observations;
+without observations it returns `MEASUREMENT_REQUIRED` and no best score.
+KA-082 requires non-empty equal-length predictions and labels and computes only
+measured accuracy and macro classification metrics. KA-081 is dependency-bound
+to KA-085 and KA-086 and emits only a deterministic training-admission proposal.
+
+`ProviderModelLifecycleService` confines inputs to an app-owned JSONL/Parquet
+dataset artifact, hashes it, derives content-free structural profile records,
+executes the causal KA plan, rejects unsupported effect claims, and writes one
+idempotent admission record. Its authoritative receipt covers that record only.
+The record explicitly reports that no training worker is available, no training
+started, zero epochs/checkpoints/provider calls occurred, and no model artifact
+or deployment exists. Reuse with a different request and path traversal fail
+closed without overwriting or creating an admission. Synchronous preparation is
+bounded to 256 MiB, and replay validates the stored record and receipt-bound
+result digest before returning an existing admission.
+
+The matrix and verifier pass at 46/213 qualified and 167 incomplete. Grouped
+Batches 08 through 10 are complete; 33 planned batches remain and Batch 11,
+provider model release (`KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090`),
+is next. The new KA-081 prerequisites make the current dependency graph 138
+edges with zero cycles. The reviewed training-dataset exporter remains
+supporting tooling and no installed provider, training, deployment, model-
+quality, clean-source, rebuilt-installed, or release gate is claimed.
+The KA suite passes 820 tests, the governed/TruthCore/Phase-19/simulation
+integration set passes 215, and the full source suite passes 2,698 with 18
+skipped and 35 known warnings.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-10-validation.json`;
+- `config/phase19-ka-qualification-evidence.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_provider_gateway.py`;
+- `tests/integration/phase19/test_provider_model_preparation.py`; and
+- `backend/llm_gateway/model_lifecycle.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5914,16 +5961,17 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-09 now truthfully
-qualify 42 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-10 now truthfully
+qualify 46 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, and the
-causal secure-ingestion pipeline, leaving 171 of 213 rows open. The
+causal secure-ingestion pipeline, and measured provider model preparation,
+leaving 167 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 136-edge acyclic dependency graph, bounded structured
+fixtures, current 138-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -5937,10 +5985,10 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 and 09 are complete and 34 remain. Continue CP19-K
-with Batch 10, provider model preparation (`KA-081`, `KA-082`, `KA-085`, and
-`KA-086`), through the real provider owner without treating the reviewed
-training-data exporter as model-training evidence. Keep every later row
+batches (08-43); Batches 08 through 10 are complete and 33 remain. Continue
+CP19-K with Batch 11, provider model release (`KA-083`, `KA-087`, `KA-088`,
+`KA-089`, and `KA-090`), through the real provider owner without treating the
+Batch 10 admission record as training or deployment evidence. Keep every later row
 incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve

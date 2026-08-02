@@ -115,7 +115,12 @@ from backend.knowledge_algorithms.ka_84_model_monitoring import (
     KA084ModelMonitoring,
     KA084MonitoringInput,
 )
+from backend.knowledge_algorithms.ka_85_feature_engineering import (
+    KA085FeatureEngineering,
+    KA085FeatureInput,
+)
 from backend.knowledge_algorithms.ka_86_hyperparameter_tuning import (
+    KA086Observation,
     KA086HyperparameterTuning,
     KA086TuningInput,
 )
@@ -606,24 +611,50 @@ def test_ka080_reports_cache_stats_and_operation_plan():
 
 def test_ka081_creates_deterministic_training_plan():
     ka = KA081ModelTraining({})
+    feature = KA085FeatureEngineering({}).run(
+        KA085FeatureInput(
+            raw_data=[
+                {"length": 10, "kind": "sft"},
+                {"length": 20, "kind": "sft"},
+            ]
+        )
+    )["output"]
+    tuning = KA086HyperparameterTuning({}).run(
+        KA086TuningInput(
+            model_type="m1",
+            parameter_space={"learning_rate": [0.001]},
+            observations=[
+                KA086Observation(
+                    params={"learning_rate": 0.001},
+                    score=0.82,
+                    sample_count=100,
+                )
+            ],
+        )
+    )["output"]
+    payload = KA081TrainingInput(
+        dataset_id="ds1",
+        dataset_sha256="a" * 64,
+        dataset_format="sft",
+        model_name="m1",
+        training_samples=2000,
+        feature_profile_records=2,
+        epochs=3,
+        hyperparameters={"learning_rate": 0.001},
+        dependency_results={"KA-085": feature, "KA-086": tuning},
+    )
     first = ka.run(
-        KA081TrainingInput(
-            dataset_id="ds1", model_name="m1", training_samples=2000, epochs=3
-        )
+        payload
     )
-    second = ka.run(
-        KA081TrainingInput(
-            dataset_id="ds1", model_name="m1", training_samples=2000, epochs=3
-        )
-    )
+    second = ka.run(payload)
 
     assert first["success"] is True
-    assert first["output"]["job_id"] == second["output"]["job_id"]
-    assert first["output"]["epochs_run"] == 3
-    assert (
-        first["output"]["final_metrics"]["accuracy"]
-        > first["output"]["training_history"][0]["accuracy"]
-    )
+    assert first["output"]["proposal_id"] == second["output"]["proposal_id"]
+    assert first["output"]["status"] == "PROPOSED"
+    assert first["output"]["training_started"] is False
+    assert first["output"]["epochs_run"] == 0
+    assert first["output"]["checkpoints_created"] == 0
+    assert first["output"]["model_artifact_created"] is False
 
 
 def test_ka082_calculates_evaluation_metrics_from_labels():
@@ -638,8 +669,27 @@ def test_ka082_calculates_evaluation_metrics_from_labels():
 
     assert result["success"] is True
     assert result["output"]["metrics"]["accuracy"] == 0.75
-    assert result["output"]["metrics"]["precision"] == 0.6667
+    assert result["output"]["metrics"]["macro_precision"] == 0.8333
     assert result["output"]["sample_count"] == 4
+
+
+def test_ka085_applies_measured_feature_transformations():
+    result = KA085FeatureEngineering({}).run(
+        KA085FeatureInput(
+            raw_data=[
+                {"length": 10, "kind": "sft"},
+                {"length": None, "kind": "prm"},
+                {"length": 30, "kind": "sft"},
+            ]
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["records_processed"] == 3
+    assert result["output"]["numeric_feature_stats"]["length"]["median"] == 20.0
+    assert result["output"]["artifact_created"] is False
+    assert result["output"]["persistence_applied"] is False
+    assert len(result["output"]["engineered_records"]) == 3
 
 
 def test_ka083_deployment_recommends_rollback_on_unhealthy_signal():
@@ -681,14 +731,23 @@ def test_ka086_tunes_hyperparameters_deterministically():
         model_type="classifier",
         max_trials=3,
         parameter_space={"learning_rate": [1e-5, 5e-5], "batch_size": [16, 32]},
+        observations=[
+            KA086Observation(
+                params={"learning_rate": 5e-5, "batch_size": 16},
+                score=0.91,
+                sample_count=200,
+            )
+        ],
     )
     first = ka.run(payload)
     second = ka.run(payload)
 
     assert first["success"] is True
-    assert first["output"]["trials_run"] == 3
+    assert first["output"]["candidate_count"] == 3
+    assert first["output"]["measured_trial_count"] == 1
     assert first["output"]["best_params"] == second["output"]["best_params"]
     assert first["output"]["best_score"] == second["output"]["best_score"]
+    assert first["output"]["tuning_applied"] is False
 
 
 def test_ka087_versions_artifact_from_hash_and_current_version():

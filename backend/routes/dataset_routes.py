@@ -9,14 +9,39 @@ from uuid import uuid4
 
 from flask import Blueprint, jsonify, request
 
-from backend.auth.api_decorators import api_admin_required
+from backend.auth.api_decorators import (
+    api_admin_required,
+    get_authenticated_principal,
+)
 from backend.dataset_exporter import DatasetExporter, ParquetWriter
+from backend.llm_gateway.model_lifecycle import (
+    ProviderModelLifecycleError,
+    ProviderModelLifecycleService,
+)
 from backend.runtime.application import get_application_runtime
 from extensions import db
 
 logger = logging.getLogger(__name__)
 
 dataset_bp = Blueprint("dataset_api", __name__, url_prefix="/api/v1/dataset")
+
+
+def _model_lifecycle_service() -> ProviderModelLifecycleService:
+    runtime_root = get_application_runtime().runtime_root
+    return ProviderModelLifecycleService(
+        dataset_root=runtime_root / "datasets",
+        admission_root=runtime_root / "model-training-admissions",
+    )
+
+
+def _principal_id() -> str:
+    principal = get_authenticated_principal()
+    value = str(getattr(principal, "id", "") or "").strip()
+    if not value:
+        raise ProviderModelLifecycleError(
+            "Authenticated principal is required"
+        )
+    return value
 
 
 @dataset_bp.route("/export", methods=["POST"])
@@ -103,3 +128,93 @@ def dataset_stats_endpoint():
     except Exception:
         logger.exception("Dataset stats endpoint failed")
         return jsonify({"status": "error", "message": "Dataset statistics are unavailable."}), 500
+
+
+@dataset_bp.route("/training-admissions", methods=["POST"])
+@api_admin_required
+def create_training_admission_endpoint():
+    """Record an idempotent model-training admission without claiming execution."""
+    try:
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            raise ProviderModelLifecycleError(
+                "Request body must be a JSON object"
+            )
+        idempotency_key = str(
+            request.headers.get("Idempotency-Key") or ""
+        ).strip()
+        request_id = str(
+            request.headers.get("X-Request-ID") or uuid4()
+        ).strip()
+        admission = _model_lifecycle_service().submit_training_admission(
+            artifact_name=str(body.get("artifact_name") or ""),
+            export_type=str(body.get("export_type") or ""),
+            model_name=str(body.get("model_name") or ""),
+            epochs=body.get("epochs"),
+            hyperparameters=body.get("hyperparameters") or {},
+            parameter_space=body.get("parameter_space") or {},
+            tuning_observations=body.get("tuning_observations") or [],
+            idempotency_key=idempotency_key,
+            request_id=request_id,
+            principal_id=_principal_id(),
+        )
+        return jsonify(admission), 201
+    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+        return jsonify(
+            {
+                "status": "error",
+                "error": "training_admission_rejected",
+                "message": str(exc),
+            }
+        ), 400
+    except Exception:
+        logger.exception("Model training admission failed")
+        return jsonify(
+            {
+                "status": "error",
+                "error": "training_admission_failed",
+                "message": "Model training admission failed.",
+            }
+        ), 500
+
+
+@dataset_bp.route("/evaluations", methods=["POST"])
+@api_admin_required
+def evaluate_model_endpoint():
+    """Evaluate caller-supplied predictions and labels without inference."""
+    try:
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            raise ProviderModelLifecycleError(
+                "Request body must be a JSON object"
+            )
+        request_id = str(
+            request.headers.get("X-Request-ID") or uuid4()
+        ).strip()
+        evaluation = _model_lifecycle_service().evaluate_model(
+            model_id=str(body.get("model_id") or ""),
+            test_set=str(body.get("test_set") or ""),
+            predictions=body.get("predictions") or [],
+            labels=body.get("labels") or [],
+            acceptance_accuracy=body.get("acceptance_accuracy", 0.8),
+            request_id=request_id,
+            principal_id=_principal_id(),
+        )
+        return jsonify(evaluation), 200
+    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+        return jsonify(
+            {
+                "status": "error",
+                "error": "evaluation_rejected",
+                "message": str(exc),
+            }
+        ), 400
+    except Exception:
+        logger.exception("Measured model evaluation failed")
+        return jsonify(
+            {
+                "status": "error",
+                "error": "evaluation_failed",
+                "message": "Measured model evaluation failed.",
+            }
+        ), 500

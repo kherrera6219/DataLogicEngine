@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-08-02T07:54:44.065967+00:00",
+  "generated_at": "2026-08-02T09:28:37.804292+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,7 +13,7 @@
     "public-health"
   ],
   "summary": {
-    "routes": 504,
+    "routes": 506,
     "classifications": {
       "authenticated-mutation": 121,
       "authenticated-read": 257,
@@ -21,7 +21,7 @@
       "external-client-governed-execution": 5,
       "external-client-read": 8,
       "internal-only": 1,
-      "owner-admin-mutation": 95,
+      "owner-admin-mutation": 97,
       "public-health": 4
     },
     "unclassified": 0,
@@ -3295,6 +3295,22 @@
       "mutation_without_auth_evidence": false
     },
     {
+      "path": "/api/v1/dataset/evaluations",
+      "endpoint": "dataset_api.evaluate_model_endpoint",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
       "path": "/api/v1/dataset/export",
       "endpoint": "dataset_api.export_dataset_endpoint",
       "methods": [
@@ -3318,6 +3334,22 @@
       ],
       "classification": "authenticated-read",
       "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/dataset/training-admissions",
+      "endpoint": "dataset_api.create_training_admission_endpoint",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
       "auth_evidence": [
         "backend.routes.dataset_routes:api_session_login_required_wrapper",
         "owner-admin-session-or-desktop"
