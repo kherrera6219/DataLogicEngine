@@ -118,7 +118,7 @@ def _wide_budget_context() -> dict:
 def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_i_extended_subsystem_authority"
+    assert manifest.status == "cp19_j_product_workflow_authority"
     assert manifest.capability_count == 213
     assert (
         sum(

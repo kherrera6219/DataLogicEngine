@@ -143,3 +143,93 @@ export type KAExecutionEnvelope = {
     canonical_result?: KAExecutionResult;
   };
 };
+
+export type KAProductRunStatus =
+  | "planned"
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "partial"
+  | "blocked"
+  | "failed"
+  | "cancelled"
+  | "timed_out"
+  | "dry_run"
+  | "expired";
+
+export type KAProductRun = {
+  schema_version: "dle.ka-product-run.v1";
+  run_id: string;
+  request_id: string;
+  canonical_id: string;
+  manifest_version: string;
+  status: KAProductRunStatus;
+  mode: KAExecutionMode;
+  risk_tier: "read_only" | "write" | "destructive";
+  confirmation_required: boolean;
+  confirmed: boolean;
+  cancellation_requested: boolean;
+  result_size_bytes: number | null;
+  error_code: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  expires_at: string;
+  status_url: string;
+  execute_url: string;
+  cancel_url: string;
+  result_url: string;
+  trace_url: string;
+  artifacts_url: string;
+  effects_url: string;
+};
+
+export type KAProductPlanRequest = {
+  input: Record<string, unknown>;
+  idempotency_key?: string;
+  mode?: KAExecutionMode;
+  request_id?: string;
+  session_id?: string;
+  tier?: string;
+  layer?: string;
+  persona?: string;
+  metadata?: Record<string, unknown>;
+  budget?: Record<string, number>;
+};
+
+export type KAProductPlanEnvelope = {
+  success: boolean;
+  run: KAProductRun;
+  plan: Record<string, unknown> & {
+    plan_id: string;
+    valid: boolean;
+    selected_ids: string[];
+    execution_order: string[][];
+    risk: {
+      tier: "read_only" | "write" | "destructive";
+      confirmation_reasons: string[];
+    };
+  };
+  confirmation_token: string | null;
+};
+
+export type KAProductRunEnvelope = {
+  success: boolean;
+  run: KAProductRun;
+  plan?: Record<string, unknown>;
+};
+
+export type KAProductRunListEnvelope = {
+  success: boolean;
+  runs: KAProductRun[];
+};
+
+export type KAProductResultEnvelope = {
+  success: boolean;
+  run: KAProductRun;
+  schema_version: "dle.ka-product-result.v1";
+  run_id: string;
+  report: Record<string, unknown>;
+};

@@ -21,8 +21,8 @@ from scripts.build_ka_runtime_manifest import (
 def test_cp19i_manifest_preserves_one_identity_and_admits_extended_owners():
     manifest = get_ka_controller().manifest
 
-    assert manifest.status == "cp19_i_extended_subsystem_authority"
-    assert manifest.manifest_version == "2026.07.25-cp19i.1"
+    assert manifest.status == "cp19_j_product_workflow_authority"
+    assert manifest.manifest_version == "2026.07.25-cp19j.1"
     assert manifest.capability_count == 213
     assert len(manifest.entries) == len(set(manifest.entries)) == 213
     assert sum(

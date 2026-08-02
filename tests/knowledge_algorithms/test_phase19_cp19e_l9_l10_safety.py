@@ -21,7 +21,7 @@ def _output(controller, ka_id, payload):
 def test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag():
     manifest = load_manifest()
 
-    assert manifest.status == "cp19_i_extended_subsystem_authority"
+    assert manifest.status == "cp19_j_product_workflow_authority"
     assert L9_IDS | L10_IDS <= set(manifest.authority["production_admission_ids"])
     for ka_id in L9_IDS | L10_IDS:
         definition = manifest.entries[ka_id]

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.46.0 |
+| Document version | v1.47.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5028,7 +5028,7 @@ suite has 19 skipped and 21 known warnings. Manifest/runtime/capability/
 integration/selector, migration, product-version, documentation, compilation,
 Ruff, and source-hygiene gates pass.
 
-CP19-J is now active. CP19-I does not claim the authenticated KA
+CP19-I did not claim the authenticated KA
 API/SDK/desktop workflow, complete 213-row individual proof, rebuild
 authorization, installed acceptance, signing, accessibility, independent
 review, provider-human acceptance, or soak completion. Evidence:
@@ -5040,6 +5040,53 @@ review, provider-human acceptance, or soak completion. Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-i-verification.json`;
 - `reports/production-readiness/2026/phase-19/cp19-i-validation.json`; and
 - `tests/integration/phase19/`.
+
+### CP19-J checkpoint result - passed 2026-08-01
+
+CP19-J passed its source product-workflow gate. Manifest
+`2026.07.25-cp19j.1` retains all 213 canonical capabilities, one
+implementation/controller per identity, 149 production-enabled capabilities,
+and the 136-edge zero-cycle dependency graph. Planning, execution, and
+compatibility calls use only `ManifestKASelector`, `KAPlanExecutor`, and
+`CanonicalKAController`; no second KA execution authority was added.
+
+The new durable `ka_product_runs` record is principal-owned, request/result
+encrypted, integrity-bound, and idempotent by the exact API-key or desktop
+principal namespace. Reused idempotency keys replay only an identical
+fingerprint. High/critical-risk and effect-oriented plans require the exact
+server-issued confirmation token/digest. Content-free Redis leases and renewal
+prevent cross-worker duplicate execution. Cooperative cancellation records
+truthful state, queued work may resume after restart, and an unleased
+interrupted running operation fails `KA_RUN_INTERRUPTED` without silent effect
+replay. KA output remains a proposal; the effects surface returns only
+validated receipts already bound by an authoritative owning service.
+
+Four least-authority KA scopes and 12 `/api/v1/ka` product paths now expose
+catalog, plan, list, detail, execute, cancel, result, trace, artifact, and
+effect operations. The generated Python SDK provides nine synchronous and nine
+asynchronous workflow methods; the TypeScript SDK provides nine. The desktop
+Algorithms and Tool History pages use the real backend for principal-owned
+planning, exact confirmation, execution, cancellation, polling, and evidence
+review.
+
+Forty-one focused backend/frontend workflow tests, six Python SDK tests, seven
+TypeScript SDK tests, 426 frontend tests across 87 files, and all 2,557 Python
+source tests pass. The source result has 19 skipped and 35 known warnings.
+Frontend type checking and the production build pass. Alembic has 26 linear
+revisions and one head `0a1b2c3d4e5f`; the owned data inventory contains 87 SQL
+entities and 32 logical contracts. Manifest/runtime/integration/selector,
+OpenAPI, migration, product-version, documentation, compilation, Ruff, and
+source-hygiene gates pass.
+
+CP19-K is now active. CP19-J does not claim the complete 213-row individual
+proof, clean-source rebuild authorization, installed accessibility/Electron
+acceptance, signing, independent review, provider-human acceptance, or soak
+completion. Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-j-product-workflow.md`;
+- `reports/production-readiness/2026/phase-19/cp19-j-verification.json`;
+- `reports/production-readiness/2026/phase-19/cp19-j-validation.json`; and
+- `tests/integration_routes/test_phase19_cp19j_ka_product_workflow.py`.
 
 Evidence:
 
@@ -5487,7 +5534,7 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-I passed on 2026-07-25. The 213-row owner/consumer
+CP19-A through CP19-J passed by 2026-08-01. The 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
 fixtures, current 136-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
@@ -5499,11 +5546,15 @@ release-gated memory promotion, causal TruthLink/FROST transitions, secure
 pre-materialization ingestion, and fail-closed deletion/recovery dispatch.
 Simulation, MCP, provider/gateway, security/operations, durable-job, bounded
 effect-proposal, and authoritative SHA-256 receipt integration now also pass.
-Begin CP19-J: complete the authenticated KA API and generated SDK plus the
-accessible real-backend desktop plan/confirm/execute/cancel/history/trace/
-artifact/effect workflow.
+The authenticated product surface now adds principal-owned encrypted durable
+runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
+Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
+artifact/effect review. Begin CP19-K: close the generated 213-row matrix with
+one individually named semantic test, positive/negative selector proof, real
+owning-path assertion, limitation, causal trace evidence, and applicable
+security/effect/performance evidence for every canonical capability.
 
-Proceed through CP19-J to CP19-K in the mandatory order defined above. Preserve
+Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten
 layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
 modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,

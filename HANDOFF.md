@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.46.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.47.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-J active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -83,7 +83,7 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 8. CP19-H Truth/data/knowledge lifecycle integration - passed 2026-07-25;
 9. CP19-I simulation/MCP/provider/security/operations/effect integration -
    passed 2026-07-25;
-10. CP19-J API/SDK/desktop/accessibility workflow;
+10. CP19-J API/SDK/desktop workflow - passed 2026-08-01;
 11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof;
 12. CP19-L clean source qualification; and
 13. CP19-M exact rebuilt-installed acceptance.
@@ -223,7 +223,20 @@ service effects. The migration chain has 25 revisions and one head
 SDK, and 2,550 full-source tests pass; the full suite has 19 skipped and 21
 known warnings.
 
-CP19-A through CP19-I authorize CP19-J only; remaining product, per-KA,
+CP19-J is also complete. Manifest `2026.07.25-cp19j.1` retains all 213
+canonical identities, production-enables 149 capabilities, and preserves the
+136-edge zero-cycle graph. Four least-authority scopes and 12 `/api/v1/ka`
+paths now expose a principal-owned encrypted/idempotent durable plan, exact
+confirmation, execution, cancellation, recovery, result, trace, artifact, and
+effect workflow through the canonical selector/executor/controller only.
+Content-free renewable Redis leases prevent cross-worker duplicate claims. The
+generated Python SDK provides nine sync and nine async operations; the
+TypeScript SDK provides nine. Algorithms and Tool History use the real backend.
+Alembic has 26 revisions and one head `0a1b2c3d4e5f`. Forty-one focused
+workflow, six Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
+pass; the source suite has 19 skipped and 35 known warnings.
+
+CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized. Read:
 
@@ -250,7 +263,10 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-h-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-i-extended-subsystem-integration.md`;
 - `reports/production-readiness/2026/phase-19/cp19-i-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-i-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-i-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-j-product-workflow.md`;
+- `reports/production-readiness/2026/phase-19/cp19-j-verification.json`; and
+- `reports/production-readiness/2026/phase-19/cp19-j-validation.json`.
 
 ## Approved product boundary
 
@@ -867,13 +883,13 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-J by connecting the authenticated KA API, generated SDKs, and
-   accessible desktop plan/confirm/execute/cancel/history/trace/artifact/effect
-   workflow to the one canonical controller.
-2. Proceed to CP19-K for complete individually named proof across all 213
-   capabilities. Preserve canonical IDs, every distinct capability, one
-   implementation owner, one primary subsystem owner, and one governed answer
-   path.
+1. Complete CP19-K by closing all 213 generated proof rows with one
+   individually named semantic test, positive/negative selector proof, real
+   owning-path assertion, explicit limitation, causal trace proof, and
+   applicable security/effect/performance evidence.
+2. Preserve canonical IDs, every distinct capability, one implementation
+   owner, one primary subsystem owner, and one governed answer path while
+   preparing CP19-L clean-source qualification.
 3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
    execute CP19-M plus the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,

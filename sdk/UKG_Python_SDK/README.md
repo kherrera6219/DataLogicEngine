@@ -21,6 +21,33 @@ client-owned trace reads, idempotency, typed errors, and bounded retry.
 Client-side provider and TruthEngine orchestration were removed in v0.6. Direct
 imports of `TruthEngine` and `TruthEngineAPI` remain as service-client shims.
 
+`KAExecutor` and `AsyncKAExecutor` are also thin authenticated clients. Their
+production workflow is `plan()` -> review -> `execute_plan()` -> `run()`/
+`result()`/`trace()`. High-risk and effect-oriented plans return a copy-once
+exact-plan confirmation token:
+
+```python
+from ukg_sdk.ka import KAExecutor
+
+ka = KAExecutor(authenticated_client)
+planned = ka.plan(
+    "KA-004",
+    {"query": "Validate this request."},
+    idempotency_key="client-owned-idempotency-key",
+)
+queued = ka.execute_plan(
+    planned.run["run_id"],
+    confirmation_token=planned.confirmation_token,
+)
+status = ka.run(queued["run"]["run_id"])
+result = ka.result(status["run"]["run_id"])
+trace = ka.trace(status["run"]["run_id"])
+```
+
+`runs()`, `cancel()`, `artifacts()`, and `effects()` use the same
+principal-owned durable ledger. The retained `execute()` method is
+compatibility-only and rejects work that requires an exact reviewed plan.
+
 ## Install
 
 ```bash

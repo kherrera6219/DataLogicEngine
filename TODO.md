@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.46.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.47.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-J active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -131,9 +131,19 @@ Phase 18 source baseline while completing the whole-application wiring.
       linear revisions and head `f1a2b3c4d5e6`. Twenty focused, 126 affected,
       767 KA, six TypeScript SDK, and 2,550 full-source tests pass; the full
       suite has 19 skipped and 21 known warnings.
-- [ ] **CP19-J — product workflow:** complete authenticated API/SDK and
-      accessible real-backend desktop plan/execute/cancel/history/trace/
-      artifact/effect workflows.
+- [x] **CP19-J — product workflow:** manifest `2026.07.25-cp19j.1` retains
+      213 canonical capabilities, 149 enabled capabilities, and the 136-edge
+      acyclic graph. Twelve scoped API paths, generated Python and TypeScript
+      SDKs, and the real-backend Algorithms/History pages now share one
+      principal-owned, encrypted, idempotent durable plan/confirm/execute/
+      cancel/result/trace/artifact/effect workflow. Cross-process Redis leases
+      prevent duplicate claims. Exact confirmation is
+      required for high/critical/effect plans; interrupted running work is not
+      silently replayed; only owning-service receipts may report an applied
+      effect. Alembic has 26 linear revisions and head `0a1b2c3d4e5f`.
+      Forty-one focused workflow, six Python SDK, seven TypeScript SDK, 426
+      frontend, and 2,557 full-source tests pass; the source suite has 19
+      skipped and 35 known warnings.
 - [ ] **CP19-K — per-KA proof:** close the generated 213-row matrix with one
       individually named semantic test, positive/negative selector fixtures,
       real owning-path assertion, limitation, trace proof, and applicable
@@ -155,10 +165,17 @@ and
 
 ## Completed checkpoints
 
+- **Phase 19 CP19-J passed 2026-08-01:** the authenticated product API,
+  generated SDKs, and desktop Algorithms/History surfaces now share one
+  principal-owned durable workflow through the canonical selector, executor,
+  and controller. Server-owned context/scopes/budgets, exact confirmation,
+  idempotency, encryption, cancellation/recovery, evidence integrity, and
+  owning-service effect receipts fail closed. CP19-K per-KA proof is active,
+  and rebuilding remains blocked through CP19-L.
 - **Phase 19 CP19-I passed 2026-07-25:** simulation, MCP, provider/gateway,
   security/operations, durable jobs, proposal budgets, and authoritative
   effect receipts now execute through the one manifest/controller boundary;
-  CP19-J product workflow is active and rebuilding remains blocked.
+  CP19-J subsequently passed and rebuilding remains blocked.
 - **Phase 19 CP19-H passed 2026-07-25:** one manifest-owned registry now
   connects TruthGate, TruthCore, TruthMemory, TruthLink/FROST, ingestion,
   retrieval, graph, memory, provenance, quarantine, promotion, deletion, and
@@ -858,7 +875,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-I passed 2026-07-25, CP19-J product workflow active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed by 2026-08-01, CP19-K per-KA proof active, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -876,10 +893,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-J by connecting the authenticated KA API, generated SDKs, and
-accessible desktop plan/confirm/execute/cancel/history/trace/artifact/effect
-workflow to the one canonical controller. Then proceed to CP19-K for complete
-individually named proof across all 213 capabilities.
+Complete CP19-K by closing the generated 213-row matrix with one individually
+named semantic test, positive/negative selector proof, real owning-path
+assertion, explicit limitation, causal trace proof, and applicable security,
+effect, and performance evidence for every canonical capability.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "postgresql_entity_count": 86,
+  "postgresql_entity_count": 87,
   "postgresql_entities": [
     {
       "table": "ai_audit_events",
@@ -92,6 +92,10 @@
     },
     {
       "table": "ka_artifact_links",
+      "stable_id_field": "id"
+    },
+    {
+      "table": "ka_product_runs",
       "stable_id_field": "id"
     },
     {
@@ -558,6 +562,19 @@
       "notes": ""
     },
     {
+      "key": "knowledge_algorithm_product_runs",
+      "authority": "postgresql",
+      "stable_id": "ka_product_runs.id",
+      "schema_version": "knowledge_algorithm_product_runs.v1",
+      "source_revision": "postgresql:monotonic_revision",
+      "materializations": [],
+      "transaction_boundary": "principal_plan_then_confirmed_durable_execution",
+      "compensating_action": "fail_interrupted_running_work_without_effect_replay",
+      "retention_class": "knowledge_algorithm_run_policy",
+      "implementation_status": "implemented",
+      "notes": "Request and result content are encrypted; idempotency, visibility, confirmation, cancellation, and evidence bind to the exact desktop-or-client-key principal. Expired terminal/planned rows are purged and expired rows are excluded from every principal read."
+    },
+    {
       "key": "mcp_metadata",
       "authority": "postgresql",
       "stable_id": "mcp_servers/resources/tools/prompts/consent/lifecycle/executions.id",
@@ -819,5 +836,5 @@
     "supported_prior_release_upgrade_qualified": false,
     "at_rest_production_qualified": false
   },
-  "captured_at": "2026-07-25T06:27:01.394644+00:00"
+  "captured_at": "2026-08-02T02:51:40.454466+00:00"
 }

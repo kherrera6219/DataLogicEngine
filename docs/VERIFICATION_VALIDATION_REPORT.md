@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -57,7 +57,7 @@ acceptance. This report is not a production approval.
 |---|---|---|
 | Runtime/trust/readiness | Factory isolation, phased startup, truthful capabilities, supervisor/lock tests | Signed collision/lifecycle/Windows protection matrix |
 | Data/migration/recovery | Five-service and populated migration/backup/restore/deletion drills | Exact installed delivery, 0.1.1 upgrade, clean restore/remnant/independent review |
-| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, retained CP18-A/CP18-B authority/runtime, CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/bounded acyclic DAG evidence, CP19-D typed causal L1-L10/L10-release evidence, CP19-E complete fail-closed L9/L10 safety/trace/privacy proof, CP19-F causal axes 8-11 persona/prompt/dissent proof, CP19-G one trace-accounted 12-step/one-rewrite/L6-L10 refinement proof, CP19-H Truth/data/knowledge lifecycle, and CP19-I simulation/MCP/provider/security/operations/effect proof | CP19-J-L product-workflow, per-KA, accessibility/security, and clean-source evidence; then CP19-M installed provider traces, per-KA samples/performance/effects, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Single-path, causality, evidence/confidence/convergence, retained CP18-A/CP18-B authority/runtime, CP19-A owner/consumer authority, CP19-B typed parity, CP19-C 213-pair selector/bounded acyclic DAG evidence, CP19-D typed causal L1-L10/L10-release evidence, CP19-E complete fail-closed L9/L10 safety/trace/privacy proof, CP19-F causal axes 8-11 persona/prompt/dissent proof, CP19-G one trace-accounted 12-step/one-rewrite/L6-L10 refinement proof, CP19-H Truth/data/knowledge lifecycle, CP19-I simulation/MCP/provider/security/operations/effect proof, and CP19-J principal-owned API/SDK/desktop plan/confirm/execute/cancel/evidence proof | CP19-K/L per-KA, accessibility/security, and clean-source evidence; then CP19-M installed provider traces, per-KA samples/performance/effects, corpus rows, and blinded-human acceptance |
 | Providers/privacy/offline | OpenAI/Google adapters, budgets, deadlines, ledger, replay contracts | Live installed provider failure/cancel/spend/privacy matrix |
 | Gateway/SDK | Native, SSE, async/cancel, scopes, SDK/compatibility tests | Signed same-host/private TLS/firewall/two-machine/load/soak |
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
@@ -98,7 +98,7 @@ passes.
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
 | 18 | Closed incomplete 2026-07-25: CP18-A/CP18-B and CP18-C source batches are retained at 213 unique implementation owners, zero source gaps, and 721 KA tests; CP18-D failed and CP18-C effect/pre-existing qualification plus CP18-E-H transferred without waiver |
-| 19 | Active: CP19-A through CP19-I passed 2026-07-25, including owner/contract/selector, ten-layer/L9-L10/persona/refinement, Truth/data/knowledge, and extended simulation/MCP/provider/security/operations/effect integration; CP19-J is active and CP19-J-M retain product-workflow, per-KA, clean-source, and rebuilt-installed qualification |
+| 19 | Active: CP19-A through CP19-J passed by 2026-08-01, including owner/contract/selector, ten-layer/L9-L10/persona/refinement, Truth/data/knowledge, extended simulation/MCP/provider/security/operations/effect integration, and the principal-owned durable API/SDK/desktop product workflow; CP19-K is active and CP19-K-M retain per-KA, clean-source, and rebuilt-installed qualification |
 | 20 | Production launch and maintenance remain blocked by every prior release gate |
 
 ## Phase 19 KA verification method

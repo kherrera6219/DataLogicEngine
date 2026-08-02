@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.07.25-cp19i.1",
+  "manifest_version": "2026.07.25-cp19j.1",
   "canonical_capabilities": 213,
   "dependency_edges": 136,
   "dependency_cycles": 0,

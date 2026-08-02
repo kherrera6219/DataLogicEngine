@@ -2,25 +2,40 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Clock, CheckCircle2, XCircle, AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  RefreshCw,
+  XCircle,
+} from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageLayout } from '@/components/ui/page-layout';
-import { request } from '@/lib/api';
-import type { ToolExecutionHistoryItem, ToolExecutionHistoryResponse } from '@/lib/api/types';
+import { algorithms } from '@/lib/api';
+import type { KAProductRun } from '@/lib/api';
 
 const TIER_BADGE: Record<string, { label: string; class: string }> = {
   read_only: { label: 'Read-only', class: 'border-blue-500/40 text-blue-400' },
-  write:     { label: 'Write',     class: 'border-yellow-500/40 text-yellow-500' },
+  write: { label: 'Write', class: 'border-yellow-500/40 text-yellow-500' },
   destructive: { label: 'Destructive', class: 'border-red-500/40 text-red-500' },
 };
 
-const STATUS_ICON: Record<string, React.ReactNode> = {
-  success: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-  failure: <XCircle className="h-4 w-4 text-red-500" />,
-  blocked: <AlertTriangle className="h-4 w-4 text-yellow-500" />,
-};
+const SUCCESS_STATES = new Set(['succeeded', 'partial', 'dry_run']);
+const FAILURE_STATES = new Set(['failed', 'timed_out', 'expired']);
+
+function statusIcon(status: string) {
+  if (SUCCESS_STATES.has(status)) {
+    return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+  }
+  if (FAILURE_STATES.has(status)) {
+    return <XCircle className="h-4 w-4 text-red-500" />;
+  }
+  return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+}
 
 function formatTimestamp(value?: string | null): string {
   if (!value) return 'Unknown time';
@@ -28,13 +43,16 @@ function formatTimestamp(value?: string | null): string {
   return Number.isNaN(date.getTime()) ? 'Unknown time' : date.toLocaleString();
 }
 
-function formatDuration(value?: number | null): string | null {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
-  return `${Math.max(0, Math.round(value))}ms`;
+function formatDuration(run: KAProductRun): string | null {
+  if (!run.started_at || !run.completed_at) return null;
+  const started = new Date(run.started_at).getTime();
+  const completed = new Date(run.completed_at).getTime();
+  if (!Number.isFinite(started) || !Number.isFinite(completed)) return null;
+  return `${Math.max(0, Math.round(completed - started))}ms`;
 }
 
 export default function ToolExecutionHistoryPage() {
-  const [executions, setExecutions] = useState<ToolExecutionHistoryItem[]>([]);
+  const [runs, setRuns] = useState<KAProductRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,29 +60,26 @@ export default function ToolExecutionHistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await request<ToolExecutionHistoryResponse>('/ka/history');
-      setExecutions(data.executions ?? []);
+      const data = await algorithms.runs(100);
+      setRuns(data.runs ?? []);
     } catch {
-      setError('Failed to load tool execution history.');
+      setError('Failed to load governed Knowledge Algorithm run history.');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    async function init() {
-      await load();
-      if (cancelled) return;
-    }
-    void init();
-    return () => { cancelled = true; };
+    const timer = window.setTimeout(() => {
+      void load();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [load]);
 
   return (
     <PageLayout
       title="Tool Execution History"
-      description="Audit log of every Knowledge Algorithm invocation."
+      description="Principal-owned plans and executions from the durable Knowledge Algorithm ledger."
       breadcrumbs={[
         { label: 'Dashboard', href: '/dashboard' },
         { label: 'Tools', href: '/tools' },
@@ -79,81 +94,67 @@ export default function ToolExecutionHistoryPage() {
       </div>
 
       {error && (
-        <Card className="border-destructive bg-destructive/5 mb-4">
+        <Card role="alert" className="border-destructive bg-destructive/5 mb-4">
           <CardContent className="pt-4 text-sm text-destructive">{error}</CardContent>
         </Card>
       )}
 
-      {!loading && executions.length === 0 && !error && (
+      {!loading && runs.length === 0 && !error && (
         <Card>
           <CardContent className="pt-6 text-center text-muted-foreground text-sm">
-            No tool executions recorded yet.
+            No governed Knowledge Algorithm runs recorded yet.
           </CardContent>
         </Card>
       )}
 
       <div className="space-y-3">
-        {executions.map((exec) => {
-          const tierBadge = TIER_BADGE[exec.risk_tier] ?? TIER_BADGE.read_only;
-          const status = exec.status || 'blocked';
-          const duration = formatDuration(exec.duration_ms);
-          const triggeredBy = exec.triggered_by || 'user';
+        {runs.map((run) => {
+          const tierBadge = TIER_BADGE[run.risk_tier] ?? TIER_BADGE.read_only;
+          const duration = formatDuration(run);
           return (
-            <Card key={exec.id} className="border-premium">
+            <Card key={run.run_id} className="border-premium">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    {STATUS_ICON[status] ?? STATUS_ICON.blocked}
-                    <CardTitle className="text-sm font-mono">
-                      {exec.ka_id}
-                    </CardTitle>
-                    <span className="text-sm text-muted-foreground">{exec.ka_name || exec.ka_id}</span>
+                    {statusIcon(run.status)}
+                    <CardTitle className="text-sm font-mono">{run.canonical_id}</CardTitle>
+                    <span className="text-xs font-mono text-muted-foreground">{run.run_id}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge variant="outline" className={`text-[10px] ${tierBadge.class}`}>
                       {tierBadge.label}
                     </Badge>
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] ${
-                        status === 'success'
-                          ? 'border-green-500/40 text-green-500'
-                          : status === 'blocked'
-                          ? 'border-yellow-500/40 text-yellow-500'
-                          : 'border-red-500/40 text-red-500'
-                      }`}
-                    >
-                      {status}
+                    <Badge variant="outline" className="text-[10px]">
+                      {run.status}
                     </Badge>
                   </div>
                 </div>
                 <CardDescription className="flex items-center gap-3 text-xs pt-1">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {formatTimestamp(exec.created_at)}
+                    {formatTimestamp(run.created_at)}
                   </span>
-                  {duration && (
-                    <span>{duration}</span>
+                  {duration && <span>{duration}</span>}
+                  <span>{run.mode}</span>
+                  {run.confirmation_required && (
+                    <span>{run.confirmed ? 'confirmed' : 'confirmation required'}</span>
                   )}
-                  <span>by {triggeredBy}</span>
                 </CardDescription>
               </CardHeader>
-              {(exec.error || exec.run_id) && (
-                <CardContent className="pt-0 space-y-2">
-                  {exec.error && (
-                    <p className="text-xs text-red-400 bg-red-500/10 rounded p-2">{exec.error}</p>
-                  )}
-                  {exec.run_id && (
-                    <Link
-                      href={`/runs/view?id=${exec.run_id}`}
-                      className="flex items-center gap-1 text-xs text-blue-400 hover:underline"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      View trace run
-                    </Link>
-                  )}
-                </CardContent>
-              )}
+              <CardContent className="pt-0 space-y-2">
+                {run.error_message && (
+                  <p className="text-xs text-red-400 bg-red-500/10 rounded p-2">
+                    {run.error_message}
+                  </p>
+                )}
+                <Link
+                  href={`/algorithms?run=${encodeURIComponent(run.run_id)}`}
+                  className="flex items-center gap-1 text-xs text-blue-400 hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Inspect governed run
+                </Link>
+              </CardContent>
             </Card>
           );
         })}

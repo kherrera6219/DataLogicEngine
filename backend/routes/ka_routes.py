@@ -1,18 +1,43 @@
 """
 Knowledge Algorithm API Endpoints
 
-Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-001 to KA-114).
+Provides catalog, compatibility, and durable product workflows for the
+canonical Knowledge Algorithm manifest.
 """
 
 import asyncio
 import logging
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request
 
 from backend.auth.api_decorators import api_login_required, get_authenticated_principal
+from backend.knowledge_algorithms.contracts import (
+    KABudget,
+    KAExecutionContext,
+    KAExecutionMode,
+)
 from backend.knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.product_workflow import (
+    TERMINAL_STATES,
+    KAProductWorkflowError,
+    confirm_and_queue_product_run,
+    decrypt_product_result,
+    get_ka_product_runner,
+    plan_product_run,
+    product_run_expired,
+    result_artifacts,
+    result_effects,
+    trace_summary,
+    validate_plan_request,
+)
+from backend.knowledge_algorithms.selection import KASelectionRequest
+from backend.llm_gateway.external_contract import (
+    normalize_client_scopes,
+    scope_allows,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +72,150 @@ def _run_async(coro):
 def _current_user_id():
     principal = get_authenticated_principal()
     return getattr(principal, "id", None)
+
+
+def _current_tenant_id():
+    principal = get_authenticated_principal()
+    value = getattr(principal, "tenant_id", None)
+    return str(value) if value else None
+
+
+def _current_api_key():
+    return getattr(g, "external_api_key", None)
+
+
+def _current_ka_scopes() -> set[str]:
+    api_key = _current_api_key()
+    if api_key is None:
+        return {"ka:read", "ka:plan", "ka:execute", "ka:cancel"}
+    return set(normalize_client_scopes(api_key.permissions or {}))
+
+
+def _require_ka_scope(required_scope):
+    if scope_allows(_current_ka_scopes(), required_scope):
+        return None
+    return jsonify({
+        "success": False,
+        "error": "API key scope denied",
+        "code": "KA_SCOPE_DENIED",
+        "required_scope": required_scope,
+    }), 403
+
+
+def _workflow_error_response(error):
+    return jsonify({
+        "success": False,
+        "error": error.public_message,
+        "code": error.code,
+    }), error.status
+
+
+def _product_run_for_principal(run_id):
+    from extensions import db
+    from models import KAProductRun
+
+    try:
+        parsed = uuid.UUID(str(run_id))
+    except (TypeError, ValueError, AttributeError):
+        return None, _error_response("Knowledge Algorithm run not found", 404)
+    run = db.session.get(KAProductRun, parsed)
+    if (
+        run is None
+        or product_run_expired(run)
+        or run.user_id != _current_user_id()
+    ):
+        return None, _error_response("Knowledge Algorithm run not found", 404)
+    api_key = _current_api_key()
+    principal_key = str(api_key.id) if api_key is not None else "desktop"
+    if run.principal_key != principal_key:
+        return None, _error_response("Knowledge Algorithm run not found", 404)
+    return run, None
+
+
+def _product_run_envelope(run):
+    return run.to_dict()
+
+
+def _execute_compatibility_plan(
+    ka_id_norm,
+    input_data,
+    *,
+    allow_nonproduction,
+):
+    """Route retained synchronous callers through selector/plan/controller."""
+    controller = _get_controller()
+    definition = controller._canonical_controller.manifest.entries[ka_id_norm]
+    risk_classes = {
+        str(value).strip().lower()
+        for value in definition.contract.risk_classes
+        if str(value).strip()
+    }
+    if (
+        bool(risk_classes & {"high", "critical"})
+        or definition.contract.effect_class
+        == "effect_oriented_review_required"
+    ):
+        return None, {
+            "code": "KA_PLAN_CONFIRMATION_REQUIRED",
+            "error": (
+                "This Knowledge Algorithm requires an exact reviewed plan; "
+                "use /api/v1/ka/runs/plan"
+            ),
+            "status": 409,
+        }
+
+    manifest = controller._canonical_controller.manifest
+    service_capabilities = {
+        definition.integration.effect_port
+        for definition in manifest.entries.values()
+        if definition.integration.effect_port
+        and definition.admission.production_enabled
+    }
+    selection_request = KASelectionRequest(
+        requested_ids=[ka_id_norm],
+        shared_input=input_data,
+        service_capabilities=service_capabilities,
+        context=KAExecutionContext(
+            principal_id=str(_current_user_id()),
+            scopes=_current_ka_scopes(),
+            workflow="legacy_ka_api_compatibility",
+            capability_state={
+                capability: True
+                for capability in service_capabilities
+            },
+            budget=KABudget(
+                max_provider_calls=0,
+                max_effects=64,
+            ),
+        ),
+        mode=(
+            KAExecutionMode.EVALUATION
+            if allow_nonproduction
+            else KAExecutionMode.PRODUCTION
+        ),
+    )
+    plan = controller.plan_algorithms(selection_request)
+    if not plan.valid:
+        return None, {
+            "code": "KA_PLAN_BLOCKED",
+            "error": "Knowledge Algorithm plan did not pass admission",
+            "status": 422,
+            "plan": {
+                "plan_id": plan.plan_id,
+                "validation_errors": plan.validation_errors,
+            },
+        }
+    report = _run_async(
+        controller.execute_algorithm_plan(plan, selection_request)
+    )
+    result = report.results.get(ka_id_norm)
+    if result is None:
+        return None, {
+            "code": "KA_RESULT_UNAVAILABLE",
+            "error": "Knowledge Algorithm result is unavailable",
+            "status": 422,
+        }
+    return result, None
 
 
 def _bounded_int_query(name, default, *, minimum, maximum):
@@ -198,7 +367,17 @@ def _parse_ka_id_param(ka_id):
 @ka_bp.route('/history', methods=['GET'])
 @api_login_required
 def get_execution_history():
-    """Return recent KA execution records for the audit log page."""
+    """Return the retained device-local legacy feed for desktop sessions only."""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    if _current_api_key() is not None:
+        return jsonify({
+            "success": False,
+            "error": "Legacy KA history is not available to external clients",
+            "code": "KA_LEGACY_HISTORY_RETIRED",
+            "successor": "/api/v1/ka/runs",
+        }), 410
     try:
         from models import KAExecution
 
@@ -275,10 +454,258 @@ def get_execution_history():
         }), 500
 
 
+@ka_bp.route('/runs/plan', methods=['POST'])
+@api_login_required
+def create_product_run_plan():
+    """Create one durable manifest-selected KA plan without executing it."""
+    scope_error = _require_ka_scope("ka:plan")
+    if scope_error:
+        return scope_error
+    try:
+        validated = validate_plan_request(request.get_json(silent=True))
+        api_key = _current_api_key()
+        run, plan, confirmation_token, replayed = plan_product_run(
+            validated,
+            user_id=_current_user_id(),
+            api_key_id=str(api_key.id) if api_key is not None else None,
+            tenant_id=_current_tenant_id(),
+            scopes=_current_ka_scopes(),
+            retention_hours=int(
+                current_app.config.get("DLE_KA_PRODUCT_RETENTION_HOURS", 24)
+            ),
+            confirmation_ttl_minutes=int(
+                current_app.config.get(
+                    "DLE_KA_CONFIRMATION_TTL_MINUTES",
+                    15,
+                )
+            ),
+        )
+        payload = {
+            "success": bool(plan.get("valid")),
+            "run": _product_run_envelope(run),
+            "plan": plan,
+            "confirmation_token": confirmation_token,
+        }
+        response = jsonify(payload)
+        response.headers["Location"] = f"/api/v1/ka/runs/{run.id}"
+        if replayed:
+            response.headers["Idempotent-Replay"] = "true"
+        return response, 200 if replayed else 201
+    except KAProductWorkflowError as exc:
+        return _workflow_error_response(exc)
+    except Exception:
+        logger.exception("Error creating KA product plan")
+        return _error_response("Knowledge Algorithm plan could not be created", 500)
+
+
+@ka_bp.route('/runs', methods=['GET'])
+@api_login_required
+def list_product_runs():
+    """List content-free KA product runs owned by the current principal."""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    from models import KAProductRun
+
+    limit = _bounded_int_query("limit", 50, minimum=1, maximum=200)
+    query = KAProductRun.query.filter(
+        KAProductRun.user_id == _current_user_id(),
+        KAProductRun.expires_at > datetime.now(UTC),
+    )
+    api_key = _current_api_key()
+    principal_key = str(api_key.id) if api_key is not None else "desktop"
+    query = query.filter_by(principal_key=principal_key)
+    runs = query.order_by(
+        KAProductRun.created_at.desc(),
+        KAProductRun.id.desc(),
+    ).limit(limit).all()
+    return jsonify({
+        "success": True,
+        "runs": [_product_run_envelope(run) for run in runs],
+    })
+
+
+@ka_bp.route('/runs/<run_id>', methods=['GET'])
+@api_login_required
+def get_product_run(run_id):
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    return jsonify({
+        "success": True,
+        "run": _product_run_envelope(run),
+        "plan": dict(run.plan_payload),
+    })
+
+
+@ka_bp.route('/runs/<run_id>/execute', methods=['POST'])
+@api_login_required
+def execute_product_run(run_id):
+    """Confirm the exact plan when required and queue canonical execution."""
+    scope_error = _require_ka_scope("ka:execute")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return _error_response("JSON body must be an object", 400)
+    try:
+        confirm_and_queue_product_run(
+            run,
+            confirmation_token=data.get("confirmation_token"),
+        )
+        get_ka_product_runner(
+            current_app._get_current_object()
+        ).submit(str(run.id))
+        response = jsonify({
+            "success": True,
+            "run": _product_run_envelope(run),
+        })
+        response.headers["Location"] = f"/api/v1/ka/runs/{run.id}"
+        response.headers["Retry-After"] = "1"
+        return response, 202
+    except KAProductWorkflowError as exc:
+        return _workflow_error_response(exc)
+    except Exception:
+        logger.exception("Error queueing KA product run")
+        return _error_response("Knowledge Algorithm run could not be queued", 500)
+
+
+@ka_bp.route('/runs/<run_id>/cancel', methods=['POST'])
+@api_login_required
+def cancel_product_run(run_id):
+    """Cancel a planned/queued run or request cooperative running cancellation."""
+    scope_error = _require_ka_scope("ka:cancel")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    if run.status in TERMINAL_STATES:
+        return jsonify({
+            "success": False,
+            "error": "Knowledge Algorithm run is already terminal",
+            "code": "KA_RUN_TERMINAL",
+            "run": _product_run_envelope(run),
+        }), 409
+    from extensions import db
+
+    runner = get_ka_product_runner(current_app._get_current_object())
+    runner.cancel(run)
+    if run.status in {"planned", "queued"}:
+        run.status = "cancelled"
+        run.completed_at = datetime.now(UTC)
+    db.session.commit()
+    return jsonify({
+        "success": True,
+        "run": _product_run_envelope(run),
+    }), 202
+
+
+def _completed_product_payload(run):
+    if run.status in {"planned", "queued", "running"}:
+        response = jsonify({
+            "success": True,
+            "run": _product_run_envelope(run),
+        })
+        response.headers["Retry-After"] = "1"
+        return None, (response, 202)
+    try:
+        return decrypt_product_result(run), None
+    except KAProductWorkflowError as exc:
+        return None, _workflow_error_response(exc)
+
+
+@ka_bp.route('/runs/<run_id>/result', methods=['GET'])
+@api_login_required
+def get_product_run_result(run_id):
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    result, pending_or_error = _completed_product_payload(run)
+    if pending_or_error:
+        return pending_or_error
+    return jsonify({
+        "success": run.status in {"succeeded", "partial", "dry_run"},
+        "run": _product_run_envelope(run),
+        **result,
+    })
+
+
+@ka_bp.route('/runs/<run_id>/trace', methods=['GET'])
+@api_login_required
+def get_product_run_trace(run_id):
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    result, pending_or_error = _completed_product_payload(run)
+    if pending_or_error:
+        return pending_or_error
+    return jsonify({
+        "success": True,
+        "run": _product_run_envelope(run),
+        "trace": trace_summary(result),
+    })
+
+
+@ka_bp.route('/runs/<run_id>/artifacts', methods=['GET'])
+@api_login_required
+def get_product_run_artifacts(run_id):
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    result, pending_or_error = _completed_product_payload(run)
+    if pending_or_error:
+        return pending_or_error
+    return jsonify({
+        "success": True,
+        "run": _product_run_envelope(run),
+        "artifacts": result_artifacts(result),
+    })
+
+
+@ka_bp.route('/runs/<run_id>/effects', methods=['GET'])
+@api_login_required
+def get_product_run_effects(run_id):
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    run, lookup_error = _product_run_for_principal(run_id)
+    if lookup_error:
+        return lookup_error
+    result, pending_or_error = _completed_product_payload(run)
+    if pending_or_error:
+        return pending_or_error
+    return jsonify({
+        "success": True,
+        "run": _product_run_envelope(run),
+        "effects": result_effects(result),
+    })
+
+
 @ka_bp.route('/algorithms', methods=['GET'])
 @api_login_required
 def list_algorithms():
     """List all available Knowledge Algorithms"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         category = request.args.get('category')
         status = request.args.get('status')
@@ -341,7 +768,10 @@ def list_algorithms():
 @ka_bp.route('/algorithms/<ka_id>', methods=['GET'])
 @api_login_required
 def get_algorithm(ka_id):
-    """Get details of a specific Knowledge Algorithm by ID (e.g., KA-001, KA-114)"""
+    """Get public manifest detail for one canonical or approved alias ID."""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         ka_id_norm, err = _parse_ka_id_param(ka_id)
         if err:
@@ -350,8 +780,15 @@ def get_algorithm(ka_id):
         if ka_id_norm not in _get_controller().algorithms:
             return _error_response('Algorithm not found', 404)
 
-        ka_data = _get_controller().algorithms[ka_id_norm].get("metadata", {})
-        return jsonify({'success': True, 'algorithm': format_algorithm(ka_data)}), 200
+        controller = _get_controller()
+        ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        definition = controller._canonical_controller.manifest.entries[ka_id_norm]
+        algorithm = format_algorithm(ka_data)
+        algorithm["runtime_contract"] = definition.model_dump(
+            mode="json",
+            exclude={"implementation": {"entrypoint"}},
+        )
+        return jsonify({'success': True, 'algorithm': algorithm}), 200
     except Exception:
         logger.exception("Error getting algorithm")
         return _error_response('Algorithm details are unavailable', 500)
@@ -360,7 +797,10 @@ def get_algorithm(ka_id):
 @ka_bp.route('/algorithms/<ka_id>/execute', methods=['POST'])
 @api_login_required
 def execute_algorithm(ka_id):
-    """Execute a Knowledge Algorithm"""
+    """Compatibility execution through the canonical selector and plan executor."""
+    scope_error = _require_ka_scope("ka:execute")
+    if scope_error:
+        return scope_error
     try:
         ka_id_norm, err = _parse_ka_id_param(ka_id)
         if err:
@@ -387,11 +827,14 @@ def execute_algorithm(ka_id):
                 'limitations': metadata.get('limitations'),
             }), 409
 
-        ka_result = _get_controller().execute_typed(
+        ka_result, plan_error = _execute_compatibility_plan(
             ka_id_norm,
             input_data,
-            production_workflow=not allow_nonproduction,
+            allow_nonproduction=allow_nonproduction,
         )
+        if plan_error:
+            status = plan_error.pop("status")
+            return jsonify({"success": False, **plan_error}), status
 
         result = {
             'algorithm_id': ka_id_norm,
@@ -421,6 +864,9 @@ def execute_algorithm(ka_id):
 @api_login_required
 def list_categories():
     """List all KA categories with their algorithms"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         categories = {}
         for ka_id, ka_info in _get_controller().get_available_algorithms().items():
@@ -456,6 +902,9 @@ def list_categories():
 @api_login_required
 def execute_high_stakes_workflow():
     """Execute the full 12-step high-stakes refinement workflow."""
+    scope_error = _require_ka_scope("ka:execute")
+    if scope_error:
+        return scope_error
     try:
         data, body_error = _request_body_object(request.get_json())
         if body_error:
@@ -498,6 +947,9 @@ def execute_high_stakes_workflow():
 @api_login_required
 def get_workflow_trace(session_id):
     """Get the execution trace of a workflow session."""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         from backend.truth_engine.api import get_truth_core_engine
         engine = get_truth_core_engine()
@@ -521,6 +973,9 @@ def get_workflow_trace(session_id):
 @api_login_required
 def list_layers():
     """List all simulation layers and their associated algorithms"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         layers = {}
         for ka_id, ka_info in _get_controller().get_available_algorithms().items():
@@ -563,6 +1018,9 @@ def list_layers():
 @api_login_required
 def batch_execute():
     """Execute multiple Knowledge Algorithms in sequence"""
+    scope_error = _require_ka_scope("ka:execute")
+    if scope_error:
+        return scope_error
     try:
         data, body_error = _request_body_object(request.get_json())
         if body_error:
@@ -615,11 +1073,19 @@ def batch_execute():
                 continue
 
             try:
-                ka_result = _get_controller().execute_typed(
+                ka_result, plan_error = _execute_compatibility_plan(
                     ka_id_norm,
                     input_data,
-                    production_workflow=not allow_nonproduction,
+                    allow_nonproduction=allow_nonproduction,
                 )
+                if plan_error:
+                    results.append({
+                        "ka_id": ka_id_norm,
+                        "status": "blocked",
+                        "error": plan_error["error"],
+                        "code": plan_error["code"],
+                    })
+                    continue
                 results.append({
                     'ka_id': ka_meta.get('KA_ID', ka_id_norm),
                     'name': ka_meta.get('KA_Name') or ka_meta.get('KA_ID') or ka_id_norm,
@@ -658,6 +1124,9 @@ def batch_execute():
 @api_login_required
 def search_algorithms():
     """Search algorithms by name, purpose, or notes"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         query = request.args.get('q', '').lower()
         if not query or len(query) < 2:
@@ -686,6 +1155,9 @@ def search_algorithms():
 @api_login_required
 def get_dependencies(ka_id):
     """Get dependency graph for a specific algorithm"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         ka_id_norm, err = _parse_ka_id_param(ka_id)
         if err:
@@ -739,6 +1211,9 @@ def get_dependencies(ka_id):
 @api_login_required
 def get_stats():
     """Get KA system statistics"""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
     try:
         live_registry = _get_controller().get_available_algorithms()
         categories = {}
@@ -790,6 +1265,6 @@ def health_check():
         'status': 'healthy' if available else 'degraded',
         'total_algorithms': len(algorithms),
         'available': available,
-        'version': '2.0.0',
-        'registry_source': 'ka_registry.json'
+        'version': _get_controller()._canonical_controller.manifest.manifest_version,
+        'registry_source': 'canonical_runtime_manifest'
     }), 200

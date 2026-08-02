@@ -8,6 +8,7 @@ authorization, policy, trace, and effect contracts.
 from __future__ import annotations
 
 import time
+import uuid
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -63,6 +64,15 @@ class KAExecutionResult:
         return self.output
 
 
+@dataclass(frozen=True)
+class KAProductPlan:
+    """Reviewed server plan and its principal-owned durable run."""
+
+    run: dict[str, Any]
+    plan: dict[str, Any]
+    confirmation_token: str | None
+
+
 class KAExecutor:
     """Compatibility name for the authenticated KA API client."""
 
@@ -95,6 +105,78 @@ class KAExecutor:
 
     def get(self, ka_id: str) -> dict[str, Any]:
         return self.client.get(f"ka/algorithms/{ka_id}")
+
+    def plan(
+        self,
+        ka_id: str,
+        inputs: dict[str, Any] | None = None,
+        *,
+        idempotency_key: str | None = None,
+        mode: str = "production",
+        request_id: str | None = None,
+        session_id: str | None = None,
+        tier: str | None = None,
+        layer: str | None = None,
+        persona: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        budget: dict[str, int] | None = None,
+    ) -> KAProductPlan:
+        payload = self.client.post(
+            "ka/runs/plan",
+            json=_plan_request(
+                ka_id,
+                inputs,
+                idempotency_key=idempotency_key,
+                mode=mode,
+                request_id=request_id,
+                session_id=session_id,
+                tier=tier,
+                layer=layer,
+                persona=persona,
+                metadata=metadata,
+                budget=budget,
+            ),
+        )
+        return _normalize_plan(payload)
+
+    def execute_plan(
+        self,
+        run_id: str,
+        *,
+        confirmation_token: str | None = None,
+    ) -> dict[str, Any]:
+        return self.client.post(
+            f"ka/runs/{run_id}/execute",
+            json=(
+                {"confirmation_token": confirmation_token}
+                if confirmation_token
+                else {}
+            ),
+        )
+
+    def runs(self, *, limit: int = 50) -> dict[str, Any]:
+        return self.client.get(
+            "ka/runs",
+            params={"limit": max(1, min(200, int(limit)))},
+        )
+
+    def run(self, run_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/runs/{run_id}")
+
+    def result(self, run_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/runs/{run_id}/result")
+
+    def trace(self, run_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/runs/{run_id}/trace")
+
+    def artifacts(self, run_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/runs/{run_id}/artifacts")
+
+    def effects(self, run_id: str) -> dict[str, Any]:
+        return self.client.get(f"ka/runs/{run_id}/effects")
+
+    def cancel(self, run_id: str) -> dict[str, Any]:
+        return self.client.post(f"ka/runs/{run_id}/cancel", json={})
 
     def execute(
         self,
@@ -139,6 +221,78 @@ class AsyncKAExecutor:
 
     async def get(self, ka_id: str) -> dict[str, Any]:
         return await self.client.get(f"ka/algorithms/{ka_id}")
+
+    async def plan(
+        self,
+        ka_id: str,
+        inputs: dict[str, Any] | None = None,
+        *,
+        idempotency_key: str | None = None,
+        mode: str = "production",
+        request_id: str | None = None,
+        session_id: str | None = None,
+        tier: str | None = None,
+        layer: str | None = None,
+        persona: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        budget: dict[str, int] | None = None,
+    ) -> KAProductPlan:
+        payload = await self.client.post(
+            "ka/runs/plan",
+            json=_plan_request(
+                ka_id,
+                inputs,
+                idempotency_key=idempotency_key,
+                mode=mode,
+                request_id=request_id,
+                session_id=session_id,
+                tier=tier,
+                layer=layer,
+                persona=persona,
+                metadata=metadata,
+                budget=budget,
+            ),
+        )
+        return _normalize_plan(payload)
+
+    async def execute_plan(
+        self,
+        run_id: str,
+        *,
+        confirmation_token: str | None = None,
+    ) -> dict[str, Any]:
+        return await self.client.post(
+            f"ka/runs/{run_id}/execute",
+            json=(
+                {"confirmation_token": confirmation_token}
+                if confirmation_token
+                else {}
+            ),
+        )
+
+    async def runs(self, *, limit: int = 50) -> dict[str, Any]:
+        return await self.client.get(
+            "ka/runs",
+            params={"limit": max(1, min(200, int(limit)))},
+        )
+
+    async def run(self, run_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/runs/{run_id}")
+
+    async def result(self, run_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/runs/{run_id}/result")
+
+    async def trace(self, run_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/runs/{run_id}/trace")
+
+    async def artifacts(self, run_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/runs/{run_id}/artifacts")
+
+    async def effects(self, run_id: str) -> dict[str, Any]:
+        return await self.client.get(f"ka/runs/{run_id}/effects")
+
+    async def cancel(self, run_id: str) -> dict[str, Any]:
+        return await self.client.post(f"ka/runs/{run_id}/cancel", json={})
 
     async def execute(
         self,
@@ -194,4 +348,54 @@ def _normalize_result(
         ka_id=result.get("algorithm_id", ka_id),
         trace_id=result.get("trace_id"),
         canonical_result=canonical if isinstance(canonical, dict) else None,
+    )
+
+
+def _plan_request(
+    ka_id: str,
+    inputs: dict[str, Any] | None,
+    *,
+    idempotency_key: str | None,
+    mode: str,
+    request_id: str | None,
+    session_id: str | None,
+    tier: str | None,
+    layer: str | None,
+    persona: str | None,
+    metadata: dict[str, Any] | None,
+    budget: dict[str, int] | None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "ka_id": ka_id,
+        "input": dict(inputs or {}),
+        "mode": mode,
+        "idempotency_key": idempotency_key or str(uuid.uuid4()),
+        "metadata": dict(metadata or {}),
+        "budget": dict(budget or {}),
+    }
+    optional = {
+        "request_id": request_id,
+        "session_id": session_id,
+        "tier": tier,
+        "layer": layer,
+        "persona": persona,
+    }
+    payload.update({
+        key: value
+        for key, value in optional.items()
+        if value is not None
+    })
+    return payload
+
+
+def _normalize_plan(payload: dict[str, Any]) -> KAProductPlan:
+    run = payload.get("run")
+    plan = payload.get("plan")
+    if not isinstance(run, dict) or not isinstance(plan, dict):
+        raise TypeError("KA plan response did not contain run and plan records")
+    token = payload.get("confirmation_token")
+    return KAProductPlan(
+        run=run,
+        plan=plan,
+        confirmation_token=token if isinstance(token, str) else None,
     )

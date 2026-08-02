@@ -8,7 +8,6 @@ from flask import Flask
 from flask_migrate import upgrade
 from sqlalchemy import inspect, text
 
-from extensions import db, migrate
 import models
 from backend.storage.migration_inventory import (
     MIGRATION_SURFACES,
@@ -16,6 +15,7 @@ from backend.storage.migration_inventory import (
     build_migration_inventory,
     inventory_alembic_revisions,
 )
+from extensions import db, migrate
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,12 +24,12 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_alembic_revision_graph_has_one_ordered_base_and_head():
     graph = inventory_alembic_revisions(ROOT / "migrations" / "versions")
 
-    assert len(graph["revisions"]) == 25
+    assert len(graph["revisions"]) == 26
     assert graph["bases"] == ["000000000001"]
-    assert graph["heads"] == ["f1a2b3c4d5e6"]
+    assert graph["heads"] == ["0a1b2c3d4e5f"]
     assert graph["errors"] == []
     assert graph["linear_order"][0] == "000000000001"
-    assert graph["linear_order"][-1] == "f1a2b3c4d5e6"
+    assert graph["linear_order"][-1] == "0a1b2c3d4e5f"
 
 
 def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
@@ -43,11 +43,30 @@ def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
 
     with app.app_context():
         upgrade(directory=str(ROOT / "migrations"), revision="head")
-        tables = set(inspect(db.engine).get_table_names())
+        inspector = inspect(db.engine)
+        tables = set(inspector.get_table_names())
+        ka_run_columns = {
+            column["name"]
+            for column in inspector.get_columns("ka_product_runs")
+        }
+        ka_run_constraints = {
+            constraint["name"]
+            for constraint in inspector.get_unique_constraints(
+                "ka_product_runs"
+            )
+        }
         current = db.session.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
 
     assert set(models.db.metadata.tables) <= tables
-    assert current == "f1a2b3c4d5e6"
+    assert {
+        "principal_key",
+        "request_ciphertext",
+        "result_ciphertext",
+        "confirmation_digest",
+        "cancellation_requested",
+    } <= ka_run_columns
+    assert "uq_ka_product_run_principal_idempotency" in ka_run_constraints
+    assert current == "0a1b2c3d4e5f"
 
 
 def test_every_retained_store_has_a_version_and_migration_disposition():

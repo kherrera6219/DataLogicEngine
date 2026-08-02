@@ -7,7 +7,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.4.0
+  version: 3.5.0
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -93,6 +93,195 @@ components:
           type: string
           nullable: true
       additionalProperties: true
+    KAProductRun:
+      type: object
+      additionalProperties: false
+      required:
+        - schema_version
+        - run_id
+        - request_id
+        - canonical_id
+        - manifest_version
+        - status
+        - mode
+        - risk_tier
+        - confirmation_required
+        - confirmed
+      properties:
+        schema_version:
+          type: string
+          enum: [dle.ka-product-run.v1]
+        run_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+        canonical_id:
+          type: string
+        manifest_version:
+          type: string
+        status:
+          type: string
+          enum:
+            - planned
+            - queued
+            - running
+            - succeeded
+            - partial
+            - blocked
+            - failed
+            - cancelled
+            - timed_out
+            - dry_run
+            - expired
+        mode:
+          type: string
+          enum: [production, evaluation, dry_run]
+        risk_tier:
+          type: string
+          enum: [read_only, write, destructive]
+        confirmation_required:
+          type: boolean
+        confirmed:
+          type: boolean
+        cancellation_requested:
+          type: boolean
+        result_size_bytes:
+          type: integer
+          nullable: true
+        error_code:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+        status_url:
+          type: string
+        execute_url:
+          type: string
+        cancel_url:
+          type: string
+        result_url:
+          type: string
+        trace_url:
+          type: string
+        artifacts_url:
+          type: string
+        effects_url:
+          type: string
+    KAProductPlanRequest:
+      type: object
+      additionalProperties: false
+      required: [ka_id, idempotency_key]
+      properties:
+        ka_id:
+          type: string
+          maxLength: 64
+        input:
+          type: object
+          additionalProperties: true
+        mode:
+          type: string
+          enum: [production, evaluation, dry_run]
+          default: production
+        request_id:
+          type: string
+          maxLength: 128
+        idempotency_key:
+          type: string
+          minLength: 8
+          maxLength: 128
+        session_id:
+          type: string
+          maxLength: 128
+        tier:
+          type: string
+          maxLength: 80
+        layer:
+          type: string
+          maxLength: 80
+        persona:
+          type: string
+          maxLength: 80
+        metadata:
+          type: object
+          additionalProperties: true
+        budget:
+          type: object
+          additionalProperties:
+            type: integer
+    KAProductPlan:
+      type: object
+      additionalProperties: true
+      required:
+        - plan_id
+        - manifest_version
+        - valid
+        - selected_ids
+        - execution_order
+        - risk
+      properties:
+        plan_id:
+          type: string
+        manifest_version:
+          type: string
+        valid:
+          type: boolean
+        validation_errors:
+          type: array
+          items: {type: string}
+        selected_ids:
+          type: array
+          items: {type: string}
+        execution_order:
+          type: array
+          items:
+            type: array
+            items: {type: string}
+        risk:
+          type: object
+          additionalProperties: true
+    KAProductPlanEnvelope:
+      type: object
+      required: [success, run, plan, confirmation_token]
+      properties:
+        success:
+          type: boolean
+        run:
+          $ref: "#/components/schemas/KAProductRun"
+        plan:
+          $ref: "#/components/schemas/KAProductPlan"
+        confirmation_token:
+          type: string
+          nullable: true
+          description: Copy-once exact-plan confirmation value when required.
+    KAProductRunEnvelope:
+      type: object
+      required: [success, run]
+      properties:
+        success:
+          type: boolean
+        run:
+          $ref: "#/components/schemas/KAProductRun"
+        plan:
+          $ref: "#/components/schemas/KAProductPlan"
     AuthCheckResponse:
       allOf:
         - $ref: "#/components/schemas/StandardResponse"
@@ -1354,6 +1543,285 @@ paths:
       responses:
         "200":
           description: TruthGate decision returned.
+
+  /ka/algorithms:
+    get:
+      summary: List the live canonical Knowledge Algorithm catalog
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: page
+          in: query
+          schema: {type: integer, minimum: 1, default: 1}
+        - name: per_page
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 300, default: 50}
+      responses:
+        "200":
+          description: Manifest-backed catalog and pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: The client key lacks ka:read.
+
+  /ka/algorithms/{ka_id}:
+    get:
+      summary: Get canonical KA metadata and its public runtime contract
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: ka_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Canonical detail without an implementation entrypoint.
+        "404":
+          description: KA not found.
+
+  /ka/algorithms/{ka_id}/execute:
+    post:
+      summary: Compatibility execution for admitted low-risk KA plans
+      description: >
+        Retained one-shot compatibility route. It still uses the canonical
+        selector and plan executor. High-risk or effect-oriented requests
+        return 409 and must use /ka/runs/plan.
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: ka_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Typed canonical result.
+        "409":
+          description: Exact reviewed plan required.
+
+  /ka/runs/plan:
+    post:
+      summary: Create an idempotent, durable, principal-owned KA plan
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+        - clientBearer: []
+        - clientApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KAProductPlanRequest"
+      responses:
+        "201":
+          description: New plan created; Location identifies the durable run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KAProductPlanEnvelope"
+        "200":
+          description: Idempotent replay of the same request.
+          headers:
+            Idempotent-Replay:
+              schema: {type: string, enum: ["true"]}
+        "409":
+          description: Idempotency conflict.
+        "422":
+          description: Invalid budget or blocked admission.
+
+  /ka/runs:
+    get:
+      summary: List content-free KA runs owned by the current principal
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 200, default: 50}
+      responses:
+        "200":
+          description: Principal-owned run ledger.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean}
+                  runs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/KAProductRun"
+
+  /ka/runs/{run_id}:
+    get:
+      summary: Get one owned KA run and its public plan
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Content-free run status and reviewed plan.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KAProductRunEnvelope"
+        "404":
+          description: Run not found for this principal/key.
+
+  /ka/runs/{run_id}/execute:
+    post:
+      summary: Confirm the exact plan when required and queue execution
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                confirmation_token:
+                  type: string
+      responses:
+        "202":
+          description: Run queued; poll the Location.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KAProductRunEnvelope"
+        "403":
+          description: Exact plan confirmation required.
+        "409":
+          description: Plan is stale or the run is not planned.
+
+  /ka/runs/{run_id}/cancel:
+    post:
+      summary: Cancel a planned/queued run or request cooperative cancellation
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "202":
+          description: Cancellation recorded or requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KAProductRunEnvelope"
+        "409":
+          description: Run is already terminal.
+
+  /ka/runs/{run_id}/result:
+    get:
+      summary: Get the encrypted-at-rest canonical result after completion
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Integrity-checked typed plan-execution report.
+        "202":
+          description: Run remains planned, queued, or running.
+
+  /ka/runs/{run_id}/trace:
+    get:
+      summary: Get causal selector and execution trace evidence
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Content-safe causal plan/node trace.
+        "202":
+          description: Run is not terminal.
+
+  /ka/runs/{run_id}/artifacts:
+    get:
+      summary: List artifact receipts from the completed canonical results
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Artifact records grouped by canonical KA.
+
+  /ka/runs/{run_id}/effects:
+    get:
+      summary: List proposed or authoritative effect receipts
+      tags: [Knowledge Algorithms]
+      security:
+        - sessionCookie: []
+        - clientBearer: []
+        - clientApiKey: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Effect records grouped by canonical KA.
 
   /ka/workflow/high-stakes:
     post:

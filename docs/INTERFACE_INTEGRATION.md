@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -120,13 +120,10 @@ reported completed merely because a late result arrived.
 
 ## Knowledge Algorithm interface contract
 
-The current `/api/v1/ka` surface is an authenticated engineering catalog and
-partial direct-ID executor. It does not yet satisfy the complete production
-product contract: broad owning-subsystem dispatch remains incomplete, a
-generic `allow_nonproduction` flag is not an adequate authorization/
-confirmation model, and the SDK/desktop do not share a complete typed
-execute/history/trace workflow. Phase 18 closed incomplete after CP18-D failed.
-Phase 19 owns correction and keeps the signed rebuild blocked through CP19-L.
+The `/api/v1/ka` surface is an authenticated canonical catalog plus one durable
+plan/execute lifecycle. Phase 18 closed incomplete after CP18-D failed; Phase
+19 owns the corrected execution model and keeps the signed rebuild blocked
+through CP19-L.
 CP19-A supplies the verified one-primary-owner and governed-consumer authority
 for all 213 KAs through the canonical generated manifest. CP19-B passed after
 migrating every existing production caller to the typed canonical result
@@ -155,14 +152,16 @@ lifecycle output. The current graph is 131 edges/zero cycles with 29
 production-enabled capabilities. CP19-H Truth/data/knowledge and CP19-I
 simulation/MCP/provider/security/operations/effect integration now pass. The
 current manifest production-enables 149 capabilities with 136 acyclic edges;
-CP19-J product workflow is active.
+CP19-J now passes its source product-workflow gate.
 
-The target versioned interface is generated from the canonical KA manifest and
-provides list/search, canonical detail, input/output schema, dependency and
-side-effect plan, capability/prerequisite state, governed execute, cancel,
-result, history, effect receipt, trace link, and health. Canonical and approved
-alias IDs resolve to the same manifest entry; unknown, ambiguous, or retired
-aliases fail with a stable public error.
+The versioned interface consumes the canonical KA manifest and provides
+list/search, canonical detail, public runtime contract, dependency/side-effect
+plan, governed execute, cancel, principal-owned history, result,
+artifact/effect records, trace, and health. Canonical and approved alias IDs
+resolve to the same manifest entry; unknown, ambiguous, or retired aliases
+fail with a stable public error. Python and TypeScript SDKs and the desktop
+Algorithms/history views call this contract; they do not own private handlers
+or registries.
 
 Direct execution derives principal and scope on the server, applies per-KA risk,
 policy, confirmation, budget, idempotency, deadline, cancellation, and service-
@@ -172,6 +171,13 @@ distinguish planned, selected, executed, blocked, unavailable, failed,
 cancelled, and applied-effect states and never report a simulated service action
 as success. Python and TypeScript SDKs are clients for this contract, not
 alternate local KA runtimes.
+
+The durable record binds idempotency and visibility to the exact authenticated
+desktop session or external client key. Request and result content are
+encrypted at rest; list/status records expose only content-free metadata.
+High/critical or effect-oriented work requires an expiring confirmation digest
+bound to the exact plan and request fingerprint. The retained one-shot route
+uses the same selector/executor and rejects work that requires confirmation.
 
 ## MCP integration contract
 

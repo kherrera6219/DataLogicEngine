@@ -2,6 +2,11 @@ import type {
   KAExecutionEnvelope,
   KAExecutionRequest,
   KAListResponse,
+  KAProductPlanEnvelope,
+  KAProductPlanRequest,
+  KAProductResultEnvelope,
+  KAProductRunEnvelope,
+  KAProductRunListEnvelope,
 } from "./ka-types.js";
 
 export { KA_RUNTIME_MANIFEST } from "./ka-manifest.generated.js";
@@ -265,6 +270,131 @@ export class DataLogicEngineClient {
       execution as unknown as Record<string, unknown>,
       signal,
     ) as KAExecutionEnvelope;
+  }
+
+  async planKnowledgeAlgorithm(
+    kaId: string,
+    plan: KAProductPlanRequest,
+    signal?: AbortSignal,
+  ): Promise<KAProductPlanEnvelope> {
+    return await this.request(
+      "POST",
+      "/ka/runs/plan",
+      {
+        ka_id: kaId,
+        input: plan.input,
+        mode: plan.mode ?? "production",
+        idempotency_key: requiredId(plan.idempotency_key),
+        metadata: plan.metadata ?? {},
+        budget: plan.budget ?? {},
+        ...(plan.request_id ? { request_id: plan.request_id } : {}),
+        ...(plan.session_id ? { session_id: plan.session_id } : {}),
+        ...(plan.tier ? { tier: plan.tier } : {}),
+        ...(plan.layer ? { layer: plan.layer } : {}),
+        ...(plan.persona ? { persona: plan.persona } : {}),
+      },
+      signal,
+    ) as KAProductPlanEnvelope;
+  }
+
+  async knowledgeAlgorithmRuns(
+    limit = 50,
+    signal?: AbortSignal,
+  ): Promise<KAProductRunListEnvelope> {
+    const bounded = Math.max(1, Math.min(200, Math.trunc(limit)));
+    return await this.request(
+      "GET",
+      `/ka/runs?limit=${bounded}`,
+      undefined,
+      signal,
+    ) as KAProductRunListEnvelope;
+  }
+
+  async knowledgeAlgorithmRun(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<KAProductRunEnvelope> {
+    return await this.request(
+      "GET",
+      `/ka/runs/${encodeURIComponent(runId)}`,
+      undefined,
+      signal,
+    ) as KAProductRunEnvelope;
+  }
+
+  async executeKnowledgeAlgorithmPlan(
+    runId: string,
+    confirmationToken?: string,
+    signal?: AbortSignal,
+  ): Promise<KAProductRunEnvelope> {
+    return await this.request(
+      "POST",
+      `/ka/runs/${encodeURIComponent(runId)}/execute`,
+      confirmationToken
+        ? { confirmation_token: confirmationToken }
+        : {},
+      signal,
+    ) as KAProductRunEnvelope;
+  }
+
+  async cancelKnowledgeAlgorithmRun(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<KAProductRunEnvelope> {
+    return await this.request(
+      "POST",
+      `/ka/runs/${encodeURIComponent(runId)}/cancel`,
+      {},
+      signal,
+    ) as KAProductRunEnvelope;
+  }
+
+  async knowledgeAlgorithmRunResult(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<KAProductResultEnvelope> {
+    return await this.request(
+      "GET",
+      `/ka/runs/${encodeURIComponent(runId)}/result`,
+      undefined,
+      signal,
+    ) as KAProductResultEnvelope;
+  }
+
+  async knowledgeAlgorithmRunTrace(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<Record<string, unknown>> {
+    return this.request(
+      "GET",
+      `/ka/runs/${encodeURIComponent(runId)}/trace`,
+      undefined,
+      signal,
+    );
+  }
+
+  async knowledgeAlgorithmRunArtifacts(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<Record<string, unknown>> {
+    return this.request(
+      "GET",
+      `/ka/runs/${encodeURIComponent(runId)}/artifacts`,
+      undefined,
+      signal,
+    );
+  }
+
+  async knowledgeAlgorithmRunEffects(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<Record<string, unknown>> {
+    return this.request(
+      "GET",
+      `/ka/runs/${encodeURIComponent(runId)}/effects`,
+      undefined,
+      signal,
+    );
   }
 
   async cancel(requestId: string, signal?: AbortSignal): Promise<Record<string, unknown>> {

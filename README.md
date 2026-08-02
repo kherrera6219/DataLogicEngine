@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -58,10 +58,10 @@ administration, audit, observability, and validation application.
 > simulation routing is broken; DSQP is prompt-causal but not KA-backed persona
 > reasoning; and broad owning-subsystem dispatch is absent. CP18-E through
 > CP18-H were not passed and no finding was waived.
-> Phase 19 CP19-A through CP19-I are complete. The one runtime manifest now
+> Phase 19 CP19-A through CP19-J are complete. The one runtime manifest now
 > drives typed plans for all 213 KAs; 213 positive and 213 negative fixtures
 > verify selection, and three reciprocal design relationships were corrected
-> into a current 131-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
+> into a current 136-edge, zero-cycle prerequisite DAG. Bounded structured concurrency,
 > budgets, cancellation, serial effect proposals, and truthful trace states
 > pass focused qualification. The public answer lifecycle now carries one typed
 > reasoning state through explicit causal L1-L10 stages; L1 executes a
@@ -87,11 +87,14 @@ administration, audit, observability, and validation application.
 > authoritative SHA-256/idempotency receipts without adding another provider,
 > connector, store, queue, registry, or answer path. The manifest retains all
 > 213 capabilities, production-enables 149, and verifies a 136-edge zero-cycle
-> graph. Twenty focused, 126 affected-subsystem, 767 KA, six TypeScript SDK,
-> and 2,550 full-source tests pass; the full source result has 19 skipped and
-> 21 known warnings.
-> CP19-J is active for the authenticated KA API/SDK/desktop workflow; CP19-K
-> retains the complete 213-row semantic/selector/call-path/trace proof. CP19-L
+> graph. CP19-J adds principal-owned encrypted/idempotent durable runs, exact
+> risk/effect confirmation, cancellation/recovery, 12 scoped API paths,
+> generated Python/TypeScript SDK parity, and real-backend desktop history,
+> result, trace, artifact, and effect review. Forty-one focused workflow, six
+> Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
+> pass; the source result has 19 skipped and 35 known warnings.
+> CP19-K is active for the complete 213-row semantic/selector/call-path/trace
+> proof. CP19-L
 > is the source gate that may authorize a rebuild; CP19-M retains exact
 > rebuilt-installed acceptance.
 > Phase 15 freezes clean
@@ -197,13 +200,13 @@ Current production-completion focus:
 - Phase 19 CP19-I passed: simulation, MCP, provider/gateway,
   security/operations, durable jobs, bounded effect proposals, and
   authoritative SHA-256 receipts execute through the one controller
-- Active Phase 19 CP19-J: authenticated KA API/SDK and accessible
-  real-backend desktop plan/confirm/execute/cancel/history/trace/artifact/
-  effect workflow
-- One named semantic test, positive/negative selector proof, real owning call
-  path, limitation, and causal trace assertion for every canonical KA
-- Authenticated KA API/SDK and accessible Algorithms plan/confirm/execute/
-  cancel/history/trace/artifact/effect workflow
+- Phase 19 CP19-J passed: 12 scoped API paths, generated Python/TypeScript
+  SDKs, and real-backend Algorithms/History pages share one principal-owned,
+  encrypted, idempotent, exact-confirmation, cancellable durable workflow
+  through the canonical controller
+- Active Phase 19 CP19-K: one named semantic test, positive/negative selector
+  proof, real owning call path, limitation, causal trace assertion, and
+  applicable security/effect/performance evidence for every canonical KA
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,

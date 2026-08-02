@@ -3,12 +3,14 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ToolExecutionHistoryPage from './page';
 
-const { requestMock } = vi.hoisted(() => ({
-  requestMock: vi.fn(),
+const { runsMock } = vi.hoisted(() => ({
+  runsMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api', () => ({
-  request: requestMock,
+  algorithms: {
+    runs: runsMock,
+  },
 }));
 
 vi.mock('next/link', () => ({
@@ -19,59 +21,76 @@ vi.mock('next/link', () => ({
 
 describe('ToolExecutionHistoryPage', () => {
   beforeEach(() => {
-    requestMock.mockReset();
+    runsMock.mockReset();
   });
 
-  it('renders nullable persisted KA execution fields without invalid date output', async () => {
-    requestMock.mockResolvedValueOnce({
-      executions: [
+  it('renders durable KA failure fields without invalid date output', async () => {
+    runsMock.mockResolvedValueOnce({
+      runs: [
         {
-          id: '1',
-          ka_id: 'ka-001',
-          ka_name: '',
+          schema_version: 'dle.ka-product-run.v1',
+          run_id: 'run-1',
+          request_id: 'request-1',
+          canonical_id: 'KA-001',
+          manifest_version: 'test',
+          status: 'failed',
+          mode: 'production',
           risk_tier: 'destructive',
-          status: 'failure',
-          triggered_by: '',
-          run_id: null,
-          duration_ms: null,
-          created_at: null,
-          error: 'boom',
+          confirmation_required: true,
+          confirmed: true,
+          cancellation_requested: false,
+          result_size_bytes: null,
+          error_code: 'KA_RUN_INTERNAL_ERROR',
+          error_message: 'boom',
+          created_at: '',
+          updated_at: '',
+          started_at: null,
+          completed_at: null,
+          expires_at: '',
         },
       ],
     });
 
     render(<ToolExecutionHistoryPage />);
 
-    expect(await screen.findAllByText('ka-001')).toHaveLength(2);
+    expect(await screen.findByText('KA-001')).toBeInTheDocument();
     expect(screen.getByText('Unknown time')).toBeInTheDocument();
-    expect(screen.getByText('by user')).toBeInTheDocument();
     expect(screen.getByText('boom')).toBeInTheDocument();
+    expect(screen.getByText('confirmed')).toBeInTheDocument();
     expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
-    expect(screen.queryByText(/View trace run/i)).not.toBeInTheDocument();
   });
 
-  it('links to a trace run only when the backend provides a trace run id', async () => {
-    requestMock.mockResolvedValueOnce({
-      executions: [
+  it('links every principal-owned ledger record to the governed run inspector', async () => {
+    runsMock.mockResolvedValueOnce({
+      runs: [
         {
-          id: '2',
-          ka_id: 'ka-002',
-          ka_name: 'Trace-backed KA',
+          schema_version: 'dle.ka-product-run.v1',
+          run_id: 'run-2',
+          request_id: 'request-2',
+          canonical_id: 'KA-002',
+          manifest_version: 'test',
+          status: 'succeeded',
+          mode: 'evaluation',
           risk_tier: 'read_only',
-          status: 'success',
-          triggered_by: 'user',
-          run_id: 'trace-run-1',
-          duration_ms: 12,
+          confirmation_required: false,
+          confirmed: false,
+          cancellation_requested: false,
+          result_size_bytes: 100,
+          error_code: null,
+          error_message: null,
           created_at: '2026-07-04T08:15:00Z',
-          error: null,
+          updated_at: '2026-07-04T08:15:00.012Z',
+          started_at: '2026-07-04T08:15:00Z',
+          completed_at: '2026-07-04T08:15:00.012Z',
+          expires_at: '2026-07-05T08:15:00Z',
         },
       ],
     });
 
     render(<ToolExecutionHistoryPage />);
 
-    const link = await screen.findByRole('link', { name: /View trace run/i });
-    expect(link).toHaveAttribute('href', '/runs/view?id=trace-run-1');
+    const link = await screen.findByRole('link', { name: /Inspect governed run/i });
+    expect(link).toHaveAttribute('href', '/algorithms?run=run-2');
     expect(screen.getByText('12ms')).toBeInTheDocument();
   });
 });

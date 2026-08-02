@@ -1148,8 +1148,8 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.07.25-cp19i.1",
-        "status": "cp19_i_extended_subsystem_authority",
+        "manifest_version": "2026.07.25-cp19j.1",
+        "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
             "crosswalk_schema_version": crosswalk["schema_version"],
@@ -1190,6 +1190,36 @@ def build_manifest() -> dict[str, Any]:
             },
             "subsystem_execution_registry": CP19_H_SUBSYSTEM_REGISTRY,
             "extended_subsystem_execution_registry": CP19_I_SUBSYSTEM_REGISTRY,
+            "product_workflow": {
+                "schema_version": "dle.ka-product-workflow.v1",
+                "checkpoint": "CP19-J",
+                "owner": "canonical_ka_product_service",
+                "selector": "ManifestKASelector",
+                "executor": "KAPlanExecutor",
+                "controller": "CanonicalKAController",
+                "durable_record": "ka_product_runs",
+                "principal_owned": True,
+                "encrypted_request_and_result": True,
+                "idempotent_plan": True,
+                "exact_plan_confirmation": True,
+                "cooperative_cancellation": True,
+                "cross_process_redis_lease": True,
+                "stale_run_reconciliation": True,
+                "effect_application_authorized": False,
+                "scopes": [
+                    "ka:read",
+                    "ka:plan",
+                    "ka:execute",
+                    "ka:cancel",
+                ],
+                "evidence_surfaces": [
+                    "history",
+                    "result",
+                    "trace",
+                    "artifacts",
+                    "effects",
+                ],
+            },
         },
         "capability_count": len(entries),
         "alias_index": {

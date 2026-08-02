@@ -153,6 +153,85 @@ export interface ToolExecutionHistoryResponse {
   error?: string;
 }
 
+export type KAProductRunStatus =
+  | 'planned'
+  | 'queued'
+  | 'running'
+  | 'succeeded'
+  | 'partial'
+  | 'blocked'
+  | 'failed'
+  | 'cancelled'
+  | 'timed_out'
+  | 'dry_run'
+  | 'expired';
+
+export interface KAProductRun {
+  schema_version: 'dle.ka-product-run.v1';
+  run_id: string;
+  request_id: string;
+  canonical_id: string;
+  manifest_version: string;
+  status: KAProductRunStatus;
+  mode: 'production' | 'evaluation' | 'dry_run';
+  risk_tier: 'read_only' | 'write' | 'destructive';
+  confirmation_required: boolean;
+  confirmed: boolean;
+  cancellation_requested: boolean;
+  result_size_bytes: number | null;
+  error_code: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  expires_at: string;
+  status_url: string;
+  execute_url: string;
+  cancel_url: string;
+  result_url: string;
+  trace_url: string;
+  artifacts_url: string;
+  effects_url: string;
+}
+
+export interface KAProductPlanEnvelope {
+  success: boolean;
+  run: KAProductRun;
+  plan: {
+    plan_id: string;
+    manifest_version: string;
+    valid: boolean;
+    validation_errors: string[];
+    selected_ids: string[];
+    execution_order: string[][];
+    selected_count: number;
+    dependency_count: number;
+    effect_proposal_count: number;
+    estimated_critical_path_ms: number;
+    risk: {
+      tier: 'read_only' | 'write' | 'destructive';
+      risk_classes: string[];
+      effect_oriented_ids: string[];
+      effect_ports: string[];
+      confirmation_reasons: string[];
+    };
+    entries: Record<string, Record<string, unknown>>;
+  };
+  confirmation_token: string | null;
+}
+
+export interface KAProductRunEnvelope {
+  success: boolean;
+  run: KAProductRun;
+  plan?: KAProductPlanEnvelope['plan'];
+}
+
+export interface KAProductRunListEnvelope {
+  success: boolean;
+  runs: KAProductRun[];
+}
+
 export interface TraceDetail extends TraceRun {
   stages?: KAExecution[];
   evidence?: Record<string, unknown>[];

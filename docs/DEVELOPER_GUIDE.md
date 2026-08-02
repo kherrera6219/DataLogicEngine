@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v2.9.0 |
+| Document version | v3.0.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -175,7 +175,15 @@ the Truth/data/knowledge lifecycle. CP19-I connects bounded simulation,
 MCP/security/operations, provider monitoring, durable jobs, and authoritative
 effect receipts, and enforces `max_effects` before execution. The current
 manifest production-enables 149 capabilities with 136 zero-cycle dependency
-edges. CP19-J product workflow is active.
+edges. CP19-J adds the authenticated `/api/v1/ka/runs` plan, status, execute,
+cancel, result, trace, artifact, and effect contract plus matching Python,
+TypeScript, and desktop clients. Requests and results are encrypted at rest;
+list/status data are content-free; idempotency and visibility are bound to the
+exact session-or-key principal. High/critical and effect-oriented plans require
+the copy-once exact-plan token. Compatibility one-shot execution still routes
+through the selector and rejects work that requires review. Production workers
+coordinate each run with a content-free Redis lease, renew it while executing,
+and fail an unleased interrupted run without replaying it.
 
 Implement Phase 19 in its required order: result-contract parity; manifest
 selector and bounded dependency DAG; the canonical ten-layer path; corrected

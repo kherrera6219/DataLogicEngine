@@ -15,6 +15,7 @@ def test_gateway_job_coordination_uses_content_free_expiring_keys() -> None:
     redis.set.return_value = True
     redis.exists.return_value = 1
     redis.eval.return_value = 1
+    redis.ttl.return_value = 120
     redis.pipeline.return_value.execute.return_value = [True]
     coordinator = RedisGatewayJobCoordinator(redis)
 
@@ -22,7 +23,27 @@ def test_gateway_job_coordination_uses_content_free_expiring_keys() -> None:
     coordinator.record_state('job-1', 'running', retention_seconds=3600)
     coordinator.request_cancel('job-1', retention_seconds=3600)
     assert coordinator.is_cancel_requested('job-1')
+    assert coordinator.renew(
+        'job-1',
+        worker_id='worker-1',
+        lease_seconds=300,
+    )
+    assert coordinator.lease_ttl('job-1') == 120
     assert coordinator.release('job-1', worker_id='worker-1')
+
+    product = RedisGatewayJobCoordinator(
+        redis,
+        prefix='ka:product-runs',
+    )
+    assert product.acquire(
+        'run-1',
+        worker_id='worker-2',
+        lease_seconds=300,
+    )
+    assert redis.set.call_args.args == (
+        'ka:product-runs:run-1:lease',
+        'worker-2',
+    )
 
     acquire = redis.set.call_args_list[0]
     assert acquire.args == ('gateway:jobs:job-1:lease', 'worker-1')

@@ -103,6 +103,7 @@ def _stop_test_background_workers() -> None:
         "dle_gateway_job_runner",
         "dle_ingestion_job_runner",
         "dle_simulation_job_runner",
+        "dle_ka_product_runner",
     ):
         runner = flask_app.extensions.pop(extension_name, None)
         if runner is not None:

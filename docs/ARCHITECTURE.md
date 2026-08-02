@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v4.7.0 |
+| Document version | v4.8.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
@@ -127,7 +127,16 @@ lifecycle. CP19-I connects bounded simulation planning/outcomes, MCP
 security/operations plans, provider context/monitoring, durable jobs, explicit
 effect-proposal budgets, and owning-service SHA-256/idempotency receipts. The
 current manifest production-enables 149 capabilities and has 136 dependency
-edges with zero cycles. CP19-J product workflow is active.
+edges with zero cycles. CP19-J now adds one principal-bound durable product
+workflow on top of the same selector, plan executor, and controller. It stores
+encrypted request/result payloads in `ka_product_runs`, exposes only
+content-free status metadata, binds idempotency and visibility to the exact
+desktop-or-client-key principal, requires an expiring digest-bound exact-plan
+confirmation for high/critical or effect-oriented work, supports cooperative
+cancellation, uses content-free Redis leases plus periodic stale-run
+reconciliation to prevent cross-worker duplicate execution, and exposes
+integrity-checked result, trace, artifact, and effect evidence. It is not
+another KA runtime and it cannot apply an effect.
 
 The retained architecture has one versioned KA manifest and one controller. The
 manifest owns canonical identity and aliases, purpose, schemas, version,

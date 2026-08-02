@@ -121,6 +121,7 @@ POSTGRES_ENTITY_KEYS: Mapping[str, str] = MappingProxyType(
         "ingestion_files": "id",
         "ingestion_jobs": "id",
         "ka_artifact_links": "id",
+        "ka_product_runs": "id",
         "llm_provider_usage": "id",
         "llm_providers": "id",
         "mcp_prompts": "id",
@@ -260,6 +261,20 @@ LOGICAL_DATA_CONTRACTS: tuple[LogicalDataContract, ...] = (
         "gateway_async_runs.id",
         materializations=(StoreAuthority.REDIS, StoreAuthority.OBJECT_STORE),
         compensation="requeue_only_from_committed_authority_state",
+    ),
+    _contract(
+        "knowledge_algorithm_product_runs",
+        StoreAuthority.POSTGRESQL,
+        "ka_product_runs.id",
+        transaction="principal_plan_then_confirmed_durable_execution",
+        compensation="fail_interrupted_running_work_without_effect_replay",
+        retention="knowledge_algorithm_run_policy",
+        notes=(
+            "Request and result content are encrypted; idempotency, visibility, "
+            "confirmation, cancellation, and evidence bind to the exact "
+            "desktop-or-client-key principal. Expired terminal/planned rows are "
+            "purged and expired rows are excluded from every principal read."
+        ),
     ),
     _contract(
         "ingestion_jobs_and_corpus_revisions",

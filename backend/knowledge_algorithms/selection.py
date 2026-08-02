@@ -8,6 +8,7 @@ import inspect
 import json
 import re
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any, Protocol
@@ -781,6 +782,8 @@ class KAPlanExecutor:
         self,
         plan: KASelectionPlan,
         request: KASelectionRequest | dict[str, Any],
+        *,
+        cancellation_check: Callable[[], bool] | None = None,
     ) -> KAPlanExecutionReport:
         if not isinstance(request, KASelectionRequest):
             request = KASelectionRequest.model_validate(request)
@@ -815,7 +818,9 @@ class KAPlanExecutor:
                 results=results,
                 traces=traces,
             )
-        if request.context.cancellation_requested:
+        if request.context.cancellation_requested or (
+            cancellation_check is not None and cancellation_check()
+        ):
             for canonical_id in plan.selected_ids:
                 traces[canonical_id].events.append(
                     _event(
@@ -842,6 +847,26 @@ class KAPlanExecutor:
                 request.context.budget.deadline_ms / 1000
             ):
                 for layer in plan.execution_order:
+                    if (
+                        cancellation_check is not None
+                        and cancellation_check()
+                    ):
+                        for canonical_id in plan.selected_ids:
+                            if canonical_id not in results:
+                                traces[canonical_id].events.append(
+                                    _event(
+                                        KATraceState.CANCELLED,
+                                        "durable_cancellation_requested",
+                                    )
+                                )
+                        return self._report(
+                            plan=plan,
+                            status=KAPlanExecutionStatus.CANCELLED,
+                            started_at=started_at,
+                            started=started,
+                            results=results,
+                            traces=traces,
+                        )
                     executable = [
                         canonical_id
                         for canonical_id in layer
@@ -885,6 +910,26 @@ class KAPlanExecutor:
                     any_optional_failure = (
                         any_optional_failure or batch_optional_failure
                     )
+                    if (
+                        cancellation_check is not None
+                        and cancellation_check()
+                    ):
+                        for canonical_id in plan.selected_ids:
+                            if canonical_id not in results:
+                                traces[canonical_id].events.append(
+                                    _event(
+                                        KATraceState.CANCELLED,
+                                        "durable_cancellation_requested",
+                                    )
+                                )
+                        return self._report(
+                            plan=plan,
+                            status=KAPlanExecutionStatus.CANCELLED,
+                            started_at=started_at,
+                            started=started,
+                            results=results,
+                            traces=traces,
+                        )
                     if required_failure:
                         break
                     for canonical_id in effects:

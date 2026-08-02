@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-07-14T20:13:11.646988+00:00",
+  "generated_at": "2026-08-02T02:51:53.463625+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,10 +13,10 @@
     "public-health"
   ],
   "summary": {
-    "routes": 481,
+    "routes": 502,
     "classifications": {
-      "authenticated-mutation": 113,
-      "authenticated-read": 243,
+      "authenticated-mutation": 121,
+      "authenticated-read": 256,
       "desktop-only": 13,
       "external-client-governed-execution": 5,
       "external-client-read": 8,
@@ -477,6 +477,150 @@
       ],
       "classification": "authenticated-read",
       "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs",
+      "endpoint": "ka_legacy.list_product_runs",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>",
+      "endpoint": "ka_legacy.get_product_run",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/artifacts",
+      "endpoint": "ka_legacy.get_product_run_artifacts",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/cancel",
+      "endpoint": "ka_legacy.cancel_product_run",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/effects",
+      "endpoint": "ka_legacy.get_product_run_effects",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/execute",
+      "endpoint": "ka_legacy.execute_product_run",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/result",
+      "endpoint": "ka_legacy.get_product_run_result",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/<run_id>/trace",
+      "endpoint": "ka_legacy.get_product_run_trace",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka_legacy",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/ka/runs/plan",
+      "endpoint": "ka_legacy.create_product_run_plan",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
       "auth_evidence": [
         "authenticated-session-desktop-or-api-key",
         "backend.routes.ka_routes:api_login_required_wrapper"
@@ -4171,6 +4315,150 @@
       "mutation_without_auth_evidence": false
     },
     {
+      "path": "/api/v1/ka/runs",
+      "endpoint": "ka.list_product_runs",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>",
+      "endpoint": "ka.get_product_run",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/artifacts",
+      "endpoint": "ka.get_product_run_artifacts",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/cancel",
+      "endpoint": "ka.cancel_product_run",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/effects",
+      "endpoint": "ka.get_product_run_effects",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/execute",
+      "endpoint": "ka.execute_product_run",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/result",
+      "endpoint": "ka.get_product_run_result",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/<run_id>/trace",
+      "endpoint": "ka.get_product_run_trace",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/ka/runs/plan",
+      "endpoint": "ka.create_product_run_plan",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
       "path": "/api/v1/ka/search",
       "endpoint": "ka.search_algorithms",
       "methods": [
@@ -6289,6 +6577,54 @@
       ],
       "classification": "authenticated-read",
       "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "app:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "app",
+      "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/system/diagnostics/summary",
+      "endpoint": "dle_core.diagnostics_summary",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "app:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "app",
+      "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/system/diagnostics/support/export",
+      "endpoint": "dle_core.support_bundle_export",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
+      "auth_evidence": [
+        "app:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "app",
+      "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/system/diagnostics/support/preview",
+      "endpoint": "dle_core.support_bundle_preview",
+      "methods": [
+        "POST"
+      ],
+      "classification": "authenticated-mutation",
+      "required_principal": "authenticated-mutation",
       "auth_evidence": [
         "app:api_session_login_required_wrapper",
         "owner-session-or-desktop"

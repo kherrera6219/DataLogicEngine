@@ -10,10 +10,12 @@ import { request } from './client';
 import { gateway } from './gateway';
 import { memory } from './memory';
 import { diagnostics } from './diagnostics';
+import { algorithms } from './algorithms';
 
 export { API_BASE, ApiError, buildApiUrl, request } from './client';
 export * from './types';
 export * from './gateway';
+export * from './algorithms';
 
 export const api = {
   chat,
@@ -27,6 +29,7 @@ export const api = {
   gateway,
   memory,
   diagnostics,
+  algorithms,
   system: {
     health: () => request<{ status?: string } | string>('/health')
       .then((payload) => typeof payload === 'string' ? payload : payload.status || 'degraded')

@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
 import time
+from dataclasses import dataclass
 from typing import Any
-
 
 _RELEASE_LEASE_LUA = """
 if redis.call('GET', KEYS[1]) == ARGV[1] then
   return redis.call('DEL', KEYS[1])
+end
+return 0
+"""
+
+_RENEW_LEASE_LUA = """
+if redis.call('GET', KEYS[1]) == ARGV[1] then
+  return redis.call('EXPIRE', KEYS[1], ARGV[2])
 end
 return 0
 """
@@ -37,7 +43,12 @@ class RedisGatewayJobCoordinator:
         self.prefix = str(prefix).strip() or "gateway:jobs"
 
     @classmethod
-    def from_url(cls, redis_url: str) -> "RedisGatewayJobCoordinator":
+    def from_url(
+        cls,
+        redis_url: str,
+        *,
+        prefix: str = "gateway:jobs",
+    ) -> RedisGatewayJobCoordinator:
         try:
             import redis
 
@@ -52,7 +63,7 @@ class RedisGatewayJobCoordinator:
             raise GatewayJobCoordinatorUnavailable(
                 "Required Redis gateway job coordination is unavailable"
             ) from exc
-        return cls(client)
+        return cls(client, prefix=prefix)
 
     def _key(self, job_id: str, suffix: str) -> str:
         normalized = str(job_id).strip()
@@ -81,6 +92,34 @@ class RedisGatewayJobCoordinator:
             ))
         except Exception as exc:
             raise GatewayJobCoordinatorUnavailable("Gateway job lease release failed") from exc
+
+    def renew(
+        self,
+        job_id: str,
+        *,
+        worker_id: str,
+        lease_seconds: int,
+    ) -> bool:
+        try:
+            return bool(self.redis.eval(
+                _RENEW_LEASE_LUA,
+                1,
+                self._key(job_id, "lease"),
+                str(worker_id),
+                max(5, int(lease_seconds)),
+            ))
+        except Exception as exc:
+            raise GatewayJobCoordinatorUnavailable(
+                "Gateway job lease renewal failed"
+            ) from exc
+
+    def lease_ttl(self, job_id: str) -> int:
+        try:
+            return int(self.redis.ttl(self._key(job_id, "lease")))
+        except Exception as exc:
+            raise GatewayJobCoordinatorUnavailable(
+                "Gateway job lease TTL read failed"
+            ) from exc
 
     def record_state(self, job_id: str, state: str, *, retention_seconds: int) -> None:
         event = GatewayJobCoordinationState(

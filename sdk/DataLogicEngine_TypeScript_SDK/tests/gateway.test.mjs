@@ -176,3 +176,117 @@ test("generated KA catalog is deduplicated and the client uses canonical routes"
   assert.equal(response.result.output.is_valid, true);
   assert.ok(seen[0].url.endsWith("/ka/algorithms/KA-004/execute"));
 });
+
+test("KA client exposes durable plan, confirmation, history, and evidence routes", async () => {
+  const seen = [];
+  const run = {
+    schema_version: "dle.ka-product-run.v1",
+    run_id: "run-19j",
+    request_id: "request-19j",
+    canonical_id: "KA-004",
+    manifest_version: "test",
+    status: "planned",
+    mode: "production",
+    risk_tier: "destructive",
+    confirmation_required: true,
+    confirmed: false,
+    cancellation_requested: false,
+    result_size_bytes: null,
+    error_code: null,
+    error_message: null,
+    created_at: "2026-07-25T00:00:00Z",
+    updated_at: "2026-07-25T00:00:00Z",
+    started_at: null,
+    completed_at: null,
+    expires_at: "2026-07-26T00:00:00Z",
+    status_url: "/api/v1/ka/runs/run-19j",
+    execute_url: "/api/v1/ka/runs/run-19j/execute",
+    cancel_url: "/api/v1/ka/runs/run-19j/cancel",
+    result_url: "/api/v1/ka/runs/run-19j/result",
+    trace_url: "/api/v1/ka/runs/run-19j/trace",
+    artifacts_url: "/api/v1/ka/runs/run-19j/artifacts",
+    effects_url: "/api/v1/ka/runs/run-19j/effects",
+  };
+  const client = new DataLogicEngineClient({
+    apiKey: "ukg_test",
+    fetch: async (url, init) => {
+      const value = String(url);
+      seen.push({ url: value, init });
+      if (value.endsWith("/ka/runs/plan")) {
+        return Response.json({
+          success: true,
+          run,
+          plan: {
+            plan_id: "plan-19j",
+            valid: true,
+            selected_ids: ["KA-004"],
+            execution_order: [["KA-004"]],
+            risk: {
+              tier: "destructive",
+              confirmation_reasons: ["high_or_critical_risk"],
+            },
+          },
+          confirmation_token: "confirm-19j",
+        });
+      }
+      if (value.endsWith("/ka/runs?limit=200")) {
+        return Response.json({ success: true, runs: [run] });
+      }
+      if (value.endsWith("/result")) {
+        return Response.json({
+          success: true,
+          run: { ...run, status: "succeeded" },
+          schema_version: "dle.ka-product-result.v1",
+          run_id: "run-19j",
+          report: {},
+        });
+      }
+      if (value.endsWith("/trace")) {
+        return Response.json({ success: true, trace: { run_id: "run-19j" } });
+      }
+      if (value.endsWith("/artifacts")) {
+        return Response.json({ success: true, artifacts: [] });
+      }
+      if (value.endsWith("/effects")) {
+        return Response.json({ success: true, effects: [] });
+      }
+      if (value.endsWith("/execute")) {
+        return Response.json({ success: true, run: { ...run, status: "queued" } });
+      }
+      if (value.endsWith("/cancel")) {
+        return Response.json({ success: true, run: { ...run, status: "cancelled" } });
+      }
+      return Response.json({ success: true, run });
+    },
+  });
+
+  const planned = await client.planKnowledgeAlgorithm("KA-004", {
+    input: { query: "validate" },
+    idempotency_key: "cp19j-typescript-plan",
+  });
+  const queued = await client.executeKnowledgeAlgorithmPlan(
+    planned.run.run_id,
+    planned.confirmation_token ?? undefined,
+  );
+  const listed = await client.knowledgeAlgorithmRuns(999);
+  const status = await client.knowledgeAlgorithmRun("run-19j");
+  const result = await client.knowledgeAlgorithmRunResult("run-19j");
+  const trace = await client.knowledgeAlgorithmRunTrace("run-19j");
+  const artifacts = await client.knowledgeAlgorithmRunArtifacts("run-19j");
+  const effects = await client.knowledgeAlgorithmRunEffects("run-19j");
+  const cancelled = await client.cancelKnowledgeAlgorithmRun("run-19j");
+
+  assert.equal(planned.plan.plan_id, "plan-19j");
+  assert.equal(queued.run.status, "queued");
+  assert.equal(listed.runs.length, 1);
+  assert.equal(status.run.run_id, "run-19j");
+  assert.equal(result.run.status, "succeeded");
+  assert.equal(trace.trace.run_id, "run-19j");
+  assert.deepEqual(artifacts.artifacts, []);
+  assert.deepEqual(effects.effects, []);
+  assert.equal(cancelled.run.status, "cancelled");
+  const planBody = JSON.parse(seen[0].init.body);
+  assert.equal(planBody.ka_id, "KA-004");
+  assert.equal(planBody.idempotency_key, "cp19j-typescript-plan");
+  assert.equal(planBody.input.query, "validate");
+});

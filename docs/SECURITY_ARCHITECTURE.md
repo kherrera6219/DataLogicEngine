@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented trust boundaries, threat controls, security tests, release policy, and evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Trust boundary, identity, network, provider, connector, data protection, dependency, incident, or release-policy change |
 | Requirements and evidence | Product requirements, source controls, threat tests, security workflows, SBOMs, and Phase 1/3/7/8/11/13/14 evidence |
 
@@ -116,6 +116,20 @@ receipts are emitted only by their owning services after the real operation and
 require service, operation, resource, idempotency, request SHA-256, and result
 SHA-256 identity. Complete per-KA adversarial proof remains CP19-K and
 rebuilt-installed proof remains CP19-M.
+
+CP19-J binds every direct product plan to the exact authenticated desktop
+session or external client key. Its idempotency namespace, list/detail access,
+confirmation token, cancellation, and evidence reads cannot cross that
+principal boundary even when two client keys belong to the same local owner.
+Inputs and results use authenticated encryption at rest; status/list responses
+are content-free. Confirmation stores only an expiring digest bound to the plan
+ID and request fingerprint. Content-free Redis leases prevent cross-worker
+duplicate execution and are renewed while work is active. Startup
+reconciliation fails an unleased interrupted run explicitly instead of
+replaying a potentially effectful plan. An applied effect claim is rejected
+unless its receipt has matching plan, service, idempotency, and SHA-256
+identity. Expired runs are not readable and expired terminal/planned records
+are purged with their encrypted request/result payloads.
 
 ## Data and secret protection
 

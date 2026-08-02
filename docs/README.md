@@ -6,13 +6,13 @@
 
 ## Authority and release status
 
-- Generated: `2026-07-26`
-- Documentation authority: `2026.07.25-phase19-cp19i-extended-subsystems` (`approved_phase16_replacement_closed`)
+- Generated: `2026-08-02`
+- Documentation authority: `2026.08.01-phase19-cp19j-product-workflow` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-J active
-- Current KA evidence: Phase 19 CP19-A through CP19-I passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, 149 production-enabled capabilities, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, and a current 136-edge zero-cycle dependency graph. The typed causal L1-L10 path, complete fail-closed L9/L10 suites, causal axes 8-11 persona chain, one trace-accounted 12-step workflow, and one Truth/data/knowledge lifecycle are retained. CP19-I adds bounded simulation planning/outcomes, MCP consent/scope plus security/operations plans, provider context/monitoring, durable jobs, explicit effect-proposal budgets, and owning-service SHA-256/idempotency receipts without adding another execution authority. Twenty focused, 126 affected-subsystem, 767 KA, six TypeScript SDK, and 2,550 full-source tests pass; the full suite has 19 skipped and 21 known warnings. CP19-J product workflow is active; the rebuild remains blocked through CP19-L.
+- Current program checkpoint: Phase 19 canonical KA system-of-systems integration; CP19-K active
+- Current KA evidence: Phase 19 CP19-A through CP19-J passed with 213 canonical capabilities, one implementation and primary subsystem owner per KA, 149 production-enabled capabilities, one runtime manifest, typed caller parity, 213 positive and 213 negative selector fixtures, and a current 136-edge zero-cycle dependency graph. The typed causal L1-L10 path, complete fail-closed L9/L10 suites, causal axes 8-11 persona chain, one trace-accounted 12-step workflow, one Truth/data/knowledge lifecycle, and the simulation/MCP/provider/security/operations/effect integrations are retained. CP19-J adds a principal-owned encrypted and idempotent durable plan/confirm/execute/cancel workflow, 12 product API paths, exact-risk confirmation, generated Python and TypeScript SDK parity, and real-backend desktop result/trace/artifact/effect review without adding another execution authority. Forty-one focused backend/frontend workflow, six Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests pass; the full source suite has 19 skipped and 35 known warnings. CP19-K per-KA proof is active; the rebuild remains blocked through CP19-L.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

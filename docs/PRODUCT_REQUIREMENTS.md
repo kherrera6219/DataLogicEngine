@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
@@ -157,8 +157,11 @@ production-enabled capabilities. CP19-H Truth/data/knowledge integration and
 CP19-I simulation/MCP/provider/security/operations/effect integration now also
 pass. The current manifest production-enables 149 capabilities, keeps 136
 dependency edges acyclic, enforces bounded effect proposals, and retains
-authoritative owning-service receipts. CP19-J product workflow is active. The
-signed rebuild is paused through CP19-L.
+authoritative owning-service receipts. CP19-J now also passes the
+principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact
+confirmation, execute/cancel/recovery, and result/trace/artifact/effect
+workflow. CP19-K per-KA proof is active. The signed rebuild is paused through
+CP19-L.
 Dependabot alert 389 is fixed.
 Production/public release is **NO-GO**.
 

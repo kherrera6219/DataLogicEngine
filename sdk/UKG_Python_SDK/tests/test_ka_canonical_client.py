@@ -64,6 +64,60 @@ def test_sdk_rejects_private_handlers_and_run_all():
         KAExecutor()
 
 
+def test_sdk_exposes_durable_plan_and_evidence_workflow():
+    transport = MagicMock()
+    transport.post.side_effect = [
+        {
+            "success": True,
+            "run": {"run_id": "run-19j", "status": "planned"},
+            "plan": {"plan_id": "plan-19j", "valid": True},
+            "confirmation_token": "confirm-19j",
+        },
+        {"success": True, "run": {"run_id": "run-19j", "status": "queued"}},
+        {"success": True, "run": {"run_id": "run-19j", "status": "cancelled"}},
+    ]
+    transport.get.side_effect = [
+        {"runs": [{"run_id": "run-19j"}]},
+        {"run": {"run_id": "run-19j", "status": "succeeded"}},
+        {"run_id": "run-19j", "report": {}},
+        {"trace": {"run_id": "run-19j"}},
+        {"artifacts": []},
+        {"effects": []},
+    ]
+    executor = KAExecutor(transport)
+
+    planned = executor.plan(
+        "KA-004",
+        {"query": "validate"},
+        idempotency_key="cp19j-sdk-plan",
+        metadata={"source": "python-sdk"},
+    )
+    queued = executor.execute_plan(
+        "run-19j",
+        confirmation_token=planned.confirmation_token,
+    )
+
+    assert planned.run["status"] == "planned"
+    assert planned.plan["plan_id"] == "plan-19j"
+    assert queued["run"]["status"] == "queued"
+    assert executor.runs(limit=999)["runs"][0]["run_id"] == "run-19j"
+    assert executor.run("run-19j")["run"]["status"] == "succeeded"
+    assert executor.result("run-19j")["run_id"] == "run-19j"
+    assert executor.trace("run-19j")["trace"]["run_id"] == "run-19j"
+    assert executor.artifacts("run-19j")["artifacts"] == []
+    assert executor.effects("run-19j")["effects"] == []
+    assert executor.cancel("run-19j")["run"]["status"] == "cancelled"
+    assert transport.post.call_args_list[0].kwargs["json"] == {
+        "ka_id": "KA-004",
+        "input": {"query": "validate"},
+        "mode": "production",
+        "idempotency_key": "cp19j-sdk-plan",
+        "metadata": {"source": "python-sdk"},
+        "budget": {},
+    }
+    transport.get.assert_any_call("ka/runs", params={"limit": 200})
+
+
 @pytest.mark.asyncio
 async def test_async_sdk_ka_executor_calls_the_installed_service():
     transport = MagicMock()
@@ -87,3 +141,33 @@ async def test_async_sdk_ka_executor_calls_the_installed_service():
 
     assert result.ok is True
     assert result.output == {"is_valid": True}
+
+
+@pytest.mark.asyncio
+async def test_async_sdk_exposes_durable_plan_and_cancel_workflow():
+    transport = MagicMock()
+
+    async def post(path, *, json):
+        if path == "ka/runs/plan":
+            assert json["idempotency_key"] == "cp19j-async-plan"
+            return {
+                "run": {"run_id": "run-async", "status": "planned"},
+                "plan": {"plan_id": "plan-async", "valid": True},
+                "confirmation_token": None,
+            }
+        assert path == "ka/runs/run-async/cancel"
+        assert json == {}
+        return {"run": {"run_id": "run-async", "status": "cancelled"}}
+
+    transport.post = post
+    executor = AsyncKAExecutor(transport)
+
+    planned = await executor.plan(
+        "KA-001",
+        {"query": "review"},
+        idempotency_key="cp19j-async-plan",
+    )
+    cancelled = await executor.cancel("run-async")
+
+    assert planned.plan["valid"] is True
+    assert cancelled["run"]["status"] == "cancelled"

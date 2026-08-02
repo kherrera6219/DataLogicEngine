@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass
 from enum import Enum
-import os
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from backend.product_version import CONTRACT_VERSIONS
-
 
 GATEWAY_CONTRACT_VERSION = CONTRACT_VERSIONS["gateway"]
 VIRTUAL_MODEL_MANIFEST_VERSION = CONTRACT_VERSIONS["virtual_model_manifest"]
@@ -32,6 +32,10 @@ CLIENT_SCOPES = frozenset({
     "evidence:read",
     "models:read",
     "routing:override",
+    "ka:read",
+    "ka:plan",
+    "ka:execute",
+    "ka:cancel",
 })
 
 ADMINISTRATIVE_SCOPES = frozenset({
@@ -235,11 +239,22 @@ def normalize_client_scopes(permissions: Mapping[str, Any] | None) -> frozenset[
     # Migration compatibility only. Read never grants model execution.
     migrated: set[str] = set()
     if values.get("read"):
-        migrated.update({"run:read", "trace:read", "evidence:read", "models:read"})
+        migrated.update({
+            "run:read",
+            "trace:read",
+            "evidence:read",
+            "models:read",
+            "ka:read",
+        })
     if values.get("write") or values.get("chat"):
         migrated.update({"chat", "run:create"})
     if values.get("write"):
-        migrated.add("routing:override")
+        migrated.update({
+            "routing:override",
+            "ka:plan",
+            "ka:execute",
+            "ka:cancel",
+        })
     if values.get("stream"):
         migrated.add("stream")
     if values.get("run_cancel"):

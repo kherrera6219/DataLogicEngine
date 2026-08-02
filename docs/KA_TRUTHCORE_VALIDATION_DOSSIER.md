@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -149,14 +149,16 @@ hash-derived convergence.
 | CP6-E TruthCore | Passed preflight/state/failure/orchestrator tests | Installed end-to-end causal traces |
 | CP6-F quality evaluation | Local deterministic corpus contract exists | OpenAI/Google rows, blinded sample, second reviewer, owner approval |
 
-Phase 19 CP19-A through CP19-I now retain the complete 213-capability identity
+Phase 19 CP19-A through CP19-J now retain the complete 213-capability identity
 authority, typed selector/executor, causal L1-L10/persona/refinement and
 Truth/data/knowledge lifecycles, plus bounded simulation, MCP,
 provider/security/operations, and authoritative effect-receipt integration.
 The current manifest production-enables 149 capabilities with 136 acyclic
-dependency edges. CP19-J through CP19-M retain the product workflow, complete
-individual proof, clean-source rebuild authorization, and exact installed
-acceptance.
+dependency edges. The principal-owned encrypted/idempotent durable API, SDK,
+and desktop product workflow adds exact confirmation, cancellation/recovery,
+and result/trace/artifact/effect review through the same controller. CP19-K
+through CP19-M retain complete individual proof, clean-source rebuild
+authorization, and exact installed acceptance.
 
 The Phase 6 snapshot recorded 1,915 backend passes, 46 focused/cross-system
 passes, 402 frontend passes across 81 files, 25 SDK passes, and passing static,

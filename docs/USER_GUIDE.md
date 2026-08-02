@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v3.7.0 |
+| Document version | v3.8.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -156,17 +156,29 @@ guarantee and limitation.
 
 ### 4. Review Knowledge Algorithms
 
-The current `/algorithms` view is an engineering catalog only. It can search and
-show registry metadata, production classification, guarantee, and limitation,
-but it is not yet the approved production execute workflow. Do not treat a
-catalog card or a successful import/classification test as proof that the KA is
-fully implemented or dynamically wired.
+The `/algorithms` view reads the live canonical catalog and provides the
+source-qualified Phase 19 product workflow:
 
-Phase 19 will complete canonical detail and schemas, prerequisite and dependency
-preview, typed inputs, risk/side-effect confirmation, governed execute/cancel,
-result/effect receipts, history, trace navigation, and complete accessible
-states. Until CP19-J and CP19-M pass, direct KA execution remains an engineering
-evaluation surface and the signed rebuild remains paused.
+1. Select **Plan and run** on a KA.
+2. Enter a JSON object that matches that KA's documented input contract.
+3. Select **Review execution plan**. Review the selected dependencies, risk
+   tier, proposal count, and validation state derived by the server.
+4. If required, select **Confirm and execute** and confirm the exact plan. A
+   manifest change invalidates the confirmation.
+5. Review truthful planned, queued, running, succeeded, partial, blocked,
+   failed, cancelled, timed-out, dry-run, or expired status.
+6. Cancel planned/queued work or request cooperative running cancellation.
+7. After completion, inspect the integrity-checked result, causal trace,
+   artifact records, and effect proposals/authoritative receipts.
+
+The **Tool Execution History** page reads only the current desktop principal's
+durable KA ledger. External client keys see only runs created by that exact key.
+Inputs and results are encrypted at rest and are not included in list/status
+records. Runs disappear after the configured retention period; expired
+terminal/planned records and their encrypted payloads are purged.
+
+This is source-qualified CP19-J behavior, not rebuilt-installed acceptance.
+Until CP19-M passes, the signed rebuild and production release remain paused.
 
 ### 5. Review sessions and projects
 

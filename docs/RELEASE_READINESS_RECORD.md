@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-01 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -63,7 +63,7 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A through CP19-I owner/contract/selector, typed L1-L10/L9-L10/persona/refinement, Truth/data/knowledge, and simulation/MCP/provider/security/operations/effect evidence | CP19-J-L product/per-KA/accessibility/security/clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A through CP19-J owner/contract/selector, typed L1-L10/L9-L10/persona/refinement, Truth/data/knowledge, simulation/MCP/provider/security/operations/effect, and principal-owned API/SDK/desktop product-workflow evidence | CP19-K/L per-KA/accessibility/security/clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
@@ -125,8 +125,10 @@ passed the Truth/data/knowledge lifecycle. CP19-I subsequently passed bounded
 simulation planning/outcomes, MCP security/operations, provider
 context/monitoring, durable jobs, explicit proposal budgets, and authoritative
 SHA-256/idempotency receipts. The current manifest production-enables 149
-capabilities with 136 zero-cycle edges. CP19-J is active. Rebuilding, installed
-acceptance, and release remain unauthorized.
+capabilities with 136 zero-cycle edges. CP19-J subsequently passed the
+principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact
+confirmation, execution, cancellation/recovery, and evidence workflow. CP19-K
+is active. Rebuilding, installed acceptance, and release remain unauthorized.
 
 The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
 require the exact signed installed artifact. Phase 20 launch remains blocked by

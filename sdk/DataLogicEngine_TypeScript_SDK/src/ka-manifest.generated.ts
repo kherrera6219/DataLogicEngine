@@ -3,8 +3,8 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.07.25-cp19i.1",
-  "status": "cp19_i_extended_subsystem_authority",
+  "manifest_version": "2026.07.25-cp19j.1",
+  "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
@@ -729,6 +729,36 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           ]
         }
       }
+    },
+    "product_workflow": {
+      "schema_version": "dle.ka-product-workflow.v1",
+      "checkpoint": "CP19-J",
+      "owner": "canonical_ka_product_service",
+      "selector": "ManifestKASelector",
+      "executor": "KAPlanExecutor",
+      "controller": "CanonicalKAController",
+      "durable_record": "ka_product_runs",
+      "principal_owned": true,
+      "encrypted_request_and_result": true,
+      "idempotent_plan": true,
+      "exact_plan_confirmation": true,
+      "cooperative_cancellation": true,
+      "cross_process_redis_lease": true,
+      "stale_run_reconciliation": true,
+      "effect_application_authorized": false,
+      "scopes": [
+        "ka:read",
+        "ka:plan",
+        "ka:execute",
+        "ka:cancel"
+      ],
+      "evidence_surfaces": [
+        "history",
+        "result",
+        "trace",
+        "artifacts",
+        "effects"
+      ]
     }
   },
   "capability_count": 213,

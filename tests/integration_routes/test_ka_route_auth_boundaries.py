@@ -1,5 +1,6 @@
-from types import SimpleNamespace
+import uuid
 from datetime import UTC, datetime
+from types import SimpleNamespace
 
 from backend.auth import api_decorators
 from backend.knowledge_algorithms.contracts import (
@@ -34,6 +35,21 @@ class _FakeKAController:
             }
         }
         self.last_execution = None
+        definition = SimpleNamespace(
+            integration=SimpleNamespace(effect_port=None),
+            admission=SimpleNamespace(production_enabled=True),
+            contract=SimpleNamespace(
+                risk_classes=["Low"],
+                effect_class="pure",
+            ),
+        )
+        self.definition = definition
+        self._canonical_controller = SimpleNamespace(
+            manifest=SimpleNamespace(
+                entries={"KA-001": definition},
+                manifest_version="test",
+            )
+        )
 
     def get_available_algorithms(self):
         return self.algorithms
@@ -61,6 +77,23 @@ class _FakeKAController:
             run_id="run-test",
             trace_id="trace-test",
             duration_ms=12,
+        )
+
+    def plan_algorithms(self, _request):
+        return SimpleNamespace(
+            valid=True,
+            plan_id="plan-test",
+            validation_errors=[],
+        )
+
+    async def execute_algorithm_plan(self, _plan, request):
+        return SimpleNamespace(
+            results={
+                "KA-001": self.execute_typed(
+                    "KA-001",
+                    request.shared_input,
+                )
+            }
         )
 
 
@@ -105,17 +138,40 @@ class _FakeTruthEngine:
         }
 
 
-def _install_api_key_user(app, monkeypatch, *, username="ka_api_key_user"):
+def _install_api_key_user(
+    app,
+    monkeypatch,
+    *,
+    username="ka_api_key_user",
+    permissions=None,
+):
+    from models import ExternalAPIKey
+
     with app.app_context():
         user_id = create_test_user(
             username=username,
             email=f"{username}@test.com",
         )
+        key_id = uuid.uuid4()
+        db.session.add(
+            ExternalAPIKey(
+                id=key_id,
+                name=f"{username} key",
+                key_prefix="ukg_valid",
+                key_hash=f"test-{key_id}",
+                user_id=user_id,
+                is_active=True,
+                permissions=permissions or {"read": True, "write": True},
+            )
+        )
+        db.session.commit()
 
     monkeypatch.setattr(
         api_decorators.ExternalAPIKey,
         "verify_key",
-        staticmethod(lambda _key: SimpleNamespace(user_id=user_id, permissions={"read": True})),
+        staticmethod(
+            lambda _key: db.session.get(ExternalAPIKey, key_id)
+        ),
     )
     return user_id
 
@@ -287,16 +343,54 @@ def test_ka_execute_hides_backend_exception_details(app, client, monkeypatch):
     assert "secret-stack" not in response.get_data(as_text=True)
 
 
+def test_ka_compatibility_execute_requires_plan_for_high_risk_work(
+    app,
+    client,
+    monkeypatch,
+):
+    controller = _FakeKAController()
+    controller.algorithms["KA-001"]["metadata"]["Risk_Class"] = "High"
+    controller.definition.contract.risk_classes = ["High"]
+    monkeypatch.setattr(ka_routes, "_controller", controller)
+    _install_api_key_user(app, monkeypatch, username="ka_high_risk_plan_user")
+
+    response = client.post(
+        "/api/v1/ka/algorithms/KA-001/execute",
+        json={"input": {"query": "review"}},
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 409
+    assert response.get_json()["code"] == "KA_PLAN_CONFIRMATION_REQUIRED"
+    assert controller.last_execution is None
+
+    controller.algorithms["KA-001"]["metadata"]["Risk_Class"] = "Medium"
+    controller.definition.contract.risk_classes = ["Medium"]
+    controller.definition.contract.effect_class = (
+        "effect_oriented_review_required"
+    )
+    effect_response = client.post(
+        "/api/v1/ka/algorithms/KA-001/execute",
+        json={"input": {"query": "propose an effect"}},
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+    assert effect_response.status_code == 409
+    assert (
+        effect_response.get_json()["code"]
+        == "KA_PLAN_CONFIRMATION_REQUIRED"
+    )
+    assert controller.last_execution is None
+
+
 def test_ka_history_serializes_persisted_execution_for_frontend(app, client, monkeypatch):
     controller = _FakeKAController()
     controller.algorithms["KA-001"]["metadata"]["Risk_Class"] = "High"
     monkeypatch.setattr(ka_routes, "_controller", controller)
-    _install_api_key_user(app, monkeypatch, username="ka_history_user")
+    seed_login_session(client, app, username="ka_history_user")
     execution_id = _insert_ka_execution(app, uid="ka-exec-history-1")
 
     response = client.get(
         "/api/v1/ka/history?limit=bad",
-        headers={"X-API-Key": "ukg_valid_ka_key"},
     )
 
     assert response.status_code == 200
@@ -321,7 +415,7 @@ def test_ka_history_serializes_persisted_execution_for_frontend(app, client, mon
 def test_ka_history_normalizes_case_and_extracts_trace_run_id(app, client, monkeypatch):
     controller = _FakeKAController()
     monkeypatch.setattr(ka_routes, "_controller", controller)
-    _install_api_key_user(app, monkeypatch, username="ka_history_trace_user")
+    seed_login_session(client, app, username="ka_history_trace_user")
     _insert_ka_execution(
         app,
         uid="ka-exec-history-2",
@@ -333,7 +427,6 @@ def test_ka_history_normalizes_case_and_extracts_trace_run_id(app, client, monke
 
     response = client.get(
         "/api/v1/ka/history",
-        headers={"X-API-Key": "ukg_valid_ka_key"},
     )
 
     assert response.status_code == 200
@@ -342,6 +435,20 @@ def test_ka_history_normalizes_case_and_extracts_trace_run_id(app, client, monke
     assert body["executions"][0]["status"] == "failure"
     assert body["executions"][0]["run_id"] == "trace-run-1"
     assert body["executions"][0]["error"] == "boom"
+
+
+def test_ka_legacy_history_is_retired_for_external_clients(app, client, monkeypatch):
+    _install_api_key_user(app, monkeypatch, username="ka_history_external_user")
+
+    response = client.get(
+        "/api/v1/ka/history",
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 410
+    body = response.get_json()
+    assert body["code"] == "KA_LEGACY_HISTORY_RETIRED"
+    assert body["successor"] == "/api/v1/ka/runs"
 
 
 def test_trace_ka_execution_feed_tolerates_invalid_limit(app, client):

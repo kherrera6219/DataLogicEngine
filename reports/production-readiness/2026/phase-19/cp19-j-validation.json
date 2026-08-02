@@ -1,0 +1,51 @@
+{
+  "schema_version": "dle.phase19-checkpoint-validation.v1",
+  "checkpoint": "CP19-J",
+  "date": "2026-08-01",
+  "status": "pass",
+  "scope": "knowledge_algorithm_product_workflow",
+  "results": {
+    "canonical_capabilities": 213,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "product_api_paths": 12,
+    "knowledge_algorithm_scopes": 4,
+    "focused_backend_frontend_tests_passed": 41,
+    "python_sdk_tests_passed": 6,
+    "python_sdk_sync_operations": 9,
+    "python_sdk_async_operations": 9,
+    "typescript_sdk_tests_passed": 7,
+    "typescript_sdk_operations": 9,
+    "frontend_test_files_passed": 87,
+    "frontend_tests_passed": 426,
+    "frontend_typecheck": "pass",
+    "frontend_production_build": "pass",
+    "full_source_tests_passed": 2557,
+    "full_source_tests_skipped": 19,
+    "full_source_test_warnings": 35,
+    "alembic_revisions": 26,
+    "alembic_heads": [
+      "0a1b2c3d4e5f"
+    ],
+    "sql_entities": 87,
+    "logical_data_contracts": 32,
+    "critical_ruff": "pass",
+    "python_compilation": "pass",
+    "authority_verifiers": "pass",
+    "product_version_parity": "pass",
+    "documentation_gates": "pass",
+    "git_diff_check": "pass"
+  },
+  "known_warnings": [
+    "Python locale.getdefaultlocale deprecation in the retained KA-069 implementation.",
+    "SQLAlchemy Query.get legacy warnings in the existing API authentication decorator.",
+    "Flask-Session use_signer deprecation in the existing session-security fixture."
+  ],
+  "limitations": [
+    "CP19-K still owns complete individually named proof for every one of the 213 canonical capabilities.",
+    "CP19-L still owns clean-source qualification and is the only checkpoint that may authorize rebuilding.",
+    "Installed accessibility, Electron, signing, external-review, provider-human, and soak acceptance remain CP19-M and retained release gates."
+  ],
+  "next_checkpoint": "CP19-K"
+}

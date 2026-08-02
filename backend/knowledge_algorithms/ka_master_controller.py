@@ -7,6 +7,7 @@ import logging
 import os
 import time
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
@@ -148,11 +149,14 @@ class KAMasterController(KnowledgeAlgorithm):
         self,
         plan: KASelectionPlan,
         request: KASelectionRequest | dict[str, Any],
+        *,
+        cancellation_check: Callable[[], bool] | None = None,
     ) -> KAPlanExecutionReport:
         """Execute an admitted plan through the canonical controller."""
         return await KAPlanExecutor(self._canonical_controller).execute(
             plan,
             request,
+            cancellation_check=cancellation_check,
         )
 
     def _normalize_ka_id(self, ka_id: str) -> str:
