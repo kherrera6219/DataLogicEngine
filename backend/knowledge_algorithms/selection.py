@@ -301,6 +301,9 @@ class ManifestKASelector:
                 disposition = KAPlanDisposition.SELECTED
                 reason = "transitive_manifest_dependency"
                 events.append(
+                    _event(KATraceState.CANDIDATE, reason)
+                )
+                events.append(
                     _event(KATraceState.DEPENDENCY, reason)
                 )
 

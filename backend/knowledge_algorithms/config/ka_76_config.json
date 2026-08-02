@@ -1,6 +1,6 @@
 {
-    "matching_keys": ["email", "phone", "national_id"],
-    "fuzzy_threshold": 0.85,
-    "conflict_resolution_strategy": "most_recent",
-    "enable_recursive_merging": true
+    "exact_matching_keys": ["record_id", "source_sha256"],
+    "conflict_resolution_strategy": "reject_conflicting_duplicate",
+    "fuzzy_matching_enabled": false,
+    "enable_recursive_merging": false
 }

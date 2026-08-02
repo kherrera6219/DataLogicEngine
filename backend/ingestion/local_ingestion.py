@@ -151,6 +151,51 @@ class IngestionResult:
         return payload
 
 
+@dataclass(slots=True)
+class IngestionKADecision:
+    """Validated, content-free decision consumed by the ingestion owner."""
+
+    execution: Any
+    admission_proposal_id: str
+    archive_proposal_id: str
+    admitted_record_ids: list[str]
+    chain_sha256: str
+    stage_evidence: dict[str, dict[str, Any]]
+
+    def lifecycle_evidence(self) -> dict[str, Any]:
+        return {
+            "schema_version": "dle.ingestion-ka-lifecycle.v1",
+            "owner": self.execution.owner,
+            "operation": self.execution.operation,
+            "plan_id": self.execution.plan.plan_id,
+            "manifest_version": self.execution.plan.manifest_version,
+            "status": self.execution.report.status.value,
+            "selected_ids": list(self.execution.plan.selected_ids),
+            "executed_ids": list(self.execution.executed_ids),
+            "execution_order": list(self.execution.plan.execution_order),
+            "required_failure": self.execution.report.required_failure,
+            "admission_proposal_id": self.admission_proposal_id,
+            "archive_proposal_id": self.archive_proposal_id,
+            "admitted_record_count": len(self.admitted_record_ids),
+            "record_chain_sha256": self.chain_sha256,
+            "stage_evidence": dict(self.stage_evidence),
+            "trace_states": {
+                canonical_id: [event.state.value for event in trace.events]
+                for canonical_id, trace in sorted(
+                    self.execution.report.traces.items()
+                )
+            },
+            "authoritative_effect_receipt": None,
+        }
+
+    def node_metadata(self) -> dict[str, Any]:
+        return {
+            "plan_id": self.execution.plan.plan_id,
+            "admission_proposal_id": self.admission_proposal_id,
+            "record_chain_sha256": self.chain_sha256,
+        }
+
+
 class LocalKnowledgeIngestionService:
     """Ingest local files into the app-owned knowledge corpus."""
 
@@ -265,7 +310,7 @@ class LocalKnowledgeIngestionService:
                 + len(acquired.rejected)
                 + len(preacquisition_rejected)
             )
-            self._execute_ingestion_ka_plan(
+            ka_decision = self._execute_ingestion_ka_plan(
                 result=result,
                 acquired=acquired,
                 user_id=user_id,
@@ -503,6 +548,7 @@ class LocalKnowledgeIngestionService:
                     )
                     node_metadata = {
                         **(metadata or {}),
+                        "ingestion_ka": ka_decision.node_metadata(),
                         "ingestion_id": result.ingestion_id,
                         "source": "local_file_ingestion",
                         "source_path": acquired_file.relative_path,
@@ -654,6 +700,11 @@ class LocalKnowledgeIngestionService:
             job.completed_at = (
                 datetime.now(UTC) if job.status == "completed" else None
             )
+            self._bind_ingestion_effect_receipt(
+                decision=ka_decision,
+                result=result,
+                job=job,
+            )
             job.result_summary = {
                 **result.to_dict(),
                 **{
@@ -689,7 +740,7 @@ class LocalKnowledgeIngestionService:
         user_id: int | None,
         tenant_id: str | None,
         job: Any,
-    ) -> None:
+    ) -> IngestionKADecision:
         """Admit KA-071..078 before any SQL/vector/graph/object materialization."""
         if self._knowledge_lifecycle is None:
             from backend.governed_execution.knowledge_lifecycle import (
@@ -716,19 +767,12 @@ class LocalKnowledgeIngestionService:
                     "source_type": "local_file",
                     "payload": records,
                 },
-                "KA-072": {"records": records},
-                "KA-073": {"records": records},
-                "KA-074": {"records": records},
                 "KA-075": {
-                    "records": records,
                     "target_schema": "knowledge_source",
                 },
-                "KA-076": {"records": records},
-                "KA-077": {"records": records},
                 "KA-078": {
-                    "record_ids": [
-                        str(item["record_id"]) for item in records
-                    ]
+                    "archive_requested": False,
+                    "record_age_days_by_id": {},
                 },
             },
             request_id=result.ingestion_id,
@@ -740,10 +784,224 @@ class LocalKnowledgeIngestionService:
             service_capabilities={"ingestion_service"},
             deadline_ms=20_000,
         )
+        decision = self._validate_ingestion_ka_execution(
+            execution=execution,
+            source_records=records,
+        )
         summary = dict(job.result_summary or {})
-        summary["_ka_lifecycle"] = execution.to_dict()
+        summary["_ka_lifecycle"] = decision.lifecycle_evidence()
         job.result_summary = summary
         job.current_checkpoint = "ka_admitted"
+        return decision
+
+    @staticmethod
+    def _validate_ingestion_ka_execution(
+        *,
+        execution: Any,
+        source_records: list[dict[str, Any]],
+    ) -> IngestionKADecision:
+        """Fail closed unless every stage consumed and preserved the admitted set."""
+        from backend.governed_execution.knowledge_lifecycle import (
+            KnowledgeLifecycleError,
+        )
+
+        required_ids = [f"KA-{number:03d}" for number in range(71, 79)]
+        if execution.executed_ids != required_ids:
+            raise KnowledgeLifecycleError("ingestion KA chain did not execute in full")
+
+        def output(canonical_id: str) -> dict[str, Any]:
+            payload = execution.results.get(canonical_id)
+            value = payload.get("output") if isinstance(payload, dict) else None
+            if not isinstance(value, dict):
+                raise KnowledgeLifecycleError(
+                    f"{canonical_id} did not return a structured decision"
+                )
+            return value
+
+        outputs = {canonical_id: output(canonical_id) for canonical_id in required_ids}
+        admission = outputs["KA-071"]
+        if admission.get("applied") is not False or admission.get("records_ingested") != 0:
+            raise KnowledgeLifecycleError("KA-071 claimed an unapplied ingestion effect")
+        for canonical_id in required_ids[1:]:
+            if outputs[canonical_id].get("dependency_consumed") is not True:
+                raise KnowledgeLifecycleError(
+                    f"{canonical_id} did not consume its declared dependency"
+                )
+        if outputs["KA-074"].get("admission_allowed") is not True:
+            raise KnowledgeLifecycleError("KA-074 rejected secure ingestion metadata")
+        if outputs["KA-076"].get("resolution_allowed") is not True:
+            raise KnowledgeLifecycleError("KA-076 found conflicting ingestion identities")
+        archive = outputs["KA-078"]
+        if (
+            archive.get("applied") is not False
+            or archive.get("records_archived") != 0
+            or archive.get("eligible_record_count") != 0
+        ):
+            raise KnowledgeLifecycleError("KA-078 produced an invalid fresh-record decision")
+
+        expected_by_id = {
+            str(record["record_id"]): dict(record) for record in source_records
+        }
+        record_fields = {
+            "KA-071": "admitted_records",
+            "KA-072": "cleaned_records",
+            "KA-073": "transformed_records",
+            "KA-074": "valid_records",
+            "KA-075": "mapped_records",
+            "KA-076": "resolved_records",
+            "KA-077": "enriched_records",
+        }
+        for canonical_id, field_name in record_fields.items():
+            stage_records = outputs[canonical_id].get(field_name)
+            if not isinstance(stage_records, list):
+                raise KnowledgeLifecycleError(
+                    f"{canonical_id} did not return {field_name}"
+                )
+            stage_by_id = {
+                str(record.get("record_id")): record
+                for record in stage_records
+                if isinstance(record, dict) and record.get("record_id") is not None
+            }
+            if (
+                len(stage_records) != len(expected_by_id)
+                or len(stage_by_id) != len(stage_records)
+                or set(stage_by_id) != set(expected_by_id)
+            ):
+                raise KnowledgeLifecycleError(
+                    f"{canonical_id} changed the admitted record identity set"
+                )
+            for record_id, expected in expected_by_id.items():
+                actual = stage_by_id[record_id]
+                for metadata_field in (
+                    "record_id",
+                    "relative_path",
+                    "source_sha256",
+                    "size_bytes",
+                    "detected_type",
+                ):
+                    if actual.get(metadata_field) != expected.get(metadata_field):
+                        raise KnowledgeLifecycleError(
+                            f"{canonical_id} changed authoritative metadata field "
+                            f"{metadata_field}"
+                        )
+        evaluated_ids = archive.get("evaluated_record_ids")
+        if evaluated_ids != sorted(expected_by_id):
+            raise KnowledgeLifecycleError("KA-078 did not evaluate the admitted record set")
+
+        canonical_chain = [expected_by_id[key] for key in sorted(expected_by_id)]
+        chain_sha256 = hashlib.sha256(
+            json.dumps(
+                canonical_chain,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        admission_proposal_id = str(admission.get("proposal_id") or "")
+        archive_proposal_id = str(archive.get("proposal_id") or "")
+        if not admission_proposal_id or not archive_proposal_id:
+            raise KnowledgeLifecycleError("ingestion KA proposal identity is missing")
+        return IngestionKADecision(
+            execution=execution,
+            admission_proposal_id=admission_proposal_id,
+            archive_proposal_id=archive_proposal_id,
+            admitted_record_ids=sorted(expected_by_id),
+            chain_sha256=chain_sha256,
+            stage_evidence={
+                "KA-071": {
+                    "admitted_record_count": admission.get("admitted_record_count"),
+                    "applied": admission.get("applied"),
+                },
+                "KA-072": {
+                    "cleaned_count": outputs["KA-072"].get("cleaned_count"),
+                    "dropped_count": outputs["KA-072"].get("dropped_count"),
+                },
+                "KA-073": {
+                    "records_transformed": outputs["KA-073"].get(
+                        "records_transformed"
+                    ),
+                    "conversion_failure_count": len(
+                        outputs["KA-073"].get("conversion_failures") or []
+                    ),
+                },
+                "KA-074": {
+                    "admission_allowed": outputs["KA-074"].get(
+                        "admission_allowed"
+                    ),
+                    "validation_summary": outputs["KA-074"].get(
+                        "validation_summary"
+                    ),
+                },
+                "KA-075": {
+                    "records_mapped": outputs["KA-075"].get("records_mapped"),
+                    "target_schema": outputs["KA-075"].get("target_schema"),
+                },
+                "KA-076": {
+                    "resolution_allowed": outputs["KA-076"].get(
+                        "resolution_allowed"
+                    ),
+                    "unique_entities_count": outputs["KA-076"].get(
+                        "unique_entities_count"
+                    ),
+                    "conflict_count": len(outputs["KA-076"].get("conflicts") or []),
+                },
+                "KA-077": {
+                    "records_enriched": outputs["KA-077"].get("records_enriched"),
+                    "providers_used": outputs["KA-077"].get("providers_used"),
+                    "external_calls": outputs["KA-077"].get("external_calls"),
+                },
+                "KA-078": {
+                    "eligible_record_count": archive.get("eligible_record_count"),
+                    "records_archived": archive.get("records_archived"),
+                    "applied": archive.get("applied"),
+                },
+            },
+        )
+
+    @staticmethod
+    def _bind_ingestion_effect_receipt(
+        *,
+        decision: IngestionKADecision,
+        result: IngestionResult,
+        job: Any,
+    ) -> None:
+        """Bind the service-owned write to KA-071 in the committing transaction."""
+        from backend.governed_execution.extended_subsystems import (
+            AuthoritativeEffectReceipt,
+            ExtendedSubsystemCoordinator,
+        )
+
+        receipt = AuthoritativeEffectReceipt(
+            service="LocalKnowledgeIngestionService",
+            operation="commit_secure_ingestion",
+            resource_id=result.ingestion_id,
+            request_sha256=ExtendedSubsystemCoordinator.sha256_payload(
+                {
+                    "ingestion_id": result.ingestion_id,
+                    "admission_proposal_id": decision.admission_proposal_id,
+                    "admitted_record_ids": decision.admitted_record_ids,
+                    "record_chain_sha256": decision.chain_sha256,
+                }
+            ),
+            result_sha256=ExtendedSubsystemCoordinator.sha256_payload(
+                {
+                    "files_scanned": result.files_scanned,
+                    "files_ingested": result.files_ingested,
+                    "files_rejected": result.files_rejected,
+                    "chunks_created": result.chunks_created,
+                    "chunks_indexed": result.chunks_indexed,
+                    "materializations_pending": result.materializations_pending,
+                    "job_status": job.status,
+                }
+            ),
+            idempotency_key=result.ingestion_id,
+            ka_plan_id=str(decision.execution.plan.plan_id),
+            ka_proposal_ids=[decision.admission_proposal_id],
+        )
+        summary = dict(job.result_summary or {})
+        lifecycle = dict(summary.get("_ka_lifecycle") or {})
+        lifecycle["authoritative_effect_receipt"] = receipt.to_dict()
+        summary["_ka_lifecycle"] = lifecycle
+        job.result_summary = summary
 
     @staticmethod
     def _raise_if_controlled(

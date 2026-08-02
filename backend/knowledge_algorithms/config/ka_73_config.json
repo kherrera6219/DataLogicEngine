@@ -1,10 +1,12 @@
 {
-    "target_schema": "enterprise_v2",
+    "target_schema": "dle.secure-ingestion-metadata.v1",
     "transformation_rules": [
-        {"field": "timestamp", "target_type": "iso8601"},
-        {"field": "user_id", "target_type": "uuid"},
-        {"field": "amount", "target_type": "decimal", "precision": 2}
+        {"field": "record_id", "target_type": "trimmed_string"},
+        {"field": "relative_path", "target_type": "trimmed_string"},
+        {"field": "source_sha256", "target_type": "lowercase_sha256"},
+        {"field": "size_bytes", "target_type": "integer"},
+        {"field": "detected_type", "target_type": "lowercase_string"}
     ],
-    "enable_projection": true,
+    "enable_projection": false,
     "drop_unmapped_fields": false
 }

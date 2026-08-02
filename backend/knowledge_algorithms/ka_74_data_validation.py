@@ -1,106 +1,124 @@
-"""
-KA-074: Data Validation
-Purpose: Validate records against integrity constraints, data types, and business rules.
-"""
-import logging
-import json
-import os
+"""KA-074: fail-closed validation for secure-ingestion metadata."""
+
+from __future__ import annotations
+
 import re
-from typing import Dict, Any, List
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.ingestion_pipeline_utils import dependency_records
+from backend.knowledge_algorithms.production_utils import (
+    load_config,
+    stable_identifier,
+)
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA074ValidationInput(BaseModel):
-    records: List[Any] = Field(default_factory=list, description="The list of records to validate")
+    model_config = ConfigDict(extra="forbid")
+
+    records: list[Any] = Field(default_factory=list, max_length=1_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA074DataValidation(KnowledgeAlgorithm):
-    """
-    KA-074: Data integrity and constraint validation engine for knowledge consistency.
-    """
     input_schema = KA074ValidationInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-074"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_74_config.json")
 
-    def _default_config(self) -> Dict[str, Any]:
-        return {
-            "validation_rules": [],
-            "quarantine_invalid_records": True,
-        }
-
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_74_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    loaded = json.load(f) or {}
-                    return {**self._default_config(), **loaded}
-            return self._default_config()
-        except Exception:
-            return self._default_config()
-
-    def _run_logic(self, input_data: KA074ValidationInput) -> Dict[str, Any]:
-        records = input_data.records
-        self.log_execution_step("Validating Integrity Constraints", {"record_count": len(records)})
-        
-        rules = self.config.get("validation_rules", [])
-        valid_records = []
-        invalid_records = []
-        
-        for record in records:
-            errors = []
+    def _run_logic(self, input_data: KA074ValidationInput) -> dict[str, Any]:
+        records = dependency_records(
+            input_data.dependency_results,
+            "KA-073",
+            "transformed_records",
+            input_data.records,
+        )
+        valid_records: list[dict[str, Any]] = []
+        invalid_summaries: list[dict[str, Any]] = []
+        rules = list(self.config.get("validation_rules") or [])
+        for index, record in enumerate(records):
+            errors: list[str] = []
             if not isinstance(record, dict):
-                errors.append("Record is not a dictionary")
+                errors.append("record_not_object")
+                record_id = stable_identifier("invalid_record", {"index": index})
             else:
+                record_id = str(
+                    record.get("record_id")
+                    or stable_identifier("invalid_record", {"index": index})
+                )
                 for rule in rules:
-                    field = rule.get("field")
+                    field = str(rule.get("field") or "")
                     constraint = rule.get("constraint")
-                    val = record.get(field)
-                    
-                    if constraint == "required" and val is None:
-                        errors.append(f"Missing required field: {field}")
-                    elif constraint == "range" and val is not None:
-                        if not (rule.get("min", 0) <= val <= rule.get("max", 1)):
-                            errors.append(f"Field {field} value {val} out of range")
-                    elif constraint == "regex" and val is not None:
-                        if not re.match(rule.get("pattern", ".*"), str(val)):
-                            errors.append(f"Field {field} failed regex validation")
-            
+                    value = record.get(field)
+                    if constraint == "required" and value in (None, ""):
+                        errors.append(f"{field}:required")
+                    elif constraint == "range" and value is not None:
+                        if isinstance(value, bool) or not isinstance(
+                            value, (int, float)
+                        ):
+                            errors.append(f"{field}:number_required")
+                        elif not (
+                            float(rule.get("min", 0))
+                            <= float(value)
+                            <= float(rule.get("max", value))
+                        ):
+                            errors.append(f"{field}:out_of_range")
+                    elif (
+                        constraint == "regex"
+                        and value is not None
+                        and re.fullmatch(str(rule.get("pattern") or ".*"), str(value))
+                        is None
+                    ):
+                        errors.append(f"{field}:format_invalid")
             if errors:
-                invalid_records.append({"record": record, "errors": errors})
+                invalid_summaries.append(
+                    {"record_id": record_id, "errors": sorted(errors)}
+                )
             else:
-                valid_records.append(record)
-                
+                valid_records.append(dict(record))
+
+        admission_allowed = not invalid_summaries
+        self.log_execution_step(
+            "Validated ingestion metadata",
+            {"total": len(records), "admission_allowed": admission_allowed},
+        )
         return {
             "success": True,
+            "admission_allowed": admission_allowed,
+            "valid_records": valid_records,
             "validation_summary": {
                 "total": len(records),
                 "valid": len(valid_records),
-                "invalid": len(invalid_records)
+                "invalid": len(invalid_summaries),
             },
-            "quarantined": invalid_records if self.config.get("quarantine_invalid_records", True) else []
+            "quarantined": invalid_summaries,
+            "quarantine_contains_source_content": False,
+            "dependency_consumed": "KA-073" in input_data.dependency_results,
         }
 
-    def _fallback_logic(self, input_data: KA074ValidationInput, error: Exception) -> Dict[str, Any]:
-        """Failsafe: Reject all records if validation logic fails."""
-        self.logger.critical(f"Validation CRITICAL FAILURE: {str(error)}")
+    def _fallback_logic(
+        self,
+        input_data: KA074ValidationInput,
+        error: Exception,
+    ) -> dict[str, Any]:
         return {
             "success": False,
+            "admission_allowed": False,
+            "valid_records": [],
             "validation_summary": {
                 "total": len(input_data.records),
                 "valid": 0,
-                "invalid": len(input_data.records)
+                "invalid": len(input_data.records),
             },
-            "quarantined": [{"record": r, "errors": ["VALIDATION_ENGINE_FAILURE"]} for r in input_data.records],
-            "fallback_active": True
+            "quarantined": [],
+            "quarantine_contains_source_content": False,
+            "fallback_active": True,
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    algo = KA074DataValidation(context)
-    return algo.run(context)
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA074DataValidation(context).run(context)

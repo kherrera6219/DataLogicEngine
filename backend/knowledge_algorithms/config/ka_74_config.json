@@ -1,8 +1,10 @@
 {
     "validation_rules": [
-        {"field": "user_id", "constraint": "required"},
-        {"field": "score", "constraint": "range", "min": 0, "max": 1},
-        {"field": "email", "constraint": "regex", "pattern": "^[^@]+@[^@]+\\.[^@]+$"}
+        {"field": "record_id", "constraint": "required"},
+        {"field": "relative_path", "constraint": "required"},
+        {"field": "source_sha256", "constraint": "regex", "pattern": "^[0-9a-f]{64}$"},
+        {"field": "size_bytes", "constraint": "range", "min": 1, "max": 10485760},
+        {"field": "detected_type", "constraint": "required"}
     ],
     "fail_on_first_error": false,
     "quarantine_invalid_records": true

@@ -176,9 +176,10 @@ def test_ka_032_semantic_contract():
 
     _assert_bounded_result("KA-032", completed)
     assert blocked.success is False
-    assert blocked.duration_ms <= load_manifest().entries[
-        "KA-032"
-    ].contract.performance_budget_ms
+    assert (
+        blocked.duration_ms
+        <= load_manifest().entries["KA-032"].contract.performance_budget_ms
+    )
     assert blocked.effects == []
     assert completed.output["final_status"] == "COMPLETED"
     assert completed.output["checkpoints_captured"] == 2
@@ -371,9 +372,10 @@ def test_ka_137_semantic_contract():
     )
 
     _assert_pure_bounded_result("KA-137", discovered)
-    assert [
-        finding["data_type"] for finding in discovered.output["findings"]
-    ] == ["api_key", "ssn"]
+    assert [finding["data_type"] for finding in discovered.output["findings"]] == [
+        "api_key",
+        "ssn",
+    ]
     assert discovered.output["matched_values_returned"] is False
     assert "abcdefghijklmnop" not in str(discovered.output)
     assert "123-45-6789" not in str(discovered.output)
@@ -754,9 +756,7 @@ def test_ka_106_semantic_contract():
     assert healthy.output["fallback_engaged"] is False
     assert failed.output["circuit_state"] == "OPEN"
     assert failed.output["fallback_engaged"] is True
-    assert failed.output["degraded_dependencies"] == {
-        "connector:local": "failed"
-    }
+    assert failed.output["degraded_dependencies"] == {"connector:local": "failed"}
 
 
 def test_ka_184_semantic_contract():
@@ -1033,12 +1033,161 @@ def test_ka_100_semantic_contract():
 
     _assert_pure_bounded_result("KA-100", high_load)
     _assert_pure_bounded_result("KA-100", stable)
-    assert high_load.output["recommendation"]["action"] == (
-        "review_capacity_increase"
-    )
-    assert stable.output["recommendation"]["action"] == (
-        "retain_current_capacity"
-    )
+    assert high_load.output["recommendation"]["action"] == ("review_capacity_increase")
+    assert stable.output["recommendation"]["action"] == ("retain_current_capacity")
     assert high_load.output["optimization_applied"] is False
     assert high_load.output["operations_applied"] == []
     assert high_load.output["measured_resources_reclaimed"] is None
+
+
+def _secure_ingestion_record(record_id: str = "policy.md") -> dict:
+    return {
+        "record_id": record_id,
+        "relative_path": record_id,
+        "source_sha256": "a" * 64,
+        "size_bytes": 15,
+        "detected_type": ".MD",
+    }
+
+
+def test_ka_071_semantic_contract():
+    payload = {"source_type": "local_file", "payload": [_secure_ingestion_record()]}
+    first = _execute("KA-071", payload)
+    second = _execute("KA-071", payload)
+
+    _assert_bounded_result("KA-071", first)
+    assert first.output == second.output
+    assert first.output["admitted_record_count"] == 1
+    assert first.output["records_ingested"] == 0
+    assert first.output["applied"] is False
+
+
+def test_ka_072_semantic_contract():
+    record = _secure_ingestion_record()
+    cleaned = _execute(
+        "KA-072",
+        {
+            "records": [{"record_id": "must-not-be-used"}],
+            "dependency_results": {
+                "KA-071": {"admitted_records": [record, dict(record)]}
+            },
+        },
+    )
+
+    _assert_pure_bounded_result("KA-072", cleaned)
+    assert cleaned.output["dependency_consumed"] is True
+    assert cleaned.output["cleaned_records"] == [record]
+    assert cleaned.output["exact_duplicates_removed"] == 1
+
+
+def test_ka_073_semantic_contract():
+    transformed = _execute(
+        "KA-073",
+        {
+            "dependency_results": {
+                "KA-072": {
+                    "cleaned_records": [
+                        {
+                            **_secure_ingestion_record(),
+                            "record_id": " policy.md ",
+                            "size_bytes": "15",
+                        }
+                    ]
+                }
+            }
+        },
+    )
+
+    _assert_pure_bounded_result("KA-073", transformed)
+    record = transformed.output["transformed_records"][0]
+    assert record["record_id"] == "policy.md"
+    assert record["size_bytes"] == 15
+    assert record["detected_type"] == ".md"
+    assert transformed.output["conversion_failures"] == []
+
+
+def test_ka_074_semantic_contract():
+    valid = _secure_ingestion_record()
+    invalid = {**valid, "record_id": "invalid.md", "source_sha256": "not-a-hash"}
+    validated = _execute(
+        "KA-074",
+        {"dependency_results": {"KA-073": {"transformed_records": [valid, invalid]}}},
+    )
+
+    _assert_pure_bounded_result("KA-074", validated)
+    assert validated.output["admission_allowed"] is False
+    assert validated.output["valid_records"] == [valid]
+    assert validated.output["quarantined"] == [
+        {"record_id": "invalid.md", "errors": ["source_sha256:format_invalid"]}
+    ]
+    assert "not-a-hash" not in str(validated.output["quarantined"])
+
+
+def test_ka_075_semantic_contract():
+    record = _secure_ingestion_record()
+    mapped = _execute(
+        "KA-075",
+        {
+            "target_schema": "knowledge_source",
+            "dependency_results": {"KA-074": {"valid_records": [record]}},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-075", mapped)
+    assert mapped.output["mapped_records"] == [record]
+    assert mapped.output["dependency_consumed"] is True
+
+
+def test_ka_076_semantic_contract():
+    first = _secure_ingestion_record()
+    conflicting = {**first, "source_sha256": "b" * 64}
+    resolved = _execute(
+        "KA-076",
+        {"dependency_results": {"KA-075": {"mapped_records": [first, conflicting]}}},
+    )
+
+    _assert_pure_bounded_result("KA-076", resolved)
+    assert resolved.output["resolution_allowed"] is False
+    assert resolved.output["fuzzy_matching_performed"] is False
+    assert resolved.output["strategy"] == "deterministic_exact_key"
+    assert len(resolved.output["conflicts"]) == 1
+
+
+def test_ka_077_semantic_contract():
+    record = {
+        **_secure_ingestion_record(),
+        "company": "Acme Health",
+        "location": "Seattle, WA",
+        "description": "HIPAA compliance audit",
+    }
+    enriched = _execute(
+        "KA-077",
+        {"dependency_results": {"KA-076": {"resolved_records": [record]}}},
+    )
+
+    _assert_pure_bounded_result("KA-077", enriched)
+    output_record = enriched.output["enriched_records"][0]
+    assert output_record["industry"] == "healthcare"
+    assert "privacy" in output_record["entity_topics"]
+    assert "geo_coords" not in output_record
+    assert enriched.output["providers_used"] == []
+    assert enriched.output["external_calls"] == 0
+
+
+def test_ka_078_semantic_contract():
+    record = _secure_ingestion_record()
+    proposed = _execute(
+        "KA-078",
+        {
+            "archive_requested": True,
+            "record_age_days_by_id": {"policy.md": 365},
+            "dependency_results": {"KA-077": {"enriched_records": [record]}},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-078", proposed)
+    assert proposed.output["eligible_record_ids"] == ["policy.md"]
+    assert proposed.output["eligible_record_count"] == 1
+    assert proposed.output["records_archived"] == 0
+    assert proposed.output["applied"] is False
+    assert proposed.output["compression_status"] == "not_applied"

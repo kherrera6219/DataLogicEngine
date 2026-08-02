@@ -1,0 +1,100 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+  "validated_on": "2026-08-02",
+  "qualified_ids": [
+    "KA-071",
+    "KA-072",
+    "KA-073",
+    "KA-074",
+    "KA-075",
+    "KA-076",
+    "KA-077",
+    "KA-078"
+  ],
+  "grouped_roadmap": {
+    "baseline_open_capabilities": 186,
+    "planned_batches": 36,
+    "batch_range": [8, 43],
+    "completed_batches": [8, 9],
+    "next_batch": 10,
+    "remaining_batches": 34
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 42,
+    "incomplete_capabilities": 171,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_ingestion_semantics",
+      "command": "python -m pytest tests/knowledge_algorithms/test_phase19_per_ka_semantics.py -k 'ka_071 or ka_072 or ka_073 or ka_074 or ka_075 or ka_076 or ka_077 or ka_078' -q",
+      "status": "pass",
+      "result": "8 passed, 34 deselected"
+    },
+    {
+      "name": "real_ingestion_owner_paths",
+      "command": "python -m pytest tests/integration/phase19/test_ingestion.py -q",
+      "status": "pass",
+      "result": "11 passed"
+    },
+    {
+      "name": "ingestion_regression_suite",
+      "command": "python -m pytest tests/unit/test_ki_local_ingestion.py tests/unit/test_phase9_ingestion_jobs.py tests/unit/test_phase9_parser_limits.py -q",
+      "status": "pass",
+      "result": "34 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "815 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "200 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2675 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "42/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority_and_selector_dag",
+      "command": "python scripts/verify_ka_runtime_authority.py; python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "runtime authority and selector/DAG verification passed"
+    },
+    {
+      "name": "documentation_references_and_truth",
+      "command": "python scripts/verify_docs_references.py; python scripts/verify_documentation_truth.py",
+      "status": "pass",
+      "result": "40 active Markdown files have 0 errors and 0 warnings; documentation truth passed 10/10"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 171 per-KA rows remain open across 34 planned batches.",
+    "KA-071 admits metadata but applies no write; LocalKnowledgeIngestionService alone owns and receipts the committed ingestion transaction.",
+    "KA-077 uses deterministic local rules with zero provider calls and does not claim geocoding or external enrichment.",
+    "KA-078 returns archive eligibility only; it applies no archival, deletion, compression, encryption, retention, or storage effect.",
+    "The reviewed candidate dataset exporter remains supporting tooling and does not qualify model-training KAs, providers, or installed gates.",
+    "No installed ingestion, retrieval, graph, workflow, accessibility, provider, independent-review, or soak acceptance is claimed.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

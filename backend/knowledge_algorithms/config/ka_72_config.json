@@ -1,7 +1,5 @@
 {
-    "deduplication_strategy": "fuzzy",
-    "fuzzy_threshold": 0.95,
-    "cleaning_ops": ["null_removal", "outlier_clipping", "whitespace_trim"],
-    "outlier_z_score": 3.0,
+    "deduplication_strategy": "canonical_json_exact",
+    "cleaning_ops": ["shallow_whitespace_trim", "null_field_removal", "exact_record_deduplication"],
     "drop_corrupt_records": true
 }

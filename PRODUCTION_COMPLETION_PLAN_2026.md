@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.56.0 |
+| Document version | v1.57.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5420,6 +5420,54 @@ Evidence:
 - `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`; and
 - `tests/integration/phase19/test_security_operations_lifecycle.py`.
 
+### CP19-K batch 09 passed 2026-08-02
+
+Batch 09 closes the complete `KA-071` through `KA-078` secure-ingestion chain
+through `LocalKnowledgeIngestionService`. The audit found that the manifest
+declared a dependency chain while every stage still received the same original
+records. It also found unsupported claims for fuzzy cleaning/resolution,
+enterprise-user transformations, external enrichment providers, fabricated
+coordinates, cold storage, compression, and retention effects.
+
+The corrected owner now supplies acquired local-file metadata to KA-071 only.
+KA-072 through KA-078 consume their declared predecessor outputs. The chain
+performs exact deterministic cleaning, declared metadata normalization,
+fail-closed content-free validation, explicit `knowledge_source` mapping,
+exact-key identity resolution, zero-egress local enrichment, and archive-
+eligibility planning. Fresh records are not archive eligible, and KA-078 never
+claims compression, encryption, deletion, storage savings, or archival effects.
+
+Before SQL, vector, graph, object, or outbox materialization, the owner validates
+that all eight stages executed, consumed their predecessor, preserved the exact
+acquired identity and hash set, admitted validation, rejected resolution
+conflicts, and returned proposal-only effect state. Persisted nodes carry the
+validated plan/proposal/chain identity. The committing ingestion transaction
+binds the KA-071 admission proposal to one idempotent SHA-256 authoritative
+service receipt; the unapplied KA-078 archive proposal is deliberately excluded.
+Rollback and required-failure behavior continue to produce a failed job and zero
+graph/outbox materialization.
+
+The same proof exposed and fixed a shared trace gap: manifest dependencies now
+record `candidate` before `dependency` and `selected`, so every qualified root
+and transitive KA has the required planned-through-executed trace sequence.
+
+The matrix and verifier pass at 42/213 qualified and 171 incomplete. Grouped
+Batches 08 and 09 are complete; 34 planned batches remain and Batch 10, provider
+model preparation (`KA-081`, `KA-082`, `KA-085`, and `KA-086`), is next. The KA
+suite passes 815 tests with three known deprecation warnings; the governed
+execution, TruthCore, Phase 19, and simulation integration set passes 200; and
+the full source suite passes 2,675 tests with 18 skipped and 35 known warnings.
+Rebuild authorization remains false and CP19-L/CP19-M remain unauthorized.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-09-validation.json`;
+- `config/phase19-ka-qualification-evidence.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_ingestion.py`; and
+- `backend/ingestion/local_ingestion.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5866,12 +5914,12 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-08 now truthfully
-qualify 34 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-09 now truthfully
+qualify 42 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
-measured provider monitoring, and content-free authenticated observability,
-leaving 179 of 213 rows open. The
+measured provider monitoring, content-free authenticated observability, and the
+causal secure-ingestion pipeline, leaving 171 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -5889,10 +5937,11 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batch 08 is complete and 35 remain. Continue CP19-K with Batch
-09, the secure ingestion pipeline (`KA-071` through `KA-078`), through one
-admitted transaction and authoritative write/archive receipts. Keep every later
-row incomplete until its individual owner/effect evidence exists.
+batches (08-43); Batches 08 and 09 are complete and 34 remain. Continue CP19-K
+with Batch 10, provider model preparation (`KA-081`, `KA-082`, `KA-085`, and
+`KA-086`), through the real provider owner without treating the reviewed
+training-data exporter as model-training evidence. Keep every later row
+incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

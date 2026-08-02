@@ -40,7 +40,7 @@ Status: `engineering_candidates_not_production_approved`. Runtime: `podman 6.0.1
 | OpenAPI title | `DataLogicEngine API` |
 | OpenAPI document version | `3.5.0` |
 | OpenAPI path count | `62` |
-| Live Flask route count | `502` |
+| Live Flask route count | `504` |
 | Unclassified live routes | `0` |
 | GraphQL operations | `12` |
 | Electron IPC channels | `19` |

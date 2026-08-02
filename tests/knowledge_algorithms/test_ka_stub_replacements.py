@@ -535,11 +535,11 @@ def test_ka077_enriches_records_locally():
 
     assert result["success"] is True
     assert enriched["industry"] == "healthcare"
-    assert enriched["geo_coords"] == KA077DataEnrichment._deterministic_coordinates(
-        "Seattle, WA"
-    )
+    assert "geo_coords" not in enriched
     assert "privacy" in enriched["entity_topics"]
     assert result["output"]["enrichment_summary"]["local_only"] is True
+    assert result["output"]["providers_used"] == []
+    assert result["output"]["external_calls"] == 0
 
 
 def test_ka079_retrieves_ranked_local_records_with_filters():

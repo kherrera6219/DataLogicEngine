@@ -26,6 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K secure-ingestion batch 09**: qualified `KA-071` through
+  `KA-078` through the real `LocalKnowledgeIngestionService` transaction. The
+  chain now consumes each declared dependency, fails closed on invalid or
+  conflicting acquired metadata, uses deterministic exact cleaning/resolution,
+  performs no enrichment egress or fabricated geocoding, and leaves archival
+  proposal-only. Persisted nodes carry the validated plan identity, and the
+  committing transaction binds only KA-071 to an idempotent authoritative
+  receipt. Transitive selector dependencies now also record candidate state
+  before dependency/selection, completing the required KA trace. The matrix is
+  42/213 qualified with 171 open; 815 KA tests, 200
+  governed/TruthCore/Phase-19 integrations, and the full 2,675-test source suite
+  pass with 18 skipped and 35 known warnings.
 - **Owner-operated candidate training-dataset export**: reviewed and hardened
   the parallel exporter before integration. The authenticated desktop/API flow
   now creates SFT or status-labelled PRM candidates only from explicitly

@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-02T07:29:52.651635+00:00",
+  "generated_at": "2026-08-02T08:43:40.902501+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -11,34 +11,34 @@
     {
       "name": "live_route_manifest",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_route_manifest.py",
         "--output",
-        "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-docs-stage-019fc068\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
+        "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
         "--fail-unclassified"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "{\n  \"routes\": 502,\n  \"classifications\": {\n    \"authenticated-mutation\": 121,\n    \"authenticated-read\": 256,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 94,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
+      "stdout": "{\n  \"routes\": 504,\n  \"classifications\": {\n    \"authenticated-mutation\": 121,\n    \"authenticated-read\": 257,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 95,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
       "stderr": "Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30\nCould not register Replit Auth blueprint: No module named 'replit_auth'\n"
     },
     {
       "name": "product_version_parity",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_product_versions.py",
         "--report",
-        "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-docs-stage-019fc068\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
+        "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "[PASS] pyproject: 4.3.0\n[PASS] frontend-package: 4.3.0\n[PASS] frontend-lock: 4.3.0\n[PASS] frontend-lock-root: 4.3.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: 0a1b2c3d4e5f\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.3.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\Users\\kevin\\AppData\\Local\\Temp\\dle-docs-stage-019fc068\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
+      "stdout": "[PASS] pyproject: 4.3.0\n[PASS] frontend-package: 4.3.0\n[PASS] frontend-lock: 4.3.0\n[PASS] frontend-lock-root: 4.3.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: 0a1b2c3d4e5f\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.3.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
       "stderr": ""
     },
     {
       "name": "openapi_compatibility",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/check_gateway_openapi_compatibility.py"
       ],
       "passed": true,
@@ -49,7 +49,7 @@
     {
       "name": "generated_contract_index",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/generate_documentation_contract_index.py",
         "--check"
       ],
@@ -61,7 +61,7 @@
     {
       "name": "documentation_authority",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_doc_authority.py"
       ],
       "passed": true,
@@ -72,7 +72,7 @@
     {
       "name": "documentation_bom",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_documentation_bom.py"
       ],
       "passed": true,
@@ -83,7 +83,7 @@
     {
       "name": "phase16_replacement",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_document_replacement_closure.py"
       ],
       "passed": true,
@@ -94,7 +94,7 @@
     {
       "name": "phase17_history",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/consolidate_phase17_history.py"
       ],
       "passed": true,
@@ -105,7 +105,7 @@
     {
       "name": "requirements_traceability",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_requirements_traceability.py"
       ],
       "passed": true,
@@ -116,7 +116,7 @@
     {
       "name": "documentation_references",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_docs_references.py"
       ],
       "passed": true,

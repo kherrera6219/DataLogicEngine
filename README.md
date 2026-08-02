@@ -40,9 +40,9 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 34/213; 179 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batch 08 complete, Batch 09 next, 35 remain |
-| Latest source validation | 2,658 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 42/213; 171 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-09 complete, Batch 10 next, 34 remain |
+| Latest source validation | 2,675 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
@@ -55,16 +55,18 @@ performed. Provider calls now retain their pre-call context-governance plan
 identity, while post-call latency monitoring recommends but never claims to send
 an alert. Batch 08 now connects seven content-free observability KAs to the
 authenticated diagnostics owner without rendering, distributing, delivering,
-profiling secretly, opening a debug port, or mutating runtime capacity. No
-registry-only, execute-only, or direct-test-only capability is counted as
-production-qualified.
+profiling secretly, opening a debug port, or mutating runtime capacity. Batch 09
+now makes all eight secure-ingestion KAs causal before materialization, removes
+unsupported fuzzy/provider/archive claims, and binds the admission proposal to
+the owner transaction while archival remains proposal-only. No registry-only,
+execute-only, or direct-test-only capability is counted as production-qualified.
 
 The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batch 08 is complete; the current matrix has
-179 open rows and Batch 09 is the secure ingestion pipeline.
+treated as one unsafe mega-batch. Batches 08 and 09 are complete; the current
+matrix has 171 open rows and Batch 10 is provider model preparation.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -177,6 +179,12 @@ Completed source and engineering checkpoints:
   diagnostics through the authenticated security/operations owner. Their
   visualization/dashboard/report/alert/profile/debug/optimization outputs are
   specifications or recommendations only and apply zero effects
+- Phase 19 CP19-K Batch 09 passed: `KA-071` through `KA-078` now execute as one
+  causal local-file metadata chain before any SQL/vector/graph/object/outbox
+  materialization. The owner rejects broken handoffs, preserves the acquired
+  identity/hash set, stores the plan identity with nodes, and binds only the
+  KA-071 admission proposal to the committed transaction receipt. Enrichment
+  performs no egress and archive eligibility applies no archive effect
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -202,14 +210,15 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-08 qualify 34/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-09 qualify 42/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
-  authenticated content-free diagnostics advisory; 179 rows remain open
-- The reviewed remaining roadmap contains 35 cohesive batches (09-43), each
-  bounded to one production owner and effect boundary. Batch 09 is the eight-KA
-  secure ingestion pipeline. Grouping shares fixtures and transactions but does
+  authenticated content-free diagnostics advisory and causal secure ingestion;
+  171 rows remain open
+- The reviewed remaining roadmap contains 34 cohesive batches (10-43), each
+  bounded to one production owner and effect boundary. Batch 10 is the four-KA
+  provider model-preparation group. Grouping shares fixtures and transactions but does
   not waive any individual semantic, owning-path, trace, security, effect, or
   performance proof
 - Eleven additional provider/gateway KAs remain open: model training,

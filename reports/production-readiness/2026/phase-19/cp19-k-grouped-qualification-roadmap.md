@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.02-cp19k-grouped.1`
+**Plan version:** `2026.08.02-cp19k-grouped.2`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batch 08 passed; 34/213 qualified, 179 open; Batch 09 next
+**Current checkpoint:** Batches 08-09 passed; 42/213 qualified, 171 open; Batch 10 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -61,7 +61,7 @@ open prerequisite.
 | Batch | Cohesive boundary | Owner | KAs | Count |
 |---:|---|---|---|---:|
 | 08 | Operations observability — **passed 2026-08-02** | security/operations | 091, 092, 094, 095, 098, 099, 100 | 7 |
-| 09 | Secure ingestion pipeline | ingestion | 071-078 | 8 |
+| 09 | Secure ingestion pipeline — **passed 2026-08-02** | ingestion | 071-078 | 8 |
 | 10 | Provider model preparation | provider/gateway | 081, 082, 085, 086 | 4 |
 | 11 | Provider model release | provider/gateway | 083, 087-090 | 5 |
 | 12 | Knowledge temporal health | TruthMemory/TruthLink/FROST | 023, 052, 064, 1082, 1083, 1093, 1105 | 7 |

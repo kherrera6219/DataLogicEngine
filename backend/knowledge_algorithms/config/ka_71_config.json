@@ -1,11 +1,12 @@
 {
-    "ingestion_modes": ["batch", "stream"],
-    "supported_formats": ["json", "csv", "xml", "parquet"],
-    "batch_size": 1000,
-    "stream_buffer_ms": 500,
-    "handlers": {
-        "s3": "S3IngestHandler",
-        "kafka": "KafkaStreamHandler",
-        "local_file": "FileHandler"
-    }
+    "source_types": ["local_file"],
+    "max_records": 1000,
+    "required_metadata_fields": [
+        "record_id",
+        "relative_path",
+        "source_sha256",
+        "size_bytes",
+        "detected_type"
+    ],
+    "effect_mode": "proposal_only"
 }

@@ -1,8 +1,8 @@
 {
     "canonical_schemas": {
+        "knowledge_source": ["record_id", "relative_path", "source_sha256", "size_bytes", "detected_type"],
         "user_profile": ["first_name", "last_name", "email", "registration_date"],
         "transaction": ["id", "amount", "currency", "timestamp"]
     },
-    "default_alignment_mode": "best_fit",
-    "similarity_threshold": 0.8
+    "default_alignment_mode": "explicit_fields"
 }

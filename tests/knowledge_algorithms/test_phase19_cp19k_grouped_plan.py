@@ -7,7 +7,6 @@ from pathlib import Path
 
 from backend.knowledge_algorithms.manifest import load_manifest
 
-
 ROOT = Path(__file__).resolve().parents[2]
 PLAN_PATH = ROOT / "config" / "phase19-ka-grouped-batches.json"
 MATRIX_PATH = (
@@ -50,10 +49,10 @@ def test_grouped_plan_covers_every_open_ka_exactly_once():
     assert plan["planned_capabilities"] == 186
     assert plan["planned_batch_count"] == 36
     assert plan["batch_number_range"] == [8, 43]
-    assert plan["completed_batch_numbers"] == [8]
-    assert plan["next_batch_number"] == 9
-    assert plan["current_qualified_capabilities"] == 34
-    assert plan["current_open_capabilities"] == 179
+    assert plan["completed_batch_numbers"] == [8, 9]
+    assert plan["next_batch_number"] == 10
+    assert plan["current_qualified_capabilities"] == 42
+    assert plan["current_open_capabilities"] == 171
     assert len(plan["batches"]) == 36
     assert len(planned_ids) == len(set(planned_ids)) == 186
     assert remaining_planned_ids == open_ids

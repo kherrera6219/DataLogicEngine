@@ -203,6 +203,15 @@ def test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order():
     assert first.entries["KA-117"].required
     assert first.entries["KA-117"].disposition == KAPlanDisposition.SELECTED
     assert first.entries["KA-065"].role.value == "dependency"
+    dependency_states = [
+        event.state.value for event in first.entries["KA-065"].events
+    ]
+    assert dependency_states[:4] == [
+        "planned",
+        "candidate",
+        "dependency",
+        "selected",
+    ]
     assert first.entries["KA-033"].disposition == KAPlanDisposition.SKIPPED
     assert all(
         set(first.execution_order[index]).isdisjoint(

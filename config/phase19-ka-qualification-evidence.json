@@ -93,6 +93,21 @@
         "KA-100"
       ],
       "scope": "Authenticated content-free diagnostics visualization, dashboard, report planning, alerting, profiling, debugging, and optimization recommendations"
+    },
+    {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "completed_on": "2026-08-02",
+      "canonical_ids": [
+        "KA-071",
+        "KA-072",
+        "KA-073",
+        "KA-074",
+        "KA-075",
+        "KA-076",
+        "KA-077",
+        "KA-078"
+      ],
+      "scope": "Causal local-file ingestion admission, cleaning, transformation, validation, mapping, exact identity resolution, no-egress enrichment, archive eligibility, and transaction-bound owner receipt"
     }
   ],
   "qualifications": {
@@ -677,6 +692,143 @@
         "rationale": "KA-100 returns a capacity recommendation only and explicitly applies no JIT, garbage collection, thread-pool, memory, or runtime mutation."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_100_semantic_contract"
+    },
+    "KA-071": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_071_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_071_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_071_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_ingestion.py::test_ka_071_owning_path",
+        "rationale": "SecureAcquisitionSession supplies bounded content-free local-file metadata; KA-071 admits only the supported source type and LocalKnowledgeIngestionService validates the full chain before materialization."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_ingestion.py::test_ka_071_owning_path",
+        "rationale": "KA-071 returns an unapplied proposal; LocalKnowledgeIngestionService binds that proposal to an idempotent SHA-256 authoritative receipt in the same transaction that commits the ingestion job and outbox work."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_071_semantic_contract"
+    },
+    "KA-072": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_072_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_072_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_072_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_072_semantic_contract",
+        "rationale": "The stage consumes only KA-071 output and performs shallow whitespace trimming, null-field removal, and exact canonical-JSON deduplication without fuzzy or statistical claims."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-072 is a pure in-memory metadata cleaning stage with no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_072_semantic_contract"
+    },
+    "KA-073": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_073_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_073_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_073_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_ingestion.py::test_ka_073_owning_path",
+        "rationale": "The owner proves KA-073 consumes KA-072, normalizes only declared secure-ingestion metadata types, records conversion failures, and preserves the authoritative record chain hash."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-073 performs a bounded in-memory metadata transformation and has no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_073_semantic_contract"
+    },
+    "KA-074": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_074_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_074_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_074_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_074_semantic_contract",
+        "rationale": "Validation is fail closed at the owner boundary, checks required local-file metadata, returns content-free quarantine summaries, and prevents any SQL, vector, graph, object, or outbox materialization on rejection."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-074 returns an admission decision only; LocalKnowledgeIngestionService owns all later effects."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_074_semantic_contract"
+    },
+    "KA-075": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_075_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_075_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_075_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_ingestion.py::test_ka_075_owning_path",
+        "rationale": "The production owner requests the explicit knowledge_source schema, consumes KA-074 valid records, and anchors the validated plan identity in persisted node metadata."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-075 performs explicit in-memory field alignment and has no persistence effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_075_semantic_contract"
+    },
+    "KA-076": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_076_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_076_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_076_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_076_semantic_contract",
+        "rationale": "Resolution uses deterministic exact keys, never runtime object identity or fuzzy matching, and rejects same-key conflicting records before the owner can materialize them."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-076 returns a bounded exact-resolution decision and performs no merge or persistence effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_076_semantic_contract"
+    },
+    "KA-077": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_077_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_077_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_077_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_077_semantic_contract",
+        "rationale": "The stage reports zero external calls and no providers, performs deterministic local topic and industry inference only, and never fabricates geospatial coordinates."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-077 applies only local in-memory advisory fields and has no provider or persistence effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_077_semantic_contract"
+    },
+    "KA-078": {
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_078_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_ingestion.py::test_ka_078_owning_path",
+      "trace_test": "tests/integration/phase19/test_ingestion.py::test_ka_078_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_ingestion.py::test_ka_078_owning_path",
+        "rationale": "Fresh ingestion explicitly disables archival; the stage consumes the final dependency, reports zero eligible or archived records, and does not claim compression, encryption, deletion, or storage effects."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest declares no KA-078 effect port; its archive output is proposal-only and the ingestion receipt deliberately excludes the archive proposal identity."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_078_semantic_contract"
     }
   }
 }

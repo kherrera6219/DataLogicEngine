@@ -1,99 +1,105 @@
-"""
-KA-071: Data Ingestion
-Purpose: Ingest data from various sources (batches or streams) with protocol-specific handlers.
-"""
-import logging
-import json
-import os
-import hashlib
-from typing import Dict, Any, List
+"""KA-071: validate a bounded local-file ingestion proposal."""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import (
+    load_config,
+    stable_identifier,
+)
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from core.knowledge_algorithm.exceptions import KAIntegrationError
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA071IngestionInput(BaseModel):
-    source_type: str = Field("local_file", description="The type of data source (e.g., local_file, stream, api)")
-    payload: List[Any] = Field(default_factory=list, description="The raw data payload to ingest")
+    model_config = ConfigDict(extra="forbid")
+
+    source_type: Literal["local_file"] = "local_file"
+    payload: list[dict[str, Any]] = Field(default_factory=list, max_length=1_000)
+
 
 class KA071DataIngestion(KnowledgeAlgorithm):
-    """
-    KA-071: Enterprise-grade data ingestion engine with resilience patterns.
-    """
+    """Admit secure-acquisition metadata without applying an ingestion effect."""
+
     input_schema = KA071IngestionInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-071"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_71_config.json")
 
-    def _default_config(self) -> Dict[str, Any]:
-        return {
-            "handlers": {},
-            "batch_size": 1000,
-        }
+    def _run_logic(self, input_data: KA071IngestionInput) -> dict[str, Any]:
+        required_fields = tuple(
+            self.config.get(
+                "required_metadata_fields",
+                (
+                    "record_id",
+                    "relative_path",
+                    "source_sha256",
+                    "size_bytes",
+                    "detected_type",
+                ),
+            )
+        )
+        admitted: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for index, source_record in enumerate(input_data.payload):
+            record = dict(source_record)
+            missing = [
+                field
+                for field in required_fields
+                if field not in record or record[field] in (None, "")
+            ]
+            if missing:
+                raise ValueError(
+                    f"record {index} is missing required metadata: " + ",".join(missing)
+                )
+            record_id = str(record["record_id"])
+            if record_id in seen_ids:
+                raise ValueError(f"duplicate ingestion record_id: {record_id}")
+            seen_ids.add(record_id)
+            admitted.append(record)
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_71_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    loaded = json.load(f) or {}
-                    return {**self._default_config(), **loaded}
-            return self._default_config()
-        except Exception:
-            return self._default_config()
-
-    def _run_logic(self, input_data: KA071IngestionInput) -> Dict[str, Any]:
-        source_type = input_data.source_type
-        payload = input_data.payload
-        self.log_execution_step("Executing Ingestion Pipeline", {"source": source_type, "count": len(payload)})
-        
-        handler_name = self.config.get("handlers", {}).get(source_type, "DefaultHandler")
-        # Simulating a source-specifically failure
-        if source_type == "api" and not payload:
-             raise KAIntegrationError(f"API Source {source_type} returned no data and is considered down.")
-
-        batch_size = self.config.get("batch_size", 1000)
-        mode = "stream" if len(payload) < batch_size else "batch"
-        
-        proposal_id = hashlib.sha256(
-            json.dumps(
-                {"source_type": source_type, "payload": payload},
-                sort_keys=True,
-                default=str,
-            ).encode("utf-8")
-        ).hexdigest()
-
+        proposal_id = stable_identifier(
+            "ingestion_admission",
+            {
+                "source_type": input_data.source_type,
+                "records": admitted,
+            },
+            length=32,
+        )
+        self.log_execution_step(
+            "Validated local ingestion proposal",
+            {"source": input_data.source_type, "count": len(admitted)},
+        )
         return {
             "success": True,
             "proposal_id": proposal_id,
-            "admitted_record_count": len(payload),
+            "admitted_records": admitted,
+            "admitted_record_count": len(admitted),
             "records_ingested": 0,
             "applied": False,
+            "source_type": input_data.source_type,
             "authoritative_service": "LocalKnowledgeIngestionService",
             "effect_prerequisite": "secure_acquisition_and_sql_job_commit",
-            "ingestion_summary": {
-                "source": source_type,
-                "handler_active": handler_name,
-                "data_mode": mode
-            }
+            "limitation": "Admission validates metadata only; it does not write records.",
         }
 
-    def _fallback_logic(self, input_data: KA071IngestionInput, error: Exception) -> Dict[str, Any]:
-        """Failsafe: Return zero records but allow the system to remain up."""
-        self.logger.warning(f"Resilience Fallback for KA-071: {str(error)}")
+    def _fallback_logic(
+        self,
+        input_data: KA071IngestionInput,
+        error: Exception,
+    ) -> dict[str, Any]:
         return {
             "success": False,
             "records_ingested": 0,
-            "status": "DEGRADED",
+            "applied": False,
             "fallback_active": True,
-            "error_msg": str(error)
+            "error_code": "INGESTION_ADMISSION_FAILED",
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    algo = KA071DataIngestion(context)
-    return algo.run(context)
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA071DataIngestion(context).run(context)

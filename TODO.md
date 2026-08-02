@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-02 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.56.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.57.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -211,13 +211,24 @@ Phase 18 source baseline while completing the whole-application wiring.
         files/distribution and runtime optimization claims; the group renders,
         distributes, delivers, persists, profiles secretly, opens no debug
         port, and applies zero runtime effects.
-      - The generated matrix and integrity verifier pass at 34/213 qualified
-        and 179 incomplete; rebuild authorization remains false. Runtime
+      - Batch 09 passed 2026-08-02: `KA-071` through `KA-078` now form one real
+        causal secure-ingestion chain. Each stage consumes its declared
+        predecessor; cleaning and resolution are deterministic exact operations;
+        validation is fail closed and content free; enrichment makes zero
+        external calls and fabricates no coordinates; archival remains an
+        eligibility proposal. `LocalKnowledgeIngestionService` validates the
+        exact acquired metadata set before materialization, stores the plan
+        identity with nodes, and binds KA-071 to an idempotent transaction
+        receipt while excluding the unapplied KA-078 archive proposal. The
+        shared selector now records candidate state for transitive dependencies
+        before dependency/selection, closing the required trace sequence.
+      - The generated matrix and integrity verifier pass at 42/213 qualified
+        and 171 incomplete; rebuild authorization remains false. Runtime
         manifest `2026.08.01-cp19k.2` retains 213 capabilities, 149 production-
-        enabled capabilities, and a 136-edge zero-cycle graph. The 807-test KA
-        suite, 191 governed/TruthCore/Phase-19/simulation integration tests,
+        enabled capabilities, and a 136-edge zero-cycle graph. The 815-test KA
+        suite, 200 governed/TruthCore/Phase-19/simulation integration tests,
         430 retained frontend tests, frontend type checking, seven TypeScript
-        SDK tests, and 2,658-test full source suite pass; the source suite has
+        SDK tests, and 2,675-test full source suite pass; the source suite has
         18 skipped and 35 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
@@ -230,10 +241,11 @@ Phase 18 source baseline while completing the whole-application wiring.
         Python and Node authorities. Local `pip-audit` and `npm audit` report
         zero known vulnerabilities, both lockfile-governance gates pass, and
         GitHub now reports zero open Dependabot alerts after its rescan.
-      - Next: execute grouped Batch 09 for the secure ingestion pipeline
-        (`KA-071` through `KA-078`) through one admitted transaction and its
-        authoritative write/archive receipts. Keep every later batch open until
-        its named individual and owner/effect evidence passes.
+      - Next: execute grouped Batch 10 for provider model preparation
+        (`KA-081`, `KA-082`, `KA-085`, and `KA-086`) through the real provider
+        owner. The candidate dataset exporter is supporting tooling, not model-
+        training qualification. Keep every later batch open until its named
+        individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -961,7 +973,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-08 qualify 34/213 rows, 179 remain open in 35 grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-09 qualify 42/213 rows, 171 remain open in 34 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -983,9 +995,9 @@ Complete CP19-K by closing the generated 213-row matrix with one individually
 named semantic test, positive/negative selector proof, real owning-path
 assertion, explicit limitation, causal trace proof, and applicable security,
 effect, and performance evidence for every canonical capability. Proceed next
-with grouped Batch 09 (`KA-071` through `KA-078`), the secure ingestion
-pipeline, using the reviewed 36-batch roadmap and keeping its effect receipts
-owned by the authoritative ingestion service.
+with grouped Batch 10 (`KA-081`, `KA-082`, `KA-085`, and `KA-086`), provider
+model preparation, using the reviewed 36-batch roadmap and the real provider
+owner. Keep the candidate dataset exporter separate from training qualification.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

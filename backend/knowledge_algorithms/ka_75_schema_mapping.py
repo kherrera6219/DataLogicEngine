@@ -1,72 +1,70 @@
-"""
-KA-075: Schema Mapping
-Purpose: Align source-specific record structures into canonical enterprise schemas.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-075: explicit local schema mapping for admitted records."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.ingestion_pipeline_utils import dependency_records
+from backend.knowledge_algorithms.production_utils import load_config
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA075MappingInput(BaseModel):
-    records: List[Any] = Field(default_factory=list, description="The list of records to map")
-    target_schema: str = Field("user_profile", description="The name of the target canonical schema")
+    model_config = ConfigDict(extra="forbid")
+
+    records: list[Any] = Field(default_factory=list, max_length=1_000)
+    target_schema: str = Field("knowledge_source", min_length=1, max_length=100)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA075SchemaMapping(KnowledgeAlgorithm):
-    """
-    KA-075: Cross-system schema alignment and canonical mapping engine.
-    """
     input_schema = KA075MappingInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-075"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_75_config.json")
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_75_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA075MappingInput) -> Dict[str, Any]:
-        records = input_data.records
-        target_schema_name = input_data.target_schema
-        self.log_execution_step("Mapping to Canonical Schema", {"target": target_schema_name, "count": len(records)})
-        
-        canonical_fields = self.config.get("canonical_schemas", {}).get(target_schema_name, [])
-        mapped_records = []
-        
+    def _run_logic(self, input_data: KA075MappingInput) -> dict[str, Any]:
+        records = dependency_records(
+            input_data.dependency_results,
+            "KA-074",
+            "valid_records",
+            input_data.records,
+        )
+        schemas = self.config.get("canonical_schemas") or {}
+        canonical_fields = schemas.get(input_data.target_schema)
+        if not isinstance(canonical_fields, list) or not canonical_fields:
+            raise ValueError(f"unknown canonical schema: {input_data.target_schema}")
+        mapped_records: list[dict[str, Any]] = []
         for record in records:
             if not isinstance(record, dict):
                 continue
-            
-            mapped = {}
+            mapped: dict[str, Any] = {}
             for field in canonical_fields:
-                mapped[field] = record.get(field) or record.get(f"src_{field}")
-            
+                if field in record:
+                    mapped[field] = record[field]
+                elif f"src_{field}" in record:
+                    mapped[field] = record[f"src_{field}"]
+                else:
+                    mapped[field] = None
             mapped_records.append(mapped)
-            
+
+        self.log_execution_step(
+            "Mapped admitted records",
+            {"target": input_data.target_schema, "count": len(mapped_records)},
+        )
         return {
             "success": True,
+            "mapped_records": mapped_records,
             "records_mapped": len(mapped_records),
-            "target_schema": target_schema_name,
-            "fields_aligned": canonical_fields
+            "target_schema": input_data.target_schema,
+            "fields_aligned": list(canonical_fields),
+            "dependency_consumed": "KA-074" in input_data.dependency_results,
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA075SchemaMapping(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-075 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA075SchemaMapping(context).run(context)

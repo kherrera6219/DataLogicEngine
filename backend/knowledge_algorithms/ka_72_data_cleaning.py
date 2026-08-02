@@ -1,72 +1,92 @@
-"""
-KA-072: Data Cleaning
-Purpose: Scrub ingested data for duplicates, outliers, and corrupt values.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-072: deterministic, local ingestion-metadata cleaning."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.ingestion_pipeline_utils import (
+    canonical_record,
+    dependency_records,
+)
+from backend.knowledge_algorithms.production_utils import load_config
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA072CleaningInput(BaseModel):
-    records: List[Any] = Field(default_factory=list, description="The list of ingested records to clean")
+    model_config = ConfigDict(extra="forbid")
+
+    records: list[Any] = Field(default_factory=list, max_length=1_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA072DataCleaning(KnowledgeAlgorithm):
-    """
-    KA-072: Robust data cleaning, deduplication, and scrubbing engine.
-    """
     input_schema = KA072CleaningInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-072"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_72_config.json")
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_72_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA072CleaningInput) -> Dict[str, Any]:
-        data_records = input_data.records
-        self.log_execution_step("Cleaning Ingested Data", {"record_count": len(data_records)})
-        
-        ops = self.config.get("cleaning_ops", [])
-        drop_corrupt = self.config.get("drop_corrupt_records", True)
-        cleaned_count = 0
-        dropped_count = 0
-        
-        results = []
-        for record in data_records:
-            if not record and drop_corrupt:
-                dropped_count += 1
+    def _run_logic(self, input_data: KA072CleaningInput) -> dict[str, Any]:
+        records = dependency_records(
+            input_data.dependency_results,
+            "KA-071",
+            "admitted_records",
+            input_data.records,
+        )
+        cleaned_records: list[dict[str, Any]] = []
+        fingerprints: set[str] = set()
+        invalid_count = 0
+        duplicate_count = 0
+        trimmed_fields = 0
+        null_fields_removed = 0
+        for record in records:
+            if not isinstance(record, dict) or not record:
+                invalid_count += 1
                 continue
-            
-            cleaned_count += 1
-            results.append(record)
-            
+            cleaned: dict[str, Any] = {}
+            for key, value in record.items():
+                if value is None:
+                    null_fields_removed += 1
+                    continue
+                if isinstance(value, str):
+                    normalized = value.strip()
+                    if normalized != value:
+                        trimmed_fields += 1
+                    cleaned[str(key)] = normalized
+                else:
+                    cleaned[str(key)] = value
+            fingerprint = canonical_record(cleaned)
+            if fingerprint in fingerprints:
+                duplicate_count += 1
+                continue
+            fingerprints.add(fingerprint)
+            cleaned_records.append(cleaned)
+
+        self.log_execution_step(
+            "Cleaned ingestion metadata",
+            {"input": len(records), "cleaned": len(cleaned_records)},
+        )
         return {
             "success": True,
-            "ops_performed": ops,
-            "cleaned_count": cleaned_count,
-            "dropped_count": dropped_count,
-            "cleaning_efficiency": cleaned_count / max(1, len(data_records))
+            "cleaned_records": cleaned_records,
+            "source_record_count": len(records),
+            "cleaned_count": len(cleaned_records),
+            "dropped_count": invalid_count + duplicate_count,
+            "invalid_records_dropped": invalid_count,
+            "exact_duplicates_removed": duplicate_count,
+            "trimmed_fields": trimmed_fields,
+            "null_fields_removed": null_fields_removed,
+            "ops_performed": [
+                "shallow_whitespace_trim",
+                "null_field_removal",
+                "exact_record_deduplication",
+            ],
+            "dependency_consumed": "KA-071" in input_data.dependency_results,
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA072DataCleaning(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-072 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA072DataCleaning(context).run(context)
