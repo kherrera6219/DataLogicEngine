@@ -50,6 +50,11 @@ def register_routes(app):
 
     app.register_blueprint(compliance_bp)
 
+    # Dataset Exporter routes (`/api/v1/dataset/*`)
+    from .dataset_routes import dataset_bp
+
+    app.register_blueprint(dataset_bp)
+
     # User data rights routes
     from .user_data_routes import user_data_bp
 

@@ -65,7 +65,7 @@ the local desktop trust boundary.
 | `/knowledge` | Knowledge records and graph-related review. |
 | `/truth-engine` | Truth Engine status and monitoring. |
 | `/mcp` | MCP connector hub where enabled. |
-| `/settings` | API, storage, AI model, preferences, and local configuration. |
+| `/settings` | API, storage, AI model, preferences, Dataset Exporter, and local configuration. |
 | `/settings/privacy` | Export/delete profile data and manage privacy controls. |
 | `/admin` | Admin telemetry/provider/compliance views (single owner; no user management). |
 | `/admin/diagnostics` | Content-free runtime diagnostics and previewed support-bundle export. |
@@ -317,6 +317,20 @@ streaming and v1 does not resume a disconnected stream.
 External crash reporting remains off unless the owner explicitly enables the
 backend and/or renderer telemetry opt-in. Configuring a DSN by itself does not
 authorize egress.
+
+### 15. Create a candidate training dataset
+
+1. Open `/settings` and select **Dataset Exporter**.
+2. Enable the manual controls. This does not start automatic or background
+   export work.
+3. Select SFT or PRM candidate output, JSONL or Parquet, and a confidence
+   threshold.
+4. Trigger the export explicitly. Only completed, release-authorized records
+   are eligible; redaction is always enforced and cannot be disabled.
+5. Treat the artifact as sensitive derived data and review it before sharing or
+   using it for training. PRM labels reflect recorded stage status, not human-
+   validated rewards. DPO is unavailable from the current database/UI because
+   a real rejected candidate is not persisted.
 
 ## Understanding local-first privacy
 

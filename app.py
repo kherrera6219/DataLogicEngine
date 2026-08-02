@@ -1077,17 +1077,28 @@ def health_diagnostics() -> tuple:
 def _diagnostics_summary() -> dict:
     """Return local, authenticated, content-free diagnostic state."""
     from backend.observability.crash_reporting import crash_reporting_state
+    from backend.governed_execution.extended_subsystems import (
+        ExtendedSubsystemCoordinator,
+    )
 
     runtime = get_application_runtime()
     metrics_snapshot = runtime.metrics.snapshot()
     crash_state = crash_reporting_state()
     init_error = crash_state.get("init_error")
-    return {
+    config_state = _config_health()
+    database_state = _database_health()
+    diagnostic_status = (
+        "ok"
+        if database_state.get("status") == "ok"
+        and config_state.get("secret_key") != "missing"
+        else "degraded"
+    )
+    diagnostics = {
         "schema_version": "dle.diagnostics.v1",
-        "status": "ok",
+        "status": diagnostic_status,
         "runtime": runtime.capabilities(),
-        "config": _config_health(),
-        "database": _database_health(),
+        "config": config_state,
+        "database": database_state,
         "requests": {
             "total": metrics_snapshot["total"],
             "inflight": metrics_snapshot["inflight"],
@@ -1119,6 +1130,37 @@ def _diagnostics_summary() -> dict:
         "correlation_id": _current_correlation_id(),
         "timestamp": datetime.now(UTC).isoformat(),
     }
+    route_measurements = []
+    for (method, route), values in sorted(metrics_snapshot["route_latency_ms"].items()):
+        count = max(0, int(values.get("count") or 0))
+        if count == 0:
+            continue
+        route_measurements.append(
+            {
+                "route": f"{method} {route}",
+                "duration_ms": float(values.get("sum_ms") or 0.0) / count,
+                "calls": count,
+            }
+        )
+    correlation_id = _current_correlation_id() or "local-diagnostics"
+    principal_id = (
+        str(current_user.get_id())
+        if has_request_context() and current_user.is_authenticated
+        else None
+    )
+    observability = ExtendedSubsystemCoordinator().analyze_observability_snapshot(
+        diagnostics=diagnostics,
+        route_measurements=route_measurements,
+        request_id=correlation_id,
+        principal_id=principal_id,
+        concurrency_reference=int(
+            current_app.config.get("DLE_OBSERVABILITY_CONCURRENCY_REFERENCE", 8)
+        ),
+    )
+    diagnostics["observability"] = ExtendedSubsystemCoordinator.observability_decision(
+        observability
+    )
+    return diagnostics
 
 
 def _support_bundle_builder():

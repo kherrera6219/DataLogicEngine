@@ -44,6 +44,121 @@ def _assert_complete_trace(execution, canonical_id: str) -> None:
     assert executed.result_trace_id
 
 
+@pytest.fixture(scope="module")
+def observability_execution():
+    coordinator = ExtendedSubsystemCoordinator()
+    execution = coordinator.analyze_observability_snapshot(
+        diagnostics={
+            "status": "ok",
+            "runtime": {"phase": "ready"},
+            "config": {"status": "ok"},
+            "database": {"status": "ok"},
+            "requests": {
+                "total": 12,
+                "inflight": 1,
+                "uptime_seconds": 60,
+            },
+            "logging": {"format": "json"},
+            "external_telemetry": {"enabled": False},
+            "support_bundle": {"user_content_included": False},
+        },
+        route_measurements=[
+            {"route": "GET /health", "duration_ms": 10, "calls": 2},
+            {"route": "GET /ready", "duration_ms": 20, "calls": 1},
+        ],
+        request_id="observability-owning-path",
+        principal_id="owner-1",
+        concurrency_reference=8,
+    )
+    return execution, coordinator.observability_decision(execution)
+
+
+def test_ka_091_owning_path(observability_execution):
+    execution, decision = observability_execution
+    assert decision["outputs"]["KA-091"]["rendered"] is False
+    assert decision["outputs"]["KA-091"]["visualization"]["data"] == {
+        "requests_total": 12,
+        "requests_inflight": 1,
+        "uptime_seconds": 60.0,
+    }
+    _assert_complete_trace(execution, "KA-091")
+
+
+def test_ka_092_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-092"]
+    assert output["rendered"] is False
+    assert output["persisted"] is False
+    assert len(output["dashboard_blueprint"]["composition"]) == 3
+    _assert_complete_trace(execution, "KA-092")
+
+
+def test_ka_094_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-094"]
+    assert output["artifact_created"] is False
+    assert output["distributed"] is False
+    assert output["report_plan"]["section_count"] == 7
+    _assert_complete_trace(execution, "KA-094")
+
+
+def test_ka_095_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-095"]
+    assert output["alert_recommended"] is False
+    assert output["alert_triggered"] is False
+    assert output["delivery_receipt"] is None
+    _assert_complete_trace(execution, "KA-095")
+
+
+def test_ka_098_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-098"]
+    assert output["metrics"]["sample_count"] == 2
+    assert output["metrics"]["duration_ms"]["mean"] == 15
+    assert output["profile_dump"] is None
+    _assert_complete_trace(execution, "KA-098")
+
+
+def test_ka_099_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-099"]
+    assert output["remote_port_active"] is False
+    assert output["snapshot"]["system_metrics"]["requests_total"] == 12
+    _assert_complete_trace(execution, "KA-099")
+
+
+def test_ka_100_owning_path(observability_execution):
+    execution, decision = observability_execution
+    output = decision["outputs"]["KA-100"]
+    assert output["optimization_applied"] is False
+    assert output["operations_applied"] == []
+    assert output["recommendation"]["observed_load_profile"] == 0.125
+    assert decision["effects_applied"] == 0
+    _assert_complete_trace(execution, "KA-100")
+
+
+def test_authenticated_diagnostics_uses_observability_owner_path(
+    authenticated_client,
+):
+    response = authenticated_client.get("/api/v1/system/diagnostics/summary")
+
+    assert response.status_code == 200
+    advisory = response.get_json()["observability"]
+    assert advisory["schema_version"] == "dle.observability-advisory.v1"
+    assert advisory["status"] == "analyzed"
+    assert advisory["effects_applied"] == 0
+    assert advisory["lifecycle"]["selected_ids"] == [
+        "KA-091",
+        "KA-092",
+        "KA-094",
+        "KA-095",
+        "KA-098",
+        "KA-099",
+        "KA-100",
+    ]
+
+
 def _validate_result(*, execution_id: str, content: str, prompt_risk: bool):
     coordinator = ExtendedSubsystemCoordinator()
     execution = coordinator.validate_mcp_result(

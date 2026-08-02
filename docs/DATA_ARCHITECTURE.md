@@ -126,6 +126,26 @@ excludes secrets, environment/settings files, logs, and key material. Restore
 verifies and migrates an isolated clean root before atomic activation and keeps
 the prior root for the approved rollback window.
 
+## Training dataset exporter architecture
+
+The candidate exporter in `backend/dataset_exporter/` reads the persisted
+`TraceRun` input/final-answer fields and recorded `TraceStage` status. Database
+exports require completed/released trace evidence, nonempty input and answer,
+the requested confidence threshold, and no quarantine or `never_persist`
+marker. Missing release evidence fails closed.
+
+The owner API currently permits SFT conversational records and PRM candidate
+records whose labels are derived from recorded stage status; those labels are
+not human-validated rewards. DPO conversion exists only at the library boundary
+and requires a real rejected answer, rejection reason, and rejected source ID.
+The current database/API does not manufacture or claim preference pairs.
+
+Every serialized string is passed through the non-optional privacy redactor.
+API output is confined below the app-owned runtime `datasets` directory and
+uses an application-generated artifact name. JSONL is always available;
+Parquet uses allowlisted compression and falls back to JSONL when PyArrow is
+not installed.
+
 Deletion reconciles all applicable SQL, Redis, graph, vector, object, memory,
 local, and log surfaces and reports partial failure. Shared chunks remain only
 while an active source references them. Non-PII tombstones and backup remnants

@@ -1,0 +1,311 @@
+{
+  "schema_version": "dle.cp19-k-grouped-batches.v1",
+  "plan_version": "2026.08.02-cp19k-grouped.1",
+  "status": "active",
+  "baseline_matrix_version": "2026.08.01-cp19k.6",
+  "baseline_qualified_capabilities": 27,
+  "planned_capabilities": 186,
+  "planned_batch_count": 36,
+  "batch_number_range": [8, 43],
+  "completed_batch_numbers": [8],
+  "next_batch_number": 9,
+  "current_qualified_capabilities": 34,
+  "current_open_capabilities": 179,
+  "rules": [
+    "Every open canonical KA appears in exactly one planned batch.",
+    "Every batch has one primary production owner and one cohesive caller or transaction boundary.",
+    "Manifest dependencies must be qualified already, in the same batch, or in an earlier planned batch.",
+    "Effect-oriented KAs require an owning service, idempotency, and an authoritative receipt before qualification.",
+    "Registry membership and direct algorithm tests never substitute for a production owning path."
+  ],
+  "batches": [
+    {
+      "batch_number": 8,
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "owner": "security_operations_lifecycle",
+      "cohesion": "Content-free operational views and diagnostic recommendations consumed by one observability owner",
+      "effect_boundary": "Pure/advisory; no dashboard, report, alert, debug, profile, or optimization effect may be claimed",
+      "canonical_ids": ["KA-091", "KA-092", "KA-094", "KA-095", "KA-098", "KA-099", "KA-100"]
+    },
+    {
+      "batch_number": 9,
+      "batch_id": "cp19-k-batch-09-ingestion-pipeline",
+      "owner": "ingestion",
+      "cohesion": "One ordered secure ingestion transaction from admission through archival",
+      "effect_boundary": "IngestionService owns the admitted write and archive receipts; all intermediate KAs remain pure",
+      "canonical_ids": ["KA-071", "KA-072", "KA-073", "KA-074", "KA-075", "KA-076", "KA-077", "KA-078"]
+    },
+    {
+      "batch_number": 10,
+      "batch_id": "cp19-k-batch-10-provider-model-preparation",
+      "owner": "provider_gateway",
+      "cohesion": "Model preparation, feature construction, tuning, and measured evaluation under one lifecycle owner",
+      "effect_boundary": "Training is service-owned and receipted; evaluation, feature engineering, and tuning remain proposals",
+      "canonical_ids": ["KA-081", "KA-082", "KA-085", "KA-086"]
+    },
+    {
+      "batch_number": 11,
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "owner": "provider_gateway",
+      "cohesion": "Versioned deployment, experiment, compression, and release preparation",
+      "effect_boundary": "ProviderGatewayService alone owns deployment; versioning, experiments, pruning, and quantization remain bounded decisions",
+      "canonical_ids": ["KA-083", "KA-087", "KA-088", "KA-089", "KA-090"]
+    },
+    {
+      "batch_number": 12,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "owner": "truthmemory_truthlink_frost",
+      "cohesion": "Temporal decay, drift, scheduling, failure-pattern, and obsolescence maintenance",
+      "effect_boundary": "KnowledgeLifecycleService applies only verified maintenance proposals with receipts",
+      "canonical_ids": ["KA-023", "KA-052", "KA-064", "KA-1082", "KA-1083", "KA-1093", "KA-1105"]
+    },
+    {
+      "batch_number": 13,
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "owner": "truthcore_l1_l5",
+      "cohesion": "Candidate context gaps, analytical framing, temporal/jurisdiction context, dependencies, and hypotheses",
+      "effect_boundary": "Pure/advisory candidate preparation with no external or persistent effect",
+      "canonical_ids": ["KA-003", "KA-011", "KA-015", "KA-017", "KA-025", "KA-040"]
+    },
+    {
+      "batch_number": 14,
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "owner": "retrieval_graph_memory",
+      "cohesion": "One retrieval decision with provenance, redundancy, importance, and dependency evidence",
+      "effect_boundary": "Pure retrieval ranking and evidence production; no store mutation",
+      "canonical_ids": ["KA-018", "KA-079", "KA-1049", "KA-1077", "KA-1092"]
+    },
+    {
+      "batch_number": 15,
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "owner": "governed_request_dmrf",
+      "cohesion": "Canonical algorithm selection, complexity estimation, intent, reasoning boundary, and controller authority",
+      "effect_boundary": "Pure fail-closed admission/routing; no provider or persistence effect",
+      "canonical_ids": ["KA-031", "KA-036", "KA-1073", "KA-1107", "KA-Master"]
+    },
+    {
+      "batch_number": 16,
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "owner": "truthgate",
+      "cohesion": "Adversarial, privacy-preservation, safety, and output filtering decisions at one policy boundary",
+      "effect_boundary": "TruthGate owns allow/block decisions; the KAs apply no external effect",
+      "canonical_ids": ["KA-034", "KA-1074", "KA-172", "KA-173"]
+    },
+    {
+      "batch_number": 17,
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "owner": "truthmemory_truthlink_frost",
+      "cohesion": "Trust, provenance, integrity, quarantine, and containment admission for knowledge state",
+      "effect_boundary": "KnowledgeLifecycleService owns quarantine/containment records; no KA directly mutates knowledge",
+      "canonical_ids": ["KA-062", "KA-065", "KA-1071", "KA-1094", "KA-1109", "KA-117"]
+    },
+    {
+      "batch_number": 18,
+      "batch_id": "cp19-k-batch-18-knowledge-expansion-promotion",
+      "owner": "retrieval_graph_memory",
+      "cohesion": "Knowledge expansion candidate and its release-gated promotion decision",
+      "effect_boundary": "Promotion remains a decision; an owning knowledge service must apply and receipt any state change",
+      "canonical_ids": ["KA-029", "KA-1079"]
+    },
+    {
+      "batch_number": 19,
+      "batch_id": "cp19-k-batch-19-persona-foundation",
+      "owner": "dsqp_quad_persona",
+      "cohesion": "Persona simulation, weighting, viewpoint expansion, conflict resolution, and consensus in one persona DAG",
+      "effect_boundary": "PersonaContextService alone applies the selected bounded context with one receipt",
+      "canonical_ids": ["KA-012", "KA-013", "KA-028", "KA-030", "KA-038"]
+    },
+    {
+      "batch_number": 20,
+      "batch_id": "cp19-k-batch-20-l6-evidence-confidence-entropy",
+      "owner": "truthcore_l6_l8",
+      "cohesion": "Candidate-tree evidence validation, contradiction, confidence normalization, propagation, imputation, and entropy",
+      "effect_boundary": "GovernedExecutionService consumes decisions; KAs do not persist or call a provider",
+      "canonical_ids": ["KA-002", "KA-009", "KA-014", "KA-026", "KA-035", "KA-1041", "KA-1042", "KA-1102"]
+    },
+    {
+      "batch_number": 21,
+      "batch_id": "cp19-k-batch-21-dmrf-adaptive-routing",
+      "owner": "governed_request_dmrf",
+      "cohesion": "Reserved-route limitation, clarification, and predictive layer-preemption decisions",
+      "effect_boundary": "Pure routing decisions; no autonomous clarification or layer mutation",
+      "canonical_ids": ["KA-033", "KA-058", "KA-059"]
+    },
+    {
+      "batch_number": 22,
+      "batch_id": "cp19-k-batch-22-retrieval-store-maintenance",
+      "owner": "retrieval_graph_memory",
+      "cohesion": "Cache, ontology, alignment, lineage, patch, conflict, pruning, and tier-maintenance proposals",
+      "effect_boundary": "KnowledgeStoreService owns every mutation with idempotent receipts and rollback evidence",
+      "canonical_ids": ["KA-080", "KA-1039", "KA-1040", "KA-1043", "KA-1046", "KA-1048", "KA-1076", "KA-1078"]
+    },
+    {
+      "batch_number": 23,
+      "batch_id": "cp19-k-batch-23-knowledge-content-evolution",
+      "owner": "truthmemory_truthlink_frost",
+      "cohesion": "Distillation, compression, cross-lingual fusion, multimodal integration, and learning proposals",
+      "effect_boundary": "KnowledgeLifecycleService applies only release-gated content changes with receipts",
+      "canonical_ids": ["KA-051", "KA-053", "KA-054", "KA-055", "KA-063"]
+    },
+    {
+      "batch_number": 24,
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "owner": "truthmemory_truthlink_frost",
+      "cohesion": "Usage analytics, lifecycle orchestration, policy evolution, and human escalation",
+      "effect_boundary": "Analytics and escalation are advisory; lifecycle/policy changes remain service-owned and receipted",
+      "canonical_ids": ["KA-1086", "KA-1088", "KA-1089", "KA-1095"]
+    },
+    {
+      "batch_number": 25,
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "owner": "truthcore_l10",
+      "cohesion": "Loopback, emergence, override-reason, self-introspection, and entropy release oversight",
+      "effect_boundary": "GovernedExecutionService owns any loop/release transition and records the human decision",
+      "canonical_ids": ["KA-020", "KA-021", "KA-1106", "KA-1112", "KA-116"]
+    },
+    {
+      "batch_number": 26,
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "owner": "truthgate",
+      "cohesion": "Bias, system integrity, truth/utility, capability escalation, and cross-domain coupling gates",
+      "effect_boundary": "TruthGate owns all fail-closed policy decisions; proposed containment remains unapplied",
+      "canonical_ids": ["KA-1045", "KA-1099", "KA-1104", "KA-1108", "KA-1110"]
+    },
+    {
+      "batch_number": 27,
+      "batch_id": "cp19-k-batch-27-knowledge-release-long-horizon",
+      "owner": "truthmemory_truthlink_frost",
+      "cohesion": "Release authorization and long-horizon goal-drift oversight after introspection",
+      "effect_boundary": "KnowledgeLifecycleService owns release; drift output is advisory and applies no containment",
+      "canonical_ids": ["KA-1096", "KA-1111"]
+    },
+    {
+      "batch_number": 28,
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "owner": "truthgate",
+      "cohesion": "Regulatory, ethical, compliance-regression, fairness, compliance, and governance evaluation",
+      "effect_boundary": "Pure policy evidence and allow/block decisions; no compliance state mutation",
+      "canonical_ids": ["KA-016", "KA-027", "KA-1090", "KA-169", "KA-174", "KA-176"]
+    },
+    {
+      "batch_number": 29,
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "owner": "dsqp_quad_persona",
+      "cohesion": "Persona emotion, domain, culture, norm, bias mitigation, and cross-instance consensus adaptation",
+      "effect_boundary": "Adaptations remain bounded persona-context decisions; no user profile or external state mutation",
+      "canonical_ids": ["KA-057", "KA-068", "KA-069", "KA-1037", "KA-1075", "KA-1084"]
+    },
+    {
+      "batch_number": 30,
+      "batch_id": "cp19-k-batch-30-l6-planning-control",
+      "owner": "truthcore_l6_l8",
+      "cohesion": "Deep planning, recursive-control, and cognitive-load decisions after evidence qualification",
+      "effect_boundary": "GovernedExecutionService owns recursion and scheduling transitions; KAs return bounded plans",
+      "canonical_ids": ["KA-006", "KA-007", "KA-060"]
+    },
+    {
+      "batch_number": 31,
+      "batch_id": "cp19-k-batch-31-l6-advanced-reasoning",
+      "owner": "truthcore_l6_l8",
+      "cohesion": "Causal, analogical, Pareto, creative-composition, meta-selection, and anomaly decisions",
+      "effect_boundary": "Pure/advisory candidate validation; creative or selected output cannot bypass later gates",
+      "canonical_ids": ["KA-066", "KA-067", "KA-1036", "KA-1044", "KA-1047", "KA-1085"]
+    },
+    {
+      "batch_number": 32,
+      "batch_id": "cp19-k-batch-32-l9-synthesis-explainability",
+      "owner": "truthcore_l9",
+      "cohesion": "Self-critique, synthesis, narrative/cross-modal explanation, and coverage evaluation",
+      "effect_boundary": "Pure meta-evaluation; no loop or release transition is applied",
+      "canonical_ids": ["KA-008", "KA-019", "KA-056", "KA-1038", "KA-1087"]
+    },
+    {
+      "batch_number": 33,
+      "batch_id": "cp19-k-batch-33-l9-exact-loop-suite",
+      "owner": "truthcore_l9",
+      "cohesion": "The indivisible seven-KA Layer-9 trace, drift, persona, evaluation, recursion, confidence, and loop DAG",
+      "effect_boundary": "Pure meta-reasoning; the owning orchestrator alone authorizes another refinement cycle",
+      "canonical_ids": ["L9-KA-001", "L9-KA-002", "L9-KA-003", "L9-KA-004", "L9-KA-005", "L9-KA-006", "L9-KA-007"]
+    },
+    {
+      "batch_number": 34,
+      "batch_id": "cp19-k-batch-34-l10-exact-release-suite",
+      "owner": "truthcore_l10",
+      "cohesion": "The indivisible seven-KA Layer-10 entropy, awareness, PII, ethics, containment, trust, and escalation DAG",
+      "effect_boundary": "Pure release-gate evidence; persistence/release remains orchestrator-owned",
+      "canonical_ids": ["L10-KA-001", "L10-KA-002", "L10-KA-003", "L10-KA-004", "L10-KA-005", "L10-KA-006", "L10-KA-007"]
+    },
+    {
+      "batch_number": 35,
+      "batch_id": "cp19-k-batch-35-l1-inference-mapping",
+      "owner": "truthcore_l1_l5",
+      "cohesion": "Abductive, causal, analogical, and relationship-mapping candidate preparation",
+      "effect_boundary": "Pure/advisory reasoning artifacts with no provider or persistence effect",
+      "canonical_ids": ["KA-041", "KA-043", "KA-044", "KA-049"]
+    },
+    {
+      "batch_number": 36,
+      "batch_id": "cp19-k-batch-36-l1-signal-analysis",
+      "owner": "truthcore_l1_l5",
+      "cohesion": "Anomaly, pattern, trend, sentiment, topic, and keyword signal extraction",
+      "effect_boundary": "Pure/advisory measured signals; no invented calibration or external effect",
+      "canonical_ids": ["KA-039", "KA-045", "KA-046", "KA-047", "KA-165", "KA-167"]
+    },
+    {
+      "batch_number": 37,
+      "batch_id": "cp19-k-batch-37-l1-language-identity-explanation",
+      "owner": "truthcore_l1_l5",
+      "cohesion": "Entity extraction, summarization, translation, paraphrase, style, explanation, and identity evidence",
+      "effect_boundary": "Pure bounded transformations; no identity merge or content release is applied",
+      "canonical_ids": ["KA-048", "KA-050", "KA-161", "KA-162", "KA-163", "KA-168", "KA-178"]
+    },
+    {
+      "batch_number": 38,
+      "batch_id": "cp19-k-batch-38-provider-api-external-research",
+      "owner": "provider_gateway",
+      "cohesion": "API gateway admission and separately authorized external deep-research egress",
+      "effect_boundary": "ProviderGatewayService owns routing/egress with budgets, consent, cancellation, ledger records, and receipts",
+      "canonical_ids": ["KA-111", "KA-1114"]
+    },
+    {
+      "batch_number": 39,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
+      "owner": "security_operations_lifecycle",
+      "cohesion": "Notification, integration-bus, broker, outbox, and inbox delivery through one durable message boundary",
+      "effect_boundary": "OperationsControlService owns durable enqueue/delivery and idempotent receipts; KAs only propose",
+      "canonical_ids": ["KA-093", "KA-110", "KA-112", "KA-114", "KA-115"]
+    },
+    {
+      "batch_number": 40,
+      "batch_id": "cp19-k-batch-40-operations-health-recovery",
+      "owner": "security_operations_lifecycle",
+      "cohesion": "Disaster recovery, backup, system health, performance, benchmarking, and predictive health",
+      "effect_boundary": "OperationsControlService owns backup/recovery/performance changes; health outputs remain measured recommendations",
+      "canonical_ids": ["KA-107", "KA-108", "KA-109", "KA-1097", "KA-1098", "KA-138"]
+    },
+    {
+      "batch_number": 41,
+      "batch_id": "cp19-k-batch-41-operations-crypto-vulnerability",
+      "owner": "security_operations_lifecycle",
+      "cohesion": "Purple-team evidence, encryption admission, key lifecycle, and vulnerability findings",
+      "effect_boundary": "OperationsControlService owns crypto/key operations; scanning and purple-team outputs apply no attack or remediation",
+      "canonical_ids": ["KA-139", "KA-180", "KA-181", "KA-183"]
+    },
+    {
+      "batch_number": 42,
+      "batch_id": "cp19-k-batch-42-simulation-chaos-rollback",
+      "owner": "simulation",
+      "cohesion": "Chaos admission and verified simulation rollback under one job/checkpoint owner",
+      "effect_boundary": "SimulationJobService alone injects or rolls back with owner confirmation, checkpoints, and receipts",
+      "canonical_ids": ["KA-1101", "KA-1103"]
+    },
+    {
+      "batch_number": 43,
+      "batch_id": "cp19-k-batch-43-operations-topology-evolution",
+      "owner": "security_operations_lifecycle",
+      "cohesion": "Environment, dependency injection, service mesh, load/capacity, and approved system evolution",
+      "effect_boundary": "OperationsControlService owns configuration/infrastructure changes with human approval, rollback, and receipts",
+      "canonical_ids": ["KA-101", "KA-102", "KA-103", "KA-104", "KA-105", "KA-1100"]
+    }
+  ]
+}

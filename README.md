@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.1 |
+| Document version | v1.2.2 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-02 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -40,8 +40,9 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 136-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 27/213; 186 remain open |
-| Latest source validation | 2,619 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 34/213; 179 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batch 08 complete, Batch 09 next, 35 remain |
+| Latest source validation | 2,658 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
@@ -52,12 +53,30 @@ audit/receipt records; failed connector work records a fail-closed recovery plan
 without automatically retrying or claiming proposed incident actions were
 performed. Provider calls now retain their pre-call context-governance plan
 identity, while post-call latency monitoring recommends but never claims to send
-an alert. No registry-only, execute-only, or direct-test-only capability is
-counted as production-qualified.
+an alert. Batch 08 now connects seven content-free observability KAs to the
+authenticated diagnostics owner without rendering, distributing, delivering,
+profiling secretly, opening a debug port, or mutating runtime capacity. No
+registry-only, execute-only, or direct-test-only capability is counted as
+production-qualified.
+
+The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
+of two to eight KAs. The 28 security/operations rows are intentionally split
+across five owner/effect boundaries—observability, delivery/messaging,
+health/recovery, cryptography/vulnerability, and topology/evolution—rather than
+treated as one unsafe mega-batch. Batch 08 is complete; the current matrix has
+179 open rows and Batch 09 is the secure ingestion pipeline.
+
+The desktop also includes an owner-operated candidate training-dataset export
+tool. It creates SFT or status-labelled PRM records only from explicitly
+released traces, enforces redaction, and confines API output to the app-owned
+runtime directory. It does not run training in the background, does not qualify
+the open model-training KAs, and does not claim DPO support from current stored
+traces because genuine rejected-candidate evidence is not persisted.
 
 See the [production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md),
 [current work ledger](TODO.md), [documentation portal](docs/README.md), and
-[CP19-K qualification matrix](reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md)
+[CP19-K qualification matrix](reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md),
+and [grouped qualification roadmap](reports/production-readiness/2026/phase-19/cp19-k-grouped-qualification-roadmap.md)
 for the detailed evidence and remaining work.
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
@@ -153,6 +172,11 @@ Completed source and engineering checkpoints:
   SDKs, and real-backend Algorithms/History pages share one principal-owned,
   encrypted, idempotent, exact-confirmation, cancellable durable workflow
   through the canonical controller
+- Phase 19 CP19-K Batch 08 passed: `KA-091`, `KA-092`, `KA-094`, `KA-095`,
+  `KA-098`, `KA-099`, and `KA-100` now analyze measured, content-free local
+  diagnostics through the authenticated security/operations owner. Their
+  visualization/dashboard/report/alert/profile/debug/optimization outputs are
+  specifications or recommendations only and apply zero effects
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -178,11 +202,16 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-07 qualify 27/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-08 qualify 34/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
-  provider context-budget enforcement, and measured provider monitoring; 186
-  rows remain open
+  provider context-budget enforcement, measured provider monitoring, and the
+  authenticated content-free diagnostics advisory; 179 rows remain open
+- The reviewed remaining roadmap contains 35 cohesive batches (09-43), each
+  bounded to one production owner and effect boundary. Batch 09 is the eight-KA
+  secure ingestion pipeline. Grouping shares fixtures and transactions but does
+  not waive any individual semantic, owning-path, trace, security, effect, or
+  performance proof
 - Eleven additional provider/gateway KAs remain open: model training,
   evaluation, deployment, feature engineering, tuning, versioning, A/B testing,
   pruning, quantization, API gateway, and external deep research. None is

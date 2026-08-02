@@ -1,64 +1,64 @@
-"""
-KA-100: Optimization
-Purpose: Apply runtime optimizations, including JIT triggers, memory management, and thread pool scaling.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+"""KA-100: deterministic runtime optimization recommendation."""
+
+from __future__ import annotations
+
+from typing import Any
 
 from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+from backend.knowledge_algorithms.production_utils import (
+    load_config,
+    stable_identifier,
+)
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
 class KA100OptimizationInput(BaseModel):
-    load_profile: float = Field(0.5, ge=0.0, le=1.0, description="The current system load profile (0.0 to 1.0)")
+    load_profile: float = Field(default=0.5, ge=0.0, le=1.0)
+    current_worker_limit: int = Field(default=8, ge=1, le=1_024)
+
 
 class KA100Optimization(KnowledgeAlgorithm):
-    """
-    KA-100: Runtime performance and resource optimization engine for adaptive scaling.
-    """
+    """Recommend bounded tuning without mutating the runtime."""
+
     input_schema = KA100OptimizationInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-100"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_100_config.json")
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_100_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA100OptimizationInput) -> Dict[str, Any]:
-        current_load = input_data.load_profile
-        self.log_execution_step("Applying Runtime Optimization", {"load": current_load})
-        
-        target = self.config.get("optimization_target", "balanced")
-        results = {
-            "thread_pool_size": 16 if current_load > 0.8 else 8,
-            "jit_enabled": True if current_load > 0.3 else False,
-            "memory_reclaimed_mb": 150
+    def _run_logic(self, input_data: KA100OptimizationInput) -> dict[str, Any]:
+        if input_data.load_profile >= 0.8:
+            action = "review_capacity_increase"
+            recommended_worker_limit = min(input_data.current_worker_limit + 2, 1_024)
+        elif input_data.load_profile <= 0.2 and input_data.current_worker_limit > 2:
+            action = "review_capacity_decrease"
+            recommended_worker_limit = max(input_data.current_worker_limit - 1, 2)
+        else:
+            action = "retain_current_capacity"
+            recommended_worker_limit = input_data.current_worker_limit
+        recommendation = {
+            "target": self.config.get("optimization_target", "latency"),
+            "action": action,
+            "observed_load_profile": input_data.load_profile,
+            "current_worker_limit": input_data.current_worker_limit,
+            "recommended_worker_limit": recommended_worker_limit,
         }
-        
         return {
             "success": True,
-            "target_applied": target,
-            "ops_applied": self.config.get("compiler_options", ["-O3"]),
-            "optimization_results": results
+            "recommendation_id": stable_identifier("optimization", recommendation),
+            "recommendation": recommendation,
+            "optimization_applied": False,
+            "operations_applied": [],
+            "measured_resources_reclaimed": None,
+            "limitations": (
+                "KA-100 recommends capacity settings; it does not change thread "
+                "pools, enable JIT compilation, run garbage collection, or claim "
+                "reclaimed resources."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA100Optimization(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-100 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA100Optimization(context).run(context)

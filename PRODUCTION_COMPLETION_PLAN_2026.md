@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.54.0 |
+| Document version | v1.56.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5362,6 +5362,64 @@ Evidence:
 - `tests/integration/phase19/test_provider_gateway.py`; and
 - `tests/governed_execution/test_orchestrator.py`.
 
+### CP19-K grouped roadmap and batch 08 passed 2026-08-02
+
+The open qualification inventory was reviewed before further implementation.
+The 186-row Batch 07 baseline backlog is assigned exactly once across 36
+dependency-safe batches, numbered 08 through 43, with two through eight KAs per
+batch. Each batch shares one primary production owner, caller or transaction
+boundary, effect model, and failure model. Grouping permits shared fixtures and
+transaction evidence but does not waive any KA's individually named semantic,
+selector, owning-path, trace, limitation, security, effect, or performance
+proof.
+
+The 28 open security/operations rows were not accepted as one batch. They span
+five independently reviewed boundaries: content-free observability; durable
+delivery/messaging; health/recovery; cryptography/vulnerability; and topology/
+evolution. The machine-readable authority is
+`config/phase19-ka-grouped-batches.json`, and the human review is
+`reports/production-readiness/2026/phase-19/cp19-k-grouped-qualification-roadmap.md`.
+
+Batch 08 closes `KA-091`, `KA-092`, `KA-094`, `KA-095`, `KA-098`, `KA-099`,
+and `KA-100` through the real authenticated diagnostics owner. The owner supplies
+measured, content-free runtime/request state to one canonical observability
+operation and consumes deterministic visualization, dashboard, report, alert,
+profile, debug, and capacity advice. The audit corrected three overstatements:
+KA-092 now composes supplied measured widgets without claiming rendering or
+persistence; KA-094 plans a report without inventing an artifact, recipient, or
+distribution; and KA-100 recommends bounded capacity without claiming JIT,
+thread-pool, garbage-collection, or reclaimed-memory effects. KA-099 preserves
+sensitive-key redaction and opens no remote debug port. The owner validates all
+seven outputs, applies zero effects, and emits complete planned-through-executed
+trace evidence for every KA.
+
+The matrix and verifier pass at 34/213 qualified and 179 incomplete. The grouped
+roadmap marks Batch 08 complete and Batch 09, the secure ingestion pipeline
+(`KA-071` through `KA-078`), next. The KA suite passes 807 tests with three known
+deprecation warnings; the governed execution, TruthCore, Phase 19, and simulation
+integration set passes 191; and the full source suite passes 2,658 tests with 18
+skipped and 35 known warnings. Rebuild authorization remains false and CP19-L/
+CP19-M remain unauthorized.
+
+Before the next KA batch, the parallel candidate training-dataset exporter was
+reviewed and hardened. It is supporting owner tooling, not KA qualification:
+owner authentication, app-owned path containment, mandatory redaction, explicit
+release evidence, real persisted input/final-answer fields, and honest SFT/PRM
+semantics now pass focused tests. Database/API DPO remains unavailable until a
+real rejected candidate and provenance are durably stored. This addition does
+not change the 34/213 matrix or satisfy model-training/provider/installed gates.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-08-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-grouped-qualification-roadmap.md`;
+- `config/phase19-ka-grouped-batches.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `tests/knowledge_algorithms/test_phase19_cp19k_grouped_plan.py`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`; and
+- `tests/integration/phase19/test_security_operations_lifecycle.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5808,11 +5866,12 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-07 now truthfully
-qualify 27 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-08 now truthfully
+qualify 34 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
-and measured provider monitoring, leaving 186 of 213 rows open. The
+measured provider monitoring, and content-free authenticated observability,
+leaving 179 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -5829,11 +5888,11 @@ effect-proposal, and authoritative SHA-256 receipt integration now also pass.
 The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
-artifact/effect review. Continue CP19-K by auditing the security/operations
-lifecycle owner group. Keep the 11 retained provider/gateway rows incomplete
-until real production owners and effect evidence exist, and keep simulation
-`KA-1101`/`KA-1103` incomplete until genuine product-owned chaos and rollback
-actions exist.
+artifact/effect review. The reviewed completion roadmap contains 36 cohesive
+batches (08-43); Batch 08 is complete and 35 remain. Continue CP19-K with Batch
+09, the secure ingestion pipeline (`KA-071` through `KA-078`), through one
+admitted transaction and authoritative write/archive receipts. Keep every later
+row incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

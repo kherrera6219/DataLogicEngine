@@ -26,6 +26,13 @@ QUALIFIED_BATCHES = {
     "KA-061",
     "KA-070",
     "KA-084",
+    "KA-091",
+    "KA-092",
+    "KA-094",
+    "KA-095",
+    "KA-098",
+    "KA-099",
+    "KA-100",
     "KA-113",
     "KA-136",
     "KA-137",
@@ -50,9 +57,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 27,
-        "incomplete_capabilities": 186,
-        "reviewed_capabilities": 27,
+        "qualified_capabilities": 34,
+        "incomplete_capabilities": 179,
+        "reviewed_capabilities": 34,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -121,7 +128,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 27
-    assert evidence["incomplete_capabilities"] == 186
+    assert evidence["qualified_capabilities"] == 34
+    assert evidence["incomplete_capabilities"] == 179
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

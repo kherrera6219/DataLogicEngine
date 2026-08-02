@@ -1,7 +1,6 @@
 {
     "refresh_interval_ms": 5000,
     "layout": "grid",
-    "widgets": ["system_health", "query_throughput", "belief_stability", "error_rate"],
-    "enable_real_time_updates": true,
-    "persistence": "browser_local"
+    "enable_real_time_updates": false,
+    "persistence": "none"
 }

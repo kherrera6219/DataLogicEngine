@@ -7,8 +7,8 @@
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 27 rows are fully
-qualified and 186 remain open. A row closes
+canonical capabilities. 34 rows are fully
+qualified and 179 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -27,6 +27,7 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-05-mcp-result-governance` | 2026-08-01 | 6 | MCP risk and threat-model admission plus fail-closed connector-result release governance |
 | `cp19-k-batch-06-mcp-records-recovery` | 2026-08-01 | 4 | MCP structured logging with durable audit/receipt records plus fail-closed recovery planning and authoritative plan receipts |
 | `cp19-k-batch-07-provider-boundary` | 2026-08-01 | 2 | Pre-call context-budget governance and post-call measured monitoring at the canonical provider boundary |
+| `cp19-k-batch-08-operations-observability` | 2026-08-02 | 7 | Authenticated content-free diagnostics visualization, dashboard, report planning, alerting, profiling, debugging, and optimization recommendations |
 
 ## Gate decision
 

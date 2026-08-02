@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-02 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Owner-operated candidate training-dataset export**: reviewed and hardened
+  the parallel exporter before integration. The authenticated desktop/API flow
+  now creates SFT or status-labelled PRM candidates only from explicitly
+  released, non-contained records; enforces redaction; generates app-owned
+  artifact names; and confines output below the runtime dataset root. Direct
+  DPO conversion requires real rejected-answer provenance, while database/UI
+  DPO remains unavailable instead of fabricating preference evidence. Focused
+  backend and frontend suites pass 22 and 4 tests.
+- **Phase 19 CP19-K grouped roadmap and operations-observability batch 08**:
+  reviewed all 186 baseline-open rows into 36 dependency-safe batches (08-43),
+  each bounded to one production owner/effect boundary and two through eight
+  KAs. The 28 security/operations rows are split across five batches instead of
+  one. Qualified `KA-091`, `KA-092`, `KA-094`, `KA-095`, `KA-098`, `KA-099`,
+  and `KA-100` through the authenticated, content-free diagnostics owner. The
+  audit removed fabricated dashboard persistence, report artifact/distribution,
+  runtime optimization, and reclaimed-memory claims; the seven KAs now return
+  specifications/recommendations and apply zero effects. The matrix is 34/213
+  qualified with 179 open; 807 KA tests, 191 affected integrations, and the
+  full 2,658-test source suite pass with 18 skipped and 35 known warnings.
 - **Phase 19 CP19-K provider-boundary batch 07**: qualified `KA-084` and
   `KA-1072` through exact semantic, owning-path, security, limitation,
   performance, and trace proofs. Required provider context now fails closed
@@ -639,7 +658,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added first-run QC evidence in `reports/first_run_qc_2026-07-07.md`, covering installed-app service health, internal database connectivity, desktop API-key save/test failure analysis, DSQP idle polling analysis, frozen-backend dependency packaging, focused validation, and remaining reinstall/provider validation steps.
 - Replaced explicit KA stub behavior in `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` with deterministic local implementations and focused tests.
 - **Documentation accuracy sweep (v2.0 audit)**: reviewed and corrected the
-  `docs/` tree, `docs/diagrams/`, and root docs against the post-audit
+  `docs/` tree, its diagrams, and root docs against the post-audit
   single-mode application — removed stale multi-user/SSO/RBAC/MFA descriptions,
   fixed migrated `routes/` -> `backend/routes/` paths, refreshed test baselines
   (`1769 passed, 19 skipped`), corrected the Fernet/AES-128 note to AES-256-GCM,
@@ -676,7 +695,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation audit refresh**: aligned active README/docs model references
   to the live Google `gemini-3.1-pro-preview` default, replaced the stale
   `docs/openapi.yaml` login-era contract with the current desktop-auth/API
-  surface, moved duplicate legacy `docs/api/*` exports into the archive, and
+  surface, moved duplicate legacy API documentation exports into the archive, and
   recorded cleanup candidates in `TODO.md`.
 - **Layering fix — integrity helpers moved to `core/`**: the pure, dependency-free hashing/HMAC helpers in `backend/security/integrity.py` moved to `core/security/integrity.py`. This removes two `core -> backend` import inversions (`core/simulation/trace_system.py`, `core/system/frost_service.py`), restoring the documented `backend -> core` dependency direction. `backend/security/integrity.py` is now a backwards-compatible re-export shim, so existing `from backend.security.integrity import ...` call sites (e.g. `backend/security/export_integrity.py`) continue to work unchanged. No behavior change.
 

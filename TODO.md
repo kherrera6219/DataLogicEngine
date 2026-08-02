@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-02 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.54.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.56.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -196,21 +196,44 @@ Phase 18 source baseline while completing the whole-application wiring.
         longer replaces the applied provider receipt's KA identity. The other
         11 provider/gateway rows remain open without equivalent production
         owners or authoritative effect evidence.
-      - The generated matrix and integrity verifier pass at 27/213 qualified
-        and 186 incomplete; rebuild authorization remains false. Runtime
+      - Grouped roadmap accepted 2026-08-02: the 186-row baseline backlog is
+        assigned exactly once across 36 dependency-safe batches, numbered 08
+        through 43 and bounded to two through eight KAs. The 28 security/
+        operations rows are split into five owner/effect batches rather than
+        one oversized batch. The machine authority is
+        `config/phase19-ka-grouped-batches.json`; the reviewed roadmap is
+        `reports/production-readiness/2026/phase-19/cp19-k-grouped-qualification-roadmap.md`.
+      - Batch 08 passed 2026-08-02: `KA-091`, `KA-092`, `KA-094`, `KA-095`,
+        `KA-098`, `KA-099`, and `KA-100` now execute together through the real
+        authenticated diagnostics owner. Measured, content-free application
+        state drives deterministic visualization/dashboard/report/alert/
+        profile/debug/optimization advice. The audit removed fabricated report
+        files/distribution and runtime optimization claims; the group renders,
+        distributes, delivers, persists, profiles secretly, opens no debug
+        port, and applies zero runtime effects.
+      - The generated matrix and integrity verifier pass at 34/213 qualified
+        and 179 incomplete; rebuild authorization remains false. Runtime
         manifest `2026.08.01-cp19k.2` retains 213 capabilities, 149 production-
-        enabled capabilities, and a 136-edge zero-cycle graph. The 798-test KA
-        suite, 183 governed/TruthCore/Phase-19/simulation integration tests,
-        426 retained frontend tests, frontend type checking, seven TypeScript
-        SDK tests, and 2,619-test full source suite pass; the source suite has
+        enabled capabilities, and a 136-edge zero-cycle graph. The 807-test KA
+        suite, 191 governed/TruthCore/Phase-19/simulation integration tests,
+        430 retained frontend tests, frontend type checking, seven TypeScript
+        SDK tests, and 2,658-test full source suite pass; the source suite has
         18 skipped and 35 known warnings.
+      - Parallel candidate training-dataset exporter review passed after
+        hardening: owner-authenticated API, app-owned output containment,
+        mandatory redaction, explicit release evidence, real persisted trace
+        fields, and 22 backend/4 frontend focused tests. SFT and status-derived
+        PRM are available as candidate exports; database/UI DPO stays disabled
+        until real rejected-candidate provenance is persisted. This tooling
+        qualifies no additional KA and closes no installed acceptance gate.
       - Dependency review: all 31 open GitHub alerts were remediated in the
         Python and Node authorities. Local `pip-audit` and `npm audit` report
         zero known vulnerabilities, both lockfile-governance gates pass, and
         GitHub now reports zero open Dependabot alerts after its rescan.
-      - Next: audit the security/operations lifecycle owner group. Keep the 11
-        unowned provider/gateway rows and simulation `KA-1101`/`KA-1103` open
-        until genuine product owners and effect controls exist.
+      - Next: execute grouped Batch 09 for the secure ingestion pipeline
+        (`KA-071` through `KA-078`) through one admitted transaction and its
+        authoritative write/archive receipts. Keep every later batch open until
+        its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -938,7 +961,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-07 qualify 27/213 rows, 186 remain open, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-08 qualify 34/213 rows, 179 remain open in 35 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -959,7 +982,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 Complete CP19-K by closing the generated 213-row matrix with one individually
 named semantic test, positive/negative selector proof, real owning-path
 assertion, explicit limitation, causal trace proof, and applicable security,
-effect, and performance evidence for every canonical capability.
+effect, and performance evidence for every canonical capability. Proceed next
+with grouped Batch 09 (`KA-071` through `KA-078`), the secure ingestion
+pipeline, using the reviewed 36-batch roadmap and keeping its effect receipts
+owned by the authoritative ingestion service.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

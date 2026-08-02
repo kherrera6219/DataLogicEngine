@@ -65,6 +65,10 @@ const MemoryManagementSettings = dynamic(
   () => import("@/components/settings/MemoryManagementSettings"),
   { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading memory controls...</div> }
 );
+const DatasetExporterSettings = dynamic(
+  () => import("@/components/settings/DatasetExporterSettings"),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading dataset exporter...</div> }
+);
 
 interface UserDataSummary {
   account_created?: string;
@@ -84,7 +88,7 @@ function SettingsPageContent() {
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(
-    requestedTab && ['general', 'notifications', 'providers', 'gateway', 'storage', 'knowledge', 'security', 'ai'].includes(requestedTab)
+    requestedTab && ['general', 'notifications', 'providers', 'gateway', 'storage', 'knowledge', 'security', 'ai', 'exporter'].includes(requestedTab)
       ? requestedTab
       : 'general',
   );
@@ -194,6 +198,7 @@ function SettingsPageContent() {
                         { id: 'knowledge', label: 'Knowledge', icon: Database },
                         { id: 'security', label: 'Security', icon: Shield },
                         { id: 'ai', label: 'AI Models', icon: Brain },
+                        { id: 'exporter', label: 'Dataset Exporter', icon: Database },
                      ].map(tab => (
                         <TabsTrigger 
                            key={tab.id} 
@@ -384,58 +389,63 @@ function SettingsPageContent() {
                      </Card>
                   </TabsContent>
 
-                   {/* PROVIDER CONNECTIONS */}
-                   <TabsContent value="providers" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <div className="space-y-1 mb-6">
-                         <h2 className="text-lg font-bold">Provider Connections</h2>
-                         <p className="text-sm text-slate-600 dark:text-gray-400">Store and validate outbound OpenAI or Google credentials.</p>
-                      </div>
-                      <ApiOverlayConfig />
-                   </TabsContent>
+                  {/* PROVIDER CONNECTIONS */}
+                  <TabsContent value="providers" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <div className="space-y-1 mb-6">
+                        <h2 className="text-lg font-bold">Provider Connections</h2>
+                        <p className="text-sm text-slate-600 dark:text-gray-400">Store and validate outbound OpenAI or Google credentials.</p>
+                     </div>
+                     <ApiOverlayConfig />
+                  </TabsContent>
 
-                   {/* CLIENT GATEWAY */}
-                   <TabsContent value="gateway" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <ClientGatewayConfig />
-                   </TabsContent>
+                  {/* CLIENT GATEWAY */}
+                  <TabsContent value="gateway" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <ClientGatewayConfig />
+                  </TabsContent>
 
-                   {/* STORAGE */}
-                   <TabsContent value="storage" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <DatabaseSettings />
-                   </TabsContent>
+                  {/* STORAGE */}
+                  <TabsContent value="storage" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <DatabaseSettings />
+                  </TabsContent>
 
-                   {/* KNOWLEDGE INGESTION */}
-                   <TabsContent value="knowledge" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <KnowledgeIngestionSettings />
-                      <div className="mt-6"><MemoryManagementSettings /></div>
-                   </TabsContent>
+                  {/* KNOWLEDGE INGESTION */}
+                  <TabsContent value="knowledge" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <KnowledgeIngestionSettings />
+                     <div className="mt-6"><MemoryManagementSettings /></div>
+                  </TabsContent>
 
-                   {/* SECURITY */}
-                   <TabsContent value="security" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <Card className="fluent-card">
-                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" /> Privacy & Security</CardTitle>
-                            <CardDescription>Current account and local data posture.</CardDescription>
-                         </CardHeader>
-                         <CardContent className="space-y-4">
-                            <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
-                               <div className="text-sm text-slate-700 dark:text-gray-300">Local simulation records</div>
-                               <div className="text-2xl font-bold text-slate-900 dark:text-white">{summary?.data_summary?.total_simulations ?? 'Unknown'}</div>
-                            </div>
-                            <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
-                               <div className="text-sm text-slate-700 dark:text-gray-300">Account provisioned</div>
-                               <div className="text-base font-semibold text-slate-900 dark:text-white">{summary?.account_created ? new Date(summary.account_created).toLocaleDateString() : 'Unknown'}</div>
-                            </div>
-                            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                              <Link href="/settings/privacy">Open Privacy Controls</Link>
-                            </Button>
-                         </CardContent>
-                      </Card>
-                   </TabsContent>
+                  {/* SECURITY */}
+                  <TabsContent value="security" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <Card className="fluent-card">
+                        <CardHeader>
+                           <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" /> Privacy & Security</CardTitle>
+                           <CardDescription>Current account and local data posture.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
+                              <div className="text-sm text-slate-700 dark:text-gray-300">Local simulation records</div>
+                              <div className="text-2xl font-bold text-slate-900 dark:text-white">{summary?.data_summary?.total_simulations ?? 'Unknown'}</div>
+                           </div>
+                           <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
+                              <div className="text-sm text-slate-700 dark:text-gray-300">Account provisioned</div>
+                              <div className="text-base font-semibold text-slate-900 dark:text-white">{summary?.account_created ? new Date(summary.account_created).toLocaleDateString() : 'Unknown'}</div>
+                           </div>
+                           <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                             <Link href="/settings/privacy">Open Privacy Controls</Link>
+                           </Button>
+                        </CardContent>
+                     </Card>
+                  </TabsContent>
 
-                   {/* AI MODELS */}
-                   <TabsContent value="ai" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <AiModelSettings />
-                   </TabsContent>
+                  {/* AI MODELS */}
+                  <TabsContent value="ai" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <AiModelSettings />
+                  </TabsContent>
+
+                  {/* DATASET EXPORTER */}
+                  <TabsContent value="exporter" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                     <DatasetExporterSettings />
+                  </TabsContent>
 
                </div>
             </Tabs>

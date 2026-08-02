@@ -120,6 +120,7 @@ for every SSD, snapshot, or third party.
 | Excessive retention/remnants | Owner controls, bounded jobs, coordinated deletion | Ratified periods, installed partial/remnant/backup expiry proof |
 | Backup/export exposure | Encryption/manifests, user passphrase, local preview | Custody policy, clean restore, sharing/legal process |
 | Untrusted AI/tool output | Injection/secret checks, evidence/claim validation, human oversight | Live provider/hostile connector/human acceptance |
+| Training dataset export | Mandatory secret/PII redaction, app-owned output root, explicit release and containment screening, owner-authenticated manual action | Pattern redaction is defense in depth, not proof that all sensitive context is absent; review artifacts before external use |
 | Endpoint compromise | Protected volume/ACL, DPAPI, least privilege | Supported-Windows matrix and endpoint operating policy |
 | Misleading AI reliance | Limitations, not-measured, trace/evidence review | Packaged copy/usability and blinded human review |
 | Selected object-store privacy drift | Production authorization false and exact locked implementation | Installed security/privacy/license/Windows qualification |

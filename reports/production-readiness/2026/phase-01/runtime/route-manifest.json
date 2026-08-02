@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-08-02T02:51:53.463625+00:00",
+  "generated_at": "2026-08-02T07:54:44.065967+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,15 +13,15 @@
     "public-health"
   ],
   "summary": {
-    "routes": 502,
+    "routes": 504,
     "classifications": {
       "authenticated-mutation": 121,
-      "authenticated-read": 256,
+      "authenticated-read": 257,
       "desktop-only": 13,
       "external-client-governed-execution": 5,
       "external-client-read": 8,
       "internal-only": 1,
-      "owner-admin-mutation": 94,
+      "owner-admin-mutation": 95,
       "public-health": 4
     },
     "unclassified": 0,
@@ -3292,6 +3292,38 @@
       ],
       "source_module": "app",
       "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/dataset/export",
+      "endpoint": "dataset_api.export_dataset_endpoint",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/dataset/stats",
+      "endpoint": "dataset_api.dataset_stats_endpoint",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
       "mutation_without_auth_evidence": false
     },
     {

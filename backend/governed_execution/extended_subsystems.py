@@ -147,6 +147,178 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "required_failure": execution.report.required_failure,
         }
 
+    def analyze_observability_snapshot(
+        self,
+        *,
+        diagnostics: dict[str, Any],
+        route_measurements: list[dict[str, Any]],
+        request_id: str,
+        principal_id: str | None,
+        concurrency_reference: int = 8,
+    ) -> Any:
+        """Analyze one measured, content-free application diagnostic snapshot."""
+        requests = dict(diagnostics.get("requests") or {})
+        total_requests = max(0, int(requests.get("total") or 0))
+        inflight_requests = max(0, int(requests.get("inflight") or 0))
+        uptime_seconds = max(0.0, float(requests.get("uptime_seconds") or 0.0))
+        concurrency_reference = max(1, min(int(concurrency_reference), 1_024))
+        profile_samples = [
+            {
+                "duration_ms": max(0.0, float(row.get("duration_ms") or 0.0)),
+                "calls": max(0, int(row.get("calls") or 0)),
+                "hotspot": str(row.get("route") or "measured_route")[:500],
+            }
+            for row in route_measurements[:100]
+        ]
+        if not profile_samples:
+            profile_samples = [
+                {
+                    "duration_ms": uptime_seconds * 1_000.0,
+                    "calls": total_requests,
+                    "hotspot": "application_runtime_uptime",
+                }
+            ]
+        status = str(diagnostics.get("status") or "unknown")
+        alert_level = "info" if status == "ok" else "warning"
+        run_id = f"observability:{request_id}"
+        execution = self.execute_operation_sync(
+            owner="security_operations_lifecycle",
+            operation="observability",
+            requested_ids=[
+                "KA-091",
+                "KA-092",
+                "KA-094",
+                "KA-095",
+                "KA-098",
+                "KA-099",
+                "KA-100",
+            ],
+            ka_inputs={
+                "KA-091": {
+                    "data": {
+                        "requests_total": total_requests,
+                        "requests_inflight": inflight_requests,
+                        "uptime_seconds": round(uptime_seconds, 6),
+                    },
+                    "viz_type": "bar",
+                    "title": "Application diagnostics",
+                },
+                "KA-092": {
+                    "dashboard_id": "application_diagnostics",
+                    "widgets": [
+                        {
+                            "widget_id": "runtime_status",
+                            "label": "Runtime status",
+                            "value": status,
+                            "status": "measured",
+                        },
+                        {
+                            "widget_id": "requests_total",
+                            "label": "Requests total",
+                            "value": total_requests,
+                            "status": "measured",
+                        },
+                        {
+                            "widget_id": "requests_inflight",
+                            "label": "Requests in flight",
+                            "value": inflight_requests,
+                            "status": "measured",
+                        },
+                    ],
+                },
+                "KA-094": {
+                    "report_name": "application_diagnostics",
+                    "output_format": "json",
+                    "sections": {
+                        name: True
+                        for name in (
+                            "config",
+                            "database",
+                            "external_telemetry",
+                            "logging",
+                            "requests",
+                            "runtime",
+                            "support_bundle",
+                        )
+                        if name in diagnostics
+                    },
+                },
+                "KA-095": {
+                    "event": f"application_diagnostics_status:{status}",
+                    "level": alert_level,
+                    "source": "authenticated_diagnostics",
+                },
+                "KA-098": {
+                    "target": "application_http_runtime",
+                    "samples": profile_samples,
+                },
+                "KA-099": {
+                    "error_context": f"application_diagnostics_status:{status}",
+                    "system_metrics": {
+                        "requests_total": total_requests,
+                        "requests_inflight": inflight_requests,
+                        "uptime_seconds": round(uptime_seconds, 6),
+                    },
+                },
+                "KA-100": {
+                    "load_profile": min(
+                        1.0,
+                        inflight_requests / concurrency_reference,
+                    ),
+                    "current_worker_limit": concurrency_reference,
+                },
+            },
+            request_id=request_id,
+            run_id=run_id,
+            max_effects=0,
+            session_id=request_id,
+            principal_id=principal_id,
+            tier="authenticated_local_diagnostics",
+            layer="operations",
+            required=True,
+        )
+        self.observability_decision(execution)
+        return execution
+
+    @classmethod
+    def observability_decision(cls, execution: Any) -> dict[str, Any]:
+        """Validate and expose the content-free observability advisory result."""
+        required_ids = {
+            "KA-091",
+            "KA-092",
+            "KA-094",
+            "KA-095",
+            "KA-098",
+            "KA-099",
+            "KA-100",
+        }
+        outputs = cls.execution_outputs(execution)
+        missing = sorted(required_ids - set(outputs))
+        if missing:
+            raise ExtendedSubsystemError(
+                "Observability analysis omitted required KAs: " + ",".join(missing)
+            )
+        if outputs["KA-091"].get("rendered") is not False:
+            raise ExtendedSubsystemError("Visualization must remain renderer-neutral")
+        if outputs["KA-092"].get("rendered") is not False:
+            raise ExtendedSubsystemError("Dashboard must remain renderer-neutral")
+        if outputs["KA-094"].get("artifact_created") is not False:
+            raise ExtendedSubsystemError("Reporting KA cannot claim an artifact")
+        if outputs["KA-095"].get("alert_triggered") is not False:
+            raise ExtendedSubsystemError("Alerting KA cannot claim delivery")
+        if outputs["KA-099"].get("remote_port_active") is not False:
+            raise ExtendedSubsystemError("Debugging KA cannot open a remote port")
+        if outputs["KA-100"].get("optimization_applied") is not False:
+            raise ExtendedSubsystemError("Optimization KA cannot mutate the runtime")
+        return {
+            "schema_version": "dle.observability-advisory.v1",
+            "status": "analyzed",
+            "lifecycle": cls.lifecycle_evidence(execution),
+            "outputs": outputs,
+            "effects_applied": 0,
+            "content_policy": "measured_content_free_diagnostics_only",
+        }
+
     def admit_mcp_tool(
         self,
         *,

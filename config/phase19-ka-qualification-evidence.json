@@ -79,6 +79,20 @@
         "KA-1072"
       ],
       "scope": "Pre-call context-budget governance and post-call measured monitoring at the canonical provider boundary"
+    },
+    {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "completed_on": "2026-08-02",
+      "canonical_ids": [
+        "KA-091",
+        "KA-092",
+        "KA-094",
+        "KA-095",
+        "KA-098",
+        "KA-099",
+        "KA-100"
+      ],
+      "scope": "Authenticated content-free diagnostics visualization, dashboard, report planning, alerting, profiling, debugging, and optimization recommendations"
     }
   ],
   "qualifications": {
@@ -544,6 +558,125 @@
         "rationale": "KA-1072 selects context without calling a provider; ProviderGatewayService owns the external call and binds its effect receipt to the unchanged pre-call KA plan."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1072_semantic_contract"
+    },
+    "KA-091": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_091_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_091_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_091_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_091_owning_path",
+        "rationale": "The authenticated diagnostics owner supplies only aggregate content-free request measurements and KA-091 returns a renderer-neutral specification without creating an asset."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-091 produces a chart specification only and the manifest declares no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_091_semantic_contract"
+    },
+    "KA-092": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_092_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_092_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_092_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_092_owning_path",
+        "rationale": "The dashboard blueprint consumes declared aggregate widgets and does not include user content, render a UI, persist state, or start a data stream."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-092 composes a renderer-neutral blueprint and performs no UI, persistence, or streaming effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_092_semantic_contract"
+    },
+    "KA-094": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_094_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_094_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_094_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_094_owning_path",
+        "rationale": "The authenticated diagnostics owner passes only allowlisted section names; no diagnostic values, user content, recipient, or external destination enters the report plan."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-094 explicitly reports that no artifact was created and no distribution occurred; a future reporting service would own those effects."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_094_semantic_contract"
+    },
+    "KA-095": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_095_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_095_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_095_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_095_owning_path",
+        "rationale": "The owner supplies a bounded status code rather than exception or user content, and the healthy-path decision proposes and delivers no alert."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-095 may recommend an alert but alert_triggered remains false and no delivery receipt exists; the owning alert service is not invoked in this read-only diagnostics path."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_095_semantic_contract"
+    },
+    "KA-098": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_098_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_098_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_098_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_098_owning_path",
+        "rationale": "KA-098 receives only already-measured route aggregates, creates no profile dump, and never attaches a hidden profiler."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-098 computes deterministic aggregates from caller-supplied measurements and performs no collection or persistence effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_098_semantic_contract"
+    },
+    "KA-099": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_099_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_099_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_099_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_099_semantic_contract",
+        "rationale": "The semantic and owner proofs cover sensitive-key redaction, caller-supplied aggregate metrics, no live-frame inspection, no traceback capture, and no remote debug port."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-099 normalizes an in-memory diagnostic snapshot and performs no capture, port, persistence, or external telemetry effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_099_semantic_contract"
+    },
+    "KA-100": {
+      "batch_id": "cp19-k-batch-08-operations-observability",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_100_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_100_owning_path",
+      "trace_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_100_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_100_owning_path",
+        "rationale": "The authenticated owner derives bounded load only from in-flight request counts and a declared local concurrency reference; it exposes no request content or host process data."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-100 returns a capacity recommendation only and explicitly applies no JIT, garbage collection, thread-pool, memory, or runtime mutation."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_100_semantic_contract"
     }
   }
 }

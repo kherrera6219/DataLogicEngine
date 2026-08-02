@@ -196,8 +196,8 @@ selector, private execution path, or competing refinement workflow.
 
 The following CP18-C batch notes are retained historical source-completion
 evidence, not proof of current application integration. Batch 01 qualified 11
-existing implementations by replacing
-unrecorded-random/mock outputs with bounded deterministic behavior or honest
+existing implementations by replacing unrecorded-random/mock outputs with
+bounded deterministic behavior or honest
 effect proposals. Its full KA regression is 469 passed. Continue in semantic
 batches, retain one individually named test per KA, and never convert a proposed
 effect into an applied-effect claim without the authoritative service receipt.
@@ -264,6 +264,32 @@ frontend, Electron/browser, security, documentation, and packaging-smoke gates.
 Phase evidence belongs under
 `reports/production-readiness/2026/phase-19/`; retained Phase 18 identity and
 source evidence remains under its historical phase directory.
+
+## Candidate training-dataset export tooling
+
+`backend/dataset_exporter/` converts caller-supplied or persisted, explicitly
+released traces into candidate SFT or status-labelled PRM records. It is an
+owner-operated export tool, not a background training pipeline. Redaction is
+mandatory. The database/API does not expose DPO because current trace storage
+does not persist a governed rejected candidate.
+
+The CLI accepts JSONL trace dictionaries rather than generating sample evidence:
+
+```powershell
+python -m backend.dataset_exporter.cli --input-jsonl .\datasets\released-traces.jsonl --type sft --format jsonl --out .\datasets\sft-export.jsonl
+```
+
+Run the focused verification with:
+
+```powershell
+python -m pytest tests/backend/test_dataset_exporter.py -q
+cd frontend
+npx vitest run components/settings/DatasetExporterSettings.test.tsx
+npx eslint components/settings/DatasetExporterSettings.tsx components/settings/DatasetExporterSettings.test.tsx
+```
+
+Do not reinterpret PRM stage-status labels as externally validated rewards or
+enable DPO without durable chosen/rejected provenance.
 
 ## Local run modes
 

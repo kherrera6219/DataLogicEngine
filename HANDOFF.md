@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-02 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.54.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.56.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -240,12 +240,13 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 07 are complete for `KA-001`, `KA-004`, `KA-005`,
+CP19-K batches 01 through 08 are complete for `KA-001`, `KA-004`, `KA-005`,
 `KA-010`, `KA-022`, `KA-024`,
 `KA-032`, `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-084`, `KA-096`, `KA-097`,
 `KA-106`, `KA-113`, `KA-1080`, `KA-1081`, `KA-1091`, `KA-136`, `KA-137`,
-`KA-175`, `KA-177`, `KA-179`, `KA-182`, `KA-184`, and `KA-1072`. The generated
-213-row matrix and verifier report 27 qualified and 186 incomplete, with rebuild
+`KA-175`, `KA-177`, `KA-179`, `KA-182`, `KA-184`, `KA-1072`, `KA-091`,
+`KA-092`, `KA-094`, `KA-095`, `KA-098`, `KA-099`, and `KA-100`. The generated
+213-row matrix and verifier report 34 qualified and 179 incomplete, with rebuild
 authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -286,16 +287,38 @@ and no longer overwrites the applied provider receipt's plan identity. The
 remaining 11 provider/gateway rows stay open without equivalent owner/effect
 proof.
 
+The reviewed CP19-K completion roadmap assigns the 186-row Batch 07 baseline
+backlog exactly once across 36 dependency-safe batches (08-43), each containing
+two through eight KAs with one production owner and effect boundary. The 28
+security/operations rows are intentionally split into observability, delivery/
+messaging, health/recovery, cryptography/vulnerability, and topology/evolution
+batches. Batch 08 closes the seven-row observability group through the real
+authenticated diagnostics path. `KA-092`, `KA-094`, and `KA-100` no longer
+claim unperformed dashboard persistence, report generation/distribution, JIT,
+thread-pool, garbage-collection, or reclaimed-memory effects. All seven outputs
+remain content-free specifications or recommendations, and the owner records
+zero applied effects. Batch 09 (`KA-071` through `KA-078`) is next.
+
 The same pass remediated all 31 dependency alerts visible before publication.
 `pypdf==6.14.2`, `web3==7.15.0`, Next 16.2.12, Electron Builder 26.15.3, and
 the reviewed transitive overrides/lock now resolve patched versions. Local
 Python and Node audits report zero vulnerabilities, lock governance passes, and
 the post-push GitHub rescan reports zero open Dependabot alerts.
-The KA suite passes 798 tests; governed execution, TruthCore, Phase 19, and
-simulation integration pass 183; frontend type checking and all seven
-TypeScript SDK tests pass; the retained 426 frontend tests and production/
-Electron builds remain green; and the full source suite passes 2,619 tests with
+The KA suite passes 807 tests; governed execution, TruthCore, Phase 19, and
+simulation integration pass 191; frontend type checking and all seven
+TypeScript SDK tests pass; the retained 430 frontend tests and production/
+Electron builds remain green; and the full source suite passes 2,658 tests with
 18 skipped and 35 known warnings. Read:
+
+A parallel candidate training-dataset exporter was reviewed before publication
+and hardened into an explicit owner-operated tool. Its API is owner-authenticated,
+writes only below the app-owned runtime dataset directory, enforces redaction,
+requires explicit release evidence, and exposes only SFT and status-derived PRM
+exports from current database records. Library-level DPO conversion requires a
+real stored rejected answer, reason, and source ID; the current database/API does
+not claim DPO readiness. This tooling does not qualify the open model-training
+KAs or any installed/provider acceptance gate. Its focused backend and frontend
+suites pass 22 and 4 tests respectively.
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
 - `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
@@ -953,12 +976,13 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 27/213 by auditing the security/operations lifecycle
-   owner group.
-2. Keep the 11 retained provider/gateway rows open until production owning
-   paths and any required effect receipts exist. Keep simulation `KA-1101` and
-   `KA-1103` open until product-owned chaos and rollback actions exist; direct
-   tests or registry membership do not qualify an owning path.
+1. Continue CP19-K from 34/213 with grouped Batch 09, the secure ingestion
+   pipeline (`KA-071` through `KA-078`), through one admitted production
+   transaction and authoritative write/archive receipts.
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 179 open
+   rows unqualified until each named semantic, owning-path, trace, limitation,
+   security, effect, and performance proof passes; direct tests or registry
+   membership do not qualify an owning path.
 3. Preserve canonical IDs, every distinct capability, one implementation
    owner, one primary subsystem owner, and one governed answer path while
    preparing CP19-L clean-source qualification.

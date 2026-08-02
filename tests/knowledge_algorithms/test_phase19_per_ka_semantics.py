@@ -893,3 +893,152 @@ def test_ka_1072_semantic_contract():
     assert over_budget.output == {}
     assert over_budget.error is not None
     assert over_budget.error.code == "KA_EXECUTION_FAILED"
+
+
+def test_ka_091_semantic_contract():
+    first = _execute(
+        "KA-091",
+        {
+            "data": {"requests_total": 12, "requests_inflight": 1},
+            "viz_type": "bar",
+            "title": "Application diagnostics",
+        },
+    )
+    second = _execute(
+        "KA-091",
+        {
+            "data": {"requests_total": 12, "requests_inflight": 1},
+            "viz_type": "bar",
+            "title": "Application diagnostics",
+        },
+    )
+
+    _assert_pure_bounded_result("KA-091", first)
+    assert first.output == second.output
+    assert first.output["rendered"] is False
+    assert first.output["visualization"]["type"] == "bar"
+
+
+def test_ka_092_semantic_contract():
+    result = _execute(
+        "KA-092",
+        {
+            "dashboard_id": "application_diagnostics",
+            "widgets": [
+                {
+                    "widget_id": "requests_total",
+                    "label": "Requests total",
+                    "value": 12,
+                    "status": "measured",
+                }
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-092", result)
+    assert result.output["rendered"] is False
+    assert result.output["persisted"] is False
+    assert result.output["dashboard_blueprint"]["composition"][0]["value"] == 12
+
+
+def test_ka_094_semantic_contract():
+    result = _execute(
+        "KA-094",
+        {
+            "report_name": "application_diagnostics",
+            "output_format": "json",
+            "sections": {"database": True, "requests": True},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-094", result)
+    assert result.output["report_plan"]["section_names"] == [
+        "database",
+        "requests",
+    ]
+    assert result.output["artifact_created"] is False
+    assert result.output["distributed"] is False
+
+
+def test_ka_095_semantic_contract():
+    recommended = _execute(
+        "KA-095",
+        {
+            "event": "application_diagnostics_status:degraded",
+            "level": "warning",
+            "source": "authenticated_diagnostics",
+        },
+    )
+    informational = _execute(
+        "KA-095",
+        {
+            "event": "application_diagnostics_status:ok",
+            "level": "info",
+            "source": "authenticated_diagnostics",
+        },
+    )
+
+    _assert_pure_bounded_result("KA-095", recommended)
+    _assert_pure_bounded_result("KA-095", informational)
+    assert recommended.output["alert_recommended"] is True
+    assert recommended.output["alert_triggered"] is False
+    assert informational.output["alert_recommended"] is False
+
+
+def test_ka_098_semantic_contract():
+    result = _execute(
+        "KA-098",
+        {
+            "target": "application_http_runtime",
+            "samples": [
+                {"duration_ms": 10, "calls": 2, "hotspot": "GET /health"},
+                {"duration_ms": 30, "calls": 4, "hotspot": "GET /health"},
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-098", result)
+    assert result.output["metrics"]["duration_ms"]["mean"] == 20
+    assert result.output["metrics"]["calls_total"] == 6
+    assert result.output["profile_dump"] is None
+
+
+def test_ka_099_semantic_contract():
+    result = _execute(
+        "KA-099",
+        {
+            "error_context": "application_diagnostics_status:degraded",
+            "system_metrics": {
+                "requests_total": 12,
+                "api_token": "must-not-be-returned",
+            },
+        },
+    )
+
+    _assert_pure_bounded_result("KA-099", result)
+    assert result.output["remote_port_active"] is False
+    assert result.output["snapshot"]["system_metrics"]["api_token"] == "[REDACTED]"
+    assert result.output["snapshot"]["traceback"] is None
+
+
+def test_ka_100_semantic_contract():
+    high_load = _execute(
+        "KA-100",
+        {"load_profile": 0.9, "current_worker_limit": 8},
+    )
+    stable = _execute(
+        "KA-100",
+        {"load_profile": 0.5, "current_worker_limit": 8},
+    )
+
+    _assert_pure_bounded_result("KA-100", high_load)
+    _assert_pure_bounded_result("KA-100", stable)
+    assert high_load.output["recommendation"]["action"] == (
+        "review_capacity_increase"
+    )
+    assert stable.output["recommendation"]["action"] == (
+        "retain_current_capacity"
+    )
+    assert high_load.output["optimization_applied"] is False
+    assert high_load.output["operations_applied"] == []
+    assert high_load.output["measured_resources_reclaimed"] is None

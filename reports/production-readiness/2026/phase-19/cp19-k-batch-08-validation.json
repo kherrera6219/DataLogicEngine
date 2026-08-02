@@ -1,0 +1,92 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-08-operations-observability",
+  "validated_on": "2026-08-02",
+  "qualified_ids": [
+    "KA-091",
+    "KA-092",
+    "KA-094",
+    "KA-095",
+    "KA-098",
+    "KA-099",
+    "KA-100"
+  ],
+  "grouped_roadmap": {
+    "baseline_open_capabilities": 186,
+    "planned_batches": 36,
+    "batch_range": [8, 43],
+    "completed_batches": [8],
+    "next_batch": 9,
+    "remaining_batches": 35
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 34,
+    "incomplete_capabilities": 179,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 136,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_batch_grouping_matrix_and_diagnostics",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_cp19k_grouped_plan.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_security_operations_lifecycle.py tests/unit/test_runtime_http_contract.py tests/test_health_endpoint.py",
+      "status": "pass",
+      "result": "73 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "807 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "191 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2636 passed, 18 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "34/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority_and_selector_dag",
+      "command": "python scripts/verify_ka_runtime_authority.py && python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "runtime authority and selector/DAG verification passed"
+    },
+    {
+      "name": "documentation_references_and_truth",
+      "command": "python scripts/verify_docs_references.py; clean staged projection: python scripts/verify_documentation_truth.py",
+      "status": "pass",
+      "result": "41 active working-tree Markdown files had 0 reference errors and 0 warnings; the clean staged checkpoint passed documentation truth 10/10"
+    },
+    {
+      "name": "ruff",
+      "command": "python -m ruff check app.py backend/governed_execution/extended_subsystems.py backend/knowledge_algorithms/ka_92_dashboarding.py backend/knowledge_algorithms/ka_94_reporting.py backend/knowledge_algorithms/ka_100_optimization.py scripts/generate_documentation_portal.py tests/integration/phase19/test_security_operations_lifecycle.py tests/knowledge_algorithms/test_phase19_cp19k_grouped_plan.py tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
+      "status": "pass",
+      "result": "all checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 179 per-KA rows remain open across 35 planned batches.",
+    "The observability outputs are authenticated content-free specifications and recommendations; no dashboard, report, alert, profile dump, debug port, or runtime optimization effect is applied.",
+    "The grouped roadmap shares owner fixtures and transactions but does not waive individual semantic, selector, trace, limitation, security, effect, or performance evidence.",
+    "Documentation truth was executed against a clean staged projection so unrelated untracked dataset-exporter work in the shared workspace was preserved and excluded from this checkpoint.",
+    "No installed observability, accessibility, notification, support, recovery, load, or soak acceptance is claimed.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

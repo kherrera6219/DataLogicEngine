@@ -179,6 +179,21 @@ High/critical or effect-oriented work requires an expiring confirmation digest
 bound to the exact plan and request fingerprint. The retained one-shot route
 uses the same selector/executor and rejects work that requires confirmation.
 
+## Training dataset exporter endpoints
+
+The owner-only dataset surface is not available to external gateway keys:
+
+- `GET /api/v1/dataset/stats` returns content-free counts, supported formats,
+  redaction enforcement, and PyArrow availability.
+- `POST /api/v1/dataset/export` accepts `export_type` (`sft` or `prm`),
+  `format_type` (`parquet` or `jsonl`), a finite confidence threshold from
+  zero through one, and a limit from 1 through 10,000. The server generates
+  the filename and confines output below the app-owned runtime dataset root;
+  caller-supplied paths and DPO requests are rejected.
+
+The response returns an artifact name, never the server's absolute path. All
+records pass mandatory redaction and explicit release screening.
+
 ## MCP integration contract
 
 The supported protocol candidate is MCP `2025-11-25` over local stdio. One exact
