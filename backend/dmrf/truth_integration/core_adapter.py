@@ -206,6 +206,17 @@ class TruthCoreDMRFAdapter:
                 "status": report.status.value,
                 "duration_ms": report.duration_ms,
                 "required_failure": report.required_failure,
+                "traces": {
+                    canonical_id: {
+                        "parent_ids": list(trace.parent_ids),
+                        "events": [
+                            event.model_dump(mode="json", exclude_none=True)
+                            for event in trace.events
+                        ],
+                    }
+                    for canonical_id, trace in sorted(report.traces.items())
+                    if canonical_id in plan.selected_ids
+                },
             },
             "failure": (
                 None

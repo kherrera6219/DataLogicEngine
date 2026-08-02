@@ -1,0 +1,99 @@
+"""Integrity checks for the generated, partial CP19-K qualification matrix."""
+
+from __future__ import annotations
+
+from scripts.build_ka_qualification_matrix import (
+    DEFAULT_CSV_PATH,
+    DEFAULT_JSON_PATH,
+    DEFAULT_MARKDOWN_PATH,
+    build_matrix,
+    csv_text,
+    json_text,
+    markdown_text,
+)
+from scripts.verify_phase19_cp19k_qualification import verify
+
+QUALIFIED_BATCH_01 = {"KA-001", "KA-004", "KA-061"}
+
+
+def test_cp19k_generated_matrix_is_current_complete_and_truthful():
+    matrix = build_matrix()
+
+    assert matrix["status"] == "cp19_k_in_progress"
+    assert matrix["invariants"] == {
+        "canonical_capabilities": 213,
+        "qualified_capabilities": 3,
+        "incomplete_capabilities": 210,
+        "reviewed_capabilities": 3,
+        "runtime_registries_added": 0,
+        "findings_waived": False,
+        "rebuild_authorized": False,
+    }
+    assert matrix["evidence_counts"]["positive_selector"] == 213
+    assert matrix["evidence_counts"]["negative_selector"] == 213
+    assert DEFAULT_JSON_PATH.read_text(encoding="utf-8") == json_text(matrix)
+    assert DEFAULT_CSV_PATH.read_text(encoding="utf-8") == csv_text(matrix)
+    assert DEFAULT_MARKDOWN_PATH.read_text(encoding="utf-8") == markdown_text(
+        matrix
+    )
+
+
+def test_cp19k_batch_01_has_every_required_evidence_class():
+    rows = {
+        row["canonical_id"]: row
+        for row in build_matrix()["canonical_capabilities"]
+    }
+
+    assert {
+        canonical_id
+        for canonical_id, row in rows.items()
+        if row["qualification_status"] == "qualified"
+    } == QUALIFIED_BATCH_01
+    for canonical_id in QUALIFIED_BATCH_01:
+        row = rows[canonical_id]
+        assert row["missing_evidence"] == []
+        assert all(
+            evidence["status"] == "qualified"
+            for evidence in row["evidence"].values()
+        )
+        assert row["evidence"]["trace_proof"]["required_states"] == [
+            "planned",
+            "candidate",
+            "selected",
+            "admitted",
+            "executing",
+            "executed",
+        ]
+        assert row["limitation"]
+        assert row["performance_budget_ms"] > 0
+
+
+def test_cp19k_does_not_overstate_unreviewed_ka_113():
+    row = next(
+        row
+        for row in build_matrix()["canonical_capabilities"]
+        if row["canonical_id"] == "KA-113"
+    )
+
+    assert row["production_enabled"] is True
+    assert row["qualification_status"] == "incomplete"
+    assert {
+        "semantic_test",
+        "owning_path_test",
+        "limitation_review",
+        "trace_proof",
+        "security_review",
+        "effect_review",
+        "performance_evidence",
+    }.issubset(row["missing_evidence"])
+
+
+def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
+    evidence = verify()
+
+    assert evidence["integrity_status"] == "pass"
+    assert evidence["checkpoint_status"] == "in_progress"
+    assert evidence["qualified_capabilities"] == 3
+    assert evidence["incomplete_capabilities"] == 210
+    assert evidence["rebuild_authorized"] is False
+    assert evidence["errors"] == []

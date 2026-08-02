@@ -1,0 +1,70 @@
+{
+  "schema_version": "dle.cp19-k-qualification-evidence.v1",
+  "authority_version": "2026.07.25-cp19a.1",
+  "manifest_version": "2026.07.25-cp19j.1",
+  "status": "cp19_k_in_progress",
+  "batches": [
+    {
+      "batch_id": "cp19-k-batch-01-governed-l1",
+      "completed_on": "2026-08-01",
+      "canonical_ids": [
+        "KA-001",
+        "KA-004",
+        "KA-061"
+      ],
+      "scope": "Canonical governed L1 normalization, adversarial blocking, and candidate decomposition"
+    }
+  ],
+  "qualifications": {
+    "KA-001": {
+      "batch_id": "cp19-k-batch-01-governed-l1",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_001_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_001_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_001_owning_path",
+      "security_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "Pure deterministic decomposition has no provider, connector, persistence, authorization, or effect boundary."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest classifies KA-001 as pure or advisory and declares no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_001_semantic_contract"
+    },
+    "KA-004": {
+      "batch_id": "cp19-k-batch-01-governed-l1",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_004_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_004_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_004_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_004_semantic_contract",
+        "rationale": "The semantic proof covers deterministic normalization plus rejection of a declared malicious input pattern."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest classifies KA-004 as pure or advisory and declares no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_004_semantic_contract"
+    },
+    "KA-061": {
+      "batch_id": "cp19-k-batch-01-governed-l1",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_061_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_061_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_061_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_061_semantic_contract",
+        "rationale": "The semantic and owning-path proofs show a declared adversarial pattern causes a fail-closed L1 veto."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "The manifest classifies KA-061 as pure or advisory and declares no authoritative effect port."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_061_semantic_contract"
+    }
+  }
+}

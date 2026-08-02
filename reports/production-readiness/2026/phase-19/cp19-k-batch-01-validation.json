@@ -1,0 +1,79 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-01-governed-l1",
+  "validated_on": "2026-08-01",
+  "qualified_ids": [
+    "KA-001",
+    "KA-004",
+    "KA-061"
+  ],
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 3,
+    "incomplete_capabilities": 210,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_cp19k_and_affected_contracts",
+      "command": "python -m pytest -q tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/integration/phase19/test_truthcore_l1_l5.py tests/integration/phase19/test_governed_request_dmrf.py tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/truth_engine/test_truthcore_preflight_contract.py tests/governed_execution/test_single_path.py",
+      "status": "pass",
+      "result": "21 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "774 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19",
+      "status": "pass",
+      "result": "142 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2567 passed, 19 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "3/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "focused_ruff",
+      "command": "python -m ruff check backend/dmrf/truth_integration/core_adapter.py backend/knowledge_algorithms/ka_61_adversarial_input_shield.py scripts/build_ka_qualification_matrix.py scripts/verify_phase19_cp19k_qualification.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/knowledge_algorithms/test_phase19_cp19k_qualification.py tests/integration/phase19/test_truthcore_l1_l5.py tests/integration/phase19/test_governed_request_dmrf.py",
+      "status": "pass",
+      "result": "all checks passed"
+    },
+    {
+      "name": "documentation_authority",
+      "command": "python scripts/verify_doc_authority.py",
+      "status": "pass",
+      "result": "30/30 canonical headers; 0 errors"
+    },
+    {
+      "name": "documentation_bom",
+      "command": "python scripts/verify_documentation_bom.py",
+      "status": "pass",
+      "result": "30/30 canonical; 154 inventory rows; 0 errors"
+    },
+    {
+      "name": "documentation_references",
+      "command": "python scripts/verify_docs_references.py",
+      "status": "pass",
+      "result": "40 active Markdown files; 0 errors; 0 warnings"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 210 per-KA rows remain open.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

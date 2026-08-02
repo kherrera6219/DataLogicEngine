@@ -1,0 +1,28 @@
+{
+  "schema_version": "dle.cp19-k-qualification-verification.v1",
+  "integrity_status": "pass",
+  "checkpoint_status": "in_progress",
+  "matrix_version": "2026.08.01-cp19k.1",
+  "canonical_capabilities": 213,
+  "qualified_capabilities": 3,
+  "incomplete_capabilities": 210,
+  "qualified_ids": [
+    "KA-001",
+    "KA-004",
+    "KA-061"
+  ],
+  "evidence_counts": {
+    "semantic_test": 3,
+    "positive_selector": 213,
+    "negative_selector": 213,
+    "owning_path_test": 3,
+    "limitation_review": 3,
+    "trace_proof": 3,
+    "security_review": 3,
+    "effect_review": 3,
+    "performance_evidence": 3
+  },
+  "require_complete": false,
+  "rebuild_authorized": false,
+  "errors": []
+}

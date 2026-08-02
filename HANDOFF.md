@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-01 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.47.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.48.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -238,7 +238,18 @@ pass; the source suite has 19 skipped and 35 known warnings.
 
 CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
-remain unauthorized. Read:
+remain unauthorized.
+
+CP19-K batch 01 is complete for `KA-001`, `KA-004`, and `KA-061`. The generated
+213-row matrix and verifier report 3 qualified and 210 incomplete, with rebuild
+authorization false. Individually named semantic, selector, owning-path,
+limitation, causal trace, security/effect applicability, and performance proof
+now close those three rows. The real-path tests also fixed KA-061's declared
+KA-004 dependency consumption so a safe shield result no longer restores the
+raw pre-normalized query. The KA suite passes 774 tests with three known
+deprecation warnings; governed execution, TruthCore, and Phase 19 integration
+pass 142 tests. The full source suite passes 2,567 tests with 19 skipped and 35
+known warnings. Read:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
 - `reports/production-readiness/2026/phase-19/cp19-b-contract-parity-verification.json`;
@@ -266,7 +277,12 @@ remain unauthorized. Read:
 - `reports/production-readiness/2026/phase-19/cp19-i-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-j-product-workflow.md`;
 - `reports/production-readiness/2026/phase-19/cp19-j-verification.json`; and
-- `reports/production-readiness/2026/phase-19/cp19-j-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-j-validation.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-matrix.md`;
+- `reports/production-readiness/2026/phase-19/cp19-k-qualification-verification.json`;
+  and
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-01-validation.json`.
 
 ## Approved product boundary
 
@@ -883,7 +899,10 @@ replacement. See
 
 ## Exact next action
 
-1. Complete CP19-K by closing all 213 generated proof rows with one
+1. Continue CP19-K from 3/213 by resolving `KA-113`'s retained private
+   TruthCore-preflight reachability against its declared
+   `governed_request_dmrf` owner and production admission, then close the next
+   owner-coherent generated proof rows with one
    individually named semantic test, positive/negative selector proof, real
    owning-path assertion, explicit limitation, causal trace proof, and
    applicable security/effect/performance evidence.

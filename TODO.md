@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-01 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.47.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.48.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -148,6 +148,19 @@ Phase 18 source baseline while completing the whole-application wiring.
       individually named semantic test, positive/negative selector fixtures,
       real owning-path assertion, limitation, trace proof, and applicable
       security/effect/performance evidence for every KA.
+      - Batch 01 passed 2026-08-01: `KA-001`, `KA-004`, and `KA-061` now close
+        all required evidence classes through the real governed L1 path. The
+        batch fixed KA-061 dependency consumption so its safe result cannot
+        overwrite KA-004 normalization, and added real per-node trace events to
+        the governed TruthCore adapter.
+      - The generated matrix and integrity verifier pass at 3/213 qualified and
+        210 incomplete; rebuild authorization remains false. The 774-test KA
+        suite passes with three known deprecation warnings, and 142 governed/
+        TruthCore/Phase-19 integration tests pass. The full source result is
+        2,567 passed, 19 skipped, and 35 known warnings.
+      - Next: resolve `KA-113`'s retained private-preflight reachability against
+        its declared `governed_request_dmrf` owner and production admission,
+        then continue the next owner-coherent qualification rows.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -875,7 +888,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed by 2026-08-01, CP19-K per-KA proof active, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batch 01 qualifies 3/213 rows, 210 remain open, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases

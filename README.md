@@ -93,8 +93,12 @@ administration, audit, observability, and validation application.
 > result, trace, artifact, and effect review. Forty-one focused workflow, six
 > Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
 > pass; the source result has 19 skipped and 35 known warnings.
-> CP19-K is active for the complete 213-row semantic/selector/call-path/trace
-> proof. CP19-L
+> CP19-K batch 01 now qualifies `KA-001`, `KA-004`, and `KA-061` through named
+> semantic, selector, real governed-L1 call-path, limitation, causal trace,
+> security/effect applicability, and performance evidence. The generated matrix
+> reports 3/213 qualified and 210 open; the 774-test KA suite and 142 governed/
+> TruthCore/Phase-19 integration tests pass. The full source result is 2,567
+> passed, 19 skipped, and 35 known warnings. CP19-L
 > is the source gate that may authorize a rebuild; CP19-M retains exact
 > rebuilt-installed acceptance.
 > Phase 15 freezes clean
@@ -206,7 +210,8 @@ Current production-completion focus:
   through the canonical controller
 - Active Phase 19 CP19-K: one named semantic test, positive/negative selector
   proof, real owning call path, limitation, causal trace assertion, and
-  applicable security/effect/performance evidence for every canonical KA
+  applicable security/effect/performance evidence for every canonical KA;
+  batch 01 qualifies `KA-001`, `KA-004`, and `KA-061` (3/213)
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
