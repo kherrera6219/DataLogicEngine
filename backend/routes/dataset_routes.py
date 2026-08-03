@@ -87,8 +87,8 @@ def export_dataset_endpoint():
 
         return jsonify(result), 200
 
-    except (TypeError, ValueError) as exc:
-        return jsonify({"status": "error", "error": "invalid_parameter", "message": str(exc)}), 400
+    except (TypeError, ValueError):
+        return jsonify({"status": "error", "error": "invalid_parameter", "message": "Invalid export parameters."}), 400
     except Exception:
         logger.exception("Dataset export API endpoint failed")
         return jsonify({"status": "error", "error": "export_failed", "message": "Dataset export failed."}), 500
@@ -159,12 +159,20 @@ def create_training_admission_endpoint():
             principal_id=_principal_id(),
         )
         return jsonify(admission), 201
-    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+    except ProviderModelLifecycleError as exc:
         return jsonify(
             {
                 "status": "error",
                 "error": "training_admission_rejected",
                 "message": str(exc),
+            }
+        ), 400
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "status": "error",
+                "error": "training_admission_rejected",
+                "message": "Invalid request parameter or payload format.",
             }
         ), 400
     except Exception:
@@ -201,12 +209,20 @@ def evaluate_model_endpoint():
             principal_id=_principal_id(),
         )
         return jsonify(evaluation), 200
-    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+    except ProviderModelLifecycleError as exc:
         return jsonify(
             {
                 "status": "error",
                 "error": "evaluation_rejected",
                 "message": str(exc),
+            }
+        ), 400
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "status": "error",
+                "error": "evaluation_rejected",
+                "message": "Invalid request parameter or payload format.",
             }
         ), 400
     except Exception:
@@ -271,12 +287,20 @@ def create_release_preparation_endpoint():
             principal_id=_principal_id(),
         )
         return jsonify(preparation), 201
-    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+    except ProviderModelLifecycleError as exc:
         return jsonify(
             {
                 "status": "error",
                 "error": "release_preparation_rejected",
                 "message": str(exc),
+            }
+        ), 400
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "status": "error",
+                "error": "release_preparation_rejected",
+                "message": "Invalid request parameter or payload format.",
             }
         ), 400
     except Exception:

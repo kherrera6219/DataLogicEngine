@@ -493,13 +493,14 @@ class ProviderModelLifecycleService:
     ) -> DatasetArtifactProfile:
         artifact_name = str(artifact_name or "").strip()
         export_type = str(export_type or "").strip().lower()
-        if not artifact_name or Path(artifact_name).name != artifact_name:
+        clean_name = os.path.basename(artifact_name)
+        if not artifact_name or clean_name != artifact_name or not clean_name:
             raise ProviderModelLifecycleError(
                 "Dataset artifact must be an app-owned file name"
             )
         if export_type not in {"sft", "dpo", "prm"}:
             raise ProviderModelLifecycleError("Unsupported dataset export type")
-        path = (self.dataset_root / artifact_name).resolve()
+        path = (self.dataset_root / clean_name).resolve()
         try:
             path.relative_to(self.dataset_root)
         except ValueError as exc:
@@ -553,11 +554,12 @@ class ProviderModelLifecycleService:
         artifact_name: str,
     ) -> ModelArtifactProfile:
         artifact_name = str(artifact_name or "").strip()
-        if not artifact_name or Path(artifact_name).name != artifact_name:
+        clean_name = os.path.basename(artifact_name)
+        if not artifact_name or clean_name != artifact_name or not clean_name:
             raise ProviderModelLifecycleError(
                 "Model artifact must be an app-owned file name"
             )
-        path = (self.model_root / artifact_name).resolve()
+        path = (self.model_root / clean_name).resolve()
         try:
             path.relative_to(self.model_root)
         except ValueError as exc:

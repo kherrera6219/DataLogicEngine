@@ -486,7 +486,8 @@ def handle_csrf_error(e):
     if request.is_json or request.headers.get('Content-Type', '').startswith('application/json'):
         return jsonify({'error': 'CSRF token missing or invalid', 'success': False}), 400
     flash('Security token expired. Please try again.', 'danger')
-    return redirect(request.url)
+    return redirect(request.path or "/")
+
 
 # Initialize Unified Middleware Stack (Hardened)
 # Import models (after extensions initialization)
