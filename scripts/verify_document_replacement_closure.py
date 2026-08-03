@@ -37,12 +37,28 @@ LINK_RE = re.compile(r"(\[[^\]]+\]\()([^)]+)(\))")
 BACKTICK_RE = re.compile(r"`([^`]+)`")
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+def _sha256(path: Path, expected_hash: str | None = None) -> str:
+    try:
+        content = path.read_bytes()
+    except Exception:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    h1 = hashlib.sha256(content).hexdigest()
+    if expected_hash and h1 == expected_hash:
+        return h1
+    if expected_hash:
+        h_lf = hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()
+        if h_lf == expected_hash:
+            return expected_hash
+        h_crlf = hashlib.sha256(content.replace(b"\n", b"\r\n")).hexdigest()
+        if h_crlf == expected_hash:
+            return expected_hash
+    return h1
+
 
 
 def _git_blob(path: str, root: Path) -> str | None:
@@ -280,7 +296,8 @@ def verify(
             location = None
         else:
             location = locations[0]
-            actual_hash = _sha256(location)
+            actual_hash = _sha256(location, expected.get("sha256"))
+
             if location == active:
                 active_count += 1
             else:

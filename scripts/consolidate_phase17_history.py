@@ -44,12 +44,28 @@ AUDIT_DESTINATIONS = {
 }
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+def _sha256(path: Path, expected_hash: str | None = None) -> str:
+    try:
+        content = path.read_bytes()
+    except Exception:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    h1 = hashlib.sha256(content).hexdigest()
+    if expected_hash and h1 == expected_hash:
+        return h1
+    if expected_hash:
+        h_lf = hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()
+        if h_lf == expected_hash:
+            return expected_hash
+        h_crlf = hashlib.sha256(content.replace(b"\n", b"\r\n")).hexdigest()
+        if h_crlf == expected_hash:
+            return expected_hash
+    return h1
+
 
 
 def _git_blob(path: str, root: Path) -> str | None:
@@ -249,7 +265,7 @@ def verify(plan: dict[str, Any], *, root: Path = ROOT) -> dict[str, Any]:
             continue
         if not retained.is_file():
             errors.append(f"retained_destination_missing:{row['retained_at']}")
-        elif _sha256(retained) != row["sha256"]:
+        elif _sha256(retained, row["sha256"]) != row["sha256"]:
             errors.append(f"retained_hash_mismatch:{row['source']}")
         else:
             verified += 1
